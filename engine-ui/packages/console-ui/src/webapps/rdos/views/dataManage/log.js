@@ -1,9 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import SplitPane from 'react-split-pane';
 import {
-    Input, Button, message, Modal, Table, Pagination,
-    Form, DatePicker, Select, Icon, Card, Tabs, Spin
+    Input, Button, Table, Pagination,
+    Form, DatePicker, Select, Icon, Card, Spin
 } from 'antd';
 import { isEmpty } from 'lodash';
 import moment from 'moment';
@@ -18,7 +17,6 @@ const Search = Input.Search;
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
 const Option = Select.Option;
-const TabPane = Tabs.TabPane;
 
 class LogSearchForm extends React.Component {
     render () {
@@ -214,7 +212,7 @@ class Log extends React.Component {
     }
 
     searchTable (args) {
-        let { isDeleted, tableName, loading, tableList } = this.state
+        let { isDeleted, tableName, tableList } = this.state
         tableList = [];
         this.setState({ loading: true, tableList })
         const params = Object.assign({
@@ -309,7 +307,7 @@ class Log extends React.Component {
         }];
         const { tableList, tableLog, visibleSlidePane, isDeleted, loading } = this.state;
 
-        const { data, currentPage, pageSize, totalPage, totalCount } = tableList;
+        const { data, currentPage, totalCount } = tableList;
         const { projectUsers } = this.props;
 
         const title = (

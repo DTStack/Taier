@@ -1,16 +1,14 @@
 import React, { Component } from 'react'
-import { isArray, isNumber, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import {
-    Form, Input, Icon, Select,
-    Radio, Modal
+    Form, Input, Select,
+    Modal
 } from 'antd'
 
 import Api from '../../../api/dataModel'
 import { formItemLayout } from '../../../comm/const'
-import LifeCycle from '../../dataManage/lifeCycle'
 
 const FormItem = Form.Item
-const RadioGroup = Radio.Group
 const Option = Select.Option;
 
 class AtomIndexDefineModal extends Component {
@@ -65,7 +63,7 @@ class AtomIndexDefineModal extends Component {
 
     cancle = () => {
         const { handCancel, form } = this.props
-        this.setState({ }, () => {
+        this.setState({}, () => {
             handCancel()
             form.resetFields()
         })
@@ -150,7 +148,7 @@ class AtomIndexDefineModal extends Component {
                         })(
                             <Select>
                                 {
-                                    types.map((v, index) => <Option value={index + 1}>{v}</Option>)
+                                    types.map((v, index) => <Option key={index + 1} value={index + 1}>{v}</Option>)
                                 }
                             </Select>
                         )}
@@ -165,7 +163,7 @@ class AtomIndexDefineModal extends Component {
                         })(
                             <Select>
                                 {
-                                    columnTypes.map(v => <Option value={v}>{v}</Option>)
+                                    columnTypes.map(v => <Option key={v} value={v}>{v}</Option>)
                                 }
                             </Select>
                         )}

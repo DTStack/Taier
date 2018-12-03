@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { message } from 'antd';
 import Api from '../../../api/dataModel';
 
-class BasePane extends Component {
+class BasePane extends React.Component {
     state ={
         table: { data: [] },
 

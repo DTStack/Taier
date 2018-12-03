@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Icon
+    Select, Form, Card,
+    Button, message
 } from 'antd';
-
-import utils from 'utils';
 
 import {
     formItemLayout,
@@ -38,7 +36,8 @@ class ModelDefineRule extends Component {
         this.loadTbNameRules();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -118,7 +117,6 @@ class ModelDefineRule extends Component {
 
     renderTableNameRules = () => {
         const { tbNameRules } = this.state;
-        const length = tbNameRules.length;
 
         const options = tableModelRules.map((rule, index) => <Option
             key={rule.value}
@@ -150,21 +148,21 @@ class ModelDefineRule extends Component {
         for (let i = 0; i < tbNameRules.length; i++) {
             const rule = tbNameRules[i];
             switch (rule.value) {
-            case TABLE_MODEL_RULE.LEVEL: {
-                names.push('ods'); continue;
-            }
-            case TABLE_MODEL_RULE.SUBJECT: {
-                names.push('sales'); continue;
-            }
-            case TABLE_MODEL_RULE.INCREMENT: {
-                names.push('i'); continue;
-            }
-            case TABLE_MODEL_RULE.FREQUENCY: {
-                names.push('m'); continue;
-            }
-            case TABLE_MODEL_RULE.CUSTOM: {
-                names.push('custom'); continue;
-            }
+                case TABLE_MODEL_RULE.LEVEL: {
+                    names.push('ods'); continue;
+                }
+                case TABLE_MODEL_RULE.SUBJECT: {
+                    names.push('sales'); continue;
+                }
+                case TABLE_MODEL_RULE.INCREMENT: {
+                    names.push('i'); continue;
+                }
+                case TABLE_MODEL_RULE.FREQUENCY: {
+                    names.push('m'); continue;
+                }
+                case TABLE_MODEL_RULE.CUSTOM: {
+                    names.push('custom'); continue;
+                }
             }
         }
         return names.join('_');

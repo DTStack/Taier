@@ -59,7 +59,7 @@ export default class ConstModal extends React.Component {
     render () {
         const { constValue, constName } = this.state
         const { visible } = this.props
-
+        /* eslint-disable */
         return (
             <Modal
                 title="添加常量"
@@ -83,5 +83,6 @@ export default class ConstModal extends React.Component {
                 <p>3.如果您输入的值无法解析，则类型显示为'未识别'；</p>
             </Modal>
         )
+        /* eslint-disable */
     }
 }

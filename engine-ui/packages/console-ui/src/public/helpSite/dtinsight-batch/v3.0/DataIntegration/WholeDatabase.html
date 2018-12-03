@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>整库迁移 | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-batch/v3.0/DataIntegration/WholeDatabase.html">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-batch">
+    <meta name="dcterms.identifier" content="v3.0">
+    <meta name="generator" content="Antora 1.1.1">
+    <link rel="icon" href="../../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="../../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
+                  <!--li><a href="../../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="../Summary.html"><span class="title">离线计算</span> <span class="version">v3.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Summary.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Explain.html">名词解释</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Project/Project.html">项目管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-path is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据集成</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DataSource.html">支持的数据源</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DataSourceManage.html">数据源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="JobConfig.html">同步任务配置</a>
+    </span>
+  </li>
+  <li class="nav-item is-current-page is-active" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="WholeDatabase.html">整库迁移</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="VersionSupport.html">版本支持</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="BestPractice.html">最佳实践</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据开发</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/JobDevelop.html">任务开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/JobTypes.html">任务类型</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ScheduleConfig.html">调度属性配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ScriptDevelop.html">脚本开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ResourceManage.html">资源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/UDFManage.html">函数管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/TableLookup.html">表查询</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ImportLocalData.html">导入本地数据</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">运维中心</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/MaintenanceOverview.html">运维概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/JobMaintenance.html">任务运维</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/Alert.html">告警监控</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Maintenance/DirtyDataManage.html">脏数据管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataOverview.html">全局概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/TableManage.html">表管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/OperationRecord.html">操作记录</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataCategory.html">数据类目</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../QA/QA.html">QA</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Appendix/Appendix.html">附录</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="../Summary.html">离线计算</a></li>
+    <li class="crumb">数据集成</li>
+    <li class="crumb"><a href="WholeDatabase.html">整库迁移</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">整库迁移</h1>
+<div class="sect1">
+<h2 id="Overview"><a class="anchor" href="#Overview"></a>整库迁移概述</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>整库迁移是帮助提升用户效率、降低用户使用成本的一种快捷工具，它可以快速把一个MySQL数据库内所有表一并上传到DTinsightBatch（Hive），节省大量初始化数据上传的批量任务创建时间。</p>
+</div>
+<div class="paragraph">
+<p>假设数据库有100张表，您原本可能需要配置100次数据同步任务，但有了整库上传便可以一次性完成。同时，由于数据库的表设计规范性的问题，此工具并无法保证一定可以一次性完成所有表按照业务需求进行同步的工作，本模块具有一定的约束性，本节将主要从功能性和约束性对整库上传进行介绍。</p>
+</div>
+<div class="sect2">
+<h3 id="CreateJob"><a class="anchor" href="#CreateJob"></a>任务生成规则</h3>
+<div class="paragraph">
+<p>完成配置后，根据选择的需要同步的表，依次创建Hive表，生成数据同步任务。</p>
+</div>
+<div class="paragraph">
+<p>Hive表的表名、字段名和字段类型根据高级配置生成，如果没有填写高级配置，则与MySQL表的结构完全相同。表的分区为pt，格式为yyyymmdd。</p>
+</div>
+<div class="paragraph">
+<p>生成的数据同步任务是按天调度的周期任务，会在第二天凌晨自动运行，传输速率为1M/s，它在细节上会因为同步的方式、并发配置等有所不同，您可以在同步任务目录树的<strong>clone_database&gt;数据源名称&gt;mysql2hive_表名</strong>中找到生成的任务，然后对其进行更加个性化的编辑操作。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="Constraint"><a class="anchor" href="#Constraint"></a>约束限制</h3>
+<div class="paragraph">
+<p>由于数据库的表设计规范性的问题，整库上传具有一定的约束性，具体如下：</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>目前仅提供MySQL数据源的整库上传到Hive</strong></p>
+</li>
+<li>
+<p><strong>仅提供每日增量、每日全量的上传方式</strong></p>
+</li>
+<li>
+<p>如果您需要一次性同步历史数据，则此功能无法满足您的需求，故给出以下建议：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>建议您配置为每日任务，而非一次性同步历史数据。您可以通过调度提供的补数据来对历史数据进行追溯，这样可避免全量同步历史数据后，还需要做临时的SQL任务来拆分数据。</p>
+</li>
+<li>
+<p>如果您需要一次性同步历史数据，可以在任务开发页面进行任务的配置，然后单击<strong>运行</strong>，完成后通过SQL语句进行数据的转换，因为这两个操作均为一次性行为。</p>
+</li>
+<li>
+<p>如果您每日增量上传有特殊业务逻辑，而非一个单纯的日期字段可以标识增量，则此功能无法满足您的需求，为了更方便地增量上传，建议您在创建所有数据库表的时候都有：gmt_create, gmt_modify字段，同时为了效率更高，建议增加id为主键。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>整库上传提供分批和整批上传的方式</strong></p>
+<div class="ulist">
+<ul>
+<li>
+<p>为了保障对数据库的压力负载，整库上传提供了分批上传的方式，您可以按照时间间隔把表拆分为几批运行，避免对数据库的负载过大，影响正常的业务能力。以下有两点建议：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>如果您有主、备库，建议同步任务全部同步备库数据。</p>
+</li>
+<li>
+<p>批量任务中每张表都会有1个数据库连接，上限速度为1M/s。如果您同时运行100张表的同步任务，就会有100个数据库进行连接，建议您根据自己的业务情况谨慎选择并发数。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>如果您对任务传输效率有自己特定的要求，此功能无法实现您的需求。所有生成任务的上限速度均为 1M/s。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><strong>仅提供整体的表名、字段名及字段类型映射</strong></p>
+</li>
+<li>
+<p><strong>整库上传会自动创建Hive表，分区字段为pt，类型为字符串string，格式为yyyymmdd</strong></p>
+</li>
+<li>
+<p><strong>字段类型转换规则</strong>：整库迁移默认采用如下的字段类型转换规则进行转换：</p>
+</li>
+</ul>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="_images/字段类型转换规则.png" alt="字段类型转换规则" width="400">
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+选择表时必须同步所有字段，不能对字段进行编辑。
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="JobConfig"><a class="anchor" href="#JobConfig"></a>配置整库迁移</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>整库迁移是为了提升用户效率、降低用户使用成本的一种快捷工具，它可以快速完成把MySQL数据库内所有表一并上传到DTinsightBatch（Hive）的工作，关于整库迁移的详细介绍请参见<a href="#Overview">整库迁移概述</a>。</p>
+</div>
+<div class="paragraph">
+<p>本文将通过实践操作，为您介绍如何使用整库迁移功能，完成MySQL数据整库迁移到DTinsightBatch（Hive）。</p>
+</div>
+<div class="paragraph">
+<p>操作步骤如下：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>登录到<strong>DTinsightBatch&gt;数据集成</strong>，进入数据源管理页面。</p>
+</li>
+<li>
+<p>单击右上角的新增数据源，添加一个面向整库迁移的MySQL数据源（这里假设为MySQL_Migrate），单击测试连通性验证数据源访问正确无误后，确认并保存此数据源。</p>
+</li>
+<li>
+<p>新增数据源成功后，即可在数据源列表中看到新增的MySQL数据源MySQL_Migrate。单击<strong>整库迁移</strong>，即可进入对应数据源的整库迁移功能界面，整库迁移界面主要分为3块功能区域：</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>待迁移表筛选区，此处将MySQL数据源MySQL_Migrate下的所有数据库表以表格的形式展现出来，您可以根据实际需要批量选择待迁移的数据库表。</p>
+</li>
+<li>
+<p>高级设置，此处提供了MySQL数据表和DTinsightBatch数据表的表名称、列名称、列类型的映射转换规则。</p>
+</li>
+<li>
+<p>迁移模式、并发控制区，此处可以控制整库迁移的模式（全量、增量）、并发度配置（分批上次、整批上传）、提交迁移任务进度状态信息等。</p>
+</li>
+<li>
+<p>单击高级设置按钮，您可以根据您具体需求选择转换规则。比如DTinsightBatch端建表时统一增加了<strong>ods_</strong>这一前缀。</p>
+</li>
+<li>
+<p>在迁移模式、并发控制区中，选择同步方式为每日增量，并配置增量字段为gmt_modified，数据集成默认会根据您选择的增量字段生成具体每个任务的增量抽取where条件，并配合DTinsightBatch调度参数（例如：${bdp.system.bizdate}）形成针对每天的数据抽取条件。</p>
+</li>
+<li>
+<p>数据集成抽取MySQL库表的数据是通过JDBC连接远程MySQL数据库，并执行相应的SQL语句，将数据从MySQL库中select出来。由于是标准的SQL抽取语句，可以配置where子句控制数据范围。
+..为了对源头MySQL数据源进行保护，避免同一时间点启动大量数据同步作业带来数据库压力过大，可选择分批上传模式，并配置从每日0点开始，每1小时启动3个数据库表同步。</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>最后，单击提交任务按钮，这里可以看到迁移进度信息，以及每一个表的迁移任务状态。</p>
+</li>
+<li>
+<p>单击对应的迁移任务，会跳转到数据集成的任务开发界面，在左侧目录树clone_database目录下，会有对应的所有整库迁移任务，任务命名规则是：mysql2hive_源表名。</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>此时便完成了将一个MySQL数据源MySQL_Migrate整库迁移到DTinsight的工作。这些任务会根据配置的调度周期（默认天调度）被调度执行，您也可以使用DTinsight调度补数据功能完成历史数据的传输。通过整库迁移功能可以极大减少您初始化的配置、迁移成本。</p>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

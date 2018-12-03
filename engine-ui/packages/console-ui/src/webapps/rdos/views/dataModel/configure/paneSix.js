@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
 
 import {
-    Table, Row, Col, Select, Form, Card,
-    Input, Button, message, Popconfirm
+    Table, Select, Form, Card,
+    Input, Button, Popconfirm
 } from 'antd';
 
 import utils from 'utils';
@@ -26,7 +26,8 @@ class AtomIndexDefine extends BasePane {
         }, this.loadData)
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {

@@ -1,5 +1,3 @@
-import mc from 'mirror-creator';
-
 import {
     ANALYTICS_ENGINE_BASE_URL
 } from 'config/base';

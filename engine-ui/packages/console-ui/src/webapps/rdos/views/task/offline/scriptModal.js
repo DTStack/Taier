@@ -16,7 +16,6 @@ import FolderPicker from './folderTree';
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 const FormItem = Form.Item;
-const Option = Select.Optioin;
 const RadioGroup = Radio.Group;
 
 class ScriptForm extends React.Component {
@@ -159,6 +158,7 @@ class ScriptForm extends React.Component {
         )
     }
 
+    /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
      * @param {any} rule
@@ -187,6 +187,7 @@ class ScriptForm extends React.Component {
         }
         callback();
     }
+    /* eslint-disable */
 
     /**
      * @description 获取节点名称

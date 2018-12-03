@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Icon } from 'antd'
 
-import { Navigator, Logo } from '../../components/nav';
+import Navigator from '../../components/nav';
 
 @connect(state => {
     return {
@@ -18,7 +17,7 @@ class Header extends Component {
     }
 
     render () {
-        const { user, apps } = this.props;
+        const { apps } = this.props;
         const logo = <span>
             <img
                 alt="logo"

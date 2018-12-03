@@ -34,6 +34,7 @@ class FolderForm extends React.Component {
         return (
             <Form>
                 <FormItem
+                    key="nodeName"
                     label="目录名称"
                     {...formItemLayout}
                     hasFeedback
@@ -55,6 +56,7 @@ class FolderForm extends React.Component {
                     )}
                 </FormItem>
                 <FormItem
+                    key="nodePid"
                     label="选择目录位置"
                     {...formItemLayout}
                 >
@@ -72,11 +74,12 @@ class FolderForm extends React.Component {
                     <FolderPicker
                         type={ this.props.cateType }
                         ispicker
+                        id="Task_CREATE_FOLDER"
                         treeData={ this.props.treeData }
                         onChange={ this.handleSelectTreeChange.bind(this) }
                         defaultNode={ isCreateNormal
                             ? this.props.treeData.name
-                            : this.getFolderName(defaultData.parentId)
+                            : this.getFolderName(defaultData)
                         }
                     />
                 </FormItem>
@@ -89,13 +92,13 @@ class FolderForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName (id) {
+    getFolderName (data) {
         const { treeData } = this.props;
         let name;
 
         let loop = (arr) => {
             arr.forEach((node, i) => {
-                if (node.id === id) {
+                if (node.id === data.parentId && node.type === data.type) {
                     name = node.name;
                 } else {
                     loop(node.children || []);
@@ -165,19 +168,19 @@ class FolderModal extends React.Component {
 
     getTreeData (cateType) {
         switch (cateType) {
-        case MENU_TYPE.TASK:
-        case MENU_TYPE.TASK_DEV:
-            return this.props.taskTreeData;
-        case MENU_TYPE.RESOURCE:
-            return this.props.resourceTreeData;
-        case MENU_TYPE.COSTOMFUC:
-        case MENU_TYPE.FUNCTION:
-        case MENU_TYPE.SYSFUC:
-            return this.props.functionTreeData;
-        case MENU_TYPE.SCRIPT:
-            return this.props.scriptTreeData;
-        default:
-            return this.props.taskTreeData;
+            case MENU_TYPE.TASK:
+            case MENU_TYPE.TASK_DEV:
+                return this.props.taskTreeData;
+            case MENU_TYPE.RESOURCE:
+                return this.props.resourceTreeData;
+            case MENU_TYPE.COSTOMFUC:
+            case MENU_TYPE.FUNCTION:
+            case MENU_TYPE.SYSFUC:
+                return this.props.functionTreeData;
+            case MENU_TYPE.SCRIPT:
+                return this.props.scriptTreeData;
+            default:
+                return this.props.taskTreeData;
         }
     }
 
@@ -238,35 +241,7 @@ dispatch => {
         addOfflineCatalogue: function (params, cateType) {
             return ajax.addOfflineCatalogue(params)
                 .then(res => {
-                    // let {data} = res;
-                    // let action;
-
-                    // switch(cateType) {
-                    //     case MENU_TYPE.TASK:
-                    //     case MENU_TYPE.TASK_DEV:
-                    //         action = taskTreeAction;
-                    //         break;
-                    //     case MENU_TYPE.RESOURCE:
-                    //         action = resTreeAction;
-                    //         break;
-                    //     case MENU_TYPE.COSTOMFUC:
-                    //     case MENU_TYPE.FUNCTION:
-                    //     case MENU_TYPE.SYSFUC:
-                    //         action = fnTreeAction;
-                    //         break;
-                    //     case MENU_TYPE.SCRIPT:
-                    //         action = scriptTreeAction;
-                    //         break;
-                    //     default:
-                    //         action = taskTreeAction;
-                    // }
-
                     if (res.code === 1) {
-                        // data.catalogueType = cateType;
-                        // dispatch({
-                        //     type: action.ADD_FOLDER_CHILD,
-                        //     payload: data
-                        // });
                         benchActions.loadTreeNode(params.nodePid, cateType)
                         return true;
                     }
@@ -278,26 +253,7 @@ dispatch => {
                 .then(res => {
                     if (res.code === 1) {
                         let newData = defaultData;
-                        // let action;
-                        // switch(cateType) {
-                        //     case MENU_TYPE.TASK:
-                        //     case MENU_TYPE.TASK_DEV:
-                        //         action = taskTreeAction;
-                        //         break;
-                        //     case MENU_TYPE.RESOURCE:
-                        //         action = resTreeAction;
-                        //         break;
-                        //     case MENU_TYPE.FUNCTION:
-                        //     case MENU_TYPE.SYSFUC:
-                        //     case MENU_TYPE.COSTOMFUC:
-                        //         action = fnTreeAction;
-                        //         break;
-                        //     case MENU_TYPE.SCRIPT:
-                        //         action = scriptTreeAction;
-                        //         break;
-                        //     default:
-                        //         action = taskTreeAction;
-                        // }
+
                         newData.name = params.nodeName;
                         newData.originPid = defaultData.parentId;
                         newData.parentId = params.nodePid;

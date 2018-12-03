@@ -162,7 +162,7 @@ class DashBoard extends Component {
             right: '4%',
             bottom: '8%',
             containLabel: true
-        }
+        };
         option.yAxis[0].axisLabel.formatter = '{value}';
         option.yAxis[0].minInterval = 1;
         option.series = [

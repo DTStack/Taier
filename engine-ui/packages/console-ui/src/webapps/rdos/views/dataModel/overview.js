@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { hashHistory } from 'react-router';
 
-import moment from 'moment';
 import { cloneDeep } from 'lodash';
 import {
     Row, Col, Card
@@ -14,8 +13,7 @@ import Resize from 'widgets/resize';
 import Api from '../../api/dataModel';
 import {
     lineAreaChartOptions,
-    pieChartOptions,
-    defaultBarOption
+    pieChartOptions
 } from '../../comm/const';
 
 // 引入 ECharts 主模块
@@ -44,7 +42,8 @@ class Overview extends Component {
         this.statisticColumnTrend();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -276,24 +275,24 @@ class Overview extends Component {
 
         let src;
         switch (type) {
-        case 'todayAddModel':
-            src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}`;
-            break;
-        case 'todayAddPoint':
-            src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}`
-            break;
-        case 'todayNonstandardModel':
-            src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}&triggerType1=${triggerType1}`
-            break;
-        case 'todayNonstandardPoint':
-            src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}&triggerType2=${triggerType2}`
-            break;
-        case 'accumulativeNonstandardModel':
-            src = `${pathName}?currentTab=1&triggerType1=${triggerType1}`
-            break;
-        default:
-            src = `${pathName}?currentTab=2&triggerType2=${triggerType2}`
-            break;
+            case 'todayAddModel':
+                src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}`;
+                break;
+            case 'todayAddPoint':
+                src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}`
+                break;
+            case 'todayNonstandardModel':
+                src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}&triggerType1=${triggerType1}`
+                break;
+            case 'todayNonstandardPoint':
+                src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}&triggerType2=${triggerType2}`
+                break;
+            case 'accumulativeNonstandardModel':
+                src = `${pathName}?currentTab=1&triggerType1=${triggerType1}`
+                break;
+            default:
+                src = `${pathName}?currentTab=2&triggerType2=${triggerType2}`
+                break;
         }
         hashHistory.push(src);
     }

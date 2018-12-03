@@ -1,17 +1,14 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { Link } from 'react-router'
 import { Icon } from 'antd'
 
-import utils from 'utils'
 import NotFund from 'widgets/notFund'
 
-import Header from './../layout/header'
 import * as MsgActions from '../../actions/message'
 
-import { Navigator, Logo, Title, MyIcon } from '../../components/nav'
+import Navigator, { Title, MyIcon } from '../../components/nav'
 
 import '../../styles/views/message.scss';
 
@@ -27,7 +24,7 @@ class MessageCenter extends Component {
     componentDidMount () {}
 
     render () {
-        const { user, apps, children, msgList, updateMsg } = this.props;
+        const { apps, children, msgList, updateMsg } = this.props;
         const logo = (<Link to="/message">
             <MyIcon>
                 <Icon type="message" />

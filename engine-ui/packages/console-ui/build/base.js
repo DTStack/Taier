@@ -64,10 +64,8 @@ module.exports = function () {
                     test: /\.js$/,
                     enforce: "pre",
                     include: [
-                        // MY_PATH.MAIN_APP_PATH,
-                        // MY_PATH.CONSOLE_PATH,
-                        // MY_PATH.DATA_LABEL_PATH,
-                        MY_PATH.DATA_QUALITY_PATH
+                        MY_PATH.MAIN_APP_PATH,
+                        // MY_PATH.RDOS_PATH,
                     ],
                     loader: "eslint-loader",
                 },

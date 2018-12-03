@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-// import { Icon } from 'antd';
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 
-import { Navigator } from 'main/components/nav';
+import Navigator from 'main/components/nav';
 
 @connect(state => {
     return {

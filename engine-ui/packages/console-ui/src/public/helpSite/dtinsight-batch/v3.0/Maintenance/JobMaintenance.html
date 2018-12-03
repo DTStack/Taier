@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>任务运维 | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-batch/v3.0/Maintenance/JobMaintenance.html">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-batch">
+    <meta name="dcterms.identifier" content="v3.0">
+    <meta name="generator" content="Antora 1.1.1">
+    <link rel="icon" href="../../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="../../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
+                  <!--li><a href="../../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="../Summary.html"><span class="title">离线计算</span> <span class="version">v3.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Summary.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Explain.html">名词解释</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Project/Project.html">项目管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据集成</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/DataSource.html">支持的数据源</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/DataSourceManage.html">数据源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/JobConfig.html">同步任务配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/WholeDatabase.html">整库迁移</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/VersionSupport.html">版本支持</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataIntegration/BestPractice.html">最佳实践</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据开发</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/JobDevelop.html">任务开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/JobTypes.html">任务类型</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ScheduleConfig.html">调度属性配置</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ScriptDevelop.html">脚本开发</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ResourceManage.html">资源管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/UDFManage.html">函数管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/TableLookup.html">表查询</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataDevelop/ImportLocalData.html">导入本地数据</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-current-path is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">运维中心</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Overview.html">概述</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="MaintenanceOverview.html">运维概览</a>
+    </span>
+  </li>
+  <li class="nav-item is-current-page is-active" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="JobMaintenance.html">任务运维</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Alert.html">告警监控</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="DirtyDataManage.html">脏数据管理</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据管理</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataOverview.html">全局概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/TableManage.html">表管理</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/OperationRecord.html">操作记录</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataManage/DataCategory.html">数据类目</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../QA/QA.html">QA</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Appendix/Appendix.html">附录</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="../Summary.html">离线计算</a></li>
+    <li class="crumb">运维中心</li>
+    <li class="crumb"><a href="JobMaintenance.html">任务运维</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">任务运维</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>任务的运维包括2大部分：任务管理、任务运维。任务管理模块中显示所有离线任务的信息，并可进行补数据操作。任务运维模块中显示所有离线任务实例的运行状态、可查看任务运行日志、查看任务上下游依赖关系，同时可以对任务状态进行切换。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="JobManage"><a class="anchor" href="#JobManage"></a>任务管理</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>周期任务列表</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>点击<strong>运维中心</strong>左侧菜单中的<strong>离线任务运维&#8594;任务管理</strong>，可查看离线任务列表，包括任务名称、调度周期、任务类型、责任人、调度生效周期、具体调度时间、最近修改时间等信息。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+任务提交后，将会在第二天22:00自动生成实例来运行任务，若是在22:00以后提交的任务，则第三天才会开始生成实例来自动运行任务。
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>支持筛选条件过滤出要查询的任务。可根据任务名称、责任人、今日修改的任务、冻结状态、任务类型等条件精确筛选。</p>
+</div>
+<div class="paragraph">
+<p>任务类型在筛选时分为5种，分别是SQL、MR、数据同步、Python、虚节点。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+任务名搜索的结果，会受到其他筛选条件的影响，只有同时满足所有筛选条件的结果才会展示出来。
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>操作</strong>：支持对任务进行补数据、修改等操作。</p>
+</div>
+<div class="paragraph">
+<p>修改：点击<strong>修改</strong>按钮后，页面会进入此任务的编辑页面。</p>
+</div>
+<div class="paragraph">
+<p>补数据：点击<strong>补数据</strong>按钮后，在弹窗中填写如下信息：</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>补数据名称；</p>
+</li>
+<li>
+<p>业务日期：选择业务日期的开始日期、结束日期；</p>
+</li>
+<li>
+<p>选定任务：在列出的各任务中选定需要进行补数据的任务；</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>点击“运行选中任务”后，系统会提示“补数据任务已在执行中，点击下方按钮查看结果”，点击后，可以在任务运维页面的“补数据”标签页内查看补数据任务的运行情况。</p>
+</div>
+<div class="paragraph">
+<p><strong>批量操作</strong>：支持批量选择任务，进行冻结、解冻操作。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+周期任务的冻结，是第二天生效的，且冻结状态的任务，生成的实例也是冻结状态，不会直接运行，必须将实例解冻后再单击重跑，才会运行；如果需要紧急冻结任务，可以在周期实例中进行冻结操作。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+冻结的任务生成的测试/补数据实例也会是冻结状态，只有解冻以后任务才会开始运行。
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>任务DAG图</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>若想看某个任务的详细信息，可直接在任务列表中单击任务名，会从右侧弹出一个任务信息面板，包含任务的DAG图和运行报告。</p>
+</div>
+<div class="paragraph">
+<p>在DAG图中可以选择具体任务的依赖关系和发布信息。</p>
+</div>
+<div class="paragraph">
+<p>右键单击工作流/内部节点，可以选择补数据、查看代码、冻结、解冻、查看实例等操作。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>运行报告</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>运行报告中显示此任务在最近一段时间内的执行时长分析，支持切换最近7次、最近30次、最近60次。</p>
+</div>
+<div class="paragraph">
+<p>如果是数据同步任务还会统计读取数据量和脏数据的产生情况，图表中同时列出执行时长、读取数据量、脏数据量3组数据，方便观察数据同步任务在近一段时间内的执行情况，评估此任务是否由于数据量过大造成执行时间越来越长？数据量不变，但执行时间突变，是否是由于代码进行了调整？很多任务都出现执行时间越来越长，是否是由于数据量变大？还是因为集群资源不够？</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+统计图中的最近次数，其中包括了补数据的信息
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="InstanceStatus"><a class="anchor" href="#InstanceStatus"></a>实例的状态转换</h2>
+<div class="sectionbody">
+<div class="imageblock">
+<div class="content">
+<img src="_images/实例的状态转换.png" alt="实例的状态转换">
+</div>
+</div>
+<div class="paragraph">
+<p>如上图所示：从周期实例的产生到不同状态的转换链路比较长，且用户的<strong>杀任务</strong>、<strong>冻结</strong>等操作都会对任务实例的状态产生影响。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="CycleInstance"><a class="anchor" href="#CycleInstance"></a>周期实例</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>实例列表</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>点击<strong>运维中心</strong>左侧菜单中的<strong>离线任务&#8594;周期实例</strong>，可查看离线任务实例列表，包括任务名称、调度周期、任务类型、业务日期、调度时间、任务实例创建时间、任务实例执行的开始时间、结束时间、运行时长、运行状态等信息。</p>
+</div>
+<div class="paragraph">
+<p>任务实例列表还可以根据业务日期、责任人、任务名称、状态进行搜索和筛选。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>实例DAG图</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>若想看某个任务实例的详细信息，可直接在任务实例列表中单击任务名，会从右侧弹出一个实例信息面板，包含实例的DAG图。</p>
+</div>
+<div class="paragraph">
+<p>在DAG图中可以选择具体任务实例的依赖关系和发布信息。</p>
+</div>
+<div class="paragraph">
+<p>右键单击任务，可以选择展开上下游、查看日志、查看任务属性、终止、刷新任务实例、重跑并恢复调度、置成功并恢复调度、重跑下游并恢复调度等操作。</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>展开上游（6层）：点击后，直接展开选中任务的6层上游任务；</p>
+</li>
+<li>
+<p>展开下游（6层）：类似“展开上游（6层）”；</p>
+</li>
+<li>
+<p>查看任务日志：点击后，进入离线任务日志查看页面；</p>
+</li>
+<li>
+<p>编辑任务：点击后，进入离线任务编辑页面；</p>
+</li>
+<li>
+<p>查看任务属性：点击后，弹出任务属性弹窗，弹窗中包括任务名称、任务ID等属性信息；</p>
+</li>
+<li>
+<p>终止：即手动杀任务的功能，点击后，本依赖关系图刷新任务状态；</p>
+</li>
+<li>
+<p>刷新任务实例：点击后，刷新页面显示的所有任务实例，本依赖关系图刷新任务状态；</p>
+</li>
+<li>
+<p>重跑并恢复调度：点击后，执行重跑，并恢复任务调度，本依赖关系图刷新任务状态；</p>
+</li>
+<li>
+<p>置成功并恢复调度：点击后，强制将此设置为成功执行（状态为：手动设置成功），并恢复本任务的调度；</p>
+</li>
+<li>
+<p>重跑下游并恢复调度：点击后，对下游任务进行重跑，并恢复任务调度，本依赖关系图刷新任务状态；</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>对于右键菜单中的6~9项操作，不同的任务状态可进行不同的操作：</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">任务状态</th>
+<th class="tableblock halign-left valign-top">可进行的操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">未运行</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">重跑任务</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">运行中</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">杀任务</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">成功</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">重跑任务</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">失败</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">重跑任务、置成功并恢复调度</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+周期任务的冻结，是第二天生效的，且冻结状态的任务，生成的实例也是冻结状态，不会直接运行，必须将实例解冻后再单击重跑，才会运行。
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong>批量操作</strong>：支持批量选择任务，进行批量杀任务、重跑当前及下游任务操作。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+选中某个任务实例，点击“重跑当前及下游任务”时，是重跑您选择的任务实例，同时系统根据此任务的下游依赖关系，将下游任务实例一并重跑。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+“冻结”操作的状态不会作用于补数据实例
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="RerunInstance"><a class="anchor" href="#RerunInstance"></a>补数据实例</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>周期任务进行补数据时产生的实例，即为补数据实例，可对已调度起的实例任务进行运维管理，如查看运行状态，对任务进行终止、重跑、解冻等操作。</p>
+</div>
+<div class="paragraph">
+<p>由于补数据是对一批数据的多个业务日期执行操作，查看补数据实例需要有<strong>2层</strong>操作，第一层是补数据列表，每执行一次补数据就会产生一条记录；第二层是补数据实例列表，表示这次补数据中产生的每个实例的运行情况；</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+如果是连续补好几天的补数据任务，已配置“自依赖”的任务，在第一天有一个任务实例失败了，那么第二天的任务实例也不会开始运行（只有当天的全部任务实例都成功，第二天的任务实例才会开始运行）。如果没有配置“自依赖”，则第二天的实例也会开始运行。
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+自依赖的周期任务补数据，如果补数据第一个实例的前一个周期没有实例，也是能运行的。
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="JobRerunList"><a class="anchor" href="#JobRerunList"></a>补数据列表</h3>
+<div class="paragraph">
+<p>补数据列表即执行补数据的历史，支持根据业务日期运行日期、操作人等参数进行筛选。</p>
+</div>
+<div class="paragraph">
+<p><strong>操作</strong>：杀死所有实例，表示杀掉此次补数据中的所有实例，终止此次补数据的运行，当发现代码错误或其他异常希望停止补数据的运行时可以使用此功能。</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="JobRerun_InstanceList"><a class="anchor" href="#JobRerun_InstanceList"></a>补数据实例列表</h3>
+<div class="paragraph">
+<p>点击某个补数据列表后，进入详细的实例列表，补数据实例列表还可以根据业务日期、责任人、任务名称、状态进行搜索和筛选。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>补数据实例DAG图</strong></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>若想看某个补数据实例的详细信息，可直接在实例列表中单击任务名，会从右侧弹出一个实例信息面板，包含实例的DAG图。</p>
+</div>
+<div class="paragraph">
+<p>此处的操作与周期实例类似，不再赘述。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+“冻结”操作的状态不会作用于补数据实例
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

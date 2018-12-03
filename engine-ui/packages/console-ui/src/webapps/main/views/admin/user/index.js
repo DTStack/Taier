@@ -149,6 +149,7 @@ class AdminUser extends Component {
                     } else if (roleValue == RDOS_ROLE.PROJECT_OWNER) {
                         isProjectOwner = true;
                     }
+                    break;
                 }
                 case MY_APPS.API:
                 case MY_APPS.LABEL:
@@ -159,6 +160,7 @@ class AdminUser extends Component {
                     } else if (roleValue == APP_ROLE.ADMIN) {
                         isProjectAdmin = true;
                     }
+                    break;
                 }
                 }
             }
@@ -454,8 +456,6 @@ class AdminUser extends Component {
     }
 
     initAddMember = () => {
-        const { params } = this.props
-
         this.loadUsersNotInProject();
         this.setState({ visible: true })
     }
@@ -630,8 +630,7 @@ class AdminUser extends Component {
     }
 
     renderPane = () => {
-        const { apps } = this.props
-        const { users, loading, active } = this.state;
+        const { users, loading } = this.state;
 
         const extra = (
             <Button

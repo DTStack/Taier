@@ -194,30 +194,30 @@ class Index extends Component {
     }
     renderTitleText (data) {
         switch (data.status) {
-        case 0: {
-            return (
-                <span>
-                    <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
-                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建中</span>
-                </span>
-            )
-        }
-        case 1: {
-            return (
-                <span style={{ color: '#999' }}>
-                    {`(${data.projectName})`}
-                </span>
-            )
-        }
-        case 2:
-        case 3: {
-            return (
-                <span>
-                    <Icon type="close-circle" style={{ fontSize: 14, color: '#f00', paddingLeft: 16 }} />
-                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建失败</span>
-                </span>
-            )
-        }
+            case 0: {
+                return (
+                    <span>
+                        <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
+                        <span style={{ color: '#999', paddingLeft: '8px' }}>创建中</span>
+                    </span>
+                )
+            }
+            case 1: {
+                return (
+                    <span style={{ color: '#999' }}>
+                        {`(${data.projectName})`}
+                    </span>
+                )
+            }
+            case 2:
+            case 3: {
+                return (
+                    <span>
+                        <Icon type="close-circle" style={{ fontSize: 14, color: '#f00', paddingLeft: 16 }} />
+                        <span style={{ color: '#999', paddingLeft: '8px' }}>创建失败</span>
+                    </span>
+                )
+            }
         }
     }
     changeSort = (v) => {

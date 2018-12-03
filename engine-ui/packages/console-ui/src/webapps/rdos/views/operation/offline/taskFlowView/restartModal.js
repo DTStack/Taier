@@ -1,34 +1,14 @@
 import moment from 'moment'
 import React, { Component } from 'react'
-import { hashHistory } from 'react-router'
 
 import {
-    Input, Modal, Row, message, Form,
-    Table, DatePicker, Col, Tree
+    Modal, Row, message, Col, Tree
 } from 'antd'
 
 import Api from '../../../../api'
-import { formItemLayout, TASK_STATUS } from '../../../../comm/const'
 import { TaskType, TaskStatus } from '../../../../components/status'
 
-const confirm = Modal.confirm
-const Search = Input.Search
 const TreeNode = Tree.TreeNode
-const FormItem = Form.Item
-const RangePicker = DatePicker.RangePicker
-
-function replaceTreeNode (treeNode, replace) {
-    if (treeNode.id === parseInt(replace.id, 10)) {
-        treeNode = Object.assign(treeNode, replace);
-        return;
-    }
-    if (treeNode.taskVOS) {
-        const children = treeNode.taskVOS
-        for (let i = 0; i < children.length; i += 1) {
-            replaceTreeNode(children[i], replace)
-        }
-    }
-}
 
 class RestartModal extends Component {
     state = {
@@ -46,8 +26,7 @@ class RestartModal extends Component {
         if (visible && node) {
             this.setState({
                 currentNode: node,
-                treeData: [node],
-                checkedKeys: [`${node.id}`]
+                treeData: [node]
             }, () => {
                 this.loadTaskTree({
                     taskId: node.batchTask.id,
@@ -59,11 +38,11 @@ class RestartModal extends Component {
     }
 
     restartChildNodes = () => {
-        const { onCancel, router, restartNode } = this.props
+        const { onCancel, restartNode } = this.props
         const checked = this.state.checkedKeys
 
         if (checked.length === 0) {
-            message.warning('请未选择任务要重跑的任务!')
+            message.error('请选择要重跑的任务!')
             return;
         }
 
@@ -122,10 +101,7 @@ class RestartModal extends Component {
     }
 
     onCheck = (checkedKeys, info) => {
-        const checked = checkedKeys.checked
-        if (checked && checked.length > 0) {
-            this.setState({ checkedKeys: checked })
-        }
+        this.setState({ checkedKeys: checkedKeys.checked })
     }
 
     disabledDate = (current) => {
@@ -134,7 +110,6 @@ class RestartModal extends Component {
 
     asyncTree = (treeNode) => {
         const ctx = this
-        const { dispatch } = this.props
         const node = treeNode.props.data
         return new Promise((resolve) => {
             if (!node.children || node.children.length === 0) {
@@ -151,7 +126,6 @@ class RestartModal extends Component {
     getTreeNodes = (data, currentNode) => {
         if (data && data.length > 0) {
             const nodes = data.map((item) => {
-                const disabed = item.id === currentNode.id;
                 const id = `${item.batchTask ? item.id : item.jobId}`;
 
                 const name = item.taskName || (item.batchTask && item.batchTask.name);
@@ -168,7 +142,6 @@ class RestartModal extends Component {
                 if (item.children) {
                     return (<TreeNode
                         data={item}
-                        disableCheckbox={disabed}
                         value={id}
                         title={content}
                         key={id}>
@@ -177,7 +150,6 @@ class RestartModal extends Component {
                 }
                 return (<TreeNode
                     data={item}
-                    disableCheckbox={disabed}
                     name={name}
                     value={id}
                     title={content}

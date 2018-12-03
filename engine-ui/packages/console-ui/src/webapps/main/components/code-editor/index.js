@@ -32,7 +32,6 @@ const defaultEditorOptions = { // 编辑器选项
 @pureRender
 class CodeEditor extends Component {
     componentDidMount () {
-        const ctx = this
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
         const instance = this.getCodeMirrorIns()
@@ -72,8 +71,9 @@ class CodeEditor extends Component {
         })
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
-        const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options } = nextProps
+        const { value, sync, cursor, cursorAlwaysInEnd, options } = nextProps
 
         if (options) this.self.setOption('readOnly', options.readOnly)
 
@@ -90,6 +90,7 @@ class CodeEditor extends Component {
             }
         }
     }
+    /* eslint-disable */
 
     getCodeMirrorIns () {
         return this.self || codemirror

@@ -4,7 +4,7 @@ import { Link, hashHistory } from 'react-router';
 import { isProjectCouldEdit } from '../../../comm';
 import {
     Table, Select, Form,
-    Card, message, Checkbox,
+    message, Checkbox,
     DatePicker, Input
 } from 'antd';
 
@@ -30,7 +30,7 @@ export default class ModelCheck extends Component {
                 tableName: '',
                 ignore: 0, // 1 忽略，0 不忽略
                 type: '1',
-                triggerType: triggerType1 && triggerType1.split(',') || [],
+                triggerType: (triggerType1 && triggerType1.split(',')) || [],
                 startTime: startTime1,
                 endTime: endTime1
             }
@@ -41,7 +41,8 @@ export default class ModelCheck extends Component {
         this.loadData();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {

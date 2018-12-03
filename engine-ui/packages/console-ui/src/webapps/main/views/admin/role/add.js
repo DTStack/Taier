@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Button,
-    Card, message
+    Row, Col, Button, message
 } from 'antd'
 
 import utils from 'utils'

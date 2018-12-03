@@ -22,7 +22,6 @@ import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const TextArea = Input.TextArea;
 const RadioGroup = Radio.Group;
 
 class TaskForm extends React.Component {
@@ -327,7 +326,9 @@ class TaskForm extends React.Component {
                         >
                             {getFieldDecorator('exeArgs', {
                                 rules: [{
+                                    /* eslint-disable */
                                     pattern: /^[A-Za-z0-9_\/-]+$/,
+                                    /* eslint-disable */
                                     message: '任务参数只能由字母、数字、下划线、斜杠组成!'
                                 }],
                                 initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
@@ -416,6 +417,7 @@ class TaskForm extends React.Component {
         )
     }
 
+    /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
      * @param {any} rule
@@ -444,6 +446,7 @@ class TaskForm extends React.Component {
         }
         callback();
     }
+    /* eslint-disable */
 
     /**
      * @description 获取节点名称

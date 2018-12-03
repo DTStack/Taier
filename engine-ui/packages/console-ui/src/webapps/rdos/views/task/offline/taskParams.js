@@ -2,9 +2,7 @@ import React from 'react';
 import {
     Form,
     Collapse,
-    Input,
-    Icon,
-    Tooltip
+    Input
 } from 'antd';
 
 import HelpDoc from '../../helpDoc';
@@ -26,7 +24,11 @@ const formItemLayout = { // 表单正常布局
 class TaskParams extends React.Component {
     onChange = (index, value) => {
         const { tabData, onChange } = this.props;
+
+        /* eslint-disable */
         const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
+        /* eslint-disable */
+
         if (reg.test(value)) {
             const taskVariables = [...tabData.taskVariables];
             taskVariables[index].paramCommand = value;
@@ -37,7 +39,6 @@ class TaskParams extends React.Component {
     removeParams = (index) => {
         const { tabData, onChange } = this.props;
         const taskVariables = [...tabData.taskVariables];
-        console.log('removeParams:', index, taskVariables[index]);
         taskVariables.splice(index, 1);
         onChange({ taskVariables })
     }
@@ -46,12 +47,7 @@ class TaskParams extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { taskVariables } = this.props.tabData;
         const sysArr = []; const customArr = [];
-        const removeIcon = {
-            position: 'absolute',
-            top: '10px',
-            right: '-20px',
-            cursor: 'pointer'
-        }
+       
         const getFormItem = (index, param) => (
             <FormItem
                 key={param.paramName}
@@ -60,8 +56,10 @@ class TaskParams extends React.Component {
             >
                 {getFieldDecorator(param.paramName, {
                     rules: [{
+                        /* eslint-disable */
                         // 匹配规则：$[函数]或$[a-z0-9+-两个字符]或随意输入几个字符
                         pattern: /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i,
+                        /* eslint-disable */
                         message: '参数格式不正确'
                     }],
                     initialValue: param.paramCommand
@@ -103,7 +101,7 @@ class TaskParams extends React.Component {
         )
     }
     render () {
-        const { tabData, isPro, couldEdit } = this.props;
+        const { tabData, couldEdit } = this.props;
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const formItems = this.getFormItems()
 

@@ -53,8 +53,6 @@ class Dashboard extends Component {
     }
 
     render () {
-        const { children } = this.props
-
         return (
             <div className="portal">
                 <Header />

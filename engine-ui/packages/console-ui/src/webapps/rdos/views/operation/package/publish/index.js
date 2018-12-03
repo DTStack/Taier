@@ -151,28 +151,28 @@ class PackagePublish extends React.Component {
             dataIndex: 'status',
             render (status, record) {
                 switch (status) {
-                case publishStatus.UNSUBMIT: {
-                    return (<span>
-                        <Badge status="warning" text="待发布" />
-                    </span>)
-                }
-                case publishStatus.FAIL: {
-                    return (<span>
-                        <Badge status="error" text="发布失败" />
-                        <Tooltip
-                            placement="right"
-                            title={record.log}
-                            overlayStyle={{ wordBreak: 'break-all' }}
-                        >
-                            <Icon className="font-14" style={{ marginLeft: '5px' }} type={'close-circle-o'} />
-                        </Tooltip>
-                    </span>)
-                }
-                case publishStatus.SUCCESS: {
-                    return (<span>
-                        <Badge status="success" text="发布成功" />
-                    </span>)
-                }
+                    case publishStatus.UNSUBMIT: {
+                        return (<span>
+                            <Badge status="warning" text="待发布" />
+                        </span>)
+                    }
+                    case publishStatus.FAIL: {
+                        return (<span>
+                            <Badge status="error" text="发布失败" />
+                            <Tooltip
+                                placement="right"
+                                title={record.log}
+                                overlayStyle={{ wordBreak: 'break-all' }}
+                            >
+                                <Icon className="font-14" style={{ marginLeft: '5px' }} type={'close-circle-o'} />
+                            </Tooltip>
+                        </span>)
+                    }
+                    case publishStatus.SUCCESS: {
+                        return (<span>
+                            <Badge status="success" text="发布成功" />
+                        </span>)
+                    }
                 }
             },
             filters: [{
@@ -192,25 +192,25 @@ class PackagePublish extends React.Component {
             render: (n, record) => {
                 const status = record.status;
                 switch (status) {
-                case publishStatus.UNSUBMIT:
-                case publishStatus.FAIL: {
-                    return <span>
-                        <a onClick={this.viewPackage.bind(this, record)}>查看</a>
-                        <span className="ant-divider"></span>
-                        <Popconfirm title="确定删除该发布包吗?" onConfirm={this.deletePackage.bind(this, record.id)} okText="确定" cancelText="取消">
-                            <a>删除</a>
-                        </Popconfirm>
-                        <span className="ant-divider"></span>
-                        <Popconfirm title="确定发布吗?" onConfirm={this.publishPackage.bind(this, record.id)} okText="确定" cancelText="取消">
-                            <a>发布</a>
-                        </Popconfirm>
-                    </span>
-                }
-                case publishStatus.SUCCESS: {
-                    return <span>
-                        <a onClick={this.viewPackage.bind(this, record)}>查看</a>
-                    </span>
-                }
+                    case publishStatus.UNSUBMIT:
+                    case publishStatus.FAIL: {
+                        return <span>
+                            <a onClick={this.viewPackage.bind(this, record)}>查看</a>
+                            <span className="ant-divider"></span>
+                            <Popconfirm title="确定删除该发布包吗?" onConfirm={this.deletePackage.bind(this, record.id)} okText="确定" cancelText="取消">
+                                <a>删除</a>
+                            </Popconfirm>
+                            <span className="ant-divider"></span>
+                            <Popconfirm title="确定发布吗?" onConfirm={this.publishPackage.bind(this, record.id)} okText="确定" cancelText="取消">
+                                <a>发布</a>
+                            </Popconfirm>
+                        </span>
+                    }
+                    case publishStatus.SUCCESS: {
+                        return <span>
+                            <a onClick={this.viewPackage.bind(this, record)}>查看</a>
+                        </span>
+                    }
                 }
             },
             width: '180px'

@@ -89,7 +89,7 @@ const getTaskBaseData = (task) => {
         computeType: task.computeType
     }
 }
-
+/* eslint-disable */
 @connect(state => {
     const { offlineTask, project, user, editor } = state;
     const { workbench, workflow } = offlineTask;
@@ -1110,3 +1110,4 @@ class WorkflowEditor extends Component {
 }
 
 export default WorkflowEditor;
+/* eslint-disable */

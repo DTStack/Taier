@@ -6,33 +6,33 @@ import {
 
 export function dataSourceText (type) {
     switch (type) {
-    case DATA_SOURCE.MYSQL: {
-        return 'MySQL'
-    }
-    case DATA_SOURCE.ORACLE: {
-        return 'Oracle'
-    }
-    case DATA_SOURCE.SQLSERVER: {
-        return 'SQLServer'
-    }
-    case DATA_SOURCE.HDFS: {
-        return 'HDFS'
-    }
-    case DATA_SOURCE.HIVE: {
-        return 'Hive'
-    }
-    case DATA_SOURCE.HBASE: {
-        return 'HBase'
-    }
-    case DATA_SOURCE.FTP: {
-        return 'FTP'
-    }
-    case DATA_SOURCE.MAXCOMPUTE: {
-        return 'MaxCompute'
-    }
-    default: {
-        return '其他'
-    }
+        case DATA_SOURCE.MYSQL: {
+            return 'MySQL'
+        }
+        case DATA_SOURCE.ORACLE: {
+            return 'Oracle'
+        }
+        case DATA_SOURCE.SQLSERVER: {
+            return 'SQLServer'
+        }
+        case DATA_SOURCE.HDFS: {
+            return 'HDFS'
+        }
+        case DATA_SOURCE.HIVE: {
+            return 'Hive'
+        }
+        case DATA_SOURCE.HBASE: {
+            return 'HBase'
+        }
+        case DATA_SOURCE.FTP: {
+            return 'FTP'
+        }
+        case DATA_SOURCE.MAXCOMPUTE: {
+            return 'MaxCompute'
+        }
+        default: {
+            return '其他'
+        }
     }
 }
 
@@ -42,14 +42,14 @@ export function dataSourceText (type) {
  */
 export function DetailCheckStatus (props) {
     switch (props.value) {
-    case true: {
-        return <span>通过</span>
-    }
-    case false: {
-        return <span>未通过</span>
-    }
-    default: {
-        return <span>--</span>
-    }
+        case true: {
+            return <span>通过</span>
+        }
+        case false: {
+            return <span>未通过</span>
+        }
+        default: {
+            return <span>--</span>
+        }
     }
 }

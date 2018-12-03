@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { Circle } from 'widgets/circle'
 
 export default function msgStatus (props) {

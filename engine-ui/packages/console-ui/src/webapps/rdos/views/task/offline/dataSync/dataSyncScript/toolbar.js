@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import moment from 'moment';
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 
 import {
-    Col, Button, message, Modal, Form, Select, Icon
+    Button, message, Modal, Form, Select
 } from 'antd'
 
 import utils from 'utils'
@@ -123,7 +122,7 @@ class ImportTemplateForm extends Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { dataSourceList, execConfirmVisible } = this.props;
+        const { execConfirmVisible } = this.props;
 
         const sourceTypeOptions = Object.keys(DATA_SOURCE).map(
             (key) => {

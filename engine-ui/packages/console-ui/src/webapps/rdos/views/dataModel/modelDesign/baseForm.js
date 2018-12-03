@@ -1,16 +1,14 @@
 import React from 'react';
 import {
-    Button, message, Form, Input,
-    Row, Col, Icon, Select, Radio, Tooltip, InputNumber
+    Form, Input,
+    Select, Radio
 } from 'antd';
-import assign from 'object-assign';
-import { isEqual, throttle, range, isObject, isEmpty, cloneDeep } from 'lodash';
+import { isEmpty, cloneDeep } from 'lodash';
 
 import ajax from '../../../api/dataManage'
 
 import {
     formItemLayout,
-    tableModelRules,
     TABLE_MODEL_RULE
 } from '../../../comm/const';
 
@@ -30,7 +28,7 @@ export default class BaseForm extends React.Component {
     constructor (props) {
         super(props);
 
-        const { tableName, tableNameRules, location } = this.props;
+        const { tableName, location } = this.props;
         const tableNamePropArr = tableName ? tableName.split('_') : [];
 
         this.state = {
@@ -63,35 +61,40 @@ export default class BaseForm extends React.Component {
 
     validateDelim (rule, value, callback) {
         value = value.trim();
-
+        let error;
         if (value[0] === '\\') {
             if (value.length > 2) {
-                callback('分隔符长度只能为1（不包括转义字符"\\"）')
+                error = '分隔符长度只能为1（不包括转义字符"\\"）'
+                callback(error)
             }
         } else {
             if (value.length > 1) {
-                callback('分隔符长度只能为1')
+                error = '分隔符长度只能为1'
+                callback(error)
             }
         }
         callback();
     }
 
     validateTableName (rule, value, callback) {
-        const ctx = this;
         const { tableNameArr } = this.state;
         const haveFilledTables = tableNameArr.filter((item) => {
             return !isEmpty(item);
         })
 
         if (haveFilledTables.length !== this.props.tableNameRules.length) {
-            callback('所有规则必须设置！');
+            let error = '所有规则必须设置！'
+            callback(error);
         } else {
             value ? ajax.checkTableExist({
                 tableName: value
             }).then(res => {
                 if (res.code === 1) {
                     // 如果true 则存在
-                    if (res.data) callback('该表已经存在！');
+                    if (res.data) {
+                        let error = '该表已经存在！'
+                        callback(error);
+                    }
                 }
             })
                 .then(callback) : callback();
@@ -104,7 +107,10 @@ export default class BaseForm extends React.Component {
             hdfsUri: 'hdfs://' + value
         }).then(res => {
             if (res.code === 1) {
-                if (!res.data) callback('此目录不存在');
+                if (!res.data) {
+                    const error = '此目录不存在'
+                    callback(error);
+                }
             }
         })
             .then(callback) : callback();
@@ -119,37 +125,37 @@ export default class BaseForm extends React.Component {
 
     renderTableRules = () => {
         const {
-            subjectFields, modelLevels, changeRuleValue,
-            incrementCounts, freshFrequencies, tableNameRules, tableName
+            subjectFields, modelLevels,
+            incrementCounts, freshFrequencies, tableNameRules
         } = this.props;
         const { tableNameArr } = this.state;
         const inlineStyle = { width: 100, display: 'inline-block' }
         const renderRules = (rule, index) => {
             let data = [];
             switch (rule.value) {
-            case TABLE_MODEL_RULE.LEVEL: {
-                data = modelLevels; break;
-            }
-            case TABLE_MODEL_RULE.SUBJECT: {
-                data = subjectFields; break;
-            }
-            case TABLE_MODEL_RULE.INCREMENT: {
-                data = incrementCounts; break;
-            }
-            case TABLE_MODEL_RULE.FREQUENCY: {
-                data = freshFrequencies; break;
-            }
-            case TABLE_MODEL_RULE.CUSTOM:
-            default: {
-                return (
-                    <Input
-                        placeholder="自定义"
-                        value={tableNameArr[index]}
-                        onChange={(e) => this.changeTableName(e.target.value, index)}
-                        style={inlineStyle}
-                    />
-                )
-            }
+                case TABLE_MODEL_RULE.LEVEL: {
+                    data = modelLevels; break;
+                }
+                case TABLE_MODEL_RULE.SUBJECT: {
+                    data = subjectFields; break;
+                }
+                case TABLE_MODEL_RULE.INCREMENT: {
+                    data = incrementCounts; break;
+                }
+                case TABLE_MODEL_RULE.FREQUENCY: {
+                    data = freshFrequencies; break;
+                }
+                case TABLE_MODEL_RULE.CUSTOM:
+                default: {
+                    return (
+                        <Input
+                            placeholder="自定义"
+                            value={tableNameArr[index]}
+                            onChange={(e) => this.changeTableName(e.target.value, index)}
+                            style={inlineStyle}
+                        />
+                    )
+                }
             }
 
             return (
@@ -205,9 +211,9 @@ export default class BaseForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
 
         const {
-            tableName, tableDesc, delim, dataCatalogue,
+            tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
-            subject, tableModelRules
+            subject
         } = this.props;
 
         const { type, tableNameArr, storedType } = this.state;

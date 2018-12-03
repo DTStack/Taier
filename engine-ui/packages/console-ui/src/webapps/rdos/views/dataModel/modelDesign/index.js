@@ -10,7 +10,7 @@ import { Link } from 'react-router';
 
 import Editor from 'widgets/editor';
 import CopyIcon from 'main/components/copy-icon';
-import { DDL_placeholder } from '../../../comm/DDLCommon'
+import { DDL_PLACEHOLDER } from '../../../comm/DDLCommon'
 import SlidePane from 'widgets/slidePane';
 import TableLog from '../../dataManage/tableLog';
 
@@ -48,7 +48,8 @@ class TableList extends Component {
         this.loadOptionData();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -95,7 +96,7 @@ class TableList extends Component {
     }
 
     cleanSearch () {
-        const $input = findDOMNode(this.searchInput).querySelector('input');
+        const $input = findDOMNode(this.searchInput).querySelector('input');// eslint-disable-line
 
         if ($input.value.trim() === '') return;
 
@@ -212,7 +213,7 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render (text, record) {
-                    return <Link to={`data-manage/table/view/${record.id}`}>{ text }</Link>
+                    return <Link to={`data-manage/table/view/${record.id}`}>{text}</Link>
                 }
             },
             {
@@ -252,7 +253,7 @@ class TableList extends Component {
                 render (text, record) {
                     return `${text}天`;
                 }
-            }, ,
+            },
             {
                 title: '负责人',
                 key: 'chargeUser',
@@ -340,7 +341,7 @@ class TableList extends Component {
                         <Modal className="m-codemodal"
                             width={750}
                             title={(
-                                <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_placeholder} /></span>
+                                <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_PLACEHOLDER} /></span>
                             )}
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
@@ -349,10 +350,9 @@ class TableList extends Component {
                         >
                             <Editor
                                 style={{ height: '400px' }}
-                                placeholder={DDL_placeholder}
-                                options={{ readOnly: false }}
+                                placeholder={DDL_PLACEHOLDER}
                                 language="dtsql"
-                                options={{ readOnly: false } }
+                                options={{ readOnly: false }}
                                 onChange={this.handleDdlChange.bind(this)}
                                 value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
                             />
@@ -366,7 +366,7 @@ class TableList extends Component {
                         style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                     >
                         <div className="m-loglist">
-                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers}/>
+                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
                         </div>
                     </SlidePane> : ''
                 }

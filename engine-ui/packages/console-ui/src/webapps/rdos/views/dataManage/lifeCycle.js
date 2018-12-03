@@ -39,7 +39,8 @@ class LifeCycle extends React.Component {
         }
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const value = nextProps.value
         if (value && this.state.value !== value && !this.state.showCustom) {
             this.initState(value)

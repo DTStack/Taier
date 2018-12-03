@@ -98,6 +98,7 @@ class OfflineTaskList extends Component {
         }
         if (jobName) {
             reqParams.taskName = jobName
+            reqParams.currentPage = 1;
         }
         if (person) {
             reqParams.ownerId = person
@@ -299,26 +300,26 @@ class OfflineTaskList extends Component {
             let { field, order } = sorter;
 
             switch (field) {
-            case 'execTime': {
-                params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'execStartDate': {
-                params.execStartSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'execEndDate': {
-                params.execEndSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'cycTime': {
-                params.cycSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'businessDate': {
-                params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
+                case 'execTime': {
+                    params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'execStartDate': {
+                    params.execStartSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'execEndDate': {
+                    params.execEndSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'cycTime': {
+                    params.cycSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'businessDate': {
+                    params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
             }
         }
         this.setState(params, () => {

@@ -424,7 +424,7 @@ class Header extends Component {
                     apps={apps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
-                    helpUrl="/public/rdos/helpSite/index.html"
+                    helpUrl="/public/helpSite/dtinsight-batch/v3.0/Summary.html"
                 />
             </div>
         );

@@ -11,20 +11,20 @@ import Api from '../../../api';
 
 const taskTypes = (state = [], action) => {
     switch (action.type) {
-    case commAction.GET_TASK_TYPES: {
-        return action.payload;
-    }
-    default: return state;
+        case commAction.GET_TASK_TYPES: {
+            return action.payload;
+        }
+        default: return state;
     }
 }
 
 const taskTypeFilter = (state = [], action) => {
     switch (action.type) {
-    case commAction.GET_TASK_TYPE_FILTER: {
-        return action.payload;
-    }
+        case commAction.GET_TASK_TYPE_FILTER: {
+            return action.payload;
+        }
 
-    default: return state;
+        default: return state;
     }
 }
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import assign from 'object-assign';
 import { isEqual, range, isObject } from 'lodash';
 
@@ -86,12 +85,11 @@ export default class RowItem extends React.Component {
 
     render () {
         const { data, columnFileds } = this.props;
-        const { editMode } = this.state;
         console.log('rowItem', this.props);
         console.log('rowItem', data);
 
         const options = columnFileds && columnFileds.map(field => <Option title={field.columnName} value={field.columnName} key={field.columnName}>{field.columnName}</Option>)
-        const { isSaved, isPartition, precision, scale, columnType } = data;
+        const { isSaved, isPartition, columnType } = data;
         const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
         const TYPES = isPartition
             ? ['STRING', 'BIGINT']
@@ -163,65 +161,65 @@ export default class RowItem extends React.Component {
 
         columnType = columnType.toUpperCase();
         switch (columnType) {
-        case 'DECIMAL':
-            result = <span className="extra-ipt">
-                <Select name="precision"
-                    style={{ marginLeft: '2%', width: '18%' }}
-                    value={ `${precision}` || '10'}
-                    onChange={ this.handleChange.bind(this, 'precision') }
-                    placeholder="precision"
-                    disabled={ isSaved }
-                >
-                    {range(39).slice(1).map(n => <Option value={`${n}`}
-                        key={n}
-                    >{n}</Option>)}
-                </Select>
-                <Select name="scale"
-                    style={{ marginLeft: '2%', width: '18%' }}
-                    value={ `${scale}` || '0'}
-                    onChange={ this.handleChange.bind(this, 'scale') }
-                    placeholder="scale"
-                    disabled={ isSaved }
-                >
-                    {range(precision || 10).map(n1 => <Option value={`${n1}`}
-                        key={n1}
-                    >{n1}</Option>)}
-                </Select>
-                <Tooltip title="type(precision,scale)；precision:数字总长度，最大为38；scale：小数点之后的位数">
-                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
-                </Tooltip>
-            </span>
-            break;
-        case 'CHAR':
-            result = <span className="extra-ipt">
-                <InputNumber name="charLen" defaultValue={ charLen || 10 }
-                    min={1}
-                    max={255}
-                    style={{ width: '38%', marginLeft: '2%' }}
-                    onChange={ this.handleChange.bind(this, 'charLen') }
-                    disabled={ isSaved }
-                />
-                <Tooltip title="type(char)；char的长度为1~255">
-                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
-                </Tooltip>
-            </span>
-            break;
-        case 'VARCHAR':
-            result = <span className="extra-ipt">
-                <InputNumber name="varcharLen" defaultValue={ varcharLen || 10 }
-                    min={1}
-                    max={65535}
-                    style={{ width: '38%', marginLeft: '2%' }}
-                    onChange={ this.handleChange.bind(this, 'varcharLen') }
-                    disabled={ isSaved }
-                />
-                <Tooltip title="type(varchar)；varchar的长度为1~65535">
-                    <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
-                </Tooltip>
-            </span>
-            break;
+            case 'DECIMAL':
+                result = <span className="extra-ipt">
+                    <Select name="precision"
+                        style={{ marginLeft: '2%', width: '18%' }}
+                        value={ `${precision}` || '10'}
+                        onChange={ this.handleChange.bind(this, 'precision') }
+                        placeholder="precision"
+                        disabled={ isSaved }
+                    >
+                        {range(39).slice(1).map(n => <Option value={`${n}`}
+                            key={n}
+                        >{n}</Option>)}
+                    </Select>
+                    <Select name="scale"
+                        style={{ marginLeft: '2%', width: '18%' }}
+                        value={ `${scale}` || '0'}
+                        onChange={ this.handleChange.bind(this, 'scale') }
+                        placeholder="scale"
+                        disabled={ isSaved }
+                    >
+                        {range(precision || 10).map(n1 => <Option value={`${n1}`}
+                            key={n1}
+                        >{n1}</Option>)}
+                    </Select>
+                    <Tooltip title="type(precision,scale)；precision:数字总长度，最大为38；scale：小数点之后的位数">
+                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
+                    </Tooltip>
+                </span>
+                break;
+            case 'CHAR':
+                result = <span className="extra-ipt">
+                    <InputNumber name="charLen" defaultValue={ charLen || 10 }
+                        min={1}
+                        max={255}
+                        style={{ width: '38%', marginLeft: '2%' }}
+                        onChange={ this.handleChange.bind(this, 'charLen') }
+                        disabled={ isSaved }
+                    />
+                    <Tooltip title="type(char)；char的长度为1~255">
+                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
+                    </Tooltip>
+                </span>
+                break;
+            case 'VARCHAR':
+                result = <span className="extra-ipt">
+                    <InputNumber name="varcharLen" defaultValue={ varcharLen || 10 }
+                        min={1}
+                        max={65535}
+                        style={{ width: '38%', marginLeft: '2%' }}
+                        onChange={ this.handleChange.bind(this, 'varcharLen') }
+                        disabled={ isSaved }
+                    />
+                    <Tooltip title="type(varchar)；varchar的长度为1~65535">
+                        <Icon type="question-circle-o" style={{ marginLeft: '2%' }}/>
+                    </Tooltip>
+                </span>
+                break;
 
-        default: break;
+            default: break;
         }
 
         return result;

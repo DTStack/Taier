@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
-import { Link } from 'react-router'
 import {
     Tree, TreeSelect, Icon, message,
-    Card, Input, Tooltip, Popconfirm
+    Tooltip, Popconfirm
 } from 'antd'
-import { chunk } from 'lodash';
 
 const TreeNode = Tree.TreeNode
 
@@ -261,8 +259,8 @@ class CatalogueTree extends Component {
     render () {
         let treeContent = ''
         const {
-            onSelect, onChange, id, value, showSearch, multiple,
-            loadData, isPicker, placeholder, defaultValue, treeCheckable
+            onSelect, onChange, id, value, showSearch,
+            isPicker, placeholder, defaultValue, treeCheckable
         } = this.props;
         if (isPicker) {
             treeContent = (

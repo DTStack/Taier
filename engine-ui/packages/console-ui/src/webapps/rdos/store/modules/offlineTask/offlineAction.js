@@ -1,6 +1,7 @@
 import React from 'react';
 import { message, Modal, Tag } from 'antd'
 import { hashHistory } from 'react-router'
+import { uniqBy } from 'lodash'
 
 import utils from 'utils';
 import ajax from '../../../api'
@@ -348,11 +349,12 @@ export const workbenchActions = (dispatch) => {
                     taskVariables = taskVariables.concat(vbs);
                 }
             }
-
+            // 去重复参数
+            const uniqArr = uniqBy(taskVariables, (o) => o.paramName);
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: {
-                    taskVariables
+                    taskVariables: uniqArr
                 }
             });
         },
@@ -750,28 +752,28 @@ export const workbenchActions = (dispatch) => {
                     let action;
 
                     switch (type) {
-                    case MENU_TYPE.TASK:
-                    case MENU_TYPE.TASK_DEV:
-                        action = taskTreeAction;
-                        break;
-                    case MENU_TYPE.RESOURCE:
-                        action = resTreeAction;
-                        break;
-                    case MENU_TYPE.FUNCTION:
-                    case MENU_TYPE.COSTOMFUC:
-                        action = fnTreeAction;
-                        break;
-                    case MENU_TYPE.SYSFUC:
-                        action = sysFnTreeActon;
-                        break;
-                    case MENU_TYPE.SCRIPT:
-                        action = scriptTreeAction;
-                        break;
-                    case MENU_TYPE.TABLE:
-                        action = tableTreeAction
-                        break;
-                    default:
-                        action = taskTreeAction;
+                        case MENU_TYPE.TASK:
+                        case MENU_TYPE.TASK_DEV:
+                            action = taskTreeAction;
+                            break;
+                        case MENU_TYPE.RESOURCE:
+                            action = resTreeAction;
+                            break;
+                        case MENU_TYPE.FUNCTION:
+                        case MENU_TYPE.COSTOMFUC:
+                            action = fnTreeAction;
+                            break;
+                        case MENU_TYPE.SYSFUC:
+                            action = sysFnTreeActon;
+                            break;
+                        case MENU_TYPE.SCRIPT:
+                            action = scriptTreeAction;
+                            break;
+                        case MENU_TYPE.TABLE:
+                            action = tableTreeAction
+                            break;
+                        default:
+                            action = taskTreeAction;
                     }
 
                     data.children && dispatch({
@@ -830,22 +832,22 @@ export const workbenchActions = (dispatch) => {
                         let action;
 
                         switch (cateType) {
-                        case MENU_TYPE.TASK:
-                        case MENU_TYPE.TASK_DEV:
-                            action = taskTreeAction;
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            action = resTreeAction;
-                            break;
-                        case MENU_TYPE.FUNCTION:
-                        case MENU_TYPE.COSTOMFUC:
-                            action = fnTreeAction;
-                            break;
-                        case MENU_TYPE.SCRIPT:
-                            action = scriptTreeAction;
-                            break;
-                        default:
-                            action = taskTreeAction;
+                            case MENU_TYPE.TASK:
+                            case MENU_TYPE.TASK_DEV:
+                                action = taskTreeAction;
+                                break;
+                            case MENU_TYPE.RESOURCE:
+                                action = resTreeAction;
+                                break;
+                            case MENU_TYPE.FUNCTION:
+                            case MENU_TYPE.COSTOMFUC:
+                                action = fnTreeAction;
+                                break;
+                            case MENU_TYPE.SCRIPT:
+                                action = scriptTreeAction;
+                                break;
+                            default:
+                                action = taskTreeAction;
                         }
 
                         dispatch({

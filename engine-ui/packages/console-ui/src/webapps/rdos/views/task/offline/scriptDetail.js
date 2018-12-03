@@ -1,11 +1,7 @@
 import React from 'react';
-import { Row, Col, Tag, Collapse, Table } from 'antd';
+import { Row, Col, Collapse } from 'antd';
 
 import utils from 'utils';
-
-import {
-    workbenchAction
-} from '../../../store/modules/offlineTask/actionType';
 
 const Panel = Collapse.Panel;
 

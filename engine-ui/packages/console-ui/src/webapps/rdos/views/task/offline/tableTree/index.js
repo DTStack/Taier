@@ -9,9 +9,6 @@ import {
 import { debounceEventHander } from 'funcs'
 
 import {
-    tableTreeAction
-} from '../../../../store/modules/offlineTask/actionType';
-import {
     workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction'
 
@@ -37,6 +34,7 @@ class TableTree extends React.Component {
         expandedKeys: [],
         searchName: ''
     }
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (this.props.project.id != nextProps.project.id) {
             this.setState({
@@ -47,6 +45,8 @@ class TableTree extends React.Component {
             })
         }
     }
+    /* eslint-disable */
+
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;
         if (expanded) {
@@ -217,15 +217,6 @@ class TreeContent extends React.PureComponent {
             const isFolder = data.type === 'folder'
             const name = data.name || data.tableName
 
-            const title = <span
-                title={name}
-                className={isFolder ? 'folder-item' : 'file-item'}
-            >
-                {name}
-                <i style={{ color: 'rgb(217, 217, 217)', fontSize: '12px' }}>
-                    {data.chargeUser || data.userName}
-                </i>
-            </span>
             const nodeTitle = isFolder ? name : (
                 <Tooltip overlayClassName="table-detail-card" title={(
                     <div className="detail-content">

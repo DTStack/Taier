@@ -81,18 +81,20 @@ class EditorContainer extends Component {
                 }
             )
     }
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
         const project = nextProps.project
-        const old_project = this.props.project
-        if (project.id != old_project.id) {
+        const oldProject = this.props.project
+        if (project.id != oldProject.id) {
             this.initTableList(project.id);
         }
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
     }
+    /* eslint-disable */
 
     handleEditorTxtChange = (newVal, editorInstance) => {
         const task = this.props.currentTabData
@@ -256,7 +258,7 @@ class EditorContainer extends Component {
         return tables[projectId];
     }
     completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
-        const { autoComplete = {}, syntax = {}, context = {}, word = {} } = status;
+        const { autoComplete = {}, context = {} } = status;
         const { funcCompleteItems } = this.state;
         const tableList = this.getTableList();
         const tableCompleteItems = this.tableCompleteItems(tableList);
@@ -366,17 +368,17 @@ class EditorContainer extends Component {
         let promiseList = [];
         let tables = [];
         let columns = {};
-        let tmp_tables = {};
+        let tmpTables = {};
         for (let location of locations) {
             if (location.type == 'table') {
                 for (let identifierChain of location.identifierChain) {
                     /**
                      * 去除重复表
                      */
-                    if (tmp_tables[identifierChain.name]) {
+                    if (tmpTables[identifierChain.name]) {
                         continue;
                     }
-                    tmp_tables[identifierChain.name] = true;
+                    tmpTables[identifierChain.name] = true;
                     /**
                      * 获取sql中存在的table
                      */
@@ -384,11 +386,11 @@ class EditorContainer extends Component {
                     /**
                      * 获取table的colums
                      */
-                    let tmp_columns = this.getTableColumns(identifierChain.name);
+                    let tmpColumns = this.getTableColumns(identifierChain.name);
                     /**
                      * 把获取column的接口都放到promiselist里面统一请求
                      */
-                    promiseList.push(tmp_columns)
+                    promiseList.push(tmpColumns)
                 }
             }
         }
