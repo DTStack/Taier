@@ -22,7 +22,8 @@ class Abstract extends Component {
         this.loadTaskList()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const nowId = nextProps.params.pid
         if (nowId && nowId !== this.props.params.pid) {
             this.loadTaskList()
@@ -34,19 +35,19 @@ class Abstract extends Component {
             title: '项目管理员',
             dataIndex: 'adminUsers',
             key: 'adminUsers',
-            render: (text, record) => {
+            render: (text, record, index) => {
                 const data = record.adminUsers || []
                 return data && data.length > 0
-                    ? data.map(item => <span>{item.userName}; </span>) : '无'
+                    ? data.map(item => <span key={index}>{item.userName}; </span>) : '无'
             }
         }, {
             title: '项目成员',
             dataIndex: 'memberUsers',
             key: 'memberUsers',
-            render: (text, record) => {
+            render: (text, record, index) => {
                 const data = record.memberUsers || []
                 return data && data.length > 0
-                    ? data.map(item => <span>{item.userName}</span>) : '无'
+                    ? data.map(item => <span key={index}>{item.userName}</span>) : '无'
             }
         }, {
             title: '项目描述',
@@ -103,20 +104,20 @@ class Abstract extends Component {
             render: (text, record) => {
                 let name = ''
                 switch (record.status) {
-                case 0:
-                    name = '提交'
-                    break;
-                case 7:
-                    name = '续跑'
-                    break;
-                case 8:
-                    name = '重试'
-                    break;
-                case 4:
-                    name = '停止'
-                    break;
-                default:
-                    break;
+                    case 0:
+                        name = '提交'
+                        break;
+                    case 7:
+                        name = '续跑'
+                        break;
+                    case 8:
+                        name = '重试'
+                        break;
+                    case 4:
+                        name = '停止'
+                        break;
+                    default:
+                        break;
                 }
                 return (
                     <div key={record.id}>
@@ -206,8 +207,8 @@ class Abstract extends Component {
                     <h1 className="title black">
                         {project.projectName}
                         <span className="desc">
-                             &nbsp;{project.createUser ? project.createUser.userName : ''}
-                             &nbsp;创建于：{utils.formatDateTime(project.gmtCreate)}
+                            &nbsp;{project.createUser ? project.createUser.userName : ''}
+                            &nbsp;创建于：{utils.formatDateTime(project.gmtCreate)}
                         </span>
                     </h1>
                     <Table

@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import { Link, hashHistory } from 'react-router'
 import { connect } from 'react-redux'
-import moment from 'moment'
-import { isEmpty } from 'lodash'
 
 import {
     Card, Button, Row, Col
 } from 'antd'
 
 import Api from '../../../api'
-import { taskStatus, PROJECT_TYPE } from '../../../comm/const'
+import { taskStatus } from '../../../comm/const'
 
 class RealtimeCount extends Component {
     state = {
@@ -21,7 +19,8 @@ class RealtimeCount extends Component {
         this.loadRealtimeData()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -30,7 +29,6 @@ class RealtimeCount extends Component {
     }
 
     loadRealtimeData () {
-        const ctx = this
         Api.taskStatistics().then((res) => {
             if (res.code === 1) {
                 this.setState({
@@ -71,7 +69,6 @@ class RealtimeCount extends Component {
 
     render () {
         const { data } = this.state
-        const { project } = this.props;
         return (
             <div>
                 <h1 className="box-title box-title-bolder" style={{ padding: '0 20 0 10' }}>

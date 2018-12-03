@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import GoBack from 'widgets/go-back'
 
 import './style.scss'

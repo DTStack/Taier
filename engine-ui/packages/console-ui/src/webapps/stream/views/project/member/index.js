@@ -10,7 +10,6 @@ import Api from '../../../api'
 import MemberForm from './form'
 import EditMemberRoleForm from './editRole'
 
-import * as UserAction from '../../../store/modules/user'
 import * as ProjectAction from '../../../store/modules/project'
 
 const Search = Input.Search
@@ -35,7 +34,8 @@ class ProjectMember extends Component {
         this.loadUsersNotInProject()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -45,7 +45,6 @@ class ProjectMember extends Component {
     }
 
     initAddMember = () => {
-        const { dispatch, params } = this.props
         this.setState({ visible: true })
     }
 
@@ -193,7 +192,6 @@ class ProjectMember extends Component {
     }
 
     initColumns = () => {
-        const user = this.props.user
         return [{
             title: '账号',
             dataIndex: 'user',

@@ -1,13 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router';
-import moment from 'moment'
-import { isEmpty } from 'lodash'
 import {
     Table, message, Modal, Button,
     Input, Card, Popconfirm,
-    DatePicker, TimePicker,
-    Select, Form, Tooltip, Icon
+    Tooltip, Icon
 } from 'antd'
 
 import utils from 'utils'
@@ -22,9 +19,6 @@ import LogInfo from './logInfo'
 import GoOnTask from './goOnTask'
 
 const Search = Input.Search
-const confirm = Modal.confirm
-const { RangePicker } = DatePicker
-const FormItem = Form.Item
 
 class RealTimeTaskList extends Component {
     state = {
@@ -72,7 +66,8 @@ class RealTimeTaskList extends Component {
         })
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -168,7 +163,7 @@ class RealTimeTaskList extends Component {
         if (!isSilent || typeof isSilent != 'boolean') {
             this.setState({ loading: true })
         }
-        const { sorter = {}, current, pageSize } = ctx.state;
+        const { sorter = {}, current } = ctx.state;
         const reqParams = Object.assign({
             currentPage: current,
             pageSize: 20,
@@ -200,56 +195,56 @@ class RealTimeTaskList extends Component {
             ? 1 : 0
 
         switch (status) {
-        case TASK_STATUS.WAIT_SUBMIT:
-        case TASK_STATUS.STOPED:
-        case TASK_STATUS.RUN_FAILED:
-        case TASK_STATUS.KILLED:
-        case TASK_STATUS.SUBMIT_FAILED: {
-            if (mode !== 'normal' && (status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED)) { // 续跑
-                if (task.taskType == TASK_TYPE.DATA_COLLECTION) {
+            case TASK_STATUS.WAIT_SUBMIT:
+            case TASK_STATUS.STOPED:
+            case TASK_STATUS.RUN_FAILED:
+            case TASK_STATUS.KILLED:
+            case TASK_STATUS.SUBMIT_FAILED: {
+                if (mode !== 'normal' && (status === TASK_STATUS.STOPED || status === TASK_STATUS.RUN_FAILED)) { // 续跑
+                    if (task.taskType == TASK_TYPE.DATA_COLLECTION) {
+                        Api.startTask({
+                            id: task.id,
+                            isRestoration: 0
+                        }).then((res) => {
+                            if (res.code === 1) {
+                                message.success('续跑操作成功！')
+                                ctx.loadTaskList({ pageIndex: current })
+                                ctx.loadCount();
+                            }
+                        })
+                    } else {
+                        this.setState({ goOnTask: task.id })
+                    }
+                } else {
                     Api.startTask({
                         id: task.id,
-                        isRestoration: 0
+                        isRestoration: isRestore
                     }).then((res) => {
                         if (res.code === 1) {
-                            message.success('续跑操作成功！')
+                            message.success('任务操作成功！')
                             ctx.loadTaskList({ pageIndex: current })
                             ctx.loadCount();
                         }
                     })
-                } else {
-                    this.setState({ goOnTask: task.id })
                 }
-            } else {
-                Api.startTask({
-                    id: task.id,
-                    isRestoration: isRestore
+                break;
+            }
+            case TASK_STATUS.RUNNING:
+            case TASK_STATUS.SUBMITTING:
+            case TASK_STATUS.RESTARTING:
+            case TASK_STATUS.WAIT_RUN:
+            case TASK_STATUS.WAIT_COMPUTE: {
+                Api.stopTask({
+                    id: task.id
                 }).then((res) => {
                     if (res.code === 1) {
-                        message.success('任务操作成功！')
+                        message.success('任务正在停止！')
                         ctx.loadTaskList({ pageIndex: current })
                         ctx.loadCount();
                     }
                 })
+                break;
             }
-            break;
-        }
-        case TASK_STATUS.RUNNING:
-        case TASK_STATUS.SUBMITTING:
-        case TASK_STATUS.RESTARTING:
-        case TASK_STATUS.WAIT_RUN:
-        case TASK_STATUS.WAIT_COMPUTE: {
-            Api.stopTask({
-                id: task.id
-            }).then((res) => {
-                if (res.code === 1) {
-                    message.success('任务正在停止！')
-                    ctx.loadTaskList({ pageIndex: current })
-                    ctx.loadCount();
-                }
-            })
-            break;
-        }
         }
     }
 
@@ -397,36 +392,33 @@ class RealTimeTaskList extends Component {
         let goOn = ''
         let popTxt = '确定执行当前操作吗?'
         switch (record.status) {
-        case TASK_STATUS.WAIT_SUBMIT:
-        case TASK_STATUS.SUBMIT_FAILED:
-            normal = '提交'
-            break;
-        case TASK_STATUS.FINISHED:
-            recover = <a>重跑</a>
-            popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
-            break;
-        case TASK_STATUS.STOPED:
-        case TASK_STATUS.KILLED:
-            goOn = '续跑'
-            popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
-            recover = <a>重跑</a>
-            break;
-        case TASK_STATUS.RUN_FAILED:
-            goOn = '续跑'
-            normal = '重试'
-            break;
-        case TASK_STATUS.SUBMIT_FAILED:
-            normal = '重试'
-            break;
-        case TASK_STATUS.RUNNING:
-        case TASK_STATUS.WAIT_RUN:
-        case TASK_STATUS.WAIT_COMPUTE:
-        case TASK_STATUS.SUBMITTING:
-        case TASK_STATUS.RESTARTING:
-            normal = '停止'
-            break;
-        default:
-            break;
+            case TASK_STATUS.WAIT_SUBMIT:
+            case TASK_STATUS.SUBMIT_FAILED:
+                normal = '提交'
+                break;
+            case TASK_STATUS.FINISHED:
+                recover = <a>重跑</a>
+                popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
+                break;
+            case TASK_STATUS.STOPED:
+            case TASK_STATUS.KILLED:
+                goOn = '续跑'
+                popTxt = '重跑，则任务将丢弃停止前的状态，重新运行'
+                recover = <a>重跑</a>
+                break;
+            case TASK_STATUS.RUN_FAILED:
+                goOn = '续跑'
+                normal = '重试'
+                break;
+            case TASK_STATUS.RUNNING:
+            case TASK_STATUS.WAIT_RUN:
+            case TASK_STATUS.WAIT_COMPUTE:
+            case TASK_STATUS.SUBMITTING:
+            case TASK_STATUS.RESTARTING:
+                normal = '停止'
+                break;
+            default:
+                break;
         }
 
         if (record.taskType == TASK_TYPE.DATA_COLLECTION) {
@@ -522,15 +514,16 @@ class RealTimeTaskList extends Component {
                     }
                     extra={
                         <Tooltip title="刷新数据">
-                            <Icon type="sync" onClick={() => {
-                                this.loadCount();
-                                this.loadTaskList()
-                            }}
-                            style={{
-                                cursor: 'pointer',
-                                marginTop: '16px',
-                                color: '#94A8C6'
-                            }}
+                            <Icon type="sync"
+                                onClick={() => {
+                                    this.loadCount();
+                                    this.loadTaskList()
+                                }}
+                                style={{
+                                    cursor: 'pointer',
+                                    marginTop: '16px',
+                                    color: '#94A8C6'
+                                }}
                             />
                         </Tooltip>
                     }

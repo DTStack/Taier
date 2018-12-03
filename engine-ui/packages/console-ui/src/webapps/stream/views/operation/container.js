@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Layout, Button } from 'antd'
+import { Layout } from 'antd'
 import { connect } from 'react-redux'
 
 import * as UserAction from '../../store/modules/user'
@@ -23,7 +23,8 @@ class Container extends Component {
     componentDidMount () {
         this.initUsers(this.props.project);
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { project = {} } = nextProps;
         const { project: old_project = {} } = this.props;
         if (old_project.id != project.id) {
@@ -46,7 +47,6 @@ class Container extends Component {
 
     render () {
         const { children } = this.props
-        const collapsed = this.state.collapsed
         return (
             <div className="dt-operation">
                 <Content>

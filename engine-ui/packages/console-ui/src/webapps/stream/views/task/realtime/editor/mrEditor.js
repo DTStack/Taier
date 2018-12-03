@@ -5,7 +5,7 @@ import {
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { formItemLayout, PROJECT_TYPE } from '../../../../comm/const'
+import { formItemLayout } from '../../../../comm/const'
 import * as BrowserAction from '../../../../store/modules/realtimeTask/browser'
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../store/modules/realtimeTask/comm';
 
@@ -13,7 +13,8 @@ const FormItem = Form.Item
 const RadioGroup = Radio.Group
 
 class MrEditor extends Component {
-    componentWillMount () {
+    // eslint-disable-next-line
+	UNSAFE_componentWillMount () {
         this.props.realtimeGetTaskTypes();
     }
 

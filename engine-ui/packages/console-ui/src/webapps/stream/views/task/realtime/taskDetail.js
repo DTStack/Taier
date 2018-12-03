@@ -19,7 +19,8 @@ export default class TaskDetail extends Component {
         resList: []
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         if (currentPage.id !== oldPage.id) {
@@ -70,15 +71,15 @@ export default class TaskDetail extends Component {
     }
     getTaskName (type) {
         switch (type) {
-        case TASK_TYPE.SQL: {
-            return 'FlinkSQL'
-        }
-        case TASK_TYPE.MR: {
-            return 'FlinkMR'
-        }
-        case TASK_TYPE.DATA_COLLECTION: {
-            return '实时采集'
-        }
+            case TASK_TYPE.SQL: {
+                return 'FlinkSQL'
+            }
+            case TASK_TYPE.MR: {
+                return 'FlinkMR'
+            }
+            case TASK_TYPE.DATA_COLLECTION: {
+                return '实时采集'
+            }
         }
     }
     render () {

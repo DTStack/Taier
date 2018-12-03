@@ -30,7 +30,8 @@ class AlarmConfigList extends React.Component {
         console.log('AlarmMsgconfig')
         this.loadAlarmRules();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const data = nextProps.data
         const oldData = this.props.data
         if (oldData && data && oldData.id !== data.id) {
@@ -122,7 +123,7 @@ class AlarmConfigList extends React.Component {
             render: (text, record) => {
                 const recivers = record.receiveUsers
                 if (recivers.length > 0) {
-                    return recivers.map(item => <span>{item.userName};</span>)
+                    return recivers.map(item => <span key={record.alarmId}>{item.userName};</span>)
                 }
                 return ''
             }

@@ -1,9 +1,8 @@
 import React from 'react';
-import { Steps, message } from 'antd';
+import { Steps } from 'antd';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import ajax from '../../../../../api/index'
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
 
 import Source from './collectionSource';
@@ -13,14 +12,16 @@ import Complete from './complete';
 const Step = Steps.Step;
 
 class CollectionGuide extends React.Component {
-    componentWillMount () {
+    // eslint-disable-next-line
+	UNSAFE_componentWillMount () {
         this.props.getDataSource();
         this.props.initCollectionTask(this.props.currentPage.id);
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { currentPage } = nextProps;
-        const { currentPage: old_currentPage } = this.props;
-        if (currentPage.id != old_currentPage.id) {
+        const { currentPage: oldCurrentPage } = this.props;
+        if (currentPage.id != oldCurrentPage.id) {
             this.props.initCollectionTask(currentPage.id)
             this.props.getDataSource();
         }

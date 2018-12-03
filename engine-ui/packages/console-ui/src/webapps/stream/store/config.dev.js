@@ -24,4 +24,3 @@ export default function configureStore(initialState) {
     }
     return store;
 }
-/* eslint-disable */

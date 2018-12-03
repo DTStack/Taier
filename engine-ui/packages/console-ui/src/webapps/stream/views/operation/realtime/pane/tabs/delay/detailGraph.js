@@ -22,7 +22,8 @@ class TopicDetailTable extends React.Component {
     componentDidMount () {
         this.getDetail();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { taskId, partitionId, topicName } = this.props;
         const { taskId: nextTaskId, partitionId: nextPartitionId, topicName: nextTopicName } = nextProps;
         if (taskId != nextTaskId || partitionId != nextPartitionId || topicName != nextTopicName) {

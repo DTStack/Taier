@@ -23,7 +23,8 @@ class DelayDetailModal extends React.Component {
     componentDidMount () {
         this.getDelayList();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { taskId, topicName } = this.props;
         const { taskId: nextTaskId, topicName: nextTopicName } = nextProps;
         if (taskId != nextTaskId || topicName != nextTopicName) {

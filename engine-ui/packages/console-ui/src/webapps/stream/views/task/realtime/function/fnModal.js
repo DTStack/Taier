@@ -179,7 +179,8 @@ class FnForm extends React.Component {
         };
         loop(resTreeData);
         if (nodeType === 'folder') {
-            callback('请选择具体文件, 而非文件夹');
+            const error = '请选择具体文件, 而非文件夹'
+            callback(error);
         }
         callback();
     }
@@ -226,7 +227,7 @@ class FnModal extends React.Component {
     }
 
     handleSubmit () {
-        const { isModalShow, toggleCreateFn, handOk } = this.props;
+        const { handOk } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {

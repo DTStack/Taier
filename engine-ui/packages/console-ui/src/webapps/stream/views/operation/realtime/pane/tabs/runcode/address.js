@@ -11,11 +11,12 @@ class RunCodeAddess extends React.Component {
     componentDidMount () {
         this.initAddress(this.props.taskId);
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { taskId } = nextProps;
-        const { taskId: old_taskId } = this.props;
+        const { taskId: oldTaskId } = this.props;
 
-        if (taskId && old_taskId != taskId) {
+        if (taskId && oldTaskId != taskId) {
             this.initAddress(taskId);
         }
     }

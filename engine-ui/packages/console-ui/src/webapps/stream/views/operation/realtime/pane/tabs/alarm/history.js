@@ -25,7 +25,8 @@ class AlarmHistory extends React.Component {
     componentDidMount () {
         this.loadAlarms();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const data = nextProps.data
         const oldData = this.props.data
         if (oldData && data && oldData.id !== data.id) {
@@ -87,10 +88,10 @@ class AlarmHistory extends React.Component {
         }, {
             title: '接收人',
             dataIndex: 'receiveUsers',
-            render: (text, record) => {
+            render: (text, record, index) => {
                 const recivers = record.receiveUsers
                 if (recivers.length > 0) {
-                    return recivers.map(item => <span>{item.userName};</span>)
+                    return recivers.map(item => <span key={index}>{item.userName};</span>)
                 }
                 return ''
             }

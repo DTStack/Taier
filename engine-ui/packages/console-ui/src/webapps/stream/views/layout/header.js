@@ -10,7 +10,7 @@ import * as ProjectAction from '../../store/modules/project';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
-/* eslint-disable */
+/* eslint-enable */
 
 const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
@@ -23,21 +23,21 @@ const confirm = Modal.confirm;
     }
 })
 class Header extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
-            current: "project",
-            devPath: "/realtime/task"
+            current: 'project',
+            devPath: '/realtime/task'
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected();
     }
 
     // 控制项目下拉菜单的显示
-    componentWillReceiveProps() {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps () {
         this.updateSelected();
     }
 
@@ -52,8 +52,8 @@ class Header extends Component {
             const switchProject = () => {
                 dispatch(ProjectAction.getProject(projectId));
                 // 清理tab数据
-                if (this.state.current === "overview") {
-                    router.push("/realtime/task");
+                if (this.state.current === 'overview') {
+                    router.push('/realtime/task');
                 }
             }
             this.checkUnSaveTask(switchProject);
@@ -62,7 +62,7 @@ class Header extends Component {
 
     checkUnSaveTask = (onOk) => {
         const { realTimeTabs } = this.props;
-        const tabsData =realTimeTabs;
+        const tabsData = realTimeTabs;
 
         const hasUnSave = (tabs) => {
             for (let tab of tabs) {
@@ -76,9 +76,9 @@ class Header extends Component {
             confirm({
                 title: '部分任务修后未同步到服务器，是否强制关闭?',
                 content: '在未保存任务前，切换项目将会丢弃这些任务的修改数据，建议您确认后再行操作！',
-                onOk() {
+                onOk () {
                     if (onOk) onOk();
-                },
+                }
             });
         } else {
             onOk();
@@ -86,18 +86,18 @@ class Header extends Component {
     }
 
     clickUserMenu = obj => {
-        if (obj.key === "logout") {
+        if (obj.key === 'logout') {
             Api.logout();
         }
     };
 
     goIndex = () => {
         const { router } = this.props;
-        this.setState({ current: "overview" });
-        router.push("/");
+        this.setState({ current: 'overview' });
+        router.push('/');
     };
 
-    getProjectItems() {
+    getProjectItems () {
         const projects = this.props.projects;
         if (projects && projects.length > 0) {
             return projects.map(project => {
@@ -117,19 +117,19 @@ class Header extends Component {
         return [];
     }
 
-    updateSelected() {
+    updateSelected () {
         let pathname = this.props.router.location.pathname;
-        const routes = pathname ? pathname.split("/") : [];
+        const routes = pathname ? pathname.split('/') : [];
         let path =
-            routes.length > 0 && routes[1] !== "" ? routes[1] : "overview";
+            routes.length > 0 && routes[1] !== '' ? routes[1] : 'overview';
         if (
             path &&
-            (path.indexOf("task") > -1 || path.indexOf("offline") > -1|| path.indexOf("realtime") > -1)
+            (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
         ) {
             this.setState({
                 devPath: pathname
             });
-            path="realtime"
+            path = 'realtime'
         }
         if (path !== this.state.current) {
             this.setState({
@@ -151,12 +151,12 @@ class Header extends Component {
     };
 
     renderProjectSelect = () => {
-        const { project, projects } = this.props;
+        const { project } = this.props;
 
         const projectName =
             project && project.projectName
                 ? project.projectAlias || project.projectName
-                : "项目选择";
+                : '项目选择';
         const menu = (
             <Menu
                 onClick={this.selectedProject}
@@ -166,16 +166,16 @@ class Header extends Component {
                 style={{
                     maxHeight: '400px',
                     overflowY: 'auto',
-                    width:"170px"
+                    width: '170px'
                 }}
             >
                 {this.getProjectItems()}
             </Menu>
         )
-        
+
         return (
             <SubMenu
-                className="my-menu-item" 
+                className="my-menu-item"
                 title={
                     <Dropdown
                         overlay={menu}
@@ -185,7 +185,7 @@ class Header extends Component {
                         <span
                             style={{
                                 display: 'inline-block',
-                                height: '47px',
+                                height: '47px'
                             }}
                             className="my-menu-item"
                         >
@@ -196,7 +196,7 @@ class Header extends Component {
                                 {projectName}
                             </span>
                             &nbsp;
-                            <Icon style={{fontSize:"12px"}} type="caret-down" />
+                            <Icon style={{ fontSize: '12px' }} type="caret-down" />
                         </span>
                     </Dropdown>
                 }
@@ -204,7 +204,7 @@ class Header extends Component {
             </SubMenu>
         );
     };
-    renderProjectType() {
+    renderProjectType () {
         const { project } = this.props;
         switch (project.projectType) {
             case PROJECT_TYPE.TEST: {
@@ -215,7 +215,7 @@ class Header extends Component {
                         <span className="content">
 
                             <img src="/public/stream/img/icon/develop.svg" />测试
-                    </span>
+                        </span>
                     </div>
                 )
             }
@@ -235,43 +235,43 @@ class Header extends Component {
             }
         }
     }
-    render() {
+    render () {
         const { user, project, apps, app, router } = this.props;
         const { current, devPath } = this.state;
         let pathname = router.location.pathname;
 
-        const display = current !== "overview" ? "inline-block" : "none";
+        const display = current !== 'overview' ? 'inline-block' : 'none';
 
-        const pid = project && project.id ? project.id : "";
+        const pid = project && project.id ? project.id : '';
 
         const basePath = app.link;
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
-            pathname.indexOf("/data-manage") > -1 || pathname === "/" ? false : true;
+            !!(pathname.indexOf('/data-manage') > -1 || pathname === '/');
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">
                     <img
-                        style={{ height: "20px", marginTop: "10px" }}
+                        style={{ height: '20px', marginTop: '10px' }}
                         alt="logo"
                         src="/public/stream/img/logo.svg"
                     />
                     <span
                         style={{
-                            fontSize: "14px",
-                            color: "#ffffff",
-                            position: "absolute",
-                            left: "70px",
+                            fontSize: '14px',
+                            color: '#ffffff',
+                            position: 'absolute',
+                            left: '70px',
                             top: 0
                         }}
                     >
                         {window.APP_CONF.prefix}.Stream
                     </span>
                 </div>
-                <div className="menu left" style={{ position: "relative" }}>
+                <div className="menu left" style={{ position: 'relative' }}>
                     <Menu
-                        className={"my-menu"}
+                        className={'my-menu'}
                         onClick={this.handleClick}
                         selectedKeys={[this.state.current]}
                         mode="horizontal"

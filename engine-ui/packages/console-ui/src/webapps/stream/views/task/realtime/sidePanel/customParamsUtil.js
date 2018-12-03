@@ -31,11 +31,10 @@ export function changeCustomParams (panel, value, extParam = {}) {
             id: utils.generateAKey()
         })
         return;
-    }
-    /**
-     * 检查是不是删除自定义参数
-     */
-    else if (extParam.type == 'deleteCustomParam') {
+    } else if (extParam.type == 'deleteCustomParam') {
+        /**
+        * 检查是不是删除自定义参数
+        */
         const index = customParams.findIndex((customParam) => {
             return customParam.id == extParam.id;
         })

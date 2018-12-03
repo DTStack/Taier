@@ -2,11 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
-    Input, Button, Popconfirm,
+    Input, Button,
     Table, message, Card, Icon, Tooltip
 } from 'antd';
-
-import utils from 'utils';
 
 import { Circle } from 'widgets/circle';
 import Api from '../../../api';
@@ -36,7 +34,8 @@ class DataSourceManaStream extends Component {
         this.getSourceTypes();
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
@@ -113,7 +112,6 @@ class DataSourceManaStream extends Component {
     }
 
     testConnection = (source) => { // 测试数据源连通性
-        const ctx = this
         Api.streamTestDataSourceConnection(source).then((res) => {
             if (res.code === 1 && res.data) {
                 message.success('数据源连接正常！')
@@ -314,7 +312,6 @@ class DataSourceManaStream extends Component {
                         bordered={false}
                     >
                         <Table
-                            className="m-table"
                             rowKey="id"
                             className="m-table full-screen-table-47"
                             pagination={pagination}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { isArray, isNumber } from 'lodash';
 import {
-    Form, Input, Select,
+    Form, Input,
     Radio, Modal
 } from 'antd'
 
@@ -22,7 +22,8 @@ class TaskFormModal extends Component {
 
     _update = false; // update flag;
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const newTask = nextProps.taskInfo
         const oldTask = this.props.taskInfo
         if (newTask.id !== oldTask.id) {
@@ -112,7 +113,6 @@ class TaskFormModal extends Component {
     checkNotDir (rule, values, callback) {
         const { resRoot } = this.props;
 
-        let nodeType;
         let loop = (arr) => {
             arr.forEach((node, i) => {
                 let flag = false;
@@ -123,7 +123,8 @@ class TaskFormModal extends Component {
                 }
 
                 if (flag && node.type === 'folder') {
-                    callback('请选择具体文件, 而非文件夹');
+                    const error = '请选择具体文件, 而非文件夹';
+                    callback(error);
                 } else {
                     loop(node.children || []);
                 }
@@ -136,7 +137,7 @@ class TaskFormModal extends Component {
     render () {
         const {
             form, ayncTree, visible, taskTypes,
-            taskInfo, taskRoot, resRoot, type, operation
+            taskInfo, taskRoot, resRoot, operation
         } = this.props
 
         const { getFieldDecorator } = form

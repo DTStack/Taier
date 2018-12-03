@@ -54,36 +54,36 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
                 // 状态正常
                 if (res && res.code === 1) {
                     switch (res.data.status) {
-                    case taskStatus.FINISHED: {
-                        // 成功
-                        getDataOver(dispatch, currentTab, res, jobId)
-                        resolve(true);
-                        return;
-                    }
-                    case taskStatus.FAILED:
-                    case taskStatus.CANCELED: {
-                        outputStatus(res.data.status)
-                        if (res.data && res.data.download) {
-                            dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                        case taskStatus.FINISHED: {
+                            // 成功
+                            getDataOver(dispatch, currentTab, res, jobId)
+                            resolve(true);
+                            return;
                         }
-                        dispatch(removeLoadingTab(currentTab))
-                        resolve(false)
-                        return;
-                    }
-                    default: {
-                        // 正常运行，则再次请求,并记录定时器id
-                        intervalsStore[currentTab] = setTimeout(
-                            () => {
-                                if (stopSign[currentTab]) {
-                                    console.log('find stop sign in doSelect')
-                                    stopSign[currentTab] = false;
-                                    return;
-                                }
-                                outputStatus(res.data.status, '.....')
-                                doSelect(resolve, dispatch, jobId, currentTab)
-                            }, INTERVALS
-                        )
-                    }
+                        case taskStatus.FAILED:
+                        case taskStatus.CANCELED: {
+                            outputStatus(res.data.status)
+                            if (res.data && res.data.download) {
+                                dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
+                            }
+                            dispatch(removeLoadingTab(currentTab))
+                            resolve(false)
+                            return;
+                        }
+                        default: {
+                            // 正常运行，则再次请求,并记录定时器id
+                            intervalsStore[currentTab] = setTimeout(
+                                () => {
+                                    if (stopSign[currentTab]) {
+                                        console.log('find stop sign in doSelect')
+                                        stopSign[currentTab] = false;
+                                        return;
+                                    }
+                                    outputStatus(res.data.status, '.....')
+                                    doSelect(resolve, dispatch, jobId, currentTab)
+                                }, INTERVALS
+                            )
+                        }
                     }
                 } else {
                     dispatch(output(currentTab, `请求异常！`))
@@ -163,10 +163,10 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
         }
     }
     if (utils.checkExist(task.taskType)) { // 任务执行
-        params.taskId = task.id,
+        params.taskId = task.id;
         API.execSQLImmediately(params).then(succCall)
     } else if (utils.checkExist(task.type)) { // 脚本执行
-        params.scriptId = task.id,
+        params.scriptId = task.id;
         API.execScript(params).then(succCall)
     }
 }
@@ -206,6 +206,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
              * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
              */
             return;
+            /* eslint-disable */
             if (res.code === 1) {
                 dispatch(output(currentTab, '执行停止'))
                 // 消除轮询定时器
@@ -219,6 +220,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
             } else {
                 message.success('停止执行失败！')
             }
+            /* eslint-enable */
         }
 
         if (utils.checkExist(currentTabData.taskType)) { // 任务执行

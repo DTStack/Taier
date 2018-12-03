@@ -1,13 +1,10 @@
 import React from 'react'
-import moment from 'moment'
-import utils from 'utils';
 
-import { Radio, Collapse, Row, Col, Icon, Tooltip } from 'antd'
+import { Radio, Collapse, Icon, Tooltip } from 'antd'
 
 import AlarmBaseGraph from './baseGraph';
-import { TIME_TYPE, CHARTS_COLOR } from '../../../../../../comm/const';
+import { TIME_TYPE, CHARTS_COLOR, TASK_TYPE } from '../../../../../../comm/const';
 import Api from '../../../../../../api'
-import { TASK_TYPE } from '../../../../../../../stream/comm/const';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -57,7 +54,8 @@ class StreamDetailGraph extends React.Component {
     componentDidMount () {
         this.initData();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const data = nextProps.data
         const oldData = this.props.data
         if (oldData && data && oldData.id !== data.id) {
@@ -80,67 +78,67 @@ class StreamDetailGraph extends React.Component {
             let x = []; let y = []; let ext = {};
             x = lineData.map((data) => { return data.time });
             switch (type) {
-            case metricsType.SOURCE_INPUT_BPS:
-            case metricsType.SINK_OUTPUT_RPS:
-            case metricsType.SOURCE_TPS:
-            case metricsType.SOURCE_RPS:
-            case metricsType.SOURCE_DIRTY:
-            case metricsType.DELAY: {
-                let tmp_map = {};
-                let legend = [];
-                for (let i = 0; i < lineData.length; i++) {
-                    let chartData = lineData[i];
-                    for (let key in chartData) {
-                        if (key == 'time') {
-                            continue;
-                        }
-                        if (tmp_map[key]) {
-                            tmp_map[key].push(chartData[key])
-                        } else {
-                            tmp_map[key] = [chartData[key]];
+                case metricsType.SOURCE_INPUT_BPS:
+                case metricsType.SINK_OUTPUT_RPS:
+                case metricsType.SOURCE_TPS:
+                case metricsType.SOURCE_RPS:
+                case metricsType.SOURCE_DIRTY:
+                case metricsType.DELAY: {
+                    let tmpMap = {};
+                    let legend = [];
+                    for (let i = 0; i < lineData.length; i++) {
+                        let chartData = lineData[i];
+                        for (let key in chartData) {
+                            if (key == 'time') {
+                                continue;
+                            }
+                            if (tmpMap[key]) {
+                                tmpMap[key].push(chartData[key])
+                            } else {
+                                tmpMap[key] = [chartData[key]];
+                            }
                         }
                     }
+                    for (let key in tmpMap) {
+                        let datas = tmpMap[key];
+                        y.push(datas);
+                        legend.push(key);
+                    }
+                    ext.legend = legend;
+                    break;
                 }
-                for (let key in tmp_map) {
-                    let datas = tmp_map[key];
-                    y.push(datas);
-                    legend.push(key);
+                case metricsType.FAILOVER_RATE: {
+                    y[0] = lineData.map((data) => { return data.fail_over_rate });
+                    break;
                 }
-                ext.legend = legend;
-                break;
-            }
-            case metricsType.FAILOVER_RATE: {
-                y[0] = lineData.map((data) => { return data.fail_over_rate });
-                break;
-            }
-            case metricsType.DATA_COLLECTION_BPS: {
-                y[0] = lineData.map((data) => { return data.jlogstash_input_bps });
-                y[1] = lineData.map((data) => { return data.jlogstash_output_bps });
-                break;
-            }
-            case metricsType.DATA_COLLECTION_RPS: {
-                y[0] = lineData.map((data) => { return data.jlogstash_input_rps });
-                y[1] = lineData.map((data) => { return data.jlogstash_output_rps });
-                break;
-            }
-            case metricsType.DATA_DISABLE_TPS: {
-                y[0] = lineData.map((data) => { return data.data_discard_tps });
-                break;
-            }
-            case metricsType.DATA_DISABLE_COUNT: {
-                y[0] = lineData.map((data) => { return data.data_discard_count });
-                break;
-            }
-            case metricsType.DATA_COLLECTION_TOTAL_BPS: {
-                y[0] = lineData.map((data) => { return data.jlogstash_input_byte_sum });
-                y[1] = lineData.map((data) => { return data.jlogstash_output_byte_sum });
-                break;
-            }
-            case metricsType.DATA_COLLECTION_TOTAL_RPS: {
-                y[0] = lineData.map((data) => { return data.jlogstash_input_record_sum });
-                y[1] = lineData.map((data) => { return data.jlogstash_output_record_sum });
-                break;
-            }
+                case metricsType.DATA_COLLECTION_BPS: {
+                    y[0] = lineData.map((data) => { return data.jlogstash_input_bps });
+                    y[1] = lineData.map((data) => { return data.jlogstash_output_bps });
+                    break;
+                }
+                case metricsType.DATA_COLLECTION_RPS: {
+                    y[0] = lineData.map((data) => { return data.jlogstash_input_rps });
+                    y[1] = lineData.map((data) => { return data.jlogstash_output_rps });
+                    break;
+                }
+                case metricsType.DATA_DISABLE_TPS: {
+                    y[0] = lineData.map((data) => { return data.data_discard_tps });
+                    break;
+                }
+                case metricsType.DATA_DISABLE_COUNT: {
+                    y[0] = lineData.map((data) => { return data.data_discard_count });
+                    break;
+                }
+                case metricsType.DATA_COLLECTION_TOTAL_BPS: {
+                    y[0] = lineData.map((data) => { return data.jlogstash_input_byte_sum });
+                    y[1] = lineData.map((data) => { return data.jlogstash_output_byte_sum });
+                    break;
+                }
+                case metricsType.DATA_COLLECTION_TOTAL_RPS: {
+                    y[0] = lineData.map((data) => { return data.jlogstash_input_record_sum });
+                    y[1] = lineData.map((data) => { return data.jlogstash_output_record_sum });
+                    break;
+                }
             }
             stateLineData[type] = {
                 x,
@@ -287,123 +285,121 @@ class StreamDetailGraph extends React.Component {
                                 </section>
                             </div>
                         </div>
-                    ) : (
-                        <Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
-                            <Panel header="OverView" key="OverView">
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.FAILOVER_RATE],
-                                                color: CHARTS_COLOR,
-                                                legend: ['Rate']
-                                            }}
-                                            desc="当前任务出现Failover（错误或者异常）的频率。计算方法：当前Failover时间点的前一分钟内出现Failover的累计次数/60次。"
-                                            title="FailOver Rate" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.DELAY],
-                                                color: CHARTS_COLOR,
-                                                unit: 's'
-                                            }}
-                                            desc="数据中的时间戳与数据进入计算引擎之间的时间差，例如原始数据中的时间戳是2018-01-01 12:12:12，而流计算集群的当前时间为2018-01-01 12:13:12，则业务延迟为1分钟，每个KafkaTopic对应的业务延迟独立显示为不同的曲线。"
-                                            title="业务延时" />
-                                    </section>
-                                </div>
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                color: CHARTS_COLOR,
-                                                ...lineDatas[metricsType.SOURCE_TPS],
-                                                unit: '条/秒'
-                                            }}
-                                            desc="对流式数据输入（Kafka）进行统计，单位是TPS(Transaction Per Second)。"
-                                            title="各Source的TPS数据输入" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SINK_OUTPUT_RPS],
-                                                color: CHARTS_COLOR,
-                                                unit: '条/秒'
-                                            }}
-                                            desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
-                                            title="各Sink的数据输出" />
-                                    </section>
-                                </div>
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SOURCE_RPS],
-                                                color: CHARTS_COLOR,
-                                                unit: 'rps 条/秒'
-                                            }}
-                                            desc="对流式数据输入（Kafka）进行统计，单位是RPS(Record Per Second)。"
-                                            title="各Source的RPS数据输入" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SOURCE_INPUT_BPS],
-                                                color: CHARTS_COLOR,
-                                                unit: 'KB'
-                                            }}
-                                            desc="对流式数据输入（Kafka）进行统计，单位是BPS(BytePer Second)。"
-                                            title="各Source的BPS数据输入" />
-                                    </section>
-                                </div>
+                    ) : (<Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
+                        <Panel header="OverView" key="OverView">
+                            <div className="alarm-graph-row">
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.FAILOVER_RATE],
+                                            color: CHARTS_COLOR,
+                                            legend: ['Rate']
+                                        }}
+                                        desc="当前任务出现Failover（错误或者异常）的频率。计算方法：当前Failover时间点的前一分钟内出现Failover的累计次数/60次。"
+                                        title="FailOver Rate" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DELAY],
+                                            color: CHARTS_COLOR,
+                                            unit: 's'
+                                        }}
+                                        desc="数据中的时间戳与数据进入计算引擎之间的时间差，例如原始数据中的时间戳是2018-01-01 12:12:12，而流计算集群的当前时间为2018-01-01 12:13:12，则业务延迟为1分钟，每个KafkaTopic对应的业务延迟独立显示为不同的曲线。"
+                                        title="业务延时" />
+                                </section>
+                            </div>
+                            <div className="alarm-graph-row">
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            color: CHARTS_COLOR,
+                                            ...lineDatas[metricsType.SOURCE_TPS],
+                                            unit: '条/秒'
+                                        }}
+                                        desc="对流式数据输入（Kafka）进行统计，单位是TPS(Transaction Per Second)。"
+                                        title="各Source的TPS数据输入" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.SINK_OUTPUT_RPS],
+                                            color: CHARTS_COLOR,
+                                            unit: '条/秒'
+                                        }}
+                                        desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
+                                        title="各Sink的数据输出" />
+                                </section>
+                            </div>
+                            <div className="alarm-graph-row">
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.SOURCE_RPS],
+                                            color: CHARTS_COLOR,
+                                            unit: 'rps 条/秒'
+                                        }}
+                                        desc="对流式数据输入（Kafka）进行统计，单位是RPS(Record Per Second)。"
+                                        title="各Source的RPS数据输入" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.SOURCE_INPUT_BPS],
+                                            color: CHARTS_COLOR,
+                                            unit: 'KB'
+                                        }}
+                                        desc="对流式数据输入（Kafka）进行统计，单位是BPS(BytePer Second)。"
+                                        title="各Source的BPS数据输入" />
+                                </section>
+                            </div>
 
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.SOURCE_DIRTY],
-                                                color: CHARTS_COLOR
-                                            }}
-                                            desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
-                                            title="各Source的脏数据" />
-                                    </section>
-                                </div>
-                            </Panel>
-                            <Panel header="WaterMark" key="WaterMark" style={{ marginBottom: '50px' }}>
-                                <div className="alarm-graph-row">
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.DATA_DISABLE_TPS],
-                                                color: CHARTS_COLOR,
-                                                legend: ['数据迟到丢弃TPS']
-                                            }}
-                                            desc="基于事件时间（EventTime）的流任务中，如果element的事件时间迟于允许的最大延迟时间，在窗口相关的操作中，该element将会被丢弃。"
-                                            title="数据迟到丢弃TPS" />
-                                    </section>
-                                    <section>
-                                        <AlarmBaseGraph
-                                            time={time}
-                                            lineData={{
-                                                ...lineDatas[metricsType.DATA_DISABLE_COUNT],
-                                                color: CHARTS_COLOR,
-                                                legend: ['数据迟到累计丢弃数']
-                                            }}
-                                            desc="数据因迟到被丢弃的累计数量。"
-                                            title="数据迟到累计丢弃数" />
-                                    </section>
-                                </div>
-                            </Panel>
-                        </Collapse>
-                    )}
+                            <div className="alarm-graph-row">
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.SOURCE_DIRTY],
+                                            color: CHARTS_COLOR
+                                        }}
+                                        desc="各Source的脏数据，反映实时计算 Flink的Source段是否有脏数据的情况。"
+                                        title="各Source的脏数据" />
+                                </section>
+                            </div>
+                        </Panel>
+                        <Panel header="WaterMark" key="WaterMark" style={{ marginBottom: '50px' }}>
+                            <div className="alarm-graph-row">
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DATA_DISABLE_TPS],
+                                            color: CHARTS_COLOR,
+                                            legend: ['数据迟到丢弃TPS']
+                                        }}
+                                        desc="基于事件时间（EventTime）的流任务中，如果element的事件时间迟于允许的最大延迟时间，在窗口相关的操作中，该element将会被丢弃。"
+                                        title="数据迟到丢弃TPS" />
+                                </section>
+                                <section>
+                                    <AlarmBaseGraph
+                                        time={time}
+                                        lineData={{
+                                            ...lineDatas[metricsType.DATA_DISABLE_COUNT],
+                                            color: CHARTS_COLOR,
+                                            legend: ['数据迟到累计丢弃数']
+                                        }}
+                                        desc="数据因迟到被丢弃的累计数量。"
+                                        title="数据迟到累计丢弃数" />
+                                </section>
+                            </div>
+                        </Panel>
+                    </Collapse>)}
                 </div>
             </div>
         )

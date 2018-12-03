@@ -20,23 +20,23 @@ export const showSeach = (boolFlag) => {
 // 全局搜索框
 export const visibleSearchTask = (state = false, action) => {
     switch (action.type) {
-    case commAction.SET_SEARCH_TASK_VISIBLE:
-        return action.data;
-    default:
-        return state;
+        case commAction.SET_SEARCH_TASK_VISIBLE:
+            return action.data;
+        default:
+            return state;
     }
 }
 
 // 请状态
 export function req (state = 'success', action) {
     switch (action.type) {
-    case commAction.REQ_LOADING:
-        return 'loading';
-    case commAction.REQ_SUCCESS:
-        return 'success';
-    case commAction.REQ_ERROR:
-        return 'error';
-    default:
-        return state;
+        case commAction.REQ_LOADING:
+            return 'loading';
+        case commAction.REQ_SUCCESS:
+            return 'success';
+        case commAction.REQ_ERROR:
+            return 'error';
+        default:
+            return state;
     }
 }

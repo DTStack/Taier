@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router'
 import {
     Card, Table, message,
-    Popconfirm, Button
+    Button
 } from 'antd'
 
 import utils from 'utils'
@@ -21,7 +21,8 @@ class RoleManagement extends Component {
         this.loadRoles()
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
@@ -55,7 +56,7 @@ class RoleManagement extends Component {
     }
 
     initColumns = () => {
-        const { user, location } = this.props
+        const { location } = this.props
         return [{
             title: '角色',
             dataIndex: 'roleName',
@@ -96,14 +97,15 @@ class RoleManagement extends Component {
     }
 
     render () {
-        const { visible, roles, loading } = this.state
-        const { project, notProjectUsers, location } = this.props
+        const { roles, loading } = this.state
+        const { project, location } = this.props
 
         const pagination = {
             total: roles.totalCount,
             defaultPageSize: 10
         };
 
+        /* eslint-disable */
         const extra = (<Button
             type="primary"
             style={{ marginTop: '10px' }}
@@ -111,6 +113,7 @@ class RoleManagement extends Component {
             <Link to={`${location.pathname}/add`}>新建角色</Link>
         </Button>
         )
+        /* eslint-enable */
 
         return (
             <div>

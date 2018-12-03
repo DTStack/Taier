@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { Tree, TreeSelect, Badge, Tooltip } from 'antd'
+import { Tree, TreeSelect, Badge } from 'antd'
 
 import utils from 'utils'
 import { MENU_TYPE } from '../../../comm/const'
@@ -53,32 +53,32 @@ class FolderTree extends Component {
                 let claTitle = ''
                 if (item.type === 'file') {
                     switch (treeType) {
-                    case MENU_TYPE.TASK:
-                        claTitle = 'task-item'
-                        break;
-                    case MENU_TYPE.RESOURCE:
-                        claTitle = 'resource-item'
-                        break;
-                    case MENU_TYPE.COSTOMFUC:
-                        claTitle = 'function-item'
-                        break;
-                    default:
-                        claTitle = 'file-item'
+                        case MENU_TYPE.TASK:
+                            claTitle = 'task-item'
+                            break;
+                        case MENU_TYPE.RESOURCE:
+                            claTitle = 'resource-item'
+                            break;
+                        case MENU_TYPE.COSTOMFUC:
+                            claTitle = 'function-item'
+                            break;
+                        default:
+                            claTitle = 'file-item'
                     }
                 } else {
                     switch (treeType) {
-                    case MENU_TYPE.TASK:
-                        claTitle = 'task-folder-item'
-                        break;
-                    case MENU_TYPE.RESOURCE:
-                        claTitle = 'resource-folder-item'
-                        break;
-                    case MENU_TYPE.COSTOMFUC:
-                    case MENU_TYPE.FUNCTION:
-                        claTitle = 'function-folder-item'
-                        break;
-                    default:
-                        claTitle = 'folder-item'
+                        case MENU_TYPE.TASK:
+                            claTitle = 'task-folder-item'
+                            break;
+                        case MENU_TYPE.RESOURCE:
+                            claTitle = 'resource-folder-item'
+                            break;
+                        case MENU_TYPE.COSTOMFUC:
+                        case MENU_TYPE.FUNCTION:
+                            claTitle = 'function-folder-item'
+                            break;
+                        default:
+                            claTitle = 'folder-item'
                     }
                 }
 
@@ -124,7 +124,7 @@ class FolderTree extends Component {
         } = this.props;
         if (isPicker) {
             treeContent = (
-                <div ref={(ins) => this.selEle = ins } className='org-tree-select-wrap'>
+                <div ref={(ins) => this.selEle = ins} className='org-tree-select-wrap'>
                     <TreeSelect
                         showSearch
                         allowClear
@@ -140,7 +140,7 @@ class FolderTree extends Component {
                         filterTreeNode={(inputValue, treeNode) => {
                             return treeNode.props.name.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1;
                         }}
-                        getPopupContainer={() => this.selEle }
+                        getPopupContainer={() => this.selEle}
                         placeholder={placeholder || '请选择存储位置'}
                         dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                     >
@@ -158,7 +158,7 @@ class FolderTree extends Component {
                     onChange={onChange}
                     loadData={loadData}
                     selectedKeys={selectedKeys}
-                    expandedKeys={ expandedKeys }
+                    expandedKeys={expandedKeys}
                     onExpand={onExpand}
                     autoExpandParent={false}
                 >
