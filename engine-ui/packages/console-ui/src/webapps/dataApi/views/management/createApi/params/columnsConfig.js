@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Table, Form, Icon, Input, Select, Checkbox, Tooltip, message, InputNumber } from 'antd';
+// eslint-disable-next-line
 import classnames from 'classnames';
 import { cloneDeep } from 'lodash'
 import { connect } from 'react-redux';
@@ -25,65 +26,65 @@ class ColumnsConfig extends React.Component {
     renderEdit (dataIndex, id, type, initialValue) {
         const { getFieldDecorator } = this.props.form;
         switch (dataIndex) {
-        case 'paramsName': {
-            return (<FormItem
-                style={{ marginBottom: '0px' }}
-            >
-                {getFieldDecorator(`paramsName${DELIMITER}${id}${DELIMITER}${type}`, {
-                    initialValue: initialValue,
-                    rules: [{
-                        required: true, message: '请输入参数名称'
-                    }]
-                })(
-                    <Input />
-                )}
-            </FormItem>);
-        }
-        case 'operator': {
-            return (<FormItem
-                style={{ marginBottom: '0px' }}
-            >
-                {getFieldDecorator(`operator${DELIMITER}${id}${DELIMITER}${type}`, {
-                    initialValue: initialValue
-                })(
-                    <Select style={{ width: '100%' }}>
-                        <Option value="=">=</Option>
-                        <Option value=">">&gt;</Option>
-                        <Option value=">=">&gt;=</Option>
-                        <Option value="<"> &lt;</Option>
-                        <Option value="<=">&lt;=</Option>
-                        <Option value="!=">!=</Option>
-                        <Option value="in">in</Option>
-                        <Option value="not in">not in</Option>
-                        <Option value="like">like</Option>
-                        <Option value="not like">not like</Option>
-                    </Select>
-                )}
-            </FormItem>);
-        }
-        case 'required': {
-            return (<FormItem
-                style={{ marginBottom: '0px' }}
-            >
-                {getFieldDecorator(`required${DELIMITER}${id}${DELIMITER}${type}`, {
-                    initialValue: initialValue,
-                    valuePropName: 'checked'
-                })(
-                    <Checkbox></Checkbox>
-                )}
-            </FormItem>);
-        }
-        case 'desc': {
-            return (<FormItem
-                style={{ marginBottom: '0px' }}
-            >
-                {getFieldDecorator(`desc${DELIMITER}${id}${DELIMITER}${type}`, {
-                    initialValue: initialValue
-                })(
-                    <TextArea placeholder="参数描述" autosize={{ minRows: 2, maxRows: 4 }} />
-                )}
-            </FormItem>);
-        }
+            case 'paramsName': {
+                return (<FormItem
+                    style={{ marginBottom: '0px' }}
+                >
+                    {getFieldDecorator(`paramsName${DELIMITER}${id}${DELIMITER}${type}`, {
+                        initialValue: initialValue,
+                        rules: [{
+                            required: true, message: '请输入参数名称'
+                        }]
+                    })(
+                        <Input />
+                    )}
+                </FormItem>);
+            }
+            case 'operator': {
+                return (<FormItem
+                    style={{ marginBottom: '0px' }}
+                >
+                    {getFieldDecorator(`operator${DELIMITER}${id}${DELIMITER}${type}`, {
+                        initialValue: initialValue
+                    })(
+                        <Select style={{ width: '100%' }}>
+                            <Option value="=">=</Option>
+                            <Option value=">">&gt;</Option>
+                            <Option value=">=">&gt;=</Option>
+                            <Option value="<"> &lt;</Option>
+                            <Option value="<=">&lt;=</Option>
+                            <Option value="!=">!=</Option>
+                            <Option value="in">in</Option>
+                            <Option value="not in">not in</Option>
+                            <Option value="like">like</Option>
+                            <Option value="not like">not like</Option>
+                        </Select>
+                    )}
+                </FormItem>);
+            }
+            case 'required': {
+                return (<FormItem
+                    style={{ marginBottom: '0px' }}
+                >
+                    {getFieldDecorator(`required${DELIMITER}${id}${DELIMITER}${type}`, {
+                        initialValue: initialValue,
+                        valuePropName: 'checked'
+                    })(
+                        <Checkbox></Checkbox>
+                    )}
+                </FormItem>);
+            }
+            case 'desc': {
+                return (<FormItem
+                    style={{ marginBottom: '0px' }}
+                >
+                    {getFieldDecorator(`desc${DELIMITER}${id}${DELIMITER}${type}`, {
+                        initialValue: initialValue
+                    })(
+                        <TextArea placeholder="参数描述" autosize={{ minRows: 2, maxRows: 4 }} />
+                    )}
+                </FormItem>);
+            }
         }
     }
     initColumns (type) {
@@ -182,17 +183,17 @@ class ColumnsConfig extends React.Component {
         return {
             onChange: (selectedRowKeys, selectedRows) => {
                 switch (type) {
-                case 'in': {
-                    this.setState({
-                        InputSelectedRows: selectedRows
-                    })
-                    return;
-                }
-                case 'out': {
-                    this.setState({
-                        OutSelectedRows: selectedRows
-                    })
-                }
+                    case 'in': {
+                        this.setState({
+                            InputSelectedRows: selectedRows
+                        })
+                        return;
+                    }
+                    case 'out': {
+                        this.setState({
+                            OutSelectedRows: selectedRows
+                        })
+                    }
                 }
             }
         }
@@ -214,7 +215,7 @@ class ColumnsConfig extends React.Component {
     }
     filterSelectRow (rows, type) {
         const { InputSelectedRows, OutSelectedRows } = this.state;
-        const id_arr = rows.map(
+        const idArr = rows.map(
             (row) => {
                 return row.id;
             }
@@ -223,7 +224,7 @@ class ColumnsConfig extends React.Component {
             this.setState({
                 InputSelectedRows: InputSelectedRows.filter(
                     (row) => {
-                        return !id_arr.includes(row.id);
+                        return !idArr.includes(row.id);
                     }
                 )
             })
@@ -231,7 +232,7 @@ class ColumnsConfig extends React.Component {
             this.setState({
                 OutSelectedRows: OutSelectedRows.filter(
                     (row) => {
-                        return !id_arr.includes(row.id);
+                        return !idArr.includes(row.id);
                     }
                 )
             })
@@ -247,14 +248,14 @@ class ColumnsConfig extends React.Component {
         for (let i = 0; i < keys.length; i++) {
             let key = keys[i][0];
             let value = keys[i][1];
-            let key_arr = key.split(DELIMITER);
-            if (!key_arr || key_arr.length != 3) {
+            let keyArr = key.split(DELIMITER);
+            if (!keyArr || keyArr.length != 3) {
                 continue;
             }
 
-            let formItemName = key_arr[0];
-            let id = key_arr[1];
-            let itemType = key_arr[2];
+            let formItemName = keyArr[0];
+            let id = keyArr[1];
+            let itemType = keyArr[2];
             if (type == itemType) {
                 formItemMap[id] = formItemMap[id] || {};
                 formItemMap[id][formItemName] = value;
@@ -307,7 +308,7 @@ class ColumnsConfig extends React.Component {
             'params_exchange_button_disable': !InputSelectedRows || InputSelectedRows.length == 0
         })
         return <p className="required-tip middle-title middle-header">
-                输入参数：
+            输入参数：
             {InputIsEdit
                 ? <span>
                     <a onClick={this.paramsChange.bind(this, 'in')} style={{ float: 'right' }}>完成</a>
@@ -345,7 +346,7 @@ class ColumnsConfig extends React.Component {
             'params_exchange_button_disable': !OutSelectedRows || OutSelectedRows.length == 0
         })
         return <div className="required-tip middle-title middle-header">
-                输出参数：
+            输出参数：
             <span className="params_result_check">
                 <Checkbox checked={resultPageChecked} onChange={resultPageCheckedChange} >返回结果分页</Checkbox>
                 <Tooltip title="当查询结果大于1000条时，请选择分页查询，每页最大返回1000条结果。若没有选择，默认分页查询。">

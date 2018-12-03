@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Form, Input, Button, Select, Card, Cascader, message } from 'antd';
 
 import DataSourceTable from './dataSourceTable'
-import { formItemLayout, API_METHOD, API_METHOD_key } from '../../../consts'
+import { formItemLayout, API_METHOD } from '../../../consts'
 import NewGroupModal from '../../../components/newGroupModal';
 import api from '../../../api/apiManage'
 
@@ -83,8 +83,7 @@ class ManageBasicProperties extends Component {
         }
         this.setState({
             showTable: !this.state.showTable
-        }
-        , () => {
+        }, () => {
             if (this.state.showTable) {
                 this.getTableDetail();
             }
@@ -233,7 +232,8 @@ class ManageBasicProperties extends Component {
                             if (res.data || res.code != 1) {
                                 callback()
                             } else {
-                                callback('名称已存在')
+                                const error = '名称已存在';
+                                callback(error);
                             }
                         }
                     )
@@ -272,7 +272,8 @@ class ManageBasicProperties extends Component {
                             label="API名称"
                         >
                             {getFieldDecorator('APIName', {
-                                rules: [{ required: true, message: '请输入API名称' },
+                                rules: [
+                                    { required: true, message: '请输入API名称' },
                                     { min: 2, message: '最小字数不能少于2' },
                                     { max: 16, message: '最大字数不能超过16' },
                                     { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' },
@@ -290,7 +291,8 @@ class ManageBasicProperties extends Component {
                             label="API描述"
                         >
                             {getFieldDecorator('APIdescription', {
-                                rules: [{ required: false, message: '请输入API描述' },
+                                rules: [
+                                    { required: false, message: '请输入API描述' },
                                     { max: 200, message: '最大字符不能超过200' }],
                                 initialValue: this.props.APIdescription
                             })(
@@ -306,7 +308,7 @@ class ManageBasicProperties extends Component {
                                     { max: 200, message: '最大字符不能超过200' },
                                     { min: 2, message: '最小字符不能小于2' },
                                     { pattern: new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
-                                    { pattern: new RegExp(/^(([^\/]*\/[^\/]*){1,2}|[^\/]*)$/), message: '最多支持两层路径' }],
+                                    { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
                                 initialValue: this.props.APIPath
                             })(
                                 <Input style={{ width: '85%' }} />
@@ -322,7 +324,8 @@ class ManageBasicProperties extends Component {
                                     {
                                         validator: function (rule, value, callback) {
                                             if (value && (value > 2000 || value < 1)) {
-                                                callback('请输入不大于2000的正整数')
+                                                const error = '请输入不大于2000的正整数'
+                                                callback(error)
                                                 return;
                                             }
                                             callback();

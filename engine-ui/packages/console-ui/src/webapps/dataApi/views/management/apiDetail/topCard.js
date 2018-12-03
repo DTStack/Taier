@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux';
 import { Card, Icon, Row, Col, Button } from 'antd'
 import { EXCHANGE_ADMIN_API_STATUS } from '../../../consts'
 import utils from 'utils';

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Col, Row, Table } from 'antd';
-import { Link } from 'react-router'
+import { Card, Table } from 'antd';
 class TopFail extends Component {
     getDataSource () {
         return this.props.data || [];

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Col, Row, Table } from 'antd';
+import { Table } from 'antd';
 
 class ManageTopCall extends Component {
     getSource () {

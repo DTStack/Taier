@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Modal, message, Input } from 'antd';
+import { Card, Table, Modal, message, Input } from 'antd';
 
 import ApplyBox from '../../components/applyBox'
 import SlidePane from './approvedSlidePane';
@@ -307,7 +307,6 @@ class ApprovedCard extends Component {
                 const isDeleted = record.apiDeleted == 1;
                 const dic = {
                     success: '停用',
-                    disabled: '',
                     stop: '启用',
                     notPass: '再次申请',
                     expired: '再次申请',
@@ -316,6 +315,7 @@ class ApprovedCard extends Component {
                 if (isDeleted) {
                     return null;
                 }
+                // eslint-disable-next-line
                 const deleteButton = record.status == API_USER_STATUS.PASS ? null : (
                     <span><span className="ant-divider" ></span> <a onClick={this.deleteApi.bind(this, record)}>删除</a></span>
                 );

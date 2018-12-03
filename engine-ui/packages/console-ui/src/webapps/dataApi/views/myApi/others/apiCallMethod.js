@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-import { API_USER_STATUS } from '../../../consts/index.js';
 import Content from '../../../components/apiContent';
 import { apiMarketActions } from '../../../actions/apiMarket';
 

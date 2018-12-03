@@ -21,14 +21,6 @@ const hdfsConf =
         "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
     }
 }`
-const configConf =
-    `{
-    "initialPoolSize": 100,
-    "maxIdleTime": 30,
-    "maxPoolSize": 100,
-    "minPoolSize": 10,
-    "maxStatements": 200
-}`
 
 const mapStateToProps = state => {
     const { dataSource } = state;
@@ -38,22 +30,20 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     getDataSourcesType (params) {
         dispatch(dataSourceActions.getDataSourcesType(params));
-    },
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class DataSourceModal extends Component {
-
+class DataSourceModal extends Component {
     state = {
         sourceType: 1,
         hasHdfsConfig: false,
-        hadoopConfig: 'defaultDfs',
+        hadoopConfig: 'defaultDfs'
 
     }
 
     componentDidMount () {
         this.props.getDataSourcesType();
-
     }
 
     // eslint-disable-next-line
@@ -83,12 +73,12 @@ export default class DataSourceModal extends Component {
 
     testConnection = (e) => {
         const { sourceType } = this.state;
-        const { testConnection, form } = this.props;
+        const { form } = this.props;
         let field = [
             'type',
             'dataJson.jdbcUrl',
             'dataJson.username',
-            'dataJson.password',
+            'dataJson.password'
         ];
 
         if (sourceType === 10) {
@@ -106,7 +96,6 @@ export default class DataSourceModal extends Component {
                 })
             }
         });
-
     }
 
     cancel = () => {
@@ -124,24 +113,21 @@ export default class DataSourceModal extends Component {
         if (group.indexOf(prevValue) == -1 || group.indexOf(parseInt(value)) == -1) {
             this.props.form.resetFields();
         }
-
-
-
     }
 
     enableHdfsConfig = (e) => {
         this.setState({
-            hasHdfsConfig: !e.target.value,
+            hasHdfsConfig: !e.target.value
         });
     }
     enableDetailConfig = (e) => {
         this.setState({
-            detailConfig: !e.target.value,
+            detailConfig: !e.target.value
         });
     }
 
     renderDynamic () {
-        const { hasHdfsConfig, sourceType, detailConfig } = this.state
+        const { hasHdfsConfig, sourceType } = this.state
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -154,11 +140,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.jdbcUrl', {
                                 rules: [{
-                                    required: true, message: 'jdbcUrl不可为空！',
+                                    required: true, message: 'jdbcUrl不可为空！'
                                 }],
-                                initialValue: config.jdbcUrl || '',
+                                initialValue: config.jdbcUrl || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                         <Tooltip title={'示例：' + jdbcUrlExample[sourceType]}>
@@ -169,9 +155,9 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.username', {
                                 rules: [],
-                                initialValue: config.username || '',
+                                initialValue: config.username || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                     </FormItem>,
@@ -179,9 +165,9 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.password', {
                                 rules: [],
-                                initialValue: '',
+                                initialValue: ''
                             })(
-                                <Input type="password" />,
+                                <Input type="password" />
                             )
                         }
                     </FormItem>,
@@ -189,22 +175,22 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.defaultFS', {
                                 rules: [{
-                                    required: true, message: 'defaultFS不可为空！',
+                                    required: true, message: 'defaultFS不可为空！'
                                 }],
-                                initialValue: config.defaultFS || '',
+                                initialValue: config.defaultFS || ''
                             })(
-                                <Input placeholder="hdfs://host:port" />,
+                                <Input placeholder="hdfs://host:port" />
                             )
                         }
                     </FormItem>,
                     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
                         {
                             getFieldDecorator('hasHdfsConfig', {
-                                initialValue: false,
+                                initialValue: false
                             })(
                                 <Checkbox checked={hasHdfsConfig} onChange={this.enableHdfsConfig}>
                                     高可用配置
-                                </Checkbox>,
+                                </Checkbox>
                             )
                         }
                     </FormItem>,
@@ -214,7 +200,7 @@ export default class DataSourceModal extends Component {
                                 rules: [],
                                 initialValue: config.hadoopConfig || ''
                             })(
-                                <Input type="textarea" rows={5} placeholder={hdfsConf} />,
+                                <Input type="textarea" rows={5} placeholder={hdfsConf} />
                             )
                         }
                         <HelpDoc doc="hdfsConfig" />
@@ -228,11 +214,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.accessId', {
                                 rules: [{
-                                    required: true, message: 'access ID不可为空！',
+                                    required: true, message: 'access ID不可为空！'
                                 }],
-                                initialValue: config.accessId || '',
+                                initialValue: config.accessId || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                     </FormItem>,
@@ -240,11 +226,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.accessKey', {
                                 rules: [{
-                                    required: true, message: 'access Key不可为空！',
+                                    required: true, message: 'access Key不可为空！'
                                 }],
-                                initialValue: config.accessKey || '',
+                                initialValue: config.accessKey || ''
                             })(
-                                <Input type="password" autoComplete="off" />,
+                                <Input type="password" autoComplete="off" />
                             )
                         }
                     </FormItem>,
@@ -252,11 +238,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.project', {
                                 rules: [{
-                                    required: true, message: 'Project Name不可为空！',
+                                    required: true, message: 'Project Name不可为空！'
                                 }],
-                                initialValue: config.project || '',
+                                initialValue: config.project || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                     </FormItem>,
@@ -264,11 +250,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.endPoint', {
                                 rules: [{
-                                    required: true, message: 'End Point不可为空！',
+                                    required: true, message: 'End Point不可为空！'
                                 }],
-                                initialValue: config.endPoint || '',
+                                initialValue: config.endPoint || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                     </FormItem>
@@ -281,16 +267,16 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.jdbcUrl', {
                                 rules: [{
-                                    required: true, message: 'jdbcUrl不可为空！',
+                                    required: true, message: 'jdbcUrl不可为空！'
                                 }],
-                                initialValue: config.jdbcUrl || '',
+                                initialValue: config.jdbcUrl || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                         <Tooltip overlayClassName="big-tooltip" title={
                             (
-                                <span style={{ wordBreak: " break-all" }}>
+                                <span style={{ wordBreak: ' break-all' }}>
                                     SID示例：{jdbcUrlExample[sourceType][0]}
                                     <br />
                                     ServiceName示例：{jdbcUrlExample[sourceType][1]}
@@ -304,11 +290,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.username', {
                                 rules: [{
-                                    required: true, message: '用户名不可为空！',
+                                    required: true, message: '用户名不可为空！'
                                 }],
-                                initialValue: config.username || '',
+                                initialValue: config.username || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                     </FormItem>,
@@ -316,19 +302,18 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.password', {
                                 rules: [{
-                                    required: true, message: '密码不可为空！',
+                                    required: true, message: '密码不可为空！'
                                 }],
-                                initialValue: '',
+                                initialValue: ''
                             })(
-                                <Input type="password" />,
+                                <Input type="password" />
                             )
                         }
-                    </FormItem>,
+                    </FormItem>
                 ]
             }
-
-            case DATA_SOURCE.MYSQL:
             // case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.RDS:
             case DATA_SOURCE.DB2:
@@ -338,11 +323,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.jdbcUrl', {
                                 rules: [{
-                                    required: true, message: 'jdbcUrl不可为空！',
+                                    required: true, message: 'jdbcUrl不可为空！'
                                 }],
-                                initialValue: config.jdbcUrl || '',
+                                initialValue: config.jdbcUrl || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                         <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
@@ -353,11 +338,11 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.username', {
                                 rules: [{
-                                    required: true, message: '用户名不可为空！',
+                                    required: true, message: '用户名不可为空！'
                                 }],
-                                initialValue: config.username || '',
+                                initialValue: config.username || ''
                             })(
-                                <Input autoComplete="off" />,
+                                <Input autoComplete="off" />
                             )
                         }
                     </FormItem>,
@@ -365,14 +350,14 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.password', {
                                 rules: [{
-                                    required: true, message: '密码不可为空！',
+                                    required: true, message: '密码不可为空！'
                                 }],
-                                initialValue: '',
+                                initialValue: ''
                             })(
-                                <Input type="password" />,
+                                <Input type="password" />
                             )
                         }
-                    </FormItem>,
+                    </FormItem>
                     //     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
                     //     {
                     //         getFieldDecorator('hasHdfsConfig', {
@@ -410,9 +395,9 @@ export default class DataSourceModal extends Component {
 
     render () {
         const { visible, form, title, sourceData, status, dataSource } = this.props
-        const { hasHdfsConfig, sourceType } = this.state
+        const { sourceType } = this.state
         const { getFieldDecorator } = form;
-        //const sourceType = dataSource.sourceType[0] && dataSource.sourceType[0].value.toString();
+        // const sourceType = dataSource.sourceType[0] && dataSource.sourceType[0].value.toString();
 
         return (
             <Modal
@@ -428,9 +413,9 @@ export default class DataSourceModal extends Component {
                         {
                             getFieldDecorator('type', {
                                 rules: [{
-                                    required: true, message: '数据源类型不可为空！',
+                                    required: true, message: '数据源类型不可为空！'
                                 }],
-                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString(),
+                                initialValue: sourceData.type ? sourceData.type.toString() : sourceType.toString()
                             })(
                                 <Select
                                     onChange={this.sourceChange}
@@ -438,24 +423,24 @@ export default class DataSourceModal extends Component {
                                     {
                                         this.renderSourceType(dataSource.sourceType)
                                     }
-                                </Select>,
+                                </Select>
                             )}
                     </FormItem>
                     <FormItem {...formItemLayout} label="数据源名称" hasFeedback>
                         {
                             getFieldDecorator('dataName', {
                                 rules: [{
-                                    required: true, message: '数据源名称不可为空！',
+                                    required: true, message: '数据源名称不可为空！'
                                 }, {
                                     max: 128,
-                                    message: '数据源名称不得超过128个字符！',
+                                    message: '数据源名称不得超过128个字符！'
                                 }, {
                                     pattern: /^[A-Za-z0-9_-]+$/,
-                                    message: '名称只能由字母与数字、下划线组成',
+                                    message: '名称只能由字母与数字、下划线组成'
                                 }],
-                                initialValue: sourceData.dataName || '',
+                                initialValue: sourceData.dataName || ''
                             })(
-                                <Input autoComplete="off" disabled={status === 'edit'} />,
+                                <Input autoComplete="off" disabled={status === 'edit'} />
                             )}
                     </FormItem>
 
@@ -464,11 +449,11 @@ export default class DataSourceModal extends Component {
                             getFieldDecorator('dataDesc', {
                                 rules: [{
                                     max: 200,
-                                    message: '描述请控制在200个字符以内！',
+                                    message: '描述请控制在200个字符以内！'
                                 }],
-                                initialValue: sourceData.dataDesc || '',
+                                initialValue: sourceData.dataDesc || ''
                             })(
-                                <Input type="textarea" rows={4} />,
+                                <Input type="textarea" rows={4} />
                             )}
                     </FormItem>
 
@@ -500,5 +485,6 @@ export default class DataSourceModal extends Component {
         )
     }
 }
-DataSourceModal = Form.create()(DataSourceModal)
+const DataSourceModalForm = Form.create()(DataSourceModal)
 
+export default DataSourceModalForm;

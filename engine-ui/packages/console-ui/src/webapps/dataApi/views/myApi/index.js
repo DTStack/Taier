@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Menu, Card, Table, Tabs } from 'antd'
+import { Card, Tabs } from 'antd'
 import { connect } from 'react-redux';
 
 import { mineActions } from '../../actions/mine';

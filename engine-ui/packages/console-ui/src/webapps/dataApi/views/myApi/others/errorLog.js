@@ -168,10 +168,10 @@ class errorLog extends Component {
         });
     }
     getErrorPercent (key) {
-        return this.state.error[key] && this.state.error[key].percent || 0;
+        return (this.state.error[key] && this.state.error[key].percent) || 0;
     }
     getErrorCount (key) {
-        return this.state.error[key] && this.state.error[key].count || 0;
+        return (this.state.error[key] && this.state.error[key].count) || 0;
     }
     render () {
         const { recordInfoList, loading } = this.state;

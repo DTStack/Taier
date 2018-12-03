@@ -1,8 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect, IndexRedirect } from 'react-router'
-
-import asyncComponent from 'utils/asyncLoad'
-import { openNewWindow } from 'funcs'
+import { Route, IndexRoute, IndexRedirect } from 'react-router'
 
 import NotFund from 'widgets/notFund'
 

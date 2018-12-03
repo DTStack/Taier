@@ -28,7 +28,7 @@ class TopCall extends Component {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.chartData != nextProps.chartData) {
             this.initLineChart(nextProps.chartData)
         }
@@ -43,15 +43,15 @@ class TopCall extends Component {
             failCountDate.push(chartData[i].failRate)
             if (this.props.date) {
                 switch (this.props.date) {
-                case '1':
-                    times.push(utils.formatHours(chartData[i].time));
-                    break;
-                case '7':
-                    times.push(utils.formatDateHours(chartData[i].time));
-                    break;
-                case '30':
-                    times.push(utils.formatDate(chartData[i].time));
-                    break;
+                    case '1':
+                        times.push(utils.formatHours(chartData[i].time));
+                        break;
+                    case '7':
+                        times.push(utils.formatDateHours(chartData[i].time));
+                        break;
+                    case '30':
+                        times.push(utils.formatDate(chartData[i].time));
+                        break;
                 }
             }
         }

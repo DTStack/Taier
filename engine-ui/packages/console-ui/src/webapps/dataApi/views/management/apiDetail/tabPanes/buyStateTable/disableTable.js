@@ -29,8 +29,8 @@ class DisableTable extends Component {
             key: 'callDateRange',
             width: '200px',
             render (text, record) {
-                const beginTime = record.beginTime ? new moment(record.beginTime).format('YYYY-MM-DD') : null;
-                const endTIme = record.endTime ? new moment(record.endTime).format('YYYY-MM-DD') : null;
+                const beginTime = record.beginTime ? moment(record.beginTime).format('YYYY-MM-DD') : null;
+                const endTIme = record.endTime ? moment(record.endTime).format('YYYY-MM-DD') : null;
                 const time = beginTime ? `${beginTime} ~ ${endTIme}` : '无限制'
                 return <span>{time}</span>
             }

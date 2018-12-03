@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Col, Row, Table } from 'antd';
+import { Card, Table } from 'antd';
 
 class TopCall extends Component {
     getDataSource () {

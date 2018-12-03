@@ -99,12 +99,12 @@ export const dataSourceActions = {
                     let { columnList, dataList } = res.data;
 
                     res.data.dataList = dataList.map((arr, i) => {
-                    	let o = {};
-                    	arr.forEach((item, j) => {
-                    		o.key = i;
-                    		o[columnList[j]] = item;
-                    	})
-                		return o;
+                        let o = {};
+                        arr.forEach((item, j) => {
+                            o.key = i;
+                            o[columnList[j]] = item;
+                        })
+                        return o;
                     });
 
                     dispatch({
