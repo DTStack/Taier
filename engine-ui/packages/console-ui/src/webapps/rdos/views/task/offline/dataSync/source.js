@@ -1,9 +1,16 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-    Form, Input, Select,
-    Button, Icon, Table,
-    message, Radio, Row, Col,
+    Form,
+    Input,
+    Select,
+    Button,
+    Icon,
+    Table,
+    message,
+    Radio,
+    Row,
+    Col,
     Tooltip
 } from 'antd';
 import { isEmpty, debounce } from 'lodash';
@@ -18,14 +25,14 @@ import {
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
-import { RDB_TYPE_ARRAY } from '../../../../comm/const';
 import { isRDB } from '../../../../comm';
 
 import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT,
-    SUPPROT_SUB_LIBRARY_DB_ARRAY
+    SUPPROT_SUB_LIBRARY_DB_ARRAY,
+    RDB_TYPE_ARRAY
 } from '../../../../comm/const';
 
 const FormItem = Form.Item;
@@ -62,7 +69,11 @@ class SourceForm extends React.Component {
                 }
             }
         }
-        if (tableName && sourceId && RDB_TYPE_ARRAY.indexOf(sourceMap.type.type) > -1) {
+        if (
+            tableName &&
+            sourceId &&
+            RDB_TYPE_ARRAY.indexOf(sourceMap.type.type) > -1
+        ) {
             this.getCopate(sourceId, tableName);
         }
     }
@@ -71,46 +82,46 @@ class SourceForm extends React.Component {
         clearInterval(this.timerID);
     }
 
-    getTableList = (sourceId) => {
-        const ctx = this
-        const { sourceMap } = this.props
-        if (sourceMap.type &&
-            (
-                sourceMap.type.type === DATA_SOURCE.HDFS ||
-                sourceMap.type.type === DATA_SOURCE.FTP
-            )
+    getTableList = sourceId => {
+        const ctx = this;
+        const { sourceMap } = this.props;
+        if (
+            sourceMap.type &&
+            (sourceMap.type.type === DATA_SOURCE.HDFS ||
+                sourceMap.type.type === DATA_SOURCE.FTP)
         ) {
             return;
         }
 
-        this.setState({
-            showPreview: false
-        }, () => {
-            ajax.getOfflineTableList({
-                sourceId,
-                isSys: false
-            }).then(res => {
-                if (res.code === 1) {
-                    ctx.setState({
-                        tableListMap: {
-                            ...this.state.tableListMap,
-                            [sourceId]: res.data || []
-                        }
-                    });
-                }
-            });
-        });
-    }
+        this.setState(
+            {
+                showPreview: false
+            },
+            () => {
+                ajax.getOfflineTableList({
+                    sourceId,
+                    isSys: false
+                }).then(res => {
+                    if (res.code === 1) {
+                        ctx.setState({
+                            tableListMap: {
+                                ...this.state.tableListMap,
+                                [sourceId]: res.data || []
+                            }
+                        });
+                    }
+                });
+            }
+        );
+    };
 
     getTableColumn = (tableName, type) => {
         const {
-            form, sourceMap, handleTableColumnChange,
+            form,
+            sourceMap,
+            handleTableColumnChange,
             handleTableCopateChange
         } = this.props;
-
-        this.setState({
-            loading: true
-        })
 
         if (tableName instanceof Array) {
             tableName = tableName[0];
@@ -123,20 +134,16 @@ class SourceForm extends React.Component {
                 splitPK: {
                     value: ''
                 }
-            })
+            });
             return;
         }
 
-        if (sourceMap.type &&
-            (
-                sourceMap.type.type === DATA_SOURCE.HBASE
-            )
-        ) {
+        if (sourceMap.type && sourceMap.type.type === DATA_SOURCE.HBASE) {
             return;
         }
 
         if (type && isRDB(type)) {
-            this.getCopate(sourceMap.sourceId, tableName)
+            this.getCopate(sourceMap.sourceId, tableName);
         }
 
         ajax.getOfflineTableColumn({
@@ -150,9 +157,10 @@ class SourceForm extends React.Component {
             }
             this.setState({
                 loading: false
-            })
-        })
-    }
+            });
+        });
+    };
+
     getCopate (sourceId, tableName) {
         const { handleTableCopateChange } = this.props;
         if (tableName instanceof Array) {
@@ -167,21 +175,24 @@ class SourceForm extends React.Component {
             } else {
                 handleTableCopateChange([]);
             }
-        })
+        });
     }
+
     getDataObjById (id) {
         const { dataSourceList } = this.props;
         return dataSourceList.filter(src => {
             return src.id == id;
         })[0];
     }
+
     changeExtSource (key, value) {
         this.props.changeExtDataSource(this.getDataObjById(value), key);
         this.getTableList(value);
         this.resetTable(`extTable.${key}`);
     }
+
     changeSource (value, option) {
-        const { handleSourceChange, sourceMap } = this.props;
+        const { handleSourceChange } = this.props;
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
@@ -197,41 +208,49 @@ class SourceForm extends React.Component {
     deleteExtSource (key) {
         this.props.deleteDataSource(key);
     }
+
     resetTable (key) {
         const { form } = this.props;
         this.changeTable('');
         // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
-        this.setState({
-            selectHack: true
-        }, () => {
-            if (key) {
-                form.resetFields([key])
-            } else {
-                form.resetFields(['table'])
-                form.resetFields(['splitPK'])
+        this.setState(
+            {
+                selectHack: true
+            },
+            () => {
+                if (key) {
+                    form.resetFields([key]);
+                } else {
+                    form.resetFields(['table']);
+                    form.resetFields(['splitPK']);
+                }
+                this.setState({
+                    selectHack: false
+                });
             }
-            this.setState({
-                selectHack: false
-            })
-        })
+        );
     }
 
     changeTable (type, value) {
         if (value) {
+            this.setState({
+                loading: true
+            });
             this.getTableColumn(value, type);
         }
         this.submitForm();
         this.setState({
             showPreview: false
-        })
+        });
     }
     changeExtTable (key, value) {
         this.submitForm(null, key);
     }
 
+    /* eslint-disable */
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
-        const { getFieldValue } = form
+        const { getFieldValue } = form;
         const sourceId = getFieldValue('sourceId');
         if (getFieldValue('fileType') === 'orc') {
             ajax.getOfflineTableColumn({
@@ -242,14 +261,15 @@ class SourceForm extends React.Component {
                     handleTableColumnChange(res.data);
                     callback();
                 }
-                callback('该路径无效！')
-            })
+                callback('该路径无效！');
+            });
         } else {
-            callback()
+            callback();
         }
-    }
+    };
+    /* eslint-disable */
 
-    validateChineseCharacter = (data) => {
+    validateChineseCharacter = data => {
         const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
         let has = false;
         let fieldsName = [];
@@ -262,14 +282,16 @@ class SourceForm extends React.Component {
             fieldsName.push('列分隔符');
         }
         if (has) {
-            singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
+            singletonNotification(
+                '提示',
+                `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`,
+                'warning'
+            );
         }
-    }
+    };
 
     submitForm (event, sourceKey) {
-        const {
-            form, handleSourceMapChange
-        } = this.props;
+        const { form, handleSourceMapChange } = this.props;
 
         this.timerID = setTimeout(() => {
             let values = form.getFieldsValue();
@@ -293,18 +315,24 @@ class SourceForm extends React.Component {
         if (sourceMap.type && sourceMap.type.type === DATA_SOURCE.HDFS) {
             validateFields = ['sourceId', 'path', 'fileType'];
             if (sourceMap.type.fileType === 'text') {
-                validateFields.push('encoding')
+                validateFields.push('encoding');
             }
         }
+        const formData = form.getFieldsValue();
 
-        form.validateFieldsAndScroll(validateFields, { force: true }, (err, values) => {
-            if (!err) {
-                // 校验中文字符，如果有则发出警告
-                console.log('values:', values);
-                this.validateChineseCharacter(values);
-                cb.call(null, 1);
+        form.validateFieldsAndScroll(
+            validateFields,
+            { force: true },
+            (err, values) => {
+                if (!err) {
+                    // 校验中文字符，如果有则发出警告
+                    this.validateChineseCharacter(formData);
+                    /* eslint-disable */
+                    cb.call(null, 1);
+                    /* eslint-disable */
+                }
             }
-        })
+        );
     }
     getPopupContainer () {
         return this.props.dataSyncRef;
@@ -312,96 +340,117 @@ class SourceForm extends React.Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const {
-            sourceMap, dataSourceList,
-            navtoStep, isCurrentTabNew
+            sourceMap,
+            dataSourceList,
+            navtoStep,
         } = this.props;
 
-        const disablePreview = isEmpty(sourceMap) ||
+        const disablePreview =
+            isEmpty(sourceMap) ||
             sourceMap.type.type === DATA_SOURCE.HDFS ||
             sourceMap.type.type === DATA_SOURCE.HBASE ||
             sourceMap.type.type === DATA_SOURCE.FTP;
 
         const getPopupContainer = this.props.getPopupContainer;
 
-        return <div className="g-step1">
-            <Form>
-                <FormItem
-                    {...formItemLayout}
-                    label="数据源"
+        return (
+            <div className="g-step1">
+                <Form>
+                    <FormItem {...formItemLayout} label="数据源">
+                        {getFieldDecorator('sourceId', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源为必填项'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : `${sourceMap.sourceId}`
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                onSelect={this.changeSource.bind(this)}
+                                optionFilterProp="name"
+                            >
+                                {dataSourceList.map(src => {
+                                    let title = `${src.dataName}（${
+                                        DATA_SOURCE_TEXT[src.type]
+                                    }）`;
+
+                                    const disableSelect =
+                                        src.type === DATA_SOURCE.ES ||
+                                        src.type === DATA_SOURCE.REDIS ||
+                                        src.type === DATA_SOURCE.MONGODB;
+
+                                    return (
+                                        <Option
+                                            dataType={src.type}
+                                            key={src.id}
+                                            name={src.dataName}
+                                            value={`${src.id}`}
+                                            disabled={disableSelect}
+                                        >
+                                            {title}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>
+                    {this.renderDynamicForm()}
+                </Form>
+                <div
+                    className="m-datapreview"
+                    style={{
+                        width: '90%',
+                        margin: '0 auto',
+                        overflow: 'auto',
+                        textAlign: 'center'
+                    }}
                 >
-                    {getFieldDecorator('sourceId', {
-                        rules: [{
-                            required: true,
-                            message: '数据源为必填项'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : `${sourceMap.sourceId}`
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            onSelect={this.changeSource.bind(this)}
-                            optionFilterProp="name"
-                        // disabled={!isCurrentTabNew}
+                    <p style={{ cursor: 'pointer', marginBottom: 10 }}>
+                        <a
+                            disabled={disablePreview}
+                            href="javascript:void(0)"
+                            onClick={this.loadPreview.bind(this)}
                         >
-                            {dataSourceList.map(src => {
-                                let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
-
-                                const disableSelect = src.type === DATA_SOURCE.ES ||
-                                    src.type === DATA_SOURCE.REDIS ||
-                                    src.type === DATA_SOURCE.MONGODB;
-
-                                return <Option
-                                    dataType={src.type}
-                                    key={src.id}
-                                    name={src.dataName}
-                                    value={`${src.id}`}
-                                    disabled={disableSelect}>
-                                    {title}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>
-                {this.renderDynamicForm()}
-            </Form>
-            <div className="m-datapreview" style={{
-                width: '90%',
-                margin: '0 auto',
-                overflow: 'auto',
-                textAlign: 'center'
-            }}>
-                <p style={{ cursor: 'pointer', marginBottom: 10 }} >
-                    <a
-                        disabled={disablePreview}
-                        href="javascript:void(0)"
-                        onClick={this.loadPreview.bind(this)}
-                    >
-                        数据预览{this.state.showPreview ? <Icon type="up" /> : <Icon type="down" />}
-                    </a>
-                </p>
-                {this.state.showPreview
-                    ? <Table dataSource={this.state.dataSource}
-                        columns={this.state.columns}
-                        scroll={{
-                            x: this.state.columns.reduce((a, b) => {
-                                return a + b.width;
-                            }, 0)
-                        }}
-                        pagination={false}
-                        bordered={false}
-                    /> : null
-                }
+                            数据预览
+                            {this.state.showPreview ? (
+                                <Icon type="up" />
+                            ) : (
+                                <Icon type="down" />
+                            )}
+                        </a>
+                    </p>
+                    {this.state.showPreview ? (
+                        <Table
+                            dataSource={this.state.dataSource}
+                            columns={this.state.columns}
+                            scroll={{
+                                x: this.state.columns.reduce((a, b) => {
+                                    return a + b.width;
+                                }, 0)
+                            }}
+                            pagination={false}
+                            bordered={false}
+                        />
+                    ) : null}
+                </div>
+                {!this.props.readonly && (
+                    <div className="steps-action">
+                        <Button
+                            loading={this.state.loading}
+                            type="primary"
+                            onClick={() => this.next(navtoStep)}
+                        >
+                            下一步
+                        </Button>
+                    </div>
+                )}
             </div>
-            {!this.props.readonly && <div className="steps-action">
-                <Button
-                    loading={this.state.loading}
-                    type="primary"
-                    onClick={() => this.next(navtoStep)}
-                >
-                    下一步
-                </Button>
-            </div>}
-        </div>
+        );
     }
 
     loadPreview () {
@@ -419,43 +468,47 @@ class SourceForm extends React.Component {
         }
         if (!showPreview) {
             ajax.getDataPreview({
-                sourceId, tableName
-            })
-                .then(res => {
-                    if (res.code === 1) {
-                        const { columnList, dataList } = res.data;
+                sourceId,
+                tableName
+            }).then(res => {
+                if (res.code === 1) {
+                    const { columnList, dataList } = res.data;
 
-                        let columns = columnList.map(s => {
-                            return {
-                                title: s,
-                                dataIndex: s,
-                                key: s,
-                                width: 20 + s.length * 10
-                            }
-                        });
-                        let dataSource = dataList.map((arr, i) => {
-                            let o = {};
-                            for (let j = 0; j < arr.length; j++) {
-                                o.key = i;
-                                o[columnList[j]] = arr[j];
-                            }
-                            return o;
-                        });
+                    let columns = columnList.map(s => {
+                        return {
+                            title: s,
+                            dataIndex: s,
+                            key: s,
+                            width: 20 + s.length * 10
+                        };
+                    });
+                    let dataSource = dataList.map((arr, i) => {
+                        let o = {};
+                        for (let j = 0; j < arr.length; j++) {
+                            o.key = i;
+                            o[columnList[j]] = arr[j];
+                        }
+                        return o;
+                    });
 
-                        this.setState({
-                            columns, dataSource, showPreview: true
-                        });
-                    }
-                })
+                    this.setState({
+                        columns,
+                        dataSource,
+                        showPreview: true
+                    });
+                }
+            });
         } else {
             this.setState({
                 showPreview: false
-            })
+            });
         }
     }
 
-    debounceTableSearch = debounce(this.changeTable, 300, { 'maxWait': 2000 })
-    debounceExtTableSearch = debounce(this.changeExtTable, 300, { 'maxWait': 2000 })
+    debounceTableSearch = debounce(this.changeTable, 300, { maxWait: 2000 });
+    debounceExtTableSearch = debounce(this.changeExtTable, 300, {
+        maxWait: 2000
+    });
 
     renderExtDataSource = () => {
         const { selectHack } = this.state;
@@ -467,99 +520,144 @@ class SourceForm extends React.Component {
             return [];
         }
 
-        return sourceList.filter(
-            (source) => {
-                return source.key != 'main'
-            }
-        ).map(
-            (source) => {
+        return sourceList
+            .filter(source => {
+                return source.key != 'main';
+            })
+            .map(source => {
                 return (
-                    <div>
-                        <FormItem
-                            {...formItemLayout}
-                            label="数据源"
-                        >
+                    <div key={source.key}>
+                        <FormItem {...formItemLayout} label="数据源">
                             {getFieldDecorator(`extSourceId.${source.key}`, {
-                                rules: [{
-                                    required: true,
-                                    message: '数据源为必填项'
-                                }],
-                                initialValue: source.sourceId == null ? null : ('' + source.sourceId)
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '数据源为必填项'
+                                    }
+                                ],
+                                initialValue:
+                                    source.sourceId == null
+                                        ? null
+                                        : '' + source.sourceId
                             })(
                                 <Select
                                     showSearch
-                                    onSelect={this.changeExtSource.bind(this, source.key)}
+                                    onSelect={this.changeExtSource.bind(
+                                        this,
+                                        source.key
+                                    )}
                                     optionFilterProp="name"
-                                // disabled={!isCurrentTabNew}
                                 >
-                                    {dataSourceList.filter(
-                                        (dataSource) => {
-                                            return dataSource.type == sourceList[0].type
-                                        }
-                                    ).map(src => {
-                                        let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
+                                    {dataSourceList
+                                        .filter(dataSource => {
+                                            return (
+                                                dataSource.type ==
+                                                sourceList[0].type
+                                            );
+                                        })
+                                        .map(src => {
+                                            let title = `${src.dataName}（${
+                                                DATA_SOURCE_TEXT[src.type]
+                                            }）`;
 
-                                        const disableSelect = src.type === DATA_SOURCE.ES ||
-                                            src.type === DATA_SOURCE.REDIS ||
-                                            src.type === DATA_SOURCE.MONGODB;
+                                            const disableSelect =
+                                                src.type === DATA_SOURCE.ES ||
+                                                src.type ===
+                                                    DATA_SOURCE.REDIS ||
+                                                src.type ===
+                                                    DATA_SOURCE.MONGODB;
 
-                                        return <Option
-                                            dataType={src.type}
-                                            key={src.id}
-                                            name={src.dataName}
-                                            value={`${src.id}`}
-                                            disabled={disableSelect}>
-                                            {title}
-                                        </Option>
-                                    })}
+                                            return (
+                                                <Option
+                                                    dataType={src.type}
+                                                    key={src.id}
+                                                    name={src.dataName}
+                                                    value={`${src.id}`}
+                                                    disabled={disableSelect}
+                                                >
+                                                    {title}
+                                                </Option>
+                                            );
+                                        })}
                                 </Select>
                             )}
-                            <Icon onClick={this.deleteExtSource.bind(this, source.key)} className="help-doc click-icon" type="delete" />
+                            <Icon
+                                onClick={this.deleteExtSource.bind(
+                                    this,
+                                    source.key
+                                )}
+                                className="help-doc click-icon"
+                                type="delete"
+                            />
                         </FormItem>
-                        {!selectHack && <FormItem
-                            {...formItemLayout}
-                            label="表名"
-                            key="table"
-                        >
-                            {getFieldDecorator(`extTable.${source.key}`, {
-                                rules: [{
-                                    required: true,
-                                    message: '数据源表为必选项！'
-                                }],
-                                initialValue: source.tables
-                            })(
-                                <Select
-                                    mode="tags"
-                                    showSearch
-                                    showArrow={true}
-                                    onChange={this.debounceExtTableSearch.bind(this, source.key)}
-                                    optionFilterProp="value"
-                                >
-                                    {(this.state.tableListMap[source.sourceId] || []).map(table => {
-                                        return <Option key={`rdb-${table}`} value={table}>
-                                            {table}
-                                        </Option>
-                                    })}
-                                </Select>
-                            )}
-                            <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                <Icon className="help-doc" type="question-circle-o" />
-                            </Tooltip>
-                        </FormItem>}
+                        {!selectHack && (
+                            <FormItem
+                                {...formItemLayout}
+                                label="表名"
+                                key="table"
+                            >
+                                {getFieldDecorator(`extTable.${source.key}`, {
+                                    rules: [
+                                        {
+                                            required: true,
+                                            message: '数据源表为必选项！'
+                                        }
+                                    ],
+                                    initialValue: source.tables
+                                })(
+                                    <Select
+                                        mode="tags"
+                                        showSearch
+                                        showArrow={true}
+                                        onChange={this.debounceExtTableSearch.bind(
+                                            this,
+                                            source.key
+                                        )}
+                                        optionFilterProp="value"
+                                    >
+                                        {(
+                                            this.state.tableListMap[source.sourceId] || []
+                                        ).map(table => {
+                                            return (
+                                                <Option
+                                                    key={`rdb-${table}`}
+                                                    value={table}
+                                                >
+                                                    {table}
+                                                </Option>
+                                            );
+                                        })}
+                                    </Select>
+                                )}
+                                <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                    <Icon
+                                        className="help-doc"
+                                        type="question-circle-o"
+                                    />
+                                </Tooltip>
+                            </FormItem>
+                        )}
                     </div>
-                )
-            }
-        )
-    }
+                );
+            });
+    };
 
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
-        const { sourceMap, isCurrentTabNew } = this.props;
+        const { sourceMap } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
-        const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap && sourceMap.sourceList && sourceMap.sourceList[0].type) > -1;
-        const getPopupContainer = this.props.getPopupContainer
-        const haveChineseQuote = !!(sourceMap && sourceMap.type && /(‘|’|”|“)/.test(sourceMap.type.where))
+        const supportSubLibrary =
+            SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(
+                sourceMap &&
+                    sourceMap.sourceList &&
+                    sourceMap.sourceList[0].type
+            ) > -1;
+        const getPopupContainer = this.props.getPopupContainer;
+        const haveChineseQuote =
+            !!(sourceMap &&
+            sourceMap.type &&
+            /(‘|’|”|“)/.test(sourceMap.type.where));
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
@@ -569,75 +667,111 @@ class SourceForm extends React.Component {
         case DATA_SOURCE.SQLSERVER:
         case DATA_SOURCE.POSTGRESQL: {
             formItem = [
-                !selectHack ? <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '数据源表为必选项！'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : supportSubLibrary ? sourceMap.sourceList[0].tables : sourceMap.type.table
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            mode={supportSubLibrary ? 'tags' : 'combobox'}
-                            showSearch
-                            showArrow={true}
-                            onBlur={this.debounceTableSearch.bind(this, sourceMap.type.type)}
-                            // disabled={!isCurrentTabNew}
-                            optionFilterProp="value"
-                        >
-                            {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
-                                return <Option key={`rdb-${table}`} value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                    {supportSubLibrary && <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                        <Icon className="help-doc" type="question-circle-o" />
-                    </Tooltip>}
-                </FormItem> : null,
+                !selectHack ? (
+                    <FormItem {...formItemLayout} label="表名" key="table">
+                        {getFieldDecorator('table', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源表为必选项！'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : supportSubLibrary
+                                    ? sourceMap.sourceList[0].tables
+                                    : sourceMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                mode={
+                                    supportSubLibrary ? 'tags' : 'combobox'
+                                }
+                                showSearch
+                                showArrow={true}
+                                onBlur={this.debounceTableSearch.bind(
+                                    this,
+                                    sourceMap.type.type
+                                )}
+                                optionFilterProp="value"
+                            >
+                                {(
+                                    this.state.tableListMap[sourceMap.sourceId] || []
+                                ).map(table => {
+                                    return (
+                                        <Option
+                                            key={`rdb-${table}`}
+                                            value={table}
+                                        >
+                                            {table}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                        {supportSubLibrary && (
+                            <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                <Icon
+                                    className="help-doc"
+                                    type="question-circle-o"
+                                />
+                            </Tooltip>
+                        )}
+                    </FormItem>
+                ) : null,
                 ...this.renderExtDataSource(),
-                supportSubLibrary && <Row className="form-item-follow-text">
-                    <Col style={{ textAlign: 'left' }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}><a onClick={this.addDataSource.bind(this)}>添加数据源</a></Col>
-                </Row>,
-                <FormItem
-                    {...formItemLayout}
-                    label="数据过滤"
-                    key="where"
-                >
+                supportSubLibrary && (
+                    <Row className="form-item-follow-text">
+                        <Col
+                            style={{ textAlign: 'left' }}
+                            span={formItemLayout.wrapperCol.sm.span}
+                            offset={formItemLayout.labelCol.sm.span}
+                        >
+                            <a onClick={this.addDataSource.bind(this)}>
+                                    添加数据源
+                            </a>
+                        </Col>
+                    </Row>
+                ),
+                <FormItem {...formItemLayout} label="数据过滤" key="where">
                     {getFieldDecorator('where', {
-                        rules: [{
-                            max: 1000,
-                            message: '过滤语句不可超过1000个字符!'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.where
+                        rules: [
+                            {
+                                max: 1000,
+                                message: '过滤语句不可超过1000个字符!'
+                            }
+                        ],
+                        initialValue: isEmpty(sourceMap)
+                            ? ''
+                            : sourceMap.type.where
                     })(
                         <Input
                             type="textarea"
                             placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
                             onChange={this.submitForm.bind(this)}
-                        ></Input>
+                        />
                     )}
                     <HelpDoc doc="dataFilterDoc" />
                 </FormItem>,
-                haveChineseQuote && <Row className="form-item-follow-text">
-                    <Col style={{ textAlign: 'left' }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}>
-                        <p className="warning-color">当前输入含有中文引号</p>
-                    </Col>
-                </Row>,
-                <FormItem
-                    {...formItemLayout}
-                    label="切分键"
-                    key="splitPK"
-                >
+                haveChineseQuote && (
+                    <Row className="form-item-follow-text">
+                        <Col
+                            style={{ textAlign: 'left' }}
+                            span={formItemLayout.wrapperCol.sm.span}
+                            offset={formItemLayout.labelCol.sm.span}
+                        >
+                            <p className="warning-color">
+                                    当前输入含有中文引号
+                            </p>
+                        </Col>
+                    </Row>
+                ),
+                <FormItem {...formItemLayout} label="切分键" key="splitPK">
                     {getFieldDecorator('splitPK', {
                         rules: [],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.splitPK
+                        initialValue: isEmpty(sourceMap)
+                            ? ''
+                            : sourceMap.type.splitPK
                     })(
                         <Select
                             getPopupContainer={getPopupContainer}
@@ -645,10 +779,24 @@ class SourceForm extends React.Component {
                             showArrow={true}
                             onChange={this.submitForm.bind(this)}
                         >
-                            {(sourceMap.copate && sourceMap.copate.map(v => v.key).filter((v, index, self) => self.indexOf(v) === index) || []).map((copateValue, index) => {
-                                return <Option key={`copate-${index}`} value={copateValue}>
-                                    {copateValue}
-                                </Option>
+                            {(
+                                (sourceMap.copate &&
+                                        sourceMap.copate
+                                            .map(v => v.key)
+                                            .filter(
+                                                (v, index, self) =>
+                                                    self.indexOf(v) === index
+                                            )) ||
+                                    []
+                            ).map((copateValue, index) => {
+                                return (
+                                    <Option
+                                        key={`copate-${index}`}
+                                        value={copateValue}
+                                    >
+                                        {copateValue}
+                                    </Option>
+                                );
                             })}
                         </Select>
                     )}
@@ -659,136 +807,175 @@ class SourceForm extends React.Component {
         }
         case DATA_SOURCE.CARBONDATA: {
             formItem = [
-                !selectHack ? <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '数据源表为必选项！'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            mode={'combobox'}
-                            showSearch
-                            showArrow={true}
-                            onBlur={this.debounceTableSearch.bind(this, sourceMap.type.type)}
-                            optionFilterProp="value"
-                        >
-                            {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
-                                return <Option key={`carbondata-${table}`} value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem> : null,
+                !selectHack ? (
+                    <FormItem {...formItemLayout} label="表名" key="table">
+                        {getFieldDecorator('table', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源表为必选项！'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                mode={'combobox'}
+                                showSearch
+                                showArrow={true}
+                                onBlur={this.debounceTableSearch.bind(
+                                    this,
+                                    sourceMap.type.type
+                                )}
+                                optionFilterProp="value"
+                            >
+                                {(
+                                    this.state.tableListMap[sourceMap.sourceId] || []
+                                ).map(table => {
+                                    return (
+                                        <Option
+                                            key={`carbondata-${table}`}
+                                            value={table}
+                                        >
+                                            {table}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>
+                ) : null,
                 ...this.renderExtDataSource(),
-                <FormItem
-                    {...formItemLayout}
-                    label="数据过滤"
-                    key="where"
-                >
+                <FormItem {...formItemLayout} label="数据过滤" key="where">
                     {getFieldDecorator('where', {
-                        rules: [{
-                            max: 1000,
-                            message: '过滤语句不可超过1000个字符!'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.where
+                        rules: [
+                            {
+                                max: 1000,
+                                message: '过滤语句不可超过1000个字符!'
+                            }
+                        ],
+                        initialValue: isEmpty(sourceMap)
+                            ? ''
+                            : sourceMap.type.where
                     })(
                         <Input
                             type="textarea"
                             placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
                             onChange={this.submitForm.bind(this)}
-                        ></Input>
+                        />
                     )}
                     <HelpDoc doc="dataFilterDoc" />
                 </FormItem>,
-                haveChineseQuote && <Row className="form-item-follow-text">
-                    <Col style={{ textAlign: 'left' }} span={formItemLayout.wrapperCol.sm.span} offset={formItemLayout.labelCol.sm.span}>
-                        <p className="warning-color">当前输入含有中文引号</p>
-                    </Col>
-                </Row>
+                haveChineseQuote && (
+                    <Row className="form-item-follow-text">
+                        <Col
+                            style={{ textAlign: 'left' }}
+                            span={formItemLayout.wrapperCol.sm.span}
+                            offset={formItemLayout.labelCol.sm.span}
+                        >
+                            <p className="warning-color">
+                                    当前输入含有中文引号
+                            </p>
+                        </Col>
+                    </Row>
+                )
             ];
             break;
         }
         case DATA_SOURCE.MAXCOMPUTE:
-        case DATA_SOURCE.HIVE: { // Hive
+        case DATA_SOURCE.HIVE: {
+            // Hive
             formItem = [
-                !selectHack && <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '数据源表为必选项！'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            mode="combobox"
-                            onBlur={this.debounceTableSearch.bind(this, null)}
-                            optionFilterProp="value"
-                        >
-                            {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
-                                return <Option key={`rdb-${table}`} value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="分区"
-                    key="partition"
-                >
+                !selectHack && (
+                    <FormItem {...formItemLayout} label="表名" key="table">
+                        {getFieldDecorator('table', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源表为必选项！'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                onBlur={this.debounceTableSearch.bind(
+                                    this,
+                                    null
+                                )}
+                                optionFilterProp="value"
+                            >
+                                {(
+                                    this.state.tableListMap[sourceMap.sourceId] || []
+                                ).map(table => {
+                                    return (
+                                        <Option
+                                            key={`rdb-${table}`}
+                                            value={table}
+                                        >
+                                            {table}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>
+                ),
+                <FormItem {...formItemLayout} label="分区" key="partition">
                     {getFieldDecorator('partition', {
                         rules: [],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.partition
+                        initialValue: isEmpty(sourceMap)
+                            ? ''
+                            : sourceMap.type.partition
                     })(
                         <Input
                             placeholder="请填写分区"
                             placeholder="pt=${bdp.system.bizdate}"
                             onChange={this.submitForm.bind(this)}
-                        ></Input>
+                        />
                     )}
                     <HelpDoc doc="partitionDesc" />
                 </FormItem>
             ];
             break;
         }
-        case DATA_SOURCE.HDFS: { // HDFS
+        case DATA_SOURCE.HDFS: {
+            // HDFS
             formItem = [
-                <FormItem
+                <FormItem 
                     {...formItemLayout}
                     label="路径"
                     key="path"
                 >
                     {getFieldDecorator('path', {
-                        rules: [{
-                            required: true,
-                            message: '路径不得为空！'
-                        }, {
-                            max: 200,
-                            message: '路径不得超过200个字符！'
-                        }, {
-                            validator: this.validatePath
-                        }],
+                        rules: [
+                            {
+                                required: true,
+                                message: '路径不得为空！'
+                            },
+                            {
+                                max: 200,
+                                message: '路径不得超过200个字符！'
+                            },
+                            {
+                                validator: this.validatePath
+                            }
+                        ],
                         validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
+                        initialValue: isEmpty(sourceMap)
+                            ? ''
+                            : sourceMap.type.path
                     })(
                         <Input
                             placeholder="例如: /rdos/batch"
-                            onChange={this.submitForm.bind(this)} />
+                            onChange={this.submitForm.bind(this)}
+                        />
                     )}
                     <HelpDoc doc="hdfsPath" />
                 </FormItem>,
@@ -798,12 +985,20 @@ class SourceForm extends React.Component {
                     key="fileType"
                 >
                     {getFieldDecorator('fileType', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: sourceMap.type && sourceMap.type.fileType ? sourceMap.type.fileType : 'text'
+                        rules: [
+                            {
+                                required: true
+                            }
+                        ],
+                        initialValue:
+                                sourceMap.type && sourceMap.type.fileType
+                                    ? sourceMap.type.fileType
+                                    : 'text'
                     })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
+                        <Select
+                            getPopupContainer={getPopupContainer}
+                            onChange={this.submitForm.bind(this)}
+                        >
                             <Option value="orc">orc</Option>
                             <Option value="text">text</Option>
                             <Option value="parquet">parquet</Option>
@@ -812,17 +1007,24 @@ class SourceForm extends React.Component {
                 </FormItem>,
                 <FormItem
                     {...formItemLayout}
-                    style={{ display: fileType === 'text' ? 'block' : 'none' }}
+                    style={{
+                        display: fileType === 'text' ? 'block' : 'none'
+                    }}
                     label="列分隔符"
                     key="fieldDelimiter"
                 >
                     {getFieldDecorator('fieldDelimiter', {
                         rules: [],
-                        initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
+                        initialValue: isEmpty(sourceMap)
+                            ? ','
+                            : sourceMap.type.fieldDelimiter
                     })(
                         <Input
+                            /* eslint-disable */
                             placeholder="若不填写，则默认为\001"
-                            onChange={this.submitForm.bind(this)} />
+                            /* eslint-disable */
+                            onChange={this.submitForm.bind(this)}
+                        />
                     )}
                     <HelpDoc doc="splitCharacter" />
                 </FormItem>,
@@ -830,15 +1032,25 @@ class SourceForm extends React.Component {
                     {...formItemLayout}
                     label="编码"
                     key="encoding"
-                    style={{ display: fileType === 'text' ? 'block' : 'none' }}
+                    style={{
+                        display: fileType === 'text' ? 'block' : 'none'
+                    }}
                 >
                     {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: !sourceMap.type || !sourceMap.type.encoding ? 'utf-8' : sourceMap.type.encoding
+                        rules: [
+                            {
+                                required: true
+                            }
+                        ],
+                        initialValue:
+                                !sourceMap.type || !sourceMap.type.encoding
+                                    ? 'utf-8'
+                                    : sourceMap.type.encoding
                     })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                        <Select
+                            getPopupContainer={getPopupContainer}
+                            onChange={this.submitForm.bind(this)}
+                        >
                             <Option value="utf-8">utf-8</Option>
                             <Option value="gbk">gbk</Option>
                         </Select>
@@ -849,46 +1061,61 @@ class SourceForm extends React.Component {
         }
         case DATA_SOURCE.HBASE: {
             formItem = [
-                !selectHack && <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '数据源表为必选项！'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.table
+                !selectHack && (
+                    <FormItem {...formItemLayout} label="表名" key="table">
+                        {getFieldDecorator('table', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '数据源表为必选项！'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                onBlur={this.debounceTableSearch.bind(
+                                    this,
+                                    null
+                                )}
+                                optionFilterProp="value"
+                            >
+                                {(
+                                    this.state.tableListMap[sourceMap.sourceId] || []
+                                ).map(table => {
+                                    return (
+                                        <Option
+                                            key={`hbase-${table}`}
+                                            value={table}
+                                        >
+                                            {table}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>
+                ),
+                <FormItem {...formItemLayout} label="编码" key="encoding">
+                    {getFieldDecorator('encoding', {
+                        rules: [
+                            {
+                                required: true
+                            }
+                        ],
+                        initialValue:
+                                sourceMap.type && sourceMap.type.encoding
+                                    ? sourceMap.type.encoding
+                                    : 'utf-8'
                     })(
                         <Select
                             getPopupContainer={getPopupContainer}
-                            showSearch
-                            mode="combobox"
-                            onBlur={this.debounceTableSearch.bind(this, null)}
-                            // disabled={!isCurrentTabNew}
-                            optionFilterProp="value"
+                            onChange={this.submitForm.bind(this)}
                         >
-                            {(this.state.tableListMap[sourceMap.sourceId] || []).map(table => {
-                                return <Option key={`hbase-${table}`} value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="编码"
-                    key="encoding"
-                >
-                    {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: sourceMap.type && sourceMap.type.encoding ? sourceMap.type.encoding : 'utf-8'
-                    })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
                             <Option value="utf-8">utf-8</Option>
                             <Option value="gbk">gbk</Option>
                         </Select>
@@ -901,11 +1128,15 @@ class SourceForm extends React.Component {
                 >
                     {getFieldDecorator('startRowkey', {
                         rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.startRowkey ? sourceMap.type.startRowkey : ''
+                        initialValue:
+                                sourceMap.type && sourceMap.type.startRowkey
+                                    ? sourceMap.type.startRowkey
+                                    : ''
                     })(
                         <Input
                             placeholder="startRowkey"
-                            onChange={this.submitForm.bind(this)} />
+                            onChange={this.submitForm.bind(this)}
+                        />
                     )}
                 </FormItem>,
                 <FormItem
@@ -915,11 +1146,15 @@ class SourceForm extends React.Component {
                 >
                     {getFieldDecorator('endRowkey', {
                         rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.endRowkey ? sourceMap.type.endRowkey : ''
+                        initialValue:
+                                sourceMap.type && sourceMap.type.endRowkey
+                                    ? sourceMap.type.endRowkey
+                                    : ''
                     })(
                         <Input
                             placeholder="endRowkey"
-                            onChange={this.submitForm.bind(this)} />
+                            onChange={this.submitForm.bind(this)}
+                        />
                     )}
                 </FormItem>,
                 <FormItem
@@ -930,7 +1165,10 @@ class SourceForm extends React.Component {
                 >
                     {getFieldDecorator('isBinaryRowkey', {
                         rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.isBinaryRowkey ? sourceMap.type.isBinaryRowkey : '0'
+                        initialValue:
+                                sourceMap.type && sourceMap.type.isBinaryRowkey
+                                    ? sourceMap.type.isBinaryRowkey
+                                    : '0'
                     })(
                         <RadioGroup onChange={this.submitForm.bind(this)}>
                             <Radio value="0" style={{ float: 'left' }}>
@@ -949,7 +1187,10 @@ class SourceForm extends React.Component {
                 >
                     {getFieldDecorator('scanCacheSize', {
                         rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.scanCacheSize ? sourceMap.type.scanCacheSize : ''
+                        initialValue:
+                                sourceMap.type && sourceMap.type.scanCacheSize
+                                    ? sourceMap.type.scanCacheSize
+                                    : ''
                     })(
                         <Input
                             onChange={this.submitForm.bind(this)}
@@ -957,7 +1198,7 @@ class SourceForm extends React.Component {
                             type="number"
                             min={0}
                             suffix="行"
-                        ></Input>
+                        />
                     )}
                 </FormItem>,
                 <FormItem
@@ -967,7 +1208,10 @@ class SourceForm extends React.Component {
                 >
                     {getFieldDecorator('scanBatchSize', {
                         rules: [],
-                        initialValue: sourceMap.type && sourceMap.type.scanBatchSize ? sourceMap.type.scanBatchSize : ''
+                        initialValue:
+                                sourceMap.type && sourceMap.type.scanBatchSize
+                                    ? sourceMap.type.scanBatchSize
+                                    : ''
                     })(
                         <Input
                             onChange={this.submitForm.bind(this)}
@@ -975,35 +1219,38 @@ class SourceForm extends React.Component {
                             type="number"
                             min={0}
                             suffix="列"
-                        ></Input>
+                        />
                     )}
                 </FormItem>
-            ]
+            ];
             break;
         }
         case DATA_SOURCE.FTP: {
             formItem = [
-                <FormItem
-                    {...formItemLayout}
-                    label="路径"
-                    key="path"
-                >
+                <FormItem {...formItemLayout} label="路径" key="path">
                     {getFieldDecorator('path', {
-                        rules: [{
-                            required: true,
-                            message: '路径不得为空！'
-                        }, {
-                            max: 200,
-                            message: '路径不得超过200个字符！'
-                        }, {
-                            validator: this.validatePath
-                        }],
+                        rules: [
+                            {
+                                required: true,
+                                message: '路径不得为空！'
+                            },
+                            {
+                                max: 200,
+                                message: '路径不得超过200个字符！'
+                            },
+                            {
+                                validator: this.validatePath
+                            }
+                        ],
                         validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(sourceMap) ? '' : sourceMap.type.path
+                        initialValue: isEmpty(sourceMap)
+                            ? ''
+                            : sourceMap.type.path
                     })(
                         <Input
                             placeholder="例如: /rdos/batch"
-                            onChange={this.submitForm.bind(this)} />
+                            onChange={this.submitForm.bind(this)}
+                        />
                     )}
                 </FormItem>,
                 <FormItem
@@ -1012,31 +1259,40 @@ class SourceForm extends React.Component {
                     key="fieldDelimiter"
                 >
                     {getFieldDecorator('fieldDelimiter', {
-                        rules: [{
-                            required: true,
-                            message: '分隔符不可为空！'
-                        }],
-                        initialValue: isEmpty(sourceMap) ? ',' : sourceMap.type.fieldDelimiter
+                        rules: [
+                            {
+                                required: true,
+                                message: '分隔符不可为空！'
+                            }
+                        ],
+                        initialValue: isEmpty(sourceMap)
+                            ? ','
+                            : sourceMap.type.fieldDelimiter
                     })(
                         <Input
                             placeholder="默认值为,"
-                            onChange={this.submitForm.bind(this)} />
+                            onChange={this.submitForm.bind(this)}
+                        />
                     )}
                     <HelpDoc doc="splitCharacter" />
                 </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="编码"
-                    key="encoding"
-                >
+                <FormItem {...formItemLayout} label="编码" key="encoding">
                     {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true,
-                            message: '必须选择一种编码！'
-                        }],
-                        initialValue: !sourceMap.type || !sourceMap.type.encoding ? 'utf-8' : sourceMap.type.encoding
+                        rules: [
+                            {
+                                required: true,
+                                message: '必须选择一种编码！'
+                            }
+                        ],
+                        initialValue:
+                                !sourceMap.type || !sourceMap.type.encoding
+                                    ? 'utf-8'
+                                    : sourceMap.type.encoding
                     })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                        <Select
+                            getPopupContainer={getPopupContainer}
+                            onChange={this.submitForm.bind(this)}
+                        >
                             <Option value="utf-8">utf-8</Option>
                             <Option value="gbk">gbk</Option>
                         </Select>
@@ -1048,26 +1304,37 @@ class SourceForm extends React.Component {
                     key="isFirstLineHeader"
                 >
                     {getFieldDecorator('isFirstLineHeader', {
-                        rules: [{
-                            required: true,
-                            message: '必须选择一种编码！'
-                        }],
-                        initialValue: !sourceMap.type || !sourceMap.type.isFirstLineHeader ? false : sourceMap.type.isFirstLineHeader
+                        rules: [
+                            {
+                                required: true,
+                                message: '必须选择一种编码！'
+                            }
+                        ],
+                        initialValue:
+                                !sourceMap.type ||
+                                !sourceMap.type.isFirstLineHeader
+                                    ? false
+                                    : sourceMap.type.isFirstLineHeader
                     })(
                         <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value={true} style={{ float: 'left' }}>是</Radio>
-                            <Radio value={false} style={{ float: 'left' }}>否</Radio>
+                            <Radio value={true} style={{ float: 'left' }}>
+                                    是
+                            </Radio>
+                            <Radio value={false} style={{ float: 'left' }}>
+                                    否
+                            </Radio>
                         </RadioGroup>
                     )}
                 </FormItem>
-            ]
+            ];
             break;
         }
-        default: break;
+        default:
+            break;
         }
 
         return formItem;
-    }
+    };
 }
 
 const SourceFormWrap = Form.create()(SourceForm);
@@ -1078,9 +1345,11 @@ class Source extends React.Component {
     }
 
     render () {
-        return <div>
-            <SourceFormWrap {...this.props} />
-        </div>
+        return (
+            <div>
+                <SourceFormWrap {...this.props} />
+            </div>
+        );
     }
 }
 
@@ -1170,7 +1439,10 @@ const mapDispatch = (dispatch, ownProps) => {
                 payload: params
             });
         }
-    }
+    };
 };
 
-export default connect(mapState, mapDispatch)(Source);
+export default connect(
+    mapState,
+    mapDispatch
+)(Source);

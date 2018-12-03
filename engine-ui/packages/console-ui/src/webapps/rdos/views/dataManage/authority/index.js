@@ -315,43 +315,43 @@ class AuthMana extends Component {
 
         let operation = '';
         switch (queryParams.listType) {
-        case '0': { // 待审批
-            return (
-                <div className="ant-table-row  ant-table-row-level-0">
-                    <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
-                        <Checkbox
-                            checked={this.state.checkAll}
-                            onChange={this.onCheckAllChange}
-                        >
-                        </Checkbox>
+            case '0': { // 待审批
+                return (
+                    <div className="ant-table-row  ant-table-row-level-0">
+                        <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
+                            <Checkbox
+                                checked={this.state.checkAll}
+                                onChange={this.onCheckAllChange}
+                            >
+                            </Checkbox>
+                        </div>
+                        <div style={{ display: 'inline-block', marginLeft: '15px' }}>
+                            <Button type="primary" size="small" onClick={this.batchApply.bind(this, true)}>批量通过</Button>&nbsp;
+                            <Button type="primary" size="small" onClick={this.batchApply.bind(this, false)}>批量驳回</Button>&nbsp;
+                        </div>
                     </div>
-                    <div style={{ display: 'inline-block', marginLeft: '15px' }}>
-                        <Button type="primary" size="small" onClick={this.batchApply.bind(this, true)}>批量通过</Button>&nbsp;
-                        <Button type="primary" size="small" onClick={this.batchApply.bind(this, false)}>批量驳回</Button>&nbsp;
+                )
+            }
+            case '3': { // 权限回收
+                return (
+                    <div className="ant-table-row  ant-table-row-level-0">
+                        <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
+                            <Checkbox
+                                checked={this.state.checkAll}
+                                onChange={this.onCheckAllChange}
+                            >
+                            </Checkbox>
+                        </div>
+                        <div style={{ display: 'inline-block', marginLeft: '15px' }}>
+                            <Button type="primary" size="small" onClick={() => { this.revoke() }}>批量回收</Button>&nbsp;
+                        </div>
                     </div>
-                </div>
-            )
-        }
-        case '3': { // 权限回收
-            return (
-                <div className="ant-table-row  ant-table-row-level-0">
-                    <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
-                        <Checkbox
-                            checked={this.state.checkAll}
-                            onChange={this.onCheckAllChange}
-                        >
-                        </Checkbox>
-                    </div>
-                    <div style={{ display: 'inline-block', marginLeft: '15px' }}>
-                        <Button type="primary" size="small" onClick={() => { this.revoke() }}>批量回收</Button>&nbsp;
-                    </div>
-                </div>
-            )
-        }
-        case '1': // 申请记录
-        case '2': // 已处理
-        default:
-            return null;
+                )
+            }
+            case '1': // 申请记录
+            case '2': // 已处理
+            default:
+                return null;
         }
     }
 
@@ -415,214 +415,214 @@ class AuthMana extends Component {
         ];
 
         switch (queryParams.listType) {
-        case '0': { // 待审批
-            return baseCols.concat(
-                [
-                    {
-                        title: '申请时间',
-                        key: 'applyTime',
-                        dataIndex: 'applyTime',
-                        sorter: true,
-                        render (text, record) {
-                            return utils.formatDateTime(text)
+            case '0': { // 待审批
+                return baseCols.concat(
+                    [
+                        {
+                            title: '申请时间',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
+                            sorter: true,
+                            render (text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '有效期',
+                            key: 'day',
+                            dataIndex: 'day',
+                            render (text, record) {
+                                return `${text}天`
+                            }
+                        },
+                        {
+                            title: '申请原因',
+                            key: 'applyReason',
+                            dataIndex: 'applyReason',
+                            width: '100px',
+                            render: text => this.characterProcess(text, '100px')
+                        },
+                        {
+                            title: '操作',
+                            key: 'id',
+                            width: 120,
+                            render (text, record) {
+                                return <span>
+                                    <a onClick={() => ctx.passClick(record)}>通过</a>
+                                    <span className="ant-divider"></span>
+                                    <a onClick={() => ctx.rejectClick(record)}>驳回</a>
+                                </span>
+                            }
                         }
-                    },
-                    {
-                        title: '有效期',
-                        key: 'day',
-                        dataIndex: 'day',
-                        render (text, record) {
-                            return `${text}天`
-                        }
-                    },
-                    {
-                        title: '申请原因',
-                        key: 'applyReason',
-                        dataIndex: 'applyReason',
-                        width: '100px',
-                        render: text => this.characterProcess(text, '100px')
-                    },
-                    {
-                        title: '操作',
-                        key: 'id',
-                        width: 120,
-                        render (text, record) {
-                            return <span>
-                                <a onClick={() => ctx.passClick(record)}>通过</a>
-                                <span className="ant-divider"></span>
-                                <a onClick={() => ctx.rejectClick(record)}>驳回</a>
-                            </span>
-                        }
-                    }
-                ]
-            )
-        }
+                    ]
+                )
+            }
 
-        case '1': { // 申请记录
-            return baseCols.concat(
-                [
-                    {
-                        title: '申请时间',
-                        key: 'applyTime',
-                        dataIndex: 'applyTime',
-                        sorter: true,
-                        render (text, record) {
-                            return utils.formatDateTime(text)
+            case '1': { // 申请记录
+                return baseCols.concat(
+                    [
+                        {
+                            title: '申请时间',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
+                            sorter: true,
+                            render (text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '有效期',
+                            key: 'day',
+                            dataIndex: 'day',
+                            render (text, record) {
+                                return `${text}天`
+                            }
+                        },
+                        {
+                            title: '状态',
+                            key: 'applyStatus',
+                            dataIndex: 'applyStatus',
+                            render (status) {
+                                return applyStatus(status);
+                            }
+                        },
+                        {
+                            title: '收回状态',
+                            key: 'isRevoke',
+                            dataIndex: 'isRevoke',
+                            render (status) {
+                                return revokeStatus(status);
+                            }
+                        },
+                        // {
+                        //     title: '申请详情',
+                        //     key: 'applyReason',
+                        //     dataIndex: 'applyReason',
+                        //     width:"100px",
+                        //     render : text => this.characterProcess(text,"100px"),
+                        // },
+                        {
+                            title: '操作',
+                            key: 'operation',
+                            dataIndex: 'applyStatus',
+                            width: 120,
+                            render (text, record) {
+                                return <span>
+                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                    <span className="ant-divider"></span>
+                                    {
+                                        text == 0 ? <a onClick={() => { ctx.cancelApply(record.applyId) }}>撤销</a> : '撤销'
+                                    }
+                                </span>
+                            }
                         }
-                    },
-                    {
-                        title: '有效期',
-                        key: 'day',
-                        dataIndex: 'day',
-                        render (text, record) {
-                            return `${text}天`
+                    ]
+                )
+            }
+            case '2': { // 已处理
+                return baseCols.concat(
+                    [
+                        {
+                            title: '申请时间',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
+                            sorter: true,
+                            render (text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '有效期',
+                            key: 'day',
+                            dataIndex: 'day',
+                            render (text, record) {
+                                return `${text}天`
+                            }
+                        },
+                        {
+                            title: '状态',
+                            key: 'applyStatus',
+                            dataIndex: 'applyStatus',
+                            render (status) {
+                                return applyStatus(status);
+                            }
+                        },
+                        {
+                            title: '收回状态',
+                            key: 'isRevoke',
+                            dataIndex: 'isRevoke',
+                            render (status) {
+                                return revokeStatus(status);
+                            }
+                        },
+                        {
+                            title: '审批人',
+                            key: 'dealUser',
+                            dataIndex: 'dealUser'
+                        },
+                        // {
+                        //     title: '审批意见',
+                        //     key: 'reply',
+                        //     dataIndex: 'reply',
+                        //     width:"100px",
+                        //     render : text => this.characterProcess(text,"100px"),
+                        // },
+                        {
+                            title: '操作',
+                            key: 'operation',
+                            width: '100px',
+                            render (record) {
+                                return <span>
+                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                </span>
+                            }
                         }
-                    },
-                    {
-                        title: '状态',
-                        key: 'applyStatus',
-                        dataIndex: 'applyStatus',
-                        render (status) {
-                            return applyStatus(status);
+                    ]
+                )
+            }
+            case '3': { // 权限回收
+                return baseCols.concat(
+                    [
+                        {
+                            title: '审批结果',
+                            key: 'applyStatus',
+                            dataIndex: 'applyStatus',
+                            render (status) {
+                                return applyStatus(status);
+                            }
+                        },
+                        {
+                            title: '审批意见',
+                            key: 'reply',
+                            dataIndex: 'reply',
+                            width: '100px',
+                            render: text => this.characterProcess(text, '100px')
+                        },
+                        {
+                            title: '处理时间',
+                            key: 'handTime',
+                            dataIndex: 'handTime',
+                            render (text, record) {
+                                return utils.formatDateTime(text)
+                            }
+                        },
+                        {
+                            title: '操作',
+                            key: 'id',
+                            width: 120,
+                            render (text, record) {
+                                return <span>
+                                    <a onClick={() => ctx.passClick(record)}>查看详情</a>
+                                    <span className="ant-divider"></span>
+                                    <a onClick={() => { ctx.revoke([record.applyId]) }}>收回</a>
+                                </span>
+                            }
                         }
-                    },
-                    {
-                        title: '收回状态',
-                        key: 'isRevoke',
-                        dataIndex: 'isRevoke',
-                        render (status) {
-                            return revokeStatus(status);
-                        }
-                    },
-                    // {
-                    //     title: '申请详情',
-                    //     key: 'applyReason',
-                    //     dataIndex: 'applyReason',
-                    //     width:"100px",
-                    //     render : text => this.characterProcess(text,"100px"),
-                    // },
-                    {
-                        title: '操作',
-                        key: 'operation',
-                        dataIndex: 'applyStatus',
-                        width: 120,
-                        render (text, record) {
-                            return <span>
-                                <a onClick={() => ctx.passClick(record)}>查看详情</a>
-                                <span className="ant-divider"></span>
-                                {
-                                    text == 0 ? <a onClick={() => { ctx.cancelApply(record.applyId) }}>撤销</a> : '撤销'
-                                }
-                            </span>
-                        }
-                    }
-                ]
-            )
-        }
-        case '2': { // 已处理
-            return baseCols.concat(
-                [
-                    {
-                        title: '申请时间',
-                        key: 'applyTime',
-                        dataIndex: 'applyTime',
-                        sorter: true,
-                        render (text, record) {
-                            return utils.formatDateTime(text)
-                        }
-                    },
-                    {
-                        title: '有效期',
-                        key: 'day',
-                        dataIndex: 'day',
-                        render (text, record) {
-                            return `${text}天`
-                        }
-                    },
-                    {
-                        title: '状态',
-                        key: 'applyStatus',
-                        dataIndex: 'applyStatus',
-                        render (status) {
-                            return applyStatus(status);
-                        }
-                    },
-                    {
-                        title: '收回状态',
-                        key: 'isRevoke',
-                        dataIndex: 'isRevoke',
-                        render (status) {
-                            return revokeStatus(status);
-                        }
-                    },
-                    {
-                        title: '审批人',
-                        key: 'dealUser',
-                        dataIndex: 'dealUser'
-                    },
-                    // {
-                    //     title: '审批意见',
-                    //     key: 'reply',
-                    //     dataIndex: 'reply',
-                    //     width:"100px",
-                    //     render : text => this.characterProcess(text,"100px"),
-                    // },
-                    {
-                        title: '操作',
-                        key: 'operation',
-                        width: '100px',
-                        render (record) {
-                            return <span>
-                                <a onClick={() => ctx.passClick(record)}>查看详情</a>
-                            </span>
-                        }
-                    }
-                ]
-            )
-        }
-        case '3': { // 权限回收
-            return baseCols.concat(
-                [
-                    {
-                        title: '审批结果',
-                        key: 'applyStatus',
-                        dataIndex: 'applyStatus',
-                        render (status) {
-                            return applyStatus(status);
-                        }
-                    },
-                    {
-                        title: '审批意见',
-                        key: 'reply',
-                        dataIndex: 'reply',
-                        width: '100px',
-                        render: text => this.characterProcess(text, '100px')
-                    },
-                    {
-                        title: '处理时间',
-                        key: 'handTime',
-                        dataIndex: 'handTime',
-                        render (text, record) {
-                            return utils.formatDateTime(text)
-                        }
-                    },
-                    {
-                        title: '操作',
-                        key: 'id',
-                        width: 120,
-                        render (text, record) {
-                            return <span>
-                                <a onClick={() => ctx.passClick(record)}>查看详情</a>
-                                <span className="ant-divider"></span>
-                                <a onClick={() => { ctx.revoke([record.applyId]) }}>收回</a>
-                            </span>
-                        }
-                    }
-                ]
-            )
-        }
-        default:
-            return [];
+                    ]
+                )
+            }
+            default:
+                return [];
         }
     }
 

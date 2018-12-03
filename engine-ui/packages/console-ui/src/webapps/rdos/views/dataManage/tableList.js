@@ -203,21 +203,21 @@ class TableList extends Component {
                 width: 120,
                 render (text, record) {
                     switch (queryParams.listType) {
-                    case '1':
-                    case '2':
-                    case '3':
-                        return <span>
-                            <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
-                            <span className="ant-divider"></span>
-                            {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
-                            <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
-                        </span>
-                    case '5':
-                        return <span>
-                            <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
-                        </span>
-                    default:
-                        return '--';
+                        case '1':
+                        case '2':
+                        case '3':
+                            return <span>
+                                <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
+                                <span className="ant-divider"></span>
+                                {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
+                                <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
+                            </span>
+                        case '5':
+                            return <span>
+                                <a onClick={() => ctx.cancleMark(record.id)}>取消收藏</a>
+                            </span>
+                        default:
+                            return '--';
                     }
                 }
             }

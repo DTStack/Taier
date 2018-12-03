@@ -42,87 +42,87 @@ export function taskTypeIcon (type, task = {}) {
     const { pythonVersion, learningType, scriptType } = task;
     if (scriptType == null) {
         switch (type) {
-        case TASK_TYPE.SQL: {
-            return 's-sqlicon';
-        }
-        case TASK_TYPE.MR: {
-            return 's-mricon';
-        }
-        case TASK_TYPE.HAHDOOPMR: {
-            return 's-mricon';
-        }
-        case TASK_TYPE.SYNC: {
-            return 's-datasyncicon';
-        }
-        case TASK_TYPE.PYTHON: {
-            return 's-sparkpythonicon';
-        }
-        case TASK_TYPE.VIRTUAL_NODE: {
-            return 's-virtualicon';
-        }
-        case TASK_TYPE.DEEP_LEARNING: {
-            if (learningType == LEARNING_TYPE.MXNET) {
-                return 's-mxnet';
-            } else if (learningType == LEARNING_TYPE.TENSORFLOW) {
-                return 's-tensorflow';
-            } else {
-                return 's-deeplearning';
+            case TASK_TYPE.SQL: {
+                return 's-sqlicon';
             }
-        }
-        case TASK_TYPE.PYTHON_23: {
-            if (pythonVersion == PYTON_VERSION.PYTHON2) {
-                return 's-python2icon';
-            } else if (pythonVersion == PYTON_VERSION.PYTHON3) {
-                return 's-python3icon';
-            } else {
-                return 's-pythonicon';
+            case TASK_TYPE.MR: {
+                return 's-mricon';
             }
-        }
-        case TASK_TYPE.SHELL: {
-            return 's-shell';
-        }
-        case TASK_TYPE.WORKFLOW: {
-            return 's-workflow';
-        }
-        case TASK_TYPE.DATA_COLLECTION: {
-            return 's-collection';
-        }
-        case TASK_TYPE.ML: {
-            return 's-mlicon';
-        }
-        default:
-            '';
+            case TASK_TYPE.HAHDOOPMR: {
+                return 's-mricon';
+            }
+            case TASK_TYPE.SYNC: {
+                return 's-datasyncicon';
+            }
+            case TASK_TYPE.PYTHON: {
+                return 's-sparkpythonicon';
+            }
+            case TASK_TYPE.VIRTUAL_NODE: {
+                return 's-virtualicon';
+            }
+            case TASK_TYPE.DEEP_LEARNING: {
+                if (learningType == LEARNING_TYPE.MXNET) {
+                    return 's-mxnet';
+                } else if (learningType == LEARNING_TYPE.TENSORFLOW) {
+                    return 's-tensorflow';
+                } else {
+                    return 's-deeplearning';
+                }
+            }
+            case TASK_TYPE.PYTHON_23: {
+                if (pythonVersion == PYTON_VERSION.PYTHON2) {
+                    return 's-python2icon';
+                } else if (pythonVersion == PYTON_VERSION.PYTHON3) {
+                    return 's-python3icon';
+                } else {
+                    return 's-pythonicon';
+                }
+            }
+            case TASK_TYPE.SHELL: {
+                return 's-shell';
+            }
+            case TASK_TYPE.WORKFLOW: {
+                return 's-workflow';
+            }
+            case TASK_TYPE.DATA_COLLECTION: {
+                return 's-collection';
+            }
+            case TASK_TYPE.ML: {
+                return 's-mlicon';
+            }
+            default:
+                '';
         }
     } else {
         switch (type) {
-        case SCRIPT_TYPE.SQL: {
-            return 's-sqlicon';
-        }
-        case SCRIPT_TYPE.PYTHON2: {
-            return 's-python2icon';
-        }
-        case SCRIPT_TYPE.PYTHON3: {
-            return 's-python3icon';
-        }
-        case SCRIPT_TYPE.SHELL: {
-            return 's-shell';
-        }
-        default:
-            '';
+            case SCRIPT_TYPE.SQL: {
+                return 's-sqlicon';
+            }
+            case SCRIPT_TYPE.PYTHON2: {
+                return 's-python2icon';
+            }
+            case SCRIPT_TYPE.PYTHON3: {
+                return 's-python3icon';
+            }
+            case SCRIPT_TYPE.SHELL: {
+                return 's-shell';
+            }
+            default:
+                '';
         }
     }
 }
 
 export function resourceTypeIcon (type) {
     switch (type) {
-    case RESOURCE_TYPE.JAR: {
-        return 's-jaricon-r';
-    }
-    case RESOURCE_TYPE.PY: {
-        return 's-pythonicon-r';
-    }
-    default:
-        return '';
+        case RESOURCE_TYPE.JAR: {
+            return 's-jaricon-r';
+        }
+        case RESOURCE_TYPE.PY: {
+            return 's-pythonicon-r';
+        }
+        default:
+            return '';
     }
 }
 
@@ -228,27 +228,27 @@ export function matchTaskParams (taskCustomParams, sqlText) {
 
 export function getVertxtStyle (type) {
     switch (type) {
-    case TASK_STATUS.FINISHED: // 完成
-    case TASK_STATUS.SET_SUCCESS:
-        return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
-    case TASK_STATUS.SUBMITTING:
-    case TASK_STATUS.RUNNING:
-        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
-    case TASK_STATUS.RESTARTING:
-    case TASK_STATUS.STOPING:
-    case TASK_STATUS.DEPLOYING:
-    case TASK_STATUS.WAIT_SUBMIT:
-    case TASK_STATUS.WAIT_RUN:
-        return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
-    case TASK_STATUS.RUN_FAILED:
-    case TASK_STATUS.SUBMIT_FAILED:
-        return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
-    case TASK_STATUS.FROZEN:
-        return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
-    case TASK_STATUS.STOPED: // 已停止
-    default:
+        case TASK_STATUS.FINISHED: // 完成
+        case TASK_STATUS.SET_SUCCESS:
+            return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
+        case TASK_STATUS.SUBMITTING:
+        case TASK_STATUS.RUNNING:
+            return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
+        case TASK_STATUS.RESTARTING:
+        case TASK_STATUS.STOPING:
+        case TASK_STATUS.DEPLOYING:
+        case TASK_STATUS.WAIT_SUBMIT:
+        case TASK_STATUS.WAIT_RUN:
+            return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
+        case TASK_STATUS.RUN_FAILED:
+        case TASK_STATUS.SUBMIT_FAILED:
+            return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
+        case TASK_STATUS.FROZEN:
+            return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
+        case TASK_STATUS.STOPED: // 已停止
+        default:
         // 默认
-        return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
+            return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
     }
 }
 

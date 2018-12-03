@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Input, Icon, Spin, Popover } from 'antd';
+import { Input, Spin, Popover } from 'antd';
 
 import TableDetail from './tableDetail/index.js';
 
@@ -42,7 +42,7 @@ class TableTipExtraPane extends React.Component {
             </div>
             <div className="tablePane-table-column-box">
                 {columns.map((column) => {
-                    return <div className="tablePane-table-column">
+                    return <div key={column.columnName} className="tablePane-table-column">
                         <span className="table-column-name" title={column.columnName}>{column.columnName}</span>
                         <span className="table-column-type">{column.columnType}</span>
                     </div>

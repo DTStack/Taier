@@ -62,33 +62,33 @@ export function getProjectUsers () {
 
 export function user (state = {}, action) {
     switch (action.type) {
-    case userAction.GET_USER:
-        return action.data
-    case userAction.UPDATE_USER: {
-        if (action.data !== null) {
-            return { ...state, ...action.data }
+        case userAction.GET_USER:
+            return action.data
+        case userAction.UPDATE_USER: {
+            if (action.data !== null) {
+                return { ...state, ...action.data }
+            }
+            return state;
         }
-        return state;
-    }
-    default:
-        return state
+        default:
+            return state
     }
 }
 
 export function notProjectUsers (state = [], action) { // 非项目用户
     switch (action.type) {
-    case userAction.GET_NOT_PROJECT_USERS:
-        return action.data
-    default:
-        return state
+        case userAction.GET_NOT_PROJECT_USERS:
+            return action.data
+        default:
+            return state
     }
 }
 
 export function projectUsers (state = [], action) {
     switch (action.type) {
-    case userAction.GET_PROJECT_USERS:
-        return action.data
-    default:
-        return state
+        case userAction.GET_PROJECT_USERS:
+            return action.data
+        default:
+            return state
     }
 }

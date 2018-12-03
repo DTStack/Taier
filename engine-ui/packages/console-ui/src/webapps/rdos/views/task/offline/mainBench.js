@@ -166,94 +166,94 @@ export default class MainBench extends React.Component {
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
             switch (tabData.taskType) {
-            case TASK_TYPE.MR:
-            case TASK_TYPE.PYTHON:
-            case TASK_TYPE.VIRTUAL_NODE:
-            case TASK_TYPE.ML:
-            case TASK_TYPE.HAHDOOPMR:
-                return <NormalTaskForm
-                    isWorkflowNode={isWorkflowNode}
-                    key={tabData.id}
-                    {...tabData}
-                />
-            case TASK_TYPE.SYNC: // 数据同步
-                if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
-                    return <DataSyncScript
+                case TASK_TYPE.MR:
+                case TASK_TYPE.PYTHON:
+                case TASK_TYPE.VIRTUAL_NODE:
+                case TASK_TYPE.ML:
+                case TASK_TYPE.HAHDOOPMR:
+                    return <NormalTaskForm
+                        isWorkflowNode={isWorkflowNode}
                         key={tabData.id}
                         {...tabData}
-                        currentTabData={tabData}
-                        taskCustomParams={taskCustomParams}
                     />
-                }
-                return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
-            case TASK_TYPE.SQL: // SQL
-                return <EditorContainer
-                    taskCustomParams={taskCustomParams}
-                    key={tabData.id}
-                    value={tabData.sqlText}
-                    currentTab={tabData.id}
-                    currentTabData={tabData}
-                />
-            case TASK_TYPE.SHELL:
-                return <CommonEditor
-                    mode="shell"
-                    taskCustomParams={taskCustomParams}
-                    key={tabData.id}
-                    value={tabData.sqlText}
-                    currentTab={tabData.id}
-                    currentTabData={tabData} />;
-            case TASK_TYPE.DEEP_LEARNING:
-            case TASK_TYPE.PYTHON_23:
-                if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
+                case TASK_TYPE.SYNC: // 数据同步
+                    if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
+                        return <DataSyncScript
+                            key={tabData.id}
+                            {...tabData}
+                            currentTabData={tabData}
+                            taskCustomParams={taskCustomParams}
+                        />
+                    }
+                    return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
+                case TASK_TYPE.SQL: // SQL
+                    return <EditorContainer
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData}
+                    />
+                case TASK_TYPE.SHELL:
                     return <CommonEditor
-                        mode="python"
+                        mode="shell"
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.sqlText}
                         currentTab={tabData.id}
                         currentTabData={tabData} />;
-                } else {
-                    return <NormalTaskForm key={tabData.id} {...tabData} />
+                case TASK_TYPE.DEEP_LEARNING:
+                case TASK_TYPE.PYTHON_23:
+                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
+                        return <CommonEditor
+                            mode="python"
+                            taskCustomParams={taskCustomParams}
+                            key={tabData.id}
+                            value={tabData.sqlText}
+                            currentTab={tabData.id}
+                            currentTabData={tabData} />;
+                    } else {
+                        return <NormalTaskForm key={tabData.id} {...tabData} />
+                    }
+                case TASK_TYPE.WORKFLOW: {
+                    const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
+                    const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
+                    return <WorkFlowEditor
+                        data={tabData}
+                        key={editorKey}
+                    />
                 }
-            case TASK_TYPE.WORKFLOW: {
-                const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
-                const editorKey = `${tabData.id}_${isLocked}_${tabData.version}`;
-                return <WorkFlowEditor
-                    data={tabData}
-                    key={editorKey}
-                />
-            }
-            default:
-                return <p className="txt-center" style={{ lineHeight: '60px' }}>
+                default:
+                    return <p className="txt-center" style={{ lineHeight: '60px' }}>
                         未知任务类型
-                </p>
+                    </p>
             }
             // 脚本类型
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
-            case SCRIPT_TYPE.SQL: {
-                return <EditorContainer
-                    taskCustomParams={taskCustomParams}
-                    key={tabData.id}
-                    value={tabData.scriptText}
-                    currentTab={tabData.id}
-                    currentTabData={tabData}
-                />
-            }
-            case SCRIPT_TYPE.SHELL:
-            case SCRIPT_TYPE.PYTHON2:
-            case SCRIPT_TYPE.PYTHON3: {
-                let mode = 'python';
-                if (tabData.type === '') {
-                    mode = 'shell';
+                case SCRIPT_TYPE.SQL: {
+                    return <EditorContainer
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.scriptText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData}
+                    />
                 }
-                return <CommonEditor
-                    mode={mode}
-                    key={tabData.id}
-                    value={tabData.scriptText}
-                    currentTab={tabData.id}
-                    currentTabData={tabData} />;
-            }
+                case SCRIPT_TYPE.SHELL:
+                case SCRIPT_TYPE.PYTHON2:
+                case SCRIPT_TYPE.PYTHON3: {
+                    let mode = 'python';
+                    if (tabData.type === '') {
+                        mode = 'shell';
+                    }
+                    return <CommonEditor
+                        mode={mode}
+                        key={tabData.id}
+                        value={tabData.scriptText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
+                }
             }
         }
     }

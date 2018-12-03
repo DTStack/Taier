@@ -103,20 +103,20 @@ class Abstract extends Component {
             render: (text, record) => {
                 let name = ''
                 switch (record.status) {
-                case 0:
-                    name = '提交'
-                    break;
-                case 7:
-                    name = '续跑'
-                    break;
-                case 8:
-                    name = '重试'
-                    break;
-                case 4:
-                    name = '停止'
-                    break;
-                default:
-                    break;
+                    case 0:
+                        name = '提交'
+                        break;
+                    case 7:
+                        name = '续跑'
+                        break;
+                    case 8:
+                        name = '重试'
+                        break;
+                    case 4:
+                        name = '停止'
+                        break;
+                    default:
+                        break;
                 }
                 return (
                     <div key={record.id}>

@@ -13,7 +13,6 @@ import {
 } from '../../../store/modules/offlineTask/actionType';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class FnForm extends React.Component {
     constructor (props) {
@@ -31,7 +30,7 @@ class FnForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { defaultData, isEditExist, isCreateFromMenu, isCreateNormal } = this.props;
+        const { defaultData, isCreateFromMenu, isCreateNormal } = this.props;
 
         const formItemLayout = {
             labelCol: {
@@ -168,6 +167,7 @@ class FnForm extends React.Component {
         )
     }
 
+    /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
      * @param {any} rule
@@ -196,6 +196,7 @@ class FnForm extends React.Component {
         }
         callback();
     }
+    /* eslint-disable */
 
     /**
      * @description 获取节点名称
@@ -239,7 +240,7 @@ class FnModal extends React.Component {
     }
 
     handleSubmit () {
-        const { isModalShow, toggleCreateFn, addFn } = this.props;
+        const { addFn } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
@@ -258,8 +259,6 @@ class FnModal extends React.Component {
     }
 
     handleCancel () {
-        const { toggleCreateFn } = this.props;
-
         this.closeModal();
     }
 

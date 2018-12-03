@@ -118,26 +118,26 @@ class PackageCreate extends React.Component {
         extParams['startTime'] = (modifyDate && modifyDate.length) ? modifyDate[0].valueOf() : null;
         extParams['endTime'] = (modifyDate && modifyDate.length) ? modifyDate[1].valueOf() : null;
         switch (listType) {
-        case publishType.TASK: {
-            extParams['taskName'] = publishName;
-            extParams['taskModifyUserId'] = modifyUser;
-            break;
-        }
-        case publishType.FUNCTION: {
-            extParams['name'] = publishName;
-            extParams['functionModifyUserId'] = modifyUser;
-            break;
-        }
-        case publishType.RESOURCE: {
-            extParams['resourceName'] = publishName;
-            extParams['resourceModifyUserId'] = modifyUser;
-            break;
-        }
-        case publishType.TABLE: {
-            extParams['tableName'] = publishName;
-            extParams['tableModifyUserId'] = modifyUser;
-            break;
-        }
+            case publishType.TASK: {
+                extParams['taskName'] = publishName;
+                extParams['taskModifyUserId'] = modifyUser;
+                break;
+            }
+            case publishType.FUNCTION: {
+                extParams['name'] = publishName;
+                extParams['functionModifyUserId'] = modifyUser;
+                break;
+            }
+            case publishType.RESOURCE: {
+                extParams['resourceName'] = publishName;
+                extParams['resourceModifyUserId'] = modifyUser;
+                break;
+            }
+            case publishType.TABLE: {
+                extParams['tableName'] = publishName;
+                extParams['tableModifyUserId'] = modifyUser;
+                break;
+            }
         }
         Api.getRePublishList({
             pageSize: pagination.pageSize,
@@ -258,171 +258,171 @@ class PackageCreate extends React.Component {
         };
 
         switch (listType) {
-        case publishType.TASK: {
-            return [{
-                title: '名称',
-                dataIndex: 'taskName',
-                render (text, record) {
-                    let extText = '';
-                    let extStyle = {};
-                    if (record.isDeleted) {
-                        extText = '[已删除]'
-                        extStyle['color'] = '#999'
+            case publishType.TASK: {
+                return [{
+                    title: '名称',
+                    dataIndex: 'taskName',
+                    render (text, record) {
+                        let extText = '';
+                        let extStyle = {};
+                        if (record.isDeleted) {
+                            extText = '[已删除]'
+                            extStyle['color'] = '#999'
+                        }
+                        return <span style={extStyle}>
+                            {`${extText}${text}(${offlineTaskTypesMap.get(record.taskType)})`}
+                        </span>
                     }
-                    return <span style={extStyle}>
-                        {`${extText}${text}(${offlineTaskTypesMap.get(record.taskType)})`}
-                    </span>
-                }
-            }, {
-                title: '负责人',
-                dataIndex: 'chargeUser',
-                width: '130px'
-            }, {
-                title: '修改人',
-                dataIndex: 'modifyUser',
-                width: '130px'
-            }, {
-                title: '修改时间',
-                dataIndex: 'modifyTime',
-                sorter: true,
-                render (text) {
-                    return utils.formatDateTime(text)
-                },
-                width: '140px'
-            }, {
-                title: '备注',
-                dataIndex: 'taskDesc',
-                width: '140px'
-            }, {
-                title: '操作',
-                dataIndex: 'deal',
-                width: '180px',
-                render: (n, record) => {
-                    return <span>
-                        {addButtonCreate(record)}
-                        <span className="ant-divider"></span>
-                        <a disabled={!havePermission} onClick={this.showAddLink.bind(this, record)}>添加关联</a>
-                        <span className="ant-divider"></span>
-                        {publishButtonCreate(record)}
-                    </span>
-                }
-            }]
-        }
-        case publishType.RESOURCE: {
-            return [{
-                title: '名称',
-                dataIndex: 'resourceName',
-                render (text, record) {
-                    return `${text}(${RESOURCE_TYPE_MAP[record.resourceType]})`
-                }
-            }, {
-                title: '创建人',
-                dataIndex: 'createUser',
-                render (createUser) {
-                    return createUser.userName
-                },
-                width: '150px'
-            }, {
-                title: '修改人',
-                dataIndex: 'modifyUser',
-                render (n, record) {
-                    return record.createUser.userName
-                },
-                width: '150px'
-            }, {
-                title: '修改时间',
-                dataIndex: 'gmtModified',
-                sorter: true,
-                render (text) {
-                    return utils.formatDateTime(text)
-                },
-                width: '160px'
-            }, {
-                title: '操作',
-                dataIndex: 'deal',
-                width: '170px',
-                render: (n, record) => {
-                    return <span>
-                        {addButtonCreate(record)}
-                        <span className="ant-divider"></span>
-                        {publishButtonCreate(record)}
-                    </span>
-                }
-            }]
-        }
-        case publishType.FUNCTION: {
-            return [{
-                title: '名称',
-                dataIndex: 'name'
-            }, {
-                title: '创建人',
-                dataIndex: 'createUser',
-                render (createUser) {
-                    return createUser.userName
-                },
-                width: '150px'
-            }, {
-                title: '修改人',
-                dataIndex: 'modifyUser',
-                render (modifyUser) {
-                    return modifyUser.userName
-                },
-                width: '150px'
-            }, {
-                title: '修改时间',
-                dataIndex: 'gmtModified',
-                sorter: true,
-                render (text) {
-                    return utils.formatDateTime(text)
-                },
-                width: '160px'
-            }, {
-                title: '操作',
-                dataIndex: 'deal',
-                width: '170px',
-                render: (n, record) => {
-                    return <span>
-                        {addButtonCreate(record)}
-                        <span className="ant-divider"></span>
-                        {publishButtonCreate(record)}
-                    </span>
-                }
-            }]
-        }
-        case publishType.TABLE: {
-            return [{
-                title: '名称',
-                dataIndex: 'tableName'
+                }, {
+                    title: '负责人',
+                    dataIndex: 'chargeUser',
+                    width: '130px'
+                }, {
+                    title: '修改人',
+                    dataIndex: 'modifyUser',
+                    width: '130px'
+                }, {
+                    title: '修改时间',
+                    dataIndex: 'modifyTime',
+                    sorter: true,
+                    render (text) {
+                        return utils.formatDateTime(text)
+                    },
+                    width: '140px'
+                }, {
+                    title: '备注',
+                    dataIndex: 'taskDesc',
+                    width: '140px'
+                }, {
+                    title: '操作',
+                    dataIndex: 'deal',
+                    width: '180px',
+                    render: (n, record) => {
+                        return <span>
+                            {addButtonCreate(record)}
+                            <span className="ant-divider"></span>
+                            <a disabled={!havePermission} onClick={this.showAddLink.bind(this, record)}>添加关联</a>
+                            <span className="ant-divider"></span>
+                            {publishButtonCreate(record)}
+                        </span>
+                    }
+                }]
+            }
+            case publishType.RESOURCE: {
+                return [{
+                    title: '名称',
+                    dataIndex: 'resourceName',
+                    render (text, record) {
+                        return `${text}(${RESOURCE_TYPE_MAP[record.resourceType]})`
+                    }
+                }, {
+                    title: '创建人',
+                    dataIndex: 'createUser',
+                    render (createUser) {
+                        return createUser.userName
+                    },
+                    width: '150px'
+                }, {
+                    title: '修改人',
+                    dataIndex: 'modifyUser',
+                    render (n, record) {
+                        return record.createUser.userName
+                    },
+                    width: '150px'
+                }, {
+                    title: '修改时间',
+                    dataIndex: 'gmtModified',
+                    sorter: true,
+                    render (text) {
+                        return utils.formatDateTime(text)
+                    },
+                    width: '160px'
+                }, {
+                    title: '操作',
+                    dataIndex: 'deal',
+                    width: '170px',
+                    render: (n, record) => {
+                        return <span>
+                            {addButtonCreate(record)}
+                            <span className="ant-divider"></span>
+                            {publishButtonCreate(record)}
+                        </span>
+                    }
+                }]
+            }
+            case publishType.FUNCTION: {
+                return [{
+                    title: '名称',
+                    dataIndex: 'name'
+                }, {
+                    title: '创建人',
+                    dataIndex: 'createUser',
+                    render (createUser) {
+                        return createUser.userName
+                    },
+                    width: '150px'
+                }, {
+                    title: '修改人',
+                    dataIndex: 'modifyUser',
+                    render (modifyUser) {
+                        return modifyUser.userName
+                    },
+                    width: '150px'
+                }, {
+                    title: '修改时间',
+                    dataIndex: 'gmtModified',
+                    sorter: true,
+                    render (text) {
+                        return utils.formatDateTime(text)
+                    },
+                    width: '160px'
+                }, {
+                    title: '操作',
+                    dataIndex: 'deal',
+                    width: '170px',
+                    render: (n, record) => {
+                        return <span>
+                            {addButtonCreate(record)}
+                            <span className="ant-divider"></span>
+                            {publishButtonCreate(record)}
+                        </span>
+                    }
+                }]
+            }
+            case publishType.TABLE: {
+                return [{
+                    title: '名称',
+                    dataIndex: 'tableName'
 
-            }, {
-                title: '负责人',
-                dataIndex: 'chargeUser',
-                width: '150px'
-            }, {
-                title: '修改人',
-                dataIndex: 'modifyUser',
-                width: '150px'
-            }, {
-                title: '修改时间',
-                dataIndex: 'modifyTime',
-                sorter: true,
-                render (text) {
-                    return utils.formatDateTime(text)
-                },
-                width: '160px'
-            }, {
-                title: '操作',
-                dataIndex: 'deal',
-                width: '170px',
-                render: (n, record) => {
-                    return <span>
-                        {addButtonCreate(record)}
-                        <span className="ant-divider"></span>
-                        {publishButtonCreate(record)}
-                    </span>
-                }
-            }]
-        }
+                }, {
+                    title: '负责人',
+                    dataIndex: 'chargeUser',
+                    width: '150px'
+                }, {
+                    title: '修改人',
+                    dataIndex: 'modifyUser',
+                    width: '150px'
+                }, {
+                    title: '修改时间',
+                    dataIndex: 'modifyTime',
+                    sorter: true,
+                    render (text) {
+                        return utils.formatDateTime(text)
+                    },
+                    width: '160px'
+                }, {
+                    title: '操作',
+                    dataIndex: 'deal',
+                    width: '170px',
+                    render: (n, record) => {
+                        return <span>
+                            {addButtonCreate(record)}
+                            <span className="ant-divider"></span>
+                            {publishButtonCreate(record)}
+                        </span>
+                    }
+                }]
+            }
         }
     }
 
@@ -471,39 +471,39 @@ class PackageCreate extends React.Component {
             modifyTime: row.modifyTime
         }
         switch (listType) {
-        case publishType.TASK: {
-            baseItem.itemName = row.taskName;
-            baseItem.createUser = row.createUser;
-            baseItem.modifyUser = row.modifyUser;
-            baseItem.chargeUser = row.chargeUser;
-            baseItem.itemInnerType = row.taskType;
-            break;
-        }
-        case publishType.RESOURCE: {
-            baseItem.itemName = row.resourceName;
-            baseItem.createUser = row.createUser.userName;
-            baseItem.modifyUser = row.modifyUser.userName;
-            baseItem.chargeUser = row.chargeUser;
-            baseItem.itemInnerType = row.resourceType;
-            baseItem.modifyTime = row.gmtModified;
-            break;
-        }
-        case publishType.FUNCTION: {
-            baseItem.itemName = row.name;
-            baseItem.createUser = row.createUser.userName;
-            baseItem.modifyUser = row.modifyUser.userName;
-            baseItem.chargeUser = row.chargeUser;
-            baseItem.itemInnerType = row.type;
-            baseItem.modifyTime = row.gmtModified;
-            break;
-        }
-        case publishType.TABLE: {
-            baseItem.itemName = row.tableName;
-            baseItem.createUser = row.createUser;
-            baseItem.modifyUser = row.modifyUser;
-            baseItem.chargeUser = row.chargeUser;
-            break;
-        }
+            case publishType.TASK: {
+                baseItem.itemName = row.taskName;
+                baseItem.createUser = row.createUser;
+                baseItem.modifyUser = row.modifyUser;
+                baseItem.chargeUser = row.chargeUser;
+                baseItem.itemInnerType = row.taskType;
+                break;
+            }
+            case publishType.RESOURCE: {
+                baseItem.itemName = row.resourceName;
+                baseItem.createUser = row.createUser.userName;
+                baseItem.modifyUser = row.modifyUser.userName;
+                baseItem.chargeUser = row.chargeUser;
+                baseItem.itemInnerType = row.resourceType;
+                baseItem.modifyTime = row.gmtModified;
+                break;
+            }
+            case publishType.FUNCTION: {
+                baseItem.itemName = row.name;
+                baseItem.createUser = row.createUser.userName;
+                baseItem.modifyUser = row.modifyUser.userName;
+                baseItem.chargeUser = row.chargeUser;
+                baseItem.itemInnerType = row.type;
+                baseItem.modifyTime = row.gmtModified;
+                break;
+            }
+            case publishType.TABLE: {
+                baseItem.itemName = row.tableName;
+                baseItem.createUser = row.createUser;
+                baseItem.modifyUser = row.modifyUser;
+                baseItem.chargeUser = row.chargeUser;
+                break;
+            }
         }
         return baseItem;
     }
@@ -615,24 +615,24 @@ class PackageCreate extends React.Component {
                 let nameText;
                 let extMsg = '';
                 switch (row.itemType) {
-                case publishType.TASK: {
-                    nameText = '任务'
-                    extMsg = `(${offlineTaskTypesMap.get(row.data.taskType)})`
-                    break;
-                }
-                case publishType.FUNCTION: {
-                    nameText = '函数'
-                    break;
-                }
-                case publishType.RESOURCE: {
-                    nameText = '资源'
-                    extMsg = `(${RESOURCE_TYPE_MAP[row.data.resourceType]})`
-                    break;
-                }
-                case publishType.TABLE: {
-                    nameText = '建表'
-                    break;
-                }
+                    case publishType.TASK: {
+                        nameText = '任务'
+                        extMsg = `(${offlineTaskTypesMap.get(row.data.taskType)})`
+                        break;
+                    }
+                    case publishType.FUNCTION: {
+                        nameText = '函数'
+                        break;
+                    }
+                    case publishType.RESOURCE: {
+                        nameText = '资源'
+                        extMsg = `(${RESOURCE_TYPE_MAP[row.data.resourceType]})`
+                        break;
+                    }
+                    case publishType.TABLE: {
+                        nameText = '建表'
+                        break;
+                    }
                 }
                 return <div key={`${row.itemType}%${row.itemId}`} className="item">
                     <Icon className="close" type="close" onClick={this.removeItem.bind(this, row.itemType, row.itemId)} />

@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import { Icon } from 'antd'
 
 import utils from 'utils'
 
 import GoBack from '../../components/go-back'
-import { tabBarStyle } from '../../consts'
 
 import Api from '../../api'
 

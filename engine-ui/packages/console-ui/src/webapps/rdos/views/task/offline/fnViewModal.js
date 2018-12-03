@@ -19,11 +19,13 @@ class FnViewModal extends React.Component {
         };
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (nextProps.fnId !== this.props.fnId) {
             this.getFnDetail(nextProps.fnId);
         }
     }
+    /* eslint-disable */
 
     getFnDetail (fnId) {
         if (!fnId) return;

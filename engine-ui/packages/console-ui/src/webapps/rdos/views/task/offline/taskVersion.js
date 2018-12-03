@@ -76,21 +76,21 @@ export default class TaskVersion extends React.Component {
         let compareToText = campareTo.sqlText;
         let language;
         switch (taskInfo.taskType) {
-        case TASK_TYPE.SYNC: {
-            language = 'json';
-            break;
-        }
-        case TASK_TYPE.PYTHON_23: {
-            language = 'python';
-            break;
-        }
-        case TASK_TYPE.SQL: {
-            language = 'dtsql';
-            break;
-        }
-        default: {
-            language = 'dtsql';
-        }
+            case TASK_TYPE.SYNC: {
+                language = 'json';
+                break;
+            }
+            case TASK_TYPE.PYTHON_23: {
+                language = 'python';
+                break;
+            }
+            case TASK_TYPE.SQL: {
+                language = 'dtsql';
+                break;
+            }
+            default: {
+                language = 'dtsql';
+            }
         }
 
         return (

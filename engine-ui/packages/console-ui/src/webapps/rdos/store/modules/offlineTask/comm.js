@@ -12,32 +12,32 @@ import Api from '../../../api';
 
 const taskTypes = (state = [], action) => {
     switch (action.type) {
-    case commAction.GET_TASK_TYPES: {
-        return action.payload;
-    }
-    default: return state;
+        case commAction.GET_TASK_TYPES: {
+            return action.payload;
+        }
+        default: return state;
     }
 }
 
 const taskTypeFilter = (state = [], action) => {
     switch (action.type) {
-    case commAction.GET_TASK_TYPE_FILTER: {
-        return action.payload;
-    }
+        case commAction.GET_TASK_TYPE_FILTER: {
+            return action.payload;
+        }
 
-    default: return state;
+        default: return state;
     }
 }
 const tables = (state = {}, action) => {
     const { type, key, payload } = action;
     const newState = assign({}, state);
     switch (type) {
-    case commAction.SET_TABLE_LIST: {
-        newState[key] = payload
-        return newState;
-    }
+        case commAction.SET_TABLE_LIST: {
+            newState[key] = payload
+            return newState;
+        }
 
-    default: return newState;
+        default: return newState;
     }
 }
 

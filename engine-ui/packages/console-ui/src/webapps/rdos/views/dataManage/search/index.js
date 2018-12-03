@@ -213,13 +213,13 @@ class SearchTable extends Component {
                 render (status, record) {
                     // 授权状态 0-未授权，1-已授权,2-待审批
                     switch (status) {
-                    case 0:
-                        return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
-                    case 1:
-                        return <span>授权成功</span>
-                    case 2:
-                        return <span>等待授权</span>
-                    default: return '-';
+                        case 0:
+                            return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
+                        case 1:
+                            return <span>授权成功</span>
+                        case 2:
+                            return <span>等待授权</span>
+                        default: return '-';
                         // default: return <span><a onClick={() => ctx.showModal(record)}>申请授权</a></span>
                     }
                 }

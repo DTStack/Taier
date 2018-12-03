@@ -75,7 +75,7 @@ class Console extends Component {
     state = {
         activeKey: defaultConsoleTab
     };
-
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
@@ -92,6 +92,7 @@ class Console extends Component {
             this.setState({ activeKey: defaultConsoleTab }, this.focusEditor);
         }
     }
+    /* eslint-disable */
 
     onEdit = (targetKey, action) => {
         this[action](targetKey);

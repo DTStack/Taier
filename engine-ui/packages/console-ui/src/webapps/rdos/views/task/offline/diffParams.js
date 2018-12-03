@@ -19,11 +19,13 @@ class TaskInfo extends React.Component {
         }
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (nextProps != this.props) {
             this.getvalue(nextProps)
         }
     }
+    /* eslint-disable */
 
     getvalue = (nextProps) => {
         this.setState({
@@ -158,6 +160,7 @@ class DiffParams extends React.Component {
         this.versionId = this.props.diffParams && this.props.diffParams.id;
     }
 
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         if (!this.props.taskType && nextProps.diffParams.id != this.props.diffParams.id) {
             if (nextProps.diffParams.id) {
@@ -177,6 +180,7 @@ class DiffParams extends React.Component {
             })
         }
     }
+    /* eslint-disable */
 
     getData = (id) => {
         this.setState({
@@ -197,7 +201,7 @@ class DiffParams extends React.Component {
 
     getRealData= () => {
         this.setState({
-            historyvalue: this.props.currentRealTabData && this.props.currentRealTabData.taskVersions[0] || {}
+            historyvalue: this.props.currentRealTabData && (this.props.currentRealTabData.taskVersions[0] || {})
         }, this.contrastData)
     }
 
@@ -211,39 +215,38 @@ class DiffParams extends React.Component {
 
     dealWeekDay = (day) => {
         let weekDay;
-        console.log('dealWeekDay', day);
 
         switch (day.toString()) {
-        case '1':
-            weekDay = '一'
-            break;
-        case '2':
-            weekDay = '二'
-            break;
-        case '3':
-            weekDay = '三'
-            break;
-        case '4':
-            weekDay = '四'
-            break;
-        case '5':
-            weekDay = '五'
-            break;
-        case '6':
-            weekDay = '六'
-            break;
-        case '7':
-            weekDay = '七'
-            break;
-        default:
-            break;
+            case '1':
+                weekDay = '一'
+                break;
+            case '2':
+                weekDay = '二'
+                break;
+            case '3':
+                weekDay = '三'
+                break;
+            case '4':
+                weekDay = '四'
+                break;
+            case '5':
+                weekDay = '五'
+                break;
+            case '6':
+                weekDay = '六'
+                break;
+            case '7':
+                weekDay = '七'
+                break;
+            default:
+                break;
         }
         return weekDay ? `星期${weekDay}` : ' ';
     }
 
     parseScheduleConf = (data, type) => {
         const parseScheduleConf = {};
-        const scheduleConf = data.scheduleConf && JSON.parse(data.scheduleConf) || {};
+        const scheduleConf = data.scheduleConf && (JSON.parse(data.scheduleConf) || {});
 
         if (data.scheduleStatus == 2) {
             parseScheduleConf.scheduleStatus = '已冻结'
@@ -339,8 +342,6 @@ class DiffParams extends React.Component {
         contrastResults.crosscycleDependence = false;
         const historyParse = this.parseScheduleConf(historyvalue, 1);
         const currentParse = this.parseScheduleConf(this.state.currentValue, 2);
-        console.log('historyParse', historyParse);
-        console.log('currentParse', currentParse);
 
         const currentAttributes = ['scheduleStatus', 'effectiveDate', 'schedulingCycle'];
 
@@ -354,7 +355,7 @@ class DiffParams extends React.Component {
             contrastResults.upstreamTask = true;
         };
 
-        if (historyParse.crosscycleDependence != historyParse.crosscycleDependence) {
+        if (historyParse.crosscycleDependence != currentParse.crosscycleDependence) {
             contrastResults.crosscycleDependence = true;
         };
 
@@ -413,9 +414,9 @@ class DiffParams extends React.Component {
                             options={{ readOnly: true }}
                             theme={ editor.options.theme }
                             sync={true}
-                            modified={{ value: historyvalue && historyvalue.taskParams || ' ' }}
-                            original={{ value: this.state.currentValue && this.state.currentValue.taskParams || ' ' }}
-                            value={this.state.currentValue && this.state.currentValue.taskParams || ' '}
+                            modified={{ value: historyvalue && (historyvalue.taskParams || ' ') }}
+                            original={{ value: this.state.currentValue && (this.state.currentValue.taskParams || ' ') }}
+                            value={ this.state.currentValue && (this.state.currentValue.taskParams || ' ') }
                         />
                     </TabPane>
                 }

@@ -101,6 +101,7 @@ class PatchDataDetail extends Component {
         }
         if (taskName) {
             reqParams.taskName = taskName
+            reqParams.currentPage = 1
         }
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId
@@ -288,31 +289,27 @@ class PatchDataDetail extends Component {
             let { field, order } = sorter;
 
             switch (field) {
-            case 'exeTime': {
-                params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'exeStartTime': {
-                params.execStartSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'cycTime': {
-                params.cycSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
-            case 'bizDay': {
-                params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
-                break;
-            }
+                case 'exeTime': {
+                    params.execTimeSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'exeStartTime': {
+                    params.execStartSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'cycTime': {
+                    params.cycSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
+                case 'bizDay': {
+                    params.businessDateSort = order === 'descend' ? 'desc' : 'asc';
+                    break;
+                }
             }
         }
         this.setState(params, () => {
             this.search()
         })
-    }
-
-    changeTaskName = (e) => {
-        this.setState({ fillJobName: e.target.value })
     }
 
     changePerson = (target) => {
@@ -343,6 +340,7 @@ class PatchDataDetail extends Component {
     }
 
     changeTaskName = (e) => { // 任务名变更
+        console.log('taskName:', e)
         this.setState({ taskName: e.target.value })
     }
 
@@ -457,28 +455,29 @@ class PatchDataDetail extends Component {
             </tr>
         )
     }
+
     getSelectRowsStatus () {
         let haveFail, haveNotRun, haveSuccess, haveRunning;
         const { selectedRows } = this.state;
         for (let i = 0; i < selectedRows.length; i++) {
             let row = selectedRows[i];
             switch (row.status) {
-            case TASK_STATUS.RUN_FAILED: {
-                haveFail = true;
-                break;
-            }
-            case TASK_STATUS.RUNNING: {
-                haveRunning = true;
-                break;
-            }
-            case TASK_STATUS.FINISHED: {
-                haveSuccess = true;
-                break;
-            }
-            default: {
-                haveNotRun = true;
-                break;
-            }
+                case TASK_STATUS.RUN_FAILED: {
+                    haveFail = true;
+                    break;
+                }
+                case TASK_STATUS.RUNNING: {
+                    haveRunning = true;
+                    break;
+                }
+                case TASK_STATUS.FINISHED: {
+                    haveSuccess = true;
+                    break;
+                }
+                default: {
+                    haveNotRun = true;
+                    break;
+                }
             }
         }
         return {

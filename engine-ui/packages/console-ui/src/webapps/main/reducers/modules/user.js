@@ -1,5 +1,3 @@
-import { assign } from 'lodash';
-
 import userActions from 'main/consts/userActions'
 
 const initalUser = {

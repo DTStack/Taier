@@ -77,16 +77,16 @@ export default class TableOverview extends React.Component {
     coverToCN (arr) {
         for (let i = 0; i < arr.length; i++) {
             switch (arr[i]) {
-            case 'total':
-                arr[i] = '错误总数'; continue;
-            case 'npe':
-                arr[i] = '空指针错误'; continue;
-            case 'duplicate':
-                arr[i] = '主键冲突'; continue;
-            case 'conversion':
-                arr[i] = '字段类型转换错误'; continue;
-            case 'other':
-                arr[i] = '其他'; continue;
+                case 'total':
+                    arr[i] = '错误总数'; continue;
+                case 'npe':
+                    arr[i] = '空指针错误'; continue;
+                case 'duplicate':
+                    arr[i] = '主键冲突'; continue;
+                case 'conversion':
+                    arr[i] = '字段类型转换错误'; continue;
+                case 'other':
+                    arr[i] = '其他'; continue;
             }
         }
         return arr;

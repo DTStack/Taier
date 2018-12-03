@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import { assign } from 'lodash'
 import {
-    Row, Col, Button,
-    Card, message, Spin
+    Row, Col, Button, message, Spin
 } from 'antd'
 
 import utils from 'utils'
@@ -31,6 +30,7 @@ export default class RoleEdit extends Component {
 
     submit = () => {
         const ctx = this
+        const app = this.state.app
 
         ctx.form.validateFieldsAndScroll((err, roleData) => {
             if (!err) {

@@ -1,13 +1,5 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { Select, Table, Card, Button, Tabs } from 'antd'
-import { Link } from 'react-router'
-
-import utils from 'utils'
-import { MY_APPS } from 'consts'
-
-import RdosApi from 'rdos/api'
-import DqApi from 'dataQuality/api/sysAdmin'
+import React from 'react'
+import { Tabs } from 'antd'
 
 const TabPane = Tabs.TabPane
 

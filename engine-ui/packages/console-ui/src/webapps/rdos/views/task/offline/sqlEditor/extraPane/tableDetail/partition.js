@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { Icon, Tabs } from 'antd';
-
 import TablePartition from '../../../../../dataManage/tablePartition'
 
 class ExtraPaneTableDetailPartition extends React.Component {
@@ -35,7 +33,6 @@ class ExtraPaneTableDetailPartition extends React.Component {
     }
 
     render () {
-        const { data } = this.state;
         return (
             <div>
                 <TablePartition

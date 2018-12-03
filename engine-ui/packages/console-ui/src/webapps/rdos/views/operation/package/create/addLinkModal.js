@@ -86,26 +86,26 @@ class AddLinkModal extends React.Component {
         for (let i = 0; i < rows.length; i++) {
             const row = rows[i];
             switch (row.itemType) {
-            case publishType.RESOURCE: {
-                resourceKeys.push(row.itemId);
-                break;
-            }
-            case publishType.TABLE: {
-                tableKeys.push(row.itemId);
-                break;
-            }
-            case publishType.FUNCTION: {
-                functionKeys.push(row.itemId);
-                break;
-            }
-            case publishType.TASK: {
-                if (data.id == row.itemId) {
-                    this.setState({
-                        checkTask: true
-                    })
+                case publishType.RESOURCE: {
+                    resourceKeys.push(row.itemId);
+                    break;
                 }
-                break;
-            }
+                case publishType.TABLE: {
+                    tableKeys.push(row.itemId);
+                    break;
+                }
+                case publishType.FUNCTION: {
+                    functionKeys.push(row.itemId);
+                    break;
+                }
+                case publishType.TASK: {
+                    if (data.id == row.itemId) {
+                        this.setState({
+                            checkTask: true
+                        })
+                    }
+                    break;
+                }
             }
         }
         this.setState({
@@ -173,18 +173,18 @@ class AddLinkModal extends React.Component {
                         (item) => {
                             let name;
                             switch (key) {
-                            case publishType.FUNCTION: {
-                                name = item.name;
-                                break;
-                            }
-                            case publishType.RESOURCE: {
-                                name = item.resourceName;
-                                break;
-                            }
-                            case publishType.TABLE: {
-                                name = item.tableName;
-                                break;
-                            }
+                                case publishType.FUNCTION: {
+                                    name = item.name;
+                                    break;
+                                }
+                                case publishType.RESOURCE: {
+                                    name = item.resourceName;
+                                    break;
+                                }
+                                case publishType.TABLE: {
+                                    name = item.tableName;
+                                    break;
+                                }
                             }
                             return <Col key={item.id} style={{ marginBottom: '13px' }} span={12}>
                                 <Checkbox value={item.id}>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Menu, Dropdown, Icon, Badge } from 'antd'
+import { Menu, Dropdown, Icon } from 'antd'
 import { Link } from 'react-router'
 import styled from 'styled-components'
 
@@ -7,7 +7,9 @@ import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
 import './style.scss'
 
+/* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
+/* eslint-disable */
 
 export const Title = styled.span`
     color: #ffffff;
@@ -18,7 +20,7 @@ export const MyIcon = styled.span`
     font-size: 18px;
 `
 
-function renderMenuItems(menuItems) {
+function renderMenuItems (menuItems) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
         menu.enable ? <Menu.Item key={menu.id}>
             <Link to={menu.link} target={menu.target}>{menu.name}</Link>
@@ -26,7 +28,7 @@ function renderMenuItems(menuItems) {
     ) : []
 }
 
-function renderATagMenuItems(menuItems, isRoot) {
+function renderATagMenuItems (menuItems, isRoot) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
@@ -35,14 +37,14 @@ function renderATagMenuItems(menuItems, isRoot) {
     }) : []
 }
 
-export function Logo(props) {
+export function Logo (props) {
     const { linkTo, img } = props
     return (
         <Link to={linkTo}><img alt="logo" src={img} /></Link>
     )
 }
 
-export function MenuLeft(props) {
+export function MenuLeft (props) {
     const { activeKey, onClick, menuItems, user } = props;
     return (
         <div className="menu left">
@@ -58,12 +60,12 @@ export function MenuLeft(props) {
     )
 }
 
-export function MenuRight(props) {
+export function MenuRight (props) {
     const {
         onClick, settingMenus, user,
         apps, app, showHelpSite, helpUrl
     } = props;
-    const isShowExt=!app || (!app.disableExt&&!app.disableMessage) ;
+    const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage
     const extraParms = app ? `?app=${app && app.id}` : '';
 
@@ -139,20 +141,19 @@ export function MenuRight(props) {
 }
 
 @pureRender
-export class Navigator extends Component {
-
-    constructor(props) {
+class Navigator extends Component {
+    constructor (props) {
         super(props)
         this.state = {
-            current: '',
+            current: ''
         }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected()
     }
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps (nextProps) {
         if (this.props.routing) {
             if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();
@@ -160,14 +161,7 @@ export class Navigator extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.routing !== nextProps.routing) {
-            this.updateSelected()
-        }
-    }
-
     handleClick = (e) => {
-        const props = e.item.props
         const { onMenuClick } = this.props
         this.setState({ current: e.key });
         if (onMenuClick) onMenuClick(e)
@@ -180,7 +174,6 @@ export class Navigator extends Component {
     }
 
     updateSelected = () => {
-
         const menuItems = this.props.menuItems
         let pathname = `${window.location.pathname}${window.location.hash}`;
         if (menuItems && menuItems.length > 0) {
@@ -200,8 +193,7 @@ export class Navigator extends Component {
         }
     }
 
-    render() {
-
+    render () {
         const {
             user, logo, menuItems,
             settingMenus, apps, app,
@@ -214,7 +206,7 @@ export class Navigator extends Component {
                     {logo}
                 </div>
                 {
-                    menuLeft ? menuLeft : <MenuLeft
+                    menuLeft || <MenuLeft
                         user={user}
                         activeKey={current}
                         menuItems={menuItems}
@@ -222,7 +214,7 @@ export class Navigator extends Component {
                     />
                 }
                 {
-                    menuRight ? menuRight : <MenuRight
+                    menuRight || <MenuRight
                         activeKey={current}
                         user={user}
                         app={app}
@@ -236,3 +228,4 @@ export class Navigator extends Component {
     }
 }
 
+export default Navigator;

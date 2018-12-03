@@ -38,6 +38,7 @@ class ResForm extends React.Component {
         this.props.form.validateFields(['id']);
     }
 
+    /* eslint-disable */
     validateFileType (rule, value, callback) {
         const reg = /\.(jar|sql|py|egg|zip)$/
 
@@ -46,6 +47,7 @@ class ResForm extends React.Component {
         }
         callback();
     }
+    /* eslint-disable */
 
     changeFileType (value) {
         let acceptType = ''
@@ -310,7 +312,8 @@ class ResForm extends React.Component {
 
         return name;
     }
-
+    
+    /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
      * @param {any} rule
@@ -318,6 +321,7 @@ class ResForm extends React.Component {
      * @param {any} cb
      */
     checkNotDir (rule, value, callback) {
+
         const { treeData } = this.props;
         let nodeType;
 
@@ -338,6 +342,7 @@ class ResForm extends React.Component {
         }
         callback();
     }
+    /* eslint-disable */
 }
 
 const ResFormWrapper = Form.create()(ResForm);
@@ -383,7 +388,6 @@ class ResModal extends React.Component {
     }
 
     handleCancel () {
-        const { isModalShow, toggleUploadModal } = this.props;
         this.closeModal();
     }
 

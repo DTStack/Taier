@@ -82,31 +82,31 @@ export function getAllProjects (params) {
 // 获取系统下登录用户有权限的项目
 export function projects (state = [], action) {
     switch (action.type) {
-    case projectAction.GET_PROJECTS:
-        return action.data || state
-    default:
-        return state
+        case projectAction.GET_PROJECTS:
+            return action.data || state
+        default:
+            return state
     }
 }
 
 // 获取系统所以项目
 export function allProjects (state = [], action) {
     switch (action.type) {
-    case projectAction.GET_ALL_PROJECTS:
-        return action.data || state
-    default:
-        return state
+        case projectAction.GET_ALL_PROJECTS:
+            return action.data || state
+        default:
+            return state
     }
 }
 
 export function project (state = defaultProject, action) {
     switch (action.type) {
-    case projectAction.GET_PROJECT:
-        return action.data
-    case projectAction.SET_PROJECT: {
-        return action.data || state
-    }
-    default:
-        return state
+        case projectAction.GET_PROJECT:
+            return action.data
+        case projectAction.SET_PROJECT: {
+            return action.data || state
+        }
+        default:
+            return state
     }
 }
