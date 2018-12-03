@@ -4,7 +4,7 @@ import React from 'react';
 import { Form, Select, Button } from 'antd';
 
 import ajax from '../../../../../api/index'
-import { formItemLayout, DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE_TEXT } from '../../../../../comm/const'
 import { isKafka } from '../../../../../comm'
 
 const FormItem = Form.Item;
@@ -26,12 +26,13 @@ class CollectionTarget extends React.Component {
         }
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
         const { targetMap } = collectionData;
-        const { collectionData: old_col } = this.props;
-        const { targetMap: old_target } = old_col;
-        if (targetMap.sourceId && old_target.sourceId != targetMap.sourceId) {
+        const { collectionData: oldCol } = this.props;
+        const { targetMap: oldTarget } = oldCol;
+        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId) {
             this.getTopicType(targetMap.sourceId)
         }
     }

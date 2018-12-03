@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Row, Col, Table } from 'antd'
 import moment from 'moment';
 
-import { API_USER_STATUS, API_METHOD, API_METHOD_key } from '../../consts';
+import { API_METHOD, API_METHOD_KEY } from '../../consts';
 
 class Content extends Component {
     componentDidMount () {
@@ -107,9 +107,7 @@ class Content extends Component {
         }
     }
     render () {
-        const status = this.getValueCallInfo('applyStatus');
         const { callUrl, callLimit, beginTime, endTime, mode, showRecord, showMarketInfo, showUserInfo } = this.props;
-        const isShowUrl = status != API_USER_STATUS.STOPPED && callUrl;
         const showExt = mode == 'manage';
         const isGET = this.getValue('reqMethod') == API_METHOD.GET
         let reqJson = this.getValue('reqJson');
@@ -131,12 +129,12 @@ class Content extends Component {
                     <div style={{ marginTop: 10 }}>
                         <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
-                        <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_key[this.getValue('reqMethod')]}</span>
+                        <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_KEY[this.getValue('reqMethod')]}</span>
                         <p data-title="调用限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
                             <p data-title="申请调用次数：" className="pseudo-title p-line">{callLimit == -1 ? '无限制' : callLimit}</p>
-                            <p data-title="申请调用周期：" className="pseudo-title p-line">{beginTime ? `${new moment(beginTime).format('YYYY-MM-DD')} ~ ${new moment(endTime).format('YYYY-MM-DD')}` : '无限制'}</p>
+                            <p data-title="申请调用周期：" className="pseudo-title p-line">{beginTime ? `${moment(beginTime).format('YYYY-MM-DD')} ~ ${moment(endTime).format('YYYY-MM-DD')}` : '无限制'}</p>
                         </div>
                         }
 
@@ -145,7 +143,7 @@ class Content extends Component {
                         {showExt && (
                             <div>
                                 <p data-title="最近修改人：" className="pseudo-title p-line">{showRecord.modifyUser}</p>
-                                <p data-title="最近修改时间：" className="pseudo-title p-line">{new moment(showRecord.gmtModified).format('YYYY-MM-DD HH:mm:ss')}</p>
+                                <p data-title="最近修改时间：" className="pseudo-title p-line">{moment(showRecord.gmtModified).format('YYYY-MM-DD HH:mm:ss')}</p>
                             </div>
                         )}
                     </div>

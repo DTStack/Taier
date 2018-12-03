@@ -8,9 +8,9 @@ export const updateModal = (value) => {
 
 export const visibleReducer = (state = '', action) => {
     switch (action.type) {
-    case modalAction.UPDATE_MODAL_ACTION:
-        return action.data;
-    default:
-        return state;
+        case modalAction.UPDATE_MODAL_ACTION:
+            return action.data;
+        default:
+            return state;
     }
 }

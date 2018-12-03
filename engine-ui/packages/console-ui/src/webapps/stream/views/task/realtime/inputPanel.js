@@ -34,8 +34,6 @@ class InputOrigin extends Component {
     // }
     checkParams = () => {
         // 手动检测table参数
-        const { index, panelColumn } = this.props;
-        const tableColumns = panelColumn[index].columns;
         let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
@@ -49,25 +47,25 @@ class InputOrigin extends Component {
 
     originOption = (type, arrData) => {
         switch (type) {
-        case 'originType':
-            return arrData.map(v => {
-                return <Option key={v} value={`${v.id}`}>{v.name}</Option>
-            })
-        case 'currencyType':
-            return arrData.map(v => {
-                return <Option key={v} value={`${v}`}>{v}</Option>
-            })
-        case 'eventTime':
-            return arrData.map((v, index) => {
-                return <Option key={index} value={`${v.column}`}>{v.column}</Option>
-            })
-        default:
-            return null;
+            case 'originType':
+                return arrData.map(v => {
+                    return <Option key={v} value={`${v.id}`}>{v.name}</Option>
+                })
+            case 'currencyType':
+                return arrData.map(v => {
+                    return <Option key={v} value={`${v}`}>{v}</Option>
+                })
+            case 'eventTime':
+                return arrData.map((v, index) => {
+                    return <Option key={index} value={`${v.column}`}>{v.column}</Option>
+                })
+            default:
+                return null;
         }
     }
 
     editorParamsChange (a, b, c) {
-        const { handleInputChange, textChange, index, isShow } = this.props;
+        const { handleInputChange, textChange, index } = this.props;
         textChange();
         handleInputChange('columnsText', index, b);
     }
@@ -274,7 +272,6 @@ const InputForm = Form.create({
 })(InputOrigin);
 
 const initialData = {
-    popoverVisible: false,
     tabTemplate: [], // 模版存储,所有输入源
     panelActiveKey: [], // 输入源是打开或关闭状态
     popoverVisible: [], // 删除显示按钮状态
@@ -289,7 +286,6 @@ export default class InputPanel extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            popoverVisible: false,
             tabTemplate: [], // 模版存储,所有输入源
             panelActiveKey: [], // 输入源是打开或关闭状态
             popoverVisible: [], // 删除显示按钮状态
@@ -328,10 +324,10 @@ export default class InputPanel extends Component {
         const { timeColumoption, panelColumn } = this.state;
         const columns = text.split('\n').filter(Boolean).map(v => {
             let column;
-            const as_case = /^.*\w.*\s+as\s+(\w+)$/i.exec(v);
-            if (as_case) {
+            const asCase = /^.*\w.*\s+as\s+(\w+)$/i.exec(v);
+            if (asCase) {
                 return {
-                    column: as_case[1]
+                    column: asCase[1]
                 }
             } else {
                 column = v.trim().split(' ');
@@ -346,7 +342,7 @@ export default class InputPanel extends Component {
         timeColumoption[index] = filterColumns;
         console.log(' filterColumns.filter(v=> v.column === panelColumn[index].timeColumn)[0]', filterColumns.filter(v => v.column === panelColumn[index].timeColumn)[0]);
         const timeColumn = filterColumns.filter(v => v.column === panelColumn[index].timeColumn)[0]
-        panelColumn[index].timeColumn = timeColumn && timeColumn.column || undefined;
+        panelColumn[index].timeColumn = (timeColumn && timeColumn.column) || undefined;
         this.setCurrentSource({ timeColumoption })
         this.setState({
             timeColumoption
@@ -460,7 +456,8 @@ export default class InputPanel extends Component {
         })
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage
         const oldPage = this.props.currentPage
         console.log('oldPage.id----currentPage.id', currentPage.id, oldPage.id);

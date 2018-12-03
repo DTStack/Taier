@@ -151,7 +151,8 @@ class ApplyBox extends Component {
                                     {
                                         validator: function (rule, value, callback) {
                                             if ((value || value === 0) && value < 1) {
-                                                callback('次数不能小于1')
+                                                const error = '次数不能小于1'
+                                                callback(error)
                                                 return;
                                             }
                                             callback();
@@ -181,7 +182,8 @@ class ApplyBox extends Component {
                         >
                             {getFieldDecorator('applyMsg',
                                 {
-                                    rules: [{ required: true, message: '请输入申请信息' },
+                                    rules: [
+                                        { required: true, message: '请输入申请信息' },
                                         { max: 200, message: '最大字符不能超过200' }]
                                 })(<TextArea style={{ width: 300 }} rows={4} />)}
 

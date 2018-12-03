@@ -40,14 +40,15 @@ class TaskBrowser extends Component {
         }
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { id } = nextProps.currentPage || {};
-        const { id: old_id } = this.props.currentPage || {};
+        const { id: oldId } = this.props.currentPage || {};
 
         if (nextProps.currentPage != this.props.currentPage) {
             this._syncEditor = true;
         }
-        if (id != old_id) {
+        if (id != oldId) {
             this.setState({
                 selected: '',
                 expanded: false
@@ -60,29 +61,29 @@ class TaskBrowser extends Component {
         const { pages, dispatch } = this.props
         const targetPage = pages.filter(v => v.id == targetKey)[0] || {};
         switch (action) {
-        case 'remove': {
-            if (targetPage.notSynced) {
-                confirm({
-                    title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
-                    content: '强制关闭将丢弃这些修改数据',
-                    onOk () {
-                        dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
-                        dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
-                        dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
-                        dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
-                    },
-                    onCancel () { }
-                });
-            } else {
-                dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
-                dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
-                dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
-                dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
+            case 'remove': {
+                if (targetPage.notSynced) {
+                    confirm({
+                        title: '部分任务修改尚未同步到服务器，是否强制关闭 ?',
+                        content: '强制关闭将丢弃这些修改数据',
+                        onOk () {
+                            dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
+                            dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
+                            dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
+                            dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
+                        },
+                        onCancel () { }
+                    });
+                } else {
+                    dispatch(BrowserAction.closePage(parseInt(targetKey, 10), pages, targetPage))
+                    dispatch(BrowserAction.closeCurrentInputData(targetPage.id));
+                    dispatch(BrowserAction.closeCurrentOutputData(targetPage.id));
+                    dispatch(BrowserAction.closeCurrentDimensionData(targetPage.id));
+                }
+                break;
             }
-            break;
-        }
-        default:
-            break
+            default:
+                break
         }
     }
 

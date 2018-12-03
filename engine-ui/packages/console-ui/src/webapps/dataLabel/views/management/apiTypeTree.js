@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Tree, Tooltip, Icon, Popconfirm, message } from 'antd';
+import { Tree, Tooltip, Icon, Popconfirm, message } from 'antd';
 import { cloneDeep } from 'lodash';
 const TreeNode = Tree.TreeNode;
 class ApiTypeTree extends Component {
@@ -15,6 +15,7 @@ class ApiTypeTree extends Component {
         super(props);
         this.editInput = null;
     }
+    /* eslint-disable */
     componentDidMount () {
         if (this.props.maxDeepLength) {
             this.state.maxDeepLength = this.props.maxDeepLength;

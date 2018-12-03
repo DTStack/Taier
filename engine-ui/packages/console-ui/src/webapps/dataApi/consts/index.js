@@ -23,7 +23,7 @@ export const API_METHOD = {
     POST: 1,
     GET: 0
 }
-export const API_METHOD_key = {
+export const API_METHOD_KEY = {
     1: 'POST',
     0: 'GET'
 }

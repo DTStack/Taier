@@ -1,5 +1,4 @@
 import { approvalActionType as ACTION_TYPE } from '../../consts/approvalActionType';
-import { message } from 'antd';
 import API from '../../api/approval';
 
 export const approvalActions = {

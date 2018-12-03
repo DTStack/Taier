@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { 
+import {
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip
- } from 'antd';
+} from 'antd';
 import moment from 'moment';
 
 import { Circle } from 'widgets/circle';
 import DataSourceForm from './editModal';
-import { formItemLayout, dataSourceTypes } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import Api from '../../api/dataSource';
 import '../../styles/views/dataSource.scss';
@@ -21,14 +20,13 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-    getDataSources(params) {
+    getDataSources (params) {
         dispatch(dataSourceActions.getDataSources(params));
-    },
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class DataSource extends Component {
-
+class DataSource extends Component {
     state = {
         visible: false,
         title: '新增数据源',
@@ -40,23 +38,23 @@ export default class DataSource extends Component {
             name: undefined,
             type: undefined,
             active: undefined
-        },
+        }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.getDataSources(this.state.params);
     }
 
     searchDataSources = (name) => {
-        let params = {...this.state.params, name};
-       
+        let params = { ...this.state.params, name };
+
         this.setState({ params });
         this.props.getDataSources(params);
     }
 
     editDataSource = (sourceFormData, formObj) => {
         const { title, status, source, params } = this.state;
-        
+
         if (status === 'edit') {
             Api.updateDataSource({
                 ...source, ...sourceFormData
@@ -103,17 +101,18 @@ export default class DataSource extends Component {
     }
 
     handleTableChange = (page, filters) => {
-        let active = filters.active,
-            type   = filters.type;
+        let active = filters.active;
+        let type = filters.type;
 
         console.log(filters)
 
-        let params = {...this.state.params, 
-            currentPage: page.current, 
+        let params = {
+            ...this.state.params,
+            currentPage: page.current,
             active: active ? active[0] : undefined,
             type: type ? type[0] : undefined
         };
-       
+
         this.setState({ params });
         this.props.getDataSources(params);
     }
@@ -123,33 +122,33 @@ export default class DataSource extends Component {
             visible: true,
             title: '编辑数据源',
             status: 'edit',
-            source,
+            source
         })
     }
-    exchangeSourceType(){
-        let arr=[];
-        let dic={};
+    exchangeSourceType () {
+        let arr = [];
+        let dic = {};
 
-        const items=this.props.dataSource.sourceType;
-        for(let i in items){
-            let item=items[i];
-            dic[item.value]=item.name;
+        const items = this.props.dataSource.sourceType;
+        for (let i in items) {
+            let item = items[i];
+            dic[item.value] = item.name;
             arr.push({
-                text:item.name,
-                value:item.value
+                text: item.name,
+                value: item.value
             })
         }
 
-        return {typeList:arr,typeDic:dic};
-        
+        return { typeList: arr, typeDic: dic };
     }
+
     initColumns = () => {
-        const {typeList,typeDic}=this.exchangeSourceType();
-        const text = "系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。";
+        const { typeList, typeDic } = this.exchangeSourceType();
+        const text = '系统每隔10分钟会尝试连接一次数据源，如果无法连通，则会显示连接失败的状态。数据源连接失败会导致同步任务执行失败。';
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
-            key: 'dataName',
+            key: 'dataName'
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -157,61 +156,60 @@ export default class DataSource extends Component {
             filters: typeList,
             filterMultiple: false,
             render: (text) => typeDic[text]
-        }, 
+        },
         {
             title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width:300
+            width: 300
         }, {
             title: '最近修改人',
             dataIndex: 'modifyUserName',
-            key: 'modifyUserName',
+            key: 'modifyUserName'
         }, {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => moment(text).format("YYYY-MM-DD HH:mm:ss"),
+            render: text => moment(text).format('YYYY-MM-DD HH:mm:ss')
         }, {
             title: '应用状态',
             dataIndex: 'active',
             key: 'active',
             filters: [{
                 text: '未启用',
-                value: 0,
+                value: 0
             }, {
                 text: '使用中',
-                value: 1,
+                value: 1
             }],
             filterMultiple: false,
             render: (active) => {
                 return active === 1 ? '使用中' : '未启用'
-            },
+            }
         },
-         {
+        {
             title: <Tooltip placement="top" title={text} arrowPointAtCenter>
-                        <span>连接状态 &nbsp;
-                            <Icon type="question-circle-o" />
-                        </span>
-                    </Tooltip>,
+                <span>连接状态 &nbsp;
+                    <Icon type="question-circle-o" />
+                </span>
+            </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
             width: '10%',
             render: (linkState) => {
-                return linkState === 1 ? 
-                    <span><Circle style={{ background: '#00A755' }}/> 正常</span> : 
-                    <span><Circle style={{ background: '#EF5350' }}/> 连接失败</span>
-            },
+                return linkState === 1 ? <span><Circle style={{ background: '#00A755' }} /> 正常</span>
+                    : <span><Circle style={{ background: '#EF5350' }} /> 连接失败</span>
+            }
         },
-         {
+        {
             title: '操作',
             width: '10%',
             key: 'operation',
             render: (text, record) => {
-                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
+                // active  '0：未启用，1：使用中'。  只有为0时，可以修改
                 return (
                     <span key={record.id}>
-                        <a onClick={() => {this.initEdit(record)}}>
+                        <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
                         <span className="ant-divider" />
@@ -224,18 +222,18 @@ export default class DataSource extends Component {
                         </Popconfirm>
                     </span>
                 )
-            },
+            }
         }]
     }
 
-    render() {
+    render () {
         const { visible, title, status, source, params } = this.state;
         const { sourceQuery, loading } = this.props.dataSource;
 
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
-            total: sourceQuery.totalCount,
+            total: sourceQuery.totalCount
         };
         const cardTitle = (
             <Search
@@ -251,10 +249,10 @@ export default class DataSource extends Component {
                 className="right"
                 onClick={() => {
                     this.setState({
-                        visible: true, 
+                        visible: true,
                         source: {},
                         status: 'add',
-                        title: '添加数据源',
+                        title: '添加数据源'
                     })
                 }}
             >
@@ -269,10 +267,10 @@ export default class DataSource extends Component {
                 </h1>
 
                 <div className="box-2 m-card shadow">
-                    <Card 
-                        title={cardTitle} 
-                        extra={cardExtra} 
-                        noHovering 
+                    <Card
+                        title={cardTitle}
+                        extra={cardExtra}
+                        noHovering
                         bordered={false}
                     >
                         <Table
@@ -300,3 +298,4 @@ export default class DataSource extends Component {
         )
     }
 }
+export default DataSource;

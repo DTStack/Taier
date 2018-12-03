@@ -185,7 +185,7 @@ class TargetForm extends React.Component {
             singletonNotification('提示', `${fieldsName.join('、')}参数中有包含中文或者中文标点符号！`, 'warning')
         }
     }
-    
+
     prev (cb) {
         /* eslint-disable */
         cb.call(null, 0);

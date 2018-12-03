@@ -83,7 +83,8 @@ class NewApi extends Component {
         OutputIsEdit: true
 
     }
-    componentWillMount () {
+    // eslint-disable-next-line
+    UNSAFE_componentWillMount () {
         const apiId = utils.getParameterByName('apiId');
         if (apiId) {
             this.setState({
@@ -238,13 +239,13 @@ class NewApi extends Component {
         })
     }
 
-    next () {
-        const { key } = steps[this.state.current];
-        if (this.state[key] && this.state[key].pass) {
-            const current = this.state.current + 1;
-            this.setState({ current });
-        }
-    }
+    // next () {
+    //     const { key } = steps[this.state.current];
+    //     if (this.state[key] && this.state[key].pass) {
+    //         const current = this.state.current + 1;
+    //         this.setState({ current });
+    //     }
+    // }
 
     prev () {
         const current = this.state.current - 1;
@@ -346,43 +347,46 @@ class NewApi extends Component {
     }
     cancelAndSave (type, data) {
         switch (type) {
-        case 'basicProperties': {
-            this.setState({
-                basicProperties: data || {}
-            }, () => {
-                this.save(true)
-            })
-            return;
-        }
-        case 'paramsConfig': {
-            this.setState({
-                paramsConfig: data || {}
-            }, () => {
-                this.save(true)
-            })
-        }
-        case 'complete': {
+            case 'basicProperties': {
+                this.setState({
+                    basicProperties: data || {}
+                }, () => {
+                    this.save(true)
+                })
+                return;
+            }
+            case 'paramsConfig': {
+                this.setState({
+                    paramsConfig: data || {}
+                }, () => {
+                    this.save(true)
+                })
+                break;
+            }
+            case 'complete': {
 
-        }
+            }
         }
 
         // this.props.router.goBack();
     }
     saveData (type, data) {
         switch (type) {
-        case 'basicProperties': {
-            this.setState({
-                basicProperties: data || {}
-            })
-        }
-        case 'paramsConfig': {
-            this.setState({
-                paramsConfig: data || {}
-            })
-        }
-        case 'complete': {
+            case 'basicProperties': {
+                this.setState({
+                    basicProperties: data || {}
+                })
+                break;
+            }
+            case 'paramsConfig': {
+                this.setState({
+                    paramsConfig: data || {}
+                })
+                break;
+            }
+            case 'complete': {
 
-        }
+            }
         }
     }
     render () {
@@ -417,44 +421,46 @@ class NewApi extends Component {
                 <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
                 {loading ? <div style={{ textAlign: 'center', marginTop: '400px' }}>
                     <Spin size="large" />
-                </div> : <Card
-                    style={{ padding: '20px' }}
-                    className="box-2"
-                    noHovering
-                >
-                    {(mode || mode == 0) ? (
-                        <div>
-                            <Steps current={this.state.current}>
-                                <Step title="基本属性" />
-                                <Step title="参数配置" />
-                                <Step title="完成" />
-                            </Steps>
-                            <Content
-                                apiManage={this.props.apiManage}
-                                disAbleTipChange={this.props.disAbleTipChange}
-                                apiEdit={apiEdit}
-                                dataSourceId={this.state.basicProperties.dataSource}
-                                tableId={this.state.basicProperties.table}
-                                {...this.props}
-                                {...this.state[key]}
-                                paramsConfig={paramsConfig}
-                                basicProperties={basicProperties}
-                                reDo={this.reDo.bind(this)}
-                                prev={this.prev.bind(this)}
-                                mode={mode}
-                                isSaveResult={isSaveResult}
-                                InputIsEdit={InputIsEdit}
-                                OutputIsEdit={OutputIsEdit}
-                                saveData={this.saveData.bind(this, key)}
-                                cancelAndSave={this.cancelAndSave.bind(this, key)}
-                                apiTest={this.apiTest.bind(this)}
-                                dataChange={this[key].bind(this)}
-                                saveResult={this.saveResult.bind(this)}
-                                changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
-                            ></Content>
-                        </div>
-                    ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}
-                </Card>}
+                </div>
+                    : <Card
+                        style={{ padding: '20px' }}
+                        className="box-2"
+                        noHovering
+                    >
+                        {
+                            (mode || mode == 0) ? (
+                                <div>
+                                    <Steps current={this.state.current}>
+                                        <Step title="基本属性" />
+                                        <Step title="参数配置" />
+                                        <Step title="完成" />
+                                    </Steps>
+                                    <Content
+                                        apiManage={this.props.apiManage}
+                                        disAbleTipChange={this.props.disAbleTipChange}
+                                        apiEdit={apiEdit}
+                                        dataSourceId={this.state.basicProperties.dataSource}
+                                        tableId={this.state.basicProperties.table}
+                                        {...this.props}
+                                        {...this.state[key]}
+                                        paramsConfig={paramsConfig}
+                                        basicProperties={basicProperties}
+                                        reDo={this.reDo.bind(this)}
+                                        prev={this.prev.bind(this)}
+                                        mode={mode}
+                                        isSaveResult={isSaveResult}
+                                        InputIsEdit={InputIsEdit}
+                                        OutputIsEdit={OutputIsEdit}
+                                        saveData={this.saveData.bind(this, key)}
+                                        cancelAndSave={this.cancelAndSave.bind(this, key)}
+                                        apiTest={this.apiTest.bind(this)}
+                                        dataChange={this[key].bind(this)}
+                                        saveResult={this.saveResult.bind(this)}
+                                        changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
+                                    ></Content>
+                                </div>
+                            ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}
+                    </Card>}
             </div>
         )
     }

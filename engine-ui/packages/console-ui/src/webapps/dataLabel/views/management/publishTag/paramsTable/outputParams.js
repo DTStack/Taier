@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table, message } from 'antd';
+import { Input, Select, Table, message } from 'antd';
 import { cloneDeep } from 'lodash';
 
 const TextArea = Input.TextArea;
@@ -22,11 +22,7 @@ class OutputParams extends Component {
         tableColumns: [],
         dataSource: []
     }
-
-    componentDidMount () {
-        // this.getTableColumns();
-    }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (nextProps.addOutputsignal && !this.props.addOutputsignal) {
             this.addOutput(nextProps.inputToOutputData);
@@ -36,7 +32,6 @@ class OutputParams extends Component {
             this.initDataSource(nextProps.initValue);
         }
     }
-
     initDataSource (initValue) {
         let data = initValue;
         if (!initValue) {

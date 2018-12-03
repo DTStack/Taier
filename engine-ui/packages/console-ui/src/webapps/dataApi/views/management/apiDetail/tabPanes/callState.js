@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Row, Table } from 'antd';
+import { Col, Row } from 'antd';
 
 import Resize from 'widgets/resize';
 import { connect } from 'react-redux';
@@ -60,21 +60,19 @@ class ApiManageCallState extends Component {
             apiId: this.props.apiId,
             dateType: this.props.dateType
 
-        },
-        () => {
+        }, () => {
             this.getApiCallUserRankList();
             this.getApiCallInfoList();
         })
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.state.apiId != nextProps.apiId || this.state.dateType != nextProps.dateType) {
             this.setState({
                 apiId: nextProps.apiId,
                 dateType: nextProps.dateType
 
-            },
-            () => {
+            }, () => {
                 this.getApiCallUserRankList();
                 this.getApiCallInfoList();
             })
@@ -96,8 +94,7 @@ class ApiManageCallState extends Component {
                             topCallUser: res.data.topCallUserName,
                             failPercent: res.data.failRate,
                             callCount: res.data.callCount
-                        },
-                        () => {
+                        }, () => {
                             this.initLineChart();
                         })
                     }
@@ -134,18 +131,18 @@ class ApiManageCallState extends Component {
             callCountDate.push(chartData[i].callCount)
             failCountDate.push(chartData[i].failRate)
             switch (this.props.dateType) {
-            case '1':
-                times.push(utils.formatHours(chartData[i].time));
-                break;
-            case '7':
-                times.push(utils.formatDateHours(chartData[i].time));
-                break;
-            case '30':
-                times.push(utils.formatDate(chartData[i].time));
-                break;
-            case '-1':
-                times.push(utils.formatDate(chartData[i].time));
-                break;
+                case '1':
+                    times.push(utils.formatHours(chartData[i].time));
+                    break;
+                case '7':
+                    times.push(utils.formatDateHours(chartData[i].time));
+                    break;
+                case '30':
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
+                case '-1':
+                    times.push(utils.formatDate(chartData[i].time));
+                    break;
             }
         }
         let myChart = echarts.init(document.getElementById('manageApiDetail'));
@@ -196,16 +193,16 @@ class ApiManageCallState extends Component {
     }
     getDateText () {
         switch (this.props.dateType) {
-        case '1':
-            return '24小时';
-        case '7':
-            return '7天';
-        case '30':
-            return '30天';
-        case '-1':
-            return '历史以来';
-        default:
-            return '';
+            case '1':
+                return '24小时';
+            case '7':
+                return '7天';
+            case '30':
+                return '30天';
+            case '-1':
+                return '历史以来';
+            default:
+                return '';
         }
     }
     render () {

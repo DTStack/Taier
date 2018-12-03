@@ -127,29 +127,29 @@ export default class BaseForm extends React.Component {
         const renderRules = (rule, index) => {
             let data = [];
             switch (rule.value) {
-            case TABLE_MODEL_RULE.LEVEL: {
-                data = modelLevels; break;
-            }
-            case TABLE_MODEL_RULE.SUBJECT: {
-                data = subjectFields; break;
-            }
-            case TABLE_MODEL_RULE.INCREMENT: {
-                data = incrementCounts; break;
-            }
-            case TABLE_MODEL_RULE.FREQUENCY: {
-                data = freshFrequencies; break;
-            }
-            case TABLE_MODEL_RULE.CUSTOM:
-            default: {
-                return (
-                    <Input
-                        placeholder="自定义"
-                        value={tableNameArr[index]}
-                        onChange={(e) => this.changeTableName(e.target.value, index)}
-                        style={inlineStyle}
-                    />
-                )
-            }
+                case TABLE_MODEL_RULE.LEVEL: {
+                    data = modelLevels; break;
+                }
+                case TABLE_MODEL_RULE.SUBJECT: {
+                    data = subjectFields; break;
+                }
+                case TABLE_MODEL_RULE.INCREMENT: {
+                    data = incrementCounts; break;
+                }
+                case TABLE_MODEL_RULE.FREQUENCY: {
+                    data = freshFrequencies; break;
+                }
+                case TABLE_MODEL_RULE.CUSTOM:
+                default: {
+                    return (
+                        <Input
+                            placeholder="自定义"
+                            value={tableNameArr[index]}
+                            onChange={(e) => this.changeTableName(e.target.value, index)}
+                            style={inlineStyle}
+                        />
+                    )
+                }
             }
 
             return (

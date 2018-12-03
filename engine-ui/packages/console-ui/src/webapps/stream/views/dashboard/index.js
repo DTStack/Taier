@@ -90,8 +90,8 @@ class Index extends Component {
                     }
                 }
                 this.setState({
-                    projectListInfo: res.data && res.data.data || [],
-                    totalSize: res.data && res.data.totalCount || 0,
+                    projectListInfo: (res.data && res.data.data) || [],
+                    totalSize: (res.data && res.data.totalCount) || 0,
                     projectListParams: queryParsms,
                     loading: false
                 })
@@ -180,30 +180,30 @@ class Index extends Component {
     }
     renderTitleText (data) {
         switch (data.status) {
-        case PROJECT_STATUS.INITIALIZE: {
-            return (
-                <span>
-                    <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
-                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建中</span>
-                </span>
-            )
-        }
-        case PROJECT_STATUS.NORMAL: {
-            return (
-                <span style={{ color: '#999' }}>
-                    {`(${data.projectName})`}
-                </span>
-            )
-        }
-        case PROJECT_STATUS.DISABLE:
-        case PROJECT_STATUS.FAIL: {
-            return (
-                <span>
-                    <Icon type="close-circle" style={{ fontSize: 14, color: '#f00', paddingLeft: 16 }} />
-                    <span style={{ color: '#999', paddingLeft: '8px' }}>创建失败</span>
-                </span>
-            )
-        }
+            case PROJECT_STATUS.INITIALIZE: {
+                return (
+                    <span>
+                        <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
+                        <span style={{ color: '#999', paddingLeft: '8px' }}>创建中</span>
+                    </span>
+                )
+            }
+            case PROJECT_STATUS.NORMAL: {
+                return (
+                    <span style={{ color: '#999' }}>
+                        {`(${data.projectName})`}
+                    </span>
+                )
+            }
+            case PROJECT_STATUS.DISABLE:
+            case PROJECT_STATUS.FAIL: {
+                return (
+                    <span>
+                        <Icon type="close-circle" style={{ fontSize: 14, color: '#f00', paddingLeft: 16 }} />
+                        <span style={{ color: '#999', paddingLeft: '8px' }}>创建失败</span>
+                    </span>
+                )
+            }
         }
     }
     changeSort = (v) => {
@@ -304,14 +304,13 @@ class Index extends Component {
                                                                         : <span style={{ color: '#999' }}>{taskCountMap.failCount || 0}</span>
                                                                 }
                                                             </div>
-                                                        ) : (
-                                                            <div className="number" onClick={() => { this.setRouter('operation', v, true) }}>
-                                                                {
-                                                                    taskCountMap.failCount ? <span>{taskCountMap.failCount}</span>
-                                                                        : <span style={{ color: '#999' }}>{taskCountMap.failCount || 0}</span>
-                                                                }
-                                                            </div>
-                                                        )}
+                                                        ) : (<div className="number" onClick={() => { this.setRouter('operation', v, true) }}>
+                                                            {
+                                                                taskCountMap.failCount ? <span>{taskCountMap.failCount}</span>
+                                                                    : <span style={{ color: '#999' }}>{taskCountMap.failCount || 0}</span>
+                                                            }
+                                                        </div>)
+                                                        }
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
                                                         {

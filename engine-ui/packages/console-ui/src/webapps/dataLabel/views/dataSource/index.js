@@ -4,27 +4,24 @@ import { Input, Button, Card, Popconfirm, Table, message } from 'antd';
 import moment from 'moment';
 
 import DataSourceForm from './editModal';
-import { formItemLayout, dataSourceFilter } from '../../consts';
+import { dataSourceFilter } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import DSApi from '../../api/dataSource';
 import '../../styles/views/dataSource.scss';
 
 const Search = Input.Search
-
 const mapStateToProps = state => {
     const { dataSource } = state;
     return { dataSource }
 }
-
 const mapDispatchToProps = dispatch => ({
-    getDataSources(params) {
+    getDataSources (params) {
         dispatch(dataSourceActions.getDataSources(params));
-    },
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class DataSource extends Component {
-
+class DataSource extends Component {
     state = {
         visible: false,
         title: '新增数据源',
@@ -36,27 +33,26 @@ export default class DataSource extends Component {
             name: undefined,
             type: undefined,
             active: undefined
-        },
+        }
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.props.getDataSources(this.state.params);
     }
 
     searchDataSources = (name) => {
         let params = {
-            ...this.state.params, 
-            name: name ? name : undefined, 
+            ...this.state.params,
+            /* eslint-disable-next-line */
+            name: name ? name : undefined,
             currentPage: 1
         };
-       
         this.props.getDataSources(params);
         this.setState({ params });
     }
 
     editDataSource = (sourceFormData, formObj) => {
         const { title, status, source, params } = this.state;
-        
         if (status === 'edit') {
             DSApi.updateDataSource({
                 ...source, ...sourceFormData
@@ -94,36 +90,32 @@ export default class DataSource extends Component {
     }
 
     handleTableChange = (page, filters) => {
-        let active = filters.active,
-            type   = filters.type;
-
+        let active = filters.active;
+        let type = filters.type;
         let params = {
-            ...this.state.params, 
-            currentPage: page.current, 
+            ...this.state.params,
+            currentPage: page.current,
             active: active ? active[0] : undefined,
             type: type ? type[0] : undefined
         };
-       
         this.props.getDataSources(params);
         this.setState({ params });
     }
-
     initEdit = (source) => {
         this.setState({
             visible: true,
             title: '编辑数据源',
             status: 'edit',
-            source,
+            source
         });
     }
-
     initColumns = () => {
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
             key: 'dataName',
             width: '18%',
-            render: (text => <div className="ellipsis-td" title={text}>{text}</div>)
+            render: text => <div className="ellipsis-td" title={text}>{text}</div>
         }, {
             title: '类型',
             dataIndex: 'type',
@@ -131,9 +123,9 @@ export default class DataSource extends Component {
             filters: dataSourceFilter,
             filterMultiple: false,
             width: '10%',
-            render(text, record) {
+            render (text, record) {
                 return record.sourceTypeValue;
-            },
+            }
         }, {
             title: '描述信息',
             dataIndex: 'dataDesc',
@@ -148,7 +140,7 @@ export default class DataSource extends Component {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render: text => moment(text).format("YYYY-MM-DD HH:mm:ss"),
+            render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
             width: '15%'
         }, {
             title: '状态',
@@ -156,10 +148,10 @@ export default class DataSource extends Component {
             key: 'active',
             filters: [{
                 text: '未启用',
-                value: 0,
+                value: 0
             }, {
                 text: '使用中',
-                value: 1,
+                value: 1
             }],
             filterMultiple: false,
             render: (text, record) => {
@@ -172,7 +164,7 @@ export default class DataSource extends Component {
             render: (text, record) => {
                 return (
                     <span>
-                        <a onClick={() => {this.initEdit(record)}}>
+                        <a onClick={() => { this.initEdit(record) }}>
                             编辑
                         </a>
                         <span className="ant-divider" />
@@ -189,14 +181,14 @@ export default class DataSource extends Component {
         }]
     }
 
-    render() {
+    render () {
         const { visible, title, status, source, params } = this.state;
         const { sourceQuery, loading } = this.props.dataSource;
 
         const pagination = {
             current: params.currentPage,
             pageSize: params.pageSize,
-            total: sourceQuery.totalCount,
+            total: sourceQuery.totalCount
         };
 
         const cardTitle = (
@@ -214,10 +206,10 @@ export default class DataSource extends Component {
                 className="right"
                 onClick={() => {
                     this.setState({
-                        visible: true, 
+                        visible: true,
                         source: {},
                         status: 'add',
-                        title: '添加数据源',
+                        title: '添加数据源'
                     })
                 }}
             >
@@ -230,13 +222,12 @@ export default class DataSource extends Component {
                 <h1 className="box-title">
                     数据源管理
                 </h1>
-
                 <div className="box-2 m-card shadow">
-                    <Card 
-                        noHovering 
+                    <Card
+                        noHovering
                         bordered={false}
-                        title={cardTitle} 
-                        extra={cardExtra} 
+                        title={cardTitle}
+                        extra={cardExtra}
                     >
                         <Table
                             rowKey="id"
@@ -262,3 +253,5 @@ export default class DataSource extends Component {
         )
     }
 }
+
+export default DataSource;

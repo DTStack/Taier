@@ -1,6 +1,4 @@
-import { isEmpty, cloneDeep } from 'lodash';
 import { keyMapActions as ACTION_TYPE } from '../../consts/keyMapActions';
-import API from '../../api/dataSource';
 
 // keyMap模块
 export const keyMapActions = (dispatch) => {

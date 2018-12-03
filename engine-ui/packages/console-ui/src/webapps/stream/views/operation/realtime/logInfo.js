@@ -1,6 +1,6 @@
 import React from 'react'
 import { isArray } from 'lodash'
-import { Button, Row } from 'antd'
+import { Row } from 'antd'
 
 import Editor from 'widgets/code-editor'
 import { createLinkMark } from 'widgets/code-editor/utils'

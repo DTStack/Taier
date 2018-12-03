@@ -2,7 +2,7 @@ import React from 'react';
 import {
     Form,
     Collapse,
-    Input,
+    Input
 } from 'antd';
 
 import HelpDoc from '../../helpDoc';

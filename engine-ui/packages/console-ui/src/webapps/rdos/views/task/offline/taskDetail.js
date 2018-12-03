@@ -11,7 +11,6 @@ import LockPanel from '../../../components/lockPanel'
 import TaskVersion from './taskVersion';
 import Api from '../../../api';
 
-
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 import UpdateTaskOwnerModal from './updateTaskOwnerModal';
 import { PROJECT_TYPE } from '../../../comm/const';

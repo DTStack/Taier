@@ -33,7 +33,7 @@ class DataSourceTaskListModal extends React.Component {
     }
     getTaskList () {
         const { pagination } = this.state;
-        const { type, dataSource } = this.props;
+        const { dataSource } = this.props;
         this.setState({
             loading: true
         })
@@ -61,7 +61,6 @@ class DataSourceTaskListModal extends React.Component {
             )
     }
     initColumns () {
-        const { type } = this.props;
         return [{
             title: '任务名称',
             dataIndex: 'name',
@@ -72,7 +71,7 @@ class DataSourceTaskListModal extends React.Component {
             key: 'edit',
             width: '100px',
             render (t, record) {
-                return <a target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
+                return <a rel="noopener noreferrer" target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
             }
         }]
     }

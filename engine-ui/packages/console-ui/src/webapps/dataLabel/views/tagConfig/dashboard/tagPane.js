@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link, hashHistory } from 'react-router';
-import { Table, Card, Icon, Button, 
+import {
+    Table, Card, Icon, Button,
     Input, Select, Menu, message,
     Dropdown, Popconfirm
 } from 'antd';
@@ -19,19 +20,17 @@ const mapStateToProps = state => {
     const { apiMarket } = state;
     return { apiMarket }
 }
-
 const mapDispatchToProps = dispatch => ({
-    getDataSourcesTable(params) {
+    getDataSourcesTable (params) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
-    getDataSourcesColumn(params) {
+    getDataSourcesColumn (params) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
-    },
+    }
 })
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class TagPane extends Component {
-
+class TagPane extends Component {
     state = {
         visible: false,
         loading: false,
@@ -44,7 +43,7 @@ export default class TagPane extends Component {
         catalogue2Data: []
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.getTagListData(this.state.queryParams);
     }
 
@@ -56,9 +55,9 @@ export default class TagPane extends Component {
 
         api(params).then((res) => {
             if (res.code === 1) {
-                this.setState({ 
+                this.setState({
                     loading: false,
-                    tagList: res.data 
+                    tagList: res.data
                 });
             }
         });
@@ -80,7 +79,7 @@ export default class TagPane extends Component {
             title: '标签类目',
             dataIndex: 'catalogueName',
             key: 'catalogueName',
-            width: '10%',
+            width: '10%'
         }, {
             title: '值域',
             dataIndex: 'tagRange',
@@ -137,8 +136,7 @@ export default class TagPane extends Component {
                 const menu = (
                     <Menu>
                         {
-                            TAG_STATUS[record.status] != '更新中'
-                            &&
+                            TAG_STATUS[record.status] != '更新中' &&
                             <Menu.Item key="edit">
                                 <a onClick={this.editBaseInfo.bind(this, record)}>
                                     编辑
@@ -146,8 +144,7 @@ export default class TagPane extends Component {
                             </Menu.Item>
                         }
                         {
-                            (TAG_STATUS[record.status] != '更新中' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布')
-                            &&
+                            (TAG_STATUS[record.status] != '更新中' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布') &&
                             <Menu.Item key="edit2">
                                 <Link to={`/dl/tagConfig/ruleTagEdit/${record.id}`}>
                                     配置计算逻辑
@@ -155,8 +152,7 @@ export default class TagPane extends Component {
                             </Menu.Item>
                         }
                         {
-                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布')
-                            &&
+                            (TAG_STATUS[record.status] == '更新完成' && TAG_PUBLISH_STATUS[record.publishStatus] === '未发布') &&
                             <Menu.Item key="pub">
                                 <a onClick={this.checkPublish.bind(this, record.id)}>
                                     发布
@@ -179,16 +175,16 @@ export default class TagPane extends Component {
                     </Menu>
                 )
                 return (<span id={`tag_${record.id}`}>
-                        <Dropdown
-                            getPopupContainer={
-                                () => document.getElementById(`tag_${record.id}`)
-                            }
-                            overlay={menu} 
-                            trigger={['click']}
-                        >
-                            <Button>操作<Icon type="down" /></Button>
-                        </Dropdown>
-                    </span>
+                    <Dropdown
+                        getPopupContainer={
+                            () => document.getElementById(`tag_${record.id}`)
+                        }
+                        overlay={menu}
+                        trigger={['click']}
+                    >
+                        <Button>操作<Icon type="down" /></Button>
+                    </Dropdown>
+                </span>
                 )
             }
         }];
@@ -210,7 +206,7 @@ export default class TagPane extends Component {
             title: '标签类目',
             dataIndex: 'catalogueName',
             key: 'catalogueName',
-            width: '8%',
+            width: '8%'
         }, {
             title: '值域',
             dataIndex: 'tagRange',
@@ -280,32 +276,32 @@ export default class TagPane extends Component {
                 )
 
                 const eleId = `tag_${record.id}`
+                /* eslint-disable */
                 return (
                     <div>
-                        <a onClick={() => {this.editBaseInfo(record)}}>
+                        <a onClick={() => { this.editBaseInfo(record) }}>
                             编辑
                         </a>
-                        <span className="ant-divider" id={eleId}/>
+                        <span className="ant-divider" id={eleId} />
                         {
                             TAG_PUBLISH_STATUS[record.publishStatus] == '已发布' ?
-                            <Popconfirm
-                                title="确定删除此标签？"
-                                okText="确定" cancelText="取消"
-                                onConfirm={this.removeTag.bind(this, record.id)}>
-                                <a>删除</a>
-                            </Popconfirm>
-                            :
-                            <Dropdown
-                                getPopupContainer={
-                                    () => document.getElementById(eleId)
-                                }
-                                overlay={menu} 
-                                trigger={['click']}
-                            >
-                                <a className="ant-dropdown-link">
-                                    更多 <Icon type="down" />
-                                </a>
-                            </Dropdown>
+                                <Popconfirm
+                                    title="确定删除此标签？"
+                                    okText="确定" cancelText="取消"
+                                    onConfirm={this.removeTag.bind(this, record.id)}>
+                                    <a>删除</a>
+                                </Popconfirm> :
+                                <Dropdown
+                                    getPopupContainer={
+                                        () => document.getElementById(eleId)
+                                    }
+                                    overlay={menu}
+                                    trigger={['click']}
+                                >
+                                    <a className="ant-dropdown-link">
+                                        更多 <Icon type="down" />
+                                    </a>
+                                </Dropdown>
                         }
                     </div>
                 )
@@ -325,17 +321,17 @@ export default class TagPane extends Component {
     // 新增标签
     addTag = (id) => {
         this.openModal();
-        this.setState({ 
-            editData: { 
-                type: this.props.tagType === 'rule' ? 2 : 1 
-            } 
+        this.setState({
+            editData: {
+                type: this.props.tagType === 'rule' ? 2 : 1
+            }
         });
     }
 
     // 编辑标签基本信息
     editBaseInfo = (record) => {
         let editData = {
-            ...record, 
+            ...record,
             catalogueId: this.getCatalogueArray(record.catalogueId)
         };
 
@@ -344,12 +340,12 @@ export default class TagPane extends Component {
 
         if (this.props.tagType === 'register') {
             if (TAG_PUBLISH_STATUS[editData.publishStatus] === '未发布') {
-                this.props.getDataSourcesTable({ 
-                    sourceId: editData.dataSourceId 
+                this.props.getDataSourcesTable({
+                    sourceId: editData.dataSourceId
                 });
-                this.props.getDataSourcesColumn({ 
-                    sourceId: editData.dataSourceId, 
-                    tableName: editData.originTable 
+                this.props.getDataSourcesColumn({
+                    sourceId: editData.dataSourceId,
+                    tableName: editData.originTable
                 });
             }
         }
@@ -388,15 +384,15 @@ export default class TagPane extends Component {
         const { queryParams, editData } = this.state;
 
         form.validateFields((err, values) => {
-            console.log(err,values)
+            console.log(err, values)
             let api, params, msg;
-            if(!err) {
+            if (!err) {
                 // 取子节点的id
                 values.catalogueId = [...values.catalogueId].pop();
 
                 if (editData.id) {
                     api = TCApi.updateTagBaseInfo;
-                    params = {...values, id: editData.id};
+                    params = { ...values, id: editData.id };
                     msg = '更新成功';
                 } else {
                     api = this.props.tagType === 'rule' ? TCApi.addRuleTag : TCApi.addRegisterTag;
@@ -421,7 +417,7 @@ export default class TagPane extends Component {
     // 一级分类筛选
     onFirstCatalogueChange = (id) => {
         let queryParams = {
-            ...this.state.queryParams, 
+            ...this.state.queryParams,
             currentPage: 1,
             pid: id ? id : undefined
         };
@@ -449,7 +445,7 @@ export default class TagPane extends Component {
     // 二级分类筛选
     onSecondCatalogueChange = (id) => {
         let queryParams = {
-            ...this.state.queryParams, 
+            ...this.state.queryParams,
             currentPage: 1,
             cid: id ? id : undefined
         };
@@ -461,7 +457,7 @@ export default class TagPane extends Component {
     // name筛选
     onTagNameSearch = (name) => {
         let queryParams = {
-            ...this.state.queryParams, 
+            ...this.state.queryParams,
             currentPage: 1,
             name: name ? name : undefined
         };
@@ -500,15 +496,14 @@ export default class TagPane extends Component {
     // 表格换页/排序
     onTableChange = (page, filter, sorter) => {
         let queryParams = {
-            ...this.state.queryParams, 
+            ...this.state.queryParams,
             currentPage: page.current,
         };
 
         this.getTagListData(queryParams);
         this.setState({ queryParams });
     }
-
-    render() {
+    render () {
         const { apiCatalogue } = this.props.apiMarket;
         const { queryParams, visible, loading, tagList, editData, catalogue2Data } = this.state;
 
@@ -524,7 +519,7 @@ export default class TagPane extends Component {
 
                 <div className="m-l-8">
                     标签分类：
-                    <Select 
+                    <Select
                         allowClear
                         showSearch
                         style={{ width: 150 }}
@@ -533,8 +528,8 @@ export default class TagPane extends Component {
                         onChange={this.onFirstCatalogueChange}>
                         {
                             apiCatalogue.map(item => {
-                                return <Option 
-                                    key={item.id} 
+                                return <Option
+                                    key={item.id}
                                     value={item.id.toString()}
                                     title={item.catalogueName}>
                                     {item.catalogueName}
@@ -547,7 +542,7 @@ export default class TagPane extends Component {
                 <div className="m-l-8">
                     二级分类：
                     <Select
-                        allowClear 
+                        allowClear
                         showSearch
                         style={{ width: 150 }}
                         optionFilterProp="title"
@@ -555,8 +550,8 @@ export default class TagPane extends Component {
                         onChange={this.onSecondCatalogueChange}>
                         {
                             catalogue2Data.map(item => {
-                                return <Option 
-                                    key={item.id} 
+                                return <Option
+                                    key={item.id}
                                     value={item.id.toString()}
                                     title={item.catalogueName}>
                                     {item.catalogueName}
@@ -571,14 +566,14 @@ export default class TagPane extends Component {
         const cardExtra = (
             <div>
                 <Link to="dl/tagConfig/identify">
-                    <Button 
-                        type="primary" 
+                    <Button
+                        type="primary"
                         style={{ margin: 10 }}>
-                    识别列配置
+                        识别列配置
                     </Button>
                 </Link>
-                <Button 
-                    type="primary" 
+                <Button
+                    type="primary"
                     onClick={this.addTag}>
                     新建标签
                 </Button>
@@ -592,16 +587,16 @@ export default class TagPane extends Component {
         };
 
         return (
-            <Card 
+            <Card
                 title={cardTitle}
                 extra={cardExtra}
-                noHovering 
+                noHovering
                 bordered={false}
             >
-                <Table 
+                <Table
                     rowKey="id"
                     className="m-table"
-                    columns={initColumns()} 
+                    columns={initColumns()}
                     loading={loading}
                     pagination={pagination}
                     dataSource={tagList.data}
@@ -618,3 +613,4 @@ export default class TagPane extends Component {
         )
     }
 }
+export default TagPane;

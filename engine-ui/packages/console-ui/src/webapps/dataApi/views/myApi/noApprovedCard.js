@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Input } from 'antd'
+import { Card, Table, Input } from 'antd'
 import moment from 'moment';
 
 import SlidePane from './approvedSlidePane';
@@ -11,7 +11,6 @@ const orderType = {
     'ascend': 'asc',
     'descend': 'desc'
 }
-const TextArea = Input.TextArea;
 const Search = Input.Search;
 class NoApprovedCard extends Component {
     state = {
@@ -86,7 +85,6 @@ class NoApprovedCard extends Component {
         })
     }
     initColumns () {
-        const sortedInfo = this.state.sortedInfo;
         return [{
             title: 'API名称',
             dataIndex: 'apiName',
@@ -113,7 +111,7 @@ class NoApprovedCard extends Component {
                 if (!record.beginTime || !record.endTime) {
                     return '无时间限制';
                 }
-                return <span>{new moment(record.beginTime).format('YYYY-MM-DD')} ~ {new moment(record.endTime).format('YYYY-MM-DD')}</span>
+                return <span>{moment(record.beginTime).format('YYYY-MM-DD')} ~ {moment(record.endTime).format('YYYY-MM-DD')}</span>
             }
         }, {
             title: '申请说明',

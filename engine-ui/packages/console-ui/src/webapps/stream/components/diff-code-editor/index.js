@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 
-import { defaultEditorOptions } from '../../comm/const'
 import 'codemirror/addon/merge/merge.css'
 import './style.css';
 
@@ -15,7 +14,8 @@ class DiffEditor extends Component {
         this.initUI(value, compareTo)
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const { value, compareTo, tableRefresh } = nextProps
         if (tableRefresh) {
             this._self.edit.doc.setValue(value)

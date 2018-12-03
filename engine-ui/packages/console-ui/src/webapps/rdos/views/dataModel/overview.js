@@ -276,24 +276,24 @@ class Overview extends Component {
 
         let src;
         switch (type) {
-        case 'todayAddModel':
-            src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}`;
-            break;
-        case 'todayAddPoint':
-            src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}`
-            break;
-        case 'todayNonstandardModel':
-            src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}&triggerType1=${triggerType1}`
-            break;
-        case 'todayNonstandardPoint':
-            src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}&triggerType2=${triggerType2}`
-            break;
-        case 'accumulativeNonstandardModel':
-            src = `${pathName}?currentTab=1&triggerType1=${triggerType1}`
-            break;
-        default:
-            src = `${pathName}?currentTab=2&triggerType2=${triggerType2}`
-            break;
+            case 'todayAddModel':
+                src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}`;
+                break;
+            case 'todayAddPoint':
+                src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}`
+                break;
+            case 'todayNonstandardModel':
+                src = `${pathName}?currentTab=1&startTime1=${today0}&endTime1=${today24}&triggerType1=${triggerType1}`
+                break;
+            case 'todayNonstandardPoint':
+                src = `${pathName}?currentTab=2&startTime2=${today0}&endTime2=${today24}&triggerType2=${triggerType2}`
+                break;
+            case 'accumulativeNonstandardModel':
+                src = `${pathName}?currentTab=1&triggerType1=${triggerType1}`
+                break;
+            default:
+                src = `${pathName}?currentTab=2&triggerType2=${triggerType2}`
+                break;
         }
         hashHistory.push(src);
     }

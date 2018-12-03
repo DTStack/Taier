@@ -112,107 +112,103 @@ const initialState = {
 export default function dashBoard (state = initialState, action) {
     const { type, payload, date } = action;
     switch (type) {
-    case dashBoardActionType.GET_USER_CALL_INFO: {
-        const clone = cloneDeep(state);
-        clone.userOverview[date].callInfo = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_API_FAIL_RANK: {
-        const clone = cloneDeep(state);
-        clone.userOverview[date].callFailTop = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_USER_API_CALL_RANK: {
-        const clone = cloneDeep(state);
-        clone.userOverview[date].callCountTop = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_USER_API_SUB_INFO: {
-        const clone = cloneDeep(state);
-        clone.userOverview[date].approvalInfo = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_MARKET_API_FAIL_RANK: {
-        const clone = cloneDeep(state);
-        clone.marketOverview[date].callFailTop = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_MARKET_CALL_INFO: {
-        const clone = cloneDeep(state);
-        clone.marketOverview[date].callInfo = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_MARKET_API_CALL_RANK: {
-        const clone = cloneDeep(state);
-        clone.marketOverview[date].callCountTop = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_MARKET_API_ERROR_INFO: {
-        const clone = cloneDeep(state);
-        clone.marketOverview[date].failInfoList = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_MARKET_TOP_CALL_FUNC: {
-        const clone = cloneDeep(state);
-        clone.marketOverview[date].topCallFunc = payload;
-        return clone;
-    }
-    case dashBoardActionType.GET_MARKET_API_APPLY_INFO: {
-        const clone = cloneDeep(state);
-        clone.approvedMsgCount = payload;
-        return clone;
-    }
+        case dashBoardActionType.GET_USER_CALL_INFO: {
+            const clone = cloneDeep(state);
+            clone.userOverview[date].callInfo = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_API_FAIL_RANK: {
+            const clone = cloneDeep(state);
+            clone.userOverview[date].callFailTop = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_USER_API_CALL_RANK: {
+            const clone = cloneDeep(state);
+            clone.userOverview[date].callCountTop = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_USER_API_SUB_INFO: {
+            const clone = cloneDeep(state);
+            clone.userOverview[date].approvalInfo = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_API_FAIL_RANK: {
+            const clone = cloneDeep(state);
+            clone.marketOverview[date].callFailTop = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_CALL_INFO: {
+            const clone = cloneDeep(state);
+            clone.marketOverview[date].callInfo = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_API_CALL_RANK: {
+            const clone = cloneDeep(state);
+            clone.marketOverview[date].callCountTop = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_API_ERROR_INFO: {
+            const clone = cloneDeep(state);
+            clone.marketOverview[date].failInfoList = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_TOP_CALL_FUNC: {
+            const clone = cloneDeep(state);
+            clone.marketOverview[date].topCallFunc = payload;
+            return clone;
+        }
+        case dashBoardActionType.GET_MARKET_API_APPLY_INFO: {
+            const clone = cloneDeep(state);
+            clone.approvedMsgCount = payload;
+            return clone;
+        }
 
-    case dashBoardActionType.CHANGE_LOADING: {
-        const clone = cloneDeep(state);
-        const { loading } = clone;
-        clone.loading = !loading;
-        return clone;
-    }
-    case dashBoardActionType.GET_TOP_RECORD: {
-        const clone = cloneDeep(state);
-        const { topRecords } = clone;
-        clone.topRecords = payload;
-        return clone;
-    }
+        case dashBoardActionType.CHANGE_LOADING: {
+            const clone = cloneDeep(state);
+            const { loading } = clone;
+            clone.loading = !loading;
+            return clone;
+        }
+        case dashBoardActionType.GET_TOP_RECORD: {
+            const clone = cloneDeep(state);
+            clone.topRecords = payload;
+            return clone;
+        }
 
-    case dashBoardActionType.GET_ALARM_SUM: {
-        const clone = cloneDeep(state);
-        const { alarmSum } = clone;
-        clone.alarmSum = payload;
-        return clone;
-    }
+        case dashBoardActionType.GET_ALARM_SUM: {
+            const clone = cloneDeep(state);
+            clone.alarmSum = payload;
+            return clone;
+        }
 
-    case dashBoardActionType.GET_ALARM_TREND: {
-        const clone = cloneDeep(state);
-        const { alarmTrend } = clone;
-        clone.alarmTrend = payload;
-        return clone;
-    }
+        case dashBoardActionType.GET_ALARM_TREND: {
+            const clone = cloneDeep(state);
+            clone.alarmTrend = payload;
+            return clone;
+        }
 
-    case dashBoardActionType.GET_USAGE: {
-        const clone = cloneDeep(state);
-        const { usage } = clone;
-        clone.usage = payload;
-        return clone;
-    }
-    case dashBoardActionType.CHOOSE_USER_DATE: {
-        const clone = cloneDeep(state);
-        clone.userDate = payload;
-        return clone;
-    }
-    case dashBoardActionType.CHOOSE_ADMIN_DATE: {
-        const clone = cloneDeep(state);
-        clone.adminDate = payload;
-        return clone;
-    }
-    case dashBoardActionType.CLOSE_APPROVAL_WARNING: {
-        const clone = cloneDeep(state);
-        clone.approvalWarning = false;
-        return clone;
-    }
+        case dashBoardActionType.GET_USAGE: {
+            const clone = cloneDeep(state);
+            clone.usage = payload;
+            return clone;
+        }
+        case dashBoardActionType.CHOOSE_USER_DATE: {
+            const clone = cloneDeep(state);
+            clone.userDate = payload;
+            return clone;
+        }
+        case dashBoardActionType.CHOOSE_ADMIN_DATE: {
+            const clone = cloneDeep(state);
+            clone.adminDate = payload;
+            return clone;
+        }
+        case dashBoardActionType.CLOSE_APPROVAL_WARNING: {
+            const clone = cloneDeep(state);
+            clone.approvalWarning = false;
+            return clone;
+        }
 
-    default:
-        return state;
+        default:
+            return state;
     }
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import { hashHistory } from 'react-router';
 import { Card, Table, Button } from 'antd';
 import moment from 'moment';
-
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
 
@@ -80,6 +79,7 @@ class ClusterManage extends React.Component {
                 dataIndex: 'gmtModified',
                 width: '200px',
                 render (text) {
+                    /* eslint-disable-next-line */
                     return new moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },

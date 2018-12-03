@@ -1,7 +1,7 @@
 import React from 'react'
 
 import {
-    Tabs, Button
+    Tabs
 } from 'antd'
 import SlidePane from 'widgets/slidePane'
 import { TaskStatus } from '../../../../components/status'
@@ -21,7 +21,8 @@ class TaskDetailPane extends React.Component {
         tabKey: 'taskFlow'
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { data = {} } = this.props;
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id) {
@@ -37,13 +38,13 @@ class TaskDetailPane extends React.Component {
     }
     getTaskFlowName (status) {
         switch (status) {
-        case TASK_STATUS.RUN_FAILED:
-        case TASK_STATUS.SUBMIT_FAILED: {
-            return '错误日志'
-        }
-        default: {
-            return '数据曲线'
-        }
+            case TASK_STATUS.RUN_FAILED:
+            case TASK_STATUS.SUBMIT_FAILED: {
+                return '错误日志'
+            }
+            default: {
+                return '数据曲线'
+            }
         }
     }
     getTabs () {
@@ -81,42 +82,42 @@ class TaskDetailPane extends React.Component {
             </TabPane>
         )
         switch (taskType) {
-        case TASK_TYPE.DATA_COLLECTION: {
-            return [
-                baseInfoView,
-                runCodeView,
-                alarmMsgView
-            ]
-        }
-        case TASK_TYPE.SQL:
-        case TASK_TYPE.MR: {
-            return [
-                baseInfoView,
-                <TabPane
-                    style={scrollStyleNoPt}
-                    tab={(
-                        <span>数据延迟<HelpDoc style={{
-                            position: 'relative',
-                            marginLeft: '5px',
-                            right: 'initial',
-                            top: 'initial',
-                            marginRight: '0px'
-                        }} doc="delayTabWarning" /></span>
-                    )
-                    }
-                    key="dataDelay">
-                    <DataDelay data={data} />
-                </TabPane>,
-                <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
-                    <CheckPoint data={data} />
-                </TabPane>,
-                runCodeView,
-                alarmMsgView
-            ]
-        }
-        default: {
-            return []
-        }
+            case TASK_TYPE.DATA_COLLECTION: {
+                return [
+                    baseInfoView,
+                    runCodeView,
+                    alarmMsgView
+                ]
+            }
+            case TASK_TYPE.SQL:
+            case TASK_TYPE.MR: {
+                return [
+                    baseInfoView,
+                    <TabPane
+                        style={scrollStyleNoPt}
+                        tab={(
+                            <span>数据延迟<HelpDoc style={{
+                                position: 'relative',
+                                marginLeft: '5px',
+                                right: 'initial',
+                                top: 'initial',
+                                marginRight: '0px'
+                            }} doc="delayTabWarning" /></span>
+                        )
+                        }
+                        key="dataDelay">
+                        <DataDelay data={data} />
+                    </TabPane>,
+                    <TabPane style={scrollStyleNoPt} tab="checkpoint" key="checkpoint">
+                        <CheckPoint data={data} />
+                    </TabPane>,
+                    runCodeView,
+                    alarmMsgView
+                ]
+            }
+            default: {
+                return []
+            }
         }
     }
     render () {

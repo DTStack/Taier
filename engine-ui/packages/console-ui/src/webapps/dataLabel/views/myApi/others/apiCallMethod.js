@@ -21,6 +21,7 @@ class ApiCallMethod extends Component {
     componentDidMount () {
         this.getApiCallUrl();
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (nextProps.showRecord && this.props.showRecord.apiId != nextProps.showRecord.apiId) {
             if (nextProps.slidePaneShow) {

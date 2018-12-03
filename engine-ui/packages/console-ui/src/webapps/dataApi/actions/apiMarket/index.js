@@ -1,5 +1,4 @@
 import { apiMarketActionType as ACTION_TYPE } from '../../consts/apiMarketActionType';
-import { message } from 'antd';
 import API from '../../api/apiMarket';
 
 export const apiMarketActions = {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, message, Modal } from 'antd'
+import { message, Modal } from 'antd'
 import { connect } from 'react-redux';
 import EnableTable from './buyStateTable/enableTable'
 import DisableTable from './buyStateTable/disableTable'
@@ -45,8 +45,7 @@ class BuyManageState extends Component {
             total: 0,
             dataDisable: [],
             dataEnable: [],
-            data: [],
-            total: 0
+            data: []
         })
     }
     // eslint-disable-next-line
@@ -61,7 +60,7 @@ class BuyManageState extends Component {
         }
     }
     tableChange (params, apiId) {
-        const { filter, sortedInfo, page } = params;
+        const { filter, page } = params;
         let status = filter.status
         if (!status || status.length < 1) {
             status = ['1', '3', '4']

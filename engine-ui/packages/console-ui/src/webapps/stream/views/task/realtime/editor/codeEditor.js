@@ -10,7 +10,6 @@ import IDEEditor from 'main/components/ide';
 import API from '../../../../api';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
-import { PROJECT_TYPE } from '../../../../comm/const';
 
 @connect(state => {
     return {

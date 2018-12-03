@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-export default class Resize extends Component {
+export default class Resize extends React.Component {
     componentDidMount () {
         window.addEventListener('resize', this.resize, false)
     }

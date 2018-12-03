@@ -38,7 +38,6 @@ class TaskIndex extends Component {
     }
 
     componentDidMount () {
-        const { dispatch } = this.props;
         const taskId = utils.getParameterByName('taskId')
         if (taskId) {
             this.props.dispatch(BrowserAction.openPage({ id: taskId }))
@@ -50,9 +49,9 @@ class TaskIndex extends Component {
         console.log('saveTask', this.props);
 
         // 检查页面输入输出参数配置
-        const { checkFormParams = [], panelColumn = [] } = inputData[currentPage.id] || {};
-        const { checkFormParams: outputCheckFormParams = [], panelColumn: outputPanelColumn = [] } = outputData[currentPage.id] || {};
-        const { checkFormParams: dimensionCheckFormParams = [], panelColumn: dimensionPanelColumn = [] } = dimensionData[currentPage.id] || {};
+        const { checkFormParams = [] } = inputData[currentPage.id] || {};
+        const { checkFormParams: outputCheckFormParams = [] } = outputData[currentPage.id] || {};
+        const { checkFormParams: dimensionCheckFormParams = [] } = dimensionData[currentPage.id] || {};
 
         for (let index = 0, len = checkFormParams.length; index < len; index++) { // 检查出一个未填选项,不再检查其它的选项,只弹一次错误
             const result = checkFormParams[index].checkParams();

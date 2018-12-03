@@ -20,7 +20,7 @@ class ResFormModal extends Component {
 
     submit = (e) => {
         e.preventDefault()
-        const { handOk, form } = this.props
+        const { handOk } = this.props
         const { file } = this.state
         const resource = this.props.form.getFieldsValue()
         this.props.form.validateFields((err) => {
@@ -58,7 +58,8 @@ class ResFormModal extends Component {
     validateFileType = (rule, value, callback) => {
         const reg = /\.(jar)$/
         if (value && !reg.test(value.toLocaleLowerCase())) {
-            callback('资源文件只能是Jar文件!');
+            const error = '资源文件只能是Jar文件!'
+            callback(error);
         }
         callback();
     }
@@ -171,8 +172,8 @@ class ResFormModal extends Component {
                                 <FolderPicker
                                     isPicker
                                     isFolderPicker
-                                    treeData={ resRoot }
-                                    loadData={ ayncTree }
+                                    treeData={resRoot}
+                                    loadData={ayncTree}
                                     onSelect={this.onSelect}
                                 />
                             )}

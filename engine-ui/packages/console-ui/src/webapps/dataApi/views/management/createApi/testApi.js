@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, Table, Input, Button, Checkbox, Form, InputNumber } from 'antd'
+import { Table, Input, Button, Checkbox, Form, InputNumber } from 'antd'
 
-import { API_METHOD_key } from '../../../consts';
+import { API_METHOD_KEY } from '../../../consts';
 import ColumnsModel from '../../../model/columnsModel'
 
 const TextArea = Input.TextArea;
@@ -136,15 +136,15 @@ class TestApi extends React.Component {
             status = apiTestStatus.NOTHING;
         }
         switch (status) {
-        case apiTestStatus.NOTHING: {
-            return null;
-        }
-        case apiTestStatus.SUCCESS: {
-            return <Checkbox onChange={this.props.saveResult} checked={this.props.isSaveResult} style={{ marginTop: '8px' }}>将测试结果作为JSON样例保存</Checkbox>;
-        }
-        case apiTestStatus.ERROR: {
-            return '测试失败!请查看返回结果错误信息'
-        }
+            case apiTestStatus.NOTHING: {
+                return null;
+            }
+            case apiTestStatus.SUCCESS: {
+                return <Checkbox onChange={this.props.saveResult} checked={this.props.isSaveResult} style={{ marginTop: '8px' }}>将测试结果作为JSON样例保存</Checkbox>;
+            }
+            case apiTestStatus.ERROR: {
+                return '测试失败!请查看返回结果错误信息'
+            }
         }
     }
     wrapInputParams () {
@@ -159,7 +159,7 @@ class TestApi extends React.Component {
         this.props.dataChange();
     }
     render () {
-        const { results, status, loading } = this.state;
+        const { loading } = this.state;
         const { basicProperties, respJson: testResult } = this.props;
         const wrapInputParams = this.wrapInputParams();
         const inputTableColumns = this.initColumns();
@@ -172,7 +172,7 @@ class TestApi extends React.Component {
                             <p style={{ color: '#151515' }} className="required-tip middle-title">API({basicProperties.APIName})测试</p>
                             <div>
                                 <p style={{ fontSize: '18px', marginTop: '2px' }}>
-                                    <span className="shadowtext">请求方式：{API_METHOD_key[basicProperties.method]}</span>
+                                    <span className="shadowtext">请求方式：{API_METHOD_KEY[basicProperties.method]}</span>
                                     <span className="shadowtext" style={{ marginLeft: '8px' }}>返回类型：JSON</span>
                                 </p>
                                 <p style={{ marginTop: '10px', marginBottom: '6px' }} className="middle-title">输入参数：</p>

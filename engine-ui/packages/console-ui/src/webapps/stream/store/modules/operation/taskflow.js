@@ -1,4 +1,3 @@
-import localDb from 'utils/localDb'
 import { taskFlowAction, graphAction } from './actionTypes'
 
 // Actions
@@ -31,20 +30,20 @@ export function udpateGraphStatus (value) {
 // Reducer
 export function taskFlow (state = '', action) {
     switch (action.type) {
-    case taskFlowAction.SET_TASK_FLOW: {
-        return action.data
-    }
-    default:
-        return state;
+        case taskFlowAction.SET_TASK_FLOW: {
+            return action.data
+        }
+        default:
+            return state;
     }
 }
 
 export function graphStatus (state = 'initial', action) {
     switch (action.type) {
-    case graphAction.UPDATE_GRAPH_STATUS: {
-        return action.data
-    }
-    default:
-        return state;
+        case graphAction.UPDATE_GRAPH_STATUS: {
+            return action.data
+        }
+        default:
+            return state;
     }
 }

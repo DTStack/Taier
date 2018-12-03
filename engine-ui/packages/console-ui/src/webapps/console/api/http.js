@@ -3,9 +3,8 @@ import { notification } from 'antd'
 
 import ProgressBar from 'widgets/progress-bar'
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
-
-class Http {
 /* eslint-disable */
+class Http {
     get(url, params) { // GET请求
         const newUrl = params ? this.build(url, params) : url
         return this.request(newUrl, {
@@ -86,5 +85,4 @@ class Http {
         }
     }
 }
-/* eslint-disable */
 export default new Http()

@@ -97,11 +97,11 @@ class Workbench extends React.Component {
         let vaildPass = true;
 
         switch (taskType) {
-        case TASK_TYPE.SYNC: {
-            if (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
-                vaildPass = this.checkSyncScript(currentTabData);
+            case TASK_TYPE.SYNC: {
+                if (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
+                    vaildPass = this.checkSyncScript(currentTabData);
+                }
             }
-        }
         }
 
         if (vaildPass) {

@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Input } from 'antd'
 import SlidePane from 'widgets/slidePane';
-const TextArea = Input.TextArea;
 class DisabledCardSlidePane extends Component {
     state = {
         phone: '',

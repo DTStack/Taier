@@ -36,20 +36,20 @@ export default class TransformModal extends Component {
             if (nextProps.transformFields.length) {
                 nextProps.transformFields.forEach((item) => {
                     switch (item.convertObject) {
-                    case 1:
-                        nameRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                        nameRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                        break;
-                    case 2:
-                        columnRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                        columnRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                        break;
-                    case 3:
-                        typeRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
-                        typeRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
-                        break;
-                    default:
-                        break;
+                        case 1:
+                            nameRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                            nameRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                            break;
+                        case 2:
+                            columnRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                            columnRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                            break;
+                        case 3:
+                            typeRule.filter(rule => rule.id == item.id)[0].left = item.convertSrc;
+                            typeRule.filter(rule => rule.id == item.id)[0].right = item.convertDest;
+                            break;
+                        default:
+                            break;
                     }
                 });
 
@@ -205,17 +205,17 @@ export default class TransformModal extends Component {
                 let label;
 
                 switch (type) {
-                case 'nameRule':
-                    label = '表名转换规则';
-                    break;
-                case 'columnRule':
-                    label = '字段名转换规则';
-                    break;
-                case 'typeRule':
-                    label = '字段类型转换规则';
-                    break;
-                default:
-                    break;
+                    case 'nameRule':
+                        label = '表名转换规则';
+                        break;
+                    case 'columnRule':
+                        label = '字段名转换规则';
+                        break;
+                    case 'typeRule':
+                        label = '字段类型转换规则';
+                        break;
+                    default:
+                        break;
                 }
 
                 return <Row className="flex-center m-v-10" key={`${type}-${item.id}`}>

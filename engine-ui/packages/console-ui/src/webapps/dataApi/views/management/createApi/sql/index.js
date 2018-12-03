@@ -1,7 +1,6 @@
 import React from 'react';
 import { Card, Modal, Spin, Button, Checkbox } from 'antd';
 import { connect } from 'react-redux';
-import { apiManageActions } from '../../../../actions/apiManage';
 
 import CodeEditor from 'widgets/editor';
 class ApiSqlEditor extends React.Component {
@@ -11,7 +10,7 @@ class ApiSqlEditor extends React.Component {
         visible: false
     }
     // eslint-disable-next-line
-	componentWillMount () {
+    componentWillMount () {
         if (this.props.disAbleTip) {
             this.setState({
                 visible: false
@@ -111,8 +110,8 @@ class ApiSqlEditor extends React.Component {
                                 <p className="title">WHERE</p>
                                 <div className="content">
                                     <p>
-                                        <span className="content-title">user_id = ${'{'}uid};</span>
-                                        <span className="content-text">WHERE条件中的参数为API请求参数，参数格式必须为${'{'}参数名}。</span>
+                                        <span className="content-title">user_id = ${'{uid}'};</span>
+                                        <span className="content-text">WHERE条件中的参数为API请求参数，参数格式必须为${'{参数名}'}。</span>
                                     </p>
                                 </div>
                             </div>

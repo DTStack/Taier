@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Input, Icon, Button, Checkbox, Select, Row, Card, Col, Table, message } from 'antd';
+import { Input, Checkbox, Select, Table, message } from 'antd';
 import { cloneDeep } from 'lodash';
 
 const TextArea = Input.TextArea;
@@ -18,8 +18,7 @@ class InputParams extends Component {
         tableColumns: [],
         dataSource: []
     }
-    componentDidMount () {
-    }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (nextProps.addInputsignal && !this.props.addInputsignal) {
             this.addInput();

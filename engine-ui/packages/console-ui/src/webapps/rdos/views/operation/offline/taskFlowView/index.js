@@ -7,12 +7,10 @@ import {
 } from 'antd'
 
 import utils from 'utils'
-import { replaceObjectArrayFiledName } from 'funcs'
 
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
-
 
 import Api from '../../../../api'
 import MyIcon from '../../../../components/icon'
@@ -467,9 +465,7 @@ class TaskFlowView extends Component {
         }
     }
 
-
     doInsertVertex = (data) => {
-
         const graph = this.graph;
 
         // clean data;

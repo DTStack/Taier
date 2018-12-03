@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
-import utils from 'utils'
-
 import Header from './layout/header'
 import GlobalLoading from './layout/loading'
 import * as UserAction from '../actions/user'

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Alert, Card, Col, Row, Table, Radio, Tabs } from 'antd';
+import { Card, Col, Row, Radio, Tabs } from 'antd';
 
 import TopCallFunc from './topCallFunc';
 import HaveNoApi from './haveNoApi'

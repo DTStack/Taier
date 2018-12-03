@@ -189,11 +189,11 @@ export default class ImportLocalData extends Component {
 
     parseSplitSymbol (value) {
         switch (value) {
-        case 'blank':
-            value = ' '
-            break;
-        case 'tab':
-            value = '\t'
+            case 'blank':
+                value = ' '
+                break;
+            case 'tab':
+                value = '\t'
         }
         return value
     }

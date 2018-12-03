@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { Modal, Tabs } from 'antd';
 
 import TagPane from './tagPane';
@@ -10,14 +9,11 @@ import '../../../styles/views/tagConfig.scss';
 const TabPane = Tabs.TabPane;
 
 @connect()
-export default class TagConfigIndex extends Component {
-
-    state = {}
-
-    componentDidMount() {
+class TagConfigIndex extends Component {
+    componentDidMount () {
         this.props.dispatch(apiMarketActions.getCatalogue(0));
     }
-
+    /* eslint-disable */
     showInfo = () => {
         Modal.info({
             title: '注册标签与新建标签的区别',
@@ -33,11 +29,11 @@ export default class TagConfigIndex extends Component {
             )
         });
     }
-
-    render() {
+    /* eslint-enable */
+    render () {
         return (
             <div className="box-1 m-card shadow m-tabs">
-                <Tabs 
+                <Tabs
                     animated={false}
                     defaultActiveKey={'1'}
                     // onChange={this.onTabChange}
@@ -57,3 +53,4 @@ export default class TagConfigIndex extends Component {
         )
     }
 }
+export default TagConfigIndex;

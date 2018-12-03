@@ -168,19 +168,19 @@ class FolderModal extends React.Component {
 
     getTreeData (cateType) {
         switch (cateType) {
-        case MENU_TYPE.TASK:
-        case MENU_TYPE.TASK_DEV:
-            return this.props.taskTreeData;
-        case MENU_TYPE.RESOURCE:
-            return this.props.resourceTreeData;
-        case MENU_TYPE.COSTOMFUC:
-        case MENU_TYPE.FUNCTION:
-        case MENU_TYPE.SYSFUC:
-            return this.props.functionTreeData;
-        case MENU_TYPE.SCRIPT:
-            return this.props.scriptTreeData;
-        default:
-            return this.props.taskTreeData;
+            case MENU_TYPE.TASK:
+            case MENU_TYPE.TASK_DEV:
+                return this.props.taskTreeData;
+            case MENU_TYPE.RESOURCE:
+                return this.props.resourceTreeData;
+            case MENU_TYPE.COSTOMFUC:
+            case MENU_TYPE.FUNCTION:
+            case MENU_TYPE.SYSFUC:
+                return this.props.functionTreeData;
+            case MENU_TYPE.SCRIPT:
+                return this.props.scriptTreeData;
+            default:
+                return this.props.taskTreeData;
         }
     }
 

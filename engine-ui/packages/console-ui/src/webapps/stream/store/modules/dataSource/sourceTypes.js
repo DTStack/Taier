@@ -15,10 +15,10 @@ export function getSourceTypes () {
 
 export function sourceTypes (state = [], action) {
     switch (action.type) {
-    case dataSourceAction.GET_DATA_SOURCE_TYPES: {
-        return action.data
-    }
-    default:
-        return state;
+        case dataSourceAction.GET_DATA_SOURCE_TYPES: {
+            return action.data
+        }
+        default:
+            return state;
     }
 }

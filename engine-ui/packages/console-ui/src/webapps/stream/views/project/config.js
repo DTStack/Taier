@@ -4,8 +4,7 @@ import { connect } from 'react-redux'
 
 import {
     Modal,
-    Input, Form, message,
-    Select
+    Input, Form, message
 } from 'antd'
 
 import utils from 'utils'
@@ -15,7 +14,6 @@ import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 
 const FormItem = Form.Item
-const Option = Select.Option;
 
 function myFrom (props) {
     const { getFieldDecorator } = props.form;

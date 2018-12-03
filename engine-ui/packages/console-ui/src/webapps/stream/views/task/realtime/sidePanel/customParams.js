@@ -2,17 +2,17 @@ import React from 'react';
 
 import {
     Row, Col, Input,
-    message, Form
+    Form
 } from 'antd'
 
 const FormItem = Form.Item;
 
-class CustomParams extends React.Component {
+export class CustomParams extends React.Component {
     renderCustomParams () {
         const { customParams, formItemLayout, getFieldDecorator, onChange } = this.props;
         return customParams.map((customParam) => {
             return (
-                <Row>
+                <Row key={customParam.id}>
                     <Col span={formItemLayout.labelCol.sm.span}>
                         <FormItem key={customParam.id + '-key'}>
                             {getFieldDecorator(customParam.id + '-key', {
@@ -68,7 +68,5 @@ class CustomParams extends React.Component {
         )
     }
 }
-
-export default CustomParams;
 
 export * from './customParamsUtil';

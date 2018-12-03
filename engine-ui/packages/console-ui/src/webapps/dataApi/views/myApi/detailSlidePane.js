@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Tabs, Radio } from 'antd'
+import { Tabs, Radio } from 'antd'
 
 import SlidePane from 'widgets/slidePane';
-import { API_USER_STATUS } from '../../consts/index.js';
 
 import ApiCallMethod from './others/apiCallMethod';
 import ApiCallState from './others/apiCallState';
@@ -32,28 +31,28 @@ class detailSlidePane extends Component {
     }
     getDateTypeView () {
         switch (this.state.nowView) {
-        case 'callState':
-            return (
-                <div
-                    className="m-radio-group"
-                    key="date"
-                    style={{ marginTop: 4, marginRight: 28 }}
-                >
-                    <RadioGroup
-
-                        name="date"
-                        defaultValue={this.state.date}
-                        className="no-bd nobackground"
-                        onChange={this.chooseCallStateDate.bind(this)}
+            case 'callState':
+                return (
+                    <div
+                        className="m-radio-group"
+                        key="date"
+                        style={{ marginTop: 4, marginRight: 28 }}
                     >
-                        <RadioButton value='1'>最近24小时</RadioButton>
-                        <RadioButton value='7'>最近7天</RadioButton>
-                        <RadioButton value='30'>最近30天</RadioButton>
-                    </RadioGroup>
-                </div>
-            );
-        default:
-            return null;
+                        <RadioGroup
+
+                            name="date"
+                            defaultValue={this.state.date}
+                            className="no-bd nobackground"
+                            onChange={this.chooseCallStateDate.bind(this)}
+                        >
+                            <RadioButton value='1'>最近24小时</RadioButton>
+                            <RadioButton value='7'>最近7天</RadioButton>
+                            <RadioButton value='30'>最近30天</RadioButton>
+                        </RadioGroup>
+                    </div>
+                );
+            default:
+                return null;
         }
     }
 

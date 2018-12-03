@@ -83,7 +83,7 @@ export const CAT_TYPE = {
     UPDATE: 2,
     DELETE: 3
 }
-export const collect_type = {
+export const collectType = {
     ALL: 0,
     TIME: 1,
     FILE: 2

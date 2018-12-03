@@ -1,17 +1,11 @@
 import React from 'react'
-import { Route, IndexRoute, Redirect, IndexRedirect } from 'react-router'
-
-import asyncComponent from 'utils/asyncLoad'
-import { openNewWindow } from 'funcs'
-
+import { Route, IndexRoute, IndexRedirect } from 'react-router'
 import NotFund from 'widgets/notFund'
-
 // 继承主应用的的公共View组件
 import Main from 'main/views'
 import MsgCenter from 'main/views/message'
 import MsgList from 'main/views/message/list'
 import MsgDetail from 'main/views/message/detail'
-
 import SysAdmin from 'main/views/admin'
 import AdminUser from 'main/views/admin/user'
 import AdminRole from 'main/views/admin/role'
@@ -21,7 +15,6 @@ import RoleEdit from 'main/views/admin/role/edit'
 // 数据API
 import Container from './views'
 import QueueManage from './views/queueManage'
-import TaskDetail from './views/queueManage/taskDetail'
 import ResourceManage from './views/resourceManage'
 import ClusterManage from './views/clusterManage'
 import EditCluster from './views/clusterManage/edit'

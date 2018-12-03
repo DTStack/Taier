@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
 
 import {
-    Row, Tabs,
+    Row, Tabs
 } from 'antd';
 
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 import OfflineTabPanel from './offlineTab'
-
-const TabPane = Tabs.TabPane
 
 class Sidebar extends Component {
     constructor (props) {
@@ -16,7 +14,6 @@ class Sidebar extends Component {
     }
 
     render () {
-        const { pathname } = this.props.routing.locationBeforeTransitions;
         return (
             <div className="sidebar">
                 <Row>

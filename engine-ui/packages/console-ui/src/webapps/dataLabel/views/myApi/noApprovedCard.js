@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Input } from 'antd'
+import { Card, Table, Input } from 'antd'
 import SlidePane from './approvedSlidePane';
 import utils from 'utils'
 const sortType = {
@@ -9,7 +9,6 @@ const orderType = {
     'ascend': 'asc',
     'descend': 'desc'
 }
-const TextArea = Input.TextArea;
 const Search = Input.Search;
 class NoApprovedCard extends Component {
     state = {
@@ -43,6 +42,7 @@ class NoApprovedCard extends Component {
             }
         );
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
             this.openCard(nextProps.apiId);
@@ -79,7 +79,6 @@ class NoApprovedCard extends Component {
         })
     }
     initColumns () {
-        const sortedInfo = this.state.sortedInfo;
         return [{
             title: '标签名称',
             dataIndex: 'apiName',

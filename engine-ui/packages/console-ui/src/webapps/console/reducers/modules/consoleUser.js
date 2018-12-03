@@ -1,5 +1,5 @@
 import consoleActions from '../../consts/consoleActions'
-import { assign, cloneDeep } from 'lodash'
+import { cloneDeep } from 'lodash'
 const defaultState = {
     userList: []
 }

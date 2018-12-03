@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
 
-export default class BaseTable extends Component {
+export default class BaseTable extends React.Component {
     state ={
         table: { data: [] },
 

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Col, Row, Table } from 'antd';
+import { Col, Row } from 'antd';
 import Resize from 'widgets/resize';
 import { cloneDeep } from 'lodash'
 import { doubleLineAreaChartOptions } from '../../../consts';
@@ -28,8 +28,7 @@ class ApiCallState extends Component {
                     if (res) {
                         this.setState({
                             data: res.data
-                        },
-                        () => {
+                        }, () => {
                             this.initLineChart();
                         })
                     }
@@ -43,7 +42,7 @@ class ApiCallState extends Component {
         this.getInfo(apiId, dateType);
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { showRecord: nextShowRecord = {}, dateType: nextDateType } = nextProps;
         const { showRecord = {}, dateType } = this.props;
         const { apiId } = showRecord;
@@ -52,8 +51,7 @@ class ApiCallState extends Component {
         if (apiId !== nextApiId || dateType !== nextDateType) {
             this.setState({
                 apiId: nextProps.showRecord.apiId
-            },
-            () => {
+            }, () => {
                 if (nextProps.slidePaneShow) {
                     this.getInfo(nextApiId, nextDateType);
                 }
@@ -76,15 +74,15 @@ class ApiCallState extends Component {
             failCountDate.push(chartData[i].failRate)
             if (this.props.dateType) {
                 switch (this.props.dateType) {
-                case '1':
-                    times.push(utils.formatHours(chartData[i].time));
-                    break;
-                case '7':
-                    times.push(utils.formatDateHours(chartData[i].time));
-                    break;
-                case '30':
-                    times.push(utils.formatDate(chartData[i].time));
-                    break;
+                    case '1':
+                        times.push(utils.formatHours(chartData[i].time));
+                        break;
+                    case '7':
+                        times.push(utils.formatDateHours(chartData[i].time));
+                        break;
+                    case '30':
+                        times.push(utils.formatDate(chartData[i].time));
+                        break;
                 }
             }
         }
@@ -136,14 +134,14 @@ class ApiCallState extends Component {
     }
     getDateText () {
         switch (this.props.dateType) {
-        case '1':
-            return '24小时';
-        case '7':
-            return '7天';
-        case '30':
-            return '30天';
-        default:
-            return '';
+            case '1':
+                return '24小时';
+            case '7':
+                return '7天';
+            case '30':
+                return '30天';
+            default:
+                return '';
         }
     }
     render () {
@@ -153,19 +151,19 @@ class ApiCallState extends Component {
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">最近{this.getDateText()}累计调用</span>
-                            <span className="m-count-content font-black text-left">{this.state.data && this.state.data.callCount || 0}<span style={{ fontSize: 12 }}>次</span></span>
+                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.callCount) || 0}<span style={{ fontSize: 12 }}>次</span></span>
                         </section>
                     </Col>
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
                             <span className="m-count-title text-left">最近{this.getDateText()}失败率</span>
-                            <span className="m-count-content font-red text-left">{this.state.data && this.state.data.failRate || 0}<span style={{ fontSize: 12 }}>%</span></span>
+                            <span className="m-count-content font-red text-left">{(this.state.data && this.state.data.failRate) || 0}<span style={{ fontSize: 12 }}>%</span></span>
                         </section>
                     </Col>
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">累计调用</span>
-                            <span className="m-count-content font-black text-left">{this.state.data && this.state.data.totalCount || '---'}</span>
+                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.totalCount) || '---'}</span>
                         </section>
                     </Col>
                 </Row>

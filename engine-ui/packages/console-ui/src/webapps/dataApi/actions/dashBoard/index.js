@@ -1,5 +1,4 @@
 import { dashBoardActionType as ACTION_TYPE } from '../../consts/dashBoardActionType';
-import { message } from 'antd';
 import API from '../../api/dashBoard';
 
 export const dashBoardActions = {
@@ -32,18 +31,18 @@ export const dashBoardActions = {
     // 获取调用情况
     getApiCallInfo (params, isAdmin, date) {
         let callFunc = 'getApiCallInfoForNormal';
-        let action_type = ACTION_TYPE.GET_USER_CALL_INFO;
+        let actionType = ACTION_TYPE.GET_USER_CALL_INFO;
         if (isAdmin) {
             callFunc = 'getApiCallInfoForManager'
             params.useAdmin = true
-            action_type = ACTION_TYPE.GET_MARKET_CALL_INFO;
+            actionType = ACTION_TYPE.GET_MARKET_CALL_INFO;
         }
 
         return (dispatch) => {
             API[callFunc](params).then((res) => {
                 if (res.code === 1) {
                     dispatch({
-                        type: action_type,
+                        type: actionType,
                         payload: {
                             callCount: res.data.callCount, // 调用总数
                             failPercent: res.data.failRate, // 失败率
@@ -72,13 +71,13 @@ export const dashBoardActions = {
     // 获取用户调用排行
     getUserCallTopN (params, isAdmin, date) {
         params.useAdmin = true
-        let action_type = ACTION_TYPE.GET_MARKET_API_CALL_RANK;
+        let actionType = ACTION_TYPE.GET_MARKET_API_CALL_RANK;
 
         return (dispatch) => {
             API.getUserCallTopN(params).then((res) => {
                 if (res.code === 1) {
                     dispatch({
-                        type: action_type,
+                        type: actionType,
                         payload: res.data,
                         date: date
                     });
@@ -88,18 +87,18 @@ export const dashBoardActions = {
     },
     getApiCallFailRateTopN (params, isAdmin, date) {
         let callFunc = 'listApiCallFailRateTopNForNormal';
-        let action_type = ACTION_TYPE.GET_API_FAIL_RANK;
+        let actionType = ACTION_TYPE.GET_API_FAIL_RANK;
         if (isAdmin) {
             callFunc = 'listApiCallFailRateTopNForManager';
             params.useAdmin = true
-            action_type = ACTION_TYPE.GET_MARKET_API_FAIL_RANK;
+            actionType = ACTION_TYPE.GET_MARKET_API_FAIL_RANK;
         }
 
         return (dispatch) => {
             API[callFunc](params).then((res) => {
                 if (res.code === 1) {
                     dispatch({
-                        type: action_type,
+                        type: actionType,
                         payload: res.data,
                         date: date
                     });

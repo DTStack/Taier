@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Input } from 'antd'
+import { Input } from 'antd'
 import SlidePane from 'widgets/slidePane';
 import utils from 'utils'
 const TextArea = Input.TextArea;
@@ -9,9 +9,6 @@ class ApprovedSlidePane extends Component {
     }
 
     render () {
-        const replyTime = this.props.showRecord && this.props.showRecord.replyTime;
-        let format_replyTime = null;
-
         return (
 
             <SlidePane visible={this.props.slidePaneShow}

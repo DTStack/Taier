@@ -19,7 +19,6 @@ class Header extends Component {
     }
 
     render () {
-        const { user, apps } = this.props;
         const baseUrl = '/dataApi.html#/api'
         let showList = {
             overview: false,

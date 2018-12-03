@@ -526,7 +526,7 @@ class ScheduleForm extends React.Component {
             })(+periodType, this)}
         </Form>
     }
-    
+
     /* eslint-disable */
     checkTimeS (rule, value, callback) {
         const { form } = this.props;

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Spin, Icon, Tooltip } from 'antd';
-import moment from 'moment';
 import utils from 'utils';
 import { cloneDeep } from 'lodash';
 
@@ -88,7 +87,8 @@ class AlarmBaseGraph extends React.Component {
     componentDidMount () {
         this.initGraph();
     }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.lineData != nextProps.lineData ||
             this.props.time != nextProps.time
         ) {
@@ -97,24 +97,24 @@ class AlarmBaseGraph extends React.Component {
     }
     exchangeDate (date, time, joinLine) {
         switch (time) {
-        case TIME_TYPE.M10:
-        case TIME_TYPE.H1: {
-            return utils.formatMinute(parseInt(date));
-        }
-        case TIME_TYPE.H6:
-        case TIME_TYPE.D1: {
-            return utils.formatHours(parseInt(date));
-        }
-
-        case TIME_TYPE.W1: {
-            if (joinLine) {
-                return utils.formatDayHours(parseInt(date)).split(' ').join('\n')
+            case TIME_TYPE.M10:
+            case TIME_TYPE.H1: {
+                return utils.formatMinute(parseInt(date));
             }
-            return utils.formatDayHours(parseInt(date));
-        }
-        default: {
-            return utils.formatHours(parseInt(date));
-        }
+            case TIME_TYPE.H6:
+            case TIME_TYPE.D1: {
+                return utils.formatHours(parseInt(date));
+            }
+
+            case TIME_TYPE.W1: {
+                if (joinLine) {
+                    return utils.formatDayHours(parseInt(date)).split(' ').join('\n')
+                }
+                return utils.formatDayHours(parseInt(date));
+            }
+            default: {
+                return utils.formatHours(parseInt(date));
+            }
         }
     }
     initGraph (lineData, time) {

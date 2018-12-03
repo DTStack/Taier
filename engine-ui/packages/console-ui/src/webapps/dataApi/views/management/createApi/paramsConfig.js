@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
-import { Input, Button, Select, Form, Table, message } from 'antd';
+import { Button, Select, Form, Table, message } from 'antd';
 
 import ColumnsConfig from './params/columnsConfig'
 import ColumnsModel from '../../../model/columnsModel'
 import ApiSqlEditor from './sql'
 import { API_MODE } from '../../../consts'
-import { RDOS_BASE_URL } from '../../../../../config/base';
-import { API_STATUS } from '../../../../dataLabel/consts';
 
-const TextArea = Input.TextArea;
 const Option = Select.Option;
 const FormItem = Form.Item;
 
@@ -33,7 +30,7 @@ class ManageParamsConfig extends Component {
 
     // eslint-disable-next-line
     componentWillMount () {
-        const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, mode, sql,
+        const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, sql,
             InputIsEdit, OutputIsEdit, dataSourceType } = this.props;
         this.setState({
             InputColumns: inputParam || [],
@@ -143,13 +140,13 @@ class ManageParamsConfig extends Component {
         function filterArr (Columns) {
             return Columns.filter(
                 (column) => {
-                    return !id_arr.includes(column.id)
+                    return !idArr.includes(column.id)
                 }
             )
         }
 
         const { InputColumns, OutputColums } = this.state;
-        const id_arr = removeRows.map(
+        const idArr = removeRows.map(
             (row) => {
                 return row.id;
             }
@@ -440,17 +437,17 @@ class ManageParamsConfig extends Component {
 
         const dataSourceOptions = dataSourceList.map(
             (data) => {
-                return <Option value={data.id}>{data.name}</Option>
+                return <Option key={data.id} value={data.id}>{data.name}</Option>
             }
         )
         const tableOptions = tableList.map(
             (data) => {
-                return <Option value={data}>{data}</Option>
+                return <Option key={data} value={data}>{data}</Option>
             }
         )
         const dataSourceTypeOption = dataSourceType.map(
             (data) => {
-                return <Option value={data.value}>{data.name}</Option>
+                return <Option key={data.value} value={data.value}>{data.name}</Option>
             }
         )
         const modeType = mode == API_MODE.SQL;

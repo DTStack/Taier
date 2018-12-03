@@ -89,7 +89,7 @@ class DataSync extends React.Component {
                 if (res.data) {
                     const { sourceMap } = res.data;
                     sourceMap.sourceList ? (sourceMap.sourceList = sourceMap.sourceList.map(
-                        function(source, index) {
+                        function (source, index) {
                             return {
                                 ...source,
                                 key: index == 0 ? 'main' : ('key' + ~~Math.random() * 10000000)

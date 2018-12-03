@@ -180,49 +180,49 @@ class ProjectConfig extends Component {
     }
     renderSubmit (project) {
         switch (project.projectType) {
-        case PROJECT_TYPE.COMMON: {
-            return (
-                <tr>
-                    <td className="t-title">
+            case PROJECT_TYPE.COMMON: {
+                return (
+                    <tr>
+                        <td className="t-title">
                             发布目标
-                        <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
-                            <Icon className="help-doc" type="question-circle-o" />
-                        </Tooltip>
-                    </td>
-                    <td>
-                        <a onClick={this.changeBindModalVisible.bind(this, true)}>立即绑定</a>
-                    </td>
-                </tr>
-            )
-        }
-        case PROJECT_TYPE.TEST: {
-            return (
-                <tr>
-                    <td className="t-title">
+                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
+                        </td>
+                        <td>
+                            <a onClick={this.changeBindModalVisible.bind(this, true)}>立即绑定</a>
+                        </td>
+                    </tr>
+                )
+            }
+            case PROJECT_TYPE.TEST: {
+                return (
+                    <tr>
+                        <td className="t-title">
                             发布目标
-                        <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
-                            <Icon className="help-doc" type="question-circle-o" />
-                        </Tooltip>
-                    </td>
-                    <td>
-                        {project.produceProject}
-                    </td>
-                </tr>
-            )
-        }
-        case PROJECT_TYPE.PRO: {
-            return (
-                <tr>
-                    <td className="t-title">发布源</td>
-                    <td>
-                        {project.testProject}
-                    </td>
-                </tr>
-            )
-        }
-        default: {
-            return null;
-        }
+                            <Tooltip title="可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。" arrowPointAtCenter>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
+                        </td>
+                        <td>
+                            {project.produceProject}
+                        </td>
+                    </tr>
+                )
+            }
+            case PROJECT_TYPE.PRO: {
+                return (
+                    <tr>
+                        <td className="t-title">发布源</td>
+                        <td>
+                            {project.testProject}
+                        </td>
+                    </tr>
+                )
+            }
+            default: {
+                return null;
+            }
         }
     }
     render () {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Alert, Card, Col, Row, Table, Radio, Tabs } from 'antd';
+import { Alert, Col, Row, Radio, Tabs } from 'antd';
 import { Link } from 'react-router';
 import TopCall from './topCall';
 import TopFail from './topFail';
@@ -34,7 +34,7 @@ class AdminDashboard extends Component {
 
     render () {
         const { approvalWarning } = this.props.dashBoard;
-        const approval_alert = (this.props.dashBoard.approvedMsgCount > 0 && approvalWarning) ? (
+        const approvalAlert = (this.props.dashBoard.approvedMsgCount > 0 && approvalWarning) ? (
             <Alert
                 message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
                 type="warning"
@@ -46,7 +46,7 @@ class AdminDashboard extends Component {
         return (
             <div>
                 <div className="padding_t14_lr20">
-                    {approval_alert}
+                    {approvalAlert}
                 </div>
                 <div className="box-title m-radio-group">
                     <span>调用情况</span>

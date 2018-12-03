@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Modal, message, Input } from 'antd';
+import { Card, Table, Modal, message, Input } from 'antd';
 import SlidePane from './approvedSlidePane';
 import SlidePaneDisabled from './disabledCardSlidePane'
 import SlidePaneDetail from './detailSlidePane'
@@ -69,6 +69,7 @@ class ApprovedCard extends Component {
     componentDidMount () {
         this.getAppliedList();
     }
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (this.props.apiId != nextProps.apiId && nextProps.apiId) {
             const res = this.getSource();

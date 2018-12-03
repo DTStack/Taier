@@ -460,77 +460,77 @@ class Keymap extends React.Component {
             const type = col ? scrollText(typeValue) : '类型';
 
             switch (sourceType) {
-            case DATA_SOURCE.HDFS: {
-                const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
+                case DATA_SOURCE.HDFS: {
+                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
 
-                return <div>
-                    <div className="cell" title={name}>{name}</div>
-                    <div className="cell" title={typeValue}>{type}</div>
-                    {
-                        sourceFileType !== 'orc' ? <div className="cell">
-                            { col ? cellOperation(removeOption, editOption) : '操作' }
-                        </div> : ''
-                    }
-                </div>
-            }
-            case DATA_SOURCE.HBASE: {
-                const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
-                const cf = col ? col.cf : '列族';
-
-                // 仅允许常量删除操作
-                const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption)
-                    : cellOperation(removeOption, editOption);
-
-                return <div className="four-cells">
-                    <div className="cell" title={cf}>{ cf || '-' }</div>
-                    <div className="cell" title={name}>{ name }</div>
-                    <div className="cell" title={typeValue}>{ type }</div>
-                    <div className="cell">
-                        { col ? opt : '操作' }
-                    </div>
-                </div>
-            }
-            case DATA_SOURCE.MAXCOMPUTE:
-            case DATA_SOURCE.HIVE: {
-                const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
-                // 仅允许常量删除操作
-                const opt = col && col.value ? cellOperation(removeOption, editOption)
-                    : cellOperation(null, editOption);
-
-                return <div>
-                    <div className="cell">{name}</div>
-                    <div className="cell" title={typeValue}>{ type }</div>
-                    <div className="cell">
-                        {col ? opt : '操作'}
-                    </div>
-                </div>
-            }
-            case DATA_SOURCE.FTP: {
-                const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
-                return <div>
-                    <div className="cell" title={name}>{name}</div>
-                    <div className="cell" title={typeValue}>{ type }</div>
-                    <div className="cell">
-                        {col ? cellOperation(removeOption, editOption) : '操作'}
-                    </div>
-                </div>
-            }
-            default: {
-                const canFormat = col && col.type &&
-                    (col.type.toUpperCase() === 'STRING' || col.type.toUpperCase() === 'VARCHAR');
-                const opt = canFormat ? cellOperation(null, editOption) : '';
-                return <div>
-                    <div className="cell" title={name}>
+                    return <div>
+                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" title={typeValue}>{type}</div>
                         {
-                            col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
+                            sourceFileType !== 'orc' ? <div className="cell">
+                                { col ? cellOperation(removeOption, editOption) : '操作' }
+                            </div> : ''
                         }
                     </div>
-                    <div className="cell" title={typeValue}>{ type }</div>
-                    <div className="cell">
-                        {col ? opt : '操作'}
+                }
+                case DATA_SOURCE.HBASE: {
+                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
+                    const cf = col ? col.cf : '列族';
+
+                    // 仅允许常量删除操作
+                    const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption)
+                        : cellOperation(removeOption, editOption);
+
+                    return <div className="four-cells">
+                        <div className="cell" title={cf}>{ cf || '-' }</div>
+                        <div className="cell" title={name}>{ name }</div>
+                        <div className="cell" title={typeValue}>{ type }</div>
+                        <div className="cell">
+                            { col ? opt : '操作' }
+                        </div>
                     </div>
-                </div>
-            }
+                }
+                case DATA_SOURCE.MAXCOMPUTE:
+                case DATA_SOURCE.HIVE: {
+                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称';
+                    // 仅允许常量删除操作
+                    const opt = col && col.value ? cellOperation(removeOption, editOption)
+                        : cellOperation(null, editOption);
+
+                    return <div>
+                        <div className="cell">{name}</div>
+                        <div className="cell" title={typeValue}>{ type }</div>
+                        <div className="cell">
+                            {col ? opt : '操作'}
+                        </div>
+                    </div>
+                }
+                case DATA_SOURCE.FTP: {
+                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
+                    return <div>
+                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" title={typeValue}>{ type }</div>
+                        <div className="cell">
+                            {col ? cellOperation(removeOption, editOption) : '操作'}
+                        </div>
+                    </div>
+                }
+                default: {
+                    const canFormat = col && col.type &&
+                    (col.type.toUpperCase() === 'STRING' || col.type.toUpperCase() === 'VARCHAR');
+                    const opt = canFormat ? cellOperation(null, editOption) : '';
+                    return <div>
+                        <div className="cell" title={name}>
+                            {
+                                col ? scrollText(col.value ? `'${col.key}'` : col.key) : '字段名称'
+                            }
+                        </div>
+                        <div className="cell" title={typeValue}>{ type }</div>
+                        <div className="cell">
+                            {col ? opt : '操作'}
+                        </div>
+                    </div>
+                }
             }
         }
 
@@ -544,20 +544,32 @@ class Keymap extends React.Component {
                         +添加常量
                 </span>);
                 switch (sourceType) {
-                case DATA_SOURCE.HBASE:
-                    footerContent = <span>
-                        <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
+                    case DATA_SOURCE.HBASE:
+                        footerContent = <span>
+                            <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, true, sourceFileType)}>
                                     +添加字段
-                        </span>
+                            </span>
                                 &nbsp;
-                        <span className="col-plugin" onClick={this.importSourceFields}>
+                            <span className="col-plugin" onClick={this.importSourceFields}>
                                     +文本模式
-                        </span>
-                    </span>;
-                    break;
-                case DATA_SOURCE.HDFS: {
-                    footerContent = sourceFileType !== 'orc'
-                        ? <span>
+                            </span>
+                        </span>;
+                        break;
+                    case DATA_SOURCE.HDFS: {
+                        footerContent = sourceFileType !== 'orc'
+                            ? <span>
+                                <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
+                                +添加字段
+                                </span>
+                            &nbsp;
+                                <span className="col-plugin" onClick={this.importSourceFields}>
+                                +文本模式
+                                </span>
+                            </span> : null;
+                        break;
+                    }
+                    case DATA_SOURCE.FTP: {
+                        footerContent = <span>
                             <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
                                 +添加字段
                             </span>
@@ -565,24 +577,12 @@ class Keymap extends React.Component {
                             <span className="col-plugin" onClick={this.importSourceFields}>
                                 +文本模式
                             </span>
-                        </span> : null;
-                    break;
-                }
-                case DATA_SOURCE.FTP: {
-                    footerContent = <span>
-                        <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, true, sourceFileType) }>
-                                +添加字段
-                        </span>
-                            &nbsp;
-                        <span className="col-plugin" onClick={this.importSourceFields}>
-                                +文本模式
-                        </span>
-                    </span>;
-                    break;
-                }
-                default: {
-                    footerContent = null; break;
-                }
+                        </span>;
+                        break;
+                    }
+                    default: {
+                        footerContent = null; break;
+                    }
                 }
                 return (
                     <div className="m-col pa"
@@ -656,39 +656,39 @@ class Keymap extends React.Component {
                 </div>
             </div>
             switch (targetType) {
-            case DATA_SOURCE.HDFS: {
-                return <div>
-                    <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
-                    <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
-                    <div className="cell">
-                        { col ? operations : '操作' }
+                case DATA_SOURCE.HDFS: {
+                    return <div>
+                        <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
+                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell">
+                            { col ? operations : '操作' }
+                        </div>
                     </div>
-                </div>
-            }
-            case DATA_SOURCE.HBASE: {
-                return <div className="four-cells">
-                    <div className="cell">{col ? col.cf : '列族' }</div>
-                    <div className="cell">{col ? scrollText(col.key) : '列名' }</div>
-                    <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
-                    <div className="cell">{ col ? operations : '操作' }</div>
-                </div>
-            }
-            case DATA_SOURCE.FTP: {
-                return <div>
-                    <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
-                    <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
-                    <div className="cell">
-                        { col ? operations : '操作' }
+                }
+                case DATA_SOURCE.HBASE: {
+                    return <div className="four-cells">
+                        <div className="cell">{col ? col.cf : '列族' }</div>
+                        <div className="cell">{col ? scrollText(col.key) : '列名' }</div>
+                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell">{ col ? operations : '操作' }</div>
                     </div>
-                </div>
-            }
-            default: {
-                const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
-                return <div>
-                    <div className="cell">{col ? scrollText(col.key) : '字段名称'}</div>
-                    <div className="cell">{ typeText }</div>
-                </div>
-            }
+                }
+                case DATA_SOURCE.FTP: {
+                    return <div>
+                        <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
+                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell">
+                            { col ? operations : '操作' }
+                        </div>
+                    </div>
+                }
+                default: {
+                    const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
+                    return <div>
+                        <div className="cell">{col ? scrollText(col.key) : '字段名称'}</div>
+                        <div className="cell">{ typeText }</div>
+                    </div>
+                }
             }
         }
 
@@ -696,54 +696,54 @@ class Keymap extends React.Component {
             if (!readonly) {
                 let footerContent = ''
                 switch (targetType) {
-                case DATA_SOURCE.HBASE:
-                    footerContent = <div>
-                        <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, false, targetFileType)}>
+                    case DATA_SOURCE.HBASE:
+                        footerContent = <div>
+                            <span className="col-plugin" onClick={this.initAddKeyRow.bind(this, false, targetFileType)}>
                                 +添加字段
-                        </span>
+                            </span>
                             &nbsp;
-                        <span className="col-plugin" onClick={this.importFields}>
+                            <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
-                        </span>
-                        <div className="m-col" style={{ padding: '0 10px' }}>
+                            </span>
+                            <div className="m-col" style={{ padding: '0 10px' }}>
                                 rowkey: <Input
-                                style={{ width: '160px' }}
-                                defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
-                                placeholder={
-                                    sourceSrcType === DATA_SOURCE.HBASE
-                                        ? '$(colFamily1:colName1)' : '$(colName)'
-                                }
-                                onChange={this.hbaseRowKeyChange}/>
-                        </div>
-                    </div>;
-                    break;
-                case DATA_SOURCE.HDFS: {
-                    footerContent = <div>
-                        <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
+                                    style={{ width: '160px' }}
+                                    defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
+                                    placeholder={
+                                        sourceSrcType === DATA_SOURCE.HBASE
+                                            ? '$(colFamily1:colName1)' : '$(colName)'
+                                    }
+                                    onChange={this.hbaseRowKeyChange}/>
+                            </div>
+                        </div>;
+                        break;
+                    case DATA_SOURCE.HDFS: {
+                        footerContent = <div>
+                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
                                 +添加字段
-                        </span>
+                            </span>
                             &nbsp;
-                        <span className="col-plugin" onClick={this.importFields}>
+                            <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
-                        </span>
-                    </div>;
-                    break;
-                }
-                case DATA_SOURCE.FTP: {
-                    footerContent = <div>
-                        <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
+                            </span>
+                        </div>;
+                        break;
+                    }
+                    case DATA_SOURCE.FTP: {
+                        footerContent = <div>
+                            <span className="col-plugin" onClick={ this.initAddKeyRow.bind(this, false, targetFileType) }>
                                 +添加字段
-                        </span>
+                            </span>
                             &nbsp;
-                        <span className="col-plugin" onClick={this.importFields}>
+                            <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
-                        </span>
-                    </div>;
-                    break;
-                }
-                default: {
-                    footerContent = null; break;
-                }
+                            </span>
+                        </div>;
+                        break;
+                    }
+                    default: {
+                        footerContent = null; break;
+                    }
                 }
                 return footerContent ? <div className="m-col footer pa" style={{
                     top: padding + (h * (targetCol.length + 1)),
@@ -835,31 +835,31 @@ class Keymap extends React.Component {
 
         let sPlaceholder, sDesc, tPlaceholder, tDesc;
         switch (sourceSrcType) {
-        case DATA_SOURCE.FTP:
-        case DATA_SOURCE.HDFS: {
-            sPlaceholder = '0: STRING,\n1: INTEGER,...'
-            sDesc = 'index: type, index: type'
-            break;
-        }
-        case DATA_SOURCE.HBASE: {
-            sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
-            sDesc = 'columnFamily: fieldName: type,'
-            break;
-        }
+            case DATA_SOURCE.FTP:
+            case DATA_SOURCE.HDFS: {
+                sPlaceholder = '0: STRING,\n1: INTEGER,...'
+                sDesc = 'index: type, index: type'
+                break;
+            }
+            case DATA_SOURCE.HBASE: {
+                sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+                sDesc = 'columnFamily: fieldName: type,'
+                break;
+            }
         }
 
         switch (targetSrcType) {
-        case DATA_SOURCE.FTP:
-        case DATA_SOURCE.HDFS: {
-            tPlaceholder = 'field1: STRING,\nfield2: INTEGER,...'
-            tDesc = 'fieldName: type, fieldName: type'
-            break;
-        }
-        case DATA_SOURCE.HBASE: {
-            tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
-            tDesc = 'columnFamily: fieldName: type,'
-            break;
-        }
+            case DATA_SOURCE.FTP:
+            case DATA_SOURCE.HDFS: {
+                tPlaceholder = 'field1: STRING,\nfield2: INTEGER,...'
+                tDesc = 'fieldName: type, fieldName: type'
+                break;
+            }
+            case DATA_SOURCE.HBASE: {
+                tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+                tDesc = 'columnFamily: fieldName: type,'
+                break;
+            }
         }
 
         return [
@@ -1173,47 +1173,47 @@ class Keymap extends React.Component {
         const params = []
 
         switch (targetSrcType) {
-        case DATA_SOURCE.FTP:
-        case DATA_SOURCE.HDFS: {
-            for (let i = 0; i < arr.length; i++) {
-                const item = arr[i]
-                if (!item) continue;
-                const map = item.split(':')
-                const key = utils.trim(map[0])
-                const type = utils.trim(map[1].toUpperCase());
-                if (hdfsFieldTypes.includes(type)) {
-                    params.push({
-                        key,
-                        type
-                    })
-                } else {
-                    message.error(`字段${key}的数据类型错误！`)
-                    return
+            case DATA_SOURCE.FTP:
+            case DATA_SOURCE.HDFS: {
+                for (let i = 0; i < arr.length; i++) {
+                    const item = arr[i]
+                    if (!item) continue;
+                    const map = item.split(':')
+                    const key = utils.trim(map[0])
+                    const type = utils.trim(map[1].toUpperCase());
+                    if (hdfsFieldTypes.includes(type)) {
+                        params.push({
+                            key,
+                            type
+                        })
+                    } else {
+                        message.error(`字段${key}的数据类型错误！`)
+                        return
+                    }
                 }
+                break;
             }
-            break;
-        }
-        case DATA_SOURCE.HBASE: {
-            for (let i = 0; i < arr.length; i++) {
-                const item = arr[i]
-                if (!item) continue;
-                const map = item.split(':')
-                const cf = utils.trim(map[0])
-                const name = utils.trim(map[1])
-                const type = utils.trim(map[2])
-                if (hdfsFieldTypes.includes(type)) {
-                    params.push({
-                        cf: cf,
-                        key: name,
-                        type
-                    })
-                } else {
-                    message.error(`字段${name}的数据类型错误！`)
-                    return
+            case DATA_SOURCE.HBASE: {
+                for (let i = 0; i < arr.length; i++) {
+                    const item = arr[i]
+                    if (!item) continue;
+                    const map = item.split(':')
+                    const cf = utils.trim(map[0])
+                    const name = utils.trim(map[1])
+                    const type = utils.trim(map[2])
+                    if (hdfsFieldTypes.includes(type)) {
+                        params.push({
+                            cf: cf,
+                            key: name,
+                            type
+                        })
+                    } else {
+                        message.error(`字段${name}的数据类型错误！`)
+                        return
+                    }
                 }
+                break;
             }
-            break;
-        }
         }
         replaceBatchTargetKeyRow(params);
         this.hideBatchImportModal()
@@ -1271,57 +1271,57 @@ class Keymap extends React.Component {
         const params = []
 
         switch (sourceSrcType) {
-        case DATA_SOURCE.FTP:
-        case DATA_SOURCE.HDFS: {
-            for (let i = 0; i < arr.length; i++) {
-                const item = arr[i].replace(/\n/, '');
-                if (!item) continue;
-                const map = item.split(':');
-                if (map.length < 1) { break; };
-                const key = parseInt(utils.trim(map[0]), 10);
-                const type = map[1] ? utils.trim(map[1]).toUpperCase() : null;
-                if (!isNaN(key) && isNumber(key)) {
-                    if (hdfsFieldTypes.includes(type)) {
-                        if (!params.find(pa => pa.key === key)) {
-                            params.push({
-                                key: key,
-                                type
-                            })
+            case DATA_SOURCE.FTP:
+            case DATA_SOURCE.HDFS: {
+                for (let i = 0; i < arr.length; i++) {
+                    const item = arr[i].replace(/\n/, '');
+                    if (!item) continue;
+                    const map = item.split(':');
+                    if (map.length < 1) { break; };
+                    const key = parseInt(utils.trim(map[0]), 10);
+                    const type = map[1] ? utils.trim(map[1]).toUpperCase() : null;
+                    if (!isNaN(key) && isNumber(key)) {
+                        if (hdfsFieldTypes.includes(type)) {
+                            if (!params.find(pa => pa.key === key)) {
+                                params.push({
+                                    key: key,
+                                    type
+                                })
+                            }
+                        } else {
+                            message.error(`索引 ${key} 的数据类型错误！`)
+                            return
                         }
                     } else {
-                        message.error(`索引 ${key} 的数据类型错误！`)
+                        message.error(`索引名称 ${key} 应该为整数数字！`)
                         return
                     }
-                } else {
-                    message.error(`索引名称 ${key} 应该为整数数字！`)
-                    return
                 }
+                break;
             }
-            break;
-        }
-        case DATA_SOURCE.HBASE: {
-            for (let i = 0; i < arr.length; i++) {
-                const item = arr[i].replace(/\n/, '');
-                if (!item) continue;
+            case DATA_SOURCE.HBASE: {
+                for (let i = 0; i < arr.length; i++) {
+                    const item = arr[i].replace(/\n/, '');
+                    if (!item) continue;
 
-                const map = item.split(':');
-                if (map.length < 2) { break; };
-                const cf = utils.trim(map[0]);
-                const name = utils.trim(map[1]);
-                const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
-                if (hdfsFieldTypes.includes(type)) {
-                    params.push({
-                        cf: cf,
-                        key: name,
-                        type
-                    })
-                } else {
-                    message.error(`字段${name}的数据类型错误！`)
-                    return
+                    const map = item.split(':');
+                    if (map.length < 2) { break; };
+                    const cf = utils.trim(map[0]);
+                    const name = utils.trim(map[1]);
+                    const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
+                    if (hdfsFieldTypes.includes(type)) {
+                        params.push({
+                            cf: cf,
+                            key: name,
+                            type
+                        })
+                    } else {
+                        message.error(`字段${name}的数据类型错误！`)
+                        return
+                    }
                 }
+                break;
             }
-            break;
-        }
         }
         replaceBatchSourceKeyRow(params);
         this.hideBatchSourceModal();

@@ -9,6 +9,7 @@ const errorType = {
     5: '超出限制',
     6: '其他'
 }
+
 class errorLog extends Component {
     state = {
         error: {
@@ -64,7 +65,7 @@ class errorLog extends Component {
                 }
             )
     }
-
+    /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         if (
             (this.props.showRecord && this.props.showRecord.apiId !== nextProps.showRecord.apiId)
@@ -149,10 +150,10 @@ class errorLog extends Component {
         });
     }
     getErrorPercent (key) {
-        return this.state.error[key] && this.state.error[key].percent || 0;
+        return (this.state.error[key] && this.state.error[key].percent) || 0;
     }
     getErrorCount (key) {
-        return this.state.error[key] && this.state.error[key].count || 0;
+        return (this.state.error[key] && this.state.error[key].count) || 0;
     }
     render () {
         return (

@@ -150,21 +150,21 @@ class ModelDefineRule extends Component {
         for (let i = 0; i < tbNameRules.length; i++) {
             const rule = tbNameRules[i];
             switch (rule.value) {
-            case TABLE_MODEL_RULE.LEVEL: {
-                names.push('ods'); continue;
-            }
-            case TABLE_MODEL_RULE.SUBJECT: {
-                names.push('sales'); continue;
-            }
-            case TABLE_MODEL_RULE.INCREMENT: {
-                names.push('i'); continue;
-            }
-            case TABLE_MODEL_RULE.FREQUENCY: {
-                names.push('m'); continue;
-            }
-            case TABLE_MODEL_RULE.CUSTOM: {
-                names.push('custom'); continue;
-            }
+                case TABLE_MODEL_RULE.LEVEL: {
+                    names.push('ods'); continue;
+                }
+                case TABLE_MODEL_RULE.SUBJECT: {
+                    names.push('sales'); continue;
+                }
+                case TABLE_MODEL_RULE.INCREMENT: {
+                    names.push('i'); continue;
+                }
+                case TABLE_MODEL_RULE.FREQUENCY: {
+                    names.push('m'); continue;
+                }
+                case TABLE_MODEL_RULE.CUSTOM: {
+                    names.push('custom'); continue;
+                }
             }
         }
         return names.join('_');

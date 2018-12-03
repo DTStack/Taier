@@ -569,21 +569,21 @@ export default class TableRelation extends React.Component {
                     const childPage = currentChild.childResult ? currentChild.childResult : {};
 
                     switch (cell.id) {
-                    case 'parentPrev': {
-                        ctx.onPageChange(parentPage.currentPage - 1, 'parent');
-                        return;
-                    }
-                    case 'parentNext': {
-                        ctx.onPageChange(parentPage.currentPage + 1, 'parent');
-                        return;
-                    }
-                    case 'childPrev': {
-                        ctx.onPageChange(childPage.currentPage - 1, 'child');
-                        return;
-                    }
-                    case 'childNext': {
-                        ctx.onPageChange(childPage.currentPage + 1, 'child');
-                    }
+                        case 'parentPrev': {
+                            ctx.onPageChange(parentPage.currentPage - 1, 'parent');
+                            return;
+                        }
+                        case 'parentNext': {
+                            ctx.onPageChange(parentPage.currentPage + 1, 'parent');
+                            return;
+                        }
+                        case 'childPrev': {
+                            ctx.onPageChange(childPage.currentPage - 1, 'child');
+                            return;
+                        }
+                        case 'childNext': {
+                            ctx.onPageChange(childPage.currentPage + 1, 'child');
+                        }
                     }
                 } else {
                     let data = cell.getAttribute('data')

@@ -104,16 +104,14 @@ export const dataSourceActions = {
             API.getDataSourcesPreview(params).then((res) => {
                 if (res.code === 1) {
                     let { columnList, dataList } = res.data;
-
                     res.data.dataList = dataList.map((arr, i) => {
-                    	let o = {};
-                    	arr.forEach((item, j) => {
-                    		o.key = i;
-                    		o[columnList[j]] = item;
-                    	})
-                		return o;
+                        let o = {};
+                        arr.forEach((item, j) => {
+                            o.key = i;
+                            o[columnList[j]] = item;
+                        })
+                        return o;
                     });
-
                     dispatch({
                         type: dataSourceActionType.GET_DATA_SOURCES_PREVIEW,
                         payload: res.data

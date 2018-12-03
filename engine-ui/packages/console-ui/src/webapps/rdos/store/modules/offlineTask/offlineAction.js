@@ -752,28 +752,28 @@ export const workbenchActions = (dispatch) => {
                     let action;
 
                     switch (type) {
-                    case MENU_TYPE.TASK:
-                    case MENU_TYPE.TASK_DEV:
-                        action = taskTreeAction;
-                        break;
-                    case MENU_TYPE.RESOURCE:
-                        action = resTreeAction;
-                        break;
-                    case MENU_TYPE.FUNCTION:
-                    case MENU_TYPE.COSTOMFUC:
-                        action = fnTreeAction;
-                        break;
-                    case MENU_TYPE.SYSFUC:
-                        action = sysFnTreeActon;
-                        break;
-                    case MENU_TYPE.SCRIPT:
-                        action = scriptTreeAction;
-                        break;
-                    case MENU_TYPE.TABLE:
-                        action = tableTreeAction
-                        break;
-                    default:
-                        action = taskTreeAction;
+                        case MENU_TYPE.TASK:
+                        case MENU_TYPE.TASK_DEV:
+                            action = taskTreeAction;
+                            break;
+                        case MENU_TYPE.RESOURCE:
+                            action = resTreeAction;
+                            break;
+                        case MENU_TYPE.FUNCTION:
+                        case MENU_TYPE.COSTOMFUC:
+                            action = fnTreeAction;
+                            break;
+                        case MENU_TYPE.SYSFUC:
+                            action = sysFnTreeActon;
+                            break;
+                        case MENU_TYPE.SCRIPT:
+                            action = scriptTreeAction;
+                            break;
+                        case MENU_TYPE.TABLE:
+                            action = tableTreeAction
+                            break;
+                        default:
+                            action = taskTreeAction;
                     }
 
                     data.children && dispatch({
@@ -832,22 +832,22 @@ export const workbenchActions = (dispatch) => {
                         let action;
 
                         switch (cateType) {
-                        case MENU_TYPE.TASK:
-                        case MENU_TYPE.TASK_DEV:
-                            action = taskTreeAction;
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            action = resTreeAction;
-                            break;
-                        case MENU_TYPE.FUNCTION:
-                        case MENU_TYPE.COSTOMFUC:
-                            action = fnTreeAction;
-                            break;
-                        case MENU_TYPE.SCRIPT:
-                            action = scriptTreeAction;
-                            break;
-                        default:
-                            action = taskTreeAction;
+                            case MENU_TYPE.TASK:
+                            case MENU_TYPE.TASK_DEV:
+                                action = taskTreeAction;
+                                break;
+                            case MENU_TYPE.RESOURCE:
+                                action = resTreeAction;
+                                break;
+                            case MENU_TYPE.FUNCTION:
+                            case MENU_TYPE.COSTOMFUC:
+                                action = fnTreeAction;
+                                break;
+                            case MENU_TYPE.SCRIPT:
+                                action = scriptTreeAction;
+                                break;
+                            default:
+                                action = taskTreeAction;
                         }
 
                         dispatch({

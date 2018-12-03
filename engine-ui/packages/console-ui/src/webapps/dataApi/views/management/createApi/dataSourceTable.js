@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu, Card, Table, Input } from 'antd'
+import { Table } from 'antd'
 import utils from 'utils'
 class NewApiDataSourceTable extends Component {
     state = {
@@ -86,7 +86,6 @@ class NewApiDataSourceTable extends Component {
 
             <Table
                 rowKey={(record, index) => index}
-                loading={this.props.loading}
                 className="m-table monitor-table"
                 columns={this.initColumns()}
                 loading={this.state.loading}

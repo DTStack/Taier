@@ -15,7 +15,8 @@ class FnViewModal extends React.Component {
         };
     }
 
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
         const defaultData = nextProps.defaultData
         if (defaultData && defaultData.id !== this.props.defaultData.id) {
             this.getFnDetail(defaultData);
