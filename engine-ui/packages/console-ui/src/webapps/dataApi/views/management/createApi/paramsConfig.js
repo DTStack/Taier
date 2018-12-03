@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { Input, Icon, Button, Checkbox, Select, Form, Table, message, Card } from 'antd';
-import { cloneDeep } from 'lodash';
+import { Input, Button, Select, Form, Table, message } from 'antd';
 
 import ColumnsConfig from './params/columnsConfig'
 import ColumnsModel from '../../../model/columnsModel'
