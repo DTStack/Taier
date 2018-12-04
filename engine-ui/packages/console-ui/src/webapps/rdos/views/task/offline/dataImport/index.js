@@ -260,7 +260,7 @@ export default class ImportLocalData extends Component {
                     name="file"
                     type="file"
                     accept=".txt, .log, .csv"
-                    id="importFile"
+                    id="JS_importFile"
                     onClick={this.fileClick}
                     onChange={this.fileChange}
                     style={{ display: 'none' }}

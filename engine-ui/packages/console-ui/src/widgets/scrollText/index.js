@@ -14,6 +14,6 @@ export default function scrollText (value) {
         style={style}
         title={value}
         className="cell-input"
-        value={value}
+        defaultValue={value}
     />
 }

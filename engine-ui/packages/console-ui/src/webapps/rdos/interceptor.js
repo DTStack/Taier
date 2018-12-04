@@ -87,5 +87,3 @@ export function isSelectedProject() {
 export function isLogin() {
     return localDb.get('session')
 }
-
-/* eslint-enable */

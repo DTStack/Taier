@@ -12,7 +12,6 @@ const MY_PATH = require("./consts");
 const monacoConfig = require("./monacoConfig");
 const splitChunksConfig = require("./splitChunksConfig");
 const VERSION = JSON.stringify(require("../package.json").version); // app version.
-const theme = require("../src/theme")();
 
 module.exports = function () {
     return {
@@ -72,7 +71,7 @@ module.exports = function () {
                     loader: [
                         "react-hot-loader/webpack",
                         "happypack/loader?id=happy-babel-js",
-                        "eslint-loader",
+                        // "eslint-loader",
                     ]
                 },
                 {

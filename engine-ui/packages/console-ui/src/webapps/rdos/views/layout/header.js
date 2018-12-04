@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Modal } from 'antd';
+// import { Link } from 'react-router';
 
 import { MenuRight } from 'main/components/nav';
 
@@ -9,9 +10,8 @@ import { inOffline, inRealtime } from '../../comm';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
 
-/* eslint-disable */
-const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
-/* eslint-disable */
+// eslint-disable-next-line
+const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
 
 const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
@@ -26,16 +26,15 @@ const confirm = Modal.confirm;
     }
 })
 class Header extends Component {
-
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
-            current: "project",
-            devPath: "/offline/task"
+            current: 'project',
+            devPath: '/offline/task'
         };
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.updateSelected();
     }
 
@@ -49,7 +48,7 @@ class Header extends Component {
         /**
          * 数据地图特殊处理,当在项目里面点击数据地图，则打开新窗口
          */
-        const isDataMap = e.key == "data-manage";
+        const isDataMap = e.key == 'data-manage';
         const isIndex = this.isIndex();
         if (!isIndex && isDataMap) {
             return;
@@ -64,8 +63,8 @@ class Header extends Component {
             const switchProject = () => {
                 dispatch(ProjectAction.getProject(projectId));
                 // 清理tab数据
-                if (this.state.current === "overview") {
-                    router.push("/offline/task");
+                if (this.state.current === 'overview') {
+                    router.push('/offline/task');
                 }
             }
             this.checkUnSaveTask(switchProject);
@@ -88,9 +87,9 @@ class Header extends Component {
             confirm({
                 title: '部分任务修后未同步到服务器，是否强制关闭?',
                 content: '在未保存任务前，切换项目将会丢弃这些任务的修改数据，建议您确认后再行操作！',
-                onOk() {
+                onOk () {
                     if (onOk) onOk();
-                },
+                }
             });
         } else {
             onOk();
@@ -98,18 +97,18 @@ class Header extends Component {
     }
 
     clickUserMenu = obj => {
-        if (obj.key === "logout") {
+        if (obj.key === 'logout') {
             Api.logout();
         }
     };
 
     goIndex = () => {
         const { router } = this.props;
-        this.setState({ current: "overview" });
-        router.push("/");
+        this.setState({ current: 'overview' });
+        router.push('/');
     };
 
-    getProjectItems() {
+    getProjectItems () {
         const projects = this.props.projects;
         if (projects && projects.length > 0) {
             return projects.map(project => {
@@ -129,19 +128,19 @@ class Header extends Component {
         return [];
     }
 
-    updateSelected() {
+    updateSelected () {
         let pathname = this.props.router.location.pathname;
-        const routes = pathname ? pathname.split("/") : [];
+        const routes = pathname ? pathname.split('/') : [];
         let path =
-            routes.length > 0 && routes[1] !== "" ? routes[1] : "overview";
+            routes.length > 0 && routes[1] !== '' ? routes[1] : 'overview';
         if (
             path &&
-            (path.indexOf("task") > -1 || path.indexOf("offline") > -1 || path.indexOf("realtime") > -1)
+            (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
         ) {
             this.setState({
                 devPath: pathname
             });
-            path = "realtime"
+            path = 'realtime'
         }
         if (path !== this.state.current) {
             this.setState({
@@ -163,26 +162,25 @@ class Header extends Component {
     };
 
     renderProjectSelect = () => {
-        const { project, projects } = this.props;
+        const { project } = this.props;
 
         const projectName =
             project && project.projectName
                 ? project.projectAlias || project.projectName
-                : "项目选择";
+                : '项目选择';
         let projectTypeText = '';
         let projectTypeIcon = null;
         switch (project.projectType) {
             case PROJECT_TYPE.TEST: {
-                projectTypeText = " (测试项目)"
-                projectTypeIcon = <img style={{ verticalAlign: "text-bottom", marginRight: "5px" }} src="/public/rdos/img/icon/develop.svg" />
+                projectTypeText = ' (测试项目)'
+                projectTypeIcon = <img style={{ verticalAlign: 'text-bottom', marginRight: '5px' }} src="/public/rdos/img/icon/develop.svg" />
                 break;
             }
             case PROJECT_TYPE.PRO: {
-                projectTypeText = " (生产项目)"
-                projectTypeIcon = <img style={{ verticalAlign: "text-bottom", marginRight: "5px" }} src="/public/rdos/img/icon/produce.svg" />
+                projectTypeText = ' (生产项目)'
+                projectTypeIcon = <img style={{ verticalAlign: 'text-bottom', marginRight: '5px' }} src="/public/rdos/img/icon/produce.svg" />
                 break;
             }
-
         }
         const menu = (
             <Menu
@@ -193,7 +191,7 @@ class Header extends Component {
                 style={{
                     maxHeight: '400px',
                     overflowY: 'auto',
-                    width: "170px"
+                    width: '170px'
                 }}
             >
                 {this.getProjectItems()}
@@ -212,7 +210,7 @@ class Header extends Component {
                         <span
                             style={{
                                 display: 'inline-block',
-                                height: '47px',
+                                height: '47px'
                             }}
                             className="my-menu-item"
                         >
@@ -225,7 +223,7 @@ class Header extends Component {
                             </span>
                             <span>{projectTypeText}</span>
                             &nbsp;
-                            <Icon style={{ fontSize: "12px" }} type="caret-down" />
+                            <Icon style={{ fontSize: '12px' }} type="caret-down" />
                         </span>
                     </Dropdown>
                 }
@@ -233,7 +231,7 @@ class Header extends Component {
             </SubMenu>
         );
     };
-    renderProjectType() {
+    renderProjectType () {
         const { project } = this.props;
         switch (project.projectType) {
             case PROJECT_TYPE.TEST: {
@@ -244,7 +242,7 @@ class Header extends Component {
                         <span className="content">
 
                             <img src="/public/rdos/img/icon/develop.svg" />测试
-                    </span>
+                        </span>
                     </div>
                 )
             }
@@ -264,51 +262,50 @@ class Header extends Component {
             }
         }
     }
-    isIndex() {
+    isIndex () {
         const { current } = this.state;
-        const isIndex = current == "overview" || current == "data-manage";
+        const isIndex = current == 'overview' || current == 'data-manage';
         return isIndex;
     }
-    render() {
+    render () {
         const { user, project, apps, app, router } = this.props;
-        const { current, devPath } = this.state;
+        const { devPath } = this.state;
         let pathname = router.location.pathname;
 
-
         const isIndex = this.isIndex();
-        const display = !isIndex ? "inline-block" : "none";
+        const display = !isIndex ? 'inline-block' : 'none';
 
-        const pid = project && project.id ? project.id : "";
+        const pid = project && project.id ? project.id : '';
 
         const basePath = app.link;
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
-        const showProjectSelect =
-            pathname.indexOf("/data-manage") > -1 || pathname === "/" ? false : true;
-        const projectTypeView = this.renderProjectType();
+        const showProjectSelect = !(pathname.indexOf('/data-manage') > -1 ||
+            pathname === '/');
+        // const projectTypeView = this.renderProjectType();
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">
                     <img
-                        style={{ height: "20px", marginTop: "10px" }}
+                        style={{ height: '20px', marginTop: '10px' }}
                         alt="logo"
                         src="/public/rdos/img/logo.svg"
                     />
                     <span
                         style={{
-                            fontSize: "14px",
-                            color: "#ffffff",
-                            position: "absolute",
-                            left: "70px",
+                            fontSize: '14px',
+                            color: '#ffffff',
+                            position: 'absolute',
+                            left: '70px',
                             top: 0
                         }}
                     >
                         {window.APP_CONF.prefix}.Batch
                     </span>
                 </div>
-                <div className="menu left" style={{ position: "relative" }}>
+                <div className="menu left" style={{ position: 'relative' }}>
                     <Menu
-                        className={"my-menu"}
+                        className={'my-menu'}
                         onClick={this.handleClick}
                         selectedKeys={[this.state.current]}
                         mode="horizontal"
@@ -329,16 +326,15 @@ class Header extends Component {
                             >
                                 <a href={`${basePath}/`}>
                                     项目列表
-                            </a>
+                                </a>
                             </Menu.Item>
                         ) : null}
                         <Menu.Item
                             className="my-menu-item"
                             key="database"
                             style={{ display }}
-
                         >
-                            <a href={`${basePath}/database`}>数据源</a>
+                            <a href={`${basePath}/database`} >数据源</a>
                         </Menu.Item>
                         <Menu.Item
                             className="my-menu-item"
@@ -358,7 +354,7 @@ class Header extends Component {
                             className="my-menu-item"
                             key="data-manage"
                         >
-                            <a href={`${basePath}/data-manage/assets`} target={isIndex ? "_self" : "_blank"}>
+                            <a href={`${basePath}/data-manage/assets`} target={isIndex ? '_self' : '_blank'}>
                                 数据地图
                             </a>
                         </Menu.Item>
@@ -386,7 +382,7 @@ class Header extends Component {
                             title={(<span
                                 style={{
                                     display,
-                                    height: '47px',
+                                    height: '47px'
                                 }}
                                 className="my-menu-item"
                             >
@@ -396,7 +392,7 @@ class Header extends Component {
                                     其他
                                 </span>
                                 &nbsp;
-                            <Icon type="caret-down" />
+                                <Icon type="caret-down" />
                             </span>)}
                         >
                             <Menu.Item
@@ -405,7 +401,7 @@ class Header extends Component {
                             >
                                 <a href={`${basePath}/data-model/overview`}>
                                     数据模型
-                            </a>
+                                </a>
                             </Menu.Item>
                             <Menu.Item
                                 className="my-menu-item"
@@ -413,7 +409,7 @@ class Header extends Component {
                             >
                                 <a href={`${basePath}/project/${pid}/config`}>
                                     项目管理
-                            </a>
+                                </a>
                             </Menu.Item>
                         </SubMenu>
                     </Menu>

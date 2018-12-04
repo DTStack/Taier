@@ -9,6 +9,12 @@
         "react",
         "jsx-a11y"
     ],
+    "settings": {
+        "react": {
+          "pragma": "React",
+          "version": "16.6.3"
+        }
+    },
     "env": {
         "browser": true,
         "node": true,

@@ -256,11 +256,11 @@ dispatch => {
             return benchActions.createWorkflowTask(data)
         },
         /**
-             * @description 新建或编辑
-             * @param {any} params 表单参数
-             * @param {boolean} isEditExist 是否编辑
-             * @param {any} 修改前的数据
-             */
+         * @description 新建或编辑
+         * @param {any} params 表单参数
+         * @param {boolean} isEditExist 是否编辑
+         * @param {any} 修改前的数据
+        */
         confirmClone: function (params, defaultData) {
             return ajax.cloneTask(params)
                 .then(res => {

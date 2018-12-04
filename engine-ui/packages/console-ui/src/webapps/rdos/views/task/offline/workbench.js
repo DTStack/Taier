@@ -49,7 +49,7 @@ class Workbench extends React.Component {
 
     handleMenuClick = (e) => {
         if (e.key === '1') {
-            const upload = document.getElementById('importFile')
+            const upload = document.getElementById('JS_importFile')
             if (upload) {
                 upload.click();
             }
