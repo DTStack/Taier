@@ -13,7 +13,6 @@ const renderHDFSTypes = () => {
         <b>STRING</b>,
         <b>BOOLEAN</b>,
         <b>SHORT</b>,
-        <b>INT</b>,
         <b>LONG</b>,
         <b>FLOAT</b>,
         <b>DOUBLE</b>,

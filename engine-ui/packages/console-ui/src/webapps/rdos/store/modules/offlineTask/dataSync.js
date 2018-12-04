@@ -505,9 +505,12 @@ const keymap = (state = { source: [], target: [] }, action) => {
             let targetNameCol = targetCol.map(o => o.key);
 
             sourceCol.forEach((o, i) => {
-                let name = o.key;
-                let idx = targetNameCol.indexOf(name);
-
+                let name = o.key.toUpperCase();
+                // let idx = targetNameCol.indexOf(name);
+                let idx = targetCol.findIndex(o => {
+                    const sourceName = o.key.toUpperCase();
+                    return sourceName === name;
+                })
                 if (idx !== -1) {
                     source.push(o);
                     target.push(targetCol[idx]);

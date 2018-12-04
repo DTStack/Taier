@@ -12,6 +12,14 @@ import HelpDoc from '../../../../helpDoc';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+export const isValidFormatType = (type) => {
+    if (!type) return false;
+    const typeStr = type.toUpperCase();
+    return typeStr === 'STRING' ||
+    typeStr === 'VARCHAR' ||
+    typeStr === 'VARCHAR2';
+}
+
 // 添加字段表单.
 class KeyForm extends React.Component {
     shouldComponentUpdate (nextProps) {
@@ -34,6 +42,10 @@ class KeyForm extends React.Component {
         const { isReader, editField } = keyModal;
         const { getFieldDecorator } = this.props.form;
 
+        const initialKeyValue = editField ? editField.key !== undefined ? 
+        editField.key : editField.index !== undefined ?
+        editField.index : undefined : undefined;
+
         if (isReader) { // 数据源
             switch (dataType) {
                 case DATA_SOURCE.FTP:
@@ -50,7 +62,7 @@ class KeyForm extends React.Component {
                                     type: 'integer',
                                     message: '请按要求填写索引值！'
                                 }],
-                                initialValue: (editField && (editField.key || editField.index)) || ''
+                                initialValue: initialKeyValue
                             })(
                                 <InputNumber placeholder="请输入索引值" style={{ width: '100%' }} min={0} />
                             )}
@@ -183,7 +195,7 @@ class KeyForm extends React.Component {
                                 rules: [{
                                     required: true
                                 }],
-                                initialValue: (editField && editField.key) || ''
+                                initialValue: initialKeyValue
                             })(
                                 <Input placeholder="请输入字段名"/>
                             )}
@@ -288,8 +300,7 @@ class KeyForm extends React.Component {
 
         const { editField, isReader } = keyModal;
         // 如果源数据类型为字符串，则支持字符串格式化
-        const canFormat = editField && editField.type &&
-        (editField.type.toUpperCase() === 'STRING' || editField.type.toUpperCase() === 'VARCHAR');
+        const canFormat = editField && isValidFormatType(editField.type);
         return <Form>
             { this.renderFormItems() }
             {

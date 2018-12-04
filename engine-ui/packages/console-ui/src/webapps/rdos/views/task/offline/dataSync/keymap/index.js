@@ -24,7 +24,7 @@ import {
 
 import { isHdfsType, isFtpType } from '../../../../../comm';
 
-import KeyMapModal from './keymapModal'
+import KeyMapModal, { isValidFormatType } from './keymapModal'
 import BatchModal from './batchModal'
 import ConstModal from './constModal'
 
@@ -516,8 +516,7 @@ class Keymap extends React.Component {
                     </div>
                 }
                 default: {
-                    const canFormat = col && col.type &&
-                    (col.type.toUpperCase() === 'STRING' || col.type.toUpperCase() === 'VARCHAR');
+                    const canFormat = isValidFormatType(col && col.type);
                     const opt = canFormat ? cellOperation(null, editOption) : '';
                     return <div>
                         <div className="cell" title={name}>
