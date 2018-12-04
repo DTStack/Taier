@@ -248,7 +248,7 @@ class Header extends Component {
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
-            !!(pathname.indexOf('/data-manage') > -1 || pathname === '/');
+            !(pathname.indexOf('/data-manage') > -1 || pathname === '/');
         return (
             <div className="header">
                 <div onClick={this.goIndex} className="logo left txt-left">

@@ -28,8 +28,7 @@ class ImportTemplateForm extends Component {
 
         this.setState({
             sourceType: value
-        },
-        () => {
+        }, () => {
             setFieldsValue({
                 sourceId: undefined
             })
@@ -41,8 +40,7 @@ class ImportTemplateForm extends Component {
 
         this.setState({
             targetType: value
-        },
-        () => {
+        }, () => {
             setFieldsValue({
                 targetSourceId: undefined
             })
@@ -149,90 +147,88 @@ class ImportTemplateForm extends Component {
             )
 
         return (
-            <div id="JS_import_modal">
-                <Modal
-                    maskClosable
-                    visible={execConfirmVisible}
-                    title="导入模版"
-                    onCancel={this.props.onCancel}
-                    onOk={this.getTemplateFromNet.bind(this)}
-                    getContainer={() => getContainer('JS_cata_modal')}
-                >
-                    <Form>
-                        <FormItem
-                            {...formItemLayout}
-                            label="来源类型"
-                            hasFeedback
-                        >
-                            {getFieldDecorator('sourceType', {
-                                rules: [{
-                                    required: true, message: '来源类型不可为空！'
-                                }]
-                            })(
-                                <Select
-                                    placeholder="请选择来源类型"
-                                    onChange={this.sourceTypeChange.bind(this)}
-                                >
-                                    {sourceTypeOptions}
-                                </Select>
-                            )}
-                        </FormItem>
-                        {!isBeats && <FormItem
-                            style={{ marginBottom: '35px' }}
-                            {...formItemLayout}
-                            label="数据源"
-                            hasFeedback
-                        >
-                            {getFieldDecorator('sourceId', {
-                                rules: [{
-                                    required: true, message: '数据源不可为空！'
-                                }]
-                            })(
-                                <Select
-                                    placeholder="请选择数据源"
-                                >
-                                    {this.getSourceList()}
-                                </Select>
-                            )}
-                        </FormItem>}
-                        <FormItem
-                            {...formItemLayout}
-                            label="目标类型"
-                            hasFeedback
-                        >
-                            {getFieldDecorator('targetType', {
-                                rules: [{
-                                    required: true, message: '目标类型不可为空！'
-                                }]
-                            })(
-                                <Select
-                                    placeholder="请选择目标类型"
-                                    onChange={this.targetTypeChange.bind(this)}
-                                >
-                                    {targetTypeOptions}
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="数据源"
-                            hasFeedback
-                        >
-                            {getFieldDecorator('targetSourceId', {
-                                rules: [{
-                                    required: true, message: '数据源不可为空！'
-                                }]
-                            })(
-                                <Select
-                                    placeholder="请选择目标数据源"
-                                >
-                                    {this.getTargetList()}
-                                </Select>
-                            )}
-                        </FormItem>
-                    </Form>
-                </Modal>
-            </div>
+            <Modal
+                maskClosable
+                visible={execConfirmVisible}
+                title="导入模版"
+                onCancel={this.props.onCancel}
+                onOk={this.getTemplateFromNet.bind(this)}
+                getContainer={() => getContainer('JS_cata_modal')}
+            >
+                <Form>
+                    <FormItem
+                        {...formItemLayout}
+                        label="来源类型"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('sourceType', {
+                            rules: [{
+                                required: true, message: '来源类型不可为空！'
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择来源类型"
+                                onChange={this.sourceTypeChange.bind(this)}
+                            >
+                                {sourceTypeOptions}
+                            </Select>
+                        )}
+                    </FormItem>
+                    {!isBeats && <FormItem
+                        style={{ marginBottom: '35px' }}
+                        {...formItemLayout}
+                        label="数据源"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('sourceId', {
+                            rules: [{
+                                required: true, message: '数据源不可为空！'
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择数据源"
+                            >
+                                {this.getSourceList()}
+                            </Select>
+                        )}
+                    </FormItem>}
+                    <FormItem
+                        {...formItemLayout}
+                        label="目标类型"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('targetType', {
+                            rules: [{
+                                required: true, message: '目标类型不可为空！'
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择目标类型"
+                                onChange={this.targetTypeChange.bind(this)}
+                            >
+                                {targetTypeOptions}
+                            </Select>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="数据源"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('targetSourceId', {
+                            rules: [{
+                                required: true, message: '数据源不可为空！'
+                            }]
+                        })(
+                            <Select
+                                placeholder="请选择目标数据源"
+                            >
+                                {this.getTargetList()}
+                            </Select>
+                        )}
+                    </FormItem>
+                </Form>
+            </Modal>
         )
     }
 }

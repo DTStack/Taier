@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Input, Spin, Popover } from 'antd';
 
+import TextMark from 'widgets/textMark';
 import TableDetail from './tableDetail/index.js';
 
 const Search = Input.Search;
@@ -13,7 +14,7 @@ class TableTipExtraPane extends React.Component {
     }
 
     renderTableItem (tableName, columns) {
-        const { visibleMap } = this.state;
+        const { visibleMap, searchValue } = this.state;
         return <section className="tablePane-table-box">
             <div className="tablePane-table-title">
                 <Popover
@@ -38,13 +39,28 @@ class TableTipExtraPane extends React.Component {
                 >
                     <img className="tablePnae-table-title-icon" src="/public/rdos/img/notice.png" />
                 </Popover>
-                <span className="tablePnae-table-title-name">{tableName}</span>
+                <TextMark
+                    className="tablePnae-table-title-name"
+                    title={tableName}
+                    text={tableName}
+                    markText={searchValue}
+                />
             </div>
             <div className="tablePane-table-column-box">
                 {columns.map((column) => {
                     return <div key={column.columnName} className="tablePane-table-column">
-                        <span className="table-column-name" title={column.columnName}>{column.columnName}</span>
-                        <span className="table-column-type">{column.columnType}</span>
+                        <TextMark
+                            className="table-column-name"
+                            title={column.columnName}
+                            text={column.columnName}
+                            markText={searchValue}
+                        />
+                        <span
+                            className="table-column-type"
+                            title={column.columnType}
+                        >
+                            {column.columnType}
+                        </span>
                     </div>
                 })}
             </div>
@@ -59,7 +75,7 @@ class TableTipExtraPane extends React.Component {
             {tableAndColumns.length ? <div>
                 <Search
                     className="tablePane-search"
-                    placeholder="输入表名搜索"
+                    placeholder="输入表名/字段名搜索"
                     onChange={this.search.bind(this)}
                 />
                 {this.filterTable(tableAndColumns).map(([table, columns]) => {
@@ -100,7 +116,10 @@ class TableTipExtraPane extends React.Component {
             return tableAndColumns;
         }
         return tableAndColumns.filter(([table, columns]) => {
-            return table.indexOf(searchValue) > -1;
+            const column = columns.find((column) => {
+                return column.columnName.indexOf(searchValue) > -1;
+            })
+            return table.indexOf(searchValue) > -1 || column;
         })
     }
 
@@ -115,7 +134,7 @@ class TableTipExtraPane extends React.Component {
         const { loading } = this.props;
         return (
             <div className="tablePane-box">
-                <h className="tablePane-header">Tables</h>
+                <p className="tablePane-header">Tables</p>
                 {this.renderTables()}
                 {loading && this.renderLoading()}
             </div>
