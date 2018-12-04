@@ -10,9 +10,38 @@ const Search = Input.Search;
 class TableTipExtraPane extends React.Component {
     state = {
         searchValue: undefined,
-        visibleMap: {}
+        visibleMap: {},
+        hideList: []
     }
-
+    resolveTableName (tableName) {
+        const { tabId } = this.props;
+        return tableName + '%' + tabId;
+    }
+    changeVisible (tableName) {
+        const { hideList } = this.state;
+        let cloneHideList = [...hideList];
+        tableName = this.resolveTableName(tableName);
+        const tableIndex = hideList.indexOf(tableName);
+        let isHide = tableIndex > -1;
+        if (isHide) {
+            cloneHideList[tableIndex] = undefined;
+            cloneHideList = cloneHideList.filter(Boolean);
+            this.setState({
+                hideList: cloneHideList
+            })
+        } else {
+            cloneHideList.push(tableName)
+            this.setState({
+                hideList: cloneHideList
+            })
+        }
+    }
+    isShow (tableName) {
+        const { hideList } = this.state;
+        tableName = this.resolveTableName(tableName);
+        const tableIndex = hideList.indexOf(tableName);
+        return tableIndex == -1;
+    }
     renderTableItem (tableName, columns) {
         const { visibleMap, searchValue } = this.state;
         return <section className="tablePane-table-box">
@@ -40,13 +69,14 @@ class TableTipExtraPane extends React.Component {
                     <img className="tablePnae-table-title-icon" src="/public/rdos/img/notice.png" />
                 </Popover>
                 <TextMark
+                    onClick={this.changeVisible.bind(this, tableName)}
                     className="tablePnae-table-title-name"
                     title={tableName}
                     text={tableName}
                     markText={searchValue}
                 />
             </div>
-            <div className="tablePane-table-column-box">
+            <div style={{ display: this.isShow(tableName) ? 'block' : 'none' }} className="tablePane-table-column-box">
                 {columns.map((column) => {
                     return <div key={column.columnName} className="tablePane-table-column">
                         <TextMark

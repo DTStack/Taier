@@ -25,19 +25,24 @@
             margin-top: 12px;
             margin-bottom: 4px;
             .tablePane-table-title{
+                display: flex;
                 background: #f7f7f7;
                 padding: 5px 5px 5px 0px;
+                align-items: center;
+                transition-duration: .2s;
                 .tablePnae-table-title-icon{
                     height: 15px;
-                    vertical-align: middle;
                     margin-left: 2px;
                     margin-right: 2px;
                     cursor: pointer;
                 }
                 .tablePnae-table-title-name{
-                    display: inline-block;
+                    cursor: pointer;
+                    flex-grow: 1;
                     line-height: 17px;
-                    vertical-align: middle;
+                }
+                &:hover{
+                    background: #efefef;
                 }
             }
             .tablePane-table-column-box{
