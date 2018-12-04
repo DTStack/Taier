@@ -498,7 +498,7 @@ export default class TaskView extends Component {
             const currentNode = cell.value || {};
             const isWorkflowNode = currentNode.flowId && currentNode.flowId !== 0;
             // 如果为工作流节点，且工作流处于冻结状态时，需要禁用子节点的解冻或者调用功能
-            const disableRunCtrl = isWorkflowNode && currentNode.workflow.scheduleStatus === SCHEDULE_STATUS.STOPPED;
+            const disableRunCtrl = isWorkflowNode && currentNode.workflow && currentNode.workflow.scheduleStatus === SCHEDULE_STATUS.STOPPED;
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {
                     ctx.loadTaskParent({
