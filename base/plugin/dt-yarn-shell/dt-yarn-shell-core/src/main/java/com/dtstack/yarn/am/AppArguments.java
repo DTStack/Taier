@@ -39,6 +39,8 @@ public class AppArguments {
 
     int workerVCores;
 
+    int containerMemory = 512;
+
     int workerNum;
 
     int appPriority;
