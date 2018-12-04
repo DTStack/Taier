@@ -10,6 +10,12 @@ const MY_PATH = require("./consts");
 
 const baseConf = require("./base.js")();
 var config = require("./config");
+
+/**
+ * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
+ *  **/
+baseConf.mode = "development";
+
 baseConf.output = {
     ...baseConf.output,
     path: MY_PATH.BUILD_PATH,
@@ -19,10 +25,22 @@ baseConf.output = {
     publicPath: "/"
 };
 
-/**
- * Sets process.env.NODE_ENV on DefinePlugin to value development. Enables NamedChunksPlugin and NamedModulesPlugin.
- *  **/
-baseConf.mode = "development";
+// JS loader
+baseConf.module.rules.unshift(
+    {
+        test: /\.js$/,
+        include: MY_PATH.APP_PATH,
+        exclude: [
+            path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
+            path.resolve(MY_PATH.WEB_PUBLIC)
+        ],
+        loader: [
+            "react-hot-loader/webpack",
+            "happypack/loader?id=happy-babel-js",
+            "eslint-loader",
+        ]
+    }
+)
 
 baseConf.plugins.push(
     new FriendlyErrorsWebpackPlugin({
