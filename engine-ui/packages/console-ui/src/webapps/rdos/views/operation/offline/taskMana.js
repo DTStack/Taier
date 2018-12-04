@@ -269,7 +269,7 @@ class OfflineTaskMana extends Component {
             title: '任务名称',
             dataIndex: 'name',
             key: 'name',
-            width: 200,
+            width: '200px',
             render: (text, record) => {
                 const content = record.isDeleted === 1 ? `${text} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>

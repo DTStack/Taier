@@ -171,7 +171,8 @@ class DataSourceMana extends Component {
         {
             title: '描述',
             dataIndex: 'dataDesc',
-            key: 'dataDesc'
+            key: 'dataDesc',
+            width: '300px'
         },
         {
             title: '连接信息',

@@ -265,6 +265,9 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
                             initialValue: config.username || ''
                         })(
                             <Input autoComplete="off" />
@@ -277,6 +280,9 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
                             initialValue: ''
                         })(
                             <Input type="password" autoComplete="off" />
@@ -634,6 +640,9 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
                             initialValue: ''
                         })(
                             <Input type="password" autoComplete="off" />
@@ -668,6 +677,9 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.username', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
                             initialValue: config.username || ''
                         })(
                             <Input autoComplete="off" />
@@ -680,6 +692,9 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
                             initialValue: ''
                         })(
                             <Input type="password" autoComplete="off" />

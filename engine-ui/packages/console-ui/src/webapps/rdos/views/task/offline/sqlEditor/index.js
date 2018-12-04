@@ -498,6 +498,7 @@ class EditorContainer extends Component {
                         ? <ExtraPane
                             data={columns}
                             loading={extraPaneLoading}
+                            tabId={currentTabData.id}
                         />
                         : null
                     }
