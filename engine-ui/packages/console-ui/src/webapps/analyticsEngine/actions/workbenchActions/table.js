@@ -78,7 +78,8 @@ export function onCreateTable (params) {
                     bucketNumber: undefined,
                     infos: []
                 }
-            }
+            },
+            currentStep: 0
         }
         console.log(newCreateTableTabData)
 
