@@ -111,7 +111,7 @@ class MyAPI extends Component {
                 <h1 className="box-title">我的API</h1>
                 <Card
                     style={{ marginTop: '0px' }}
-                    className="box-1"
+                    className="box-1  no-card-border"
                     noHovering>
                     <Tabs
                         style={{ overflow: 'unset' }}

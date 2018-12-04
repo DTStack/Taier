@@ -262,7 +262,7 @@ class ManageBasicProperties extends Component {
                                 ],
                                 initialValue: this.props.APIGroup
                             })(
-                                <Cascader style={{ width: '85%' }} showSearch popupClassName="noheight" options={options} placeholder="请选择分组" />
+                                <Cascader style={{ width: '85%' }} showSearch options={options} placeholder="请选择分组" />
                             )
                             }
                             <a style={{ paddingLeft: '8px' }} onClick={this.showNewGroup.bind(this)} >新建分组</a>
@@ -275,7 +275,7 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { required: true, message: '请输入API名称' },
                                     { min: 2, message: '最小字数不能少于2' },
-                                    { max: 16, message: '最大字数不能超过16' },
+                                    { max: 64, message: '最大字数不能超过64' },
                                     { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' },
                                     {
                                         validator: this.checkNameExist.bind(this)

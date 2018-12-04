@@ -86,6 +86,13 @@ export default class TableViewer extends React.Component {
         })
     }
 
+    switchType (evt) {
+        const showType = evt.target.value;
+        this.setState({
+            showType
+        });
+    }
+
     getPreview (key) {
         const { previewData } = this.state;
         if (previewData) return;
@@ -249,7 +256,7 @@ export default class TableViewer extends React.Component {
                                     </tr>
                                     <tr>
                                         <th>创建时间</th>
-                                        <td>{ moment(tableData.table.gmtCreate).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{moment(tableData.table.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
                                     <tr>
                                         <th>表类型</th>
@@ -280,7 +287,7 @@ export default class TableViewer extends React.Component {
                                 <tbody>
                                     <tr>
                                         <th>物理存储量</th>
-                                        <td>{ tableData.table.tableSize }</td>
+                                        <td>{tableData.table.tableSize}</td>
                                     </tr>
                                     <tr>
                                         <th>生命周期</th>
@@ -288,19 +295,19 @@ export default class TableViewer extends React.Component {
                                     </tr>
                                     <tr>
                                         <th>是否分区</th>
-                                        <td>{ tableData.table.partition ? '是' : '否' }</td>
+                                        <td>{tableData.table.partition ? '是' : '否'}</td>
                                     </tr>
                                     <tr>
                                         <th>表结构最后变更时间</th>
-                                        <td>{ moment(tableData.table.lastDdlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{moment(tableData.table.lastDdlTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
                                     <tr>
                                         <th>数据最后变更时间</th>
-                                        <td>{ moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss') }</td>
+                                        <td>{moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
                                     <tr>
                                         <th>存储格式</th>
-                                        <td>{ tableData.table.storedType }</td>
+                                        <td>{tableData.table.storedType}</td>
                                     </tr>
                                 </tbody>
                             </table>}
