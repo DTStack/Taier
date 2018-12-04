@@ -54,7 +54,7 @@ class DataSourceTaskListModal extends React.Component {
             pageSize: pagination.pageSize,
             currentPage: pagination.current
         }, reqParams);
-        
+
         let func = '';
         if (type == 'stream') {
             func = 'getTaskOfStreamSource';
@@ -83,7 +83,7 @@ class DataSourceTaskListModal extends React.Component {
     search = (query) => {
         this.getTaskList({
             taskName: query,
-            currentPage: 1,
+            currentPage: 1
         })
     }
 

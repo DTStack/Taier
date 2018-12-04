@@ -42,9 +42,9 @@ class KeyForm extends React.Component {
         const { isReader, editField } = keyModal;
         const { getFieldDecorator } = this.props.form;
 
-        const initialKeyValue = editField ? editField.key !== undefined ? 
-        editField.key : editField.index !== undefined ?
-        editField.index : undefined : undefined;
+        const initialKeyValue = editField ? editField.key !== undefined
+            ? editField.key : editField.index !== undefined
+                ? editField.index : undefined : undefined;
 
         if (isReader) { // 数据源
             switch (dataType) {
