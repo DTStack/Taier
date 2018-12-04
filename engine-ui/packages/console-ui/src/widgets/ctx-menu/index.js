@@ -23,12 +23,11 @@ export default class CtxMenu extends React.Component {
     }
 
     componentWillUnmount () {
-        this.box.removeEventListener('contextmenu', this.showMenu);
-        document.removeEventListener('click', this.hideMenu);
+        this.box.removeEventListener('contextmenu', this.showMenu, false);
+        document.removeEventListener('click', this.hideMenu, false);
     }
 
     hideMenu (e) {
-        e.preventDefault();
         if (!this.state.show) return;
         this.setState({
             show: false

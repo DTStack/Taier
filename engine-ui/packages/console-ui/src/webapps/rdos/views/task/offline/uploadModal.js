@@ -38,26 +38,26 @@ class ResForm extends React.Component {
         this.props.form.validateFields(['id']);
     }
 
-    /* eslint-disable */
     validateFileType (rule, value, callback) {
-        const reg = /\.(jar|sql|py|egg|zip)$/
+        /* eslint-disable-next-line */
+        const reg = /\.(jar|sql|py|egg|zip)$/;
 
         if (value && !reg.test(value.toLocaleLowerCase())) {
+            /* eslint-disable-next-line */
             callback('资源文件只能是Jar、SQL、egg、Zip或者Python文件!');
         }
         callback();
     }
-    /* eslint-disable */
 
     changeFileType (value) {
         let acceptType = ''
         switch (value) {
-        case RESOURCE_TYPE.JAR:
-            acceptType = '.jar'; break;
-        case RESOURCE_TYPE.PY:
-            acceptType = '.py,.zip,.egg'; break;
-        default:
-            acceptType = ''; break;
+            case RESOURCE_TYPE.JAR:
+                acceptType = '.jar'; break;
+            case RESOURCE_TYPE.PY:
+                acceptType = '.py,.zip,.egg'; break;
+            default:
+                acceptType = ''; break;
         }
         this.setState({
             accept: acceptType,
@@ -312,7 +312,7 @@ class ResForm extends React.Component {
 
         return name;
     }
-    
+
     /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
