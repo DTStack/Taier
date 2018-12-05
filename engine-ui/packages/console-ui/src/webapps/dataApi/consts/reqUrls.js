@@ -8,6 +8,11 @@ export default {
     // ===== api授权审批 ====//
     HANDLE_APPLY: `${DATA_API_BASE_URL}/apply/handleApply`, // 审批
     GET_ALL_APPLY_LIST: `${DATA_API_BASE_URL}/apply/allApplyList`, // 获取审批列表
+    GET_SECURITY_LIST: `${DATA_API_BASE_URL}/apply//securityGroup/pageQuery`, // 获取安全组列表
+    NEW_SECURITY: `${DATA_API_BASE_URL}/apply/securityGroup/addSecurityGroup`, // 新增安全组
+    UPDATE_SECURITY: `${DATA_API_BASE_URL}/apply/securityGroup/update`, // 更新安全组
+    DELETE_SECURITY: `${DATA_API_BASE_URL}/apply/securityGroup/delete`, // 删除安全组
+    LIST_SECURITY_API_INFO: `${DATA_API_BASE_URL}/apply/securityGroup/listApiInfo`, // 查看关联的API
 
     // ===== api管理 ===== //
     GET_ALL_API_LIST: `${DATA_API_BASE_URL}/apis/listByConditionForAdmin`, // 获取所有的api

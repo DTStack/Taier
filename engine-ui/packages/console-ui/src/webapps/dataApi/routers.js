@@ -19,7 +19,10 @@ import RoleEdit from 'main/views/admin/role/edit'
 import Container from './views'
 import Dashboard from './views/dashboard'
 
-import APIApproval from './views/approval'
+import Approval from './views/approval'
+import SecurityContainer from './views/approval/container'
+import Security from './views/approval/security'
+
 import DataSource from './views/dataSource'
 import APIManage from './views/management'
 import APIMarket from './views/market'
@@ -52,7 +55,11 @@ export default (
         <Route path="/api" component={ Container }>
             <IndexRoute component={ Dashboard } />
             <Route path="overview" component={ Dashboard }></Route>
-            <Route path="approval" component={ APIApproval }></Route>
+            <Route path="approvalAndsecurity" component={ SecurityContainer }>
+                <IndexRoute component={ Approval } />
+                <Route path="approval" component={ Approval }></Route>
+                <Route path="security" component={ Security }></Route>
+            </Route>
             <Route path="manage" component={ APIManage }></Route>
             <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
             <Route path="manage/apiType" component={ ApiType }></Route>

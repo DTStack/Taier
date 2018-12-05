@@ -1,0 +1,234 @@
+import React from 'react';
+import utils from 'utils';
+
+import {
+    Table, Card, Input, Button, Popconfirm, message
+} from 'antd';
+
+import { SECURITY_TYPE } from '../../../consts';
+import approvalApi from '../../../api/approval';
+import APIDetailModal from './apiDetailModal';
+import EditModal from './editModal';
+
+class Security extends React.Component {
+    state = {
+        pagination: {
+            current: 1,
+            pageSize: 20,
+            total: 0
+        },
+        name: undefined,
+        groupList: [],
+        loading: false,
+        record: {},
+        editRecord: {},
+        editModalMode: '',
+        isApiModalVisible: false,
+        isEditModalVisible: false,
+        editModalKey: null
+
+    }
+    componentDidMount () {
+        this.fetchGroupList();
+    }
+    fetchGroupList () {
+        const { pagination, name } = this.state;
+        let fetchParams = {};
+        fetchParams.currentPage = pagination.current;
+        fetchParams.pageSize = pagination.pageSize;
+        fetchParams.name = name;
+
+        this.setState({
+            loading: true
+        })
+        approvalApi.getSecurityList(fetchParams).then((res) => {
+            this.setState({
+                loading: false
+            })
+            if (res.code == 1) {
+                this.setState({
+                    groupList: res.data.data,
+                    pagination: {
+                        ...pagination,
+                        total: res.data.totalCount
+                    }
+                })
+            }
+        });
+    }
+    initColumns () {
+        return [{
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
+            width: '150px'
+        }, {
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
+            render (text) {
+                return text == SECURITY_TYPE.BLACK ? '黑名单' : '白名单';
+            },
+            width: '80px'
+        }, {
+            title: 'IP地址',
+            dataIndex: 'ip',
+            key: 'ip',
+            width: '200px',
+            render (text) {
+                const maxLength = 20;
+                return text.length > maxLength ? (text.substring(0, maxLength) + '...') : text;
+            }
+        }, {
+            title: '关联API数量',
+            dataIndex: 'refCount',
+            key: 'refCount',
+            width: '120px',
+            render: (text, record) => {
+                return <a onClick={this.openApiDetail.bind(this, record)}>{text}</a>
+            }
+        }, {
+            title: '最近修改人',
+            dataIndex: '"modifyUser',
+            key: '"modifyUser',
+            width: 150
+        }, {
+            title: '最近修改时间',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
+            width: 150,
+            render (text) {
+                return utils.formatDateTime(text);
+            }
+        }, {
+            title: '操作',
+            dataIndex: 'deal',
+            key: 'deal',
+            width: '150px',
+            render: (text, record) => {
+                return <span>
+                    <a onClick={this.openEditModal.bind(this, record, 'view')}>查看详情</a>
+                    <span className="ant-divider" ></span>
+                    <a onClick={this.openEditModal.bind(this, record, 'edit')}>编辑</a>
+                    <span className="ant-divider" ></span>
+                    <Popconfirm title='确认删除此安全组吗？' onConfirm={this.delete.bind(this, record)} okText="确认" cancelText="取消">
+                        <a>删除</a>
+                    </Popconfirm>
+                </span>
+            }
+        }]
+    }
+    delete (record) {
+        approvalApi.deleteSecurity({
+            groupId: record.id
+        }).then((res) => {
+            if (res.code == 1) {
+                message.success('删除成功')
+                this.fetchGroupList();
+            }
+        })
+    }
+    openEditModal (record, mode) {
+        this.setState({
+            isEditModalVisible: true,
+            editRecord: record,
+            editModalMode: mode,
+            editModalKey: Math.random()
+        })
+    }
+    closeEditModal () {
+        this.setState({
+            isEditModalVisible: false,
+            editRecord: {}
+        })
+    }
+    editCallBack () {
+        this.fetchGroupList();
+        this.closeEditModal();
+    }
+    openApiDetail (record) {
+        this.setState({
+            isApiModalVisible: true,
+            record: record
+        })
+    }
+    closeApiDetail () {
+        this.setState({
+            isApiModalVisible: false,
+            record: {}
+        })
+    }
+    searchRequire (value) {
+        this.setState({
+            name: value
+        }, () => {
+            this.fetchGroupList();
+        })
+    }
+    getCardTitle () {
+        return (
+            <div style={{ margin: '10px 0' }}>
+                <Input.Search
+                    style={{ width: '200px' }}
+                    placeholder="按名称或IP地址搜索"
+                    onSearch={this.searchRequire.bind(this)}
+                />
+            </div>
+        )
+    }
+    onTableChange (page, filter, sorter) {
+        this.setState({
+            pagination: {
+                ...this.state.pagination,
+                current: page.current
+            }
+        }, () => {
+            this.fetchGroupList();
+        });
+    }
+    render () {
+        const { groupList, pagination,
+            loading, isApiModalVisible,
+            isEditModalVisible, record,
+            editRecord, editModalMode,
+            editModalKey } = this.state;
+        return (
+            <div className="api-approval">
+                <h1 className="box-title">安全组</h1>
+                <div className="margin-0-20 m-card">
+                    <Card
+                        noHovering
+                        title={this.getCardTitle()}
+                        className="shadow"
+                        extra={<Button style={{ marginTop: '10px' }} onClick={this.openEditModal.bind(this, {}, 'new')} type='primary'>新建安全组</Button>}
+                    >
+                        <Table
+                            rowKey="id"
+                            className="m-table monitor-table"
+                            columns={this.initColumns()}
+                            pagination={pagination}
+                            dataSource={groupList}
+                            onChange={this.onTableChange.bind(this)}
+                            loading={loading}
+                        />
+                    </Card>
+                </div>
+                <APIDetailModal
+                    key={record.id}
+                    record={record}
+                    visible={isApiModalVisible}
+                    onCancel={this.closeApiDetail.bind(this)}
+                />
+                <EditModal
+                    key={editModalKey}
+                    record={editRecord}
+                    visible={isEditModalVisible}
+                    onCancel={this.closeEditModal.bind(this)}
+                    onok={this.editCallBack.bind(this)}
+                    mode={editModalMode}
+                />
+            </div>
+        )
+    }
+}
+export default Security;

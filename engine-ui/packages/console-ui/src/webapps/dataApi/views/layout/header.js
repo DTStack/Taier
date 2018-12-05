@@ -70,9 +70,9 @@ class Header extends Component {
             link: `${baseUrl}/manage`,
             enable: showList.manage
         }, {
-            id: 'approval',
-            name: '授权审批',
-            link: `${baseUrl}/approval`,
+            id: 'approvalAndsecurity',
+            name: '授权与安全',
+            link: `${baseUrl}/approvalAndsecurity`,
             enable: showList.approval
         }, {
             id: 'dataSource',
