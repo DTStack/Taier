@@ -1,8 +1,9 @@
 ## 3.2.0-beta (2018-12-05)
 
-* build: Automate Generate changelog ([b6c38c1](http://git.dtstack.cn/ziv/data-stack-web/commits/b6c38c1))
 * docs: Add docs directory ([95c045d](http://git.dtstack.cn/ziv/data-stack-web/commits/95c045d))
 * docs(Application doc description.): Changed App desc ([1f5429e](http://git.dtstack.cn/ziv/data-stack-web/commits/1f5429e)), closes [#12009](http://git.dtstack.cn/ziv/data-stack-web/issues/12009)
+* docs(Changelog): Changelog test ([8a7c1a3](http://git.dtstack.cn/ziv/data-stack-web/commits/8a7c1a3))
+* build: Automate Generate changelog ([b6c38c1](http://git.dtstack.cn/ziv/data-stack-web/commits/b6c38c1))
 * ci(git comment): Automate generate git comments ([3d1bcd4](http://git.dtstack.cn/ziv/data-stack-web/commits/3d1bcd4))
 *  添加未保存条目提示 ([7741ffe](http://git.dtstack.cn/ziv/data-stack-web/commits/7741ffe))
 * . ([7584b6d](http://git.dtstack.cn/ziv/data-stack-web/commits/7584b6d))
@@ -2433,10 +2434,6 @@
 * 首页样式修改 ([fbeb375](http://git.dtstack.cn/ziv/data-stack-web/commits/fbeb375))
 * 首页样式修改 ([03de916](http://git.dtstack.cn/ziv/data-stack-web/commits/03de916))
 * 首页样式微调 ([38eae38](http://git.dtstack.cn/ziv/data-stack-web/commits/38eae38))
-
-
-
-# 3.2.0-beta (2018-12-05)
 
 
 
