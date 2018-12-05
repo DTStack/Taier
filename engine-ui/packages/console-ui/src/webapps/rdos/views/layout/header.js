@@ -181,7 +181,7 @@ class Header extends Component {
                 projectTypeIcon = <img style={{ verticalAlign: 'text-bottom', marginRight: '5px' }} src="/public/rdos/img/icon/produce.svg" />
                 break;
             }
-            default: return '';
+            default: projectTypeText = '';
         }
         const menu = (
             <Menu
@@ -232,6 +232,7 @@ class Header extends Component {
             </SubMenu>
         );
     };
+
     renderProjectType () {
         const { project } = this.props;
         switch (project && project.projectType) {
@@ -241,7 +242,6 @@ class Header extends Component {
                         className="head-project-tip"
                     >
                         <span className="content">
-
                             <img src="/public/rdos/img/icon/develop.svg" />测试
                         </span>
                     </div>
@@ -253,7 +253,6 @@ class Header extends Component {
                         className="head-project-tip"
                     >
                         <span className="content">
-
                             <img src="/public/rdos/img/icon/produce.svg" />生产
                         </span>
                     </div>
@@ -264,11 +263,13 @@ class Header extends Component {
             }
         }
     }
+
     isIndex () {
         const { current } = this.state;
         const isIndex = current == 'overview' || current == 'data-manage';
         return isIndex;
     }
+
     render () {
         const { user, project, apps, app, router } = this.props;
         const { devPath } = this.state;
