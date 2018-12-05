@@ -98,7 +98,8 @@
     "release": "./scripts/build.sh",
     "ssh": "./scripts/ssh_server.sh",
     "hotfix": "./scripts/hotfix.sh --b",
-    "scp": "./scripts/scp.sh"
+    "scp": "./scripts/scp.sh",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "keywords": [
     "generator",
@@ -107,6 +108,8 @@
   "engines": {
     "node": ">=8.9.4"
   },
+  "repository": "http://git.dtstack.cn/ziv/data-stack-web",
+  "repoUrl": "http://git.dtstack.cn/ziv/data-stack-web",
   "author": "Ziv",
   "license": "MIT"
 }
