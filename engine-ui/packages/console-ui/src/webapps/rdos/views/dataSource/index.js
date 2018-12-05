@@ -353,7 +353,7 @@ class DataSourceMana extends Component {
         const titles = (
             <div>
                 <Search
-                    placeholder="数据源名称"
+                    placeholder="数据源名称/描述"
                     style={{ width: 200 }}
                     onSearch={this.searchDataSources}
                 />&nbsp;&nbsp;
