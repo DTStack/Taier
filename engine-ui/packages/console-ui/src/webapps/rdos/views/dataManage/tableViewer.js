@@ -148,12 +148,11 @@ export default class TableViewer extends React.Component {
     }
 
     handleOk () {
-        message.info('复制成功，代码窗口即将关闭');
-        setTimeout(() => {
+        message.info('复制成功，代码窗口即将关闭', 1.5, () => {
             this.setState({
                 visible: false
             });
-        }, 1000)
+        });
     }
 
     onShowBloodRelation = (flag) => {
