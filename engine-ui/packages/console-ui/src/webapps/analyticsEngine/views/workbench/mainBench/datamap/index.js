@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import { Row, Button, Modal, message } from 'antd';
+import { Row, Button, Modal, message, Icon } from 'antd';
 
 import DataMapForm from './form';
+// import Columns from './column';
 import API from '../../../../api';
-import { CATALOGUE_TYPE } from '../../../../consts';
+import { CATALOGUE_TYPE, dataMapStatus } from '../../../../consts';
 
 const confirm = Modal.confirm;
 
 class DataMap extends Component {
     state = {
         tableData: undefined,
-        loading: false
+        loading: false,
+        status: undefined
     }
 
     // 查询语句
@@ -23,7 +25,9 @@ class DataMap extends Component {
             databaseId: data.databaseId
         })
     }
-
+    componentWillUnMount () {
+        this._checkStatus && clearInterval(this._checkStatus);
+    }
     loadTable = async (params) => {
         const result = await API.getTableById(params);
         this.setState({
@@ -47,6 +51,28 @@ class DataMap extends Component {
         loadCatalogue(params, CATALOGUE_TYPE.TABLE);
     }
 
+    // 检查dataMap状态
+    initStatusSuccess = () => {
+        console.log('DataMap初始化完成')
+        this.reloadDataMapCatalogue();
+        this._checkStatus && clearInterval(this._checkStatus);
+        message.success('DataMap创建成功！');
+    }
+    renderStatus = (status) => {
+        switch (status) {
+            case dataMapStatus.INITIALIZE: {
+                return (
+                    <div style={{ marginBottom: '10px', fontSize: '14px' }}>
+                        <Icon type="loading" style={{ fontSize: 14, color: '#2491F7', paddingLeft: 16 }} />
+                        <span style={{ color: 'balck', paddingLeft: '8px' }}>DataMap正在初始化</span>
+                    </div>
+                )
+            }
+            default: {
+                return null;
+            }
+        }
+    }
     onCreate = () => {
         const form = this.formInstance.props.form;
         this.setState({
@@ -58,16 +84,34 @@ class DataMap extends Component {
                 if (values.configJSON.columns) {
                     values.configJSON.columns = values.configJSON.columns.join(',');
                 }
-                const res = await API.createDataMap(values);
-                if (res.code === 1) {
-                    message.success('创建DataMap成功！');
-                    this.reloadDataMapCatalogue();
-                    if (res.data) {
+                await API.createDataMap(values).then(res => {
+                    if (res.code === 1) {
                         this.props.onGetDataMap({
                             id: res.data.id
                         });
+                        if (res.data.status === dataMapStatus.INITIALIZE) {
+                            this.setState({
+                                status: res.data.status
+                            })
+                            console.log('INITIALIZE为0')
+                            this._checkStatus = setInterval(() => {
+                                API.checkDataMapStatus({ dataMapId: res.data.id }).then(res => {
+                                    if (res.code === 1) {
+                                        this.setState({
+                                            status: res.data
+                                        })
+                                        if (res.data === 1) {
+                                            this.initStatusSuccess()
+                                        } else if (res.data === 2) {
+                                            this._checkStatus && clearInterval(this._checkStatus);
+                                            message.error('dataMap创建失败！')
+                                        }
+                                    }
+                                })
+                            }, 1000)
+                        }
                     }
-                }
+                });
             }
             this.setState({ loading: false })
         });
@@ -104,9 +148,10 @@ class DataMap extends Component {
 
     render () {
         const { isCreate, data, onGenerateCreateSQL } = this.props;
-        const { tableData, loading } = this.state;
+        const { tableData, loading, status } = this.state;
         return (
             <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
+                {this.renderStatus(status)}
                 <DataMapForm
                     data={data}
                     isCreate={isCreate}
@@ -138,5 +183,4 @@ class DataMap extends Component {
         )
     }
 }
-
-export default DataMap
+export default DataMap;
