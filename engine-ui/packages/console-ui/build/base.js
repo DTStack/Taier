@@ -60,21 +60,6 @@ module.exports = function () {
         module: {
             rules: [
                 {
-                    test: /\.js$/,
-                    include: MY_PATH.APP_PATH,
-                    exclude: [
-                        path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
-                        path.resolve(MY_PATH.WEB_PUBLIC)
-                    ],
-                    // sideEffects: false,
-                    // loader: ['babel-loader?cacheDirectory']
-                    loader: [
-                        "react-hot-loader/webpack",
-                        "happypack/loader?id=happy-babel-js",
-                        // "eslint-loader",
-                    ]
-                },
-                {
                     test: /\.(jpg|png|gif)$/,
                     loader: ["file-loader", "url-loader?limit=100000"]
                 },

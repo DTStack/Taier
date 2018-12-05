@@ -8,9 +8,8 @@ import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
 
-/* eslint-disable */
+/* eslint-disable-next-line */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
-/* eslint-enable */
 
 const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
@@ -232,6 +231,7 @@ class Header extends Component {
                 )
             }
             default: {
+                return '';
             }
         }
     }

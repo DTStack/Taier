@@ -179,24 +179,9 @@ class DataSourceMana extends Component {
             dataIndex: 'ext',
             key: 'ext',
             render: (empty, record) => {
-                return <ExtTableCell sourceData={record} />
+                return <ExtTableCell key={record.id} sourceData={record} />
             }
         },
-        // {
-        //     title: '最近修改人',
-        //     dataIndex: 'modifyUserId',
-        //     key: 'modifyUserId',
-        //     width: '120px',
-        //     render: (text, record) => {
-        //         return record.modifyUser ? record.modifyUser.userName : ''
-        //     }
-        // }, {
-        //     title: '最近修改时间',
-        //     dataIndex: 'gmtModified',
-        //     key: 'gmtModified',
-        //     width: '120px',
-        //     render: text => utils.formatDateTime(text),
-        // },
         {
             title: '应用状态',
             dataIndex: 'active',
@@ -363,8 +348,8 @@ class DataSourceMana extends Component {
             total: dataSource.totalCount,
             defaultPageSize: 10
         };
-        const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const isTest = project.projectType == PROJECT_TYPE.TEST;
+        const isPro = project && project.projectType == PROJECT_TYPE.PRO;
+        const isTest = project && project.projectType == PROJECT_TYPE.TEST;
         const titles = (
             <div>
                 <Search

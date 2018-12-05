@@ -170,7 +170,7 @@ class Header extends Component {
                 : '项目选择';
         let projectTypeText = '';
         let projectTypeIcon = null;
-        switch (project.projectType) {
+        switch (project && project.projectType) {
             case PROJECT_TYPE.TEST: {
                 projectTypeText = ' (测试项目)'
                 projectTypeIcon = <img style={{ verticalAlign: 'text-bottom', marginRight: '5px' }} src="/public/rdos/img/icon/develop.svg" />
@@ -181,6 +181,7 @@ class Header extends Component {
                 projectTypeIcon = <img style={{ verticalAlign: 'text-bottom', marginRight: '5px' }} src="/public/rdos/img/icon/produce.svg" />
                 break;
             }
+            default: return '';
         }
         const menu = (
             <Menu
@@ -233,7 +234,7 @@ class Header extends Component {
     };
     renderProjectType () {
         const { project } = this.props;
-        switch (project.projectType) {
+        switch (project && project.projectType) {
             case PROJECT_TYPE.TEST: {
                 return (
                     <div
@@ -259,6 +260,7 @@ class Header extends Component {
                 )
             }
             default: {
+                return '';
             }
         }
     }

@@ -1,11 +1,13 @@
 import React from 'react';
-import { Table, Modal, Button } from 'antd';
+import { Table, Modal, Button, Input } from 'antd';
 import { connect } from 'react-redux';
 
 import Api from '../../api'
 import {
     workbenchActions
 } from '../../store/modules/offlineTask/offlineAction'
+
+const Search = Input.Search
 
 @connect((state) => {
     return {
@@ -41,17 +43,18 @@ class DataSourceTaskListModal extends React.Component {
         })
         this.getTaskList();
     }
-    getTaskList () {
+    getTaskList (reqParams) {
         const { pagination } = this.state;
         const { type, dataSource } = this.props;
         this.setState({
             loading: true
         })
-        const params = {
+        const params = Object.assign({
             sourceId: dataSource.id,
             pageSize: pagination.pageSize,
             currentPage: pagination.current
-        }
+        }, reqParams);
+
         let func = '';
         if (type == 'stream') {
             func = 'getTaskOfStreamSource';
@@ -76,6 +79,14 @@ class DataSourceTaskListModal extends React.Component {
                 }
             )
     }
+
+    search = (query) => {
+        this.getTaskList({
+            taskName: query,
+            currentPage: 1
+        })
+    }
+
     initColumns () {
         const { type } = this.props;
         return [{
@@ -115,6 +126,11 @@ class DataSourceTaskListModal extends React.Component {
                         <Button type="primary" onClick={this.closeModal.bind(this)}>关闭</Button>
                     )}
                 >
+                    <Search
+                        placeholder="按任务名称搜索"
+                        style={{ width: 200, marginBottom: '10px' }}
+                        onSearch={this.search}
+                    />
                     <Table
                         className="m-table"
                         rowKey="id"

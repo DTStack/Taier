@@ -3,8 +3,7 @@ const webpack = require("webpack");
 const webpackMerge = require("webpack-merge");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const cssLoader = require("./loader/css-loader.js").pro;
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
-    .BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 //centos有bug,暂不启动
 // const ImageminPlugin = require("imagemin-webpack-plugin").default;
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
@@ -28,6 +27,21 @@ baseConf.mode = "production";
 //     //     }
 //     // }),
 // );
+
+// JS loader
+baseConf.module.rules.unshift(
+    {
+        test: /\.js$/,
+        include: MY_PATH.APP_PATH,
+        exclude: [
+            path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
+            path.resolve(MY_PATH.WEB_PUBLIC)
+        ],
+        loader: [
+            "happypack/loader?id=happy-babel-js",
+        ]
+    }
+)
 
 baseConf.optimization.minimizer = [
     new UglifyJsPlugin({
