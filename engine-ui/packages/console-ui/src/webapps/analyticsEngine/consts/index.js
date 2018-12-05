@@ -19,6 +19,13 @@ export const sqlExecStatus = {
     CANCELED: 7
 }
 
+// dataMap创建状态
+export const dataMapStatus = {
+    INITIALIZE: 0,
+    NORMAL: 1,
+    FAIL: 2
+}
+
 export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },

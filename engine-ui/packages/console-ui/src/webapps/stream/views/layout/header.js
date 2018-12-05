@@ -212,7 +212,6 @@ class Header extends Component {
                         className="head-project-tip"
                     >
                         <span className="content">
-
                             <img src="/public/stream/img/icon/develop.svg" />测试
                         </span>
                     </div>
@@ -224,7 +223,6 @@ class Header extends Component {
                         className="head-project-tip"
                     >
                         <span className="content">
-
                             <img src="/public/stream/img/icon/produce.svg" />生产
                         </span>
                     </div>
