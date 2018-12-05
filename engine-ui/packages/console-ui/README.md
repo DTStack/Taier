@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Next DATA-STACK 
-=======
 # DATA-STACK 
 
 # 更新日志 | [部署文档](./Deploy.md) 
@@ -16,9 +13,6 @@
 - 【 流计算 】新增 MongoDB、Redis 2种数据源
 - 【 应用自定义 】新增资源平台首页
 - 【 其他 】大量的 Bugfix、细节优化, [详情请看](http://redmine.prod.dtstack.cn/projects/dtinsight-v3-1-0/issues)
->>>>>>> release_v3.1.0
-
-一个实验版本~
 
 
 # 其他文档
