@@ -1,25 +1,20 @@
 #!/bin/bash
 
-# git branch
-dev="dev"
+# Release branch
 master="master"
-currentTime="$(date +"%Y_%m_%d_%H_%M_%S")"
-# Build dist, and push it to gitlab.
-git pull origin $dev
-echo "Git pull origin $dev."
+prefix="DTinsight_v"
 
-git add -A
-git commit -m "update_$currentTime"
+git pull origin $master
+echo "Current pull origin $master."
 
-git checkout $master
-echo "Current branch is $master."
-git merge $dev
-echo "Current branch master merged $dev."
+# Auto generate version number and tag
+standard-version --tag-prefix $prefix
 
-git push origin $master
-echo "Git push origin $master."
+# git push --follow-tags origin master
 
-git checkout $dev
-echo "Current branch is $dev."
+# git push origin $master
+echo "Git push origin $master"
+
+echo "Release finished."
 
 
