@@ -58,8 +58,7 @@ public class ClientExt extends DtClient {
         }
 
         if(isLocal){
-             loadConfFromLocal(hadoopConfFiles);
-             return;
+            loadConfFromLocal(hadoopConfFiles);
         }else{
             loadHadoopConfFromHdfs(hadoopConfFiles);
         }
