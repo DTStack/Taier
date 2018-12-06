@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.6.1",
+  "version": "3.2.0",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "dependencies": {
@@ -100,11 +100,12 @@
     "hotfix": "./scripts/hotfix.sh --b",
     "scp": "./scripts/scp.sh",
     "lint": "eslint ./src/**/*.js --fix",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "changeissueurl": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
   },
   "standard-version": {
     "scripts": {
-      "postchangelog": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
+      "postchangelog": "npm run changeissueurl"
     }
   },
   "keywords": [
