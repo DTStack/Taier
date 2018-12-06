@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name=""></a>
+# [](http://git.dtstack.cn/ziv/data-stack-web/compare/v3.2.1...v) (2018-12-06)
+
+
+
+<a name=""></a>
+# [](http://git.dtstack.cn/ziv/data-stack-web/compare/v3.2.1...v) (2018-12-06)
+
+
+
+<a name=""></a>
 #  (2018-12-06)
 
 
