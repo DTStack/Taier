@@ -62,7 +62,6 @@ export function onCreateDataMap (params) {
 export function onGetDataMap (params) {
     return async dispatch => {
         const res = await API.getDataMapDetail(params);
-
         if (res.code === 1) {
             const dataMapData = res.data;
             // 添加Action标记

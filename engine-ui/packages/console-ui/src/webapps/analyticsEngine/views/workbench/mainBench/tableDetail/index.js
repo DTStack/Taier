@@ -37,7 +37,7 @@ class TableDetail extends Component {
         }).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    previewList: this.state.previewList
+                    previewList: res.data
                 })
             } else {
                 notification.error({
