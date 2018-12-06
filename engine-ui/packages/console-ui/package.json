@@ -101,7 +101,11 @@
     "scp": "./scripts/scp.sh",
     "lint": "eslint ./src/**/*.js --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
-    "postchangelog": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
+  },
+  "standard-version": {
+    "scripts": {
+      "postchangelog": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
+    }
   },
   "keywords": [
     "generator",
