@@ -100,7 +100,7 @@
     "hotfix": "./scripts/hotfix.sh --b",
     "scp": "./scripts/scp.sh",
     "lint": "eslint ./src/**/*.js --fix",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md"
   },
   "standard-version": {
     "scripts": {
