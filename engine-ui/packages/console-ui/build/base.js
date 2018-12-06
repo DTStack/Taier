@@ -130,7 +130,7 @@ module.exports = function () {
                     from: path.resolve(MY_PATH.ROOT_PATH, 'docs'),
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }, {
-                    from: path.resolve(MY_PATH.ROOT_PATH, 'Deploy.md'),
+                    from: path.resolve(MY_PATH.ROOT_PATH, '*.md'),
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }, {
                     from: path.resolve(MY_PATH.PWA, 'sw.js'),
