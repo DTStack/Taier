@@ -24,9 +24,11 @@ public class ExceptionInfoConstrant {
 
     public final static String FUTURES_TIME_OUT_RESTART_EXCEPTION = "java.util.concurrent.TimeoutException: Futures timed out after";
 
-    public final static String  UPLOAD__RESTART_EXCEPTION= "Could not upload the program's JAR files to the JobManager";
+    public final static String  UPLOAD_RESTART_EXCEPTION= "Could not upload the program's JAR files to the JobManager";
 
     public final static String  IN_INITIALIZER_RESTART_EXCEPTION = "java.lang.ExceptionInInitializerError";
+
+    public final static String  LEASE_EXPIRED_RESTART_EXCEPTION = "org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException)";
 
     private static List<String> needRestartExceptions = Lists.newArrayList();
 
