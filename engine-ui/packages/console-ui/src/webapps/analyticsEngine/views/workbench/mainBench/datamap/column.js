@@ -22,12 +22,19 @@ class Columns extends Component {
             {
                 title: '类型',
                 dataIndex: 'type',
-                width: '100px'
+                width: '130px'
             },
             {
                 title: '描述',
                 dataIndex: 'comment',
-                width: '250px'
+                width: '250px',
+                render (comment) {
+                    if (comment) {
+                        return comment
+                    } else {
+                        return '-'
+                    }
+                }
             },
             {
                 title: '预览',
