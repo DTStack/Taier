@@ -1,6 +1,21 @@
-# Next DATA-STACK 
-一个实验版本~
+# DATA-STACK Development ( 3.2.0 )
 
+数栈 Web 前端。
+
+# 开发
+基于webpack的开发配置环境，可以使用npm管理项目
+
+```bash
+npm i
+npm run dev
+npm run build
+```
+推荐使用yarn管理依赖
+
+```bash
+yarn
+yarn add package.name
+```
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
