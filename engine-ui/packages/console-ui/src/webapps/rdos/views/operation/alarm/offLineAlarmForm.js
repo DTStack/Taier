@@ -249,7 +249,7 @@ class AlarmForm extends Component {
                         })(
                             <div>
                                 <InputNumber min={0} onChange={this.onChangeRunHour} />小时&nbsp;
-                                <InputNumber min={0} max={59} onChange={this.onChangeRunHour} />分钟
+                                <InputNumber min={0} max={59} onChange={this.onChangeRunMin} />分钟
                             </div>
                         )}
                     </FormItem>
