@@ -34,6 +34,7 @@ public class FlinkRestartStrategy extends IRestartStrategy {
         if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_RESTART_EXCEPTION)){
             return true;
         }
+
         return false;
     }
 
