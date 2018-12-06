@@ -17,17 +17,17 @@ class Columns extends Component {
             {
                 title: '字段',
                 dataIndex: 'name',
-                width: '150px'
+                width: '100px'
             },
             {
                 title: '类型',
                 dataIndex: 'type',
-                width: '130px'
+                width: '150px'
             },
             {
                 title: '描述',
                 dataIndex: 'comment',
-                width: '250px',
+                width: '150px',
                 render (comment) {
                     if (comment) {
                         return comment

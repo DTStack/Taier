@@ -120,6 +120,11 @@ class DataMap extends Component {
                                     }
                                 })
                             }, 1000)
+                        } else if (res.data.status === dataMapStatus.NORMAL) {
+                            this.props.onGetDataMap({
+                                id: res.data.id
+                            });
+                            this.initStatusSuccess()
                         }
                     } else {
                         this.setState({
@@ -165,11 +170,11 @@ class DataMap extends Component {
         const { isCreate, data, onGenerateCreateSQL } = this.props;
         const { tableData, loading, createLoading, tableColumns, tableColumnsLoading } = this.state;
         return (
-            <div style={{ padding: '24px 20px 50px 20px' }}>
+            <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
                 <SplitPane
                     split="vertical"
                     minSize={400}
-                    maxSize={640}
+                    maxSize={630}
                     defaultSize={500}
                     primary="second"
                     className="remove-default border"
