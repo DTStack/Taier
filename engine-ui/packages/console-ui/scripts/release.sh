@@ -8,7 +8,7 @@ git pull origin $master
 echo "Current pull origin $master."
 
 # Auto generate version number and tag
-standard-version --release-as minor --tag-prefix --infile $prefix
+standard-version --release-as minor --infile --tag-prefix $prefix
 
 # git push --follow-tags origin master
 
