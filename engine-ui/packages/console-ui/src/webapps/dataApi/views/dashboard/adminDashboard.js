@@ -36,7 +36,7 @@ class AdminDashboard extends Component {
         const { approvalWarning } = this.props.dashBoard;
         const approvalAlert = (this.props.dashBoard.approvedMsgCount > 0 && approvalWarning) ? (
             <Alert
-                message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approval?status=0" >立即审批</Link> </span>}
+                message={<span>您有{this.props.dashBoard.approvedMsgCount}条未处理的Api申请，请您及时处理。<Link to="/api/approvalAndsecurity/approval?status=0" >立即审批</Link> </span>}
                 type="warning"
                 closable
                 onClose={this.props.closeWarning}
@@ -72,7 +72,6 @@ class AdminDashboard extends Component {
                                 defaultActiveKey={this.state.nowView}
                                 onChange={this.topViewChange.bind(this)}
                                 className="shadow"
-
                             >
                                 <Tabs.TabPane tab="调用用户Top10" key="callTop">
                                     <TopCall data={marketOverview.callCountTop}></TopCall>

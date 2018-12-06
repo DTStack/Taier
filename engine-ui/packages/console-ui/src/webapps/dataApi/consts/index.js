@@ -15,6 +15,11 @@ export const DATA_SOURCE = {
     DB2: 17
 }
 
+export const SECURITY_TYPE = {
+    WHITE: 0,
+    BLACK: 1
+}
+
 export const API_MODE = {
     GUIDE: 0,
     SQL: 1

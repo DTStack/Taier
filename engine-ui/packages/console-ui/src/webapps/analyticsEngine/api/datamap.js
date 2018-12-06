@@ -17,5 +17,8 @@ export default {
 
     createDataMap (params) {
         return http.post(req.CREATE_DATA_MAP, params);
+    },
+    checkDataMapStatus (params) {
+        return http.post(req.CHECK_DATAMAP_STATUS, params);
     }
 }

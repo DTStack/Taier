@@ -43,6 +43,7 @@ export default {
     CREATE_DATA_MAP: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/createDataMap`, // 创建Datamap
     GET_DATAMAP_BY_TABLE: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getDataMapsByTableId`, // 创建表
     GET_DATAMAP_DETAIL: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/getDataMapDetailInfo`, // 获取DataMap详情
-    DROP_DATAMAP: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/dropDataMap` // 删除DataMap
+    DROP_DATAMAP: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/dropDataMap`, // 删除DataMap
+    CHECK_DATAMAP_STATUS: `${ANALYTICS_ENGINE_BASE_URL}/dataBaseManagement/checkDataMapStatus` // 检查DataMap状态
 
 }
