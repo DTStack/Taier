@@ -1,3 +1,0 @@
-hadoop_ips: ${hadoop_ips}
-zk_ips: ${zk_ips}
-hive_metastore: ${hive_metastore}
