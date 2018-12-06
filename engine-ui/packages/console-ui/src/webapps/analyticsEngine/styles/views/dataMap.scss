@@ -1,0 +1,11 @@
+.SplitPane:not(.remove-default)>.Pane2{
+    overflow: hidden;
+    display: flex;
+    background: #fff;
+    border-top: 1px solid #ddd;
+}
+.SplitPane.border{
+    .Pane2{
+        border-left: 1px solid #e9e9e9;
+    }
+}
