@@ -95,7 +95,7 @@
     "build": "npm install && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",
-    "release": "./scripts/build.sh",
+    "release": "./scripts/release.sh",
     "ssh": "./scripts/ssh_server.sh",
     "hotfix": "./scripts/hotfix.sh --b",
     "scp": "./scripts/scp.sh",
