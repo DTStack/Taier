@@ -57,7 +57,6 @@ public class Client {
     private final FileSystem dfs;
     private YarnClient yarnClient;
     private Path appMasterJar;
-    private String HADOOP_HOME;
 
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
@@ -65,11 +64,6 @@ public class Client {
     public Client(DtYarnConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
         this.conf = conf;
         this.dfs = FileSystem.get(conf);
-
-        HADOOP_HOME = System.getenv("HADOOP_HOME");
-        if (StringUtils.isBlank(HADOOP_HOME)) {
-            throw new RuntimeException("请设置环境变量 HADOOP_HOME");
-        }
 
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(conf);
@@ -208,7 +202,7 @@ public class Client {
         }
 
         appMasterEnv.put("CLASSPATH", classPathEnv.toString());
-        appMasterEnv.put("HADOOP_HOME", HADOOP_HOME);
+        appMasterEnv.put("HADOOP_HOME", "${HADOOP_HOME}");
         appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
