@@ -59,15 +59,9 @@ public class DtYarnShellClient extends AbsClient {
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
 
-        String hadoopConfDir = null;
         if(prop == null){
             //从本地环境变量读取
-            hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
-        }else{
-            hadoopConfDir = prop.getProperty("hadoop.conf.dir");
-        }
-
-        if (StringUtils.isNotBlank(hadoopConfDir)){
+            String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "yarn-site.xml"));
