@@ -334,7 +334,6 @@ class FolderTree extends React.Component {
                     this.props.toggleCloneTask();
                 }
             })
-        console.log(data);
     }
 
     deleteTask (data) {
@@ -510,7 +509,8 @@ class FolderTree extends React.Component {
                 treeType={treeType}
                 className={taskTypeIcon(taskType, data) || resourceTypeIcon(resourceType)}
                 isLeaf={type === 'file'}
-                key={`${type}-${id}`}
+                // ! treeType-id 的作为 Key 用于左侧任务位置定位
+                key={`${treeType}-${id}`}
             >
                 {data.children && data.children.map(o => loop(o))}
             </TreeNode>
