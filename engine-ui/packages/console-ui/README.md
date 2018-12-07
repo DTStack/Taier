@@ -17,6 +17,10 @@ yarn
 yarn add package.name
 ```
 
+# 发布
+
+> npm run release
+
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
