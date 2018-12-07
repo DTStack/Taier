@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Form, Input, Button, Select, Card, Cascader, message, Row, Col } from 'antd';
 
 import DataSourceTable from './dataSourceTable'
+import HelpDoc from '../../helpDoc';
 import { formItemLayout, API_METHOD, SECURITY_TYPE } from '../../../consts'
 import NewGroupModal from '../../../components/newGroupModal';
 import api from '../../../api/apiManage'
@@ -411,6 +412,9 @@ class ManageBasicProperties extends Component {
                                 </Select>
                                 // <Input disabled  style={{ width: '85%' }} />
                             )}
+                            <span style={{ marginLeft: '5px' }}>
+                                <HelpDoc doc="securityTip" />
+                            </span>
                         </FormItem>
                     </Form>
                 </div>

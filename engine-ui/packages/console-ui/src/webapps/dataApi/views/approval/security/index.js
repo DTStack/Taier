@@ -2,7 +2,7 @@ import React from 'react';
 import utils from 'utils';
 
 import {
-    Table, Card, Input, Button, Popconfirm, message
+    Table, Card, Input, Button, Popconfirm, message, Tooltip
 } from 'antd';
 
 import { SECURITY_TYPE } from '../../../consts';
@@ -111,9 +111,13 @@ class Security extends React.Component {
                     <span className="ant-divider" ></span>
                     <a onClick={this.openEditModal.bind(this, record, 'edit')}>编辑</a>
                     <span className="ant-divider" ></span>
-                    <Popconfirm title='确认删除此安全组吗？' onConfirm={this.delete.bind(this, record)} okText="确认" cancelText="取消">
+                    {record.refCount > 0 ? (
+                        <Tooltip arrowPointAtCenter={true} title='此安全组已关联API，请解除关联后再删除'>
+                            <span>删除</span>
+                        </Tooltip>
+                    ) : (<Popconfirm title='确认删除此安全组吗？' onConfirm={this.delete.bind(this, record)} okText="确认" cancelText="取消">
                         <a>删除</a>
-                    </Popconfirm>
+                    </Popconfirm>)}
                 </span>
             }
         }]
