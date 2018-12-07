@@ -314,7 +314,7 @@ class KeyForm extends React.Component {
                         rules: [],
                         initialValue: (editField && editField.format) || undefined
                     })(
-                        <Input placeholder="格式化, 例如：YYYY-DD-MM" />
+                        <Input placeholder="格式化, 例如：YYYY-MM-DD" />
                     )}
                     <HelpDoc doc="stringColumnFormat"/>
                 </FormItem>

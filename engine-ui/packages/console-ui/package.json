@@ -95,10 +95,13 @@
     "build": "npm install && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",
-    "release": "./scripts/build.sh",
+    "release": "./scripts/release.sh",
     "ssh": "./scripts/ssh_server.sh",
     "hotfix": "./scripts/hotfix.sh --b",
-    "scp": "./scripts/scp.sh"
+    "scp": "./scripts/scp.sh",
+    "lint": "eslint ./src/**/*.js --fix",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
+    "postchangelog": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
   },
   "keywords": [
     "generator",
@@ -107,6 +110,8 @@
   "engines": {
     "node": ">=8.9.4"
   },
+  "repository": "http://git.dtstack.cn/ziv/data-stack-web",
+  "bugs": "http://redmine.prod.dtstack.cn/issues/",
   "author": "Ziv",
   "license": "MIT"
 }

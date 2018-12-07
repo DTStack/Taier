@@ -38,7 +38,7 @@ export default {
         utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('stream_project_id', UIC_DOMAIN_URL, '/')
-        window.location.href = `${UIC_URL_TARGET}/#/login`
+        window.location.href = `${UIC_URL_TARGET}`
     },
 
     addRoleUser(user) {

@@ -127,10 +127,10 @@ module.exports = function () {
                     to: path.resolve(MY_PATH.BUILD_PATH, "public"),
                     ignore: ["*/index.html"]
                 }, {
-                    from: path.resolve(MY_PATH.ROOT_PATH, 'README.md'),
+                    from: path.resolve(MY_PATH.ROOT_PATH, 'docs'),
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }, {
-                    from: path.resolve(MY_PATH.ROOT_PATH, 'Deploy.md'),
+                    from: path.resolve(MY_PATH.ROOT_PATH, '*.md'),
                     to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
                 }, {
                     from: path.resolve(MY_PATH.PWA, 'sw.js'),

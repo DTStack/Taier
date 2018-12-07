@@ -41,8 +41,7 @@ const DefaultRowKey = { // HBase默认行健
  */
 function isFieldMatch (source, target) {
     /**
-     * TODO
-     * 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
+     * TODO 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
      */
     if (isObject(source) && isObject(target)) {
         const sourceVal = source.key || source.index;
@@ -1445,9 +1444,15 @@ class Keymap extends React.Component {
                     old: editField,
                     replace: formData
                 })
-                removeKeyMap({
-                    source: editField
-                })
+                /**
+                 * 如果字段的名称发生了改变，则KeyMap中的关系需要
+                 * 重新连接，否则则保存当前的映射关系
+                */
+                if (editField.key !== formData.key) {
+                    removeKeyMap({
+                        source: editField
+                    })
+                }
             } else {
                 editTargetKeyRow({
                     index: position,
@@ -1457,9 +1462,15 @@ class Keymap extends React.Component {
                     old: editField,
                     replace: formData
                 })
-                removeKeyMap({
-                    target: editField
-                })
+                /**
+                 * 如果字段的名称发生了改变，则KeyMap中的关系需要
+                 * 重新连接，否则则保存当前的映射关系
+                */
+                if (editField.key !== formData.key) {
+                    removeKeyMap({
+                        target: editField
+                    })
+                }
             }
             this.hideKeyModal();
         }

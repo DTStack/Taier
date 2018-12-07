@@ -80,11 +80,11 @@ class RestartModal extends Component {
         const loop = (data) => {
             for (let i = 0; i < data.length; i++) {
                 if (data[i].id === node.id) {
-                    data[i].children = children;
+                    data[i].childs = children;
                     break;
                 }
-                if (data[i].children) {
-                    loop(data[i].children)
+                if (data[i].childs) {
+                    loop(data[i].childs)
                 }
             }
         }
@@ -112,7 +112,7 @@ class RestartModal extends Component {
         const ctx = this
         const node = treeNode.props.data
         return new Promise((resolve) => {
-            if (!node.children || node.children.length === 0) {
+            if (!node.childs || node.childs.length === 0) {
                 ctx.loadTaskTree({
                     taskId: node.batchTask.id,
                     jobKey: node.jobKey,
@@ -139,13 +139,13 @@ class RestartModal extends Component {
                     <Col span="6"><TaskType value={taskType} /></Col>
                 </Row>
 
-                if (item.children) {
+                if (item.childs) {
                     return (<TreeNode
                         data={item}
                         value={id}
                         title={content}
                         key={id}>
-                        {this.getTreeNodes(item.children, currentNode)}
+                        {this.getTreeNodes(item.childs, currentNode)}
                     </TreeNode>);
                 }
                 return (<TreeNode

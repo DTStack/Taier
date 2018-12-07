@@ -2,62 +2,74 @@ import React, { Component } from 'react';
 
 import { Table, Input } from 'antd';
 const Search = Input.Search;
+
+const PAGE_SIZE = 20;
+
 class Columns extends Component {
     state = {
-        dataSource: [{
-            key: '1',
-            column: 'id',
-            type: 'string',
-            desc: '1212',
-            prev: '2121'
-        }, {
-            key: '2',
-            column: 'name',
-            type: 'string',
-            desc: '212121',
-            prev: '2121'
-        }]
+        table: {
+            pageIndex: 1,
+            total: this.props.tableColumns && this.props.tableColumns.length
+        }
     }
     initColumns = () => {
         return [
             {
                 title: '字段',
-                dataIndex: 'column',
+                dataIndex: 'name',
                 width: '100px'
-                // render () {
-                //     return 'id'
-                // }
             },
             {
                 title: '类型',
                 dataIndex: 'type',
-                width: '100px'
-                // render () {
-                //     return 'id'
-                // }
+                width: '150px'
             },
             {
                 title: '描述',
-                dataIndex: 'desc',
-                width: '150px'
-                // render () {
-                //     return 'id'
-                // }
+                dataIndex: 'comment',
+                width: '150px',
+                render (comment) {
+                    if (comment) {
+                        return comment
+                    } else {
+                        return '-'
+                    }
+                }
             },
             {
                 title: '预览',
-                dataIndex: 'prev',
-                width: '150px'
-                // render () {
-                //     return 'id'
-                // }
+                dataIndex: 'dataList',
+                width: '150px',
+                render (dataList) {
+                    if (dataList) {
+                        return dataList.map(item => {
+                            return item.join(' 、')
+                        })
+                    } else {
+                        return '-'
+                    }
+                }
             }
         ]
     }
-
+    getPagination () {
+        const { pageIndex, total } = this.state.table;
+        return {
+            currentPage: pageIndex,
+            pageSize: PAGE_SIZE,
+            total: total
+        }
+    }
+    // onTableChange = (page) => {
+    //     this.setState({
+    //         table: {
+    //             pageIndex: page.current
+    //         }
+    //     })
+    // }
     render () {
         const columns = this.initColumns();
-        const { dataSource } = this.state
+        const { tableColumns, tableColumnsLoading } = this.props
         return (
             <div>
                 <Search
@@ -65,8 +77,12 @@ class Columns extends Component {
                     style={{ marginBottom: '10px' }}
                 />
                 <Table
-                    dataSource={dataSource}
+                    dataSource={tableColumns}
                     columns={columns}
+                    pagination={this.getPagination()}
+                    // onChange={this.onTableChange}
+                    loading={tableColumnsLoading}
+                    size='small'
                 >
                 </Table>
             </div>

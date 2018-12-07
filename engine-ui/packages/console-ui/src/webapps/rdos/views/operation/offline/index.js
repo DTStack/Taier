@@ -113,7 +113,9 @@ class OfflineStatistics extends Component {
     }
 
     initLineChart (chartData) {
-        let myChart = echarts.init(document.getElementById('TaskTrend'));
+        const chartContainer = document.getElementById('TaskTrend');
+        if (!chartContainer) return;
+        let myChart = echarts.init(chartContainer);
         const option = cloneDeep(lineAreaChartOptions);
         option.title.text = ''
         option.tooltip.axisPointer.label.formatter = '{value}: 00'

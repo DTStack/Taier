@@ -1,25 +1,21 @@
-<<<<<<< HEAD
-# Next DATA-STACK 
-=======
-# DATA-STACK 
+# DATA-STACK Development ( 3.2.0 )
 
-# 更新日志 | [部署文档](./Deploy.md) 
+数栈 Web 前端。
 
- > 版本：DTinsight v3.1.0 <br>
- > 日期：2018-12-01
+# 开发
+基于webpack的开发配置环境，可以使用npm管理项目
 
-- 【 开发套件 】新增DTinsight、 DB2数据源类型
-- 【 开发套件 】新增任务 Clone 功能（暂时隐藏）
-- 【 开发套件 】SQL 编辑时支持右侧表详细信息快捷查询面板
-- 【 任务运维 】新增脏数据提示、任务成功数量维度
-- 【 数据地图 新增字段级权限
-- 【 流计算 】新增 MongoDB、Redis 2种数据源
-- 【 应用自定义 】新增资源平台首页
-- 【 其他 】大量的 Bugfix、细节优化, [详情请看](http://redmine.prod.dtstack.cn/projects/dtinsight-v3-1-0/issues)
->>>>>>> release_v3.1.0
+```bash
+npm i
+npm run dev
+npm run build
+```
+推荐使用yarn管理依赖
 
-一个实验版本~
-
+```bash
+yarn
+yarn add package.name
+```
 
 # 其他文档
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
