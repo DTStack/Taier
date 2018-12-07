@@ -20,5 +20,8 @@ export default {
     },
     checkDataMapStatus (params) {
         return http.post(req.CHECK_DATAMAP_STATUS, params);
+    },
+    getTableColumns (params) {
+        return http.post(req.GET_TABLE_COLUMNS, params);
     }
 }

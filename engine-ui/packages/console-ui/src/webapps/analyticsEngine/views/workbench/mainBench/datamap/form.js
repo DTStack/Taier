@@ -246,10 +246,7 @@ class DataMapForm extends Component {
                                 databaseId: tableData ? tableData.databaseId : undefined
                             })
                         }}>生成建表语句</a>
-                    </span>&nbsp;&nbsp;
-                    {/* <span>
-                        <a onClick={() => {}}>展开字段信息</a>
-                    </span> */}
+                    </span>
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap名称" hasFeedback>
                     {getFieldDecorator('name', {

@@ -64,5 +64,14 @@ export default {
     },
     checkNameExist (params) {
         return http.post(req.CHECK_API_IS_EXIST, params);
+    },
+    getSecuritySimpleList (params) {
+        return http.post(req.GET_SECURITY_SIMPLE_LIST, params)
+    },
+    updateLimiter (params) {
+        return http.post(req.UPDATE_LIMITER, params)
+    },
+    listSecurityGroupByApiId (params) {
+        return http.post(req.LIST_SECURITY_GROUP_BY_ID, params)
     }
 }

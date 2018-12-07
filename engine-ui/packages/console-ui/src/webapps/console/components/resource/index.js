@@ -1,9 +1,3 @@
-/*
-* @Author: 12574
-* @Date:   2018-09-25 10:23:07
-* @Last Modified by:   12574
-* @Last Modified time: 2018-09-30 16:56:08
-*/
 
 // 剩余资源
 import React, { Component } from 'react';

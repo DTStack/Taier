@@ -23,20 +23,7 @@
     font-size:12px;
     padding-top:8px;
 }
-.title-border-l-blue{
-    font-size:14px;
-    position: relative;
-    line-height:1.1;
-}
-.title-border-l-blue:before{
-    content:"";
-    position: absolute;
-    left:-10px;
-    width: 4px;
-    top:0px;
-    bottom:0px;
-    background: #2491F7;
-}
+
 .pseudo-title:before{
     content:attr(data-title);
     padding-right:2px;

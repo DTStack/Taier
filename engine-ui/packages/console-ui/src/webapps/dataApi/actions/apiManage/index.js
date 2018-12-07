@@ -17,6 +17,20 @@ export const apiManageActions = {
             });
         }
     },
+    // 获取安全组列表
+    getSecuritySimpleList (params) {
+        return (dispatch) => {
+            return API.getSecuritySimpleList(params).then((res) => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: ACTION_TYPE.GET_SECURITY_LIST,
+                        payload: res.data
+                    });
+                    return res;
+                }
+            });
+        }
+    },
     // 获取数据源信息
     getDataSourceByBaseInfo (params) {
         return (dispatch) => {

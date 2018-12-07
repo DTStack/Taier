@@ -23,3 +23,27 @@ table{
 .text-middle{
     text-align: center;
 }
+.title-border-l-blue{
+    font-size:14px;
+    position: relative;
+    line-height:1.1;
+}
+.title-border-l-blue:before{
+    content:"";
+    position: absolute;
+    left:-10px;
+    width: 4px;
+    top:0px;
+    bottom:0px;
+    background: #2491F7;
+}
+.form-title-line{
+    padding-bottom: 20px;
+    .form-title{
+        line-height: 20px;
+        white-space: nowrap;
+        float: right;
+        text-align: left;
+        width: 70px;
+    }
+}

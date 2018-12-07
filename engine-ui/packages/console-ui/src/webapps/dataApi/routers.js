@@ -28,7 +28,6 @@ import APIManage from './views/management'
 import APIMarket from './views/market'
 import MyAPI from './views/myApi'
 
-import APIManageDetail from './views/management/apiDetail'
 import ApiType from './views/management/apiType'
 import NewApi from './views/management/createApi'
 
@@ -61,7 +60,6 @@ export default (
                 <Route path="security" component={ Security }></Route>
             </Route>
             <Route path="manage" component={ APIManage }></Route>
-            <Route path="manage/detail/:api" component={ APIManageDetail }></Route>
             <Route path="manage/apiType" component={ ApiType }></Route>
             <Route path="manage/newApi" component={ NewApi }></Route>
             <Route path="market" component={ APIMarket }></Route>
