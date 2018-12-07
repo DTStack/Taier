@@ -11,11 +11,10 @@ import {
 const renderHDFSTypes = () => {
     return <span>
         <b>STRING</b>,
-        <b>BOOLEAN</b>,
-        <b>SHORT</b>,
-        <b>LONG</b>,
-        <b>FLOAT</b>,
-        <b>DOUBLE</b>,
+        <b> LONG</b>,
+        <b> DOUBLE</b>,
+        <b> BOOLEAN</b>,
+        <b> DATE</b>
     </span>
 }
 
@@ -47,10 +46,12 @@ export default function BatchModal (props) {
             onCancel={onCancel}
             visible={visible}>
             <p>
-                批量导入的语法格式：
+                批量导入的语法格式（index 从 0 开始）：
                 <b style={{ color: 'rgb(255, 102, 0)' }}>
                     {desc}
                 </b>
+            </p>
+            <p>
             </p>
             <p>常用数据类型（type)：
                 <span style={{ color: 'rgb(255, 102, 0)' }}>
