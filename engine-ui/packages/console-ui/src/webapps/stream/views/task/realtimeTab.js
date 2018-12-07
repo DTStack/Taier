@@ -465,7 +465,9 @@ class RealTimeTabPane extends Component {
         }
 
         const getExpandedKey = (path) => {
-            return path && path.split('-');
+            return path && path.split('-').map((item) => {
+                return item + ':folder';
+            });
         }
 
         const scroll = () => {
@@ -617,7 +619,7 @@ class RealTimeTabPane extends Component {
                                         treeType={menuItem.catalogueType}
                                         expandedKeys={this.safeExpandedKeys(expandedKeys, menuItem.children)}
                                         onExpand={this.onExpand}
-                                        selectedKeys={[`${currentPage.id}`]}
+                                        selectedKeys={[`${currentPage.id}:file`]}
                                     />
                                 </div>
                             </div>

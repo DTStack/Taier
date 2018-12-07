@@ -407,7 +407,7 @@ class ManageBasicProperties extends Component {
                             {getFieldDecorator('securityGroupIds', {
                                 initialValue: this.props.securityGroupIds || []
                             })(
-                                <Select style={{ width: '85%' }} mode="multiple">
+                                <Select style={{ width: '85%' }} mode="multiple" optionFilterProp="children">
                                     {this.getSecurityListView()}
                                 </Select>
                                 // <Input disabled  style={{ width: '85%' }} />

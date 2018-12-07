@@ -687,6 +687,7 @@ export default class OutputPanel extends Component {
 
     handleInputChange = (/** 改变的属性 */type, /** 改变的panel序号 */index, value, subValue) => { // 监听数据改变
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
+        let shouldUpdateEditor = true;
         if (type === 'columns') {
             panelColumn[index][type].push(value);
         } else if (type === 'deleteColumn') {
@@ -770,11 +771,14 @@ export default class OutputPanel extends Component {
             if (panelColumn[index].type == DATA_SOURCE.MYSQL) {
                 this.getTableColumns(index, sourceId, value)
             }
+        } else {
+            shouldUpdateEditor = false;
         }
         this.props.tableParamsChange()// 添加数据改变标记
         this.setOutputData({ panelColumn })
         this.setState({
-            panelColumn
+            panelColumn,
+            sync: shouldUpdateEditor
         })
     }
 

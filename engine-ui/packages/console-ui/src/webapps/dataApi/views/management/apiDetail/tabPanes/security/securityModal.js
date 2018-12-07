@@ -77,7 +77,7 @@ class SecurityModal extends React.Component {
                     {getFieldDecorator('groupIdList', {
                         initialValue: this.exchangeDataToSelectData(data) || []
                     })(
-                        <Select mode="multiple">
+                        <Select mode="multiple" optionFilterProp="children">
                             {this.getSecurityListView()}
                         </Select>
                     )}
