@@ -53,12 +53,18 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+
         LOG.info("DtYarnShellClient init ...");
+
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-        String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
-        if (StringUtils.isBlank(hadoopConfDir)) {
+
+        String hadoopConfDir = null;
+        if(prop == null){
+            //从本地环境变量读取
             hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
+        }else{
+            hadoopConfDir = prop.getProperty("hadoop.conf.dir");
         }
 
         if (StringUtils.isNotBlank(hadoopConfDir)){
@@ -92,6 +98,7 @@ public class DtYarnShellClient extends AbsClient {
         if (StringUtils.isNotBlank(queue)){
             conf.set(DtYarnConfiguration.DT_APP_QUEUE, queue);
         }
+
         client = new Client(conf);
     }
 

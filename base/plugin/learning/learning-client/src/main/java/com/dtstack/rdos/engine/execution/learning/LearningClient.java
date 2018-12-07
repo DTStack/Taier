@@ -56,7 +56,12 @@ public class LearningClient extends AbsClient {
         LOG.info("LearningClien.init ...");
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-        String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
+
+        String hadoopConfDir = null;
+        if(prop != null){
+            hadoopConfDir = prop.getProperty("hadoop.conf.dir");
+        }
+
         if(StringUtils.isNotBlank(hadoopConfDir)) {
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
@@ -84,10 +89,12 @@ public class LearningClient extends AbsClient {
                 conf.set(key, value.toString());
             }
         }
+
         String queue = prop.getProperty(LearningConfiguration.LEARNING_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
             conf.set(LearningConfiguration.LEARNING_APP_QUEUE, queue);
         }
+
         client = new Client(conf);
     }
 
