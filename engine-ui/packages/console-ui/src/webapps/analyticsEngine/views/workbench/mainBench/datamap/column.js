@@ -10,8 +10,9 @@ class Columns extends Component {
     state = {
         table: {
             pageIndex: 1,
-            total: this.props.tableColumns && this.props.tableColumns.length
-        }
+            total: (this.props.tableColumns && this.props.tableColumns.length) || 0
+        },
+        searchVal: undefined
     }
     initColumns = () => {
         return [
@@ -57,6 +58,21 @@ class Columns extends Component {
             }
         ]
     }
+    search = (e) => {
+        this.setState({
+            searchVal: e.target.value
+        })
+    }
+    fliterTableColumns = (tableColumns) => {
+        const { searchVal } = this.state;
+        if (!searchVal) {
+            return tableColumns
+        } else {
+            return tableColumns.filter(item => {
+                return item.name.indexOf(searchVal) > -1
+            })
+        }
+    }
     getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
@@ -65,13 +81,6 @@ class Columns extends Component {
             total: total
         }
     }
-    // onTableChange = (page) => {
-    //     this.setState({
-    //         table: {
-    //             pageIndex: page.current
-    //         }
-    //     })
-    // }
     render () {
         const columns = this.initColumns();
         const { tableColumns, tableColumnsLoading } = this.props
@@ -80,14 +89,13 @@ class Columns extends Component {
                 <Search
                     placeholder='请输入字段名搜索'
                     style={{ marginBottom: '20px' }}
+                    onChange={this.search}
                 />
                 <Table
-                    dataSource={tableColumns}
+                    dataSource={this.fliterTableColumns(tableColumns)}
                     columns={columns}
                     pagination={this.getPagination()}
-                    // onChange={this.onTableChange}
                     loading={tableColumnsLoading}
-                    // size='small'
                     bordered={true}
                 >
                 </Table>
