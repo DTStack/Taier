@@ -634,7 +634,7 @@ class OfflineTaskList extends Component {
                                     <Select
                                         allowClear
                                         showSearch
-                                        size='Default'
+                                        size='default'
                                         style={{ width: 126 }}
                                         placeholder="责任人"
                                         optionFilterProp="name"

@@ -892,18 +892,17 @@ class WorkflowEditor extends Component {
             return item.key !== TASK_TYPE.WORKFLOW &&
                 <Tooltip
                     placement="right"
+                    key={item.key}
                     title={showTitle(item.key, item.value)}
                 >
                     <Button
                         id={`${WIDGETS_PREFIX}${item.key}`}
                         className="widgets-items"
-                        key={item.key}
                         value={item.key}>
                         {item.value}
                     </Button>
                 </Tooltip>
-        }
-        )
+        })
 
         return (
             <div className="graph-widgets">
