@@ -1,4 +1,4 @@
-# DATA-STACK Development ( 3.2.0 )
+# DATA-STACK Development ( v3.2.0 )
 
 数栈 Web 前端。
 
