@@ -76,10 +76,10 @@ export default class ConstModal extends React.Component {
                     onChange={this.onChange}
                     placeholder="请输入常量值"
                 />
-                <p style={{ marginTop: '10px' }}>1.输入的常量值将会被英文单引号包括，如'abc'、'123'等；</p>
-                <p>2.可以配合调度参数<HelpDoc style={relativeStyle} doc="customSystemParams" /> 使用，如 ${`{bdp.system.bizdate}`}
-                等；</p>
-                <p>3.如果您输入的值无法解析，则类型显示为'未识别'；</p>
+                <p style={{ marginTop: '10px' }}>1.输入的常量值将会被英文单引号包括，如'abc'、'123'等</p>
+                <p>2.可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}
+                等 <HelpDoc style={relativeStyle} doc="customSystemParams" /></p>
+                <p>3.如果您输入的值无法解析，则类型显示为'未识别'</p>
             </Modal>
         )
         /* eslint-disable */

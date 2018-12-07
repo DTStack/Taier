@@ -328,7 +328,7 @@ export const workbenchActions = (dispatch) => {
                 if (sourceMap.column && sourceMap.column.length > 0) {
                     let str = '';
                     for (let i = 0; i < sourceMap.column.length; i++) {
-                        str += `${sourceMap.column[i].key || sourceMap.column[i].index}`;
+                        str += `${sourceMap.column[i].key || sourceMap.column[i].index} ${sourceMap.column[i].value || ''}`;
                     }
                     const vbs = matchTaskParams(taskCustomParams, str);
                     taskVariables = taskVariables.concat(vbs);
