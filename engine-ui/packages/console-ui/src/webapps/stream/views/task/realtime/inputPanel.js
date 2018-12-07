@@ -554,6 +554,7 @@ export default class InputPanel extends Component {
         // }else{
         //     panelColumn[index][type] = value;
         // }
+        let shouldUpdateEditor = true;
         const allParamsType = ['type', 'sourceId', 'topic', 'table', 'columns', 'timeType', 'timeColumn', 'offset', 'columnsText', 'parallelism']
         if (type === 'columnsText') {
             this.parseColumnsText(index, value, 'changeText')
@@ -611,11 +612,14 @@ export default class InputPanel extends Component {
                     }
                 }
             })
+        } else {
+            shouldUpdateEditor = false;
         }
         this.props.tableParamsChange()// 添加数据改变标记
         this.setCurrentSource({ panelColumn })
         this.setState({
-            panelColumn
+            panelColumn,
+            sync: shouldUpdateEditor
         })
     }
 

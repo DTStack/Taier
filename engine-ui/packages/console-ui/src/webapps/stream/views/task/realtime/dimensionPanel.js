@@ -53,7 +53,9 @@ class OutputOrigin extends Component {
         });
         return result;
     };
-
+    componentDidUpdate () {
+        this.refreshEditor();
+    }
     originOption = (type, arrData) => {
         switch (type) {
             case 'originType':
@@ -968,7 +970,7 @@ export default class OutputPanel extends Component {
 
     handleInputChange = (type, index, value, subValue) => {
         // 监听数据改变
-
+        let shouldUpdateEditor = true;
         const {
             panelColumn,
             originOptionType,
@@ -1083,11 +1085,14 @@ export default class OutputPanel extends Component {
             if (panelColumn[index].type == DATA_SOURCE.MYSQL) {
                 this.getTableColumns(index, sourceId, value);
             }
+        } else {
+            shouldUpdateEditor = false;
         }
         this.props.tableParamsChange(); // 添加数据改变标记
         this.setOutputData({ panelColumn });
         this.setState({
-            panelColumn
+            panelColumn,
+            sync: shouldUpdateEditor
         });
     };
 
