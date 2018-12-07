@@ -106,8 +106,10 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
     "changeissueurl": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
   },
-  "gitHooks": {
-    "commit-msg": "commitlint -c .commitlintrc.js"
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   },
   "standard-version": {
     "scripts": {
