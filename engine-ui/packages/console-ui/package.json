@@ -44,6 +44,8 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-stage-0": "^7.0.0",
     "@babel/preset-stage-2": "^7.0.0",
+    "@commitlint/cli": "7.2.1",
+    "@commitlint/config-angular": "7.1.2",
     "babel-eslint": "10.0.1",
     "babel-loader": "^8.0.4",
     "babel-plugin-import": "^1.11.0",
@@ -65,6 +67,7 @@
     "eslint-plugin-standard": "4.0.0",
     "file-loader": "^1.1.11",
     "friendly-errors-webpack-plugin": "^1.7.0",
+    "git-hooks": "1.1.10",
     "happypack": "^5.0.0",
     "html-webpack-plugin": "^4.0.0-alpha",
     "less": "3.8.1",
@@ -103,6 +106,9 @@
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
     "changeissueurl": "replace 'http://git.dtstack.cn/ziv/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
   },
+  "gitHooks": {
+    "commit-msg": "commitlint -c .commitlintrc.js"
+  },
   "standard-version": {
     "scripts": {
       "postchangelog": "npm run changeissueurl"
@@ -116,7 +122,9 @@
     "node": ">=8.9.4"
   },
   "repository": "http://git.dtstack.cn/ziv/data-stack-web",
-  "bugs": "http://redmine.prod.dtstack.cn/issues/",
+  "bugs": {
+    "url": "http://redmine.prod.dtstack.cn/issues/"
+  },
   "author": "Ziv",
   "license": "MIT"
 }
