@@ -67,8 +67,9 @@ class OfflineTabPane extends Component {
         this.props.loadTaskParams();
         this.getCatelogue();
     }
+
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const old = this.props.project;
         const newData = nextProps.project;
         const nextTab = nextProps.currentTabData;
