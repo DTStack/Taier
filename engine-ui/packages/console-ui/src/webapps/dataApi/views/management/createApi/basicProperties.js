@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import { Form, Input, Button, Select, Card, Cascader, message } from 'antd';
+import { Form, Input, Button, Select, Card, Cascader, message, Row, Col } from 'antd';
 
 import DataSourceTable from './dataSourceTable'
-import { formItemLayout, API_METHOD } from '../../../consts'
+import { formItemLayout, API_METHOD, SECURITY_TYPE } from '../../../consts'
 import NewGroupModal from '../../../components/newGroupModal';
 import api from '../../../api/apiManage'
 
@@ -18,7 +18,6 @@ class ManageBasicProperties extends Component {
         tableDetailList: {}
     }
     componentDidMount () {
-        this.props.getCatalogue(0);
         this.getDataSource();
     }
     pass () {
@@ -71,6 +70,14 @@ class ManageBasicProperties extends Component {
         return data.map(
             (item, index) => {
                 return <Option key={item}>{item}</Option>
+            }
+        )
+    }
+    getSecurityListView () {
+        const data = this.props.apiManage.securityList;
+        return data.map(
+            (item, index) => {
+                return <Option value={item.id} key={item.id}>{`${item.name} (${item.type == SECURITY_TYPE.BLACK ? '黑名单' : '白名单'})`}</Option>
             }
         )
     }
@@ -251,6 +258,11 @@ class ManageBasicProperties extends Component {
             <div>
                 <div className="steps-content">
                     <Form>
+                        <Row>
+                            <Col className="form-title-line" {...formItemLayout.labelCol}>
+                                <span className='form-title title-border-l-blue'>基本信息</span>
+                            </Col>
+                        </Row>
                         <FormItem
                             {...formItemLayout}
                             label="所属分组"
@@ -296,7 +308,7 @@ class ManageBasicProperties extends Component {
                                     { max: 200, message: '最大字符不能超过200' }],
                                 initialValue: this.props.APIdescription
                             })(
-                                <TextArea style={{ width: '85%' }} />
+                                <TextArea autosize={{ minRows: 3, maxRows: 5 }} style={{ width: '85%' }} />
                             )}
                         </FormItem>
                         <FormItem
@@ -314,29 +326,11 @@ class ManageBasicProperties extends Component {
                                 <Input style={{ width: '85%' }} />
                             )}
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="调用限制"
-                        >
-                            {getFieldDecorator('callLimit', {
-                                rules: [
-                                    { required: true, message: '请输入调用次数限制' },
-                                    {
-                                        validator: function (rule, value, callback) {
-                                            if (value && (value > 2000 || value < 1)) {
-                                                const error = '请输入不大于2000的正整数'
-                                                callback(error)
-                                                return;
-                                            }
-                                            callback();
-                                        }
-                                    }
-                                ],
-                                initialValue: this.props.callLimit
-                            })(
-                                <Input style={{ width: '85%' }} type="number" placeholder="单用户每秒最大调用次数不超过2000次" />
-                            )}
-                        </FormItem>
+                        <Row style={{ marginTop: '40px' }}>
+                            <Col className="form-title-line" {...formItemLayout.labelCol}>
+                                <span className='form-title title-border-l-blue'>API参数</span>
+                            </Col>
+                        </Row>
                         <FormItem
                             {...formItemLayout}
                             label="协议"
@@ -373,6 +367,47 @@ class ManageBasicProperties extends Component {
                             })(
                                 <Select style={{ width: '85%' }}>
                                     <Option value="JSON">JSON</Option>
+                                </Select>
+                                // <Input disabled  style={{ width: '85%' }} />
+                            )}
+                        </FormItem>
+                        <Row style={{ marginTop: '40px' }}>
+                            <Col className="form-title-line" {...formItemLayout.labelCol}>
+                                <span className='form-title title-border-l-blue'>安全与限制策略</span>
+                            </Col>
+                        </Row>
+                        <FormItem
+                            {...formItemLayout}
+                            label="调用次数限制"
+                        >
+                            {getFieldDecorator('callLimit', {
+                                rules: [
+                                    { required: true, message: '请输入调用次数限制' },
+                                    {
+                                        validator: function (rule, value, callback) {
+                                            if (value && (value > 2000 || value < 1)) {
+                                                const error = '请输入不大于2000的正整数'
+                                                callback(error)
+                                                return;
+                                            }
+                                            callback();
+                                        }
+                                    }
+                                ],
+                                initialValue: this.props.callLimit
+                            })(
+                                <Input style={{ width: '85%' }} type="number" placeholder="单用户每秒最大调用次数不超过2000次" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="安全组"
+                        >
+                            {getFieldDecorator('securityGroupIds', {
+                                initialValue: this.props.securityGroupIds || []
+                            })(
+                                <Select style={{ width: '85%' }} mode="multiple">
+                                    {this.getSecurityListView()}
                                 </Select>
                                 // <Input disabled  style={{ width: '85%' }} />
                             )}

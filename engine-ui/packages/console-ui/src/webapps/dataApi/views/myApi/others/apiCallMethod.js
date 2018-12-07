@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Content from '../../../components/apiContent';
 import { apiMarketActions } from '../../../actions/apiMarket';
+import apiManage from '../../../api/apiManage'
 
 const mapStateToProps = state => {
     const { user, apiMarket } = state;
@@ -31,7 +32,8 @@ class ApiCallMethod extends Component {
         callUrl: '',
         beginTime: undefined,
         endTime: undefined,
-        callLimit: 0
+        callLimit: 0,
+        securityList: []
     }
 
     getApiCallUrl (apiId) {
@@ -57,7 +59,7 @@ class ApiCallMethod extends Component {
         this.updateData(apiId, status, mode);
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { showRecord = {} } = this.props;
         let { apiId, status, id } = showRecord;
         const { showRecord: nextShowRecord = {}, slidePaneShow, mode } = nextProps;
@@ -72,12 +74,22 @@ class ApiCallMethod extends Component {
             }
         }
     }
+    fetchSecurityList (apiId) {
+        apiManage.listSecurityGroupByApiId({ apiId }).then((res) => {
+            if (res.code == 1) {
+                this.setState({
+                    securityList: res.data
+                })
+            }
+        });
+    }
     updateData (apiId, status, mode) {
         this.setState({
             callUrl: '',
             beginTime: undefined,
             endTime: undefined,
-            callLimit: 0
+            callLimit: 0,
+            securityList: []
         })
         if (!apiId) {
             return;
@@ -85,13 +97,14 @@ class ApiCallMethod extends Component {
 
         if (mode != 'manage') {
             this.getApiCallUrl(apiId);
+            this.fetchSecurityList(apiId);
         }
 
         this.props.getApiDetail(apiId);
         this.props.getApiExtInfo(apiId);
     }
     render () {
-        const { callUrl, beginTime, endTime, callLimit } = this.state;
+        const { callUrl, beginTime, endTime, callLimit, securityList } = this.state;
         const { showRecord = {}, apiMarket, mode, showUserInfo } = this.props;
         let { apiId, id } = showRecord;
         apiId = mode == 'manage' ? id : apiId;
@@ -99,7 +112,18 @@ class ApiCallMethod extends Component {
         return (
             <div>
                 <div style={{ paddingLeft: 30, marginTop: '20px' }}>
-                    <Content showUserInfo={showUserInfo} callLimit={callLimit} beginTime={beginTime} endTime={endTime} showRecord={showRecord} mode={mode} callUrl={callUrl} apiMarket={apiMarket} apiId={apiId} />
+                    <Content
+                        securityList={securityList}
+                        showSecurity={mode != 'manage'}
+                        showUserInfo={showUserInfo}
+                        callLimit={callLimit}
+                        beginTime={beginTime}
+                        endTime={endTime}
+                        showRecord={showRecord}
+                        mode={mode}
+                        callUrl={callUrl}
+                        apiMarket={apiMarket}
+                        apiId={apiId} />
                 </div>
             </div>
         )

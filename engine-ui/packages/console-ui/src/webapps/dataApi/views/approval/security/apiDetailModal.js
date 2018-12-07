@@ -63,6 +63,7 @@ class APIDetailModal extends React.Component {
                 onCancel={onCancel}
                 footer={<Button onClick={onCancel} type="primary">关闭</Button>}
                 title={`关联API (${record.name})`}
+                width={480}
             >
                 <Table
                     className="m-table border-table"

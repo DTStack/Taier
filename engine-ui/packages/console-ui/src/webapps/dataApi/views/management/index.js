@@ -17,6 +17,9 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => ({
+    getSecurityList () {
+        return dispatch(apiManageActions.getSecuritySimpleList());
+    },
     getCatalogue (pid) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
@@ -60,6 +63,7 @@ class APIMana extends Component {
     }
     componentDidMount () {
         this.props.getCatalogue(0);
+        this.props.getSecurityList();
         this.getAllApi()
             .then((res) => {
                 const apiId = this.props.location.state && this.props.location.state.apiId;
@@ -146,8 +150,7 @@ class APIMana extends Component {
             pageIndex: page.current,
             filter: filter,
             sortedInfo: sorter
-        },
-        () => {
+        }, () => {
             this.getAllApi();
         });
     }
@@ -374,8 +377,7 @@ class APIMana extends Component {
         this.setState({
             dataSourceType: key,
             dataSource: undefined
-        },
-        () => {
+        }, () => {
             this.getDataSource();
             this.getAllApi();
         })
@@ -384,8 +386,7 @@ class APIMana extends Component {
     dataSourceChange (key) {
         this.setState({
             dataSource: key
-        },
-        () => {
+        }, () => {
             this.getAllApi();
         })
     }
@@ -396,8 +397,7 @@ class APIMana extends Component {
         }
         this.setState({
             changeMan: changeMan
-        },
-        () => {
+        }, () => {
             this.getAllApi();
         })
     }

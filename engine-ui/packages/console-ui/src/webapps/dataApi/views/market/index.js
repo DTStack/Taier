@@ -400,7 +400,11 @@ class APIMarket extends Component {
                         >
                             <Tabs.TabPane tab="API详情" key="callMethod">
                                 <div style={{ paddingLeft: '40px', paddingTop: '20px' }}>
-                                    <Content apiMarket={apiMarket} apiId={detailRecord.key} showMarketInfo={true} />
+                                    <Content
+                                        apiMarket={apiMarket}
+                                        apiId={detailRecord.key}
+                                        showMarketInfo={true}
+                                    />
                                 </div>
                             </Tabs.TabPane>
                         </Tabs>

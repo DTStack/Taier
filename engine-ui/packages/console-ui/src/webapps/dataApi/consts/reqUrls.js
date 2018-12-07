@@ -13,6 +13,9 @@ export default {
     UPDATE_SECURITY: `${DATA_API_BASE_URL}/apply/securityGroup/update`, // 更新安全组
     DELETE_SECURITY: `${DATA_API_BASE_URL}/apply/securityGroup/delete`, // 删除安全组
     LIST_SECURITY_API_INFO: `${DATA_API_BASE_URL}/apply/securityGroup/listApiInfo`, // 查看关联的API
+    GET_SECURITY_SIMPLE_LIST: `${DATA_API_BASE_URL}/securityGroup/listSecurityGroupForView`, // 获取安全组简略列表
+    LIST_SECURITY_GROUP_BY_ID: `${DATA_API_BASE_URL}/securityGroup/listSecurityGroupByApiId`, // 获取api的安全组
+    UPDATE_LIMITER: `${DATA_API_BASE_URL}/apis/updateLimiter`, // 更新调用限制和安全组
 
     // ===== api管理 ===== //
     GET_ALL_API_LIST: `${DATA_API_BASE_URL}/apis/listByConditionForAdmin`, // 获取所有的api

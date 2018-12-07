@@ -2,11 +2,10 @@ import { apiManageActionType } from '../../../consts/apiManageActionType';
 import { cloneDeep } from 'lodash';
 
 const initialState = {
-
     apiList: [],
     disAbleTip: window.localStorage.getItem('disAbleTip'),
-    isClickCode: false
-
+    isClickCode: false,
+    securityList: []
 }
 
 export default function apiManage (state = initialState, action) {
@@ -15,6 +14,11 @@ export default function apiManage (state = initialState, action) {
         case apiManageActionType.GET_ALL_API_LIST: {
             const clone = cloneDeep(state);
             clone.apiList = payload
+            return clone;
+        }
+        case apiManageActionType.GET_SECURITY_LIST: {
+            const clone = cloneDeep(state);
+            clone.securityList = payload
             return clone;
         }
         case apiManageActionType.CHANGE_DISABLE_TIP: {

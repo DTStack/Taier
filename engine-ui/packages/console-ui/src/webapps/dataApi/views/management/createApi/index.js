@@ -27,6 +27,9 @@ const mapDispatchToProps = dispatch => ({
     getCatalogue (pid) {
         return dispatch(apiMarketActions.getCatalogue(pid));
     },
+    getSecurityList () {
+        return dispatch(apiManageActions.getSecuritySimpleList());
+    },
     getDataSourceList (type) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
     },
@@ -91,29 +94,30 @@ class NewApi extends Component {
                 loading: true,
                 apiEdit: true
             })
-            this.props.getCatalogue(0)
-                .then(
-                    (res) => {
-                        if (res) {
-                            return true;
-                        }
-                    }
-                )
-                .then(
-                    (success) => {
-                        if (success) {
-                            this.props.getApiInfo(apiId)
-                                .then(
-                                    (res) => {
-                                        if (res) {
-                                            this.setDefault(res.data);
-                                        }
-                                    }
-                                )
-                        }
-                    }
-                );
         }
+        this.props.getSecurityList();
+        this.props.getCatalogue(0)
+            .then(
+                (res) => {
+                    if (res) {
+                        return true;
+                    }
+                }
+            )
+            .then(
+                (success) => {
+                    if (success && apiId) {
+                        this.props.getApiInfo(apiId)
+                            .then(
+                                (res) => {
+                                    if (res) {
+                                        this.setDefault(res.data);
+                                    }
+                                }
+                            )
+                    }
+                }
+            );
     }
     changeColumnsEditStatus (input, output) {
         this.setState({
@@ -187,7 +191,8 @@ class NewApi extends Component {
                 method: data.reqType,
                 protocol: data.protocol,
                 responseType: data.responseType,
-                reqType: data.reqType
+                reqType: data.reqType,
+                securityGroupIds: data.securityGroupIds
             },
             paramsConfig: {
                 dataSourceType: data.dataSourceType,
@@ -278,6 +283,7 @@ class NewApi extends Component {
         params.tableName = this.state.paramsConfig.tableName;// 数据表
         params.dataSourceType = this.state.paramsConfig.dataSourceType;// 数据源类型
         params.reqLimit = this.state.basicProperties.callLimit;// 调用限制
+        params.securityGroupIds = this.state.basicProperties.securityGroupIds;// 安全组
         params.apiPath = this.state.basicProperties.APIPath;// api路径
         params.reqType = this.state.basicProperties.method;// http method
         params.protocol = this.state.basicProperties.protocol;// 协议

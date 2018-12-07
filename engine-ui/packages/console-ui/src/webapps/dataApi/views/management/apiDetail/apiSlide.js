@@ -8,6 +8,7 @@ import ApiCallMethod from '../../myApi/others/apiCallMethod';
 import BuyManageState from './tabPanes/buyState';
 import ApiCallState from './tabPanes/callState';
 import ErrorLog from './tabPanes/errorLog';
+import Security from './tabPanes/security';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
@@ -19,7 +20,6 @@ class apiSlidePane extends Component {
         date: '1'
 
     }
-
     callback (key) {
         console.log(key)
         this.setState({
@@ -78,6 +78,9 @@ class apiSlidePane extends Component {
                 >
                     <Tabs.TabPane tab="API详情" key="callMethod">
                         <ApiCallMethod mode="manage" {...this.props} ></ApiCallMethod>
+                    </Tabs.TabPane>
+                    <Tabs.TabPane tab="安全与限制" key="security">
+                        <Security apiId={showRecord.id} key={showRecord.id} />
                     </Tabs.TabPane>
                     <Tabs.TabPane tab="调用情况" key="callState">
                         <h1 className="title-border-l-blue slide-title">调用统计</h1>
