@@ -170,16 +170,16 @@ class DataMap extends Component {
         const { isCreate, data, onGenerateCreateSQL } = this.props;
         const { tableData, loading, createLoading, tableColumns, tableColumnsLoading } = this.state;
         return (
-            <div className="pane-wrapper" style={{ padding: '24px 20px 50px 20px' }}>
+            <div className="pane-wrapper" style={{ padding: '0px 20px 50px 20px' }}>
                 <SplitPane
                     split="vertical"
                     minSize={400}
-                    maxSize={630}
-                    defaultSize={500}
+                    maxSize={600}
+                    defaultSize={400}
                     primary="second"
                     className="remove-default border"
                 >
-                    <div className="pane-wrapper" style={{ float: 'left' }}>
+                    <div className="pane-wrapper" style={{ float: 'left', paddingTop: '24px' }}>
                         <DataMapForm
                             data={data}
                             isCreate={isCreate}
@@ -209,7 +209,7 @@ class DataMap extends Component {
                             }
                         </Row>
                     </div>
-                    <div className="pane-wrapper" style={{ float: 'right', marginRight: '50px' }}>
+                    <div className="pane-wrapper" style={{ float: 'right', paddingTop: '24px', marginRight: '30px' }}>
                         <Columns
                             tableColumns={tableColumns}
                             tableColumnsLoading={tableColumnsLoading}
