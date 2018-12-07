@@ -908,7 +908,7 @@ class RealTimeTabPane extends Component {
 
                     <ContextMenu targetClassName="task-item">
                         <MenuItem onClick={this.initEditTask}>编辑</MenuItem>
-                        {/* <MenuItem onClick={this.cloneTask}>克隆</MenuItem> */}
+                        <MenuItem onClick={this.cloneTask}>克隆</MenuItem>
                         <Popconfirm
                             title="确定删除这个任务吗?"
                             onConfirm={this.deleteTask}

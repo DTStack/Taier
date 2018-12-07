@@ -1,25 +1,23 @@
 #!/bin/bash
 
-# git branch
-dev="dev"
+# Default as minor, the argument major, minor or patch: 
+release=$1||'minor';
+echo "Release as $release"
+
+# Release branch
 master="master"
-currentTime="$(date +"%Y_%m_%d_%H_%M_%S")"
-# Build dist, and push it to gitlab.
-git pull origin $dev
-echo "Git pull origin $dev."
+prefix="DTinsight_v"
 
-git add -A
-git commit -m "update_$currentTime"
+git pull origin $master
+echo "Current pull origin $master."
 
-git checkout $master
-echo "Current branch is $master."
-git merge $dev
-echo "Current branch master merged $dev."
+# Auto generate version number and tag
+standard-version -r $release --tag-prefix $prefix --infile CHANGELOG.md
 
+git push --follow-tags origin $master
 git push origin $master
-echo "Git push origin $master."
 
-git checkout $dev
-echo "Current branch is $dev."
+echo "Git push origin $master"
+echo "Release finished."
 
 
