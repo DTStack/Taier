@@ -109,7 +109,7 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -c ./commietlintrc.js -E HUSKY_GIT_PARAMS"
+      "commit-msg": "commitlint -c ./commitlint.config.js -E HUSKY_GIT_PARAMS"
     }
   },
   "standard-version": {
