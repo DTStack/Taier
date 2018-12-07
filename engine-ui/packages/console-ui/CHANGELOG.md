@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.2.1-alpha.0"></a>
+## [3.2.1-alpha.0](http://git.dtstack.cn/ziv/data-stack-web/compare/v3.2.1...v3.2.1-alpha.0) (2018-12-06)
+
+
+
 <a name=""></a>
 # [](http://git.dtstack.cn/ziv/data-stack-web/compare/v3.2.1...v) (2018-12-06)
 
