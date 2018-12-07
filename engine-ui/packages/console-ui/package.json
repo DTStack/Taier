@@ -3,6 +3,7 @@
   "version": "3.2.0",
   "description": "Making data valuable.",
   "main": "src/app.js",
+  "license": "MIT",
   "dependencies": {
     "@types/lodash": "^4.14.118",
     "antd": "2.13.14",
@@ -108,7 +109,7 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+      "commit-msg": "commitlint -c ./commietlintrc.js -E HUSKY_GIT_PARAMS"
     }
   },
   "standard-version": {
@@ -127,6 +128,9 @@
   "bugs": {
     "url": "http://redmine.prod.dtstack.cn/issues/"
   },
-  "author": "Ziv",
-  "license": "MIT"
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
 }
