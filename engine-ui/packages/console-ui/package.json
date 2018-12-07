@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.2.1-alpha.0",
+  "version": "3.2.1-alpha.1",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "dependencies": {
