@@ -28,9 +28,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -115,9 +118,10 @@ public class WorkNode {
      * 任务分发
      */
     public void addStartJob(JobClient jobClient){
-        boolean distribute = distributeTask(jobClient,0,Lists.newArrayList());
-        if (!distribute){
-            dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), "engine master 下发任务异常");
+        Map<String,Object> distributeResult = distributeTask(jobClient,0,Lists.newArrayList());
+        if (!MapUtils.getBooleanValue(distributeResult,"result")){
+            String errorInfo = String.format("engine master 下发任务异常:\n %s",MapUtils.getString(distributeResult,"errorInfo"));
+            dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), errorInfo);
         }
     }
 
@@ -258,26 +262,31 @@ public class WorkNode {
     /**
      * 判断任务队列长度，分发任务到其他work节点
      */
-    private boolean distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
-
+    private Map<String,Object> distributeTask(JobClient jobClient, int retryNum, List<String> excludeNodes){
+        Map<String,Object> result = new HashMap<>();
+        result.put("result",true);
         try {
             String address = zkLocalCache.getDistributeNode(jobClient.getEngineType(), jobClient.getGroupName(),excludeNodes);
             if(Strings.isNullOrEmpty(address)){
-                return false;
+                result.put("result",false);
+                result.put("errorInfo","distribute node can not be null");
+                return result;
             }
             if (address.equals(zkDistributed.getLocalAddress())){
                 this.addSubmitJob(jobClient);
-                return true;
+                return result;
             }
             ParamAction paramAction = jobClient.getParamAction();
             paramAction.setRequestStart(RequestStart.NODE.getStart());
             if(HttpSendClient.actionSubmit(address, paramAction)){
-                return true;
+                return result;
             }else{
                 //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
                 if(retryNum >= DISPATCH_RETRY_LIMIT){
                     LOG.error("任务 taskId:{} 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId());
-                    return false;
+                    result.put("result",false);
+                    result.put("errorInfo",String.format("任务 taskId:%s 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId()));
+                    return result;
                 }
                 retryNum++;
                 excludeNodes.add(address);
@@ -287,7 +296,9 @@ public class WorkNode {
         } catch (Exception e) {
             //只有json 解析的异常才会抛出到这个地方,这应该是不可能发生的
             LOG.error("任务 taskId:{} ---not impossible,please check your program ----,{}", jobClient.getTaskId(), e);
-            return false;
+            result.put("result",false);
+            result.put("errorInfo",String.format("任务 taskId:%s ---not impossible,please check your program ----,%s",jobClient.getTaskId(),e));
+            return result;
         }
     }
 
