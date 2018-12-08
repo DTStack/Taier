@@ -97,6 +97,7 @@ export default class MainBench extends React.Component {
                                     taskInfo.merged = true;
                                     const updated = {
                                         id: tabData.id,
+                                        type: 'file',
                                         readWriteLockVO: taskInfo.readWriteLockVO
                                     }
                                     updateCatalogue(updated)
@@ -110,6 +111,7 @@ export default class MainBench extends React.Component {
                                     scriptInfo.merged = true;
                                     const updated = {
                                         id: tabData.id,
+                                        type: 'file',
                                         readWriteLockVO: scriptInfo.readWriteLockVO
                                     }
                                     updateCatalogue(updated)
