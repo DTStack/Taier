@@ -202,7 +202,7 @@ public class Client {
         }
 
         appMasterEnv.put("CLASSPATH", classPathEnv.toString());
-        appMasterEnv.put("HADOOP_HOME", "$HADOOP_HOME");
+        appMasterEnv.put("HADOOP_HOME", "/opt/dtstack/hadoop-2.7.3");
         appMasterEnv.put(DtYarnConstants.Environment.OUTPUTS.toString(), clientArguments.outputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.INPUTS.toString(), clientArguments.inputs.toString());
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
