@@ -114,7 +114,10 @@ class EditModal extends React.Component {
                         {...formItemLayout}
                     >
                         {getFieldDecorator('name', {
-                            rules: [{ required: true, message: '请输入安全组名称' }],
+                            rules: [
+                                { required: true, message: '请输入安全组名称' },
+                                { max: 64, message: '最大字数不能超过64' }
+                            ],
                             initialValue: record.name
                         })(
                             <Input disabled={isView} />
@@ -128,7 +131,7 @@ class EditModal extends React.Component {
                             rules: [{ required: true, message: '请输入IP地址' }],
                             initialValue: record.ip
                         })(
-                            <TextArea disabled={isView} rows={4} />
+                            <TextArea placeholder="每行一个ip地址段或ip地址，例如&#10;192.168.1.20-192.168.1.30&#10;192.168.2.1" disabled={isView} rows={4} />
                         )}
                     </FormItem>
                 </Form>
