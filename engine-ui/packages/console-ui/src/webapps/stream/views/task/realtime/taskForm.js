@@ -182,7 +182,7 @@ class TaskFormModal extends Component {
                                 rules: [{
                                     required: true, message: '任务名称不可为空！'
                                 }, {
-                                    pattern: /^[A-Za-z0-9_-]+$/,
+                                    pattern: /^[A-Za-z0-9_]+$/,
                                     message: '任务名称只能由字母、数字、下划线组成!'
                                 }, {
                                     max: 64,
