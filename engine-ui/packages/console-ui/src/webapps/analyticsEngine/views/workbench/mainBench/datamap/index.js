@@ -3,6 +3,7 @@ import { Row, Button, Modal, message } from 'antd';
 import DataMapForm from './form';
 import Columns from './column';
 import API from '../../../../api';
+import { singletonNotification } from 'funcs';
 import { CATALOGUE_TYPE, dataMapStatus } from '../../../../consts';
 import '../../../../styles/views/dataMap.scss';
 import SplitPane from 'react-split-pane';
@@ -102,7 +103,7 @@ class DataMap extends Component {
                                         this.setState({
                                             createLoading: true
                                         })
-                                        if (res.data === 1) {
+                                        if (res.data.status === 1) {
                                             this.setState({
                                                 createLoading: false
                                             })
@@ -110,12 +111,13 @@ class DataMap extends Component {
                                                 id: res.data.id
                                             });
                                             this.initStatusSuccess()
-                                        } else if (res.data === 2) {
+                                        } else if (res.data.status === 2) {
                                             this.setState({
                                                 createLoading: false
                                             })
                                             this._checkStatus && clearInterval(this._checkStatus);
-                                            message.error('dataMap创建失败！')
+                                            singletonNotification('错误', res.data.log);
+                                            // message.error('dataMap创建失败！')
                                         }
                                     }
                                 })
