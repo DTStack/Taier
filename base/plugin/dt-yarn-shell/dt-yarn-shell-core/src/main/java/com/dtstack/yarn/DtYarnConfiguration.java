@@ -47,6 +47,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String DT_WORKER_NUM = "dt.worker.num";
 
+    public static final String DT_HADOOP_HOME_DIR = "hadoop.home.dir";
+
     public static final int DEFAULT_DT_WORKER_NUM = 1;
 
     public static final String DT_APP_ELASTIC_CAPACITY = "elasticCapacity";
