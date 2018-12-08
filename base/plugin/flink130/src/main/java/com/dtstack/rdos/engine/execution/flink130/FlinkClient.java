@@ -98,6 +98,10 @@ public class FlinkClient extends AbsClient {
 
     private ExecutorService yarnMonitorES;
 
+    public FlinkClient(){
+        this.restartStrategy = new FlinkRestartStrategy();
+    }
+
     @Override
     public void init(Properties prop) throws Exception {
         flinkConfig = objectMapper.readValue(objectMapper.writeValueAsBytes(prop), FlinkConfig.class);

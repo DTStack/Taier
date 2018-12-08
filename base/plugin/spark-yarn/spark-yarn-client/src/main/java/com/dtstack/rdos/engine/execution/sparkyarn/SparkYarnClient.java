@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
 import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
@@ -85,6 +86,10 @@ public class SparkYarnClient extends AbsClient {
     private Configuration yarnConf;
 
     private YarnClient yarnClient;
+
+    public SparkYarnClient(){
+        this.restartStrategy = new SparkRestartStrategy();
+    }
 
     @Override
     public void init(Properties prop) throws Exception {

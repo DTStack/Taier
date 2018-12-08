@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.execution.flink140.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink140.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink140.parser.AddJarOperator;
@@ -114,6 +115,10 @@ public class FlinkClient extends AbsClient {
     private FlinkYarnMode flinkYarnMode;
 
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
+
+    public FlinkClient(){
+        restartStrategy = new FlinkRestartStrategy();
+    }
 
     @Override
     public void init(Properties prop) throws Exception {

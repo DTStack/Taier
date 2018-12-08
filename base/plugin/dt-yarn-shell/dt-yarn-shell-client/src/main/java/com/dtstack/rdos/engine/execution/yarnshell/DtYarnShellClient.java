@@ -9,6 +9,8 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
 import com.google.gson.Gson;
@@ -267,5 +269,10 @@ public class DtYarnShellClient extends AbsClient {
             LOG.error("", e);
             return null;
         }
+    }
+
+    @Override
+    public IRestartStrategy getRestartStrategy() {
+        return null;
     }
 }

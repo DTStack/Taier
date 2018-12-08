@@ -3,6 +3,8 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,8 @@ import java.util.List;
 public abstract class AbsClient implements IClient{
 
     private static final Logger logger = LoggerFactory.getLogger(AbsClient.class);
+
+    protected IRestartStrategy restartStrategy = new DefaultRestartStrategy();
 
     @Override
 	public JobResult submitJob(JobClient jobClient) {
@@ -73,5 +77,10 @@ public abstract class AbsClient implements IClient{
     @Override
     public String getCheckpoints(JobIdentifier jobIdentifier) {
         return null;
+    }
+
+    @Override
+    public IRestartStrategy getRestartStrategy() {
+        return restartStrategy;
     }
 }
