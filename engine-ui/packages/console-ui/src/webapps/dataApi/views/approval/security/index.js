@@ -89,8 +89,8 @@ class Security extends React.Component {
             }
         }, {
             title: '最近修改人',
-            dataIndex: '"modifyUser',
-            key: '"modifyUser',
+            dataIndex: 'modifyUserName',
+            key: 'modifyUserName',
             width: 150
         }, {
             title: '最近修改时间',
