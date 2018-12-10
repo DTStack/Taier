@@ -153,7 +153,7 @@ class Content extends Component {
                         <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_KEY[this.getValue('reqMethod')]}</span>
                         <p data-title="API path：" className="pseudo-title p-line">{this.getValue('apiPath')}</p>
                         {!showExt && (
-                            <p data-title="调用限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
+                            <p data-title="调用次数限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         )}
                         {showSecurity && (
                             <p data-title="安全组：" className="pseudo-title p-line">{this.renderSecurityListView(securityList)}</p>
