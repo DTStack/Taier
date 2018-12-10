@@ -1,42 +1,42 @@
-.tablePane-box{
+.c-tablePane{
     padding: 12px;
     color:#333;
-    .tablePane-loading{
+    .c-tablePane__loading{
         text-align: center;
         margin-top: 20px;
     }
-    .tablePane-header{
+    .c-tablePane__header{
         font-size: 13px;
         line-height: 18px;
         font-weight: bold;
     }
-    .tablePane-tables-box{
+    .c-tablePane__tables{
         margin-top:9px;
         .tablePane-search{
             width:100%;
         }
-        .tablePane-notables{
+        .c-tablePane__notables{
             font-style: italic;
             color: #666;
             font-size: 12px;
             padding-left: 15px;
         }
-        .tablePane-table-box{
+        .c-tablePane__table{
             margin-top: 12px;
             margin-bottom: 4px;
-            .tablePane-table-title{
+            .c-tablePane__table__title{
                 display: flex;
                 background: #f7f7f7;
                 padding: 5px 5px 5px 0px;
                 align-items: center;
                 transition-duration: .2s;
-                .tablePnae-table-title-icon{
+                .c-tablePnae__table__title__icon{
                     height: 15px;
                     margin-left: 2px;
                     margin-right: 2px;
                     cursor: pointer;
                 }
-                .tablePnae-table-title-name{
+                .c-tablePnae__table__title__name{
                     cursor: pointer;
                     flex-grow: 1;
                     line-height: 17px;
@@ -45,19 +45,19 @@
                     background: #efefef;
                 }
             }
-            .tablePane-table-column-box{
+            .c-tablePane__table__columns{
                 margin-top: 4px;
-                .tablePane-table-column{
+                .c-tablePane__table__column{
                     line-height: 17px;
                     padding: 4px 4px 4px 20px;
                     display: flex;
-                    .table-column-name{
+                    .c-table__column__name{
                         flex-grow: 1;
                         padding-right: 5px;
                         overflow: hidden;
                         text-overflow: ellipsis;
                     }
-                    .table-column-type{
+                    .c-table__column__type{
                         flex-grow: 0;
                         flex-shrink: 0;
                         width:27%;
@@ -72,12 +72,12 @@
         }
     }
 }
-.extraPane-table-detail-box{
+.c-extraPane__table__detail{
     width:370px;
     color: #333;
     header{
         overflow: hidden;
-        .close-icon{
+        .c-close__icon{
             float: right;
             font-size: 18px;
             color: #9EABB2;
@@ -86,17 +86,16 @@
                 color:#dcdcdc;
             }
         }
-        .table-name{
+        .c-table__name{
             font-size: 14px;
             line-height: 20px;
             font-weight: 500;
         }
     }
-    .table-detail-column-box{
-        .table-detail-search{
+    .c-table__detail__columns{
+        .c-table__detail__search{
             width: 100%;
             margin-bottom: 12px;
         }
     }
-    
 }

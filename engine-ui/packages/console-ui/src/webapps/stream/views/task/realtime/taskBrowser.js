@@ -159,7 +159,8 @@ class TaskBrowser extends Component {
                                 taskInfo.merged = true;
                                 const updated = {
                                     id: currentPage.id,
-                                    readWriteLockVO: taskInfo.readWriteLockVO
+                                    readWriteLockVO: taskInfo.readWriteLockVO,
+                                    type: 'file'
                                 }
                                 dispatch(BrowserAction.setCurrentPage(taskInfo))
                                 dispatch(updateRealtimeTreeNode(updated))

@@ -44,8 +44,8 @@ class TableTipExtraPane extends React.Component {
     }
     renderTableItem (tableName, columns) {
         const { visibleMap, searchValue } = this.state;
-        return <section className="tablePane-table-box">
-            <div className="tablePane-table-title">
+        return <section className="c-tablePane__table">
+            <div className="c-tablePane__table__title">
                 <Popover
                     trigger="click"
                     placement="leftBottom"
@@ -66,27 +66,27 @@ class TableTipExtraPane extends React.Component {
                         }
                     }
                 >
-                    <img className="tablePnae-table-title-icon" src="/public/rdos/img/notice.png" />
+                    <img className="c-tablePnae__table__title__icon" src="/public/rdos/img/notice.png" />
                 </Popover>
                 <TextMark
                     onClick={this.changeVisible.bind(this, tableName)}
-                    className="tablePnae-table-title-name"
+                    className="c-tablePnae__table__title__name"
                     title={tableName}
                     text={tableName}
                     markText={searchValue}
                 />
             </div>
-            <div style={{ display: this.isShow(tableName) ? 'block' : 'none' }} className="tablePane-table-column-box">
+            <div style={{ display: this.isShow(tableName) ? 'block' : 'none' }} className="c-tablePane__table__columns">
                 {columns.map((column) => {
-                    return <div key={column.columnName} className="tablePane-table-column">
+                    return <div key={column.columnName} className="c-tablePane__table__column">
                         <TextMark
-                            className="table-column-name"
+                            className="c-table__column__name"
                             title={column.columnName}
                             text={column.columnName}
                             markText={searchValue}
                         />
                         <span
-                            className="table-column-type"
+                            className="c-table__column__type"
                             title={column.columnType}
                         >
                             {column.columnType}
@@ -101,10 +101,10 @@ class TableTipExtraPane extends React.Component {
         const { data } = this.props;
         const tableAndColumns = Object.entries(data);
 
-        return <div className="tablePane-tables-box">
+        return <div className="c-tablePane__tables">
             {tableAndColumns.length ? <div>
                 <Search
-                    className="tablePane-search"
+                    className="c-tablePane__search"
                     placeholder="输入表名/字段名搜索"
                     onChange={this.search.bind(this)}
                 />
@@ -117,7 +117,7 @@ class TableTipExtraPane extends React.Component {
 
     renderNone () {
         return (
-            <div className="tablePane-notables">
+            <div className="c-tablePane__notables">
                 暂无表...
             </div>
         )
@@ -125,7 +125,7 @@ class TableTipExtraPane extends React.Component {
 
     renderLoading () {
         return (
-            <div className="tablePane-loading">
+            <div className="c-tablePane__loading">
                 <Spin />
             </div>
         )
@@ -160,11 +160,10 @@ class TableTipExtraPane extends React.Component {
     }
 
     render () {
-        console.log('redner')
         const { loading } = this.props;
         return (
-            <div className="tablePane-box">
-                <p className="tablePane-header">Tables</p>
+            <div className="c-tablePane l-tablePane">
+                <p className="c-tablePane__header">Tables</p>
                 {this.renderTables()}
                 {loading && this.renderLoading()}
             </div>

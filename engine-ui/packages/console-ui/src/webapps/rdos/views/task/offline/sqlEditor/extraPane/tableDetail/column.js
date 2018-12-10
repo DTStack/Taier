@@ -87,9 +87,9 @@ class ExtraPaneTableDetailColumn extends React.Component {
     }
     render () {
         return (
-            <div className="table-detail-column-box">
+            <div className="c-table__detail__columns">
                 <Search
-                    className="table-detail-search"
+                    className="c-table__detail__search"
                     placeholder="输入字段名搜索"
                     onChange={this.search.bind(this)}
                 />

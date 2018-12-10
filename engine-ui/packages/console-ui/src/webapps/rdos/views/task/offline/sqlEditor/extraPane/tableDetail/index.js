@@ -21,11 +21,11 @@ class ExtraPaneTableDetail extends React.Component {
         const { tableName, columns } = this.props;
         const { activeKey } = this.state;
         return (
-            <div className="extraPane-table-detail-box">
+            <div className="c-extraPane__table__detail">
                 <header>
-                    <span className="table-name">{tableName}</span>
+                    <span className="c-table__name">{tableName}</span>
                     <Icon
-                        className="close-icon"
+                        className="c-close__icon"
                         type="close"
                         onClick={this.props.close.bind(null, tableName)}
                     />
