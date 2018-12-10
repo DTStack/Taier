@@ -32,7 +32,7 @@ class ExtraPaneTableDetail extends React.Component {
                 </header>
                 <Tabs
                     activeKey={activeKey}
-                    style={{ marginTop: '5px', marginBottom: '30px' }}
+                    style={{ marginTop: '5px', marginBottom: '6px' }}
                     onChange={(key) => {
                         this.setState({
                             activeKey: key
