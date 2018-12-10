@@ -11,8 +11,7 @@ const editorOptions = {
     autofocus: false,
     indentWithTabs: true,
     lineWrapping: true,
-    smartIndent: true,
-    scrollbarStyle: 'simple'
+    smartIndent: true
 }
 
 const editorStyle = { height: '300px' }

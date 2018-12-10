@@ -752,6 +752,7 @@ class TaskFlowView extends Component {
                     <TaskInfo task={selectedJob} project={project} />
                 </Modal>
                 <Modal
+                    key={taskJob.id}
                     width={800}
                     title={(
                         <span>
