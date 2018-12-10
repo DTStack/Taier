@@ -215,7 +215,7 @@ class DataMapForm extends Component {
 
     render () {
         const { datamapType } = this.state;
-        const { form, data, onGenerateCreateSQL, tableData, isCreate } = this.props;
+        const { form, data, tableData, isCreate } = this.props;
         const { getFieldDecorator } = form;
 
         const tableColumns = tableData ? tableData.columns : [];
@@ -240,12 +240,12 @@ class DataMapForm extends Component {
                     )}
                     <span>
                         <span style={{ marginRight: 10, marginLeft: 6 }}>{tableData ? tableData.tableName : ''}</span>
-                        <a onClick={() => {
+                        {/* <a onClick={() => {
                             onGenerateCreateSQL({
                                 tableId: tableData ? tableData.id : undefined,
                                 databaseId: tableData ? tableData.databaseId : undefined
                             })
-                        }}>生成建表语句</a>
+                        }}>生成建表语句</a> */}
                     </span>
                 </FormItem>
                 <FormItem {...formItemLayout} label="DataMap名称" hasFeedback>

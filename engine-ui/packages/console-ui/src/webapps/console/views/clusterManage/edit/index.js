@@ -169,7 +169,7 @@ class EditCluster extends React.Component {
         ];
         let notExtKeys_dtyarnshell = [
             'typeName', 'jlogstash.root',
-            'java.home', 'python2.path',
+            'java.home', 'hadoop.home.dir', 'python2.path',
             'python3.path'
         ]
 
@@ -1066,7 +1066,6 @@ class EditCluster extends React.Component {
                                     required: true,
                                     message: '请输入jlogstash.root'
                                 }]
-                                // initialValue: "/opt/dtstack/jlogstash"
                             })(
                                 <Input disabled={isView} placeholder="/opt/dtstack/jlogstash" />
                             )}
@@ -1080,9 +1079,21 @@ class EditCluster extends React.Component {
                                     required: true,
                                     message: '请输入java.home'
                                 }]
-                                // initialValue: "/opt/java/bin"
                             })(
                                 <Input disabled={isView} placeholder="/opt/java/bin" />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="hadoop.home.dir"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('dtyarnshellConf.hadoopHomeDir', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入hadoop.home.dir'
+                                }]
+                            })(
+                                <Input disabled={isView} placeholder="/opt/dtstack/hadoop-2.7.3" />
                             )}
                         </FormItem>
                         <FormItem
