@@ -27,8 +27,8 @@ module.exports = {
             secure: false
         },
         '/api/rdos': {
-            // target: "http://172.16.10.51:9020",
-            target: 'http://172.16.8.104:9020', // formal test ser
+            target: "http://172.16.10.51:9020",
+            // target: 'http://172.16.8.104:9020', // formal test ser
             changeOrigin: true,
             secure: false
         },
@@ -46,11 +46,11 @@ module.exports = {
             target: 'http://172.16.8.107:8085', // 测试环境
             changeOrigin: true,
             secure: false
+        },
+        '/api/analysis': { // 数据标签
+            target: 'http://172.16.2.157:9021', // 测试环境
+            changeOrigin: true,
+            secure: false
         }
-        // "/api/analysis": { // 数据标签
-        //     target: "http://172.16.2.157:9021",//测试环境
-        //     changeOrigin: true,
-        //     secure: false,
-        // },
     }
 }
