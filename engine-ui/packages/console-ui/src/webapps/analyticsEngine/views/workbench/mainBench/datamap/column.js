@@ -90,11 +90,11 @@ class Columns extends Component {
                     onChange={this.search}
                 />
                 <Table
+                    className="border-table"
                     dataSource={this.fliterTableColumns(tableColumns)}
                     columns={columns}
                     pagination={this.getPagination()}
                     loading={tableColumnsLoading}
-                    bordered={true}
                 >
                 </Table>
             </div>
