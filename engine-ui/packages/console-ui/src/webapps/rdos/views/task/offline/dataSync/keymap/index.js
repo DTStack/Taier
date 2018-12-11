@@ -4,7 +4,7 @@ import { isNumber, isObject, isNaN } from 'lodash'
 import {
     Button, Row, Col,
     Input, Tooltip,
-    message, Icon
+    message, Icon, Modal
 } from 'antd';
 
 import { select, selectAll, mouse } from 'd3-selection';
@@ -775,6 +775,22 @@ class Keymap extends React.Component {
         </div>
     }
 
+    keymapHelpModal = () => {
+        Modal.info({
+            title: '快速配置字段映射',
+            content: (
+                <div>
+                    <img style={{
+                        width: '100%',
+                        height: 200
+                    }} src="/public/rdos/img/keymap_help.jpg" />
+                </div>
+            ),
+            width: 500,
+            okText: '了解'
+        });
+    }
+
     renderKeyModal = () => {
         const {
             keyModal, keyModalVisible,
@@ -898,6 +914,7 @@ class Keymap extends React.Component {
         } = this.state;
 
         const {
+            keymap,
             sourceSrcType,
             targetSrcType,
             addSourceKeyRow,
@@ -905,11 +922,13 @@ class Keymap extends React.Component {
         } = this.props;
 
         const H = h * (Math.max(targetCol.length, sourceCol.length) + 1);
+        const noKeyMapping = !keymap.source || keymap.source.length === 0;
 
         return <Resize onResize={this.resize}>
             <div style={{ margin: '0 20' }}>
                 <p style={{ fontSize: 12, color: '#ccc', marginTop: -20 }}>
                     您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
+                    &nbsp;{ noKeyMapping ? <a onClick={this.keymapHelpModal}>如何快速配置字段映射？</a> : '' }
                 </p>
                 <Row>
                     <Col span="21">
