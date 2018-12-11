@@ -11,6 +11,8 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
+import com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -56,8 +58,10 @@ public class LearningClient extends AbsClient {
         LOG.info("LearningClien.init ...");
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-        String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
-        if(StringUtils.isNotBlank(hadoopConfDir)) {
+
+        if(prop != null){
+            //从本地环境变量读取
+            String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "yarn-site.xml"));
@@ -84,10 +88,12 @@ public class LearningClient extends AbsClient {
                 conf.set(key, value.toString());
             }
         }
+
         String queue = prop.getProperty(LearningConfiguration.LEARNING_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
             conf.set(LearningConfiguration.LEARNING_APP_QUEUE, queue);
         }
+
         client = new Client(conf);
     }
 

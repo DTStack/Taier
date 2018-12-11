@@ -24,6 +24,7 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
@@ -53,15 +54,15 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+
         LOG.info("DtYarnShellClient init ...");
+
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-        String hadoopConfDir = prop.getProperty("hadoop.conf.dir");
-        if (StringUtils.isBlank(hadoopConfDir)) {
-            hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
-        }
 
-        if (StringUtils.isNotBlank(hadoopConfDir)){
+        if(prop == null){
+            //从本地环境变量读取
+            String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "hdfs-site.xml"));
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "yarn-site.xml"));
@@ -92,6 +93,7 @@ public class DtYarnShellClient extends AbsClient {
         if (StringUtils.isNotBlank(queue)){
             conf.set(DtYarnConfiguration.DT_APP_QUEUE, queue);
         }
+
         client = new Client(conf);
     }
 
@@ -267,4 +269,5 @@ public class DtYarnShellClient extends AbsClient {
             return null;
         }
     }
+
 }

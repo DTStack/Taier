@@ -1,7 +1,14 @@
 package com.dtstack.rdos.engine.service.task;
 
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.ClientCache;
+import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -9,13 +16,6 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.enums.SourceType;
 import com.dtstack.rdos.engine.service.node.WorkNode;
-import com.dtstack.rdos.engine.execution.base.ClientCache;
-import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
@@ -77,16 +77,34 @@ public class RestartDealer {
             //未提交过
             return true;
         }
-        if(jobClient.getJobResult() == null || !jobClient.getJobResult().isErr()){
+
+        if(!jobClient.getJobResult().isErr()){
             return false;
         }
+
+        String engineType = jobClient.getEngineType();
+
         try{
-            String engineType = jobClient.getEngineType();
+            String pluginInfo = jobClient.getPluginInfo();
             String resultMsg = jobClient.getJobResult().getMsgInfo();
-            return RestartStrategyUtil.getInstance().retrySubmitFail(jobClient.getTaskId(), engineType, resultMsg);
+
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            if(client == null){
+                LOG.error("can't get client by engineType:{}", engineType);
+                return false;
+            }
+
+            IRestartStrategy restartStrategy = client.getRestartStrategy();
+            if(restartStrategy == null){
+                LOG.warn("engineType " + engineType + " not support restart." );
+                return false;
+            }
+
+            return restartStrategy.retrySubmitFail(jobClient.getTaskId(), resultMsg, null);
         }catch (Exception e){
             LOG.error("", e);
         }
+
         return false;
     }
 
@@ -138,6 +156,7 @@ public class RestartDealer {
         if(Strings.isNullOrEmpty(engineJobId)){
             return false;
         }
+
         if(ComputeType.STREAM.getType().equals(computeType)){
             //do nothing
         }else{
@@ -151,12 +170,20 @@ public class RestartDealer {
                 return false;
             }
         }
+
         IClient client = clientCache.getClient(engineType, pluginInfo);
         if(client == null){
             LOG.error("can't get client by engineType:{}", engineJobId);
             return false;
         }
-        return RestartStrategyUtil.getInstance().checkCanRestart(jobId, engineJobId, engineType, client);
+
+        IRestartStrategy restartStrategy = client.getRestartStrategy();
+        if(restartStrategy == null){
+            LOG.warn("engineType " + engineType + " not support restart." );
+            return false;
+        }
+
+        return restartStrategy.checkCanRestart(jobId, engineJobId, client);
     }
 
     private void resetStatus(String jobId, Integer computeType, String engineType){

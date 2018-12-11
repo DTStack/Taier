@@ -43,21 +43,13 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final int DEFAULT_LEARNING_WORKER_VCORES = 1;
 
-    public static final String LEARNING_APP_MEMORY = "learning.app.memory";
-
     public static final int DEFAULT_LEARNING_APP_MEMORY = 512;
 
     public static final String DT_WORKER_NUM = "dt.worker.num";
 
+    public static final String DT_HADOOP_HOME_DIR = "hadoop.home.dir";
+
     public static final int DEFAULT_DT_WORKER_NUM = 1;
-
-    public static final String LEARNING_TF_MODE_SINGLE = "xlearning.tf.mode.single";
-
-    public static Boolean DEFAULT_LEARNING_TF_MODE_SINGLE = false;
-
-    public static final String LEARNING_MXNET_MODE_SINGLE = "xlearning.mxnet.mode.single";
-
-    public static Boolean DEFAULT_LEARNING_MXNET_MODE_SINGLE = false;
 
     public static final String DT_APP_ELASTIC_CAPACITY = "elasticCapacity";
 
@@ -73,17 +65,6 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String  DEFAULT_LEARNING_PYTHON_VERSION = "3.x";
 
-//    public static final String[] DEFAULT_XLEARNING_APPLICATION_CLASSPATH = {
-//            "$HADOOP_CONF_DIR",
-//            "$HADOOP_COMMON_HOME/share/hadoop/common/*",
-//            "$HADOOP_COMMON_HOME/share/hadoop/common/lib/*",
-//            "$HADOOP_HDFS_HOME/share/hadoop/hdfs/*",
-//            "$HADOOP_HDFS_HOME/share/hadoop/hdfs/lib/*",
-//            "$HADOOP_YARN_HOME/share/hadoop/yarn/*",
-//            "$HADOOP_YARN_HOME/share/hadoop/yarn/lib/*",
-//            "$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/*",
-//            "$HADOOP_MAPRED_HOME/share/hadoop/mapreduce/lib/*"
-//    };
     public static final String[] DEFAULT_XLEARNING_APPLICATION_CLASSPATH = {
             "$HADOOP_CONF_DIR",
             "$HADOOP_HOME/share/hadoop/common/*",
@@ -125,18 +106,6 @@ public class DtYarnConfiguration extends YarnConfiguration {
     public static final String XLEARNING_CONTAINER_EXTRA_JAVA_OPTS = "xlearning.container.extra.java.opts";
 
     public static final String DEFAULT_XLEARNING_CONTAINER_JAVA_OPTS_EXCEPT_MEMORY = "";
-
-    public static final String XLEARNING_TASK_TIMEOUT = "xlearning.task.timeout";
-
-    public static final int DEFAULT_XLEARNING_TASK_TIMEOUT = 5 * 60 * 1000;
-
-    public static final String XLEARNING_LOCALRESOURCE_TIMEOUT = "xlearning.localresource.timeout";
-
-    public static final int DEFAULT_XLEARNING_LOCALRESOURCE_TIMEOUT = 5 * 60 * 1000;
-
-    public static final String XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS = "xlearning.task.timeout.check.interval";
-
-    public static final int DEFAULT_XLEARNING_TASK_TIMEOUT_CHECK_INTERVAL_MS = 3 * 1000;
 
     /**
      * am在向rm申请资源时，在同一个nm上不能申请2次以上; app独占nm

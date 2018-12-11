@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.callback.ClassLoaderCallBackMethod
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -169,6 +170,21 @@ public class ClientProxy implements IClient{
                 @Override
                 public String execute() throws Exception {
                     return targetClient.getCheckpoints(jobIdentifier);
+                }
+            }, targetClient.getClass().getClassLoader(),true);
+        } catch (Exception e) {
+            throw new RdosException(e.getMessage());
+        }
+    }
+
+    @Override
+    public IRestartStrategy getRestartStrategy() {
+        try {
+            return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<IRestartStrategy>(){
+
+                @Override
+                public IRestartStrategy execute() throws Exception {
+                    return targetClient.getRestartStrategy();
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {
