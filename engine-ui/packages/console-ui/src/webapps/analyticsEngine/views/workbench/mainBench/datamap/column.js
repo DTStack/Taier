@@ -48,9 +48,7 @@ class Columns extends Component {
                 className: 'dataMapTableColumns',
                 render (dataList) {
                     if (dataList) {
-                        return dataList.map(item => {
-                            return item.join(' 、')
-                        })
+                        return dataList.join('、')
                     } else {
                         return '-'
                     }
