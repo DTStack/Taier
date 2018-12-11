@@ -104,9 +104,9 @@ class IDEEditor extends Component {
                             primary="first"
                             key="ide-split-pane"
                             size={size}
-                            onDragStarted={() => {
+                            onChange={(size) => {
                                 this.setState({
-                                    size: undefined
+                                    size: size
                                 });
                             }}
                         >
