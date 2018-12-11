@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.base.util;
 
-import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 
@@ -16,8 +15,10 @@ import java.util.Map;
 
 public class PluginInfoUtil {
 
-    public static String getPluginType(String pluginInfo) throws IOException {
+    public static final String HADOOP_CONF_KEY = "hadoopConf";
+
+    public static String getSpecKeyConf(String pluginInfo, String key) throws IOException {
         Map<String, Object> params = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-        return MathUtil.getString(params.get(ConfigParse.TYPE_NAME_KEY));
+        return MathUtil.getString(params.get(key));
     }
 }
