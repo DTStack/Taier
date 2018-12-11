@@ -109,6 +109,10 @@
     .ant-tabs-content {
         height: calc(100% - 32px);
     }
+    .datamap-container{
+        height: 100%;
+        position: relative;
+    }
 
     .pane-wrapper {
         overflow: auto;

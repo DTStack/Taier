@@ -705,7 +705,7 @@ class BaseForm extends Component {
                             )}
                         </FormItem>
                     ) : null,
-                    <FormItem
+                    redisType != REDIS_TYPE.CLUSTER ? <FormItem
                         key="database"
                         {...formItemLayout}
                         label="数据库"
@@ -716,7 +716,7 @@ class BaseForm extends Component {
                         })(
                             <Input autoComplete="off" />
                         )}
-                    </FormItem>,
+                    </FormItem> : null,
                     <FormItem
                         key="password"
                         {...formItemLayout}

@@ -48,9 +48,7 @@ class Columns extends Component {
                 className: 'dataMapTableColumns',
                 render (dataList) {
                     if (dataList) {
-                        return dataList.map(item => {
-                            return item.join(' 、')
-                        })
+                        return dataList.join('、')
                     } else {
                         return '-'
                     }
@@ -92,11 +90,11 @@ class Columns extends Component {
                     onChange={this.search}
                 />
                 <Table
+                    className="border-table"
                     dataSource={this.fliterTableColumns(tableColumns)}
                     columns={columns}
                     pagination={this.getPagination()}
                     loading={tableColumnsLoading}
-                    bordered={true}
                 >
                 </Table>
             </div>

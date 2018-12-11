@@ -129,8 +129,8 @@ class CollectionSourceForm extends React.Component {
         const { collectionData, form, binLogList } = this.props;
         const { getFieldDecorator } = form;
         const { sourceMap, isEdit } = collectionData;
-        const collectType = sourceMap.collectType
-        switch (collectType) {
+        const collectTypeValue = sourceMap.collectType
+        switch (collectTypeValue) {
             case collectType.ALL: {
                 return null
             }
