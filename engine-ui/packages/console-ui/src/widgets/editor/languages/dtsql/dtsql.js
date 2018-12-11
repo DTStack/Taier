@@ -150,8 +150,9 @@ export var language = {
             }],
             [/"/, {
                 token: 'identifier.quote',
-                next: '@quotedIdentifier'
-            }]
+                next: '@stringDouble'
+            }],
+            [/`/, { token: 'identifier.quote', next: '@quotedIdentifier' }]
         ],
         bracketedIdentifier: [
             [/[^\]]+/, 'identifier'],
@@ -162,6 +163,11 @@ export var language = {
             }]
         ],
         quotedIdentifier: [
+            [/[^`]+/, 'identifier'],
+            [/``/, 'identifier'],
+            [/`/, { token: 'identifier.quote', next: '@pop' }]
+        ],
+        stringDouble: [
             [/[^"]+/, 'identifier'],
             [/""/, 'identifier'],
             [/"/, {
