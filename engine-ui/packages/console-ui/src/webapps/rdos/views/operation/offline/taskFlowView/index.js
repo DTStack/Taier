@@ -46,16 +46,16 @@ const VertexSize = { // vertex大小
     height: 40
 }
 
-const replacTreeNodeField = (treeNode, sourceField, targetField) => {
-    const children = treeNode.jobVOS;
-    if (children) {
-        for (let i = 0; i < children.length; i++) {
-            replacTreeNodeField(children[i], sourceField, targetField);
-        }
-    }
+const replacTreeNodeField = (treeNode, sourceField, targetField, arrField) => {
     if (treeNode) {
         treeNode[targetField] = cloneDeep(treeNode[sourceField]);
         treeNode[sourceField] = undefined;
+    }
+    const children = treeNode[arrField];
+    if (children) {
+        for (let i = 0; i < children.length; i++) {
+            replacTreeNodeField(children[i], sourceField, targetField, arrField);
+        }
     }
 }
 
@@ -151,9 +151,15 @@ class TaskFlowView extends Component {
             if (res.code === 1) {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data })
-                // 替换jobVos字段为 parentNodes
-                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes')
+                // 替换 jobVos 字段为 parentNodes
+                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
                 ctx.doInsertVertex(res.data)
+
+                // const result = Object.assign({}, require('./mockJson.json'));
+                // ctx.setState({ data: result.data, selectedJob: result.data })
+                // // 替换 jobVos 字段为 parentNodes
+                // replacTreeNodeField(result.data, 'jobVOS', 'parentNodes', 'parentNodes')
+                // ctx.doInsertVertex(result.data)
             }
             ctx.setState({ loading: 'success' })
         })
@@ -335,8 +341,12 @@ class TaskFlowView extends Component {
                         node.level = level - 1;
                         node.index = i + 1;
                         node.count = parentNodes.length;
-                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
+                        node.subNode = nodeData.parentNodes && nodeData.parentNodes.length > 0 ? Object.assign({}, defaultRoot, {
+                            count: nodeData.parentNodes.length,
+                        }) : undefined;
+                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
+                        console.log('parent:', nodeData)
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
