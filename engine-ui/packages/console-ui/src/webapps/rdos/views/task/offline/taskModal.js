@@ -128,6 +128,7 @@ class TaskForm extends React.Component {
         const initialTaskType = this.isEditExist ? defaultData.taskType : 
         createFromGraph ? createOrigin && createOrigin.taskType : (taskTypes.length > 0 && taskTypes[0].key);
 
+        const resourceLable = !isPyTask ? '资源' : '入口资源';
         return (
             <Form>
                 <FormItem
@@ -294,7 +295,7 @@ class TaskForm extends React.Component {
                     (isHadoopMR||isMl||isMrTask || isPyTask || ((isDeepLearning || isPython23) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
                         <FormItem
                             {...formItemLayout}
-                            label="资源"
+                            label={resourceLable}
                             hasFeedback
                         >
                             {getFieldDecorator('resourceIdList', {

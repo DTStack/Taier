@@ -35,6 +35,9 @@ class NormalTaskForm extends React.Component {
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
         const couldEdit=isProjectCouldEdit(project,user);
+
+        const resourceLable = !isPyTask ? '资源' : '入口资源';
+
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -69,7 +72,7 @@ class NormalTaskForm extends React.Component {
                 !isVirtual &&
                 <FormItem
                     {...formItemLayout}
-                    label="资源"
+                    label={resourceLable}
                 >
                     {getFieldDecorator('resourceIdList', {
                         rules: [{
