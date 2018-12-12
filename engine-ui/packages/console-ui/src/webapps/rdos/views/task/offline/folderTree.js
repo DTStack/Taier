@@ -480,7 +480,7 @@ class FolderTree extends React.Component {
                 title={
                     ispicker
                         ? <span className={claName}>
-                            { name }
+                            { name }&nbsp;
                             <i className="item-tooltip">
                                 <span style={{ color: '#ccc' }}>{createUser}</span>
                             </i>
@@ -522,7 +522,7 @@ class FolderTree extends React.Component {
 
     render () {
         const {
-            type, placeholder, currentTab, id,
+            type, placeholder, currentTab, multiple, key,
             onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
 
@@ -533,7 +533,8 @@ class FolderTree extends React.Component {
                         <TreeSelect
                             disabled={typeof couldEdit == 'boolean' && !couldEdit}
                             size="large"
-                            key={id || type}
+                            key={key || type}
+                            multiple={multiple}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                             showSearch={!this.props.isFilepicker}
                             showIcon={true}

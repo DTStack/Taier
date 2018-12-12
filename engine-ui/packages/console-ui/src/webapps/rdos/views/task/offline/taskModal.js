@@ -55,6 +55,11 @@ class TaskForm extends React.Component {
         this.props.form.validateFields(['resourceIdList']);
     }
 
+    handleRefResSelectTreeChange (value) {
+        this.props.form.setFieldsValue({ 'refResourceIdList': value });
+        this.props.form.validateFields(['refResourceIdList']);
+    }
+
     handleTaskTypeChange (value) {
         this.setState({
             value: value
@@ -123,6 +128,7 @@ class TaskForm extends React.Component {
         const initialTaskType = this.isEditExist ? defaultData.taskType
             : createFromGraph ? createOrigin && createOrigin.taskType : (taskTypes.length > 0 && taskTypes[0].key);
 
+        const resourceLable = !isPyTask ? '资源' : '入口资源';
         return (
             <Form>
                 <FormItem
@@ -276,7 +282,7 @@ class TaskForm extends React.Component {
                     (isHadoopMR || isMl || isMrTask || isPyTask || ((isDeepLearning || isPython23) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
                         <FormItem
                             {...formItemLayout}
-                            label="资源"
+                            label={resourceLable}
                             hasFeedback
                         >
                             {getFieldDecorator('resourceIdList', {
@@ -338,6 +344,31 @@ class TaskForm extends React.Component {
                             )}
                         </FormItem>}
                     </span>
+                }
+                {
+                    isPyTask && <FormItem
+                        {...formItemLayout}
+                        label="引用资源"
+                    >
+                        {getFieldDecorator('refResourceIdList', {
+                            rules: [{
+                                validator: this.checkNotDir.bind(this)
+                            }],
+                            initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 ? defaultData.refResourceIdList.map(res => res.name) : []
+                        })(
+                            <Input type="hidden" ></Input>
+                        )}
+                        <FolderPicker
+                            key="createRefResourceIdList"
+                            ispicker
+                            placeholder="请选择关联资源"
+                            isFilepicker
+                            multiple={true}
+                            treeData={this.props.resTreeData}
+                            onChange={this.handleRefResSelectTreeChange.bind(this)}
+                            defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 && defaultData.refResourceIdList.map(res => res.name)}
+                        />
+                    </FormItem>
                 }
                 {
                     isSyncTast &&

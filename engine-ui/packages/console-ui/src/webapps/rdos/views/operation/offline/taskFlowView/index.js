@@ -46,16 +46,16 @@ const VertexSize = { // vertex大小
     height: 40
 }
 
-const replacTreeNodeField = (treeNode, sourceField, targetField) => {
-    const children = treeNode.jobVOS;
-    if (children) {
-        for (let i = 0; i < children.length; i++) {
-            replacTreeNodeField(children[i], sourceField, targetField);
-        }
-    }
+const replacTreeNodeField = (treeNode, sourceField, targetField, arrField) => {
     if (treeNode) {
         treeNode[targetField] = cloneDeep(treeNode[sourceField]);
         treeNode[sourceField] = undefined;
+    }
+    const children = treeNode[arrField];
+    if (children) {
+        for (let i = 0; i < children.length; i++) {
+            replacTreeNodeField(children[i], sourceField, targetField, arrField);
+        }
     }
 }
 
@@ -151,9 +151,15 @@ class TaskFlowView extends Component {
             if (res.code === 1) {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data })
-                // 替换jobVos字段为 parentNodes
-                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes')
+                // 替换 jobVos 字段为 parentNodes
+                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
                 ctx.doInsertVertex(res.data)
+
+                // const result = Object.assign({}, require('./mockJson.json'));
+                // ctx.setState({ data: result.data, selectedJob: result.data })
+                // // 替换 jobVos 字段为 parentNodes
+                // replacTreeNodeField(result.data, 'jobVOS', 'parentNodes', 'parentNodes')
+                // ctx.doInsertVertex(result.data)
             }
             ctx.setState({ loading: 'success' })
         })
@@ -335,8 +341,12 @@ class TaskFlowView extends Component {
                         node.level = level - 1;
                         node.index = i + 1;
                         node.count = parentNodes.length;
-                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
+                        node.subNode = nodeData.parentNodes && nodeData.parentNodes.length > 0 ? Object.assign({}, defaultRoot, {
+                            count: nodeData.parentNodes.length,
+                        }) : undefined;
+                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
+                        console.log('parent:', nodeData)
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
@@ -544,23 +554,6 @@ class TaskFlowView extends Component {
                 ctx.resetGraph(cell)
             })
 
-            menu.addItem('重跑并恢复调度', null, function () {
-                ctx.restartAndResume({
-                    jobId: currentNode.id,
-                    justRunChild: false, // 只跑子节点
-                    setSuccess: false // 更新节点状态
-                }, '重跑并恢复调度')
-            }, null, null,
-            // 重跑并恢复调度
-            currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 未运行
-                currentNode.status === TASK_STATUS.FINISHED || // 已完成
-                currentNode.status === TASK_STATUS.RUN_FAILED || // 运行失败
-                currentNode.status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
-                currentNode.status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
-                currentNode.status === TASK_STATUS.STOPED || // 已停止
-                currentNode.status === TASK_STATUS.PARENT_FAILD
-            )
-
             menu.addItem('置成功并恢复调度', null, function () {
                 ctx.restartAndResume({
                     jobId: currentNode.id,
@@ -573,7 +566,7 @@ class TaskFlowView extends Component {
                 currentNode.status === TASK_STATUS.STOPED ||
                 currentNode.status === TASK_STATUS.SUBMIT_FAILED)
 
-            menu.addItem('重跑下游并恢复调度', null, function () {
+            menu.addItem('重跑并恢复调度', null, function () {
                 ctx.setState({ visibleRestart: true })
             })
         }

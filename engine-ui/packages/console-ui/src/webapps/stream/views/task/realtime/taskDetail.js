@@ -84,7 +84,7 @@ export default class TaskDetail extends Component {
     }
     render () {
         const { visibleAlterRes, resList } = this.state
-        const { resources, currentPage, editorChange } = this.props
+        const { resources, currentPage, editorChange, editor } = this.props
         const taskRes = currentPage.resourceList && currentPage.resourceList.map((item) => {
             return <Tag key={item.id} color="blue">{item.resourceName}</Tag>
         })
@@ -159,6 +159,7 @@ export default class TaskDetail extends Component {
                             taskInfo={currentPage}
                             changeSql={editorChange}
                             taskType="realTimeTask"
+                            editor={editor}
                         />
                     </Panel>
                 </Collapse>

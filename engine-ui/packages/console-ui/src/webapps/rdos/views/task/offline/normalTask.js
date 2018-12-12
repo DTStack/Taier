@@ -32,6 +32,9 @@ class NormalTaskForm extends React.Component {
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
         const couldEdit = isProjectCouldEdit(project, user);
+
+        const resourceLable = !isPyTask ? '资源' : '入口资源';
+
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -66,7 +69,7 @@ class NormalTaskForm extends React.Component {
                 !isVirtual &&
                 <FormItem
                     {...formItemLayout}
-                    label="资源"
+                    label={resourceLable}
                 >
                     {getFieldDecorator('resourceIdList', {
                         rules: [{
@@ -86,6 +89,30 @@ class NormalTaskForm extends React.Component {
                         treeData={this.props.resTreeData}
                         onChange={this.handleResChange.bind(this)}
                         defaultNode={taskData.resourceList.length ? taskData.resourceList[0].resourceName : ''}
+                    />
+                </FormItem>
+            }
+            {
+                isPyTask && <FormItem
+                    {...formItemLayout}
+                    label="引用资源"
+                >
+                    {getFieldDecorator('refResourceIdList', {
+                        rules: [],
+                        initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0
+                            ? taskData.refResourceIdList.map(res => res.name) : []
+                    })(
+                        <Input disabled={!couldEdit} type="hidden" ></Input>
+                    )}
+                    <FolderPicker
+                        couldEdit={couldEdit}
+                        ispicker
+                        isFilepicker
+                        multiple={true}
+                        key="refResourceIdList"
+                        treeData={this.props.resTreeData}
+                        onChange={this.handleRefResChange.bind(this)}
+                        defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.name) : []}
                     />
                 </FormItem>
             }
@@ -207,6 +234,12 @@ class NormalTaskForm extends React.Component {
     handleResChange (value) {
         this.props.form.setFieldsValue({
             resourceIdList: [value]
+        });
+    }
+
+    handleRefResChange = (value) => {
+        this.props.form.setFieldsValue({
+            refResourceIdList: value
         });
     }
 
