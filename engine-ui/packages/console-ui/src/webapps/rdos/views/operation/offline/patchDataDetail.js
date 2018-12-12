@@ -102,7 +102,10 @@ class PatchDataDetail extends Component {
         }
         if (taskName) {
             reqParams.taskName = taskName
-            reqParams.currentPage = 1
+            reqParams.currentPage = 1;
+            this.setState({
+                current: 1
+            })
         }
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId

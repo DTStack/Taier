@@ -89,6 +89,9 @@ class OfflineTaskMana extends Component {
         if (taskName) {
             reqParams.name = taskName
             reqParams.currentPage = 1
+            this.setState({
+                current: 1
+            })
         }
         if (startTime && endTime) {
             reqParams.startTime = startTime
