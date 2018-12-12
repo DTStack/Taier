@@ -9,17 +9,10 @@
  */
 export function getGeoByRelativeNode (relativeNode, node) {
     const getX = function (currentNode) {
-        const subNode = currentNode.subNode;
         if (currentNode.index === 1 && currentNode.count === 1) {
-            // return subNode ? relativeNode.x + node.margin : relativeNode.x;
             return relativeNode.x;
         } else if (currentNode.count > 1) {
             let rowWidth = currentNode.count * currentNode.width + (currentNode.count - 1) * currentNode.margin;
-            // getNodeWidth(currentNode); //
-            if (subNode) {
-                rowWidth = subNode.count * subNode.width + (subNode.count - 1) * subNode.margin;
-                // getNodeWidth(subNode); //
-            }
             const boundX = (relativeNode.x + Math.round(relativeNode.width / 2)) - Math.round(rowWidth / 2);
             if (currentNode.index === 1) { return boundX };
             return boundX + (currentNode.index - 1) * currentNode.width + (currentNode.index - 1) * currentNode.margin;
@@ -78,15 +71,16 @@ export function getGeoByStartPoint (origin, node) {
     return node;
 }
 
-export const getNodeWidth = (node) => {
-    const rowWidth = (node.count - 1) * node.width + (node.count - 1) * node.margin;
-    return rowWidth;
-}
-
 export const getNodeHeight = (node) => {
     const l = Math.abs(node.level);
     const rowHeight = (l + 1) * node.height + l * node.margin;
+    console.log('getNodeHeight', node, rowHeight);
     return rowHeight;
+}
+
+export const getNodeWidth = (node) => {
+    const rowWidth = node.count * node.width + (node.count - 1) * node.margin;
+    return rowWidth;
 }
 
 export const getRowWidth = (currentNode) => {
@@ -110,7 +104,19 @@ export const getParentNodeRelativeGeoX = (node) => {
  */
 export const getNodeLevelAndCount = (node, childrenField) => {
     let count = 1;
-    let maxLevel = 0;
+    let maxLevel = 1;
+
+    const getReturn = function () {
+        return {
+            count,
+            level: maxLevel
+        }
+    };
+
+    if (!node) {
+        return getReturn()
+    }
+
     const getMaxLevel = (node) => {
         let max = 0;
 
@@ -128,28 +134,39 @@ export const getNodeLevelAndCount = (node, childrenField) => {
 
     maxLevel = getMaxLevel(node);
 
-    const res = {
-        count,
-        level: maxLevel
-    }
-
-    return res;
+    return getReturn();
 }
 
 /**
  * 统计节点信息
  */
-export const getRowCountOfSameLevel = (data, level) => {
+export const getRowCountOfSameLevel = (data, currentNode) => {
     let count = 0;
+    let index = 0;
 
+    const getReturn = function () {
+        return {
+            count,
+            index
+        }
+    };
+
+    if (!currentNode) {
+        return getReturn();
+    }
+
+    const { id, level } = currentNode;
     for (let i = 0; i < data.length; i++) {
         const source = data[i].source;
         if (source && source.level === level) {
             count++;
+            if (source.id === id && index === 0) {
+                index = i;
+            }
         }
     }
 
-    return count;
+    return getReturn()
 }
 
 export const getNodeIndexAndCount = (node, currentNode, childrenField) => {

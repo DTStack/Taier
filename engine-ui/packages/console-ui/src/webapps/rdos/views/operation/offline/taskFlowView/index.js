@@ -17,7 +17,11 @@ import MyIcon from '../../../../components/icon'
 import { getVertxtStyle } from '../../../../comm'
 import { TASK_STATUS, TASK_TYPE } from '../../../../comm/const'
 import { taskTypeText, taskStatusText } from '../../../../components/display'
-import { getGeoByRelativeNode, getNodeWidth, getNodeHeight, getNodeLevelAndCount } from 'utils/layout';
+import {
+    getGeoByRelativeNode, getNodeWidth,
+    getNodeHeight, getNodeLevelAndCount
+} from 'utils/layout';
+// getRowCountOfSameLevel
 
 const Mx = require('public/rdos/mxgraph')({
     mxBasePath: 'public/rdos/mxgraph',
@@ -44,6 +48,17 @@ const {
 const VertexSize = { // vertex大小
     width: 150,
     height: 40
+}
+
+const defaultGeo = { // 默认几何对象;
+    count: 1,
+    index: 1,
+    level: 0,
+    x: 10,
+    y: 10,
+    width: VertexSize.width,
+    height: VertexSize.height,
+    margin: 50
 }
 
 const replacTreeNodeField = (treeNode, sourceField, targetField, arrField) => {
@@ -277,16 +292,6 @@ class TaskFlowView extends Component {
     preHandGraphTree = (data) => {
         const relationTree = [];
         let level = 0;
-        let defaultRoot = { // 层级，默认0;
-            count: 1,
-            index: 1,
-            level: 0,
-            x: 10,
-            y: 10,
-            width: VertexSize.width,
-            height: VertexSize.height,
-            margin: 50
-        }
 
         const loop = (treeNodeData, parent, level, parentNode) => {
             if (treeNodeData) {
@@ -296,9 +301,9 @@ class TaskFlowView extends Component {
                 let currentNodeGeo;
 
                 if (!treeNodeData._geometry) {
-                    currentNodeGeo = Object.assign({}, defaultRoot);
+                    currentNodeGeo = Object.assign({}, defaultGeo);
                     currentNodeGeo.level = level;
-                    currentNodeGeo.y = parentNode.y + defaultRoot.margin;
+                    currentNodeGeo.y = parentNode.y + defaultGeo.margin;
                 } else {
                     currentNodeGeo = treeNodeData._geometry;
                 }
@@ -310,13 +315,13 @@ class TaskFlowView extends Component {
 
                     // 如果是工作流，需要重新计算工作流节点的高和宽
                     const nodeCount = getNodeLevelAndCount(workflowData, 'jobVOS');
-                    const tempNode = Object.assign({}, defaultRoot);
+                    const tempNode = Object.assign({}, defaultGeo);
                     tempNode.count = nodeCount.count;
                     tempNode.level = nodeCount.level;
                     currentNodeGeo.width = getNodeWidth(tempNode);
                     currentNodeGeo.height = getNodeHeight(tempNode);
 
-                    const workflowDefaultRoot = Object.assign({}, defaultRoot);
+                    const workflowDefaultRoot = Object.assign({}, defaultGeo);
                     workflowDefaultRoot.x = Math.round((currentNodeGeo.width - VertexSize.width) / 2);
                     workflowDefaultRoot.y = workflowDefaultRoot.height + 25;
 
@@ -327,6 +332,8 @@ class TaskFlowView extends Component {
 
                 currentNodeGeo = getGeoByRelativeNode(parentNode, currentNodeGeo);
                 treeNodeData._geometry = currentNodeGeo;
+                console.log('geo:', treeNodeData.batchTask.name, treeNodeData._geometry);
+
 
                 relationTree.push({
                     parent: parent,
@@ -337,16 +344,24 @@ class TaskFlowView extends Component {
                 if (parentNodes) {
                     for (let i = 0; i < parentNodes.length; i++) {
                         const nodeData = parentNodes[i];
-                        const node = Object.assign({}, defaultRoot);
-                        node.level = level - 1;
-                        node.index = i + 1;
-                        node.count = parentNodes.length;
+                        const geo = Object.assign({}, defaultGeo);
+                        geo.level = level - 1;
+                        geo.index = i + 1;
+                        geo.count = nodeData.parentNodes && nodeData.parentNodes.length > parentNodes.length
+                        ? nodeData.parentNodes.length : parentNodes.length;
 
-                        node.subNode = nodeData.parentNodes && nodeData.parentNodes.length > 0 ? Object.assign({}, defaultRoot, {
-                            count: nodeData.parentNodes.length,
-                        }) : undefined;
-                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
-                        console.log('parent:', nodeData)
+                        const existNode = relationTree.find( o => {
+                            // return eq ? obj : null;
+                            return (o.source && o.source.level === geo.level && o.source.id === nodeData.id) ||
+                            (o.target && o.target.level === geo.level && o.target.id === nodeData.id) && o._geometry;
+                        })
+                        if (existNode) {
+                            nodeData._geometry = existNode._geometry;
+                        } else {
+                            nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, geo);
+                        }
+                        console.log('parentNodes geo:', nodeData.batchTask.name, nodeData._geometry);
+
                         relationTree.push({
                             parent: parent,
                             source: nodeData,
@@ -365,11 +380,22 @@ class TaskFlowView extends Component {
                         const nodeData = childNodes[i];
                         if (!nodeData) continue;
 
-                        const node = Object.assign({}, defaultRoot);
-                        node.level = level + 1;
-                        node.index = i + 1;
-                        node.count = childNodes.length;
-                        nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
+                        const geo = Object.assign({}, defaultGeo);
+                        geo.level = level + 1;
+                        geo.index = i + 1;
+                        geo.count = nodeData.jobVOS && nodeData.jobVOS.lenght > childNodes.length
+                        ? nodeData.jobVOS.lenght : childNodes.length;
+
+                        const existNode = relationTree.find( o => {
+                            return (o.source && o.source.level === geo.level && o.source.id === nodeData.id) ||
+                            (o.target && o.target.level === geo.level && o.target.id === nodeData.id) && o._geometry;
+                        })
+                        if (existNode) {
+                            nodeData._geometry = existNode._geometry;
+                        } else {
+                            nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, geo);
+                        }
+                        console.log('childNodes geo:', nodeData.batchTask.name, nodeData._geometry);
 
                         relationTree.push({
                             parent: parent,
@@ -385,7 +411,7 @@ class TaskFlowView extends Component {
             }
         }
 
-        loop(data, null, level, defaultRoot);
+        loop(data, null, level, defaultGeo);
 
         return relationTree;
     }
@@ -474,6 +500,22 @@ class TaskFlowView extends Component {
             }
         }
     }
+
+    // hierarchyLayout = (arr) => {
+    //     if (arr) {
+    //         for (let i = 0; i < arr.length; i++) {
+    //             const { source, target } = arr[i];
+    //             if (target) {
+    //                 const countInfo = getRowCountOfSameLevel(arr, target);
+    //                 source._geometry.count = countInfo.count;
+    //                 target._geometry.index = countInfo.index;
+    //                 target._geometry.count = countInfo.count;
+    //                 target._geometry = getGeoByRelativeNode(source._geometry, target._geometry);
+    //             }
+    //             console.log('hierarchyLayout:', arr[i]);
+    //         }
+    //     }
+    // }
 
     doInsertVertex = (data) => {
         const graph = this.graph;
@@ -745,7 +787,7 @@ class TaskFlowView extends Component {
                     <TaskInfo task={selectedJob} project={project} />
                 </Modal>
                 <Modal
-                    key={taskJob.id}
+                    key={taskJob && taskJob.id}
                     width={800}
                     title={(
                         <span>
