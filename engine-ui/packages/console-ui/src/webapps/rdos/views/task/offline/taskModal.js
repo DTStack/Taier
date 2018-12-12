@@ -340,7 +340,7 @@ class TaskForm extends React.Component {
                         </FormItem>}
                     </span>
                 }
-                {/* {
+                {
                     isPyTask && <FormItem
                         {...formItemLayout}
                         label="引用资源"
@@ -364,7 +364,7 @@ class TaskForm extends React.Component {
                             defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 && defaultData.refResourceIdList.map(res => res.name)}
                         />
                     </FormItem>
-                } */}
+                }
                 {
                     isSyncTast &&
                     <FormItem
