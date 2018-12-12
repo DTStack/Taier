@@ -222,3 +222,7 @@
     background: rgba(255, 255, 255, 0.4);
     cursor: not-allowed;
 }
+
+.ant-input-affix-wrapper .ant-input {
+    min-height: auto;
+}
