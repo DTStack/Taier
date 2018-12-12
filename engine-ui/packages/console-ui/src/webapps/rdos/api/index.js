@@ -495,6 +495,9 @@ export default {
     getOfflineTableColumn(params) {
         return http.post(offlineReq.GET_OFFLINE_TABLECOLUMN, params)
     },
+    isNativeHive(params){
+        return http.post(offlineReq.IS_NATIVE_HIVE, params);
+    },
     getOfflineColumnForSyncopate(params) {
         return http.post(offlineReq.GET_OFFLINE_COLUMNFORSYNCOPATE, params)
     },

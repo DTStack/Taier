@@ -89,6 +89,7 @@ export default {
     ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addFunction`,
     LINK_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/linkDataSource`, // 关联映射数据源
     GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`, // 获取工作流的任务
+    IS_NATIVE_HIVE: `${RDOS_BASE_URL}/batch/batchDataSource/isNativeHive`, // 校验是不是标准分区
 
     // 离线文件操作
     DEL_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/deleteTask`,

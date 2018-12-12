@@ -345,6 +345,14 @@ const targetMap = (state = {}, action) => {
             });
         }
 
+        case targetMapAction.CHANGE_NATIVE_HIVE: {
+            const isNativeHive = action.payload;
+
+            return assign({}, state, {
+                isNativeHive: isNativeHive
+            });
+        }
+
         // target keyrow 添加一行字段
         case targetMapAction.ADD_TARGET_KEYROW: {
             const colData = action.payload;

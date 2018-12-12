@@ -1000,7 +1000,7 @@ class Keymap extends React.Component {
     }
 
     next (cb) {
-        const { keymap, targetSrcType, targetCol } = this.props;
+        const { keymap, targetSrcType, targetCol, isNativeHive } = this.props;
         const { source, target } = keymap;
 
         if (source.length === 0 && target.length === 0) {
@@ -1009,7 +1009,7 @@ class Keymap extends React.Component {
         }
 
         const isCarbonDataCheckPartition = () => {
-            if (targetSrcType === DATA_SOURCE.CARBONDATA) {
+            if (targetSrcType === DATA_SOURCE.CARBONDATA && !isNativeHive) {
                 const hasPartiton = targetCol.find(col => col.isPart);
                 const keymapPartition = target.find(col => col.isPart);
                 if (hasPartiton && !keymapPartition) {
@@ -1494,6 +1494,7 @@ const mapState = state => {
         targetCol: dataSync.targetMap.column || [],
         targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type, // 目标数据源类型
         targetFileType: dataSync.sourceMap.type && dataSync.targetMap.type.fileType,
+        isNativeHive: dataSync.targetMap.isNativeHive,
         sourceCol: dataSync.sourceMap.column || [],
         sourceSrcType: dataSync.sourceMap.type && dataSync.sourceMap.type.type, // 源头数据源类型
         sourceFileType: dataSync.sourceMap.type && dataSync.sourceMap.type.fileType,
