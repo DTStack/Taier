@@ -99,8 +99,8 @@ class NormalTaskForm extends React.Component {
                 >
                     {getFieldDecorator('refResourceIdList', {
                         rules: [],
-                        initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ?
-                            taskData.refResourceIdList.map(res => res.name) : []
+                        initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0
+                            ? taskData.refResourceIdList.map(res => res.name) : []
                     })(
                         <Input disabled={!couldEdit} type="hidden" ></Input>
                     )}
@@ -237,17 +237,13 @@ class NormalTaskForm extends React.Component {
         });
     }
 
-<<<<<<< HEAD
-    handlePathChange (value) {
-=======
     handleRefResChange = (value) => {
         this.props.form.setFieldsValue({
             refResourceIdList: value
         });
     }
 
-    handlePathChange(value) {
->>>>>>> hotfix_v2.0
+    handlePathChange (value) {
         this.props.form.setFieldsValue({
             nodePid: value
         });

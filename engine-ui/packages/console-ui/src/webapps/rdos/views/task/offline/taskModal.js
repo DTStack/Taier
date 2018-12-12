@@ -55,12 +55,12 @@ class TaskForm extends React.Component {
         this.props.form.validateFields(['resourceIdList']);
     }
 
-    handleRefResSelectTreeChange(value) {
+    handleRefResSelectTreeChange (value) {
         this.props.form.setFieldsValue({ 'refResourceIdList': value });
         this.props.form.validateFields(['refResourceIdList']);
     }
 
-    handleTaskTypeChange(value) {
+    handleTaskTypeChange (value) {
         this.setState({
             value: value
         })
