@@ -37,7 +37,7 @@ public class ExceptionInfoConstrant {
             Field[] fields = ExceptionInfoConstrant.class.getDeclaredFields();
             for(Field f:fields){
                 String name = f.getName();
-                if(name.indexOf("RESTART_EXCEPTION")>=0){
+                if(name.indexOf("RESTART_EXCEPTION") >= 0){
                     needRestartExceptions.add(f.get(f.getName()).toString());
                 }
             }
