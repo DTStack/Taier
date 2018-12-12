@@ -332,12 +332,7 @@ class TaskForm extends React.Component {
                             hasFeedback
                         >
                             {getFieldDecorator('exeArgs', {
-                                rules: [{
-                                    /* eslint-disable */
-                                    pattern: /^[A-Za-z0-9_\/-]+$/,
-                                    /* eslint-disable */
-                                    message: '任务参数只能由字母、数字、下划线、斜杠组成!'
-                                }],
+                                rules: [],
                                 initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
                             })(
                                 <Input placeholder="请输入任务参数" />
@@ -345,7 +340,7 @@ class TaskForm extends React.Component {
                         </FormItem>}
                     </span>
                 }
-                {
+                {/* {
                     isPyTask && <FormItem
                         {...formItemLayout}
                         label="引用资源"
@@ -369,7 +364,7 @@ class TaskForm extends React.Component {
                             defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 && defaultData.refResourceIdList.map(res => res.name)}
                         />
                     </FormItem>
-                }
+                } */}
                 {
                     isSyncTast &&
                     <FormItem

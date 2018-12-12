@@ -92,7 +92,7 @@ class NormalTaskForm extends React.Component {
                     />
                 </FormItem>
             }
-            {
+            {/* {
                 isPyTask && <FormItem
                     {...formItemLayout}
                     label="引用资源"
@@ -115,7 +115,7 @@ class NormalTaskForm extends React.Component {
                         defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.name) : []}
                     />
                 </FormItem>
-            }
+            } */}
             {
                 mainClassShow &&
                 <FormItem
