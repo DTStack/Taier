@@ -99,7 +99,7 @@ export const selection = (state = '', action) => {
             } else if (state !== '') {
                 return '';
             }
-            break;
+            return '';
         }
         default:
             return state;

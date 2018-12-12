@@ -75,17 +75,16 @@ class DataMap extends Component {
     initStatusSuccess = () => {
         console.log('DataMap初始化完成')
         this.reloadDataMapCatalogue();
-        this._checkStatus && clearInterval(this._checkStatus);
         message.success('DataMap创建成功！');
     }
     onCreate = () => {
         const form = this.formInstance.props.form;
-        this.setState({
-            loading: true,
-            createLoading: true
-        });
         form.validateFields(async (err, values) => {
             if (!err) {
+                this.setState({
+                    loading: true,
+                    createLoading: true
+                });
                 values.configJSON.selectSql = this._selectSQL;
                 if (values.configJSON.columns) {
                     values.configJSON.columns = values.configJSON.columns.join(',');
@@ -98,17 +97,16 @@ class DataMap extends Component {
                             })
                             console.log('INITIALIZE为0')
                             this._checkStatus = setInterval(() => {
-                                API.checkDataMapStatus({ dataMapId: res.data.id }).then(res => {
+                                const dataMapId = res.data.id;
+                                API.checkDataMapStatus({ dataMapId: dataMapId }).then(res => {
                                     if (res.code === 1) {
-                                        this.setState({
-                                            createLoading: true
-                                        })
                                         if (res.data.status === 1) {
                                             this.setState({
                                                 createLoading: false
                                             })
+                                            this._checkStatus && clearInterval(this._checkStatus);
                                             this.props.onGetDataMap({
-                                                id: res.data.id
+                                                id: dataMapId
                                             });
                                             this.initStatusSuccess()
                                         } else if (res.data.status === 2) {
@@ -121,7 +119,7 @@ class DataMap extends Component {
                                         }
                                     }
                                 })
-                            }, 1000)
+                            }, 1500)
                         } else if (res.data.status === dataMapStatus.NORMAL) {
                             this.props.onGetDataMap({
                                 id: res.data.id
