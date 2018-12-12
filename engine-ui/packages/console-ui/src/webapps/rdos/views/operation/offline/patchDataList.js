@@ -106,6 +106,12 @@ class PatchDataList extends Component {
         this.setState({ jobName: e.target.value })
     }
 
+    onSearchByJobName = () => {
+        this.setState({
+            current: 1
+        }, this.loadPatchData)
+    }
+
     onOwnerChange = (value) => {
         const { user } = this.props
         const { checkVals } = this.state
@@ -246,7 +252,7 @@ class PatchDataList extends Component {
                         value={jobName}
                         size="default"
                         onChange={this.onChangeJobName}
-                        onSearch={this.loadPatchData}
+                        onSearch={this.onSearchByJobName}
                     />
                 </FormItem>
                 <FormItem label="业务日期">
