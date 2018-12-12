@@ -42,9 +42,12 @@ class TargetForm extends React.Component {
 
     componentDidMount () {
         const { targetMap } = this.props;
-        const { sourceId } = targetMap;
+        const { sourceId, type } = targetMap;
 
         sourceId && this.getTableList(sourceId);
+        if (type) {
+            this.checkIsNativeHive(type.tableName);
+        }
     }
 
     getTableList = (sourceId) => {
@@ -99,12 +102,35 @@ class TargetForm extends React.Component {
             })
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
+                this.checkIsNativeHive(tableName);
             } else {
                 handleTableColumnChange([]);
             }
         })
     }
-
+    checkIsNativeHive (tableName) {
+        const { form, targetMap, changeNativeHive } = this.props;
+        const sourceId = form.getFieldValue('sourceId');
+        if (!tableName || !sourceId) {
+            return;
+        }
+        if (targetMap.type && targetMap.type.type === DATA_SOURCE.CARBONDATA) {
+            this.setState({
+                loading: true
+            })
+            ajax.isNativeHive({
+                sourceId,
+                tableName
+            }).then((res) => {
+                this.setState({
+                    loading: false
+                })
+                if (res.code == 1) {
+                    changeNativeHive(res.data)
+                }
+            })
+        }
+    }
     /**
      * 根据数据源id获取数据源信息
      * @param {*} id
@@ -342,6 +368,7 @@ class TargetForm extends React.Component {
 
         const { targetMap, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
+        const { isNativeHive } = targetMap;
         let formItem;
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
@@ -354,519 +381,537 @@ class TargetForm extends React.Component {
         if (isEmpty(targetMap)) return null;
 
         switch (targetMap.type.type) {
-        case DATA_SOURCE.DB2:
-        case DATA_SOURCE.MYSQL:
-        case DATA_SOURCE.ORACLE:
-        case DATA_SOURCE.SQLSERVER:
-        case DATA_SOURCE.POSTGRESQL: {
-            formItem = [
-                !selectHack && <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '请选择表'
-                        }],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            mode="combobox"
-                            // disabled={ !isCurrentTabNew }
-                            optionFilterProp="value"
-                            onChange={this.debounceTableSearch.bind(this)}
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option
-                                    key={`rdb-target-${table}`}
-                                    value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="导入前准备语句"
-                    key="preSql"
-                >
-                    {getFieldDecorator('preSql', {
-                        rules: [],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
-                    })(
-                        <Input
-                            onChange={this.submitForm.bind(this)}
-                            placeholder="请输入导入数据前执行的SQL脚本"
-                            type="textarea"
-                        ></Input>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="导入后准备语句"
-                    key="postSql"
-                >
-                    {getFieldDecorator('postSql', {
-                        rules: [],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
-                    })(
-                        <Input
-                            onChange={this.submitForm.bind(this)}
-                            placeholder="请输入导入数据后执行的SQL脚本"
-                            type="textarea"
-                        ></Input>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="主键冲突"
-                    key="writeMode"
-                    className="txt-left"
-                >
-                    {getFieldDecorator('writeMode', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="insert" style={{ float: 'left' }}>
+            case DATA_SOURCE.DB2:
+            case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.POSTGRESQL: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '请选择表'
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                // disabled={ !isCurrentTabNew }
+                                optionFilterProp="value"
+                                onChange={this.debounceTableSearch.bind(this)}
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="导入前准备语句"
+                        key="preSql"
+                    >
+                        {getFieldDecorator('preSql', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.preSql
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入导入数据前执行的SQL脚本"
+                                type="textarea"
+                            ></Input>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="导入后准备语句"
+                        key="postSql"
+                    >
+                        {getFieldDecorator('postSql', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.postSql
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入导入数据后执行的SQL脚本"
+                                type="textarea"
+                            ></Input>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="主键冲突"
+                        key="writeMode"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="insert" style={{ float: 'left' }}>
                                     视为脏数据，保留原有数据（Insert Into）
                             </Radio>
-                            <Radio value="replace" style={{ float: 'left' }}>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     替换原有数据（Replace Into）
                             </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.CARBONDATA: {
-            formItem = [
-                !selectHack && <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '请选择表'
-                        }],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            mode="combobox"
-                            optionFilterProp="value"
-                            onChange={this.debounceTableSearch.bind(this)}
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option
-                                    key={`rdb-target-${table}`}
-                                    value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="写入模式"
-                    key="writeMode"
-                    className="txt-left"
-                >
-                    {getFieldDecorator('writeMode', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="replace" style={{ float: 'left' }}>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.CARBONDATA: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '请选择表'
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                optionFilterProp="value"
+                                onChange={this.debounceTableSearch.bind(this)}
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    isNativeHive ?<FormItem
+                        {...formItemLayout}
+                        label="分区"
+                        key="partition"
+                    >
+                        {getFieldDecorator('partition', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                /* eslint-disable */
+                                placeholder="pt=${bdp.system.bizdate}"
+                            /* eslint-disable */
+                            ></Input>
+                        )}
+                        <HelpDoc doc="partitionDesc" />
+                    </FormItem>:null,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        key="writeMode"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                             </Radio>
-                            <Radio value="insert" style={{ float: 'left' }}>
+                                <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                             </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.HIVE:
-        case DATA_SOURCE.MAXCOMPUTE: {
-            formItem = [
-                !selectHack && <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true,
-                            message: '请选择表'
-                        }],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            mode="combobox"
-                            onChange={this.debounceTableSearch.bind(this)}
-                            optionFilterProp="value"
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option
-                                    key={`rdb-target-${table}`}
-                                    value={table}
-                                >
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                    {showCreateTable && (loading ? <Icon type="loading" /> : <a
-                        style={{ top: '0px', right: '-90px' }}
-                        onClick={this.showCreateModal.bind(this)}
-                        className="help-doc" >一键生成目标表</a>)}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="分区"
-                    key="partition"
-                >
-                    {getFieldDecorator('partition', {
-                        rules: [],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
-                    })(
-                        <Input
-                            onChange={this.submitForm.bind(this)}
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.MAXCOMPUTE: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true,
+                                message: '请选择表'
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.table
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                onChange={this.debounceTableSearch.bind(this)}
+                                optionFilterProp="value"
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option
+                                        key={`rdb-target-${table}`}
+                                        value={table}
+                                    >
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                        {showCreateTable && (loading ? <Icon type="loading" /> : <a
+                            style={{ top: '0px', right: '-90px' }}
+                            onClick={this.showCreateModal.bind(this)}
+                            className="help-doc" >一键生成目标表</a>)}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="分区"
+                        key="partition"
+                    >
+                        {getFieldDecorator('partition', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                /* eslint-disable */
+                                placeholder="pt=${bdp.system.bizdate}"
                             /* eslint-disable */
-                            placeholder="pt=${bdp.system.bizdate}"
-                            /* eslint-disable */
-                        ></Input>
-                    )}
-                    <HelpDoc doc="partitionDesc" />
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="写入模式"
-                    key="writeMode"
-                    className="txt-left"
-                >
-                    {getFieldDecorator('writeMode', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="replace" style={{ float: 'left' }}>
+                            ></Input>
+                        )}
+                        <HelpDoc doc="partitionDesc" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        key="writeMode"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'replace'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                             </Radio>
-                            <Radio value="insert" style={{ float: 'left' }}>
+                                <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                             </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.HDFS: {
-            formItem = [
-                <FormItem
-                    {...formItemLayout}
-                    label="路径"
-                    key="path"
-                >
-                    {getFieldDecorator('path', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.path
-                    })(
-                        <Input
-                            placeholder="例如: /app/batch"
-                            onChange={
-                                debounce(this.submitForm, 600, { 'maxWait': 2000 })
-                            } />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="文件名"
-                    key="fileName"
-                >
-                    {getFieldDecorator('fileName', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.fileName
-                    })(
-                        <Input onChange={this.submitForm.bind(this)} />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="文件类型"
-                    key="fileType"
-                >
-                    {getFieldDecorator('fileType', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc'
-                    })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
-                            <Option value="orc">orc</Option>
-                            <Option value="text">text</Option>
-                            <Option value="parquet">parquet</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="列分隔符"
-                    key="fieldDelimiter"
-                >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [],
-                        initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
-                    })(
-                        <Input
-                            /* eslint-disable */
-                            placeholder="例如: 目标为hive则 分隔符为\001"
-                            /* eslint-disable */
-                            onChange={this.submitForm.bind(this)} />
-                    )}
-                    <HelpDoc doc="splitCharacter" />
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="编码"
-                    key="encoding"
-                >
-                    {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: isEmpty(targetMap) || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
-                    })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="写入模式"
-                    className="txt-left"
-                    key="writeMode"
-                >
-                    {getFieldDecorator('writeMode', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="NONCONFLICT" style={{ float: 'left' }}>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HDFS: {
+                formItem = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="路径"
+                        key="path"
+                    >
+                        {getFieldDecorator('path', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /app/batch"
+                                onChange={
+                                    debounce(this.submitForm, 600, { 'maxWait': 2000 })
+                                } />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件名"
+                        key="fileName"
+                    >
+                        {getFieldDecorator('fileName', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.fileName
+                        })(
+                            <Input onChange={this.submitForm.bind(this)} />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件类型"
+                        key="fileType"
+                    >
+                        {getFieldDecorator('fileType', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.fileType ? targetMap.type.fileType : 'orc'
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)} >
+                                <Option value="orc">orc</Option>
+                                <Option value="text">text</Option>
+                                <Option value="parquet">parquet</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? ',' : targetMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                /* eslint-disable */
+                                placeholder="例如: 目标为hive则 分隔符为\001"
+                                /* eslint-disable */
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: isEmpty(targetMap) || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        className="txt-left"
+                        key="writeMode"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="NONCONFLICT" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                             </Radio>
-                            <Radio value="APPEND" style={{ float: 'left' }}>
+                                <Radio value="APPEND" style={{ float: 'left' }}>
                                     追加（Insert Into）
                             </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.HBASE: {
-            formItem = [
-                !selectHack && <FormItem
-                    {...formItemLayout}
-                    label="表名"
-                    key="table"
-                >
-                    {getFieldDecorator('table', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.table ? targetMap.type.table : ''
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            mode="combobox"
-                            onChange={this.debounceTableSearch.bind(this)}
-                            // disabled={!isCurrentTabNew}
-                            optionFilterProp="value"
-                        >
-                            {this.state.tableList.map(table => {
-                                return <Option key={`hbase-target-${table}`} value={table}>
-                                    {table}
-                                </Option>
-                            })}
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="编码"
-                    key="encoding"
-                >
-                    {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.encoding ? targetMap.type.encoding : 'utf-8'
-                    })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="读取为空时的处理方式"
-                    key="nullMode"
-                    className="txt-left"
-                >
-                    {getFieldDecorator('nullMode', {
-                        rules: [{
-                            required: true,
-                            message: '请选择为空时的处理方式!'
-                        }],
-                        initialValue: targetMap.type && targetMap.type.nullMode ? targetMap.type.nullMode : 'skip'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="skip" style={{ float: 'left' }}>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HBASE: {
+                formItem = [
+                    !selectHack && <FormItem
+                        {...formItemLayout}
+                        label="表名"
+                        key="table"
+                    >
+                        {getFieldDecorator('table', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.table ? targetMap.type.table : ''
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                mode="combobox"
+                                onChange={this.debounceTableSearch.bind(this)}
+                                // disabled={!isCurrentTabNew}
+                                optionFilterProp="value"
+                            >
+                                {this.state.tableList.map(table => {
+                                    return <Option key={`hbase-target-${table}`} value={table}>
+                                        {table}
+                                    </Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.encoding ? targetMap.type.encoding : 'utf-8'
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="读取为空时的处理方式"
+                        key="nullMode"
+                        className="txt-left"
+                    >
+                        {getFieldDecorator('nullMode', {
+                            rules: [{
+                                required: true,
+                                message: '请选择为空时的处理方式!'
+                            }],
+                            initialValue: targetMap.type && targetMap.type.nullMode ? targetMap.type.nullMode : 'skip'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="skip" style={{ float: 'left' }}>
                                     SKIP
                             </Radio>
-                            <Radio value="empty" style={{ float: 'left' }}>
+                                <Radio value="empty" style={{ float: 'left' }}>
                                     EMPTY
                             </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="写入缓存大小"
-                    key="writeBufferSize"
-                >
-                    {getFieldDecorator('writeBufferSize', {
-                        rules: [],
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.writeBufferSize
-                    })(
-                        <Input
-                            onChange={this.submitForm.bind(this)}
-                            placeholder="请输入缓存大小"
-                            type="number"
-                            min={0}
-                            suffix="KB"
-                        ></Input>
-                    )}
-                </FormItem>
-            ]
-            break;
-        }
-        case DATA_SOURCE.FTP: {
-            formItem = [
-                <FormItem
-                    {...formItemLayout}
-                    label="路径"
-                    key="path"
-                >
-                    {getFieldDecorator('path', {
-                        rules: [{
-                            required: true,
-                            message: '路径不得为空！'
-                        }, {
-                            max: 200,
-                            message: '路径不得超过200个字符！'
-                        }, {
-                            validator: this.validatePath
-                        }],
-                        validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(targetMap) ? '' : targetMap.type.path
-                    })(
-                        <Input
-                            placeholder="例如: /rdos/batch"
-                            onChange={this.submitForm.bind(this)} />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="编码"
-                    key="encoding"
-                >
-                    {getFieldDecorator('encoding', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: !targetMap.type || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
-                    })(
-                        <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="列分隔符"
-                    key="fieldDelimiter"
-                >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [],
-                        initialValue: targetMap.type && typeof targetMap.type.fieldDelimiter != 'undefined' ? targetMap.type.fieldDelimiter : ','
-                    })(
-                        <Input
-                            placeholder="若不填写，则默认,"
-                            onChange={this.submitForm.bind(this)} />
-                    )}
-                    <HelpDoc doc="splitCharacter" />
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="写入模式"
-                    className="txt-left"
-                    key="writeMode"
-                >
-                    {getFieldDecorator('writeMode', {
-                        rules: [{
-                            required: true
-                        }],
-                        initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="NONCONFLICT" style={{ float: 'left' }}>
+                            </RadioGroup>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入缓存大小"
+                        key="writeBufferSize"
+                    >
+                        {getFieldDecorator('writeBufferSize', {
+                            rules: [],
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.writeBufferSize
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入缓存大小"
+                                type="number"
+                                min={0}
+                                suffix="KB"
+                            ></Input>
+                        )}
+                    </FormItem>
+                ]
+                break;
+            }
+            case DATA_SOURCE.FTP: {
+                formItem = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="路径"
+                        key="path"
+                    >
+                        {getFieldDecorator('path', {
+                            rules: [{
+                                required: true,
+                                message: '路径不得为空！'
+                            }, {
+                                max: 200,
+                                message: '路径不得超过200个字符！'
+                            }, {
+                                validator: this.validatePath
+                            }],
+                            validateTrigger: 'onSubmit',
+                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /rdos/batch"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: !targetMap.type || !targetMap.type.encoding ? 'utf-8' : targetMap.type.encoding
+                        })(
+                            <Select getPopupContainer={getPopupContainer} onChange={this.submitForm.bind(this)}>
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [],
+                            initialValue: targetMap.type && typeof targetMap.type.fieldDelimiter != 'undefined' ? targetMap.type.fieldDelimiter : ','
+                        })(
+                            <Input
+                                placeholder="若不填写，则默认,"
+                                onChange={this.submitForm.bind(this)} />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        className="txt-left"
+                        key="writeMode"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'APPEND'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="NONCONFLICT" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                             </Radio>
-                            <Radio value="APPEND" style={{ float: 'left' }}>
+                                <Radio value="APPEND" style={{ float: 'left' }}>
                                     追加（Insert Into）
                             </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-            ]
-            break;
-        }
-        default: break;
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ]
+                break;
+            }
+            default: break;
         }
 
         return formItem;
@@ -876,7 +921,7 @@ class TargetForm extends React.Component {
 const TargetFormWrap = Form.create()(TargetForm);
 
 class Target extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
     }
 
@@ -929,7 +974,7 @@ const mapDispatch = (dispatch, ownProps) => {
             });
         },
 
-        handleTableColumnChange: colData => {
+        handleTableColumnChange: (colData) => {
             dispatch({
                 type: targetMapAction.TARGET_TABLE_COLUMN_CHANGE,
                 payload: colData
@@ -938,7 +983,12 @@ const mapDispatch = (dispatch, ownProps) => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-
+        changeNativeHive: isNativeHive => {
+            dispatch({
+                type: targetMapAction.CHANGE_NATIVE_HIVE,
+                payload: isNativeHive
+            });
+        },
         updateTaskFields (params) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
