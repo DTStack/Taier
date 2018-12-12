@@ -93,6 +93,30 @@ class NormalTaskForm extends React.Component {
                 </FormItem>
             }
             {
+                isPyTask && <FormItem
+                    {...formItemLayout}
+                    label="引用资源"
+                >
+                    {getFieldDecorator('refResourceIdList', {
+                        rules: [],
+                        initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ?
+                            taskData.refResourceIdList.map(res => res.name) : []
+                    })(
+                        <Input disabled={!couldEdit} type="hidden" ></Input>
+                    )}
+                    <FolderPicker
+                        couldEdit={couldEdit}
+                        ispicker
+                        isFilepicker
+                        multiple={true}
+                        key="refResourceIdList"
+                        treeData={this.props.resTreeData}
+                        onChange={this.handleRefResChange.bind(this)}
+                        defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.name) : []}
+                    />
+                </FormItem>
+            }
+            {
                 mainClassShow &&
                 <FormItem
                     {...formItemLayout}
@@ -210,6 +234,12 @@ class NormalTaskForm extends React.Component {
     handleResChange(value) {
         this.props.form.setFieldsValue({
             resourceIdList: [value]
+        });
+    }
+
+    handleRefResChange = (value) => {
+        this.props.form.setFieldsValue({
+            refResourceIdList: value
         });
     }
 
