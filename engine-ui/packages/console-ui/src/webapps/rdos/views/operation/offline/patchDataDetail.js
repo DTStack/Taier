@@ -102,10 +102,6 @@ class PatchDataDetail extends Component {
         }
         if (taskName) {
             reqParams.taskName = taskName
-            reqParams.currentPage = 1;
-            this.setState({
-                current: 1
-            })
         }
         if (dutyUserId !== '') {
             reqParams.dutyUserId = dutyUserId
@@ -344,8 +340,13 @@ class PatchDataDetail extends Component {
     }
 
     changeTaskName = (e) => { // 任务名变更
-        console.log('taskName:', e)
         this.setState({ taskName: e.target.value })
+    }
+
+    onSearchByTaskName = () => {
+        this.setState({
+            current: 1
+        }, this.search)
     }
 
     onCheckAllChange = (e) => {
@@ -607,7 +608,7 @@ class PatchDataDetail extends Component {
                                             value={taskName}
                                             size="default"
                                             onChange={this.changeTaskName}
-                                            onSearch={this.search}
+                                            onSearch={this.onSearchByTaskName}
                                         />
                                     </FormItem>
                                     <FormItem
