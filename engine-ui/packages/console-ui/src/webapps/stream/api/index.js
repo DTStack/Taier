@@ -38,6 +38,8 @@ export default {
         utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
         utils.deleteCookie('stream_project_id', UIC_DOMAIN_URL, '/')
+        utils.deleteCookie('project_id', null, '/')
+        utils.deleteCookie('stream_project_id', null, '/')
         window.location.href = `${UIC_URL_TARGET}`
     },
 

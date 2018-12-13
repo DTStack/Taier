@@ -135,12 +135,11 @@ const utils = {
     },
 
     deleteCookie: function(name, domain, path) {
-        var d = new Date();
-        d.setDate(d.getDate() - 1);
-        var domain = domain || document.domain;
+        var d = new Date(0);
+        var domain = domain?`; domain=${domain}`:'';
         var path = path || "/";
         document.cookie =
-            name + "=; expires=" + d + "; domain=" + domain + "; path=" + path;
+            name + "=; expires=" + d.toUTCString() + domain + "; path=" + path;
     },
 
     deleteAllCookies: function(domain, path) {
