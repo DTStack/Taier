@@ -48,11 +48,16 @@ class BaseForm extends Component {
     componentDidMount () {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
-            if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
-                this.setState({ sourceType: sourceData.type, hasHdfsConfig: true })
-            } else {
-                this.setState({ sourceType: sourceData.type })
+            let initialState = {
+                sourceType: sourceData.type
             }
+            if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
+                initialState.hasHdfsConfig = true;
+            } else if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
+                const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
+                initialState.hasCarbonDataConfig = hdfsConf !== 'default';
+            }
+            this.setState(initialState);
         }
     }
 
@@ -272,7 +277,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.username', {
                             rules: [{
-                                required: false, message: ''
+                                required: true, message: '用户名不可为空！'
                             }],
                             initialValue: config.username || ''
                         })(
@@ -287,7 +292,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.password', {
                             rules: [{
-                                required: false, message: ''
+                                required: true, message: '密码不可为空！'
                             }],
                             initialValue: ''
                         })(
@@ -301,7 +306,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.hdfsCustomConfig', {
                             rules: [],
-                            initialValue: config.hdfsCustomConfig || 'default'
+                            initialValue: !config.hdfsCustomConfig ? 'custom' : 'default'
                         })(
                             <RadioGroup onChange={this.carbonDataConfigChange}>
                                 <Radio value="default">默认</Radio>
