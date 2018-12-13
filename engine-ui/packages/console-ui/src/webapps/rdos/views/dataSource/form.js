@@ -53,7 +53,8 @@ class BaseForm extends Component {
             }
             if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
                 initialState.hasHdfsConfig = true;
-            } else if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
+            }
+            if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
                 const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
                 initialState.hasCarbonDataConfig = hdfsConf !== 'default';
             }
