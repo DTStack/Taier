@@ -1,5 +1,6 @@
-import React, { Component } from "react";
-import { debounce } from "lodash";
+import React, { Component } from 'react';
+import { message } from 'antd';
+import { debounce } from 'lodash';
 
 import {
     TASK_TYPE,
@@ -10,13 +11,13 @@ import {
     PYTON_VERSION,
     SCRIPT_TYPE,
     DATA_SOURCE,
-    PROJECT_TYPE
-} from "./const";
+    PROJECT_TYPE,
+} from './const';
 
 // 请求防抖动
 export function debounceEventHander(...args) {
     const debounced = debounce(...args);
-    return function(e) {
+    return function (e) {
         e.persist();
         return debounced(e);
     };
@@ -26,7 +27,7 @@ export function debounceEventHander(...args) {
  * 默认的SQL模板
  */
 export function getDefaultSQLTemp(data) {
-    let temp = "";
+    let temp = '';
     for (let i = 0; i < data.length; i++) {
         temp += `ADDJAR ADD JAR WITH 
         ${data[i]};
@@ -65,9 +66,9 @@ export function taskTypeIcon(type, task = {}) {
                     return "s-mxnet";
                 } else if (learningType == LEARNING_TYPE.TENSORFLOW) {
                     return "s-tensorflow";
-                } else {
+                } 
                     return "s-deeplearning";
-                }
+                
             }
             case TASK_TYPE.PYTHON_23: {
                 if (pythonVersion == PYTON_VERSION.PYTHON2) {
@@ -115,14 +116,14 @@ export function taskTypeIcon(type, task = {}) {
 
 export function resourceTypeIcon(type) {
     switch (type) {
-        case RESOURCE_TYPE.JAR: {
-            return "s-jaricon-r";
+    case RESOURCE_TYPE.JAR: {
+            return 's-jaricon-r';
         }
-        case RESOURCE_TYPE.PY: {
-            return "s-pythonicon-r";
+    case RESOURCE_TYPE.PY: {
+            return 's-pythonicon-r';
         }
-        default:
-            return "";
+    default:
+        return '';
     }
 }
 
@@ -130,7 +131,7 @@ export function resourceTypeIcon(type) {
  * 查找树中的某个节点
  */
 export function findTreeNode(treeNode, node) {
-    let result = "";
+    let result = '';
     if (treeNode.id === parseInt(node.id, 10)) {
         return treeNode;
     }
@@ -208,7 +209,7 @@ export function matchTaskParams(taskCustomParams, sqlText) {
         const name = res[1];
         const param = {
             paramName: name,
-            paramCommand: ""
+            paramCommand: '',
         };
         const sysParam = taskCustomParams.find(item => item.paramName === name);
         if (sysParam) {
@@ -228,27 +229,27 @@ export function matchTaskParams(taskCustomParams, sqlText) {
 
 export function getVertxtStyle(type) {
     switch (type) {
-        case TASK_STATUS.FINISHED: // 完成
-        case TASK_STATUS.SET_SUCCESS:
-            return "whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;";
-        case TASK_STATUS.SUBMITTING:
-        case TASK_STATUS.RUNNING:
-            return "whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;";
-        case TASK_STATUS.RESTARTING:
-        case TASK_STATUS.STOPING:
-        case TASK_STATUS.DEPLOYING:
-        case TASK_STATUS.WAIT_SUBMIT:
-        case TASK_STATUS.WAIT_RUN:
-            return "whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;";
-        case TASK_STATUS.RUN_FAILED:
-        case TASK_STATUS.SUBMIT_FAILED:
-            return "whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;";
-        case TASK_STATUS.FROZEN:
-            return "whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;";
-        case TASK_STATUS.STOPED: // 已停止
-        default:
+    case TASK_STATUS.FINISHED: // 完成
+    case TASK_STATUS.SET_SUCCESS:
+        return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
+    case TASK_STATUS.SUBMITTING:
+    case TASK_STATUS.RUNNING:
+        return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
+    case TASK_STATUS.RESTARTING:
+    case TASK_STATUS.STOPING:
+    case TASK_STATUS.DEPLOYING:
+    case TASK_STATUS.WAIT_SUBMIT:
+    case TASK_STATUS.WAIT_RUN:
+        return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
+    case TASK_STATUS.RUN_FAILED:
+    case TASK_STATUS.SUBMIT_FAILED:
+        return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
+    case TASK_STATUS.FROZEN:
+        return 'whiteSpace=wrap;fillColor=#EFFFFE;strokeColor=#26DAD1;';
+    case TASK_STATUS.STOPED: // 已停止
+    default:
             // 默认
-            return "whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;";
+        return 'whiteSpace=wrap;fillColor=#F3F3F3;strokeColor=#D4D4D4;';
     }
 }
 
@@ -256,14 +257,14 @@ export function getVertxtStyle(type) {
  * 判断当前在离线应用
  */
 export function inOffline() {
-    return location.href.indexOf("offline") > -1;
+    return location.href.indexOf('offline') > -1;
 }
 
 /**
  * 判断当前在实时应用
  */
 export function inRealtime() {
-    return location.href.indexOf("realtime") > -1;
+    return location.href.indexOf('realtime') > -1;
 }
 
 /**
@@ -301,4 +302,34 @@ export function isProjectCouldEdit(project, user) {
         }
     }
     return false;
+}
+
+
+/**
+ * @description 检查所选是否为文件夹
+ * @param {any} rule
+ * @param {any} value
+ * @param {any} cb
+ * @memberof TaskForm
+ */
+export function checkNotDir(value, folderTree) {
+    let nodeType;
+
+    const loop = (arr) => {
+        arr.forEach((node, i) => {
+            if (node.id === value) {
+                nodeType = node.type;
+            } else {
+                loop(node.children || []);
+            }
+        });
+    };
+
+    loop([folderTree]);
+
+    if (nodeType === 'folder') {
+        message.error('请选择具体文件, 而非文件夹');
+        return false;
+    }
+    return true;
 }
