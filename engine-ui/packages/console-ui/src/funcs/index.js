@@ -205,7 +205,7 @@ export function filterComments (sql) {
         }
     }
 
-    sql = replaceStrFormIndexArr(sql, '', comments)
+    sql = replaceStrFormIndexArr(sql, ' ', comments)
     return sql;
 }
 

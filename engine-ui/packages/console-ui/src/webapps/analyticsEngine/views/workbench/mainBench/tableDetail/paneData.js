@@ -16,168 +16,90 @@ export default class PaneData extends Component {
         }
     }
     componentDidMount () {
-    // this.initData(this.props)
-    // this.getData();
-        this.setState({
-            tableCol: [],
-            dataList: []
-        })
-
         this.processData(this.props.data);
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
-        this.setState({
-            tableCol: [],
-            dataList: []
-        })
-        this.processData(nextProps.data);
-    // this.initData(nextProps)
+    UNSAFE_componentWillReceiveProps (nextProps) {
+        if (nextProps.data != this.props.data) {
+            this.setState({
+                tableCol: [],
+                dataList: []
+            }, () => {
+                this.processData(nextProps.data);
+            })
+        }
     }
 
-    // getData = ()=>{
-    //   API.getPreviewData({
-    //     tableId: this.props.tableDateil.id,
-    //     databaseId: this.props.tableDateil.databaseId,
-    //   }).then(res=>{
-    //     if(res.code === 1){
-    //       this.state.previewList = res.data;
-    //       this.processData(res.data);
-    //     }else{
-    //       notification.error({
-    //         title: '提示',
-    //         description: res.message
-    //       })
-    //     }
-    //   })
-    // }
+    processData = (list) => {
+        if (list.length === 0) return;
+        let { dataList, paginationParams, tableCol } = this.state;
 
-  processData = (list) => {
-      if (list.length === 0) return;
-      let { dataList, paginationParams, tableCol } = this.state;
+        list[0].map(o => {
+            tableCol.push({
+                title: o,
+                dataIndex: o,
+                width: o.length * 10 + 10
+            })
+        })
 
-      list[0].map(o => {
-          tableCol.push({
-              title: o,
-              dataIndex: o
-          })
-      })
+        // list.shift();
+        let sh = list.slice(1);
+        for (let item in sh) {
+            let j = {};
+            let row = [];
+            sh[item].map((o, i) => {
+                let key = tableCol[i].dataIndex;
+                j[key] = o && o.toString();
+                row.push(j)
+            })
+            dataList.push(row.pop())
+        }
 
-      // list.shift();
-      let sh = list.slice(1);
-      for (let item in sh) {
-          let j = {};
-          let row = [];
-          console.log(item)
-          sh[item].map((o, i) => {
-              let key = tableCol[i].dataIndex;
-              j[key] = o && o.toString();
-              row.push(j)
-          })
-          dataList.push(row.pop())
-      }
+        paginationParams.current = 1;
+        paginationParams.total = list.length - 1;
 
-      paginationParams.current = 1;
-      paginationParams.total = list.length - 1;
+        this.setState({
+            tableCol: tableCol,
+            dataList: dataList,
+            paginationParams: paginationParams
+        })
+    }
 
-      this.setState({
-          tableCol: tableCol,
-          dataList: dataList,
-          paginationParams: paginationParams
-      }, () => {
-          console.log(this.state.dataList)
-          console.log(this.state.tableCol)
-      })
-  }
+    handleTableChange = (pagination, sorter, filter) => {
+        let { paginationParams } = this.state;
 
-  //   initData = (props) => {
-  //     console.log(props)
-  //     this.state.dataList = [];
-  //     this.state.tableCol = [];
-  //     let { dataList, paginationParams, tableCol } = this.state;
-  //     if(!props.previewList)
-  //       return;
+        paginationParams.current = pagination.current;
 
-  //     props.previewList[0].map(o=>{
-  //       tableCol.push({
-  //         title: o,
-  //         dataIndex: o
-  //       })
-  //     })
-
-  //     props.previewList.shift();
-  //     for(let item in props.previewList){
-  //       console.log(props.previewList[item])
-  //       let j = {};
-  //       let row = [];
-  //       props.previewList[item].map((o,i)=>{
-  //         let key = tableCol[i].dataIndex;
-  //         console.log(key)
-  //         j[key] = o;
-  //         console.log(j)
-  //         row.push(j)
-  //       })
-  //       dataList.push(row.pop())
-  //     }
-
-  // console.log(tableCol)
-  // console.log(dataList)
-  //     paginationParams.current = 1;
-  //     paginationParams.total = props.previewList.length;
-
-  //     // dataList = props.previewList.slice(0,paginationParams.pageSize);
-  //     this.setState({
-  //       dataList: dataList,
-  //       paginationParams: paginationParams,
-  //       tableCol: tableCol
-  //     })
-  //   }
-
-  handleTableChange = (pagination, sorter, filter) => {
-      let { paginationParams, previewList, dataList, tableCol } = this.state;
-      let data = previewList;
-      console.log(data)
-
-      paginationParams.current = pagination.current;
-      console.log((paginationParams.current - 1) * paginationParams.pageSize, paginationParams.current * paginationParams.pageSize)
-      data = data.slice((paginationParams.current - 1) * paginationParams.pageSize, paginationParams.current * paginationParams.pageSize);
-
-      for (let item in data) {
-          console.log(data[item])
-          let j = {};
-          let row = [];
-          data[item].map((o, i) => {
-              let key = tableCol[i].dataIndex;
-              console.log(key)
-              j[key] = o;
-              console.log(j)
-              row.push(j)
-          })
-          dataList.push(row.pop())
-      }
-
-      console.log(dataList)
-      this.setState({
-          dataList: dataList,
-          paginationParams: paginationParams
-      })
-  }
-
-  render () {
-      // const {previewList} = this.props;
-      const { paginationParams, dataList, tableCol } = this.state;
-      return (
-          <div className="partition-container">
-              <Table
-                  size="small"
-                  columns={tableCol}
-                  scroll={true}
-                  dataSource={dataList}
-                  rowKey="partId"
-                  pagination={paginationParams}
-                  onChange={this.handleTableChange}></Table>
-          </div>
-      )
-  }
+        this.setState({
+            paginationParams: paginationParams
+        })
+    }
+    getTableX (tableCol) {
+        let base = 100;
+        if (tableCol) {
+            for (let i = 0; i < tableCol.length; i++) {
+                base = base + 10 * tableCol[i].length;
+            }
+        }
+        return base;
+    }
+    render () {
+        // const {previewList} = this.props;
+        const { paginationParams, dataList, tableCol } = this.state;
+        return (
+            <div className="partition-container">
+                <Table
+                    size="small"
+                    columns={tableCol}
+                    scroll={{ x: this.getTableX() }}
+                    dataSource={dataList}
+                    rowKey={(record, index) => {
+                        return index;
+                    }}
+                    pagination={paginationParams}
+                    onChange={this.handleTableChange} />
+            </div>
+        )
+    }
 }
