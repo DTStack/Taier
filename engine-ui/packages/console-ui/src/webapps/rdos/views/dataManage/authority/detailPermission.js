@@ -202,7 +202,7 @@ class DetailPermission extends Component {
         const { visible, agreeApply } = this.props;
 
         const title = (this.props.listType == 0 && agreeApply) ? '通过申请' : ((this.props.listType == 0 && !agreeApply) ? '驳回申请' : '查看详情')
-        const { arr, currentPage, permissionParams = {}, reply } = this.state;
+        const { arr, currentPage, permissionParams = {}, reply, applyReason } = this.state;
         return (
             <Modal
                 title={title}
@@ -309,15 +309,15 @@ class DetailPermission extends Component {
                     </FormItem>
 
                     {/* 申请记录 */}
-                    {/* {
-                        this.props.listType == 1 ? <FormItem
+                    {
+                        <FormItem
                             {...formItemLayout1}
                             label={'申请理由'}
                             hasFeedback
                         >
                             <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }} />,
-                        </FormItem> : ''
-                    } */}
+                        </FormItem>
+                    }
                     {/* 已处理  权限回收 */}
                     {
                         this.props.listType == 1 || this.props.listType == 2 || this.props.listType == 3 ? <FormItem
