@@ -11,6 +11,7 @@ import java.util.Map;
 import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
+import com.dtstack.rdos.engine.service.util.KerberosUtils;
 import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.cache.ZkSyncLocalCacheListener;
@@ -23,6 +24,8 @@ import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,12 +123,43 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initZk() throws IOException {
+		initSecurity();
 		this.zkClient = CuratorFrameworkFactory.builder()
 				.connectString(this.zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
 				.connectionTimeoutMs(1000)
 				.sessionTimeoutMs(1000).build();
 		this.zkClient.start();
 		logger.warn("connector zk success...");
+	}
+
+	private static void initSecurity() {
+		String userPrincipal = ConfigParse.userPrincipal();
+		String userKeytabPath = ConfigParse.userKeytabPath();
+		String krb5ConfPath = ConfigParse.krb5ConfPath();
+		Configuration hadoopConf = new Configuration();
+		hadoopConf.addResource(new Path("/Users/jiangjunjie/Downloads/ficonf/HDFS/config/core-site.xml"));
+		hadoopConf.addResource(new Path("/Users/jiangjunjie/Downloads/ficonf/HDFS/config/hdfs-site.xml"));
+		try {
+			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String PRNCIPAL_NAME = ConfigParse.userPrincipal();
+		String LOGIN_CONTEXT_NAME = "Client";
+		String PATH_TO_KEYTAB = ConfigParse.userKeytabPath();
+		String PATH_TO_KRB5_CONF = ConfigParse.krb5ConfPath();
+
+		hadoopConf.set("username.client.keytab.file", PATH_TO_KEYTAB);
+		hadoopConf.set("username.client.kerberos.principal", PRNCIPAL_NAME);
+
+		try {
+			KerberosUtils.setJaasConf(LOGIN_CONTEXT_NAME, PRNCIPAL_NAME, PATH_TO_KEYTAB);
+			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
+			KerberosUtils.login(PRNCIPAL_NAME, PATH_TO_KEYTAB, PATH_TO_KRB5_CONF, hadoopConf);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public ZkDistributed zkRegistration() throws Exception {

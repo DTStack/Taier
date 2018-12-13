@@ -19,12 +19,14 @@ import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
 import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
+import com.dtstack.rdos.engine.execution.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -95,9 +97,22 @@ public class SparkYarnClient extends AbsClient {
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
+        initSecurity();
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
+    }
+    private void initSecurity() {
+        String userPrincipal = "admin/kudu1";
+        String userKeytabPath = "/etc/hadoop/conf/admin.keytab";
+        String krb5ConfPath = "/etc/krb5.conf";
+        yarnConf.addResource(new Path("/etc/hadoop/conf/core-site.xml"));
+        yarnConf.addResource(new Path("/etc/hadoop/conf/hdfs-site.xml"));
+        try {
+            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
@@ -262,10 +277,11 @@ public class SparkYarnClient extends AbsClient {
         argList.add("--arg");
         argList.add(sqlExeJson);
 
-
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
+        sparkConf.set("spark.yarn.keytab", "/etc/hadoop/conf/admin.keytab");
+        sparkConf.set("spark.yarn.principal", "admin/kudu1@DTSTACK.COM");
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;
@@ -499,6 +515,7 @@ public class SparkYarnClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+        initSecurity();
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);

@@ -1,153 +1,40 @@
 #engine
 slots: 10
 localAddress: localhost:8080
-nodeZkAddress: node01:2181,node02:2181,node03:2181/xc_engine
+nodeZkAddress: node3:24002,node2:24002,node1:24002/flink154_yx
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
+isSecurity: true
+userPrincipal: yanxi
+zkPrincipal: zookeeper/hadoop
+userKeytabPath: /etc/hadoop/conf/user.keytab
+krb5ConfPath: /etc/hadoop/conf/krb5.conf
 
 db:
-   url: jdbc:mysql://172.16.8.104:3306/f150?charset=utf8&autoReconnect=true
+   url: jdbc:mysql://172.16.8.104:3306/rdos_test_spark1x?charset=utf8&autoReconnect=true
    userName: dtstack
    pwd: abc123
 
 engineTypes:
-    #-
-    #    typeName: flink120
-    #    flinkZkAddress: 172.16.10.135:2181,172.16.10.136:2181,172.16.10.138:2181
-    #    flinkZkNamespace: /flink120ha
-    #    flinkClusterId: /default
-    #    flinkHighAvailabilityStorageDir: hdfs://172.16.10.135:9000/flink120ha/ha
-    #    jarTmpDir: ../tmp
-    #    sqlPluginRootDir: ./sqlplugin
-    #    remotePluginRootDir: /opt/dtstack/flinksqlplugin
-
-    #-
-#
-    #    typeName: flink130
-    #    clusterMode: standalone
-    #    flinkZkAddress: node01:2181,node02:2181,node03:2181
-    #    flinkZkNamespace: /flink130
-    #    flinkHighAvailabilityStorageDir: hdfs://ns1/flink130/ha
-    #    jarTmpDir: ../tmp130
-    #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
-    #    remotePluginRootDir: /opt/dtstack/flinkplugin
-    #    monitorAddress: node02:8081,node03:8081
-        #yarnConfPath: D:\yarn-site.xml
-
-    #-
-    #    typeName: flink140
-    #    clusterMode: standalone
-    #    flinkZkAddress: 172.16.8.104:2181,172.16.8.105:2181,172.16.8.106:2181
-    #    flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
-    #    flinkZkNamespace: /flink140
-    #    jarTmpDir: ../tmp140
-    #    flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
-    #    remotePluginRootDir: /opt/dtstack/flinkplugin
-    #    monitorAddress: node02:8081,node03:8081
-        #yarnConfPath: D:\yarn-site.xml
-
-
-#    -
-#        typeName: flink140
-#        clusterMode: yarn
-#        flinkZkAddress: node01:2181,node02:2181,node03:2181
-#        #简化为只配置/flink140/ha
-#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
-#        #flinkZkNamespace: /flink140
-#        #jarTmpDir: ../tmp140
-#        flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
-#        #remotePluginRootDir: /opt/dtstack/flinkplugin
-#        hadoopConf:
-#            dfs.nameservices: ns1
-#            fs.defaultFS: hdfs://ns1
-#            dfs.ha.namenodes.ns1: rm1,rm2
-#            dfs.namenode.rpc-address.ns1.rm1: node02:9000
-#            dfs.namenode.rpc-address.ns1.rm2: node03:9000
-#            #dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
-#            #fs.hdfs.impl.disable.cache: true
-#        yarnConf:
-#            yarn.resourcemanager.address.rm1: node02:8032
-#            yarn.resourcemanager.address.rm2: node03:8032
-#            yarn.resourcemanager.webapp.address.rm1: node02:8088
-#            yarn.resourcemanager.webapp.address.rm2: node03:8088
-#            yarn.resourcemanager.ha.rm-ids: rm1,rm2
-#            yarn.resourcemanager.ha.enabled: true
-
-
-#    -
-#        typeName: flink140
-#        clusterMode: yarn
-#        flinkZkAddress: node01:2181,node02:2181,node03:2181
-#        #简化为只配置/flink140/ha
-#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink140/ha
-#        #flinkZkNamespace: /flink140
-#        #jarTmpDir: ../tmp140
-#        #flinkPluginRoot: D:\gitspace\rdos-execution-engine\flinkplugin
-#        #remotePluginRootDir: /opt/dtstack/flinkplugin
-#        hadoopConf:
-#            dfs.nameservices: ns1
-#            fs.defaultFS: hdfs://ns1
-#            dfs.ha.namenodes.ns1: nn1,nn2
-#            dfs.namenode.rpc-address.ns1.nn1: node02:9000
-#            dfs.namenode.rpc-address.ns1.nn2: node03:9000
-#            #dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
-#            #fs.hdfs.impl.disable.cache: true
-#        yarnConf:
-#            yarn.resourcemanager.address.rm1: node02:8032
-#            yarn.resourcemanager.address.rm2: node03:8032
-#            yarn.resourcemanager.ha.rm-ids: rm1,rm2
-#            yarn.resourcemanager.ha.enabled: true
-
-#    -
-#        typeName: flink140
-#        clusterMode: yarn
-#        flinkZkAddress: node01:2181,node02:2181,node03:2181
-#        flinkHighAvailabilityStorageDir: /flink140/ha
-#        flinkZkNamespace: /flink140
-#        flinkPluginRoot: /opt/dtstack/flinkplugin
-#        remotePluginRootDir: /opt/dtstack/flinkplugin
-#        flinkJarPath: /opt/dtstack/flinkjars/flink-dist_2.11-1.4-SNAPSHOT.jar
-#        cluster: default
-#        jarTmpDir: ../tmp140
-#        flinkYarnMode: legacy
-#        hadoopConf:
-#            fs.defaultFS: hdfs://ns1
-#            dfs.ha.namenodes.ns1: nn1,nn2
-#            dfs.namenode.rpc-address.ns1.nn2: node03:9000
-#            dfs.client.failover.proxy.provider.ns1: org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider
-#            dfs.namenode.rpc-address.ns1.nn1: node02:9000
-#            dfs.nameservices: ns1
-#            fs.hdfs.impl.disable.cache: true
-#            fs.hdfs.impl: org.apache.hadoop.hdfs.DistributedFileSystem
-#        yarnConf:
-#            yarn.resourcemanager.address.rm1: node02:8032
-#            yarn.resourcemanager.webapp.address.rm2: node03:8088
-#            yarn.resourcemanager.webapp.address.rm1: node02:8088
-#            yarn.resourcemanager.ha.rm-ids: rm1,rm2
-#            yarn.resourcemanager.address.rm2: node03:8032
-#            yarn.resourcemanager.ha.enabled: true
-
-
-
-#    -
-#        typeName: flink150
-#        clusterMode: yarn
-#        flinkZkAddress: node01:2181,node02:2181,node03:2181
-#        #简化为只配置/flink150/ha
-#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
-#        flinkZkNamespace: /flink155_1
-#        jarTmpDir: ../tmp150
-#        flinkPluginRoot: D:\flinkplugin
-#        remotePluginRootDir: /opt/dtstack/150_flinkplugin
-#        #新增配置
-#        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
-#        #new
-#        #flinkYarnNewModeMaxSlots: 4
-#        #perjob
-#        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
-#        flinkJarPath: D:\flink154
-#        flinkJobHistory: http://node01:8082
+    -
+        typeName: flink150
+        clusterMode: yarn
+        flinkZkAddress: node3:24002,node2:24002,node1:24002
+        #简化为只配置/flink150/ha
+        flinkHighAvailabilityStorageDir: /flink154_yx/ha
+        flinkZkNamespace: /flink154_yx
+        jarTmpDir: ../tmp150
+        flinkPluginRoot: /Users/jiangjunjie/Downloads/150_flinkplugin
+        remotePluginRootDir: /opt/dtstack/150_flinkplugin
+        #新增配置
+        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
+        #new
+        #flinkYarnNewModeMaxSlots: 4
+        #perjob
+        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
+        flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
+        flinkJobHistory: http://node1:8082
 
 
     #-
@@ -185,30 +72,12 @@ engineTypes:
     #    userName: dtstack
     #    pwd: abc123
 
-    #-
-    #    typeName: spark_yarn
-    #    sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
-    #    sparkSqlProxyPath: hdfs://kudu1:9000/hyf/spark-0.0.1-SNAPSHOT.jar
-    #    sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
-    #    sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1/pythons/py4j-0.10.4-src.zip
-
 #    -
-#        typeName: learning
-#        hadoop.conf.dir: /Users/softfly/Desktop/ccy
-#        yarn.resourcemanager.recovery.enabled: true
-#        learning.python3.path: /root/anaconda3/bin/python3
-#        learning.python2.path: /root/anaconda2/bin/python2
-##        learning.history.address: rdos1:10021
-##        learning.history.webapp.address: rdos1:19886
-##        learning.history.webapp.https.address: rdos1:19885
-#        yarn.application.classpath: /opt/cloudera/parcels/CDH/jars/*
-#
-    -
-        typeName: dtyarnshell
-        hadoop.conf.dir: /opt/dtstack/hadoop
-        yarn.resourcemanager.recovery.enabled: true
-        jlogstash.root: /opt/dtstack/jlogstash
-        java.home: /opt/java/bin
+#        typeName: spark_yarn
+#        sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
+#        sparkSqlProxyPath: hdfs://kudu1:9000/hyf/spark-0.0.1-SNAPSHOT.jar
+#        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+#        sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1:9000/pythons/py4j-0.10.4-src.zip
 #        hadoopConf:
 #            fs.defaultFS: hdfs://ns1
 #            dfs.ha.namenodes.ns1: nn1,nn2

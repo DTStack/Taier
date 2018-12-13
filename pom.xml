@@ -19,9 +19,7 @@
 		<module>base/plugin/flink</module>
 		<module>web</module>
 		<module>service</module>
-		<module>base/plugin/flink130</module>
 		<module>base/plugin/spark-yarn</module>
-		<module>base/plugin/flink140</module>
 		<module>base/plugin/odps</module>
 		<module>base/plugin/rdbs</module>
 		<module>base/plugin/hadoop</module>
