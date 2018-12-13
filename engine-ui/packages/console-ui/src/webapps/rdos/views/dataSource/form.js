@@ -306,7 +306,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.hdfsCustomConfig', {
                             rules: [],
-                            initialValue: !config.hdfsCustomConfig ? 'custom' : 'default'
+                            initialValue: config.hdfsCustomConfig || 'default'
                         })(
                             <RadioGroup onChange={this.carbonDataConfigChange}>
                                 <Radio value="default">默认</Radio>
@@ -348,37 +348,38 @@ class BaseForm extends Component {
                             )}
                         </FormItem>
                     )
-                }
-                if (hasHdfsConfig) {
-                    formItems.push(
-                        <FormItem
-                            {...formItemLayout}
-                            label="高可用配置"
-                            key="hadoopConfig"
-                            hasFeedback
-                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
-                        >
-                            {getFieldDecorator('dataJson.hadoopConfig', {
-                                rules: [{
-                                    required: true, message: 'Hadoop配置不可为空！'
-                                }],
-                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
-                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
-                            })(
-                                <Input
-                                    className="no-scroll-bar"
-                                    type="textarea" rows={5}
 
-                                    placeholder={hdfsConf}
+                    if (hasHdfsConfig) {
+                        formItems.push(
+                            <FormItem
+                                {...formItemLayout}
+                                label="高可用配置"
+                                key="hadoopConfig"
+                                hasFeedback
+                                style={{ display: hasHdfsConfig ? 'block' : 'none' }}
+                            >
+                                {getFieldDecorator('dataJson.hadoopConfig', {
+                                    rules: [{
+                                        required: true, message: 'Hadoop配置不可为空！'
+                                    }],
+                                    initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                        ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                                })(
+                                    <Input
+                                        className="no-scroll-bar"
+                                        type="textarea" rows={5}
+
+                                        placeholder={hdfsConf}
+                                    />
+                                )}
+                                <HelpDoc doc="hdfsConfig" />
+                                <CopyIcon
+                                    style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                                    copyText={hdfsConf}
                                 />
-                            )}
-                            <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon
-                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                                copyText={hdfsConf}
-                            />
-                        </FormItem>
-                    )
+                            </FormItem>
+                        )
+                    }
                 }
                 return formItems
             }
@@ -1053,7 +1054,6 @@ class BaseForm extends Component {
                 <FormItem
                     {...formItemLayout}
                     label="数据源描述"
-                    hasFeedback
                 >
                     {getFieldDecorator('dataDesc', {
                         rules: [{
