@@ -291,6 +291,9 @@ public class FlinkClient extends AbsClient {
 
             String applicationId = clusterClient.getClusterId().toString();
             String flinkJobId = jobGraph.getJobID().toString();
+
+            delFilesFromDir(tmpdir, applicationId);
+
             clusterClientCache.put(applicationId, clusterClient);
 
             return Pair.create(flinkJobId, applicationId);
@@ -305,21 +308,24 @@ public class FlinkClient extends AbsClient {
             } else {
                 logger.info("Job has been submitted with JobID " + result.getJobID());
             }
-
-            File[] jobGraphFile = tmpdir.toFile().listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.startsWith("flink-jobgraph");
-                }
-            });
-
-            if (jobGraphFile.length != 0) {
-                for (int i=0; i < jobGraphFile.length; i++) {
-                    jobGraphFile[i].delete();
-                }
-            }
+            delFilesFromDir(tmpdir, "flink-jobgraph");
 
             return Pair.create(result.getJobID().toString(), null);
+        }
+    }
+
+    private void delFilesFromDir(Path dir ,String fileName){
+        File[] jobGraphFile = dir.toFile().listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.startsWith(fileName);
+            }
+        });
+
+        if (jobGraphFile.length != 0) {
+            for (int i=0; i < jobGraphFile.length; i++) {
+                jobGraphFile[i].delete();
+            }
         }
     }
 
