@@ -56,7 +56,7 @@ class TaskForm extends React.Component {
     }
 
     handleRefResSelectTreeChange (value) {
-        this.props.form.setFieldsValue({ 'refResourceIdList': value });
+        this.props.form.setFieldsValue({ 'refResourceIdList': value ? [value] : undefined });
         this.props.form.validateFields(['refResourceIdList']);
     }
 
@@ -349,7 +349,7 @@ class TaskForm extends React.Component {
                             rules: [{
                                 validator: this.checkNotDir.bind(this)
                             }],
-                            initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 ? defaultData.refResourceIdList.map(res => res.name) : []
+                            initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 ? defaultData.refResourceIdList.map(res => res.resourceName) : []
                         })(
                             <Input type="hidden" ></Input>
                         )}
@@ -358,10 +358,9 @@ class TaskForm extends React.Component {
                             ispicker
                             placeholder="请选择关联资源"
                             isFilepicker
-                            multiple={true}
                             treeData={this.props.resTreeData}
                             onChange={this.handleRefResSelectTreeChange.bind(this)}
-                            defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 && defaultData.refResourceIdList.map(res => res.name)}
+                            defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 && defaultData.refResourceIdList.map(res => res.resourceName)}
                         />
                     </FormItem>
                 }
