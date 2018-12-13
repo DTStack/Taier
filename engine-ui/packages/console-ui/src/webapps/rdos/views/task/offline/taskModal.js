@@ -56,7 +56,7 @@ class TaskForm extends React.Component {
     }
 
     handleRefResSelectTreeChange(value) {
-        this.props.form.setFieldsValue({ refResourceIdList: value ? [value] : undefined });
+        this.props.form.setFieldsValue({ refResourceIdList: value });
         this.props.form.validateFields(['refResourceIdList']);
     }
 
@@ -326,6 +326,7 @@ class TaskForm extends React.Component {
                             isPyTask && <FormItem
                               {...formItemLayout}
                               label="引用资源"
+                              hasFeedback
                             >
                                 {getFieldDecorator('refResourceIdList', {
                                     rules: [{
@@ -549,6 +550,10 @@ class TaskModal extends React.Component {
 
                 if (values.resourceIdList) {
                     values.resourceIdList = [values.resourceIdList];
+                }
+
+                if (values.refResourceIdList) {
+                    values.refResourceIdList = [values.refResourceIdList];
                 }
 
                 if (defaultData && defaultData.id) { // 更新操作

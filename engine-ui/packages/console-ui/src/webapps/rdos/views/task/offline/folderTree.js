@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
     Tree, TreeSelect,
-    Modal, Badge, Tooltip
+    Modal, Badge, Tooltip,
 } from 'antd';
 
 import utils from 'utils';
@@ -12,7 +12,7 @@ import CtxMenu from 'widgets/ctx-menu';
 import ajax from '../../../api';
 
 import {
-    workbenchActions as mapDispatchToProps
+    workbenchActions as mapDispatchToProps,
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import { taskTypeIcon, resourceTypeIcon } from '../../../comm'
@@ -50,7 +50,7 @@ class FolderTree extends React.Component {
 
     handleSelect(selectedKeys, e) {
         const { isLeaf, value, treeType, data, eventKey } = e.node.props;
-        let { openTab, tabs, currentTab, expandedKeys, onExpand, type } = this.props;
+        const { openTab, tabs, currentTab, expandedKeys, onExpand, type } = this.props;
         const isWorkflow = data.taskType === TASK_TYPE.WORKFLOW;
         if (!isLeaf && !isWorkflow) {
             const eventKeyIndex = expandedKeys.indexOf(eventKey);
@@ -65,27 +65,30 @@ class FolderTree extends React.Component {
             }
         } else {
             switch (treeType) {
-                case MENU_TYPE.SCRIPT:
-                case MENU_TYPE.TASK_DEV: {
-                    openTab({
-                        id: value, tabs, currentTab, treeType,
-                        lockInfo: data.readWriteLockVO
+            case MENU_TYPE.SCRIPT:
+            case MENU_TYPE.TASK_DEV: {
+                openTab({
+                        id: value,
+                        tabs,
+                        currentTab,
+                        treeType,
+                        lockInfo: data.readWriteLockVO,
                     });
-                    break;
-                }
+                break;
+            }
 
-                case MENU_TYPE.RESOURCE: {
-                    this.handleResNodeSelected(value);
-                    break;
-                }
+            case MENU_TYPE.RESOURCE: {
+                this.handleResNodeSelected(value);
+                break;
+            }
 
-                case MENU_TYPE.SYSFUC:
-                case MENU_TYPE.COSTOMFUC: {
-                    this.handleFnNodeSelected(value);
-                    break;
-                }
+            case MENU_TYPE.SYSFUC:
+            case MENU_TYPE.COSTOMFUC: {
+                this.handleFnNodeSelected(value);
+                break;
+            }
 
-                default: break;
+            default: break;
             }
         }
     }
@@ -106,144 +109,139 @@ class FolderTree extends React.Component {
      * @memberof FolderTree
      */
     generateCtxMenu(type, treeType, data) {
-        let arr = [];
+        const arr = [];
         let operations;
 
         switch (treeType) {
-            case MENU_TYPE.TASK:
-            case MENU_TYPE.TASK_DEV: {
+        case MENU_TYPE.TASK:
+        case MENU_TYPE.TASK_DEV: {
+            const isWorkflowNode = data && data.isSubTask === 1; // 工作流子节点
+            const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
 
-                const isWorkflowNode = data && data.isSubTask === 1; // 工作流子节点
-                const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
+            if (isWorkflowNode) return [];
 
-                if (isWorkflowNode) return [];
-
-                if (type === 'file' || isWorkflow) {
+            if (type === 'file' || isWorkflow) {
                     operations = arr.concat([{
                         txt: '编辑',
-                        cb: this.editTask.bind(this, data)
+                        cb: this.editTask.bind(this, data),
                     }, {
                         txt: '删除',
-                        cb: this.deleteTask.bind(this, data)
+                        cb: this.deleteTask.bind(this, data),
                     }])
-                }
-                else {
+                } else {
                     operations = arr.concat([{
                         txt: '新建任务',
-                        cb: this.createTask.bind(this, data)
+                        cb: this.createTask.bind(this, data),
                     }, {
                         txt: '新建文件夹',
-                        cb: this.createFolder.bind(this, data, treeType)
+                        cb: this.createFolder.bind(this, data, treeType),
                     }])
                     if (!isRootFolder(data)) {
                         operations = operations.concat([{
                             txt: '编辑',
-                            cb: this.editFolder.bind(this, data, treeType)
+                            cb: this.editFolder.bind(this, data, treeType),
                         }, {
                             txt: '删除',
-                            cb: this.deleteFolder.bind(this, data, treeType)
+                            cb: this.deleteFolder.bind(this, data, treeType),
                         }])
                     }
                 }
-                break;
-            }
+            break;
+        }
 
-            case MENU_TYPE.FUNCTION:
-            case MENU_TYPE.COSTOMFUC:
-                if (type === 'file') {
-                    operations = arr.concat([{
+        case MENU_TYPE.FUNCTION:
+        case MENU_TYPE.COSTOMFUC:
+            if (type === 'file') {
+                operations = arr.concat([{
                         txt: '移动',
-                        cb: this.moveFn.bind(this, data)
+                        cb: this.moveFn.bind(this, data),
                     }, {
                         txt: '删除',
-                        cb: this.deleteFn.bind(this, data)
+                        cb: this.deleteFn.bind(this, data),
                     }])
-                }
-                else {
-                    operations = arr.concat([{
+            } else {
+                operations = arr.concat([{
                         txt: '新建函数',
-                        cb: this.createFn.bind(this, data)
+                        cb: this.createFn.bind(this, data),
                     }, {
                         txt: '新建文件夹',
-                        cb: this.createFolder.bind(this, data, treeType)
+                        cb: this.createFolder.bind(this, data, treeType),
                     }])
 
-                    if (!isRootFolder(data)) {
+                if (!isRootFolder(data)) {
                         operations = operations.concat([{
                             txt: '编辑',
-                            cb: this.editFolder.bind(this, data, treeType)
+                            cb: this.editFolder.bind(this, data, treeType),
                         }, {
                             txt: '删除',
-                            cb: this.deleteFolder.bind(this, data, treeType)
+                            cb: this.deleteFolder.bind(this, data, treeType),
                         }])
                     }
-                }
-                break;
-            case MENU_TYPE.RESOURCE:
-                if (type === 'file') {
-                    operations = arr.concat([
+            }
+            break;
+        case MENU_TYPE.RESOURCE:
+            if (type === 'file') {
+                operations = arr.concat([
                         {
                             txt: '替换',
-                            cb: this.coverResFile.bind(this, data)
+                            cb: this.coverResFile.bind(this, data),
                         },
                         {
                             txt: '删除',
-                            cb: this.deleteResource.bind(this, data)
+                            cb: this.deleteResource.bind(this, data),
                         }])
-                }
-                else {
-                    operations = arr.concat([{
+            } else {
+                operations = arr.concat([{
                         txt: '上传资源',
-                        cb: this.createResource.bind(this, data)
+                        cb: this.createResource.bind(this, data),
                     }, {
                         txt: '新建文件夹',
-                        cb: this.createFolder.bind(this, data, treeType)
+                        cb: this.createFolder.bind(this, data, treeType),
                     }])
 
-                    if (!isRootFolder(data)) {
+                if (!isRootFolder(data)) {
                         operations = operations.concat([{
                             txt: '编辑',
-                            cb: this.editFolder.bind(this, data, treeType)
+                            cb: this.editFolder.bind(this, data, treeType),
                         }, {
                             txt: '删除',
-                            cb: this.deleteFolder.bind(this, data, treeType)
+                            cb: this.deleteFolder.bind(this, data, treeType),
                         }])
                     }
-                }
-                break;
-            case MENU_TYPE.SYSFUC:
-                operations = [];
-                break;
-            case MENU_TYPE.SCRIPT:
-                if (type === 'file') {
-                    operations = arr.concat([{
+            }
+            break;
+        case MENU_TYPE.SYSFUC:
+            operations = [];
+            break;
+        case MENU_TYPE.SCRIPT:
+            if (type === 'file') {
+                operations = arr.concat([{
                         txt: '编辑',
-                        cb: this.editScript.bind(this, data)
+                        cb: this.editScript.bind(this, data),
                     }, {
                         txt: '删除',
-                        cb: this.deleteScript.bind(this, data)
+                        cb: this.deleteScript.bind(this, data),
                     }])
-                }
-                else {
-                    operations = arr.concat([{
+            } else {
+                operations = arr.concat([{
                         txt: '新建脚本',
-                        cb: this.createScript.bind(this, data)
+                        cb: this.createScript.bind(this, data),
                     }, {
                         txt: '新建文件夹',
-                        cb: this.createFolder.bind(this, data, treeType)
+                        cb: this.createFolder.bind(this, data, treeType),
                     }])
 
-                    if (!isRootFolder(data)) {
+                if (!isRootFolder(data)) {
                         operations = operations.concat([{
                             txt: '编辑',
-                            cb: this.editFolder.bind(this, data, treeType)
+                            cb: this.editFolder.bind(this, data, treeType),
                         }, {
                             txt: '删除',
-                            cb: this.deleteFolder.bind(this, data, treeType)
+                            cb: this.deleteFolder.bind(this, data, treeType),
                         }])
                     }
-                }
-                break;
+            }
+            break;
         }
 
         return operations;
@@ -260,16 +258,16 @@ class FolderTree extends React.Component {
             content: '删除的函数无法找回！',
             onOk() {
                 ctx.props.delOfflineFn({
-                    functionId: data.id
+                    functionId: data.id,
                 }, data.parentId);
             },
-            onCancel() { }
+            onCancel() { },
         });
     }
 
     createFn(data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleCreateFn();
     }
@@ -286,16 +284,16 @@ class FolderTree extends React.Component {
             content: '删除的资源无法找回！',
             onOk() {
                 ctx.props.delOfflineRes({
-                    resourceId: data.id
+                    resourceId: data.id,
                 }, data.parentId);
             },
-            onCancel() { }
+            onCancel() { },
         });
     }
 
     createResource(data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleUpload();
     }
@@ -303,9 +301,9 @@ class FolderTree extends React.Component {
     editTask(data) {
         ajax.getOfflineTaskByID({
             id: data.id,
-            lockVersion: data.readWriteLockVO.version
+            lockVersion: data.readWriteLockVO.version,
         })
-            .then(res => {
+            .then((res) => {
                 if (res.code === 1) {
                     this.props.setModalDefault(res.data);
                     this.props.toggleCreateTask();
@@ -320,10 +318,10 @@ class FolderTree extends React.Component {
             content: '删除的任务无法找回！',
             onOk() {
                 ctx.props.delOfflineTask({
-                    taskId: data.id
+                    taskId: data.id,
                 }, data.parentId);
             },
-            onCancel() { }
+            onCancel() { },
         });
     }
 
@@ -334,7 +332,7 @@ class FolderTree extends React.Component {
 
     createTask(data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleCreateTask();
     }
@@ -347,7 +345,7 @@ class FolderTree extends React.Component {
      */
     createFolder(data, type) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleCreateFolder(type);
     }
@@ -359,18 +357,18 @@ class FolderTree extends React.Component {
             content: '删除的文件夹无法恢复!',
             onOk() {
                 ctx.props.delOfflineFolder({
-                    id: data.id
+                    id: data.id,
                 }, data.parentId, type);
             },
-            onCancel() { }
+            onCancel() { },
         });
     }
 
     editScript(data) {
         ajax.getScriptById({
-            id: data.id
+            id: data.id,
         })
-            .then(res => {
+            .then((res) => {
                 if (res.code === 1) {
                     this.props.setModalDefault(res.data);
                     this.props.toggleCreateScript();
@@ -380,7 +378,7 @@ class FolderTree extends React.Component {
 
     createScript(data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
         });
         this.props.toggleCreateScript();
     }
@@ -392,10 +390,10 @@ class FolderTree extends React.Component {
             content: '删除的脚本无法找回！',
             onOk() {
                 ctx.props.delOfflineScript({
-                    scriptId: data.id
+                    scriptId: data.id,
                 }, data.parentId);
             },
-            onCancel() { }
+            onCancel() { },
         });
     }
 
@@ -432,7 +430,6 @@ class FolderTree extends React.Component {
     }
 
     genetateTreeNode() {
-
         const { treeData, type, ispicker, isFilepicker, acceptRes, isPro, couldEdit } = this.props;
         const treeType = type;
 
@@ -446,16 +443,16 @@ class FolderTree extends React.Component {
             // 目录选择过滤掉具体文件
             if (ispicker && !isFilepicker && data.children) {
                 // potential mutate store directly
-                data.children = data.children.filter(o => {
+                data.children = data.children.filter((o) => {
                     return o.type === 'folder';
                 });
             }
 
-            let claName = type === 'file' ? 'file-item' : 'folder-item';
+            const claName = type === 'file' ? 'file-item' : 'folder-item';
 
-            return <TreeNode
-                title={
-                    ispicker?
+            return (<TreeNode
+              title={
+                    ispicker ?
                     <span className={claName}>
                         { name }&nbsp;
                         <i className="item-tooltip">
@@ -463,33 +460,33 @@ class FolderTree extends React.Component {
                         </i>
                     </span> :
                     <CtxMenu
-                        id={ id }
-                        key={ `${taskType}-ctxmenu-${id}` }
-                        operations={ this.generateCtxMenu(type, treeType, data) }
+                      id={id}
+                      key={`${taskType}-ctxmenu-${id}`}
+                      operations={this.generateCtxMenu(type, treeType, data)}
                     >
-                        <span 
-                            id={`JS_${id}`}
-                            title={name} 
-                            className={claName}>
+                        <span
+                          id={`JS_${id}`}
+                          title={name}
+                          className={claName}>
                             { this.renderStatusBadge(treeType, data) }
-                            { name }&nbsp; 
+                            { name }&nbsp;
                             <i className="item-tooltip">
                                 { this.renderFileInfo(treeType, data) }
                             </i>
                         </span>
                     </CtxMenu>
                 }
-                value={id}
-                name={name}
-                disabled={id === '0'}
-                data={data}
-                treeType={treeType}
-                className={taskTypeIcon(taskType, data) || resourceTypeIcon(resourceType)}
-                isLeaf={type === 'file'}
-                key={`${treeType}-${id}`}
+              value={id}
+              name={name}
+              disabled={id === '0'}
+              data={data}
+              treeType={treeType}
+              className={taskTypeIcon(taskType, data) || resourceTypeIcon(resourceType)}
+              isLeaf={type === 'file'}
+              key={`${treeType}-${id}`}
             >
                 {data.children && data.children.map(o => loop(o))}
-            </TreeNode>
+            </TreeNode>)
         };
         const clone = cloneDeep(treeData);
 
@@ -499,41 +496,41 @@ class FolderTree extends React.Component {
     render() {
         const {
             type, placeholder, currentTab, multiple, key,
-            onExpand, expandedKeys, onChange, couldEdit
+            onExpand, expandedKeys, onChange, couldEdit,
         } = this.props;
 
         return (
             <div>
                 {this.props.ispicker ?
-                    <div ref={(ins) => this.selEle = ins} className='org-tree-select-wrap'>
+                    <div ref={ins => this.selEle = ins} className="org-tree-select-wrap">
                         <TreeSelect
-                            disabled={typeof couldEdit=="boolean"&&!couldEdit}
-                            size="large"
-                            key={key || type}
-                            multiple={multiple}
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
-                            showSearch={!this.props.isFilepicker}
-                            showIcon={true}
-                            loadData={this.onLoadData.bind(this, type)}
-                            onChange={onChange}
-                            defaultValue={this.props.defaultNode}
-                            getPopupContainer={() => this.selEle}
-                            placeholder={placeholder}
-                            treeNodeFilterProp="name"
+                          disabled={typeof couldEdit === 'boolean' && !couldEdit}
+                          size="large"
+                          key={key || type}
+                          multiple={multiple}
+                          dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
+                          showSearch={!this.props.isFilepicker}
+                          showIcon
+                          loadData={this.onLoadData.bind(this, type)}
+                          onChange={onChange}
+                          defaultValue={this.props.defaultNode}
+                          getPopupContainer={() => this.selEle}
+                          placeholder={placeholder}
+                          treeNodeFilterProp="name"
                         >
                             {this.genetateTreeNode()}
                         </TreeSelect>
                     </div> :
                     <Tree
-                        onRightClick={this.onRightClick}
-                        showIcon={true}
-                        placeholder={placeholder}
-                        selectedKeys={[`${type}-${currentTab}`]}
-                        loadData={this.onLoadData.bind(this, type)}
-                        expandedKeys={expandedKeys}
-                        onExpand={onExpand}
-                        autoExpandParent={false}
-                        onSelect={this.handleSelect.bind(this)}
+                      onRightClick={this.onRightClick}
+                      showIcon
+                      placeholder={placeholder}
+                      selectedKeys={[`${type}-${currentTab}`]}
+                      loadData={this.onLoadData.bind(this, type)}
+                      expandedKeys={expandedKeys}
+                      onExpand={onExpand}
+                      autoExpandParent={false}
+                      onSelect={this.handleSelect.bind(this)}
                     >
                         {this.genetateTreeNode()}
                     </Tree>

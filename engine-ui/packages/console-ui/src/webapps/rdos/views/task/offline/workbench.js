@@ -2,9 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {
     Row, Col, Button, message, Input, Form,
-    Tabs, Menu, Dropdown, Icon, Modal, Tooltip
+    Tabs, Menu, Dropdown, Icon, Modal, Tooltip,
 } from 'antd';
-import { hashHistory } from "react-router";
+import { hashHistory } from 'react-router';
 
 import { cloneDeep, isEmpty } from 'lodash';
 
@@ -25,7 +25,7 @@ import ImportData from './dataImport';
 
 import { showSeach } from '../../../store/modules/comm';
 import {
-    workbenchActions
+    workbenchActions,
 } from '../../../store/modules/offlineTask/offlineAction';
 import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
 
@@ -60,8 +60,7 @@ class Workbench extends React.Component {
     handleCreateClick = (e) => {
         if (e.key === 'task') {
             this.props.toggleCreateTask()
-        }
-        else if (e.key === 'script') {
+        } else if (e.key === 'script') {
             this.props.toggleCreateScript()
         }
     }
@@ -86,10 +85,10 @@ class Workbench extends React.Component {
 
     toPublishView() {
         hashHistory.push({
-            pathname: "/package/create",
+            pathname: '/package/create',
             query: {
-                type: "offline"
-            }
+                type: 'offline',
+            },
         })
     }
 
@@ -99,11 +98,11 @@ class Workbench extends React.Component {
         let vaildPass = true;
 
         switch (taskType) {
-            case TASK_TYPE.SYNC: {
-                if (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
-                    vaildPass = this.checkSyncScript(currentTabData);
-                }
+        case TASK_TYPE.SYNC: {
+            if (currentTabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
+                vaildPass = this.checkSyncScript(currentTabData);
             }
+        }
         }
 
         if (vaildPass) {
@@ -117,7 +116,7 @@ class Workbench extends React.Component {
         if (utils.jsonFormat(sql)) {
             return true;
         }
-        message.error("请确认JSON格式是否正确");
+        message.error('请确认JSON格式是否正确');
         return false;
     }
 
@@ -130,34 +129,34 @@ class Workbench extends React.Component {
         const { publishDesc } = this.state;
         return (
             <Modal
-                wrapClassName="vertical-center-modal"
-                title="提交任务"
-                style={{ height: '600px', width: '600px' }}
-                visible={this.state.showPublish}
-                onCancel={this.closePublish}
-                onOk={this.submitTab.bind(this)}
-                cancelText="关闭"
+              wrapClassName="vertical-center-modal"
+              title="提交任务"
+              style={{ height: '600px', width: '600px' }}
+              visible={this.state.showPublish}
+              onCancel={this.closePublish}
+              onOk={this.submitTab.bind(this)}
+              cancelText="关闭"
             >
                 <Form>
                     <FormItem
-                        {...formItemLayout}
-                        label="提交人"
-                        hasFeedback
+                      {...formItemLayout}
+                      label="提交人"
+                      hasFeedback
                     >
                         <span>{user.userName}</span>
                     </FormItem>
                     <FormItem
-                        {...formItemLayout}
-                        label={(
+                      {...formItemLayout}
+                      label={(
                             <span>备注</span>
                         )}
-                        hasFeedback
+                      hasFeedback
                     >
                         <Input
-                            type="textarea"
-                            value={publishDesc}
-                            name="publishDesc" rows={4}
-                            onChange={this.publishChange}
+                          type="textarea"
+                          value={publishDesc}
+                          name="publishDesc" rows={4}
+                          onChange={this.publishChange}
                         />
                     </FormItem>
                 </Form>
@@ -175,17 +174,17 @@ class Workbench extends React.Component {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
             closeTab, closeAllorOthers, project,
-            user, editor, dispatch
+            user, editor, dispatch,
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
         const { theReqIsEnd } = this.state;
-        const isTest= project.projectType == PROJECT_TYPE.TEST;
+        const isTest = project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
 
         if (!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
-        //不属于数据同步或者属于数据同步的脚本模式都可以保存
+        // 不属于数据同步或者属于数据同步的脚本模式都可以保存
         if (
             currentTabData &&
             (currentTabData.taskType !== TASK_TYPE.SYNC ||
@@ -197,7 +196,7 @@ class Workbench extends React.Component {
 
         isSaveAvaliable = (currentTabData && !currentTabData.invalid) || !theReqIsEnd || (currentTabData && !currentTabData.notSynced);
 
-        //被锁就不能保存了
+        // 被锁就不能保存了
         if (currentTabData && currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock) {
             isSaveAvaliable = false;
         }
@@ -210,7 +209,7 @@ class Workbench extends React.Component {
 
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
 
-        return <Row className="m-workbench task-editor">
+        return (<Row className="m-workbench task-editor">
             <header className="toolbar clear">
                 <Col className="left">
 
@@ -218,38 +217,38 @@ class Workbench extends React.Component {
                         <span>
                             <Dropdown overlay={this.createMenu()} trigger={['click']}>
                                 <Button title="创建">
-                                    <MyIcon className="my-icon" type="focus" themeDark={themeDark}/>
+                                    <MyIcon className="my-icon" type="focus" themeDark={themeDark} />
                                     新建<Icon type="down" />
                                 </Button>
                             </Dropdown>
                             <Button
-                                onClick={this.saveTab.bind(this, true)}
-                                title="保存任务"
-                                disabled={!isSaveAvaliable}
+                              onClick={this.saveTab.bind(this, true)}
+                              title="保存任务"
+                              disabled={!isSaveAvaliable}
                             >
-                                <MyIcon className="my-icon" type="save" themeDark={themeDark}/>保存
+                                <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
                             </Button>
                         </span>
                     )}
                     <Dropdown overlay={this.importMenu()} trigger={['click']}>
                         <Button>
-                            <MyIcon className="my-icon" type="import" themeDark={themeDark}/>
+                            <MyIcon className="my-icon" type="import" themeDark={themeDark} />
                             导入<Icon type="down" />
                         </Button>
                     </Dropdown>
                     <Button
-                        onClick={this.searchTask}
-                        title="打开任务"
+                      onClick={this.searchTask}
+                      title="打开任务"
                     >
-                        <MyIcon className="my-icon" type="search" themeDark={themeDark}/>
+                        <MyIcon className="my-icon" type="search" themeDark={themeDark} />
                         搜索
                     </Button>
-                    <FullScreenButton themeDark={themeDark}/>
-                    <ThemeSwitcher 
-                        editorTheme={editor.options.theme}
-                        onThemeChange={(theme) => {
-                           dispatch(updateEditorOptions({ theme }))
-                        }}
+                    <FullScreenButton themeDark={themeDark} />
+                    <ThemeSwitcher
+                      editorTheme={editor.options.theme}
+                      onThemeChange={(theme) => {
+                          dispatch(updateEditorOptions({ theme }))
+                      }}
                     />
                 </Col>
 
@@ -257,34 +256,34 @@ class Workbench extends React.Component {
 
                     {couldEdit && (<span>
                         <Tooltip
-                            placement="bottom"
-                            title="提交到调度系统"
-                            mouseLeaveDelay={0}
+                          placement="bottom"
+                          title="提交到调度系统"
+                          mouseLeaveDelay={0}
                         >
                             <Button
-                                disabled={disablePublish}
-                                onClick={this.showPublish.bind(this)}
+                              disabled={disablePublish}
+                              onClick={this.showPublish.bind(this)}
                             >
-                                <Icon type="upload" themeDark={themeDark}/>提交
+                                <Icon type="upload" themeDark={themeDark} />提交
                             </Button>
                         </Tooltip>
                         {isTest && <Tooltip
-                            placement="bottom"
-                            title="发布到目标项目"
-                            mouseLeaveDelay={0}
+                          placement="bottom"
+                          title="发布到目标项目"
+                          mouseLeaveDelay={0}
                         >
                             <Button
-                                disabled={disablePublish}
-                                onClick={this.toPublishView.bind(this)}
+                              disabled={disablePublish}
+                              onClick={this.toPublishView.bind(this)}
                             >
-                                <MyIcon className="my-icon" type="fly" themeDark={themeDark}/>发布
+                                <MyIcon className="my-icon" type="fly" themeDark={themeDark} />发布
                             </Button>
                         </Tooltip>}
                     </span>)}
 
                     <a href={`${location.pathname}#/operation/offline-management?tname=${currentTabData && currentTabData.name}`}>
                         <Button disabled={!isTask}>
-                            <MyIcon className="my-icon" type="goin" themeDark={themeDark}/> 运维
+                            <MyIcon className="my-icon" type="goin" themeDark={themeDark} /> 运维
                         </Button>
                     </a>
                 </Col>) : null}
@@ -292,59 +291,61 @@ class Workbench extends React.Component {
             <Row className="task-browser">
                 <div className="browser-content">
                     <Tabs
-                        hideAdd
-                        onTabClick={this.switchTab.bind(this, currentTab)}
-                        activeKey={`${currentTab}`}
-                        type="editable-card"
-                        className="browser-tabs"
-                        onEdit={(tabId) => closeTab(tabId, tabs)}
-                        tabBarExtraContent={<Dropdown overlay={
-                            <Menu style={{ marginRight: 2,maxHeight:"500px",overflowY:"auto" }}
+                      hideAdd
+                      onTabClick={this.switchTab.bind(this, currentTab)}
+                      activeKey={`${currentTab}`}
+                      type="editable-card"
+                      className="browser-tabs"
+                      onEdit={tabId => closeTab(tabId, tabs)}
+                      tabBarExtraContent={<Dropdown
+                        overlay={
+                            <Menu
+                              style={{ marginRight: 2, maxHeight: '500px', overflowY: 'auto' }}
                             >
-                                <Menu.Item  key="OHTERS">
-                                <a onClick={() => closeAllorOthers("OHTERS", tabs, currentTab)}>关闭其他</a>
+                                <Menu.Item key="OHTERS">
+                                <a onClick={() => closeAllorOthers('OHTERS', tabs, currentTab)}>关闭其他</a>
                                 </Menu.Item>
                                 <Menu.Item key="ALL">
-                                <a onClick={() => closeAllorOthers("ALL", tabs, currentTab)} >关闭所有</a>
+                                <a onClick={() => closeAllorOthers('ALL', tabs, currentTab)} >关闭所有</a>
                                 </Menu.Item>
                                 <Menu.Divider />
-                                {tabs.map((tab)=>{
-                                    return <Menu.Item key={tab.id} >
-                                    <a 
-                                    onClick={this.switchTab.bind(this,currentTab,tab.id)}
-                                    style={tab.id==currentTab?{color:"#2491F7"}:{}}
+                                {tabs.map((tab) => {
+                                    return (<Menu.Item key={tab.id} >
+                                    <a
+                                      onClick={this.switchTab.bind(this, currentTab, tab.id)}
+                                      style={tab.id == currentTab ? { color: '#2491F7' } : {}}
                                     >
                                     {tab.name}
                                     </a>
-                                    </Menu.Item>
+                                    </Menu.Item>)
                                 })}
                             </Menu>
                         }>
-                            <Icon type="bars" size="" style={{ margin: '7 0 0 0', fontSize: 18, }} />
+                            <Icon type="bars" size="" style={{ margin: '7 0 0 0', fontSize: 18 }} />
                         </Dropdown>}
                     >
                         {this.renderTabs(tabs)}
                     </Tabs>
                     <MainBench
-                        tabs={tabs}
-                        tabData={currentTabData}
-                        taskCustomParams={taskCustomParams}
-                        updateTaskFields={this.props.updateTaskField}
-                        updateCatalogue={this.props.updateCatalogue}
-                        loadTreeNode={this.props.loadTreeNode}
-                        reloadWorkflowTabNode={this.props.reloadWorkflowTabNode}
+                      tabs={tabs}
+                      tabData={currentTabData}
+                      taskCustomParams={taskCustomParams}
+                      updateTaskFields={this.props.updateTaskField}
+                      updateCatalogue={this.props.updateCatalogue}
+                      loadTreeNode={this.props.loadTreeNode}
+                      reloadWorkflowTabNode={this.props.reloadWorkflowTabNode}
                     />
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
             </Row>
             <ImportData visible={this.state.visible} />
             {this.renderPublish()}
-        </Row>
+        </Row>)
     }
 
     publishChange = (e) => {
         this.setState({
-            publishDesc: e.target.value
+            publishDesc: e.target.value,
         })
     }
 
@@ -379,9 +380,9 @@ class Workbench extends React.Component {
 
                 return (
                     <TabPane
-                        style={{ height: '0px' }}
-                        tab={title}
-                        key={tab.id}
+                      style={{ height: '0px' }}
+                      tab={title}
+                      key={tab.id}
                     />
                 );
             });
@@ -390,7 +391,7 @@ class Workbench extends React.Component {
     }
 
     saveTab(isSave) {
-        this.setState({ theReqIsEnd: false, })
+        this.setState({ theReqIsEnd: false })
         const { saveTab, dataSync, currentTabData } = this.props;
 
         // 如果是工作流任务，需要对保存操作提前做校验
@@ -423,23 +424,22 @@ class Workbench extends React.Component {
     submitTab() {
         const {
             publishTask, dataSync,
-            currentTab, reloadTaskTab, project
+            currentTab, reloadTaskTab, project,
         } = this.props;
 
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const { publishDesc = '' } = this.state
         const result = this.generateRqtBody(dataSync)
 
-        // 添加发布描述信息
-
         if (publishDesc.length > 200) {
             message.error('备注信息不可超过200个字符！')
             return false;
         }
+
         // 修改task配置时接口要求的标记位
         result.preSave = true;
-        result.publishDesc = publishDesc;//发布信息
-        ajax.publishOfflineTask(result).then(res => {
+        result.publishDesc = publishDesc;// 发布信息
+        ajax.publishOfflineTask(result).then((res) => {
             if (res.code === 1) {
                 message.success('提交成功！');
                 publishTask(res);
@@ -449,32 +449,30 @@ class Workbench extends React.Component {
                 this.closePublish();
             }
         });
-
     }
 
     switchTab(currentTab, tabId) {
         const { openTab, tabs } = this.props;
-        +tabId !== currentTab && openTab({ id: + tabId, tabs, });
+        +tabId !== currentTab && openTab({ id: +tabId, tabs });
     }
 
     closeTab(tabId) {
         const { closeTab, tabs } = this.props;
 
-        let dirty = tabs.filter(tab => {
+        const dirty = tabs.filter((tab) => {
             return tab.id == tabId
         })[0].notSynced;
 
         if (!dirty) {
             closeTab(+tabId);
-        }
-        else {
+        } else {
             confirm({
                 title: '修改尚未同步到服务器，是否强制关闭 ?',
                 content: '强制关闭将丢弃当前修改数据',
                 onOk() {
                     closeTab(+tabId);
                 },
-                onCancel() { }
+                onCancel() { },
             });
         }
     }
@@ -487,7 +485,7 @@ class Workbench extends React.Component {
      */
     generateRqtBody(data) {
         // 深刻龙避免直接mutate store
-        let clone = cloneDeep(data);
+        const clone = cloneDeep(data);
 
         const { tabs, currentTab, currentTabData } = this.props;
         const { keymap, sourceMap, targetMap } = clone;
@@ -505,12 +503,12 @@ class Workbench extends React.Component {
         const targetTypeObj = targetMap.type;
         const sourceTypeObj = sourceMap.type;
 
-        for (let key in sourceTypeObj) {
+        for (const key in sourceTypeObj) {
             if (sourceTypeObj.hasOwnProperty(key)) {
                 sourceMap[key] = sourceTypeObj[key]
             }
         }
-        for (let k2 in targetTypeObj) {
+        for (const k2 in targetTypeObj) {
             if (targetTypeObj.hasOwnProperty(k2)) {
                 targetMap[k2] = targetTypeObj[k2]
             }
@@ -522,10 +520,10 @@ class Workbench extends React.Component {
         delete clone.dataSourceList;
 
         // 获取当前task对象并深克隆
-        let result = cloneDeep(tabs.filter(tab => tab.id === currentTab)[0]);
+        const result = cloneDeep(tabs.filter(tab => tab.id === currentTab)[0]);
 
         // 将以上步骤生成的数据同步配置拼装到task对象中
-        for (let key in clone) {
+        for (const key in clone) {
             if (clone.hasOwnProperty(key)) {
                 result[key] = clone[key];
             }
@@ -547,11 +545,11 @@ class Workbench extends React.Component {
     }
 }
 
-const mapState = state => {
+const mapState = (state) => {
     const { workbench, dataSync, scriptTree } = state.offlineTask;
     const { currentTab, tabs, taskCustomParams } = workbench;
 
-    const currentTabData = tabs.filter(tab => {
+    const currentTabData = tabs.filter((tab) => {
         return tab.id === currentTab;
     })[0];
 
