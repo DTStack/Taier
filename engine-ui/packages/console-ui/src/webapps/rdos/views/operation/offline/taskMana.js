@@ -88,7 +88,6 @@ class OfflineTaskMana extends Component {
 
         if (taskName) {
             reqParams.name = taskName
-            reqParams.currentPage = 1
         }
         if (startTime && endTime) {
             reqParams.startTime = startTime
@@ -199,6 +198,12 @@ class OfflineTaskMana extends Component {
 
     changeTaskName = (e) => { // 任务名变更
         this.setState({ taskName: e.target.value })
+    }
+
+    onSearchByTaskName = () => {
+        this.setState({
+            current: 1
+        }, this.search)
     }
 
     onTabChange = (tabKey) => {
@@ -418,7 +423,7 @@ class OfflineTaskMana extends Component {
                                         value={taskName}
                                         size="default"
                                         onChange={this.changeTaskName}
-                                        onSearch={this.search}
+                                        onSearch={this.onSearchByTaskName}
                                     />
                                 </FormItem>
                                 <FormItem

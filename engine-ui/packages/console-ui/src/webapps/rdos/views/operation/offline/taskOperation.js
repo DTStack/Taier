@@ -98,7 +98,6 @@ class OfflineTaskList extends Component {
         }
         if (jobName) {
             reqParams.taskName = jobName
-            reqParams.currentPage = 1;
         }
         if (person) {
             reqParams.ownerId = person
@@ -329,6 +328,12 @@ class OfflineTaskList extends Component {
 
     changeTaskName = (e) => {
         this.setState({ jobName: e.target.value })
+    }
+
+    onSearchByTaskName = () => {
+        this.setState({
+            current: 1
+        }, this.search)
     }
 
     changePerson = (target) => {
@@ -625,7 +630,7 @@ class OfflineTaskList extends Component {
                                         size="default"
                                         value={jobName}
                                         onChange={this.changeTaskName}
-                                        onSearch={this.search}
+                                        onSearch={this.onSearchByTaskName}
                                     />
                                 </FormItem>
                                 <FormItem

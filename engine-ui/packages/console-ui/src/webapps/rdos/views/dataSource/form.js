@@ -41,6 +41,7 @@ class BaseForm extends Component {
         hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
+        hasCarbonDataConfig: false,
         ftpProtocal: 'ftp'
     }
 
@@ -121,6 +122,12 @@ class BaseForm extends Component {
         })
     }
 
+    carbonDataConfigChange = (e) => {
+        this.setState({
+            hasCarbonDataConfig: e.target.value !== 'default'
+        })
+    }
+
     hadoopConfigChange = (e) => {
         const { hadoopConfig, hasHdfsConfig, hadoopConfigStr } = this.state
         const value = e.target.value.split('//')[1]
@@ -159,7 +166,7 @@ class BaseForm extends Component {
 
     renderDynamic () {
         const { form, sourceData, showUserNameWarning } = this.props;
-        const { hasHdfsConfig, sourceType, ftpProtocal } = this.state;
+        const { hasHdfsConfig, sourceType, ftpProtocal, hasCarbonDataConfig } = this.state;
 
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -235,7 +242,141 @@ class BaseForm extends Component {
                 }
                 return formItems;
             }
-            case DATA_SOURCE.CARBONDATA:
+            case DATA_SOURCE.CARBONDATA: {
+                const formItems = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="JDBC URL"
+                        hasFeedback
+                        key="jdbcUrl"
+                    >
+                        {getFieldDecorator('dataJson.jdbcUrl', {
+                            rules: [{
+                                required: true, message: 'jdbcUrl不可为空！'
+                            },
+                            jdbcRulePattern
+                            ],
+                            initialValue: config.jdbcUrl || ''
+                        })(
+                            <Input autoComplete="off" />
+                        )}
+                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="用户名"
+                        key="username"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.username', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
+                            initialValue: config.username || ''
+                        })(
+                            <Input autoComplete="off" />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        key="password"
+                        label="密码"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: false, message: ''
+                            }],
+                            initialValue: ''
+                        })(
+                            <Input type="password" autoComplete="off" />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        key="hdfsCustomConfig"
+                        {...formItemLayout}
+                        label="HDFS配置"
+                    >
+                        {getFieldDecorator('dataJson.hdfsCustomConfig', {
+                            rules: [],
+                            initialValue: config.hdfsCustomConfig || 'default'
+                        })(
+                            <RadioGroup onChange={this.carbonDataConfigChange}>
+                                <Radio value="default">默认</Radio>
+                                <Radio value="custom">自定义</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ]
+
+                if (hasCarbonDataConfig) {
+                    formItems.push(
+                        <FormItem
+                            {...formItemLayout}
+                            label="defaultFS"
+                            key="defaultFS"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.defaultFS', {
+                                rules: [{
+                                    required: true, message: 'defaultFS不可为空！'
+                                }],
+                                initialValue: config.defaultFS || ''
+                            })(
+                                <Input placeholder="hdfs://host:port" />
+                            )}
+                        </FormItem>,
+                        <FormItem
+                            key="hasHdfsConfig"
+                            {...tailFormItemLayout}
+                        >
+                            {getFieldDecorator('hasHdfsConfig', {
+                                initialValue: hasHdfsConfig
+                            })(
+                                <Checkbox
+                                    checked={hasHdfsConfig}
+                                    onChange={this.enableHdfsConfig}>
+                                    高可用配置
+                                </Checkbox>
+                            )}
+                        </FormItem>
+                    )
+                }
+                if (hasHdfsConfig) {
+                    formItems.push(
+                        <FormItem
+                            {...formItemLayout}
+                            label="高可用配置"
+                            key="hadoopConfig"
+                            hasFeedback
+                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
+                        >
+                            {getFieldDecorator('dataJson.hadoopConfig', {
+                                rules: [{
+                                    required: true, message: 'Hadoop配置不可为空！'
+                                }],
+                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                            })(
+                                <Input
+                                    className="no-scroll-bar"
+                                    type="textarea" rows={5}
+
+                                    placeholder={hdfsConf}
+                                />
+                            )}
+                            <HelpDoc doc="hdfsConfig" />
+                            <CopyIcon
+                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                                copyText={hdfsConf}
+                            />
+                        </FormItem>
+                    )
+                }
+                return formItems
+            }
             case DATA_SOURCE.HIVE: {
                 const formItems = [
                     <FormItem
@@ -717,7 +858,6 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
-
             case DATA_SOURCE.ORACLE: {
                 return [
                     <FormItem
@@ -783,7 +923,6 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
-
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
