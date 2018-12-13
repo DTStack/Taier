@@ -51,7 +51,7 @@ class TaskForm extends React.Component {
 
     handleResSelectTreeChange (value) {
         this._resChange = true;
-        this.props.form.setFieldsValue({ 'resourceIdList': value });
+        this.props.form.setFieldsValue({ resourceIdList: value });
         this.props.form.validateFields(['resourceIdList']);
     }
 
@@ -62,7 +62,7 @@ class TaskForm extends React.Component {
 
     handleTaskTypeChange (value) {
         this.setState({
-            value: value
+            value
         })
     }
 
@@ -294,7 +294,7 @@ class TaskForm extends React.Component {
                                 }],
                                 initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].id
                             })(
-                                <Input type="hidden" ></Input>
+                                <Input type="hidden" />
                             )}
                             <FolderPicker
                                 type={MENU_TYPE.RESOURCE}
@@ -304,9 +304,33 @@ class TaskForm extends React.Component {
                                 acceptRes={acceptType}
                                 treeData={this.props.resTreeData}
                                 onChange={this.handleResSelectTreeChange.bind(this)}
-                                defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0]['resourceName']}
+                                defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].resourceName}
                             />
                         </FormItem>
+                        {
+                            isPyTask && <FormItem
+                                {...formItemLayout}
+                                label="引用资源"
+                            >
+                                {getFieldDecorator('refResourceIdList', {
+                                    rules: [{
+                                        validator: this.checkNotDir.bind(this)
+                                    }],
+                                    initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 ? defaultData.refResourceList.map(res => res.resourceName) : []
+                                })(
+                                    <Input type="hidden" />
+                                )}
+                                <FolderPicker
+                                    key="createRefResourceIdList"
+                                    ispicker
+                                    placeholder="请选择关联资源"
+                                    isFilepicker
+                                    treeData={this.props.resTreeData}
+                                    onChange={this.handleRefResSelectTreeChange.bind(this)}
+                                    defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 && defaultData.refResourceList.map(res => res.resourceName)}
+                                />
+                            </FormItem>
+                        }
                         {
                             (isHadoopMR || isMl || isMrTask) && <FormItem
                                 {...formItemLayout}
@@ -339,30 +363,6 @@ class TaskForm extends React.Component {
                             )}
                         </FormItem>}
                     </span>
-                }
-                {
-                    isPyTask && <FormItem
-                        {...formItemLayout}
-                        label="引用资源"
-                    >
-                        {getFieldDecorator('refResourceIdList', {
-                            rules: [{
-                                validator: this.checkNotDir.bind(this)
-                            }],
-                            initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 ? defaultData.refResourceIdList.map(res => res.resourceName) : []
-                        })(
-                            <Input type="hidden" ></Input>
-                        )}
-                        <FolderPicker
-                            key="createRefResourceIdList"
-                            ispicker
-                            placeholder="请选择关联资源"
-                            isFilepicker
-                            treeData={this.props.resTreeData}
-                            onChange={this.handleRefResSelectTreeChange.bind(this)}
-                            defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceIdList && defaultData.refResourceIdList.length > 0 && defaultData.refResourceIdList.map(res => res.resourceName)}
-                        />
-                    </FormItem>
                 }
                 {
                     isSyncTast &&
@@ -436,7 +436,7 @@ class TaskForm extends React.Component {
                     {getFieldDecorator('computeType', {
                         initialValue: 1
                     })(
-                        <Input type="hidden"></Input>
+                        <Input type="hidden" />
                     )}
                 </FormItem>
             </Form>
@@ -455,7 +455,7 @@ class TaskForm extends React.Component {
         const { resTreeData } = this.props;
         let nodeType;
 
-        let loop = (arr) => {
+        const loop = (arr) => {
             arr.forEach((node, i) => {
                 if (node.id === value) {
                     nodeType = node.type;
@@ -483,7 +483,7 @@ class TaskForm extends React.Component {
         const { treeData } = this.props;
         let name;
 
-        let loop = (arr) => {
+        const loop = (arr) => {
             arr.forEach((node, i) => {
                 if (node.id === id) {
                     name = node.name;
@@ -505,7 +505,7 @@ class TaskModal extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            loading: false
+            loading: false,
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -540,12 +540,12 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
                 this.setState({
-                    loading: true
+                    loading: true,
                 })
 
                 const handRes = (isSuccess) => {
                     this.setState({
-                        loading: false
+                        loading: false,
                     })
                     if (isSuccess) {
                         message.success('操作成功')
@@ -582,7 +582,7 @@ class TaskModal extends React.Component {
         this.props.emptyModalDefault();
         this.dtcount++;
         this.setState({
-            loading: false
+            loading: false,
         })
     }
 
@@ -613,24 +613,25 @@ class TaskModal extends React.Component {
                             size="large"
                             onClick={this.handleCancel}
                         >取消</Button>,
-                        <Button key="submit"
-                            type="primary"
-                            size="large"
-                            loading={loading}
-                            onClick={this.handleSubmit.bind(this)}
-                        > 确认 </Button>
-                    ]}
-                    onCancel={this.handleCancel}
+                      <Button
+                        key="submit"
+                        type="primary"
+                        size="large"
+                        loading={loading}
+                        onClick={this.handleSubmit.bind(this)}
+                        > 确认 </Button>,
+                  ]}
+                  onCancel={this.handleCancel}
                 >
                     <TaskFormWrapper
-                        ref={el => this.form = el}
-                        treeData={taskTreeData}
-                        resTreeData={resourceTreeData}
-                        defaultData={defaultData}
-                        createOrigin={workflow}
-                        taskTypes={taskTypes}
-                        labelPrefix={labelPrefix}
-                        createFromGraph={createFromGraph}
+                      ref={el => this.form = el}
+                      treeData={taskTreeData}
+                      resTreeData={resourceTreeData}
+                      defaultData={defaultData}
+                      createOrigin={workflow}
+                      taskTypes={taskTypes}
+                      labelPrefix={labelPrefix}
+                      createFromGraph={createFromGraph}
                     />
                 </Modal>
             </div>
@@ -638,7 +639,7 @@ class TaskModal extends React.Component {
     }
 }
 
-export default connect(state => {
+export default connect((state) => {
     return {
         isModalShow: state.offlineTask.modalShow.createTask,
         workflow: state.offlineTask.workflow,
