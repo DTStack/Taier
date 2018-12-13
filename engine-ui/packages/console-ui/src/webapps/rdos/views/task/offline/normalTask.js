@@ -34,102 +34,106 @@ class NormalTaskForm extends React.Component {
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
-        const couldEdit=isProjectCouldEdit(project,user);
+        const couldEdit = isProjectCouldEdit(project, user);
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
 
-        return <Form>
+        return (<Form>
             <FormItem
-                {...formItemLayout}
-                label="任务名称"
+              {...formItemLayout}
+              label="任务名称"
             >
                 {getFieldDecorator('name', {
                     rules: [{
                         max: 64,
                         message: '任务名称不得超过20个字符！',
                     }],
-                    initialValue: taskData.name
+                    initialValue: taskData.name,
                 })(
                     <Input disabled />,
                 )}
             </FormItem>
             <FormItem
-                {...formItemLayout}
-                label="任务类型"
+              {...formItemLayout}
+              label="任务类型"
             >
                 {getFieldDecorator('taskType', {
                     rules: [{}],
-                    initialValue: taskType
+                    initialValue: taskType,
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
                         {taskTypes.map(item =>
-                            <Radio key={item.key} value={item.key}>{item.value}</Radio>
+                            <Radio key={item.key} value={item.key}>{item.value}</Radio>,
                         )}
-                    </RadioGroup>
+                    </RadioGroup>,
                 )}
             </FormItem>
             {
                 !isVirtual &&
                 <FormItem
-                    {...formItemLayout}
-                    label={resourceLable}
+                  {...formItemLayout}
+                  label={resourceLable}
                 >
                     {getFieldDecorator('resourceIdList', {
                         rules: [{
                             required: true, message: '请选择关联资源',
+                        }, {
+                            validator: this.checkNotDir.bind(this),
                         }],
                         initialValue: taskData.resourceList.length ?
-                            taskData.resourceList[0].id : ''
+                            taskData.resourceList[0].id : '',
                     })(
-                        <Input disabled={!couldEdit} type="hidden" ></Input>
+                        <Input disabled={!couldEdit} type="hidden"  />,
                     )}
                     <FolderPicker
-                        couldEdit={couldEdit}
-                        ispicker
-                        isFilepicker
-                        acceptRes={acceptType}
-                        type={MENU_TYPE.RESOURCE}
-                        treeData={this.props.resTreeData}
-                        onChange={this.handleResChange.bind(this)}
-                        defaultNode={taskData.resourceList.length ? taskData.resourceList[0].resourceName : ''}
+                      couldEdit={couldEdit}
+                      ispicker
+                      isFilepicker
+                      acceptRes={acceptType}
+                      type={MENU_TYPE.RESOURCE}
+                      treeData={this.props.resTreeData}
+                      onChange={this.handleResChange.bind(this)}
+                      defaultNode={taskData.resourceList.length ? taskData.resourceList[0].resourceName : ''}
                     />
                 </FormItem>
             }
             {
                 isPyTask && <FormItem
-                    {...formItemLayout}
-                    label="引用资源"
+                  {...formItemLayout}
+                  label="引用资源"
                 >
                     {getFieldDecorator('refResourceIdList', {
-                        rules: [],
-                        initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ?
-                            taskData.refResourceIdList.map(res => res.resourceName) : []
+                        rules: [{
+                            validator: this.checkNotDir.bind(this),
+                        }],
+                        initialValue: taskData.refResourceList && taskData.refResourceList.length > 0 ?
+                            taskData.refResourceList.map(res => res.resourceName) : [],
                     })(
-                        <Input disabled={!couldEdit} type="hidden" ></Input>
+                        <Input disabled={!couldEdit} type="hidden"  />,
                     )}
                     <FolderPicker
-                        couldEdit={couldEdit}
-                        ispicker
-                        isFilepicker
-                        key="refResourceIdList"
-                        treeData={this.props.resTreeData}
-                        onChange={this.handleRefResChange.bind(this)}
-                        defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.resourceName) : []}
+                      couldEdit={couldEdit}
+                      ispicker
+                      isFilepicker
+                      key="refResourceIdList"
+                      treeData={this.props.resTreeData}
+                      onChange={this.handleRefResChange.bind(this)}
+                      defaultNode={taskData.refResourceList && taskData.refResourceList.length > 0 ? taskData.refResourceList.map(res => res.resourceName) : []}
                     />
                 </FormItem>
             }
             {
                 mainClassShow &&
                 <FormItem
-                    {...formItemLayout}
-                    label="mainClass"
-                    hasFeedback
+                  {...formItemLayout}
+                  label="mainClass"
+                  hasFeedback
                 >
                     {getFieldDecorator('mainClass', {
                         rules: [{
                             required: true, message: 'mainClass 不可为空！',
                         }],
-                        initialValue: taskData.mainClass
+                        initialValue: taskData.mainClass,
                     })(
                         <Input disabled={!couldEdit} placeholder="请输入 mainClass" />,
                     )}
@@ -137,11 +141,11 @@ class NormalTaskForm extends React.Component {
             }
             {
                 exeArgsShow && <FormItem
-                    {...formItemLayout}
-                    label="任务参数"
+                  {...formItemLayout}
+                  label="任务参数"
                 >
                     {getFieldDecorator('exeArgs', {
-                        initialValue: taskData.exeArgs
+                        initialValue: taskData.exeArgs,
                     })(
                         <Input disabled={!couldEdit} placeholder="请输入任务参数" />,
                     )}
@@ -150,21 +154,21 @@ class NormalTaskForm extends React.Component {
             {
                 isDeepLearning && <span>
                     <FormItem
-                        {...formItemLayout}
-                        label="数据输入路径"
+                      {...formItemLayout}
+                      label="数据输入路径"
                     >
                         {getFieldDecorator('input', {
-                            initialValue: taskData.input
+                            initialValue: taskData.input,
                         })(
                             <Input disabled={!couldEdit} placeholder="请输入数据输入路径" />,
                         )}
                     </FormItem>
                     <FormItem
-                        {...formItemLayout}
-                        label="模型输出路径"
+                      {...formItemLayout}
+                      label="模型输出路径"
                     >
                         {getFieldDecorator('output', {
-                            initialValue: taskData.output
+                            initialValue: taskData.output,
                         })(
                             <Input disabled={!couldEdit} placeholder="请输入模型输出路径" />,
                         )}
@@ -173,64 +177,93 @@ class NormalTaskForm extends React.Component {
             }
             {
                 optionsShow && <FormItem
-                    {...formItemLayout}
-                    label="参数"
+                  {...formItemLayout}
+                  label="参数"
                 >
                     {getFieldDecorator('options', {
-                        initialValue: taskData.options
+                        initialValue: taskData.options,
                     })(
                         <Input disabled={!couldEdit} placeholder="请输入命令行参数" />,
                     )}
                 </FormItem>
             }
             {
-                !isWorkflowNode && 
+                !isWorkflowNode &&
                 <FormItem
-                    {...formItemLayout}
-                    label="存储位置"
+                  {...formItemLayout}
+                  label="存储位置"
                 >
                     {getFieldDecorator('nodePid', {
                         rules: [{
                             required: true, message: '存储位置必选！',
                         }],
-                        initialValue: taskData.nodePid
+                        initialValue: taskData.nodePid,
                     })(
-                        <Input disabled={!couldEdit} type="hidden"></Input>
+                        <Input disabled={!couldEdit} type="hidden" />,
                     )}
                     <FolderPicker
-                        couldEdit={couldEdit}
-                        type={MENU_TYPE.TASK}
-                        ispicker
-                        isFilepicker={false}
-                        treeData={this.props.pathTreeData}
-                        onChange={this.handlePathChange.bind(this)}
-                        defaultNode={taskData.nodePName}
-                    ></FolderPicker>
+                      couldEdit={couldEdit}
+                      type={MENU_TYPE.TASK}
+                      ispicker
+                      isFilepicker={false}
+                      treeData={this.props.pathTreeData}
+                      onChange={this.handlePathChange.bind(this)}
+                      defaultNode={taskData.nodePName}
+                     />
                 </FormItem>
             }
             <FormItem
-                {...formItemLayout}
-                label="描述"
-                hasFeedback
+              {...formItemLayout}
+              label="描述"
+              hasFeedback
             >
                 {getFieldDecorator('taskDesc', {
                     rules: [{
                         max: 200,
                         message: '描述请控制在200个字符以内！',
                     }],
-                    initialValue: taskData.taskDesc
+                    initialValue: taskData.taskDesc,
                 })(
                     <Input disabled={!couldEdit} type="textarea" rows={4} placeholder="请输入任务描述" />,
                 )}
             </FormItem>
             <FormItem style={{ display: 'none' }}>
                 {getFieldDecorator('computeType', {
-                    initialValue: 1
+                    initialValue: 1,
                 })(
-                    <Input disabled={!couldEdit} type="hidden"></Input>
+                    <Input disabled={!couldEdit} type="hidden" />,
                 )}
             </FormItem>
-        </Form>
+        </Form>)
+    }
+
+   /**
+     * @description 检查所选是否为文件夹
+     * @param {any} rule
+     * @param {any} value
+     * @param {any} cb
+     * @memberof TaskForm
+     */
+    checkNotDir(rule, value, callback) {
+        const { resTreeData } = this.props;
+        let nodeType;
+
+        const loop = (arr) => {
+            arr.forEach((node, i) => {
+                if (node.id === value) {
+                    nodeType = node.type;
+                } else {
+                    loop(node.children || []);
+                }
+            });
+        };
+
+        loop([resTreeData]);
+
+        if (nodeType === 'folder') {
+            callback('请选择具体文件, 而非文件夹');
+        }
+        callback();
     }
 
     handleResChange(value) {
@@ -239,20 +272,20 @@ class NormalTaskForm extends React.Component {
             message.error('资源不可为空！')
         } else {
             this.props.form.setFieldsValue({
-                resourceIdList: value ? [value] : []
+                resourceIdList: value ? [value] : [],
             });
         }
     }
 
     handleRefResChange = (value) => {
         this.props.form.setFieldsValue({
-            refResourceIdList: value ? [value] : []
+            refResourceIdList: value ? [value] : [],
         });
     }
 
     handlePathChange(value) {
         this.props.form.setFieldsValue({
-            nodePid: value
+            nodePid: value,
         });
     }
 }
@@ -275,7 +308,7 @@ const NormalTaskFormWrapper = Form.create({
         }
 
         setFieldsValue(values);
-    }
+    },
 })(NormalTaskForm);
 
 class NormalTaskEditor extends React.Component {
@@ -284,9 +317,9 @@ class NormalTaskEditor extends React.Component {
     }
 
     render() {
-        return <div className="m-taskedit" style={{ padding: 60 }}>
+        return (<div className="m-taskedit" style={{ padding: 60 }}>
             <NormalTaskFormWrapper {...this.props} />
-        </div>
+        </div>)
     }
 }
 
@@ -298,18 +331,18 @@ const mapState = (state, ownProps) => {
         taskCustomParams: offlineTask.workbench.taskCustomParams,
         taskTypes: offlineTask.comm.taskTypes,
         user,
-        project
+        project,
     }
 };
 
-const mapDispatch = dispatch => {
+const mapDispatch = (dispatch) => {
     return {
         setFieldsValue(params) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
-                payload: params
+                payload: params,
             });
-        }
+        },
     }
 };
 
