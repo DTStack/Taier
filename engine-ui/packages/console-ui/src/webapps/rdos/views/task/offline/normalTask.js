@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Select, Radio } from 'antd';
+import { Form, Input, Select, Radio, message } from 'antd';
 import { connect } from 'react-redux';
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../comm'
@@ -103,7 +103,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('refResourceIdList', {
                         rules: [],
                         initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ?
-                            taskData.refResourceIdList.map(res => res.name) : []
+                            taskData.refResourceIdList.map(res => res.resourceName) : []
                     })(
                         <Input disabled={!couldEdit} type="hidden" ></Input>
                     )}
@@ -111,11 +111,10 @@ class NormalTaskForm extends React.Component {
                         couldEdit={couldEdit}
                         ispicker
                         isFilepicker
-                        multiple={true}
                         key="refResourceIdList"
                         treeData={this.props.resTreeData}
                         onChange={this.handleRefResChange.bind(this)}
-                        defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.name) : []}
+                        defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.resourceName) : []}
                     />
                 </FormItem>
             }
@@ -235,14 +234,19 @@ class NormalTaskForm extends React.Component {
     }
 
     handleResChange(value) {
-        this.props.form.setFieldsValue({
-            resourceIdList: [value]
-        });
+        this.props.form.validateFields(['resourceIdList']);
+        if (!value) {
+            message.error('资源不可为空！')
+        } else {
+            this.props.form.setFieldsValue({
+                resourceIdList: value ? [value] : []
+            });
+        }
     }
 
     handleRefResChange = (value) => {
         this.props.form.setFieldsValue({
-            refResourceIdList: value
+            refResourceIdList: value ? [value] : []
         });
     }
 

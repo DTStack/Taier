@@ -14,6 +14,13 @@
         }
     }
 
+    .m-taskedit {
+        padding: 60px;
+        min-height: 500px;
+        height: 100%;
+        overflow: auto;
+    }
+
     .operation-content {
         height: 165px;
         background: #ffffff;
@@ -381,7 +388,8 @@
                 }
             }
         }
-    } // -----------------离线---------------------
+    }
+    // -----------------离线---------------------
     .g-taskOfflineSidebar {
         .m-tasktitle {
             margin-top: -10px;
