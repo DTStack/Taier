@@ -38,7 +38,8 @@ class ApprovedCard extends Component {
         showRecord: {},
         apiName: utils.getParameterByName('apiName'),
         applyBox: false,
-        applyRecord: {}
+        applyRecord: {},
+        applyKey: Math.random()
 
     }
     getAppliedList () {
@@ -218,7 +219,8 @@ class ApprovedCard extends Component {
     dealnotPass (record) {
         this.setState({
             applyBox: true,
-            applyRecord: record
+            applyRecord: record,
+            applyKey: Math.random()
         })
     }
     dealdisabled (record) {
@@ -227,7 +229,8 @@ class ApprovedCard extends Component {
     dealexpired (record) {
         this.setState({
             applyBox: true,
-            applyRecord: record
+            applyRecord: record,
+            applyKey: Math.random()
         })
     }
     deleteApi (record) {
@@ -368,7 +371,7 @@ class ApprovedCard extends Component {
     }
 
     render () {
-        const { applyBox, applyRecord, apiName } = this.state;
+        const { applyBox, applyRecord, apiName, applyKey } = this.state;
 
         return (
             <div>
@@ -380,7 +383,8 @@ class ApprovedCard extends Component {
                     apiName={applyRecord.apiName}
                     desc={applyRecord.apiDesc}
                     hideJump={true}
-                ></ApplyBox>
+                    key={applyKey}
+                />
                 <div style={{ marginRight: '20px', position: 'relative' }}>
                     <SlidePane
                         {...this.props}

@@ -50,7 +50,8 @@ class APIMarket extends Component {
         pageSize: 20,
         total: 0,
         sorter: {},
-        slidePaneShow: false
+        slidePaneShow: false,
+        applyKey: Math.random()
     }
     getMarketApi () {
         this.setState({
@@ -198,6 +199,7 @@ class APIMarket extends Component {
     dealnothing (record) {
         this.setState({
             applyBox: true,
+            applyKey: Math.random(),
             apply: {
                 apiId: record.key,
                 apiName: record.apiName,
@@ -377,17 +379,19 @@ class APIMarket extends Component {
 
     render () {
         const { apiMarket } = this.props
-        const { slidePaneShow, detailRecord } = this.state;
+        const { slidePaneShow, detailRecord, applyKey } = this.state;
 
         return (
             <div className="api-market">
-                <ApplyBox show={this.state.applyBox}
+                <ApplyBox
+                    show={this.state.applyBox}
                     successCallBack={this.handleOk.bind(this)}
                     cancelCallback={this.handleCancel.bind(this)}
                     apiId={this.state.apply.apiId}
                     apiName={this.state.apply.apiName}
                     desc={this.state.apply.desc}
-                ></ApplyBox>
+                    key={applyKey}
+                />
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">
                     <SlidePane
