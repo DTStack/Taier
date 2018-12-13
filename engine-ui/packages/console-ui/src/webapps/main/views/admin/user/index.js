@@ -253,7 +253,6 @@ class AdminUser extends Component {
 
     loadUsersNotInProject = (userName) => {
         const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
-        // userName : utils.trimlr(userName)
         const params = {
             userName
         }

@@ -5,6 +5,8 @@ import {
     Select, Form, Checkbox
 } from 'antd'
 
+import utils from 'utils'
+
 import {
     MY_APPS,
     RDOS_ROLE,
@@ -51,7 +53,18 @@ export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
 }
 
 class UserRoleForm extends Component {
-    debounceSearch = debounce(this.props.onSearchUsers, 300, { 'maxWait': 2000 })
+    onSeachChange = (value) => {
+        this.props.form.setFieldsValue({
+            targetUserIds: value
+        })
+    }
+
+    onSearch = (value) => {
+        const query = utils.trim(value);
+        this.props.onSearchUsers(query);
+    }
+
+    debounceSearch = debounce(this.onSearch, 300, { 'maxWait': 2000 })
 
     render () {
         const { roles, form, notProjectUsers, app, user, myRoles } = this.props;
@@ -106,7 +119,11 @@ class UserRoleForm extends Component {
                             style={{ width: '100%' }}
                             notFoundContent="当前用户不存在"
                             placeholder="请搜索并选择用户"
-                            optionFilterProp="name"
+                            filterOption={(inputValue, option) => {
+                                const val = utils.trim(inputValue);
+                                return option.props.name.indexOf(val) > -1
+                            }}
+                            onChange={this.onSeachChange}
                             onSearch={this.debounceSearch}
                         >
                             {userOptions}

@@ -12,6 +12,59 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
 class NormalTaskForm extends React.Component {
+    /**
+     * @description 检查所选是否为文件夹
+     * @param {any} rule
+     * @param {any} value
+     * @param {any} cb
+     * @memberof TaskForm
+     */
+    checkNotDir (rule, value, callback) {
+        const { resTreeData } = this.props;
+        let nodeType;
+
+        const loop = (arr) => {
+            arr.forEach((node, i) => {
+                if (node.id === value) {
+                    nodeType = node.type;
+                } else {
+                    loop(node.children || []);
+                }
+            });
+        };
+
+        loop([resTreeData]);
+
+        if (nodeType === 'folder') {
+            // eslint-disable-next-line
+            callback('请选择具体文件, 而非文件夹');
+        }
+        callback();
+    }
+
+    handleResChange (value) {
+        this.props.form.validateFields(['resourceIdList']);
+        if (!value) {
+            message.error('资源不可为空！')
+        } else {
+            this.props.form.setFieldsValue({
+                resourceIdList: value ? [value] : []
+            });
+        }
+    }
+
+    handleRefResChange = (value) => {
+        this.props.form.setFieldsValue({
+            refResourceIdList: value ? [value] : []
+        });
+    }
+
+    handlePathChange (value) {
+        this.props.form.setFieldsValue({
+            nodePid: value
+        });
+    }
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
@@ -35,7 +88,7 @@ class NormalTaskForm extends React.Component {
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
 
-        return <Form>
+        return (<Form>
             <FormItem
                 {...formItemLayout}
                 label="任务名称"
@@ -74,11 +127,13 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('resourceIdList', {
                         rules: [{
                             required: true, message: '请选择关联资源'
+                        }, {
+                            validator: this.checkNotDir.bind(this)
                         }],
                         initialValue: taskData.resourceList.length
                             ? taskData.resourceList[0].id : ''
                     })(
-                        <Input disabled={!couldEdit} type="hidden" ></Input>
+                        <Input disabled={!couldEdit} type="hidden" />
                     )}
                     <FolderPicker
                         couldEdit={couldEdit}
@@ -98,11 +153,13 @@ class NormalTaskForm extends React.Component {
                     label="引用资源"
                 >
                     {getFieldDecorator('refResourceIdList', {
-                        rules: [],
-                        initialValue: taskData.refResourceIdList && taskData.refResourceIdList.length > 0
-                            ? taskData.refResourceIdList.map(res => res.resourceName) : []
+                        rules: [{
+                            validator: this.checkNotDir.bind(this)
+                        }],
+                        initialValue: taskData.refResourceList && taskData.refResourceList.length > 0
+                            ? taskData.refResourceList.map(res => res.resourceName) : []
                     })(
-                        <Input disabled={!couldEdit} type="hidden" ></Input>
+                        <Input disabled={!couldEdit} type="hidden" />
                     )}
                     <FolderPicker
                         couldEdit={couldEdit}
@@ -111,7 +168,7 @@ class NormalTaskForm extends React.Component {
                         key="refResourceIdList"
                         treeData={this.props.resTreeData}
                         onChange={this.handleRefResChange.bind(this)}
-                        defaultNode={taskData.refResourceIdList && taskData.refResourceIdList.length > 0 ? taskData.refResourceIdList.map(res => res.resourceName) : []}
+                        defaultNode={taskData.refResourceList && taskData.refResourceList.length > 0 ? taskData.refResourceList.map(res => res.resourceName) : []}
                     />
                 </FormItem>
             }
@@ -192,7 +249,7 @@ class NormalTaskForm extends React.Component {
                         }],
                         initialValue: taskData.nodePid
                     })(
-                        <Input disabled={!couldEdit} type="hidden"></Input>
+                        <Input disabled={!couldEdit} type="hidden" />
                     )}
                     <FolderPicker
                         couldEdit={couldEdit}
@@ -202,7 +259,7 @@ class NormalTaskForm extends React.Component {
                         treeData={this.props.pathTreeData}
                         onChange={this.handlePathChange.bind(this)}
                         defaultNode={taskData.nodePName}
-                    ></FolderPicker>
+                    />
                 </FormItem>
             }
             <FormItem
@@ -224,33 +281,10 @@ class NormalTaskForm extends React.Component {
                 {getFieldDecorator('computeType', {
                     initialValue: 1
                 })(
-                    <Input disabled={!couldEdit} type="hidden"></Input>
+                    <Input disabled={!couldEdit} type="hidden" />
                 )}
             </FormItem>
-        </Form>
-    }
-
-    handleResChange (value) {
-        this.props.form.validateFields(['resourceIdList']);
-        if (!value) {
-            message.error('资源不可为空！')
-        } else {
-            this.props.form.setFieldsValue({
-                resourceIdList: value ? [value] : []
-            });
-        }
-    }
-
-    handleRefResChange = (value) => {
-        this.props.form.setFieldsValue({
-            refResourceIdList: value ? [value] : []
-        });
-    }
-
-    handlePathChange (value) {
-        this.props.form.setFieldsValue({
-            nodePid: value
-        });
+        </Form>)
     }
 }
 
@@ -281,9 +315,9 @@ class NormalTaskEditor extends React.Component {
     }
 
     render () {
-        return <div className="m-taskedit" style={{ padding: 60 }}>
+        return (<div className="m-taskedit" style={{ padding: 60 }}>
             <NormalTaskFormWrapper {...this.props} />
-        </div>
+        </div>)
     }
 }
 
@@ -299,7 +333,7 @@ const mapState = (state, ownProps) => {
     }
 };
 
-const mapDispatch = dispatch => {
+const mapDispatch = (dispatch) => {
     return {
         setFieldsValue (params) {
             dispatch({

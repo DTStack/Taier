@@ -48,11 +48,17 @@ class BaseForm extends Component {
     componentDidMount () {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
-            if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
-                this.setState({ sourceType: sourceData.type, hasHdfsConfig: true })
-            } else {
-                this.setState({ sourceType: sourceData.type })
+            let initialState = {
+                sourceType: sourceData.type
             }
+            if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
+                initialState.hasHdfsConfig = true;
+            }
+            if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
+                const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
+                initialState.hasCarbonDataConfig = hdfsConf !== 'default';
+            }
+            this.setState(initialState);
         }
     }
 
@@ -272,7 +278,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.username', {
                             rules: [{
-                                required: false, message: ''
+                                required: true, message: '用户名不可为空！'
                             }],
                             initialValue: config.username || ''
                         })(
@@ -287,7 +293,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.password', {
                             rules: [{
-                                required: false, message: ''
+                                required: true, message: '密码不可为空！'
                             }],
                             initialValue: ''
                         })(
@@ -343,37 +349,38 @@ class BaseForm extends Component {
                             )}
                         </FormItem>
                     )
-                }
-                if (hasHdfsConfig) {
-                    formItems.push(
-                        <FormItem
-                            {...formItemLayout}
-                            label="高可用配置"
-                            key="hadoopConfig"
-                            hasFeedback
-                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
-                        >
-                            {getFieldDecorator('dataJson.hadoopConfig', {
-                                rules: [{
-                                    required: true, message: 'Hadoop配置不可为空！'
-                                }],
-                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
-                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
-                            })(
-                                <Input
-                                    className="no-scroll-bar"
-                                    type="textarea" rows={5}
 
-                                    placeholder={hdfsConf}
+                    if (hasHdfsConfig) {
+                        formItems.push(
+                            <FormItem
+                                {...formItemLayout}
+                                label="高可用配置"
+                                key="hadoopConfig"
+                                hasFeedback
+                                style={{ display: hasHdfsConfig ? 'block' : 'none' }}
+                            >
+                                {getFieldDecorator('dataJson.hadoopConfig', {
+                                    rules: [{
+                                        required: true, message: 'Hadoop配置不可为空！'
+                                    }],
+                                    initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                        ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                                })(
+                                    <Input
+                                        className="no-scroll-bar"
+                                        type="textarea" rows={5}
+
+                                        placeholder={hdfsConf}
+                                    />
+                                )}
+                                <HelpDoc doc="hdfsConfig" />
+                                <CopyIcon
+                                    style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                                    copyText={hdfsConf}
                                 />
-                            )}
-                            <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon
-                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                                copyText={hdfsConf}
-                            />
-                        </FormItem>
-                    )
+                            </FormItem>
+                        )
+                    }
                 }
                 return formItems
             }
@@ -1048,7 +1055,6 @@ class BaseForm extends Component {
                 <FormItem
                     {...formItemLayout}
                     label="数据源描述"
-                    hasFeedback
                 >
                     {getFieldDecorator('dataDesc', {
                         rules: [{
