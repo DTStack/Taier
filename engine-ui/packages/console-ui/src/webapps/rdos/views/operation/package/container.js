@@ -19,8 +19,6 @@ const TabPane = Tabs.TabPane;
 })
 class PackageContainer extends React.Component {
     state={
-        createKey: 1024,
-        publishKey: 2048
     }
     /* eslint-disable */
     componentWillReceiveProps (nextProps) {
@@ -29,26 +27,12 @@ class PackageContainer extends React.Component {
         if (project.id != old_project.id) {
             if (project.projectType != PROJECT_TYPE.TEST) {
                 hashHistory.push('/operation');
-            } else {
-                this.setState({
-                    createKey: ~~(Math.random() * 100000),
-                    publishKey: ~~(Math.random() * 100000)
-                })
             }
         }
     }
     /* eslint-enable */
     onChange (key) {
         const { location } = this.props;
-        if (key == 'create') {
-            this.setState({
-                createKey: ~~(Math.random() * 100000)
-            })
-        } else {
-            this.setState({
-                publishKey: ~~(Math.random() * 100000)
-            })
-        }
         hashHistory.push({ pathname: `/package/${key}`, query: location.query })
     }
     render () {
@@ -72,13 +56,11 @@ class PackageContainer extends React.Component {
                     <TabPane className="m-panel2" tab="创建发布包" key="create">
                         <PackageCreate
                             changeTab={this.onChange.bind(this)}
-                            // key={createKey}
                             mode={mode} />
                     </TabPane>
                     <TabPane className="m-panel2" tab="发布包" key="publish">
                         <PackagePublish
-                        // key={publishKey}
-                            activeKey={params.type}
+                            isShow={params.type == 'publish'}
                             mode={mode} />
                     </TabPane>
                 </Tabs>
