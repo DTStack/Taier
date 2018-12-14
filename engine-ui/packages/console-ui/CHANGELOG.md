@@ -46,12 +46,10 @@ All notable changes to this project will be documented in this file. See [standa
 * **sytem management:** disable console app ([12dbce6](http://git.dtstack.cn/ziv/data-stack-web/commits/12dbce6)), closes [#12640](http://redmine.prod.dtstack.cn/issues/12640)
 * **TaskLocation:** fix task can't auto locate problem ([581f5e8](http://git.dtstack.cn/ziv/data-stack-web/commits/581f5e8)), closes [#12317](http://redmine.prod.dtstack.cn/issues/12317)
 * **user management:** add trim for search by userName ([8303f6e](http://git.dtstack.cn/ziv/data-stack-web/commits/8303f6e)), closes [#10803](http://redmine.prod.dtstack.cn/issues/10803)
-* replace restart down stream task with restart task ([fc3e5dd](http://git.dtstack.cn/ziv/data-stack-web/commits/fc3e5dd)), closes [#12131](http://redmine.prod.dtstack.cn/issues/12131)
 * replace restart down stream task with restart task ([7e76a8f](http://git.dtstack.cn/ziv/data-stack-web/commits/7e76a8f)), closes [#12131](http://redmine.prod.dtstack.cn/issues/12131)
 * update catalogue file status ([a83e895](http://git.dtstack.cn/ziv/data-stack-web/commits/a83e895)), closes [#12287](http://redmine.prod.dtstack.cn/issues/12287)
 * **workflow:** add media query for widgets height ([78a8077](http://git.dtstack.cn/ziv/data-stack-web/commits/78a8077)), closes [#12009](http://redmine.prod.dtstack.cn/issues/12009)
 * **workflow:** fix task type text display error ([d4bffbe](http://git.dtstack.cn/ziv/data-stack-web/commits/d4bffbe)), closes [#12636](http://redmine.prod.dtstack.cn/issues/12636)
-* **workflow:** fix task type text display error ([027c812](http://git.dtstack.cn/ziv/data-stack-web/commits/027c812)), closes [#12636](http://redmine.prod.dtstack.cn/issues/12636)
 * **创建告警:** 修复超时未完成uncompleteTime参数传入有误的问题 ([8c4e025](http://git.dtstack.cn/ziv/data-stack-web/commits/8c4e025)), closes [#12282](http://redmine.prod.dtstack.cn/issues/12282)
 * **数据同步:** 完善批量添加字段的描述文案 ([efd347f](http://git.dtstack.cn/ziv/data-stack-web/commits/efd347f)), closes [#11559](http://redmine.prod.dtstack.cn/issues/11559)
 * **数据同步-字段映射:** 修复修改字段后映射关系被重置的问题 ([41d83b2](http://git.dtstack.cn/ziv/data-stack-web/commits/41d83b2)), closes [#12148](http://redmine.prod.dtstack.cn/issues/12148)
@@ -64,19 +62,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ### Features
-
-* **carbondata:** add hdfsConfig when add data source ([77a0ef2](http://git.dtstack.cn/ziv/data-stack-web/commits/77a0ef2)), closes [#12590](http://redmine.prod.dtstack.cn/issues/12590) [#12591](http://redmine.prod.dtstack.cn/issues/12591)
-* **carbondata:** add hdfsConfig when add data source ([1bbd29d](http://git.dtstack.cn/ziv/data-stack-web/commits/1bbd29d))
 * **carbondata:** add hdfsConfig when add data source ([9a5f3c0](http://git.dtstack.cn/ziv/data-stack-web/commits/9a5f3c0)), closes [#12590](http://redmine.prod.dtstack.cn/issues/12590) [#12591](http://redmine.prod.dtstack.cn/issues/12591)
-* **carbondata:** add hdfsConfig when add data source ([c54f7ed](http://git.dtstack.cn/ziv/data-stack-web/commits/c54f7ed)), closes [#12554](http://redmine.prod.dtstack.cn/issues/12554)
 * **datamanage:** detailpermission ([cae5b21](http://git.dtstack.cn/ziv/data-stack-web/commits/cae5b21)), closes [#12147](http://redmine.prod.dtstack.cn/issues/12147)
-* **python spark:** support 'reference' resource for pySpark task ([a544c87](http://git.dtstack.cn/ziv/data-stack-web/commits/a544c87))
-* **python spark:** support reference resource for pySpark task ([ed5b165](http://git.dtstack.cn/ziv/data-stack-web/commits/ed5b165))
-* **python task:** support 'reference' resource for pySpark task ([df58848](http://git.dtstack.cn/ziv/data-stack-web/commits/df58848))
-* **python task:** support 'reference' resource for pySpark task ([2016f13](http://git.dtstack.cn/ziv/data-stack-web/commits/2016f13))
-* **python task:** support 'reference' resource for pySpark task ([5309a73](http://git.dtstack.cn/ziv/data-stack-web/commits/5309a73))
-* **python task:** support 'reference' resource for pySpark task ([1c83b68](http://git.dtstack.cn/ziv/data-stack-web/commits/1c83b68))
-* **python task:** support 'reference' resource for pySpark task ([19cbfca](http://git.dtstack.cn/ziv/data-stack-web/commits/19cbfca))
 * **python task:** support 'reference' resource for pySpark task ([23d1074](http://git.dtstack.cn/ziv/data-stack-web/commits/23d1074))
 * **TaskModal:** Add task clone ([76a5067](http://git.dtstack.cn/ziv/data-stack-web/commits/76a5067))
 * field search ([a36d60e](http://git.dtstack.cn/ziv/data-stack-web/commits/a36d60e))
