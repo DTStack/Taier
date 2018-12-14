@@ -380,17 +380,20 @@ class DirtyData extends Component {
                     const arr =
                         (record.tasks &&
                             record.tasks.map(
-                                task =>
+                                (task, index) =>
                                     task.isDeleted === 1 ? (
                                         `${task.name} (已删除)`
                                     ) : (
-                                        <a
-                                            onClick={() => {
-                                                ctx.props.goToTaskDev(task.id);
-                                            }}
-                                        >
-                                            {task.name}
-                                        </a>
+                                        <span>
+                                            <a
+                                                onClick={() => {
+                                                    ctx.props.goToTaskDev(task.id);
+                                                }}
+                                            >
+                                                {task.name}
+                                            </a>
+                                            {index < record.tasks.length - 1 ? '，' : ''}
+                                        </span>
                                     )
                             )) ||
                         [];
