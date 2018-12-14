@@ -83,6 +83,7 @@ module.exports = [
         target: '_self',
         enable: true,
         apiBase: '/console',
+        disableSetting: true, // 禁用设置菜单的内容
         icon: '/public/main/img/icon_6.png',
         description: '计算资源分配、多集群管理',
         needRoot: true,
