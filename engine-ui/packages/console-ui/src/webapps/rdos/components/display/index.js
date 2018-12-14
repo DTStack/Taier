@@ -12,8 +12,9 @@ export function taskTypeText (type) {
         case TASK_TYPE.VIRTUAL_NODE:
             return '虚节点';
         case TASK_TYPE.PYTHON_23:
-        case TASK_TYPE.PYTHON:
             return 'Python';
+        case TASK_TYPE.PYTHON:
+            return 'PySpark';
         case TASK_TYPE.R:
             return 'R';
         case TASK_TYPE.SQL:
