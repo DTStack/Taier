@@ -17,7 +17,8 @@ import { taskTypeText } from '../../../../components/display';
 import LockPanel from '../../../../components/lockPanel';
 
 import {
-    workbenchActions
+    workbenchActions,
+    getDataSyncReqParams
 } from '../../../../store/modules/offlineTask/offlineAction';
 import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../comm';
@@ -92,7 +93,7 @@ const getTaskBaseData = (task) => {
 /* eslint-disable */
 @connect(state => {
     const { offlineTask, project, user, editor } = state;
-    const { workbench, workflow } = offlineTask;
+    const { workbench, workflow, dataSync } = offlineTask;
     const { currentTab, tabs } = workbench;
 
     return {
@@ -101,6 +102,7 @@ const getTaskBaseData = (task) => {
         workflow,
         currentTab,
         editor,
+        dataSync,
         taskTypes: offlineTask.comm.taskTypes,
         project: project
     }
@@ -287,7 +289,7 @@ class WorkflowEditor extends Component {
     initEditTaskCell = (cell, task) => {
         const ctx = this;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
-        const { saveTask, loadTreeNode } = this.props;
+        const { loadTreeNode } = this.props;
 
         const checkNodeName = function (name) {
             const reg = /^[A-Za-z0-9_]+$/;
@@ -441,13 +443,75 @@ class WorkflowEditor extends Component {
         });
     }
 
+    getDataSyncData(data) {
+        const { keymap, sourceMap, targetMap } = data;
+        let { source = [], target = [] } = keymap;
+        let serverSource = []; let serverTarget = [];
+
+        /**
+         * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
+         */
+        function getKey (item) {
+            if (typeof item == 'string') {
+                return item
+            } else {
+                return item.key;
+            }
+        }
+        /**
+         * 获取targetMap的顺序
+         */
+        const { column: targetColumn = [] } = targetMap;
+        let indexMap = {};// 顺序记录表
+        let tmpTarget = [];// 含有映射关系的target数组
+        for (let i = 0; i < target.length; i++) {
+            const targetItem = target[i];
+            const sourceItem = source[i];
+            tmpTarget[i] = {
+                target: targetItem,
+                source: sourceItem
+            }
+        }
+        targetColumn.map((item, index) => {
+            indexMap[getKey(item)] = index;
+        })
+
+        tmpTarget.sort(
+            (a, b) => {
+                const indexA = indexMap[getKey(a.target)];
+                const indexB = indexMap[getKey(b.target)];
+                return indexA - indexB;
+            }
+        )
+        serverSource = tmpTarget.map(
+            (item) => {
+                return item.source;
+            }
+        )
+        serverTarget = tmpTarget.map(
+            (item) => {
+                return item.target
+            }
+        )
+
+        clone.sourceMap.column = serverSource;
+        clone.targetMap.column = serverTarget;
+        clone.settingMap = clone.setting;
+    }
+
     saveTask = (cell) => {
         const targetTask = cell.data || {};
-        const { saveTask, tabs } = this.props;
+        const { saveTask, tabs, dataSync } = this.props;
 
-        const task = tabs.find(item => {
+        let task = tabs.find(item => {
             return item.id === targetTask.id;
         })
+
+        // 如果保存的节点为数据同步
+        if (targetTask.id === dataSync.tabId) {
+            const dataSyncReqParams = getDataSyncReqParams(dataSync);
+            task = Object.assign(task, dataSyncReqParams);
+        }
 
         if (task) {
             task.notSynced = false;

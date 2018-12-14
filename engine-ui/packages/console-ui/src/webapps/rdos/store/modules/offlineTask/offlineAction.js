@@ -1,7 +1,7 @@
 import React from 'react';
 import { message, Modal, Tag } from 'antd'
 import { hashHistory } from 'react-router'
-import { uniqBy } from 'lodash'
+import { uniqBy, cloneDeep } from 'lodash'
 
 import utils from 'utils';
 import ajax from '../../../api'
@@ -1006,4 +1006,92 @@ export const workbenchActions = (dispatch) => {
             }
         }
     }
+}
+
+/**
+ * 获取 数据同步请求对象
+ * @param {*} dataSyncStore redux tore 对象
+ */
+export const getDataSyncReqParams = (dataSyncStore) => {
+    // deepClone避免直接mutate store
+    let clone = cloneDeep(dataSyncStore);
+
+    const { keymap, sourceMap, targetMap } = clone;
+    let { source = [], target = [] } = keymap;
+    let serverSource = []; let serverTarget = [];
+
+    /**
+     * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
+     */
+    function getKey (item) {
+        if (typeof item == 'string') {
+            return item
+        } else {
+            return item.key;
+        }
+    }
+    /**
+     * 获取targetMap的顺序
+     */
+    const { column: targetColumn = [] } = targetMap;
+    let indexMap = {};// 顺序记录表
+    let tmpTarget = [];// 含有映射关系的target数组
+    for (let i = 0; i < target.length; i++) {
+        const targetItem = target[i];
+        const sourceItem = source[i];
+        tmpTarget[i] = {
+            target: targetItem,
+            source: sourceItem
+        }
+    }
+    targetColumn.map((item, index) => {
+        indexMap[getKey(item)] = index;
+    })
+
+    tmpTarget.sort(
+        (a, b) => {
+            const indexA = indexMap[getKey(a.target)];
+            const indexB = indexMap[getKey(b.target)];
+            return indexA - indexB;
+        }
+    )
+    serverSource = tmpTarget.map(
+        (item) => {
+            return item.source;
+        }
+    )
+    serverTarget = tmpTarget.map(
+        (item) => {
+            return item.target
+        }
+    )
+
+    // 转换字段
+    // 接口要求keymap中的连线映射数组放到sourceMap中
+    clone.sourceMap.column = serverSource;
+    clone.targetMap.column = serverTarget;
+    clone.settingMap = clone.setting;
+
+    // type中的特定配置项也放到sourceMap中
+    const targetTypeObj = targetMap.type;
+    const sourceTypeObj = sourceMap.type;
+
+    for (let key in sourceTypeObj) {
+        if (sourceTypeObj.hasOwnProperty(key)) {
+            sourceMap[key] = sourceTypeObj[key]
+        }
+    }
+    for (let k2 in targetTypeObj) {
+        if (targetTypeObj.hasOwnProperty(k2)) {
+            targetMap[k2] = targetTypeObj[k2]
+        }
+    }
+
+    // 删除接口不必要的字段
+    delete clone.keymap;
+    delete clone.setting;
+    delete clone.dataSourceList;
+
+    // 数据拼装结果
+    return clone;
 }
