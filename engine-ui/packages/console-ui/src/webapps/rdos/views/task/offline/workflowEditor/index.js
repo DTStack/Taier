@@ -321,7 +321,6 @@ class WorkflowEditor extends Component {
                             ctx.updateGraphData();
                         }
                     })
-                    console.log('editTarget:', taskData);
                 }
                 editTarget.removeEventListener('blur', editSucc, false);
                 editTarget.removeEventListener('keypress', editSucc, false);
@@ -519,21 +518,21 @@ class WorkflowEditor extends Component {
 
     initGraphLayout = () => {
         const graph = this.graph;
-        const edgeStyle = this.getDefaultEdgeStyle();
+        // const edgeStyle = this.getDefaultEdgeStyle();
         const model = graph.getModel();
-        const layout2 = new mxHierarchicalLayout(graph, 'north');
-        layout2.disableEdgeStyle = false;
-        layout2.interRankCellSpacing = 40;
-        layout2.intraCellSpacing = 20;
-        layout2.edgeStyle = edgeStyle;
+        const layout = new mxHierarchicalLayout(graph, 'north');
+        layout.disableEdgeStyle = false;
+        layout.interRankCellSpacing = 40;
+        layout.intraCellSpacing = 20;
+        layout.edgeStyle = 'default'; //mxEdgeStyle.TopToBottom;
 
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
             model.beginUpdate();
             try {
-                console.log('layout:', layout2);
+                console.log('layout:', layout);
                 if (change != null) { change(); }
-                layout2.execute(parent);
+                layout.execute(parent);
             } catch (e) {
                 throw e;
             } finally {
@@ -917,7 +916,6 @@ class WorkflowEditor extends Component {
         )
     }
 
-    /* eslint-enable */
     render () {
         const { searchResult, showGuidePic } = this.state;
         const options = searchResult && searchResult.map(d => {
