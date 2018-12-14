@@ -313,7 +313,6 @@ class ResForm extends React.Component {
         return name;
     }
 
-    /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
      * @param {any} rule
@@ -321,7 +320,6 @@ class ResForm extends React.Component {
      * @param {any} cb
      */
     checkNotDir (rule, value, callback) {
-
         const { treeData } = this.props;
         let nodeType;
 
@@ -338,11 +336,11 @@ class ResForm extends React.Component {
         loop([treeData]);
 
         if (nodeType === 'folder') {
+            /* eslint-disable-next-line */
             callback('请选择具体文件, 而非文件夹');
         }
         callback();
     }
-    /* eslint-disable */
 }
 
 const ResFormWrapper = Form.create()(ResForm);
@@ -360,10 +358,6 @@ class ResModal extends React.Component {
         this.dtcount = 0;
     }
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     return this.props !== nextProps;
-    // }
-
     handleSubmit () {
         const form = this.form;
         form.validateFields((err, values) => {
@@ -372,6 +366,7 @@ class ResModal extends React.Component {
                 this.setState({
                     loading: true
                 })
+                values.isCoverUpload = this.props.isCoverUpload;
                 this.props.addResource(values)
                     .then(success => {
                         this.setState({
@@ -403,8 +398,8 @@ class ResModal extends React.Component {
 
     render () {
         const {
-            isModalShow, toggleUploadModal,
-            resourceTreeData, defaultData, isCoverUpload
+            isModalShow, resourceTreeData,
+            defaultData, isCoverUpload
         } = this.props;
         const { loading } = this.state;
         const isCreateNormal = typeof defaultData === 'undefined';
@@ -463,12 +458,12 @@ dispatch => {
 
                     if (res.code === 1) {
                         message.success('资源上传成功！');
-
-                        dispatch({
-                            type: resTreeAction.ADD_FOLDER_CHILD,
-                            payload: data
-                        });
-
+                        if (!params.isCoverUpload) {
+                            dispatch({
+                                type: resTreeAction.ADD_FOLDER_CHILD,
+                                payload: data
+                            });
+                        }
                         return true;
                     }
                 })

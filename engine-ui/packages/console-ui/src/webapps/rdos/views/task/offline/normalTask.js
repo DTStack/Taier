@@ -2,7 +2,7 @@ import React from 'react';
 import { Form, Input, Radio, message } from 'antd';
 import { connect } from 'react-redux';
 
-import { matchTaskParams, isProjectCouldEdit } from '../../../comm'
+import { matchTaskParams, isProjectCouldEdit, checkNotDir } from '../../../comm'
 import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 
@@ -11,52 +11,42 @@ import FolderPicker from './folderTree';
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 
+/**
+ * TODO 当前的表单逻辑需要重构，目前代码的维护性比较差
+ */
 class NormalTaskForm extends React.Component {
-    /**
-     * @description 检查所选是否为文件夹
-     * @param {any} rule
-     * @param {any} value
-     * @param {any} cb
-     * @memberof TaskForm
-     */
-    checkNotDir (rule, value, callback) {
-        const { resTreeData } = this.props;
-        let nodeType;
-
-        const loop = (arr) => {
-            arr.forEach((node, i) => {
-                if (node.id === value) {
-                    nodeType = node.type;
-                } else {
-                    loop(node.children || []);
-                }
-            });
-        };
-
-        loop([resTreeData]);
-
-        if (nodeType === 'folder') {
-            // eslint-disable-next-line
-            callback('请选择具体文件, 而非文件夹');
+    checkReource () {
+        const { resTreeData, form } = this.props;
+        const formData = form.getFieldsValue();
+        let invalid = false;
+        if (!formData.resourceIdList || formData.resourceIdList.length === 0) {
+            invalid = true;
+            message.error('资源不可为空！')
+        } else if (formData.resourceIdList && formData.resourceIdList.length > 0 && checkNotDir(formData.resourceIdList[0], resTreeData)) {
+            if (formData.refResourceIdList && formData.refResourceIdList.length > 0 && !checkNotDir(formData.refResourceIdList[0], resTreeData)) {
+                invalid = true;
+            }
+        } else {
+            invalid = true;
         }
-        callback();
+        this.props.setFieldsValue({
+            invalid
+        })
     }
 
     handleResChange (value) {
         this.props.form.validateFields(['resourceIdList']);
-        if (!value) {
-            message.error('资源不可为空！')
-        } else {
-            this.props.form.setFieldsValue({
-                resourceIdList: value ? [value] : []
-            });
-        }
+        this.props.form.setFieldsValue({
+            resourceIdList: value ? [value] : []
+        });
+        this.checkReource();
     }
 
     handleRefResChange = (value) => {
         this.props.form.setFieldsValue({
             refResourceIdList: value ? [value] : []
         });
+        this.checkReource();
     }
 
     handlePathChange (value) {
@@ -127,11 +117,9 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('resourceIdList', {
                         rules: [{
                             required: true, message: '请选择关联资源'
-                        }, {
-                            validator: this.checkNotDir.bind(this)
                         }],
                         initialValue: taskData.resourceList.length
-                            ? taskData.resourceList[0].id : ''
+                            ? taskData.resourceList[0].id : undefined
                     })(
                         <Input disabled={!couldEdit} type="hidden" />
                     )}
@@ -153,9 +141,7 @@ class NormalTaskForm extends React.Component {
                     label="引用资源"
                 >
                     {getFieldDecorator('refResourceIdList', {
-                        rules: [{
-                            validator: this.checkNotDir.bind(this)
-                        }],
+                        rules: [],
                         initialValue: taskData.refResourceList && taskData.refResourceList.length > 0
                             ? taskData.refResourceList.map(res => res.resourceName) : []
                     })(
@@ -288,23 +274,30 @@ class NormalTaskForm extends React.Component {
     }
 }
 
+function validValus (values, props) {
+    // invalid为一个验证标记，
+    // 次标记为上方任务保存按钮是否有效提供依据
+    if (values.mainClass === '') { // mainClass不可为空
+        return true;
+    }
+
+    // 资源列表不可为空
+    if (!values.resourceIdList || values.resourceIdList.length === 0) {
+        return true;
+    }
+
+    return false;
+}
+
 const NormalTaskFormWrapper = Form.create({
     onValuesChange (props, values) {
         const { setFieldsValue, taskCustomParams } = props;
-
-        // invalid为一个验证标记，
-        // 次标记为上方任务保存按钮是否有效提供依据
-        let invalid = false
-        if (values.mainClass === '') { // mainClass不可为空
-            invalid = true
-        }
-        values.invalid = invalid
 
         // 获取任务自定义参数
         if (values.exeArgs !== '') {
             values.taskVariables = matchTaskParams(taskCustomParams, values.exeArgs)
         }
-
+        values.invalid = validValus(values, props);
         setFieldsValue(values);
     }
 })(NormalTaskForm);

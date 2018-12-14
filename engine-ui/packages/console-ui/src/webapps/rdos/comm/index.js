@@ -1,3 +1,4 @@
+import { message } from 'antd';
 import { debounce } from 'lodash';
 
 import {
@@ -308,4 +309,33 @@ export function isProjectCouldEdit (project, user) {
         }
     }
     return false;
+}
+
+/**
+ * @description 检查所选是否为文件夹
+ * @param {any} rule
+ * @param {any} value
+ * @param {any} cb
+ * @memberof TaskForm
+ */
+export function checkNotDir (value, folderTree) {
+    let nodeType;
+
+    const loop = (arr) => {
+        arr.forEach((node, i) => {
+            if (node.id === value) {
+                nodeType = node.type;
+            } else {
+                loop(node.children || []);
+            }
+        });
+    };
+
+    loop([folderTree]);
+
+    if (nodeType === 'folder') {
+        message.error('请选择具体文件, 而非文件夹');
+        return false;
+    }
+    return true;
 }
