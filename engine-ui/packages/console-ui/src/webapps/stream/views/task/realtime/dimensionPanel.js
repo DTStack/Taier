@@ -354,10 +354,7 @@ class OutputOrigin extends Component {
                                 }}
                                 key="params-editor"
                                 sync={sync}
-                                placeholder={
-                                    DATA_SOURCE.REDIS == panelColumn[index].type
-                                        ? '一行一个字段，无需字段类型，比如：\nid\nname'
-                                        : '字段 类型, 比如 id int 一行一个字段'}
+                                placeholder={'字段 类型, 比如 id int 一行一个字段'}
                                 // options={jsonEditorOptions}
                                 value={panelColumn[index].columnsText}
                                 onChange={this.debounceEditorChange.bind(this)}
