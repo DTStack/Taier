@@ -211,7 +211,7 @@ export default class TableRelation extends React.Component {
 
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
-        graph.setTooltips(true)
+        graph.setTooltips(false);
         graph.view.setScale(1)
         // Enables HTML labels
         graph.setHtmlLabels(true)
@@ -242,7 +242,7 @@ export default class TableRelation extends React.Component {
 
         // enables rubberband
         new mxRubberband(graph);// eslint-disable-line
-
+        // 重置tooltip
         // 定义lable渲染
         graph.getLabel = function (cell) {
             if (this.getModel().isVertex(cell)) {
