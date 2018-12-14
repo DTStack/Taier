@@ -483,6 +483,8 @@ class Workbench extends React.Component {
     }
 
     /**
+     * TODO offlineAction 封装 getDataSyncReqParams 方法
+     * TODO 后面使用独立方法重构下面的代码
      * @description 拼装接口所需数据格式
      * @param {any} data 数据同步job配置对象
      * @returns {any} result 接口所需数据结构
