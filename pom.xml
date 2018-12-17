@@ -4,11 +4,12 @@
 
 	<groupId>com.dtstack.rdos</groupId>
 	<artifactId>engine</artifactId>
-	<version>1.0.0</version>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
 	<name>engine</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<revision>3.2.0</revision>
 	</properties>
 
 	<modules>

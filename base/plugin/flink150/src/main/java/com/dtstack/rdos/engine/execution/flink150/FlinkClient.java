@@ -80,7 +80,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.dtstack.rdos.commom.exception.ErrorCode.HTTP_CALL_ERROR;
 import static java.security.AccessController.doPrivileged;
 
 /**

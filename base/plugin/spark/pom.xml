@@ -3,10 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.dtstack.rdos</groupId>
-    <artifactId>engine</artifactId>
-    <version>1.0.0</version>
-    <relativePath>../../../pom.xml</relativePath>
+      <groupId>com.dtstack.rdos</groupId>
+      <artifactId>engine</artifactId>
+	  <version>${revision}</version>
+      <relativePath>../../../pom.xml</relativePath>
   </parent>
   <artifactId>base.spark</artifactId>
   <name>base.spark</name>
@@ -16,7 +16,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spark.version>2.1.0</spark.version>
 	    <spark.hadoop.version>2.7.3</spark.hadoop.version>
- </properties>
+  </properties>
 
 	<modules>
 		<module>sql-proxy</module>
@@ -27,7 +27,7 @@
         <dependency>
 		   <groupId>com.dtstack.rdos</groupId>
 		   <artifactId>base.common</artifactId>
-		   <version>1.0.0</version>
+		   <version>${revision}</version>
 		   <scope>provided</scope>
 		</dependency>
   

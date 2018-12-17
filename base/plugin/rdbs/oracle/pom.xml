@@ -5,7 +5,7 @@
     <parent>
         <artifactId>base.rdbs</artifactId>
         <groupId>com.dtstack.rdos</groupId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>com.dtstack.rdos</groupId>
             <artifactId>base.rdbs.common</artifactId>
-            <version>1.0.0</version>
+            <version>${revision}</version>
         </dependency>
         <dependency>
             <groupId>com.dtstack.rdos</groupId>

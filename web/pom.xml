@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.dtstack.rdos</groupId>
-    <artifactId>engine</artifactId>
-    <version>1.0.0</version>
+	  <groupId>com.dtstack.rdos</groupId>
+	  <artifactId>engine</artifactId>
+	  <version>${revision}</version>
   </parent>
   <artifactId>web</artifactId>
   <name>web</name>
