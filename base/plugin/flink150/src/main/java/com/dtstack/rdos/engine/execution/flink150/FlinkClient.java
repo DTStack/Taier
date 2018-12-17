@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink150;
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -23,6 +24,7 @@ import com.dtstack.rdos.engine.execution.flink150.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.flink150.util.FLinkConfUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.HadoopConf;
+import com.dtstack.rdos.engine.execution.flink150.util.KerberosUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -186,11 +188,41 @@ public class FlinkClient extends AbsClient {
     }
 
     private void initYarnClient() {
+        if (ConfigParse.getSecurity()){
+            initSecurity();
+        }
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
 
         flinkClientBuilder.setYarnClient(yarnClient);
+    }
+
+    private void initSecurity() {
+        String userPrincipal = ConfigParse.userPrincipal();
+        String userKeytabPath = ConfigParse.userKeytabPath();
+        String krb5ConfPath = ConfigParse.krb5ConfPath();
+        try {
+            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String PRNCIPAL_NAME = ConfigParse.userPrincipal();
+        String LOGIN_CONTEXT_NAME = "Client";
+        String PATH_TO_KEYTAB = ConfigParse.userKeytabPath();
+        String PATH_TO_KRB5_CONF = ConfigParse.krb5ConfPath();
+
+        hadoopConf.set("username.client.keytab.file", PATH_TO_KEYTAB);
+        hadoopConf.set("username.client.kerberos.principal", PRNCIPAL_NAME);
+
+        try {
+            KerberosUtils.setJaasConf(LOGIN_CONTEXT_NAME, PRNCIPAL_NAME, PATH_TO_KEYTAB);
+            KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
+            KerberosUtils.login(PRNCIPAL_NAME, PATH_TO_KEYTAB, PATH_TO_KRB5_CONF, hadoopConf);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initClient(){

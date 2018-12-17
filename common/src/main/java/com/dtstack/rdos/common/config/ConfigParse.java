@@ -57,6 +57,36 @@ public class ConfigParse {
         return workerPoolSize == null?1000:Integer.parseInt(workerPoolSize.toString());
     }
 
+    public static boolean getSecurity(){
+        Object isSecurity = configs.get("isSecurity");
+        return isSecurity == null ? false : Boolean.parseBoolean(isSecurity.toString());
+    }
+
+    public static String userPrincipal(){
+        Object userPrincipal = configs.get("userPrincipal");
+        return userPrincipal.toString();
+    }
+
+    public static String zkPrincipal(){
+        Object zkPrincipal = configs.get("zkPrincipal");
+        return zkPrincipal == null ? "zookeeper/hadoop" : zkPrincipal.toString();
+    }
+
+    public static String userKeytabPath(){
+        Object userKeytabPath = configs.get("userKeytabPath");
+        return userKeytabPath.toString();
+    }
+
+    public static String krb5ConfPath(){
+        Object krb5ConfPath = configs.get("krb5ConfPath");
+        return krb5ConfPath.toString();
+    }
+
+    public static String hadoopConfPath(){
+        Object krb5ConfPath = configs.get("hadoopConfPath");
+        return krb5ConfPath.toString();
+    }
+
     public static List<Map<String,Object>> getEngineTypeList(){
 
         List<Map<String, Object>> engineList =  (List<Map<String, Object>>) configs.get("engineTypes");
