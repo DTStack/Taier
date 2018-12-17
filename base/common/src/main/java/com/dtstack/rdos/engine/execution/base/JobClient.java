@@ -83,6 +83,11 @@ public class JobClient extends OrderObject{
 
     private long generateTime;
 
+    /**
+     * 任务失败是否重试
+     */
+    private boolean isFailRetry;
+
     /***
      * 获取engine上job执行的状态
      * @param jobIdentifier
@@ -123,6 +128,7 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
+        this.isFailRetry = paramAction.getIsFailRetry();
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
@@ -163,6 +169,7 @@ public class JobClient extends OrderObject{
         action.setGenerateTime(generateTime);
         action.setPriority(priority);
         action.setApplicationId(applicationId);
+        action.setIsFailRetry(isFailRetry);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
                 action.setPluginInfo(PublicUtil.jsonStrToObject(pluginInfo, Map.class));
@@ -362,6 +369,14 @@ public class JobClient extends OrderObject{
         this.applicationId = applicationId;
     }
 
+    public boolean getIsFailRetry() {
+        return isFailRetry;
+    }
+
+    public void setIsFailRetry(boolean failRetry) {
+        isFailRetry = failRetry;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +
@@ -385,6 +400,7 @@ public class JobClient extends OrderObject{
                 ", restartTime=" + restartTime +
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
+                ", isFailRetry=" + isFailRetry +
                 '}';
     }
 }

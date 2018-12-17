@@ -281,11 +281,18 @@ public class WorkNode {
             if(HttpSendClient.actionSubmit(address, paramAction)){
                 return result;
             }else{
+                // 任务失败不重试
+                if(!jobClient.getIsFailRetry()){
+                    result.put("errorInfo",String.format("任务 taskId:%s 因网络原因提交失败",paramAction.getTaskId()));
+                    return result;
+                }
+
                 //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
                 if(retryNum >= DISPATCH_RETRY_LIMIT){
-                    LOG.error("任务 taskId:{} 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId());
+                    String errorInfo = String.format("任务 taskId:%s 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ", paramAction.getTaskId());
+                    LOG.error(errorInfo);
                     result.put("result",false);
-                    result.put("errorInfo",String.format("任务 taskId:%s 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ",paramAction.getTaskId()));
+                    result.put("errorInfo",errorInfo);
                     return result;
                 }
                 retryNum++;
