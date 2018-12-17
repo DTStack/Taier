@@ -1,3 +1,4 @@
+import moment from 'moment';
 export function createLinkMark (attrs) {
     return `#link#${JSON.stringify(attrs)}#link#`
 }
@@ -24,4 +25,13 @@ export function getLinkMark (value) {
         indexObj = linkRegexp.exec(value);
     }
     return result;
+}
+/**
+ * dtlog日志构造器
+ * @param {string} log 日志内容
+ * @param {string} type 日志类型
+ */
+export function createLog (log, type = '') {
+    const now = moment().format('HH:mm:ss');
+    return `[${now}] <${type}> ${log}`
 }

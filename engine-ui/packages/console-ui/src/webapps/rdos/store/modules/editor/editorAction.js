@@ -4,7 +4,7 @@ import utils from 'utils'
 import API from '../../../api';
 import { taskStatus, offlineTaskStatusFilter } from '../../../comm/const'
 import { editorAction } from './actionTypes';
-import { createLinkMark } from 'widgets/code-editor/utils'
+import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 
 const INTERVALS = 1500;
 
@@ -19,8 +19,12 @@ function getUniqueKey (id) {
     return `${id}_${moment().valueOf()}`
 }
 
+function typeCreate (status) {
+    return status == taskStatus.FAILED ? 'error' : 'info';
+}
+
 function getDataOver (dispatch, currentTab, res, jobId) {
-    dispatch(output(currentTab, '执行完成!'))
+    dispatch(output(currentTab, createLog('执行完成!', 'info')))
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
@@ -33,7 +37,7 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
     function outputStatus (status, extText) {
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value == status) {
-                dispatch(output(currentTab, `${offlineTaskStatusFilter[i].text}${extText || ''}`))
+                dispatch(output(currentTab, createLog(`${offlineTaskStatusFilter[i].text}${extText || ''}`, 'info')))
                 continue;
             }
         }
@@ -45,14 +49,14 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
             (res) => {
                 if (res && res.code) {
                     // 获取到返回值
-                    if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
-                    if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+                    if (res && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+                    if (res && res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
                 }
                 // 状态正常
                 if (res && res.code === 1) {
                     switch (res.data.status) {
                         case taskStatus.FINISHED: {
-                        // 成功
+                            // 成功
                             getDataOver(dispatch, currentTab, res, jobId)
                             resolve(true);
                             return;
@@ -68,7 +72,7 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
                             return;
                         }
                         default: {
-                        // 正常运行，则再次请求,并记录定时器id
+                            // 正常运行，则再次请求,并记录定时器id
                             intervalsStore[currentTab] = setTimeout(
                                 () => {
                                     if (stopSign[currentTab]) {
@@ -83,7 +87,7 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
                         }
                     }
                 } else {
-                    dispatch(output(currentTab, `请求异常！`))
+                    dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
                     dispatch(removeLoadingTab(currentTab))
                     // 不正常，则直接终止执行
                     resolve(false)
@@ -105,7 +109,7 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
 
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
-    dispatch(output(currentTab, `第${index + 1}条任务开始执行`))
+    dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
     function execContinue () {
         if (stopSign[currentTab]) {
             console.log('find stop sign in exec')
@@ -121,14 +125,14 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
             stopSign[currentTab] = false;
             return;
         }
-        if (res && res.code && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+        if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
         // 执行结束
         if (!res || (res && res.code != 1)) {
-            dispatch(output(currentTab, `请求异常！`))
+            dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
             dispatch(removeLoadingTab(currentTab))
         }
         if (res && res.code === 1) {
-            if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+            if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
 
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
@@ -186,7 +190,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
             const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
                 stopSign[currentTab] = true;
-                dispatch(output(currentTab, '执行停止'))
+                dispatch(output(currentTab, createLog('执行停止', 'warning')))
                 dispatch(removeLoadingTab(currentTab))
                 if (intervalsStore[currentTab]) {
                     clearTimeout(intervalsStore[currentTab])
@@ -223,7 +227,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
 export function output (tab, log) {
     return {
         type: editorAction.APPEND_CONSOLE_LOG,
-        data: `【${moment().format('HH:mm:ss')}】 ${log}`,
+        data: log,
         key: tab
     }
 }
@@ -231,7 +235,7 @@ export function output (tab, log) {
 export function setOutput (tab, log) {
     return {
         type: editorAction.SET_CONSOLE_LOG,
-        data: `【${moment().format('HH:mm:ss')}】 ${log}`,
+        data: log,
         key: tab
     }
 }

@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { defaultEditorOptions } from './config'
 import pureRender from 'utils/pureRender'
 // Codemirror
+import './languages/log';
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/lint/lint.css'
 import 'codemirror/addon/scroll/simplescrollbars.css'
@@ -15,7 +16,6 @@ const codemirror = require('codemirror')
 // require('codemirror/addon/fold/foldgutter')
 // require('codemirror/addon/fold/brace-fold')
 
-require('codemirror/mode/textile/textile')
 require('codemirror/mode/sql/sql')
 require('codemirror/mode/python/python')
 require('codemirror/mode/javascript/javascript')
@@ -30,7 +30,6 @@ require('codemirror/addon/scroll/simplescrollbars')
 @pureRender
 class CodeEditor extends Component {
     componentDidMount () {
-        const ctx = this
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
         const instance = this.getCodeMirrorIns()
@@ -71,8 +70,8 @@ class CodeEditor extends Component {
             editorRef(this.self);
         }
     }
-
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options = {} } = nextProps
         if (options) {
             this.self.setOption('readOnly', options.readOnly)
@@ -96,7 +95,7 @@ class CodeEditor extends Component {
                     this.self.setValue(value);
                 }
                 if (cursorAlwaysInEnd) {
-                    this.self.doc.setCursor(line, null);
+                    this.self.doc.setCursor(this.self.doc.lineCount(), null);
                 } else if (!isInBottom) {
                     /**
                     * 不在底部并且不设置自动滚到底部，则滚到原来位置
