@@ -162,6 +162,22 @@
     <script type="text/javascript" src="/public/dataQuality/config/config.js"></script>
     <script type="text/javascript" src="/public/common/config.js"></script>
     <script type="text/javascript" src="/public/common/index.js"></script>
+    <script>
+        if (navigator.serviceWorker!=null) {
+                const version="sw_version_1";
+                navigator.serviceWorker.register("/sw.js")
+                .then(function(registration){
+                    if (localStorage.getItem('sw_version_1') !== version) {
+                        registration.update().then(function () {
+                            localStorage.setItem('sw_version_1', version)
+                        });
+                    }
+                    console.log('Registered events as scopet',registration.scope);
+                }).catch(e=>{
+                    console.log('catch',e);
+                })
+            };
+    </script>
 </body>
 
 </html>
