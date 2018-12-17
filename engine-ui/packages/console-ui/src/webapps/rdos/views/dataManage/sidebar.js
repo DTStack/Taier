@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Menu, Icon } from 'antd'
 import { Link } from 'react-router'
-
+const SubMenu = Menu.SubMenu;
 export default class Sidebar extends Component {
     constructor (props) {
         super(props)
@@ -73,6 +73,18 @@ export default class Sidebar extends Component {
                             <Icon type="book" />数据类目
                         </Link>
                     </Menu.Item>
+                    <SubMenu key="desensitization" title={<span><Icon type="exclamation-circle-o" /><span className="nav-text">数据脱敏</span></span>}>
+                        <Menu.Item key="desensitization-manage">
+                            <Link to={`${base}/desensitization-manage`}>
+                                脱敏管理
+                            </Link>
+                        </Menu.Item>
+                        <Menu.Item key="rule-manage">
+                            <Link to={`${base}/rule-manage`}>
+                                规则管理
+                            </Link>
+                        </Menu.Item>
+                    </SubMenu>
                 </Menu>
             </div>
         )

@@ -314,7 +314,6 @@ class OfflineConfig extends Component {
                             </FormItem>
                         </Form>
                     }
-
                     extra={
                         <Button
                             style={{ marginTop: '10px' }}

@@ -187,5 +187,12 @@ export default {
     },
     getProjectDataOverview (params) {
         return http.post(dataManageReq.PROJECT_DATA_OVERVIEW, params)
+    },
+    // =========== 数据脱敏 ==================//
+    searchDesensitization (params) {
+        return http.post(dataManageReq.GET_DESENSITIZATION_LIST, params)
+    },
+    addDesensitization (params) {
+        return http.post(dataManageReq.ADD_DESENSITIZATION, params)
     }
 }

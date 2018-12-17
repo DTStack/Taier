@@ -70,5 +70,9 @@ export default {
     PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/totalSize`, // 表总存储量
     PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/batchHiveTableCount/projectSizeTopOrder`, // 项目占用排行
     PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableSizeTopOrder`, // 表占用排行
-    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/batchHiveTableCount/dataHistory` // 数据趋势概览
+    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/batchHiveTableCount/dataHistory`, // 数据趋势概览
+
+    // ===== 数据脱敏 ===== //
+    GET_DESENSITIZATION_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableCount/desensitizationList`, // 获取数据脱敏列表  // 暂缺
+    ADD_DESENSITIZATION: `${RDOS_BASE_URL}/batch/batchHiveTableCount/addDesensitization` // 添加脱敏 // 暂缺
 };
