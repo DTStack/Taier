@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150.constrant;
 
+import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ public class ExceptionInfoConstrant {
     public final static String  IN_INITIALIZER_RESTART_EXCEPTION = "java.lang.ExceptionInInitializerError";
 
     public final static String  LEASE_EXPIRED_RESTART_EXCEPTION = "org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException)";
+
+    public final static String RESOURCE_OVER_LIMIT_RESTART_EXCEPTION = EngineResourceInfo.LIMIT_RESOURCE_ERROR;
 
 
     private static List<String> needRestartExceptions = Lists.newArrayList();
