@@ -2,7 +2,8 @@ import React from 'react'
 import { Row } from 'antd'
 
 import Editor from 'widgets/code-editor'
-import { createLinkMark } from 'widgets/code-editor/utils'
+import { TASK_STATUS } from '../../../comm/const'
+import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
 
 const editorOptions = {
     mode: 'text',
@@ -20,16 +21,30 @@ function wrappTitle (title) {
     return `====================${title}====================`
 }
 
-function getLogsInfo (title, data) {
+function getLogsInfo (title, data, type = 'info') {
     let res = '';
     if (data && data.length > 0) {
         for (let i = 0; i < data.length; ++i) {
             res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${data[i].value}`
         }
     }
-    return res
+    return createLogMark(res, type)
 }
-
+function getLogType (status) {
+    switch (status) {
+        case TASK_STATUS.RUN_FAILED:
+        case TASK_STATUS.SUBMIT_FAILED:
+        case TASK_STATUS.PARENT_FAILD: {
+            return 'error'
+        }
+        case TASK_STATUS.FINISHED: {
+            return 'success'
+        }
+        default: {
+            return 'info'
+        }
+    }
+}
 export function LogInfo (props) {
     window.loggg = props.log;
     /**
@@ -52,15 +67,15 @@ export function LogInfo (props) {
         logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
     }
     if (log.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${log.msg_info} ${safeSpace} \n`
+        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, getLogType(log.status))} ${safeSpace} \n`
     }
 
     if (log['perf']) {
-        logText = `${logText}\n${wrappTitle('性能指标')}\n${log['perf']}${safeSpace} \n`
+        logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(log['perf'], 'warning')}${safeSpace} \n`
     }
 
     if (flinkLog || log['root-exception']) {
-        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${log['root-exception'] || ''}`
+        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${createLogMark(log['root-exception'], 'error') || ''}`
     }
 
     if (appLogs || driverLog) {
@@ -73,7 +88,7 @@ export function LogInfo (props) {
             logSql = JSON.stringify(logSql, null, 2);
         }
         if (logSql) {
-            logText = `${logText}${wrappTitle('任务信息')}\n${logSql} \n`
+            logText = `${logText}${wrappTitle('任务信息')}\n${createLogMark(logSql, 'info')} \n`
         }
     }
     return (

@@ -10,3 +10,17 @@
 .editor_custom_link:hover{
     color:#04b4fa;
 }
+.c-editor--log__error{
+    color:#EF5350;
+    font-weight: bold;
+}
+.c-editor--log__info{
+    color:#333333;
+    font-weight: bold;
+}
+.c-editor--log__warning{
+    color:#F5A623;
+}
+.c-editor--log__success{
+    color:#00A755;
+}

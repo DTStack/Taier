@@ -8,7 +8,7 @@ import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/lint/lint.css'
 import 'codemirror/addon/scroll/simplescrollbars.css'
 import './style.css'
-import { getLinkMark } from './utils'
+import { getLinkMark, getLogMark } from './utils'
 
 const codemirror = require('codemirror')
 
@@ -121,7 +121,7 @@ class CodeEditor extends Component {
             mark.clear();
         }
         const value = this.self.getValue();
-        const linkMarks = getLinkMark(value);
+        const linkMarks = [].concat(getLinkMark(value)).concat(getLogMark(value));
         for (let _i = 0; _i < linkMarks.length; _i++) {
             let mark = linkMarks[_i];
             this.self.doc.markText(

@@ -27,6 +27,64 @@ export function getLinkMark (value) {
     return result;
 }
 /**
+ * 标记颜色
+ * @param {string} text 标记文本
+ * @param {string} type 标记类型
+ */
+export function createLogMark (text, type) {
+    return `#log<${type}>log#${text}#log<${type}>log#`
+}
+export function getLogMark (value) {
+    let result = [];
+    function match () {
+        const logRegexp = new RegExp(`#log<(\\w*)>log#((.|\r\n|\n)*?)#log<(\\w*)>log#`, 'g');
+        let indexObj;
+        indexObj = logRegexp.exec(value);
+        /**
+         * 循环正则来匹配相应格式字段
+         */
+        while (indexObj) {
+            let text = indexObj[0].replace(/\r\n/g, '\n');
+            /**
+             * 包含标记字段的数组
+             */
+            let textArr = text.split('\n');
+            let content = indexObj[2].replace(/\r\n/g, '\n');
+            /**
+             * 不包含标记字段的数组
+             */
+            let contentArr = content.split('\n');
+
+            /**
+             * 创建一个node，便于拷贝
+             */
+            const node = document.createElement('span');
+            let type = indexObj[1];
+            node.className = `c-editor--log__${type}`
+            /**
+             * 当前index偏移量
+             */
+            let offset = 0;
+
+            for (let i = 0; i < textArr.length; i++) {
+                let textItem = textArr[i];
+                let contentItem = contentArr[i];
+                let cloneNode = node.cloneNode(false);// 浅拷贝
+                cloneNode.innerHTML = contentItem;
+                result.push({
+                    start: indexObj.index + offset,
+                    end: indexObj.index + offset + textItem.length,
+                    node: cloneNode
+                })
+                offset = offset + textItem.length + 1;
+            }
+            indexObj = logRegexp.exec(value);
+        }
+    }
+    match();
+    return result;
+}
+/**
  * dtlog日志构造器
  * @param {string} log 日志内容
  * @param {string} type 日志类型
