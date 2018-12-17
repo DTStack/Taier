@@ -16,6 +16,7 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
 import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
@@ -76,6 +77,8 @@ public class SparkYarnClient extends AbsClient {
 
     private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
 
+    private static final String PYTHON_RUNNER_DEPENDENCY_RES_KEY = "extRefResource";
+
     private static final String CLUSTER_INFO_WS_FORMAT = "%s/ws/v1/cluster";
 
     /**如果请求 CLUSTER_INFO_WS_FORMAT 返回信息包含该特征则表示是alive*/
@@ -88,6 +91,10 @@ public class SparkYarnClient extends AbsClient {
     private Configuration yarnConf;
 
     private YarnClient yarnClient;
+
+    public SparkYarnClient(){
+        this.restartStrategy = new SparkRestartStrategy();
+    }
 
     @Override
     public void init(Properties prop) throws Exception {
@@ -223,15 +230,34 @@ public class SparkYarnClient extends AbsClient {
             appArgs = exeArgsStr.split("\\s+");
         }
 
+        String dependencyResource = "";
+        boolean nextIsDependencyVal = false;
         for(String appArg : appArgs) {
+
+            if(nextIsDependencyVal){
+                dependencyResource = appArg;
+                continue;
+            }
+
+            if(PYTHON_RUNNER_DEPENDENCY_RES_KEY.equals(appArg)){
+                nextIsDependencyVal = true;
+                continue;
+            }
+
             argList.add("--arg");
             argList.add(appArg);
+            nextIsDependencyVal = false;
         }
 
         String pythonExtPath = sparkYarnConfig.getSparkPythonExtLibPath();
         if(Strings.isNullOrEmpty(pythonExtPath)){
             return JobResult.createErrorResult("engine node.yml setting error, " +
                     "commit spark python job need to set param of sparkPythonExtLibPath.");
+        }
+
+        //添加自定义的依赖包
+        if(!Strings.isNullOrEmpty(dependencyResource)){
+            pythonExtPath = pythonExtPath + "," + dependencyResource;
         }
 
         SparkConf sparkConf = buildBasicSparkConf();

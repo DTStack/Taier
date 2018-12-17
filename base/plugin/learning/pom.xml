@@ -18,7 +18,6 @@
         <junit.version>4.11</junit.version>
         <learning.version>2.9.0-SNAPSHOT</learning.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <name>base.learning</name>

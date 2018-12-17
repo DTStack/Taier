@@ -6,9 +6,9 @@ import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
 import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
 import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
 import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
-import com.dtstack.rdos.engine.execution.base.restart.RestartStrategyUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +75,6 @@ public class JobSubmitExecutor {
     public void init(){
         try{
             clientCache.initLocalPlugin(ConfigParse.getEngineTypeList());
-            RestartStrategyUtil.getInstance();
             logger.warn("init JobSubmitExecutor success...");
         }catch(Exception e){
             throw new RuntimeException(e);

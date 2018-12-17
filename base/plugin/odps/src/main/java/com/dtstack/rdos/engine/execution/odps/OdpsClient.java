@@ -48,6 +48,7 @@ public class OdpsClient extends AbsClient {
         return odps;
     }
 
+
     @Override
     public void init(Properties prop) throws Exception {
         resourceInfo = new OdpsResourceInfo();

@@ -70,6 +70,10 @@ public class SparkYarnClient extends AbsClient {
 
     private YarnClient yarnClient;
 
+    public SparkYarnClient(){
+        this.restartStrategy = new SparkRestartStrategy();
+    }
+
 
     @Override
     public void init(Properties prop) throws Exception {
