@@ -184,7 +184,9 @@ public class FlinkClient extends AbsClient {
     }
 
     private void initYarnClient() {
-        initSecurity();
+        if (ConfigParse.getSecurity()){
+            initSecurity();
+        }
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();

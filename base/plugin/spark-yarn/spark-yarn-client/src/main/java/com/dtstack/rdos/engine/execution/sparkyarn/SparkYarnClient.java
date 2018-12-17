@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -97,15 +98,17 @@ public class SparkYarnClient extends AbsClient {
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
-        initSecurity();
+        if (ConfigParse.getSecurity()){
+            initSecurity();
+        }
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
     }
     private void initSecurity() {
-        String userPrincipal = "admin/kudu1";
-        String userKeytabPath = "/etc/hadoop/conf/admin.keytab";
-        String krb5ConfPath = "/etc/krb5.conf";
+        String userPrincipal = ConfigParse.userPrincipal();
+        String userKeytabPath = ConfigParse.userKeytabPath();
+        String krb5ConfPath = ConfigParse.krb5ConfPath();
         yarnConf.addResource(new Path("/etc/hadoop/conf/core-site.xml"));
         yarnConf.addResource(new Path("/etc/hadoop/conf/hdfs-site.xml"));
         try {
@@ -515,7 +518,9 @@ public class SparkYarnClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
-        initSecurity();
+        if (ConfigParse.getSecurity()){
+            initSecurity();
+        }
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);

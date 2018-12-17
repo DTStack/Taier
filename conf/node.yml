@@ -1,15 +1,16 @@
 #engine
 slots: 10
 localAddress: localhost:8080
-nodeZkAddress: node3:24002,node2:24002,node1:24002/flink154_yx
+nodeZkAddress: kudu1:2181,kudu2:2181,kudu3:2181/flink154_yx
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
 isSecurity: true
-userPrincipal: yanxi
+userPrincipal: admin/kudu1@DTSTACK.COM
 zkPrincipal: zookeeper/hadoop
-userKeytabPath: /etc/hadoop/conf/user.keytab
+userKeytabPath: /etc/hadoop/conf/admin.keytab
 krb5ConfPath: /etc/hadoop/conf/krb5.conf
+hadoopConfPath: /etc/hadoop/conf
 
 db:
    url: jdbc:mysql://172.16.8.104:3306/rdos_test_spark1x?charset=utf8&autoReconnect=true
@@ -20,7 +21,7 @@ engineTypes:
     -
         typeName: flink150
         clusterMode: yarn
-        flinkZkAddress: node3:24002,node2:24002,node1:24002
+        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
         #简化为只配置/flink150/ha
         flinkHighAvailabilityStorageDir: /flink154_yx/ha
         flinkZkNamespace: /flink154_yx
@@ -34,7 +35,7 @@ engineTypes:
         #perjob
         #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
         flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
-        flinkJobHistory: http://node1:8082
+        flinkJobHistory: http://kudu1:8082
 
 
     #-
@@ -45,12 +46,12 @@ engineTypes:
     #    flinkPluginRoot: E:\flinkplugin
     #    remotePluginRootDir: E:\flinkplugin
 
-    #-
-    #    typeName: spark_yarn
-    #    sparkYarnArchive: hdfs://ns1/sparkjars/jars
-    #    sparkSqlProxyPath: hdfs://ns1/user/spark/spark-0.0.1-SNAPSHOT.jar
-    #    sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
-    #    sparkPythonExtLibPath: hdfs://ns1/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip
+    -
+        typeName: spark_yarn
+        sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
+        sparkSqlProxyPath: hdfs://kudu1:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
+        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+        sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1:9000/pythons/py4j-0.10.4-src.zip
 
     #-
     #    typeName: datax

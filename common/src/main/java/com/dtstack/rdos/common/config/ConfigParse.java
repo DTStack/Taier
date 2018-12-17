@@ -82,6 +82,11 @@ public class ConfigParse {
         return krb5ConfPath.toString();
     }
 
+    public static String hadoopConfPath(){
+        Object krb5ConfPath = configs.get("hadoopConfPath");
+        return krb5ConfPath.toString();
+    }
+
     public static List<Map<String,Object>> getEngineTypeList(){
 
         List<Map<String, Object>> engineList =  (List<Map<String, Object>>) configs.get("engineTypes");

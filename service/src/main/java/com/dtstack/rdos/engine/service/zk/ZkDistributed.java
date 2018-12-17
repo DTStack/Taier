@@ -1,17 +1,20 @@
 package com.dtstack.rdos.engine.service.zk;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.dtstack.rdos.common.config.ConfigParse;
+import com.dtstack.rdos.common.util.KerberosUtils;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
-import com.dtstack.rdos.engine.service.util.KerberosUtils;
 import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.dtstack.rdos.engine.service.zk.cache.ZkSyncLocalCacheListener;
@@ -26,6 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +127,9 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initZk() throws IOException {
-		initSecurity();
+		if (ConfigParse.getSecurity()){
+			initSecurity();
+		}
 		this.zkClient = CuratorFrameworkFactory.builder()
 				.connectString(this.zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
 				.connectionTimeoutMs(1000)
@@ -137,8 +143,7 @@ public class ZkDistributed implements Closeable{
 		String userKeytabPath = ConfigParse.userKeytabPath();
 		String krb5ConfPath = ConfigParse.krb5ConfPath();
 		Configuration hadoopConf = new Configuration();
-		hadoopConf.addResource(new Path("/Users/jiangjunjie/Downloads/ficonf/HDFS/config/core-site.xml"));
-		hadoopConf.addResource(new Path("/Users/jiangjunjie/Downloads/ficonf/HDFS/config/hdfs-site.xml"));
+		loadHadoopConf(ConfigParse.hadoopConfPath(), hadoopConf);
 		try {
 			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
 		} catch (IOException e) {
@@ -159,6 +164,35 @@ public class ZkDistributed implements Closeable{
 			KerberosUtils.login(PRNCIPAL_NAME, PATH_TO_KEYTAB, PATH_TO_KRB5_CONF, hadoopConf);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private static void loadHadoopConf(String dir, Configuration hadoopConf) {
+		File dirFile = new File(dir);
+		if(!dirFile.exists()){
+			logger.error("-----------not set env for HADOOP_CONF_DIR!!!");
+		}else if(!dirFile.isDirectory()){
+			logger.error("HADOOP_CONF_DIR:{} is not dir.", dir);
+		}else{
+			File[] xmlFileList = new File(dir).listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					if(name.endsWith(".xml")) {
+						return true;
+					}
+					return false;
+				}
+			});
+
+			if(xmlFileList != null) {
+				for(File xmlFile : xmlFileList) {
+					try {
+						hadoopConf.addResource(xmlFile.toURI().toURL());
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 
