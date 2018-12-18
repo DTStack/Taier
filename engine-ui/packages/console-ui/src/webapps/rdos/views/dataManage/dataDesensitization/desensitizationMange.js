@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import ajax from '../../../api/dataManage';
-import { Input, Spin, Table, Button, Card } from 'antd';
+import { Input, Spin, Table, Button, Card, Popconfirm, message, Tabs } from 'antd';
 import '../../../styles/pages/dataManage.scss';
+import SlidePane from 'widgets/slidePane'
 import AddDesensitization from './addDesensitization';
+import TableRelation from './tableRelation';
+import BloodRelation from './bloodRelation';
 const Search = Input.Search;
-
+const TabPane = Tabs.TabPane;
 @connect(state => {
     return {
         allProjects: state.allProjects,
@@ -17,7 +20,10 @@ class DesensitizationMange extends Component {
     state = {
         cardLoading: false,
         addVisible: false,
-        table: [],
+        visibleSlidePane: false, // 查看脱敏明细
+        selectedDesensitization: '', // 选中脱敏
+        tabKey: 'tableRelation', // 默认选中表关系
+        table: [], // 表数据
         queryParams: {
             pageIndex: 1,
             pageSize: 20,
@@ -76,8 +82,39 @@ class DesensitizationMange extends Component {
                 this.setState({
                     addVisible: false
                 })
+                message.success('添加成功!');
                 this.search();
             }
+        })
+    }
+    // 删除脱敏
+    delete = (record) => {
+        ajax.delDesensitization({
+            id: record.id
+        }).then(res => {
+            if (res.code === 1) {
+                message.success('删除成功!');
+                this.search()
+            }
+        })
+    }
+    // 打开面板
+    showDesensitization = (record) => {
+        this.setState({
+            visibleSlidePane: true,
+            selectedDesensitization: record
+        })
+    }
+    closeSlidePane = () => {
+        this.setState({
+            visibleSlidePane: false,
+            selectedDesensitization: null
+        })
+    }
+    // 面板切换
+    onTabChange = (tabKey) => {
+        this.setState({
+            tabKey
         })
     }
     initialColumns = () => {
@@ -86,8 +123,10 @@ class DesensitizationMange extends Component {
                 title: '脱敏名称',
                 width: 140,
                 dataIndex: 'desensitizationName',
-                render () {
-                    return <a>身份证号脱敏</a>
+                render: (text, record) => {
+                    return (
+                        <a onClick={() => { this.showDesensitization(record) }}>身份证号脱敏</a>
+                    )
                 }
             },
             {
@@ -114,15 +153,24 @@ class DesensitizationMange extends Component {
                 title: '操作',
                 width: 140,
                 dataIndex: 'deal',
-                render (text, record) {
-                    return <a>删除</a>
+                render: (text, record) => {
+                    return (
+                        <Popconfirm
+                            title="确定删除此条脱敏吗?"
+                            okText="是"
+                            cancelText="否"
+                            onConfirm={() => { this.delete(record) }}
+                        >
+                            <a>删除</a>
+                        </Popconfirm>
+                    )
                 }
             }
         ]
     }
     render () {
         const columns = this.initialColumns();
-        const { cardLoading, dataSource, addVisible } = this.state;
+        const { cardLoading, dataSource, addVisible, visibleSlidePane, selectedDesensitization, tabKey } = this.state;
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -155,6 +203,31 @@ class DesensitizationMange extends Component {
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
+                    <SlidePane
+                        className="m-tabs bd-top bd-right m-slide-pane"
+                        onClose={this.closeSlidePane}
+                        visible={visibleSlidePane}
+                        style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
+                    >
+                        <Tabs animated={false} onChange={this.onTabChange}>
+                            <TabPane tab="表关系" key="tableRelation">
+                                <TableRelation
+                                    // reload={this.search}
+                                    tabKey={tabKey}
+                                    visibleSlidePane={visibleSlidePane}
+                                    // goToTaskDev={this.props.goToTaskDev}
+                                    // clickPatchData={this.clickPatchData}
+                                    tabData={selectedDesensitization}
+                                />
+                            </TabPane>
+                            <TabPane tab="血缘关系" key="bloodRelation">
+                                <BloodRelation
+                                    visibleSlidePane={visibleSlidePane}
+                                    tabData={selectedDesensitization}
+                                />
+                            </TabPane>
+                        </Tabs>
+                    </SlidePane>
                 </Card>
                 <AddDesensitization
                     visible={addVisible}

@@ -189,10 +189,30 @@ export default {
         return http.post(dataManageReq.PROJECT_DATA_OVERVIEW, params)
     },
     // =========== 数据脱敏 ==================//
+    // 脱敏管理
     searchDesensitization (params) {
         return http.post(dataManageReq.GET_DESENSITIZATION_LIST, params)
     },
     addDesensitization (params) {
         return http.post(dataManageReq.ADD_DESENSITIZATION, params)
+    },
+    delDesensitization (params) {
+        return http.post(dataManageReq.DEL_DESENSITIZATION, params)
+    },
+    viewTableRelation (params) {
+        return http.post(dataManageReq.VIEW_TABLE_RELATION, params)
+    },
+    updateOpenStatus (params) {
+        return http.post(dataManageReq.UPDATE_OPEN_STATUS, params)
+    },
+    // 规则管理
+    searchRule (params) {
+        return http.post(dataManageReq.GET_RULE_LIST, params)
+    },
+    addRule (params) {
+        return http.post(dataManageReq.ADD_RULE, params)
+    },
+    delRule (params) {
+        return http.post(dataManageReq.DEL_RULE, params)
     }
 }

@@ -75,7 +75,12 @@ class AddDesensitization extends Component {
                                 message: '表不可为空！'
                             }]
                         })(
-                            <Input />
+                            <Select
+                                mode="multiple"
+                                allowClear
+                            >
+                                {children}
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem
@@ -88,7 +93,12 @@ class AddDesensitization extends Component {
                                 message: '字段不可为空！'
                             }]
                         })(
-                            <Input />
+                            <Select
+                                mode="multiple"
+                                allowClear
+                            >
+                                {children}
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem
@@ -100,7 +110,6 @@ class AddDesensitization extends Component {
                                 max: 200,
                                 message: '样例数据请控制在200个字符以内！'
                             }]
-                            // initialValue: sourceData.dataDesc || ''
                         })(
                             <Input type="textarea" rows={4} />
                         )}
