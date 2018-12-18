@@ -632,19 +632,19 @@ $fontColor1: #2491F7;
         }
 
     }
-    .tablePane-box{
+    .c-tablePane{
         color:#f5f5f5;
-        .tablePane-tables-box{
-            .tablePane-notables{
+        .c-tablePane__tables{
+            .c-tablePane__notables{
                 color: #666;
             }
-            .tablePane-table-box{
-                .tablePane-table-title{
+            .c-tablePane__table{
+                .c-tablePane__table__title{
                     background: #4A4A4A;
                 }
-                .tablePane-table-column-box{
-                    .tablePane-table-column{
-                        .table-column-type{
+                .c-tablePane__table__columns{
+                    .c-tablePane__table__column{
+                        .c-table__column__type{
                             color:#999;
                         }
                     }
@@ -652,7 +652,7 @@ $fontColor1: #2491F7;
             }
         }
     }
-    .extraPane-table-detail-box{
+    .c-extraPane__table__detail{
         color: #f5f5f5;
         background: $color2;
         .ant-tabs-bar .ant-tabs-tab{

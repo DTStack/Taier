@@ -58,7 +58,7 @@ class BaseInfo extends React.Component {
             case TASK_STATUS.SUBMIT_FAILED: {
                 return (
                     <div style={{ paddingLeft: '8px', background: '#f7f7f7' }}>
-                        <LogInfo log={logInfo} />
+                        <LogInfo status={status} log={logInfo} />
                     </div>
                 )
             }

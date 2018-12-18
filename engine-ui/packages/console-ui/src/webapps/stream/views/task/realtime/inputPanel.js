@@ -184,7 +184,34 @@ class InputOrigin extends Component {
                     </Row>
                     <FormItem
                         {...formItemLayout}
-                        label="时间特征"
+                        label={<span>
+                            <span style={{ paddingRight: '5px' }}>Offset</span>
+                            <Tooltip title={<div>
+                                <p>latest：从Kafka Topic内最新的数据开始消费</p>
+                                <p>earliest：从Kafka Topic内最老的数据开始消费</p>
+                            </div>}>
+                                <Icon type="question-circle-o" />
+                            </Tooltip>
+                        </span>}
+                    >
+                        {getFieldDecorator('offsetReset')(
+                            <RadioGroup className="right-select" onChange={(v) => { handleInputChange('offsetReset', index, v.target.value) }}>
+                                <Radio value='latest'>latest</Radio>
+                                <Radio value='earliest'>earliest</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label={<span>
+                            <span style={{ paddingRight: '5px' }}>时间特征</span>
+                            <Tooltip title={<div>
+                                <p>ProcTime：按照Flink的处理时间处理</p>
+                                <p>EventTime：按照流式数据本身包含的业务时间戳处理</p>
+                            </div>}>
+                                <Icon type="question-circle-o" />
+                            </Tooltip>
+                        </span>}
                     >
                         {getFieldDecorator('timeType')(
                             <RadioGroup className="right-select" onChange={(v) => { handleInputChange('timeType', index, v.target.value) }}>
@@ -254,7 +281,7 @@ class InputOrigin extends Component {
  */
 const InputForm = Form.create({
     mapPropsToFields (props) {
-        const { type, sourceId, topic, table, columns, timeType, timeColumn, offset, columnsText, parallelism } = props.panelColumn[props.index];
+        const { type, sourceId, topic, table, columns, timeType, timeColumn, offset, columnsText, parallelism, offsetReset } = props.panelColumn[props.index];
         return {
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
@@ -264,6 +291,7 @@ const InputForm = Form.create({
             timeType: { value: timeType },
             timeColumn: { value: timeColumn },
             offset: { value: offset },
+            offsetReset: { value: offsetReset },
             columnsText: { value: columnsText },
             parallelism: { value: parallelism }
             // alias: { value: alias },
@@ -480,7 +508,8 @@ export default class InputPanel extends Component {
             timeColumn: undefined,
             offset: 0,
             columnsText: undefined,
-            parallelism: 1
+            parallelism: 1,
+            offsetReset: 'latest'
             // alias: undefined,
         }
 
@@ -555,7 +584,7 @@ export default class InputPanel extends Component {
         //     panelColumn[index][type] = value;
         // }
         let shouldUpdateEditor = true;
-        const allParamsType = ['type', 'sourceId', 'topic', 'table', 'columns', 'timeType', 'timeColumn', 'offset', 'columnsText', 'parallelism']
+        const allParamsType = ['type', 'sourceId', 'topic', 'table', 'columns', 'timeType', 'timeColumn', 'offset', 'offsetReset', 'columnsText', 'parallelism']
         if (type === 'columnsText') {
             this.parseColumnsText(index, value, 'changeText')
         }
@@ -573,6 +602,8 @@ export default class InputPanel extends Component {
                         panelColumn[index][v] = 1
                     } else if (v == 'parallelism') {
                         panelColumn[index][v] = 1
+                    } else if (v == 'offsetReset') {
+                        panelColumn[index][v] = 'latest'
                     } else {
                         panelColumn[index][v] = undefined
                     }
@@ -591,6 +622,8 @@ export default class InputPanel extends Component {
                         panelColumn[index][v] = 1
                     } else if (v == 'parallelism') {
                         panelColumn[index][v] = 1
+                    } else if (v == 'offsetReset') {
+                        panelColumn[index][v] = 'latest'
                     } else {
                         panelColumn[index][v] = undefined
                     }
@@ -607,6 +640,8 @@ export default class InputPanel extends Component {
                         panelColumn[index][v] = 1
                     } else if (v == 'parallelism') {
                         panelColumn[index][v] = 1
+                    } else if (v == 'offsetReset') {
+                        panelColumn[index][v] = 'latest'
                     } else {
                         panelColumn[index][v] = undefined
                     }
@@ -634,7 +669,8 @@ export default class InputPanel extends Component {
             timeColumn: undefined,
             offset: 0,
             columnsText: undefined,
-            parallelism: 1
+            parallelism: 1,
+            offsetReset: 'latest'
         }
         if (type === 'type') {
             inputData.type = value;

@@ -190,7 +190,7 @@ class Console extends Component {
                                 ref={e => {
                                     this.editor = e;
                                 }}
-                                options={{ ...defaultEditorOptions, mode: 'text' }}
+                                options={{ ...defaultEditorOptions, mode: 'dtlog' }}
                                 key="output-log"
                                 sync={true}
                                 value={data.log}
