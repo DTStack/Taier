@@ -161,7 +161,7 @@ class NoApprovedCard extends Component {
         const { apiName } = this.state;
         return (
             <div>
-                <div style={{ marginRight: '-20px', position: 'relative' }}>
+                <div style={{ position: 'relative' }}>
                     <SlidePane
                         {...this.props}
                         slidePaneShow={this.state.slidePaneShow}

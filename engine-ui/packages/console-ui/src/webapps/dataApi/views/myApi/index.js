@@ -107,11 +107,10 @@ class MyAPI extends Component {
     render () {
         const { nowView } = this.state;
         return (
-            <div className=" api-mine nobackground m-card height-auto m-tabs">
-                <h1 className="box-title">我的API</h1>
+            <div className="api-mine nobackground m-card m-tabs">
+                <p className="o-box__title">我的API</p>
                 <Card
-                    style={{ marginTop: '0px' }}
-                    className="box-1  no-card-border"
+                    className="no-card-border"
                     noHovering>
                     <Tabs
                         style={{ overflow: 'unset' }}

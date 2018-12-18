@@ -498,7 +498,7 @@ class APIMana extends Component {
 
         return (
             <div className="api-management">
-                <div style={{ marginTop: '20px' }} className="margin-0-20 m-card box-2">
+                <div style={{ margin: '20px' }} className="m-card box-2">
                     <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
                     <Card
 

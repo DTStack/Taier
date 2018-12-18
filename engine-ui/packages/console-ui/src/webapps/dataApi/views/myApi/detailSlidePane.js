@@ -59,11 +59,12 @@ class detailSlidePane extends Component {
     render () {
         return (
             <SlidePane
-                className="m-tabs tabs-filter-show"
+                className="m-tabs"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '750px', height: '100%' }}
+                style={{ right: '0px', width: '80%', minHeight: '600px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
+                    className="l-dt__tabs--scroll"
                     animated={false}
                     activeKey={this.state.nowView}
                     onChange={this.callback.bind(this)}

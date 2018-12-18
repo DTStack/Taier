@@ -1,3 +1,11 @@
+.api-mine{
+    margin:0px 20px 20px 20px;
+    &>.ant-card{
+        .ant-card-body>.ant-tabs{
+            height: auto;
+        }
+    }
+}
 .before-title-pane:before{
     content:attr(data-title);
     font-size:14px;
@@ -103,9 +111,7 @@
 .mini-filter .ant-table-filter-dropdown .ant-dropdown-menu-without-submenu{
     max-height:100px;
 }
-.tabs-filter-show .ant-tabs-content{
-    min-height: 200px;
-}
+
 .height-auto .ant-tabs{
     height: auto;
 }
