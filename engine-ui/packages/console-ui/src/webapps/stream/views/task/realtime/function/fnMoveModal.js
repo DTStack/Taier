@@ -90,7 +90,7 @@ class FnMoveModal extends React.Component {
 
     handleCancel () {
         this.form.resetFields();
-        this.props.handCancle();
+        this.props.handCancel();
     }
 
     render () {
