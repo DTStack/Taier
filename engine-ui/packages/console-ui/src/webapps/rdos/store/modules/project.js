@@ -6,7 +6,6 @@ import Api from '../../api'
 import {
     workbenchAction
 } from '../../store/modules/offlineTask/actionType';
-import { clearPages } from '../../store/modules/realtimeTask/browser';
 
 const projectAction = mc([
     'GET_PROJECT',
@@ -29,8 +28,6 @@ export function getProject (id) {
         // 如果为不同的项目
         if (id && id != oldProjectID) {
             utils.setCookie(projectKey, id)
-            // 当切换项目时，应当清理任务开发导航中的缓存数据
-            dispatch(clearPages());
             dispatch({
                 type: workbenchAction.CLOSE_ALL_TABS
             });
