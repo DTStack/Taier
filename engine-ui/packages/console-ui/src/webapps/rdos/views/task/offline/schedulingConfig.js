@@ -22,7 +22,7 @@ import ajax from '../../../api';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounceEventHander } from '../../../comm';
-import HelpDoc from '../../helpDoc';
+import HelpDoc, { relativeStyle } from '../../helpDoc';
 import RecommentTaskModal from './recommentTaskModal';
 
 const Panel = Collapse.Panel;
@@ -123,6 +123,20 @@ class ScheduleForm extends React.Component {
                         onChange={ this.changeScheduleStatus.bind(this) }
                     >冻结</Checkbox>
                 )}
+            </FormItem>
+            <FormItem
+                {...formItemLayout}
+                label="出错重试"
+            >
+                {getFieldDecorator('isFailRetry', {
+                    valuePropName: 'checked',
+                    initialValue: get(scheduleConf, 'isFailRetry', false)
+                })(
+                    <Checkbox
+                        onChange={ this.changeScheduleConf.bind(this) }
+                    >是</Checkbox>
+                )}
+                <HelpDoc style={relativeStyle} doc="taskFailRetry" />
             </FormItem>
             {
                 !isWorkflowNode && <div>
@@ -521,19 +535,6 @@ class ScheduleForm extends React.Component {
 
                 return dom;
             })(+periodType, this)}
-            <FormItem
-                {...formItemLayout}
-                label="出错重试"
-            >
-                {getFieldDecorator('isFailRetry', {
-                    valuePropName: 'checked',
-                    initialValue: get(scheduleConf, 'isFailRetry', false)
-                })(
-                    <Checkbox
-                        onChange={ this.changeScheduleConf.bind(this) }
-                    >是</Checkbox>
-                )}
-            </FormItem>
         </Form>
     }
 
