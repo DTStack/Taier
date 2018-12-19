@@ -1,12 +1,14 @@
 import React, { Component } from 'react';
 import { Col, Row } from 'antd';
-
 import Resize from 'widgets/resize';
-import { connect } from 'react-redux';
-import { lineAreaChartOptions } from '../../../../../consts';
-import { mineActions } from '../../../../../actions/mine';
 import { cloneDeep } from 'lodash'
+import { lineAreaChartOptions } from '../../../consts';
 import utils from 'utils'
+
+const GRAPH_TYPE = {
+    COUNT: 'count',
+    DEALY: 'delay'
+}
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -16,49 +18,22 @@ require('echarts/lib/chart/line');
 require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
-
-const mapDispatchToProps = dispatch => ({
-    getApiCallInfo (apiId, time) {
-        return dispatch(
-            mineActions.getApiCallInfo({
-                apiId: apiId,
-                time: time,
-                useAdmin: true
-            })
-        )
-    }
-});
-
-@connect(null, mapDispatchToProps)
-class ManageCallDelayGraph extends Component {
+class MyApiDelayGraph extends Component {
     state = {
-        topCallUser: '',
-        failPercent: '',
-        callCount: '',
-        callList: [],
-        topCallList: [],
         apiId: '',
-        dateType: ''
+        data: {},
+        graphType: GRAPH_TYPE.COUNT
     }
-    componentDidMount () {
-        this.getApiCallInfoList();
-    }
-    getApiCallInfoList () {
-        let apiId = this.props.apiId;
-        let time = this.props.dateType;
-
-        if (!apiId || !time) {
+    getInfo (apiId, dateType) {
+        if (!apiId) {
             return;
         }
-        this.props.getApiCallInfo(apiId, time)
+        this.props.getApiCallInfo(apiId, dateType)
             .then(
                 (res) => {
                     if (res) {
                         this.setState({
-                            callList: res.data.infoList,
-                            topCallUser: res.data.topCallUserName,
-                            failPercent: res.data.failRate,
-                            callCount: res.data.callCount
+                            data: res.data
                         }, () => {
                             this.initLineChart();
                         })
@@ -66,33 +41,63 @@ class ManageCallDelayGraph extends Component {
                 }
             )
     }
+    componentDidMount () {
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
+
+        this.getInfo(apiId, dateType);
+    }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
+        const { showRecord: nextShowRecord = {}, dateType: nextDateType } = nextProps;
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
+        const { apiId: nextApiId } = nextShowRecord;
+
+        if (apiId !== nextApiId || dateType !== nextDateType) {
+            this.setState({
+                apiId: nextProps.showRecord.apiId
+            }, () => {
+                if (nextProps.slidePaneShow) {
+                    this.getInfo(nextApiId, nextDateType);
+                }
+            })
+        }
+    }
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
     initLineChart () {
-        let chartData = this.state.callList
+        if (!this.state.data || !this.state.data.infoList) {
+            return;
+        }
+        const chartData = this.state.data.infoList;
         let callCountDate = [];
+        let failCountDate = [];
         let times = [];
         for (let i = 0; i < chartData.length; i++) {
             callCountDate.push(chartData[i].callCount)
-            switch (this.props.dateType) {
-                case '1':
-                    times.push(utils.formatHours(chartData[i].time));
-                    break;
-                case '7':
-                    times.push(utils.formatDateHours(chartData[i].time));
-                    break;
-                case '30':
-                    times.push(utils.formatDate(chartData[i].time));
-                    break;
-                case '-1':
-                    times.push(utils.formatDate(chartData[i].time));
-                    break;
+            failCountDate.push(chartData[i].failRate)
+            if (this.props.dateType) {
+                switch (this.props.dateType) {
+                    case '1':
+                        times.push(utils.formatHours(chartData[i].time));
+                        break;
+                    case '7':
+                        times.push(utils.formatDateHours(chartData[i].time));
+                        break;
+                    case '30':
+                        times.push(utils.formatDate(chartData[i].time));
+                        break;
+                }
             }
         }
-        let myChart = echarts.init(document.getElementById('callDelayGraph'));
+        let myChart = echarts.init(document.getElementById('MyApiDetailDelayGraph'));
         const option = cloneDeep(lineAreaChartOptions);
         option.title = null;
+        option.grid.right = '40px';
+        option.grid.left = '30px';
+        option.grid.bottom = '10px';
         option.tooltip.formatter = function (params) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
@@ -113,15 +118,9 @@ class ManageCallDelayGraph extends Component {
                 }
             }
         }];
-        option.xAxis[0].data = times;
-
         option.yAxis[0].axisLabel.formatter = null;
         option.yAxis[0].name = '耗时(s)';
-
-        option.grid.left = 40
-        option.grid.bottom = 10
-        option.grid.top = 40;
-
+        option.xAxis[0].data = times;
         console.log(option)
         // 绘制图表
         myChart.setOption(option);
@@ -135,8 +134,6 @@ class ManageCallDelayGraph extends Component {
                 return '7天';
             case '30':
                 return '30天';
-            case '-1':
-                return '历史以来';
             default:
                 return '';
         }
@@ -144,31 +141,33 @@ class ManageCallDelayGraph extends Component {
     render () {
         return (
             <div>
-                <Row gutter={100} style={{ paddingLeft: '30px' }} className="m-count padding-l20 height-callstate-item">
-                    <Col span={6}>
+                <Row gutter={130} className="m-count padding-l20 height-callstate-item">
+                    <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">{this.getDateText()}平均耗时</span>
-                            <span className="m-count-content font-black text-left">{this.state.callCount || 0}<span style={{ fontSize: 12 }}>s</span></span>
+                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.callCount) || 0}<span style={{ fontSize: 12 }}>次</span></span>
                         </section>
                     </Col>
-                    <Col span={4}>
+                    <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
                             <span className="m-count-title text-left">{this.getDateText()}最高耗时</span>
-                            <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>s</span></span>
+                            <span className="m-count-content font-red text-left">{(this.state.data && this.state.data.failRate) || 0}<span style={{ fontSize: 12 }}>%</span></span>
                         </section>
                     </Col>
                     <Col span={8}>
-                        <section className="m-count-section margin-t20" style={{ width: 100 }}>
+                        <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">{this.getDateText()}最低耗时</span>
-                            <span className="m-count-content font-black text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>s</span></span>
+                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.totalCount) || '---'}</span>
                         </section>
                     </Col>
                 </Row>
-                <Resize onResize={this.resize}>
-                    <article id="callDelayGraph" style={{ width: '100%', height: '250px' }} />
-                </Resize>
+                <div style={{ paddingRight: '20px' }}>
+                    <Resize onResize={this.resize}>
+                        <article id="MyApiDetailDelayGraph" style={{ width: '100%', height: '250px' }} />
+                    </Resize>
+                </div>
             </div>
         )
     }
 }
-export default ManageCallDelayGraph;
+export default MyApiDelayGraph;
