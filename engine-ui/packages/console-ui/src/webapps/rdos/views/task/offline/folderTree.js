@@ -128,13 +128,12 @@ class FolderTree extends React.Component {
                             txt: '编辑',
                             cb: this.editTask.bind(this, data)
                         }, {
+                            txt: '克隆',
+                            cb: this.cloneTask.bind(this, data)
+                        }, {
                             txt: '删除',
                             cb: this.deleteTask.bind(this, data)
                         }])
-                        // , {
-                        //     txt: '克隆',
-                        //     cb: this.cloneTask.bind(this, data)
-                        // }
                     }
                 } else {
                     operations = arr.concat([{
