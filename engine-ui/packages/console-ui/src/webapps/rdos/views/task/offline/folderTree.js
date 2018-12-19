@@ -491,7 +491,7 @@ class FolderTree extends React.Component {
                             operations={ this.generateCtxMenu(type, treeType, data) }
                         >
                             <span
-                                id={`JS_${id}`}
+                                id={`JS_${id}${type === 'folder' ? '_folder' : ''}`}
                                 title={name}
                                 className={claName}>
                                 { this.renderStatusBadge(treeType, data) }

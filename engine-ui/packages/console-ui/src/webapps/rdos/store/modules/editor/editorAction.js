@@ -235,7 +235,7 @@ export function output (tab, log) {
 export function setOutput (tab, log) {
     return {
         type: editorAction.SET_CONSOLE_LOG,
-        data: log,
+        data: createLog(log, 'info'),
         key: tab
     }
 }
