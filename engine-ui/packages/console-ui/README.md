@@ -1,4 +1,4 @@
-# DATA-STACK Development ( v3.2.0 )
+# DATA-STACK | [CHANGELOG](./CHAGNELOG.md)
 
 数栈 Web 前端。
 
