@@ -8,6 +8,7 @@ import Editor from 'widgets/editor';
 
 import { DdlPlaceholderAnly } from '../../../../comm/DDLCommon'
 import HelpDoc, { relativeStyle } from '../../../../components/helpDoc';
+import { CATALOGUE_TYPE } from '../../../../consts';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -131,7 +132,7 @@ class StepOne extends Component {
             return;
         }
         console.log({ sql: this._DDL, databaseId: formData.databaseId })
-        if (!this.DDL) {
+        if (this._DDL) {
             API.createTableByDDL({ sql: this._DDL, databaseId: formData.databaseId }).then(res => {
                 if (res.code === 1) {
                     this._DDL = undefined;
@@ -141,6 +142,7 @@ class StepOne extends Component {
                         showDDL: false
                     });
                     message.success('创建成功');
+                    this.props.loadCatalogue({ id: formData.databaseId }, CATALOGUE_TYPE.DATA_BASE);
                     this.props.toTableDetail({ databaseId: res.data.databaseId, id: res.data.id });
                 }
             })

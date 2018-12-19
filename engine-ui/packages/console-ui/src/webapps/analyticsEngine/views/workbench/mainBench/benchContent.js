@@ -19,7 +19,7 @@ class BenchContent extends Component {
                 return <SQLEditor data={tabData} />
             }
             case workbenchAction.CREATE_TABLE: {
-                return <CreateTable data={tabData} />
+                return <CreateTable loadCatalogue = {this.props.loadCatalogue} data={tabData} />
             }
             case workbenchAction.OPEN_TABLE_EDITOR: {
                 return <EditTable data={tabData}
