@@ -1,4 +1,4 @@
-# DATA-STACK | [CHANGELOG](./CHAGNELOG.md)
+# DATA-STACK | [CHANGELOG](./CHANGELOG.md)
 
 数栈 Web 前端。
 
