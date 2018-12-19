@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { isEmpty } from 'lodash'
+import { connect } from 'react-redux';
 import {
     Modal, Button, message
 } from 'antd';
@@ -7,6 +8,8 @@ import {
 import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../../api/dataManage'
+
+import { getUploadStatus } from '../../../../store/modules/uploader'
 
 const defaultState = {
     file: '',
@@ -32,11 +35,13 @@ const defaultState = {
     originLineCount: 0, // 原数据总条数
     targetExchangeWarning: false// target界面是否提示未选择源字段
 }
-
-export default class ImportLocalData extends Component {
+@connect()
+class ImportLocalData extends Component {
     state = Object.assign({}, defaultState)
 
     importData = () => {
+        const { dispatch } = this.props;
+        const { file } = this.state;
         const params = this.getParams()
         if (this.checkParams(params)) {
             params.partitions = JSON.stringify(params.partitions)
@@ -49,8 +54,10 @@ export default class ImportLocalData extends Component {
                     loading: false
                 })
                 if (res.code === 1) {
-                    const msg = `您已经成功导入${res.data}条数据！`
-                    message.success(msg);
+                    getUploadStatus({
+                        queryParams: { queryKey: res.data },
+                        fileName: file.name
+                    }, dispatch)
                     this.setState({
                         visible: false
                     })
@@ -297,3 +304,4 @@ export default class ImportLocalData extends Component {
         )
     }
 }
+export default ImportLocalData;

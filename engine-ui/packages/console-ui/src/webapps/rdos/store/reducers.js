@@ -22,6 +22,8 @@ import { operation } from './modules/operation';
 
 import { visibleSearchTask } from './modules/comm';
 
+import { uploader } from './modules/uploader';
+
 const rootReducer = combineReducers({
     routing,
     user,
@@ -36,9 +38,10 @@ const rootReducer = combineReducers({
     editor, // 编辑器
     operation, // 运维中心
     dataManage: dataManageReducer,
-    dataSource,
+    dataSource, // 数据源
     visibleSearchTask,
-    dataModel
+    dataModel, // 数据模型
+    uploader
 })
 
 export default rootReducer

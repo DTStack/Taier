@@ -676,6 +676,9 @@ export default {
     importLocalData(params) {// 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
     },
+    getUploadStatus(params) {
+        return http.post(dataManageReq.GET_UPLOAD_STATUS, params)
+    },
     getTableRelTree(params) {
         return http.post(dataManageReq.GET_REL_TABLE_TREE, params)
     },

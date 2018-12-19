@@ -31,6 +31,7 @@ import {
 import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
 
 import { isProjectCouldEdit } from '../../../comm';
+import { UPLOAD_STATUS } from '../../../store/modules/uploader';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -172,7 +173,7 @@ class Workbench extends React.Component {
 
     renderGlobalMessage = () => {
         const { uploader, dispatch } = this.props;
-        return <UploaderProgressBar uploader={uploader} dispatch={dispatch} />
+        return <UploaderProgressBar key={uploader.status} uploader={uploader} dispatch={dispatch} />
     }
 
     render () {
@@ -180,7 +181,7 @@ class Workbench extends React.Component {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
             closeTab, closeAllorOthers, project,
-            user, editor, dispatch
+            user, editor, dispatch, uploader
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
@@ -214,6 +215,7 @@ class Workbench extends React.Component {
         const showPublish = isTask;
 
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
+        const disableImport = uploader.status === UPLOAD_STATUS.PROGRESSING;
 
         return <Row className="m-workbench task-editor">
             <header className="workbench-toolbar clear">
@@ -236,7 +238,7 @@ class Workbench extends React.Component {
                             </Button>
                         </span>
                     )}
-                    <Dropdown overlay={this.importMenu()} trigger={['click']}>
+                    <Dropdown disabled={disableImport} overlay={this.importMenu()} trigger={['click']}>
                         <Button>
                             <MyIcon className="my-icon" type="import" themeDark={themeDark} />
                             导入<Icon type="down" />
