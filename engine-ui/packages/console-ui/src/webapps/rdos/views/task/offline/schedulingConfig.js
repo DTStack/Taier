@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import assign from 'object-assign';
+import { get } from 'lodash';
 
 import { Row,
     Col,
@@ -520,6 +521,19 @@ class ScheduleForm extends React.Component {
 
                 return dom;
             })(+periodType, this)}
+            <FormItem
+                {...formItemLayout}
+                label="出错重试"
+            >
+                {getFieldDecorator('isFailRetry', {
+                    valuePropName: 'checked',
+                    initialValue: get(scheduleConf, 'isFailRetry', false)
+                })(
+                    <Checkbox
+                        onChange={ this.changeScheduleConf.bind(this) }
+                    >是</Checkbox>
+                )}
+            </FormItem>
         </Form>
     }
 
