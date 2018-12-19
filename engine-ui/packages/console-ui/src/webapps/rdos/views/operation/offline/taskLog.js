@@ -30,6 +30,7 @@ function getLogsInfo (title, data, type = 'info') {
     }
     return createLogMark(res, type)
 }
+// eslint-disable-next-line
 function getLogType (status) {
     switch (status) {
         case TASK_STATUS.RUN_FAILED:
@@ -67,7 +68,7 @@ export function LogInfo (props) {
         logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
     }
     if (log.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, getLogType(log.status))} ${safeSpace} \n`
+        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`
     }
 
     if (log['perf']) {
@@ -75,11 +76,11 @@ export function LogInfo (props) {
     }
 
     if (flinkLog || log['root-exception']) {
-        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${flinkLog} \n ${createLogMark(log['root-exception'], 'error') || ''}`
+        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(flinkLog, 'error')} \n ${createLogMark(log['root-exception'], 'error') || ''}`
     }
 
     if (appLogs || driverLog) {
-        logText = `${logText} \n${appLogs} \n ${driverLog}`
+        logText = `${logText} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(driverLog, 'error')}`
     }
 
     if (log.msg_info) {

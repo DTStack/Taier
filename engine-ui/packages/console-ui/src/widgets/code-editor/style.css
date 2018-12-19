@@ -11,7 +11,7 @@
     color:#04b4fa;
 }
 .c-editor--log__error{
-    color:#EF5350;
+    color:#bb0606;
     font-weight: bold;
 }
 .c-editor--log__info{
@@ -19,8 +19,8 @@
     font-weight: bold;
 }
 .c-editor--log__warning{
-    color:#F5A623;
+    color:#ee9900;
 }
 .c-editor--log__success{
-    color:#00A755;
+    color:#669600;
 }

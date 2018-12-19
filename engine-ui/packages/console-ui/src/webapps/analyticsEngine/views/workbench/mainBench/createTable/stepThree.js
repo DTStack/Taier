@@ -6,21 +6,16 @@ const Option = Select.Option;
 // const indexes = [];
 // const area_list = [];
 
-
 export default class StepThree extends Component {
     constructor (props) {
         super();
         this.state = {
-            indexes: []
+            indexes: props.formData.indexes || []
 
         }
     }
-
-    componentWillMount () {
-        const { formData } = this.props;
-        this.state.indexes = formData.indexes || [];
-    }
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { formData } = nextProps;
         this.setState({
             indexes: formData.indexes || []

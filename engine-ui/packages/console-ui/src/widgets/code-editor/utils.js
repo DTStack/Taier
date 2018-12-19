@@ -31,7 +31,7 @@ export function getLinkMark (value) {
  * @param {string} text 标记文本
  * @param {string} type 标记类型
  */
-export function createLogMark (text, type) {
+export function createLogMark (text = '', type = 'info') {
     return `#log<${type}>log#${text}#log<${type}>log#`
 }
 export function getLogMark (value) {
