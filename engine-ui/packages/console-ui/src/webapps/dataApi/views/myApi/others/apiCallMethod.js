@@ -115,6 +115,8 @@ class ApiCallMethod extends Component {
                     <Content
                         securityList={securityList}
                         showSecurity={mode != 'manage'}
+                        showApiConfig={mode == 'manage'}
+                        apiConfig={{}}
                         showUserInfo={showUserInfo}
                         callLimit={callLimit}
                         beginTime={beginTime}

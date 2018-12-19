@@ -10,7 +10,11 @@ $prefix: 'slide-pane';
     display: inline-block;
     transition: transform .3s ease-in;
     z-index: 99;
-    
+    &.l-#{$prefix}--fixed{
+        position: fixed;
+        top:0px;
+        right: 0px;
+    }
     .#{$prefix}-conent {
         position: relative;
     }

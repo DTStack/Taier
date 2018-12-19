@@ -126,7 +126,7 @@ class Content extends Component {
             beginTime, endTime,
             mode, showRecord,
             showMarketInfo, showUserInfo, showSecurity,
-            securityList
+            securityList, showApiConfig, apiConfig = {}
         } = this.props;
         const { securityData, securityModalVisible } = this.state;
         const showExt = mode == 'manage';
@@ -144,7 +144,7 @@ class Content extends Component {
             reqJson = JSON.stringify(reqJson, null, '    \r')
         }
         return (
-            <div>
+            <div style={{ paddingBottom: '20px' }}>
                 <section>
                     <h1 className="title-border-l-blue">基本信息</h1>
                     <div style={{ marginTop: 10 }}>
@@ -175,6 +175,21 @@ class Content extends Component {
                         )}
                     </div>
                 </section>
+                {showApiConfig && (
+                    <section style={{ marginTop: 19.3 }}>
+                        <h1 className="title-border-l-blue">配置信息</h1>
+                        <div style={{ marginTop: 10 }}>
+                            <p data-title="数据源类型：" className="pseudo-title p-line">{apiConfig.dataSourceType}</p>
+                            <p data-title="数据源名称：" className="pseudo-title p-line">{apiConfig.dataSourceName}</p>
+                            <p data-title="数据表名称：" className="pseudo-title p-line">{apiConfig.tableName}</p>
+                            <p data-title="SQL配置信息：" className="pseudo-title p-line">
+                                <pre style={{ maxHeight: '100px', overflow: 'auto', verticalAlign: 'top', display: 'inline-block' }}>
+                                    {this.getValue('respJson') ? JSON.stringify(this.getValue('respJson'), null, '    \r') : '暂无返回样例'}
+                                </pre>
+                            </p>
+                        </div>
+                    </section>
+                )}
                 {showMarketInfo && <section style={{ marginTop: 19.3 }}>
                     <h1 className="title-border-l-blue">调用订购情况</h1>
                     <div style={{ marginTop: 10 }}>

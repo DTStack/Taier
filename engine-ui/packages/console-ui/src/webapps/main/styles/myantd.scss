@@ -401,3 +401,13 @@
         border-width: 0;
     }
 }
+.l-dt__tabs--scroll{
+    .ant-tabs-content{
+        position: absolute;
+        top: 36px;
+        bottom: 0px;
+        width: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+}

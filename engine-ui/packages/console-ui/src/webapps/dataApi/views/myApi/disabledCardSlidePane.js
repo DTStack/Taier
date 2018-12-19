@@ -43,7 +43,7 @@ class DisabledCardSlidePane extends Component {
         return (
 
             <SlidePane visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '600px', height: '100%' }}
+                style={{ right: '0px', width: '80%', minHeight: '600px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <h1 className="box-title approved-card-pane-title">详情</h1>
                 <div style={{ paddingLeft: 30, paddingTop: 20 }}>

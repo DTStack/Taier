@@ -66,11 +66,12 @@ class apiSlidePane extends Component {
 
         return (
             <SlidePane
-                className="m-tabs tabs-filter-show"
+                className="m-tabs"
                 visible={this.props.slidePaneShow}
-                style={{ right: '-20px', width: '80%', minHeight: '760px', height: '100%' }}
+                style={{ right: '-20px', width: '80%', minHeight: '600px', height: '100%' }}
                 onClose={this.props.closeSlidePane}>
                 <Tabs
+                    className="l-dt__tabs--scroll"
                     animated={false}
                     activeKey={this.state.nowView}
                     onChange={this.callback.bind(this)}
@@ -86,7 +87,7 @@ class apiSlidePane extends Component {
                         <h1 className="title-border-l-blue slide-title">调用统计</h1>
                         <ApiCallState apiId={showRecord.id} dateType={this.state.date}></ApiCallState>
                         <h1 className="title-border-l-blue slide-title">错误日志</h1>
-                        <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>
+                        <div style={{ paddingLeft: '20px', paddingRight: '20px', paddingBottom: '20px' }}>
                             <Row>
                                 <ErrorLog apiId={showRecord.id} dateType={this.state.date}></ErrorLog>
                             </Row>

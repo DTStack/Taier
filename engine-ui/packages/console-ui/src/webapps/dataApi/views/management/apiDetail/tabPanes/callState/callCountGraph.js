@@ -1,14 +1,13 @@
+
 import React, { Component } from 'react';
 import { Col, Row } from 'antd';
 
 import Resize from 'widgets/resize';
 import { connect } from 'react-redux';
-import { doubleLineAreaChartOptions } from '../../../../consts';
-import { apiManageActions } from '../../../../actions/apiManage';
-import { mineActions } from '../../../../actions/mine';
+import { doubleLineAreaChartOptions } from '../../../../../consts';
+import { mineActions } from '../../../../../actions/mine';
 import { cloneDeep } from 'lodash'
 import utils from 'utils'
-import ManageTopCall from './topCall'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -19,20 +18,7 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const mapStateToProps = state => {
-    const { user, apiMarket, apiManage } = state;
-    return { apiMarket, apiManage, user }
-};
-
 const mapDispatchToProps = dispatch => ({
-    getApiCallUserRankList (apiId, time) {
-        return dispatch(
-            apiManageActions.getApiCallUserRankList({
-                apiId: apiId,
-                time: time
-            })
-        )
-    },
     getApiCallInfo (apiId, time) {
         return dispatch(
             mineActions.getApiCallInfo({
@@ -44,8 +30,8 @@ const mapDispatchToProps = dispatch => ({
     }
 });
 
-@connect(mapStateToProps, mapDispatchToProps)
-class ApiManageCallState extends Component {
+@connect(null, mapDispatchToProps)
+class ManageCallCountGraph extends Component {
     state = {
         topCallUser: '',
         failPercent: '',
@@ -56,31 +42,11 @@ class ApiManageCallState extends Component {
         dateType: ''
     }
     componentDidMount () {
-        this.setState({
-            apiId: this.props.apiId,
-            dateType: this.props.dateType
-
-        }, () => {
-            this.getApiCallUserRankList();
-            this.getApiCallInfoList();
-        })
-    }
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
-        if (this.state.apiId != nextProps.apiId || this.state.dateType != nextProps.dateType) {
-            this.setState({
-                apiId: nextProps.apiId,
-                dateType: nextProps.dateType
-
-            }, () => {
-                this.getApiCallUserRankList();
-                this.getApiCallInfoList();
-            })
-        }
+        this.getApiCallInfoList();
     }
     getApiCallInfoList () {
-        let apiId = this.state.apiId;
-        let time = this.state.dateType;
+        let apiId = this.props.apiId;
+        let time = this.props.dateType;
 
         if (!apiId || !time) {
             return;
@@ -96,24 +62,6 @@ class ApiManageCallState extends Component {
                             callCount: res.data.callCount
                         }, () => {
                             this.initLineChart();
-                        })
-                    }
-                }
-            )
-    }
-    getApiCallUserRankList () {
-        let apiId = this.state.apiId;
-        let time = this.state.dateType;
-
-        if (!apiId || !time) {
-            return;
-        }
-        this.props.getApiCallUserRankList(apiId, time)
-            .then(
-                (res) => {
-                    if (res) {
-                        this.setState({
-                            topCallList: res.data
                         })
                     }
                 }
@@ -145,7 +93,7 @@ class ApiManageCallState extends Component {
                     break;
             }
         }
-        let myChart = echarts.init(document.getElementById('manageApiDetail'));
+        let myChart = echarts.init(document.getElementById('callCountGraph'));
         const option = cloneDeep(doubleLineAreaChartOptions);
         option.tooltip.formatter = function (params) {
             var relVal = params[0].name;
@@ -186,7 +134,6 @@ class ApiManageCallState extends Component {
         option.grid.left = 40
         option.grid.bottom = 10
 
-        console.log(option)
         // 绘制图表
         myChart.setOption(option);
         this.setState({ lineChart: myChart })
@@ -207,41 +154,26 @@ class ApiManageCallState extends Component {
     }
     render () {
         return (
-            <div style={{ paddingLeft: '20px', paddingRight: '20px' }}>
-                <Row>
-                    <Col span={16}>
-                        <Row gutter={100} style={{ paddingLeft: '30px' }} className="m-count padding-l20 height-callstate-item">
-                            <Col span={6}>
-                                <section className="m-count-section margin-t20" style={{ width: 150 }}>
-                                    <span className="m-count-title text-left">{this.getDateText()}累计调用</span>
-                                    <span className="m-count-content font-black text-left">{this.state.callCount || 0}<span style={{ fontSize: 12 }}>次</span></span>
-                                </section>
-                            </Col>
-                            <Col span={4}>
-                                <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                                    <span className="m-count-title text-left">{this.getDateText()}失败率</span>
-                                    <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
-                                </section>
-                            </Col>
-                            {/* <Col span={10}>
-                                <section className="m-count-section margin-t20" style={{ width: 150 }}>
-                                    <span className="m-count-title text-left">TOP调用用户 </span>
-                                    <span className="m-count-content font-black text-left">{this.state.topCallUser || '---'}</span>
-                                </section>
-                            </Col> */}
-                        </Row>
-                        <Resize onResize={this.resize}>
-                            <article id="manageApiDetail" style={{ width: '100%', height: '250px' }} />
-                        </Resize>
+            <div>
+                <Row gutter={100} style={{ paddingLeft: '30px' }} className="m-count padding-l20 height-callstate-item">
+                    <Col span={6}>
+                        <section className="m-count-section margin-t20" style={{ width: 150 }}>
+                            <span className="m-count-title text-left">{this.getDateText()}累计调用</span>
+                            <span className="m-count-content font-black text-left">{this.state.callCount || 0}<span style={{ fontSize: 12 }}>次</span></span>
+                        </section>
                     </Col>
-                    <Col span={8} style={{ paddingTop: '15px' }}>
-                        <p style={{ fontWeight: 'bold', lineHeight: 1, fontSize: '14px' }}>排行榜</p>
-                        <ManageTopCall data={this.state.topCallList}></ManageTopCall>
+                    <Col span={4}>
+                        <section className="m-count-section margin-t20" style={{ width: 100 }}>
+                            <span className="m-count-title text-left">{this.getDateText()}失败率</span>
+                            <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>%</span></span>
+                        </section>
                     </Col>
                 </Row>
-
+                <Resize onResize={this.resize}>
+                    <article id="callCountGraph" style={{ width: '100%', height: '250px' }} />
+                </Resize>
             </div>
         )
     }
 }
-export default ApiManageCallState;
+export default ManageCallCountGraph;
