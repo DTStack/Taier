@@ -6,7 +6,7 @@ import {
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 
 import API from '../api';
-// import { sqlExecStatus } from '../consts';
+import { sqlExecStatus } from '../consts';
 import editorAction from '../consts/editorActionType';
 
 // const INTERVALS = 1500;
@@ -68,12 +68,27 @@ function getUniqueKey (id) {
 //         resolve(false)
 //     }
 // }
-
+function getLogStatus (status) {
+    switch (status) {
+        case sqlExecStatus.FINISHED: {
+            return 'info';
+        }
+        case sqlExecStatus.FAILED: {
+            return 'error';
+        }
+        case sqlExecStatus.CANCELED: {
+            return 'warning';
+        }
+        default: {
+            return 'info'
+        }
+    }
+}
 /**
  * 输出SQL执行结果
  */
 function getDataOver (dispatch, currentTab, res, jobId) {
-    dispatch(output(currentTab, '执行完成!'));
+    dispatch(output(currentTab, createLog('执行完成!', 'info')));
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
@@ -118,7 +133,7 @@ async function exec (dispatch, currentTab, task, params, sqls, index, resolve, r
     }
     if (res && res.code === 1) {
         // dispatch(output(currentTab, '执行完成'));
-        if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, 'error')))
+        if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, getLogStatus(res.data.status))))
         // 直接打印结果
         getDataOver(dispatch, currentTab, res, res.data.jobId);
 

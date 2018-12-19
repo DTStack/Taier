@@ -160,7 +160,7 @@ class ManageCallDelayGraph extends Component {
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 100 }}>
                             <span className="m-count-title text-left">{this.getDateText()}最低耗时</span>
-                            <span className="m-count-content font-blue text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>s</span></span>
+                            <span className="m-count-content font-black text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>s</span></span>
                         </section>
                     </Col>
                 </Row>

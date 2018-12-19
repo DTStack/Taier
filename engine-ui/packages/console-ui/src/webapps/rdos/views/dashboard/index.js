@@ -280,6 +280,21 @@ class Index extends Component {
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
                             </Button>
+                            <Button
+                                style={{ float: 'left', margin: '10 0 0 15' }}
+                                type="primary"
+                                onClick={() => { hashHistory.push('/rdos/metaDataImport') }}>
+                                导入元数据
+                            </Button>
+                            <Tooltip title={(
+                                <div>
+                                    <p>每个项目可以包含不同的数据、计算任务和人员</p>
+                                    <p>创建项目：创建全新的项目，不包含任何数据和计算任务等信息</p>
+                                    <p>导入元数据：将已存在的Hive表元数据接入系统</p>
+                                </div>
+                            )}>
+                                <Icon style={{ lineHeight: '45px', marginLeft: '10px' }} type="question-circle-o" />
+                            </Tooltip>
                         </Col>
                         <Col span="8" >
                             <div className="sortTitle">
