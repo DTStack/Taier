@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Input, Select, message } from 'antd';
+import { Modal, Button, Form, Input, message } from 'antd';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -14,13 +14,11 @@ import { formItemLayout, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const'
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class ResForm extends React.Component {
     constructor (props) {
         super(props);
 
-        this.changeFileType = this.changeFileType.bind(this);
         this.fileChange = this.fileChange.bind(this);
         this.state = {
             file: '',
@@ -47,22 +45,6 @@ class ResForm extends React.Component {
             callback('资源文件只能是Jar、SQL、egg、Zip或者Python文件!');
         }
         callback();
-    }
-
-    changeFileType (value) {
-        let acceptType = ''
-        switch (value) {
-            case RESOURCE_TYPE.JAR:
-                acceptType = '.jar'; break;
-            case RESOURCE_TYPE.PY:
-                acceptType = '.py,.zip,.egg'; break;
-            default:
-                acceptType = ''; break;
-        }
-        this.setState({
-            accept: acceptType,
-            fileType: value
-        });
     }
 
     fileChange (e) {
@@ -104,24 +86,6 @@ class ResForm extends React.Component {
                 </FormItem>,
                 <FormItem
                     {...formItemLayout}
-                    label="资源类型"
-                    key="resourceType"
-                    hasFeedback
-                >
-                    {getFieldDecorator('resourceType', {
-                        rules: [{
-                            required: true, message: '资源类型必选！'
-                        }],
-                        initialValue: RESOURCE_TYPE.JAR
-                    })(
-                        <Select onChange={this.changeFileType}>
-                            <Option key={RESOURCE_TYPE.JAR} value={RESOURCE_TYPE.JAR}>jar</Option>
-                            <Option key={RESOURCE_TYPE.PY} value={RESOURCE_TYPE.PY}>python</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
                     label="上传"
                     key="file"
                     hasFeedback
@@ -143,7 +107,6 @@ class ResForm extends React.Component {
                                 name="file"
                                 type="file"
                                 id="myOfflinFile"
-                                accept={this.state.accept}
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
                             />
