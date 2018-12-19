@@ -17,6 +17,7 @@ export default {
     GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/getPartitions`, // 获取表分区信息
 
     UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/batchHiveDataImport/importData`, //
+    GET_UPLOAD_STATUS: `${RDOS_BASE_URL}/batch/batchHiveDataImport/getImportLocalDataStatus`, // 获取文件上传状态
     CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
     NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/pageQuery`, // 新的查询表的详细信息
     QUERY_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/tableQuery`, // 表查询

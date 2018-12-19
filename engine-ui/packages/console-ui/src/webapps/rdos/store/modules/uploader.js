@@ -7,7 +7,7 @@ const UploadAction = mc([
     'RESET'
 ], { prefix: 'uploader/' })
 
-const TIME_INTERVAL = 500; // 500毫秒
+const TIME_INTERVAL = 3600; // 1秒
 
 export const UPLOAD_STATUS = {
     SUCCES: 'success',
@@ -19,21 +19,22 @@ export const UPLOAD_STATUS = {
 // Actions
 export const getUploadStatus = (params, dispatch) => {
     let timeId;
+    let status = UPLOAD_STATUS.PROGRESSING;
+    dispatch({
+        type: UploadAction.UPDATE,
+        payload: { ...params, status: status }
+    })
     const getStatus = async () => {
-        const res = await API.getUploadStatus(params);
-        let status = UPLOAD_STATUS.PROGRESSING;
+        const res = await API.getUploadStatus(params.queryParams);
         if (res.code === 1) {
             clearInterval(timeId);
             status = UPLOAD_STATUS.SUCCES;
+        } else if (res.code > 1) {
+            status = UPLOAD_STATUS.FAIL;
         }
-        //  else {
-        //     status = UPLOAD_STATUS.FAIL;
-        // }
         dispatch({
             type: UploadAction.UPDATE,
-            payload: {
-                status: status
-            }
+            payload: { ...params, status: status }
         })
     }
     timeId = setInterval(getStatus, TIME_INTERVAL);
@@ -69,9 +70,7 @@ export function uploader (state = initilaState, action) {
             } else if (data.status === UPLOAD_STATUS.PROGRESSING) {
                 percent = state.percent + 20
             }
-            return Object.assign({
-                percent
-            }, state, data);
+            return Object.assign({}, state, data, { percent });
         }
         case UploadAction.RESET:
             return initilaState;

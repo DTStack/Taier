@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Input, Button, Select, Form, Checkbox, message } from 'antd';
+import {
+    Modal, Input, Button, Select, Icon,
+    Form, Checkbox, message, Tooltip
+} from 'antd';
 
 import utils from 'utils';
 
@@ -9,6 +12,10 @@ import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
 import { dataSourceActions } from '../../actions/dataSource';
 import Api from '../../api/dataSource';
+
+import {
+    jdbcUrlExample
+} from '../../consts/jdbcExample';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -158,6 +165,9 @@ class DataSourceModal extends Component {
                                 ],
                                 initialValue: config.jdbcUrl || ''
                             })(<Input autoComplete="off" />)}
+                            <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
                         </FormItem>
                         <FormItem {...formItemLayout} label="用户名">
                             {getFieldDecorator('dataJson.username', {
@@ -315,6 +325,9 @@ class DataSourceModal extends Component {
                                 ],
                                 initialValue: config.jdbcUrl || ''
                             })(<Input autoComplete="off" />)}
+                            <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}

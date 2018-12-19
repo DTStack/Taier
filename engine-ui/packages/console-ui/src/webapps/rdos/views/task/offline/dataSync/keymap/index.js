@@ -516,7 +516,7 @@ class Keymap extends React.Component {
                 }
                 default: {
                     const canFormat = isValidFormatType(col && col.type);
-                    const opt = canFormat ? cellOperation(null, editOption) : '';
+                    const opt = <div>{col && col.value ? removeOption : '' }{canFormat ? editOption : ''}</div>;
                     return <div>
                         <div className="cell" title={name}>
                             {
