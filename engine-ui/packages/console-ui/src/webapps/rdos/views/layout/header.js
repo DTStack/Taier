@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Modal } from 'antd';
-// import { Link } from 'react-router';
 
 import { MenuRight } from 'main/components/nav';
 
 import Api from '../../api';
-import { inOffline, inRealtime } from '../../comm';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
 
@@ -18,10 +16,8 @@ const confirm = Modal.confirm;
 
 @connect(state => {
     const { workbench } = state.offlineTask;
-    const { pages } = state.realtimeTask;
 
     return {
-        realTimeTabs: pages,
         offlineTabs: workbench.tabs
     }
 })
@@ -72,8 +68,8 @@ class Header extends Component {
     }
 
     checkUnSaveTask = (onOk) => {
-        const { realTimeTabs, offlineTabs } = this.props;
-        const tabsData = inOffline() ? offlineTabs : inRealtime() ? realTimeTabs : [];
+        const { offlineTabs } = this.props;
+        const tabsData = offlineTabs || [];
 
         const hasUnSave = (tabs) => {
             for (let tab of tabs) {

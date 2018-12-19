@@ -7,8 +7,7 @@ import { apps, app } from 'main/reducers/modules/apps'
 // 全局State
 import { user, projectUsers, notProjectUsers } from './modules/user'
 import { project, projects, allProjects } from './modules/project'
-// 实时任务
-import { realtimeTask } from './modules/realtimeTask'
+
 // 离线任务
 import { offlineTask } from './modules/offlineTask';
 import { editor } from './modules/editor';
@@ -33,7 +32,6 @@ const rootReducer = combineReducers({
     project,
     projects, // 用户有权限的项目
     allProjects, // 全局所有项目
-    realtimeTask, // 实时任务
     offlineTask, // 离线任务
     editor, // 编辑器
     operation, // 运维中心

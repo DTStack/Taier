@@ -13,9 +13,8 @@ import {
 } from '../../store/modules//offlineTask/offlineAction';
 import { showSeach } from '../../store/modules/comm';
 
-import { openPage } from '../../store/modules//realtimeTask/browser';
 import { MENU_TYPE } from '../../comm/const';
-import { inOffline, inRealtime } from '../../comm';
+import { inOffline } from '../../comm';
 
 const Option = Select.Option;
 
@@ -55,7 +54,7 @@ class SearchTaskModal extends React.Component {
                 return;
             }
 
-            if (inRealtime() || inOffline()) {
+            if (inOffline()) {
                 if (keyMap[ctrlKey] && keyMap[keyP]) {
                     target.preventDefault();
                     this.props.showSeach(true)
@@ -87,10 +86,6 @@ class SearchTaskModal extends React.Component {
             ajax.searchOfflineTask({
                 taskName: value
             }).then(succCall)
-        } else if (inRealtime()) {
-            ajax.searchRealtimeTask({
-                taskName: value
-            }).then(succCall)
         }
     }
 
@@ -99,17 +94,14 @@ class SearchTaskModal extends React.Component {
     onSelect = (value, option) => {
         this.close();
         const taskId = option.props.data.id
+        const { tabs, currentTab, openOfflineTaskTab } = this.props
         if (inOffline()) {
-            const { tabs, currentTab, openOfflineTaskTab } = this.props
             openOfflineTaskTab({
                 tabs,
                 currentTab,
                 id: taskId,
                 treeType: MENU_TYPE.TASK_DEV
             })
-        } else if (inRealtime()) {
-            const { openRealtimeTaskTab } = this.props
-            openRealtimeTaskTab({ id: taskId })
         }
     }
 
@@ -174,9 +166,6 @@ export default connect(state => {
     const actions = workbenchActions(dispatch)
     return {
         openOfflineTaskTab: actions.openTab,
-        openRealtimeTaskTab: function (params) {
-            dispatch(openPage(params))
-        },
         showSeach: function (boolFlag) {
             dispatch(showSeach(boolFlag))
         }

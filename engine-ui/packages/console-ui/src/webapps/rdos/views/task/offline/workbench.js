@@ -18,6 +18,7 @@ import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
 import ThemeSwitcher from 'main/components/theme-switcher';
+import UploaderProgressBar from '../../../components/uploader-progress';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
@@ -169,6 +170,11 @@ class Workbench extends React.Component {
         )
     }
 
+    renderGlobalMessage = () => {
+        const { uploader, dispatch } = this.props;
+        return <UploaderProgressBar uploader={uploader} dispatch={dispatch} />
+    }
+
     render () {
         const {
             tabs, currentTab, currentTabData,
@@ -251,7 +257,6 @@ class Workbench extends React.Component {
                         }}
                     />
                 </Col>
-
                 {showPublish ? (<Col className="right">
 
                     {couldEdit && (<span>
@@ -287,6 +292,7 @@ class Workbench extends React.Component {
                         </Button>
                     </a>
                 </Col>) : null}
+                { this.renderGlobalMessage() }
             </header>
             <Row className="task-browser">
                 <div className="browser-content">
@@ -613,6 +619,7 @@ const mapState = state => {
         dataSync,
         taskCustomParams,
         user: state.user,
+        uploader: state.uploader,
         scriptTreeData: scriptTree,
         project: state.project,
         editor: state.editor
