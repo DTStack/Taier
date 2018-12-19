@@ -1,14 +1,17 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Modal, Form, Input, Select } from 'antd';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 // mock
-const children = [];
-for (let i = 10; i < 36; i++) {
-    children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-}
+@connect(state => {
+    return {
+        allProjects: state.allProjects,
+        user: state.user
+    }
+}, null)
 class AddDesensitization extends Component {
     cancel = () => {
         const { onCancel } = this.props;
@@ -26,6 +29,17 @@ class AddDesensitization extends Component {
     }
     render () {
         const { getFieldDecorator } = this.props.form;
+        const { allProjects } = this.props;
+        const projectsOptions = allProjects.map(item => {
+            return <Option
+                title={item.projectAlias}
+                key={item.id}
+                name={item.projectAlias}
+                value={`${item.id}`}
+            >
+                {item.projectAlias}
+            </Option>
+        })
         return (
             <Modal
                 visible={this.props.visible}
@@ -58,10 +72,9 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                mode="multiple"
                                 allowClear
                             >
-                                {children}
+                                {projectsOptions}
                             </Select>
                         )}
                     </FormItem>
@@ -76,10 +89,9 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                mode="multiple"
                                 allowClear
                             >
-                                {children}
+                                {projectsOptions}
                             </Select>
                         )}
                     </FormItem>
@@ -94,10 +106,9 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                mode="multiple"
                                 allowClear
                             >
-                                {children}
+                                {projectsOptions}
                             </Select>
                         )}
                     </FormItem>
@@ -124,7 +135,7 @@ class AddDesensitization extends Component {
                                 message: '脱敏规则不可为空！'
                             }]
                         })(
-                            <Input />
+                            <Select />
                         )}
                     </FormItem>
                 </Form>

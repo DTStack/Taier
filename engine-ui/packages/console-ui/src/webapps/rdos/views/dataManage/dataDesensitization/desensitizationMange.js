@@ -42,8 +42,11 @@ class DesensitizationMange extends Component {
             }
         ]
     }
-    componentDidMonut () {
+    componentDidMount () {
         // this.search();
+        console.log('------------------');
+        console.log(this.props.user);
+        console.log(this.props.allProjects);
     }
     search = () => {
         this.setState({
@@ -223,7 +226,7 @@ class DesensitizationMange extends Component {
                             <TabPane tab="血缘关系" key="bloodRelation">
                                 <BloodRelation
                                     visibleSlidePane={visibleSlidePane}
-                                    tabData={selectedDesensitization}
+                                    tableData={selectedDesensitization}
                                 />
                             </TabPane>
                         </Tabs>

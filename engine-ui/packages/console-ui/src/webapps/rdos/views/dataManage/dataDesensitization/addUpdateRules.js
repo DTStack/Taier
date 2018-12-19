@@ -30,25 +30,68 @@ class AddUpdateRules extends Component {
     changeReplaceValue = (e) => {
         const { partData } = this.state;
         this.setState({
-            partData: Object.assign(partData, { repalceValue: e.target.value })
+            partData: Object.assign(partData, { repalceValue: e.target.value.length == 1 ? e.target.value : '' })
+        })
+    }
+    // 字符串替换
+    repeatStr = (str, n) => {
+        return new Array(n + 1).join(str)
+    }
+    // 切换radio
+    changedesenType = () => {
+        this.setState({
+            newReplaceData: '',
+            partData: {
+                startInputValue: '',
+                finishInputValue: '',
+                repalceValue: ''
+            }
         })
     }
     // 效果预览
     preview = () => {
         const { getFieldValue } = this.props.form;
-        const sampleData = getFieldValue('sampleData');
+        let sampleData = getFieldValue('sampleData');
         const desensitizationType = getFieldValue('desensitizationType');
-        // const { startInputValue, finishInputValue, repalceValue } = this.state;
+        const { startInputValue, finishInputValue, repalceValue } = this.state.partData;
+        console.log(startInputValue, finishInputValue, repalceValue)
         console.log(sampleData);
-        if (desensitizationType === 1) {
+        if (desensitizationType === 0) {
             if (sampleData) {
-                const newReplaceData = sampleData.replace(sampleData, '*');
-                console.log(newReplaceData)
+                let sampleDataArr = sampleData.split('');
+                console.log(sampleData.split(''));
+                let repeatCount = 0;
+                if ((finishInputValue >= sampleDataArr.length) && (sampleDataArr.length >= startInputValue)) {
+                    repeatCount = sampleDataArr.length - startInputValue
+                } else if (finishInputValue < sampleDataArr.length && (sampleDataArr.length >= startInputValue)) {
+                    repeatCount = finishInputValue - startInputValue;
+                } else if (sampleDataArr.length < startInputValue) {
+                    repeatCount = 0;
+                }
+                // const repeatCount = finishInputValue >= sampleDataArr.length ? sampleDataArr.length - startInputValue : finishInputValue - startInputValue;
+                const newStr = this.repeatStr(repalceValue, repeatCount);
+                console.log(newStr);
+                sampleDataArr.splice(startInputValue, (finishInputValue - startInputValue), newStr).join('');
+                console.log(sampleDataArr);
                 this.setState({
-                    newReplaceData
+                    newReplaceData: sampleDataArr
                 })
             }
         } else {
+            if (sampleData) {
+                let sampleDataAllArr = sampleData.split('');
+                const newStr = this.repeatStr('*', sampleDataAllArr.length);
+                sampleDataAllArr.splice(0, sampleDataAllArr.length, newStr).join('');
+                console.log(newStr);
+                console.log(sampleDataAllArr);
+                this.setState({
+                    newReplaceData: sampleDataAllArr
+                })
+            } else {
+                this.setState({
+                    newReplaceData: ''
+                })
+            }
         }
     }
     cancel = () => {
@@ -71,6 +114,8 @@ class AddUpdateRules extends Component {
         const { status, dataSource } = this.props;
         const isEdit = status === 'edit';
         const desensitizationType = getFieldValue('desensitizationType');
+        // const sampleData = getFieldValue('sampleData');
+        // const sampleDataLength = sampleData.split('').length || 1;
         // const sampleData = getFieldValue('sampleData'); // 样例数据
         const { newReplaceData } = this.state;
         return (
@@ -117,10 +162,11 @@ class AddUpdateRules extends Component {
                         {getFieldDecorator('desensitizationType', {
                             rules: [{
                                 required: true
-                            }]
-                            // initialValue: dataSource.ruleName ? dataSource.ruleName : ''
+                            }],
+                            initialValue: 1
                         })(
                             <RadioGroup
+                                onChange={this.changedesenType}
                             >
                                 <Radio value={1}>全部脱敏</Radio>
                                 <Radio value={0}>部分脱敏</Radio>
@@ -129,20 +175,20 @@ class AddUpdateRules extends Component {
                     </FormItem>
                     { desensitizationType === 0 ? <FormItem>
                         <div style={{ margin: '-10 0 0 150' }}>
-                            若脱敏规则匹配，则将第
+                            将从
                             <InputNumber
-                                style={{ width: '50px' }}
+                                style={{ width: '70px' }}
                                 min={1}
                                 value={this.state.partData.startInputValue}
                                 onChange={this.changeStartValue}
                             />位至第<InputNumber
-                                style={{ width: '50px' }}
-                                min={1}
-                                max={100}
+                                style={{ width: '70px' }}
+                                min={Number(this.state.partData.startInputValue)}
+                                // max={sampleDataLength}
                                 value={this.state.partData.finishInputValue}
                                 onChange={this.changeFinishValue}
                             />位替换为:<Input
-                                style={{ width: '30px' }}
+                                style={{ width: '50px' }}
                                 value={this.state.partData.repalceValue}
                                 onChange={this.changeReplaceValue}
                             />
