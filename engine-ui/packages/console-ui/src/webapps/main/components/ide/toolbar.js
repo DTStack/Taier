@@ -47,7 +47,7 @@ export default class Toolbar extends Component {
 
     render () {
         const {
-            onFormat, enableFormat, disAbleEdit,
+            onFormat, enableFormat, disableEdit,
             leftCustomButton, rightCustomButton, customToobar
         } = this.props;
 
@@ -72,7 +72,7 @@ export default class Toolbar extends Component {
                         格式化
                     </Button>
                 }
-                {!disAbleEdit && <Dropdown overlay={this.editMenu()} trigger={['click']}>
+                {!disableEdit && <Dropdown overlay={this.editMenu()} trigger={['click']}>
                     <Button icon="edit" title="编辑">
                         编辑<Icon type="down" />
                     </Button>

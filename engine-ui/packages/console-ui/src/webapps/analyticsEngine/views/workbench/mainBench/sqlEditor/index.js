@@ -358,7 +358,7 @@ class EditorContainer extends Component {
             enable: true,
             enableRun: true,
             enableFormat: true,
-            disAbleEdit: false,
+            disableEdit: false,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,

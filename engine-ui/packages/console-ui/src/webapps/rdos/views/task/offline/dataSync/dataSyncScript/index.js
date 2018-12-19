@@ -77,7 +77,7 @@ class DataSyncScript extends Component {
                 toolBarOptions={{
                     enableRun: false,
                     enableFormat: couldEdit,
-                    disAbleEdit: !couldEdit,
+                    disableEdit: !couldEdit,
                     onFormat: this.onFormat.bind(this),
                     rightCustomButton: this.getRightButton(),
                     leftCustomButton: couldEdit && this.getLeftButton()
