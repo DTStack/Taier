@@ -253,7 +253,7 @@ class APIMarket extends Component {
                 return this.getCatagoryName(text);
             }
         }, {
-            title: '描述',
+            title: 'API描述',
             dataIndex: 'description',
             key: 'description',
             width: 300,

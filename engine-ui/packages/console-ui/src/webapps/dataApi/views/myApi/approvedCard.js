@@ -275,20 +275,17 @@ class ApprovedCard extends Component {
 
             ]
         }, {
+            title: 'API描述',
+            dataIndex: 'apiDesc',
+            key: 'apiDesc',
+            width: '150px'
+
+        }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
             key: 'recentCallNum'
 
         }, {
-            title: '最近24小时失败率',
-            dataIndex: 'recentFailRate',
-            key: 'recentFailRate',
-            render (text) {
-                return text + '%'
-            }
-
-        },
-        {
             title: '累计调用',
             dataIndex: 'totalCallNum',
             key: 'totalCallNum'
