@@ -158,7 +158,7 @@ class CommonEditorContainer extends Component {
     }
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
-    debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
+    debounceSelectionChange = debounce(this.props.setSelectionContent, 300, { 'maxWait': 2000 })
 
     render () {
         const { editor = {}, currentTabData, value, mode, toolBarOptions = {}, project, user } = this.props;
@@ -189,7 +189,7 @@ class CommonEditorContainer extends Component {
         const toolbarOpts = {
             enable: true,
             enableRun: couldEdit,
-            disAbleEdit: !couldEdit,
+            disableEdit: !couldEdit,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL,

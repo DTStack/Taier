@@ -8,7 +8,8 @@ import HelpDoc, { relativeStyle } from '../../../../helpDoc';
 export default class ConstModal extends React.Component {
     state = {
         constValue: '',
-        constName: ''
+        constName: '',
+        constFormat: ''
     }
 
     onChange = (e) => {
@@ -23,10 +24,17 @@ export default class ConstModal extends React.Component {
         })
     }
 
+    oFormatChange = (e) => {
+        this.setState({
+            constFormat: e.target.value
+        })
+    }
+
     submit = () => {
         const { onOk } = this.props
         const constValue = utils.trim(this.state.constValue)
         const constName = utils.trim(this.state.constName)
+        const constFormat = utils.trim(this.state.constFormat)
 
         if (constName === '') {
             message.error('常量名称不可为空！');
@@ -40,7 +48,8 @@ export default class ConstModal extends React.Component {
         const constObj = {
             type: 'string',
             key: constName,
-            value: constValue
+            value: constValue,
+            format: constFormat
         }
         if (onOk) {
             onOk(constObj);
@@ -56,7 +65,7 @@ export default class ConstModal extends React.Component {
     }
 
     render () {
-        const { constValue, constName } = this.state
+        const { constValue, constName, constFormat } = this.state
         const { visible } = this.props
         /* eslint-disable */
         return (
@@ -76,12 +85,17 @@ export default class ConstModal extends React.Component {
                     onChange={this.onChange}
                     placeholder="请输入常量值"
                 />
+                <Input
+                    style={{ marginTop: '10px' }}
+                    value={constFormat}
+                    onChange={this.oFormatChange}
+                    placeholder="格式化, 例如：YYYY-MM-DD"
+                />
                 <p style={{ marginTop: '10px' }}>1.输入的常量值将会被英文单引号包括，如'abc'、'123'等</p>
                 <p>2.可以配合调度参数使用，如 ${`{bdp.system.bizdate}`}
                 等 <HelpDoc style={relativeStyle} doc="customSystemParams" /></p>
                 <p>3.如果您输入的值无法解析，则类型显示为'未识别'</p>
             </Modal>
         )
-        /* eslint-disable */
     }
 }
