@@ -25,19 +25,16 @@ export default class PaneField extends Component {
             partData: [],
             dataType: 'column'
         }
+        this.initData(this.props);
     }
     changeData = (e) => {
         this.setState({
             dataType: e.target.value
         }, () => this.initData(this.props))
     }
-    componentDidMount () {
-        console.log(this.state.paginationParams)
-        this.initData(this.props);
-    }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         console.log(this.state.paginationParams)
         this.initData(nextProps);
     }
@@ -84,7 +81,10 @@ export default class PaneField extends Component {
         // this.state.paginationParams.current = 1;
         //   this.state.dataList = data.slice((this.state.paginationParams.current - 1) * this.state.paginationParams.pageSize, paginationParams.current * paginationParams.pageSize)
         this.setState({
-            dataList: data.slice((this.state.paginationParams.current - 1) * this.state.paginationParams.pageSize, paginationParams.current * paginationParams.pageSize),
+            dataList: data.slice(
+                (this.state.paginationParams.current - 1) * this.state.paginationParams.pageSize,
+                paginationParams.current * paginationParams.pageSize
+            ),
             paginationParams: this.state.paginationParams
         })
     }
