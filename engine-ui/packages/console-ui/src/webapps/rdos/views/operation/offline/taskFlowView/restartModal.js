@@ -7,6 +7,7 @@ import {
 
 import Api from '../../../../api'
 import { TaskType, TaskStatus } from '../../../../components/status'
+import { TASK_STATUS } from '../../../../comm/const'
 
 const TreeNode = Tree.TreeNode
 
@@ -132,6 +133,14 @@ class RestartModal extends Component {
                 const status = item.jobStatus || item.status;
                 const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
 
+                // 禁止重跑并恢复调度
+                const disableChecked = status === TASK_STATUS.WAIT_SUBMIT || // 未运行
+                status === TASK_STATUS.FINISHED || // 已完成
+                status === TASK_STATUS.RUN_FAILED || // 运行失败
+                status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
+                status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
+                status === TASK_STATUS.STOPED; // 已停止
+
                 const content = <Row>
                     <Col span="6" className="ellipsis" title={name}>{name}</Col>
                     <Col span="8">{item.cycTime}</Col>
@@ -142,6 +151,7 @@ class RestartModal extends Component {
                 if (item.childs) {
                     return (<TreeNode
                         data={item}
+                        disableCheckbox={!disableChecked}
                         value={id}
                         title={content}
                         key={id}>
