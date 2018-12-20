@@ -461,14 +461,11 @@ class TargetForm extends React.Component {
                             }],
                             initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
                         })(
-                            <RadioGroup onChange={this.submitForm.bind(this)}>
-                                <Radio value="insert" style={{ float: 'left' }}>
-                                    视为脏数据，保留原有数据（Insert Into）
-                            </Radio>
-                                <Radio value="replace" style={{ float: 'left' }}>
-                                    替换原有数据（Replace Into）
-                            </Radio>
-                            </RadioGroup>
+                            <Select onChange={this.submitForm.bind(this)}>
+                                <Option value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
+                                <Option value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
+                                <Option value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                            </Select>
                         )}
                     </FormItem>
                 ];

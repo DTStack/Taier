@@ -213,5 +213,11 @@ export const dateTimeFormat = (
         修改Date类型的格式
     </span>
 )
+
+export const taskFailRetry = (
+    <span>
+        默认出错自动重试3次，时间间隔2分钟
+    </span>
+)
 /* eslint-disable */
 
