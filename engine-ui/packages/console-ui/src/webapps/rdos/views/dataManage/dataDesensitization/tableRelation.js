@@ -124,19 +124,24 @@ class TableRelation extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 20px', display: 'inline-block' }}>
+                <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
                 </div>
-                <div style={{ display: 'inline-block', marginLeft: '5px' }}>
+                <div style={{ display: 'inline-block', marginLeft: '15px' }}>
                     <Button type="primary" size="small" onClick={this.batchOpera.bind(this, true)}>批量开启</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchOpera.bind(this, false)}>批量关闭</Button>&nbsp;
                 </div>
             </div>
         )
+    }
+    onSelectChange = (selectedRowKeys) => {
+        this.setState({
+            selectedRowKeys
+        })
     }
     onCheckAllChange = (e) => {
         const { tableData } = this.state;
@@ -167,9 +172,7 @@ class TableRelation extends Component {
                 width: 120,
                 dataIndex: 'tableName',
                 render: (text, record) => {
-                    return (
-                        <Checkbox>{text}</Checkbox>
-                    )
+                    return text
                 }
             },
             {
@@ -248,7 +251,11 @@ class TableRelation extends Component {
     }
     render () {
         const columns = this.initColumns();
-        const { dataSource } = this.state;
+        const { dataSource, selectedRowKeys } = this.state;
+        const rowSelection = {
+            selectedRowKeys,
+            onChnage: this.onSelectChange
+        }
         return (
             <div className='m-card'>
                 <Card
@@ -274,6 +281,7 @@ class TableRelation extends Component {
                         className="m-table-fix m-table"
                         columns={columns}
                         dataSource={dataSource}
+                        rowSelection={rowSelection}
                         onChange={this.handleTableChange}
                         footer={this.tableFooter}
                     />
