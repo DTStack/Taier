@@ -18,24 +18,24 @@ db:
    pwd: abc123
 
 engineTypes:
-    -
-        typeName: flink150
-        clusterMode: yarn
-        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
+#    -
+#        typeName: flink150
+#        clusterMode: yarn
+#        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
         #简化为只配置/flink150/ha
-        flinkHighAvailabilityStorageDir: /flink154_yx/ha
-        flinkZkNamespace: /flink154_yx
-        jarTmpDir: ../tmp150
-        flinkPluginRoot: /Users/jiangjunjie/Downloads/150_flinkplugin
-        remotePluginRootDir: /opt/dtstack/150_flinkplugin
+#        flinkHighAvailabilityStorageDir: /flink154_yx/ha
+#        flinkZkNamespace: /flink154_yx
+#        jarTmpDir: ../tmp150
+#        flinkPluginRoot: /Users/jiangjunjie/Downloads/150_flinkplugin
+#        remotePluginRootDir: /opt/dtstack/150_flinkplugin
         #新增配置
-        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
+#        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
         #new
         #flinkYarnNewModeMaxSlots: 4
         #perjob
         #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
-        flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
-        flinkJobHistory: http://kudu1:8082
+#        flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
+#        flinkJobHistory: http://kudu1:8082
 
 
     #-
@@ -49,7 +49,7 @@ engineTypes:
     -
         typeName: spark_yarn
         sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
-        sparkSqlProxyPath: hdfs://kudu1:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
+        sparkSqlProxyPath: hdfs://kudu1:9000/user/spark/spark-sql-proxy-1.0.0.jar
         sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
         sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1:9000/pythons/py4j-0.10.4-src.zip
 

@@ -116,8 +116,6 @@ public class SparkYarnClient extends AbsClient {
         String userPrincipal = ConfigParse.userPrincipal();
         String userKeytabPath = ConfigParse.userKeytabPath();
         String krb5ConfPath = ConfigParse.krb5ConfPath();
-        yarnConf.addResource(new Path("/etc/hadoop/conf/core-site.xml"));
-        yarnConf.addResource(new Path("/etc/hadoop/conf/hdfs-site.xml"));
         try {
             KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf);
         } catch (IOException e) {
@@ -309,8 +307,8 @@ public class SparkYarnClient extends AbsClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
-        sparkConf.set("spark.yarn.keytab", "/etc/hadoop/conf/admin.keytab");
-        sparkConf.set("spark.yarn.principal", "admin/kudu1@DTSTACK.COM");
+        sparkConf.set("spark.yarn.keytab", ConfigParse.userKeytabPath());
+        sparkConf.set("spark.yarn.principal", ConfigParse.userPrincipal());
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;

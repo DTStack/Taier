@@ -24,6 +24,8 @@ import java.nio.charset.StandardCharsets
 import java.util.zip.{ZipEntry, ZipOutputStream}
 import java.util.{Properties, UUID}
 
+import com.dtstack.rdos.common.config.ConfigParse
+import com.dtstack.rdos.engine.execution.sparkyarn.util.KerberosUtils
 import com.google.common.base.Objects
 import com.google.common.io.Files
 import org.apache.hadoop.conf.Configuration
@@ -392,6 +394,18 @@ private[spark] class DtClient(
     new Path(resolvedDestDir, qualifiedDestPath.getName())
   }
 
+  def initSecurity():Unit = {
+    val userPrincipal = ConfigParse.userPrincipal
+    val userKeytabPath = ConfigParse.userKeytabPath
+    val krb5ConfPath = ConfigParse.krb5ConfPath
+    try
+      KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf)
+    catch {
+      case e: IOException =>
+        e.printStackTrace()
+    }
+  }
+
   /**
     * Upload any resources to the distributed cache if needed. If a resource is intended to be
     * consumed locally, set up the appropriate config for downstream code to handle it properly.
@@ -406,6 +420,7 @@ private[spark] class DtClient(
     // and add them as local resources to the application master.
     val fs = destDir.getFileSystem(hadoopConf)
 
+    initSecurity()
     // Merge credentials obtained from registered providers
     val nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
 

@@ -58,6 +58,12 @@
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-hive_2.11</artifactId>
 			<version>${spark.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hive</groupId>
+					<artifactId>hive-exec</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>

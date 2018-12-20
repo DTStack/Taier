@@ -24,7 +24,6 @@
 		<module>base/plugin/hadoop</module>
 		<module>base/plugin/learning</module>
 		<module>base/plugin/flink150</module>
-        <module>base/plugin/spark160-yarn</module>
 		<module>base/plugin/dt-yarn-shell</module>
 	</modules>
 
