@@ -2,7 +2,7 @@ import moment from 'moment'
 import utils from 'utils'
 
 import API from '../../../api';
-import { taskStatus, offlineTaskStatusFilter } from '../../../comm/const'
+import { taskStatus, offlineTaskStatusFilter, TASK_TYPE } from '../../../comm/const'
 import { editorAction } from './actionTypes';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 
@@ -33,7 +33,15 @@ function getDataOver (dispatch, currentTab, res, jobId) {
     }
 }
 
-function doSelect (resolve, dispatch, jobId, currentTab) {
+/**
+ * 获取执行结果
+ * @param {*} resolve
+ * @param {*} dispatch
+ * @param {*} jobId
+ * @param {*} currentTab
+ * @param {*} taskType 任务类型
+ */
+function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
     function outputStatus (status, extText) {
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value == status) {
@@ -42,9 +50,9 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
             }
         }
     }
-    API.selectSQLResultData({
+    API.selectExecResultData({
         jobId: jobId
-    })
+    }, taskType)
         .then(
             (res) => {
                 if (res && res.code) {
@@ -96,10 +104,10 @@ function doSelect (resolve, dispatch, jobId, currentTab) {
         )
 }
 
-function selectData (dispatch, jobId, currentTab) {
+function selectData (dispatch, jobId, currentTab, taskType) {
     return new Promise(
         (resolve, reject) => {
-            doSelect(resolve, dispatch, jobId, currentTab)
+            doSelect(resolve, dispatch, jobId, currentTab, taskType)
         }
     )
 }
@@ -172,7 +180,7 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
     }
 }
 
-// 执行sql
+// 执行任务
 export function execSql (currentTab, task, params, sqls) {
     return (dispatch) => {
         stopSign[currentTab] = false;
@@ -206,7 +214,6 @@ export function stopSql (currentTab, currentTabData, isSilent) {
             /**
              * 目前执行停止之后还需要继续轮训后端状态，所以停止方法调用成功也不主动执行停止操作，而且根据后续轮训状态来执行停止操作
              */
-
         }
 
         if (utils.checkExist(currentTabData.taskType)) { // 任务执行
@@ -219,6 +226,69 @@ export function stopSql (currentTab, currentTabData, isSilent) {
                 scriptId: currentTabData.id,
                 jobId: jobId
             }).then(succCall)
+        }
+    }
+}
+
+/**
+ * 执行数据同步任务
+ */
+export function execDataSync (currentTab, params) {
+    return async dispatch => {
+        dispatch(setOutput(currentTab, createLog(`同步任务【${params.name}】开始执行`, 'info')))
+
+        const res = await API.execDataSyncImmediately(params);
+        // 假如已经是停止状态，则弃用结果
+        if (stopSign[currentTab]) {
+            console.log('find stop sign in succCall')
+            stopSign[currentTab] = false;
+            return;
+        }
+        if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+        // 执行结束
+        if (!res || (res && res.code != 1)) {
+            dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
+            dispatch(removeLoadingTab(currentTab))
+        }
+        if (res && res.code === 1) {
+            dispatch(output(currentTab, createLog(`已经成功发送执行请求...`, 'info')))
+            if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+            if (res.data.jobId) {
+                runningSql[currentTab] = res.data.jobId;
+                selectData(dispatch, res.data.jobId, currentTab, TASK_TYPE.SYNC);
+            } else {
+                dispatch(output(currentTab, createLog(`执行返回结果异常`, 'error')))
+            }
+        }
+    }
+}
+
+/**
+ * 停止数据同步任务
+ */
+export function stopDataSync (currentTab, isSilent) {
+    return async (dispatch, getState) => {
+        // 静默关闭，不通知任何人（服务器，用户）
+        if (isSilent) {
+            const running = getState().editor.running;
+            if (running.indexOf(currentTab) > -1) {
+                stopSign[currentTab] = true;
+                dispatch(output(currentTab, createLog('执行停止', 'warning')))
+                dispatch(removeLoadingTab(currentTab))
+                if (intervalsStore[currentTab]) {
+                    clearTimeout(intervalsStore[currentTab])
+                    intervalsStore[currentTab] = null;
+                }
+                return;
+            }
+            return;
+        }
+        const jobId = runningSql[currentTab]
+        if (!jobId) return
+
+        const res = await API.stopDataSyncImmediately({ jobId: jobId });
+        if (res && res.code === 1) {
+            dispatch(output(currentTab, createLog('执行停止', 'warning')))
         }
     }
 }
