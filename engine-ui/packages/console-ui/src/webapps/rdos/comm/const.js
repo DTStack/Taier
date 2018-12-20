@@ -76,7 +76,13 @@ export const COLLECT_TYPE = {
     TIME: 1,
     FILE: 2
 }
-
+/**
+ * 项目创建方式
+ */
+export const PROJECT_CREATE_MODEL = {
+    NORMAL: 0,
+    IMPORT: 1
+}
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
