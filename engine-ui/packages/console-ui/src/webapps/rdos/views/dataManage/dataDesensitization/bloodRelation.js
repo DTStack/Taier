@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Tooltip, Spin, Icon, message
+    Tooltip, Spin, Icon, message, Alert
 } from 'antd'
 
 import { cloneDeep } from 'lodash';
@@ -619,6 +619,9 @@ export default class BloodRelation extends React.Component {
                     </Tooltip>
                 </div>
                 <div className="graph-legend">
+                    <div className='desenAlert' style={{ marginLeft: '-17px', marginTop: '-40px' }}>
+                        <Alert message='点击右键，可以展开上下游、开启/关闭脱敏' type="info" showIcon />
+                    </div>
                     <div>
                         <span
                             className="legend-item"

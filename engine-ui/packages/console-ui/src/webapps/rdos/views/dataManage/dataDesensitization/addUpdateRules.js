@@ -192,6 +192,7 @@ class AddUpdateRules extends Component {
                                 value={this.state.partData.repalceValue}
                                 onChange={this.changeReplaceValue}
                             />
+                            {/* <div style={{ color: 'red' }}>开始位置不能大于等于结束位置!</div> */}
                         </div>
                     </FormItem> : ''}
                     <FormItem

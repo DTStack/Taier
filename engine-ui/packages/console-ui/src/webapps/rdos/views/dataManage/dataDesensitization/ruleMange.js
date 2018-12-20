@@ -109,7 +109,7 @@ class RuleManage extends Component {
                             <a onClick={() => { this.setState({ addVisible: true, status: 'edit', source: record }) }}>编辑</a>
                             <span className="ant-divider"></span>
                             <Popconfirm
-                                title="确定删除此条脱敏吗?"
+                                title="确定删除此条规则吗?"
                                 okText="是"
                                 cancelText="否"
                                 onConfirm={() => { this.delete(record) }}

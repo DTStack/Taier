@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Select } from 'antd';
+import { Modal, Form, Input, Select, Alert } from 'antd';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
@@ -112,6 +112,9 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
+                    <div style={{ marginLeft: '110px', marginTop: '-20px' }} className='desenAlert'>
+                        <Alert message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
+                    </div>
                     <FormItem
                         {...formItemLayout}
                         label="样例数据"

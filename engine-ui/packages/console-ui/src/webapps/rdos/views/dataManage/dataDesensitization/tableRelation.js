@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Input, Select, Card, Table, Checkbox, Switch, message } from 'antd';
+import { Input, Select, Card, Table, Checkbox, Switch, message, Button, Modal } from 'antd';
 import ajax from '../../../api/dataManage';
 const Search = Input.Search;
+const confirm = Modal.confirm;
 class TableRelation extends Component {
     state = {
         tableData: [], // 表数据
@@ -11,6 +12,9 @@ class TableRelation extends Component {
             pageSize: 20,
             id: '' // 脱敏id
         },
+        checkAll: false,
+        selectedRowKeys: [],
+        openApply: undefined, // 批量开启还是关闭
         // 按项目名，表名，字段名，开关状态搜索
         projectName: undefined,
         tableName: undefined,
@@ -75,19 +79,74 @@ class TableRelation extends Component {
     }
     // 切换开关
     changeOpenStatus = (checked) => {
-        this.setState({
-            openStatusLoading: true
-        })
-        ajax.updateOpenStatus({
-            status: checked ? 0 : 1
-        }).then(res => {
-            this.setState({
-                openStatusLoading: false
-            })
-            if (res.code === 1) {
-                message.success('状态切换成功');
-                // this.loadTableRelation();
+        // this.setState({
+        //     openStatusLoading: true
+        // })
+        // ajax.updateOpenStatus({
+        //     status: checked ? 0 : 1
+        // }).then(res => {
+        //     this.setState({
+        //         openStatusLoading: false
+        //     })
+        //     if (res.code === 1) {
+        //         message.success('状态切换成功');
+        //         // this.loadTableRelation();
+        //     }
+        // })
+    }
+    // 开关按钮
+    batchOpera = (openApply) => {
+        const text = openApply ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
+        confirm({
+            title: '开启/关闭脱敏',
+            content: `开启脱敏后，数据开发、运维、访客角色的用户${text}？`,
+            okText: openApply ? '开启脱敏' : '关闭脱敏',
+            cancelText: '取消',
+            onCancel: () => {
+                this.setState({
+                    openApply: undefined
+                })
+            },
+            onOk () {
+                this.operaSwitch()
             }
+        })
+    }
+    // 批量开启关闭
+    operaSwitch = (params) => {
+        ajax.updateOpenStatus(params).then(res => {
+            if (res.code === 1) {
+                message.success('操作成功!');
+                this.search();
+            }
+        })
+    }
+    tableFooter = (currentPageData) => {
+        return (
+            <div className="ant-table-row  ant-table-row-level-0">
+                <div style={{ padding: '15px 10px 10px 20px', display: 'inline-block' }}>
+                    <Checkbox
+                        checked={this.state.checkAll}
+                        onChange={this.onCheckAllChange}
+                    >
+                    </Checkbox>
+                </div>
+                <div style={{ display: 'inline-block', marginLeft: '5px' }}>
+                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, true)}>批量开启</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, false)}>批量关闭</Button>&nbsp;
+                </div>
+            </div>
+        )
+    }
+    onCheckAllChange = (e) => {
+        const { tableData } = this.state;
+        let selectedRowKeys = [];
+        if (e.target.checked) {
+            selectedRowKeys = tableData.data.map(item => item.tableId)
+        }
+        this.setState({
+            checkAll: e.target.checked,
+            selectedRowKeys
         })
     }
     // table change
@@ -212,10 +271,11 @@ class TableRelation extends Component {
                     }
                 >
                     <Table
-                        className="m-table"
+                        className="m-table-fix m-table"
                         columns={columns}
                         dataSource={dataSource}
                         onChange={this.handleTableChange}
+                        footer={this.tableFooter}
                     />
                 </Card>
             </div>
