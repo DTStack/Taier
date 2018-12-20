@@ -283,7 +283,7 @@ class Index extends Component {
                             <Button
                                 style={{ float: 'left', margin: '10 0 0 15' }}
                                 type="primary"
-                                onClick={() => { hashHistory.push('/rdos/metaDataImport') }}>
+                                onClick={() => { hashHistory.push('/metaDataImport') }}>
                                 导入元数据
                             </Button>
                             <Tooltip title={(

@@ -126,7 +126,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/rdos" component={Container}>
-            <Route path="metaDataImport" component={MetaDataImport} />
+            <Route path="/metaDataImport" component={MetaDataImport} />
             <IndexRoute component={Dashboard} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />

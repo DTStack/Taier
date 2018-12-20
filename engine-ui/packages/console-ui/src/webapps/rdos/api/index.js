@@ -119,6 +119,12 @@ export default {
     getBindingProjectList(params) {
         return http.post(req.GET_COULD_BINDING_PROJECT_LIST, params)
     },
+    getTableListFromDataBase (params) {
+        return http.post(req.GET_TABLE_LIST_FROM_DATABASE, params)
+    },
+    getRetainDBList (params) {
+        return http.post(req.GET_RETAINDB_LIST, params)
+    },
     // ========== Role ========== //
     getRoleList(params) {
         return http.post(req.GET_ROLE_LIST, params)

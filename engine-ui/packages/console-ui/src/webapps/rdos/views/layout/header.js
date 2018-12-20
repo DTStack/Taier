@@ -262,14 +262,13 @@ class Header extends Component {
 
     isIndex () {
         const { current } = this.state;
-        const isIndex = current == 'overview' || current == 'data-manage';
+        const isIndex = current == 'overview' || current == 'data-manage' || current == 'metaDataImport';
         return isIndex;
     }
 
     render () {
-        const { user, project, apps, app, router } = this.props;
+        const { user, project, apps, app } = this.props;
         const { devPath } = this.state;
-        let pathname = router.location.pathname;
 
         const isIndex = this.isIndex();
         const display = !isIndex ? 'inline-block' : 'none';
@@ -279,8 +278,7 @@ class Header extends Component {
         const basePath = app.link;
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
-        const showProjectSelect = !(pathname.indexOf('/data-manage') > -1 ||
-            pathname === '/');
+        const showProjectSelect = !isIndex;
         // const projectTypeView = this.renderProjectType();
         return (
             <div className="header">
