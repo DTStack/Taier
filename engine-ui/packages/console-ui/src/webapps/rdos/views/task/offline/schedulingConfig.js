@@ -130,7 +130,7 @@ class ScheduleForm extends React.Component {
             >
                 {getFieldDecorator('isFailRetry', {
                     valuePropName: 'checked',
-                    initialValue: get(scheduleConf, 'isFailRetry', false)
+                    initialValue: get(scheduleConf, 'isFailRetry', true)
                 })(
                     <Checkbox
                         onChange={ this.changeScheduleConf.bind(this) }
