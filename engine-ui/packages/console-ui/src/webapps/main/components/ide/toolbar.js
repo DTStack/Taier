@@ -17,7 +17,7 @@ export default class Toolbar extends Component {
 
     renderRun = () => {
         const {
-            isRunning, onRun, onStop, enableRun
+            isRunning, onRun, onStop, enableRun, disableRun
         } = this.props;
 
         return enableRun ? [
@@ -25,7 +25,7 @@ export default class Toolbar extends Component {
                 key="btnRun"
                 onClick={onRun}
                 loading={isRunning}
-                disabled={isRunning}
+                disabled={disableRun || isRunning}
                 title="立即运行"
                 icon="play-circle-o"
                 style={{ marginLeft: '0px' }}
