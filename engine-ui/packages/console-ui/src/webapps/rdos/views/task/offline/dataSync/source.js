@@ -13,7 +13,7 @@ import {
     Col,
     Tooltip
 } from 'antd';
-import { isEmpty, debounce, get } from 'lodash';
+import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
 import { singletonNotification, debounceEventHander } from 'funcs';
@@ -291,7 +291,10 @@ class SourceForm extends React.Component {
 
     onFtpPathChange = (e) => {
         const { sourceMap, handleSourceMapChange } = this.props;
-        const paths = get(sourceMap, 'type.path', ['']);
+        let paths = get(sourceMap, 'type.path', ['']);
+        if (!isArray(paths)) {
+            paths = [paths];
+        }
         const index = parseInt(e.target.getAttribute('data-index'), 10);
         paths[index] = e.target.value;
         const srcmap = Object.assign({}, sourceMap);
@@ -303,7 +306,10 @@ class SourceForm extends React.Component {
 
     onAddFtpPath = () => {
         const { sourceMap, handleSourceMapChange } = this.props;
-        const paths = get(sourceMap, 'type.path', ['']);
+        let paths = get(sourceMap, 'type.path', ['']);
+        if (!isArray(paths)) {
+            paths = [paths];
+        }
         paths.push('');
         const srcmap = Object.assign({}, sourceMap);
         srcmap.type.path = paths;
@@ -1258,6 +1264,27 @@ class SourceForm extends React.Component {
             }
             case DATA_SOURCE.FTP: {
                 const paths = get(sourceMap, 'type.path', ['']);
+                const getItem = (path, index) => {
+                    return (
+                        <div style={{ paddingBottom: 10, position: 'relative' }} key={`path_${index}`}>
+                            <Input
+                                className="ant-input-lg"
+                                placeholder="例如: /rdos/batch"
+                                defaultValue={ path }
+                                data-index={index}
+                                onChange={this.debounceFtpChange}
+                            />
+                            { index > 0 ? <Button
+                                    onClick={this.onRemoveFtpPath.bind(this, index)}
+                                    title="删除当前路径"
+                                    shape="circle"
+                                    style={removeBtnStyle} 
+                                    icon="minus"
+                                /> : '' 
+                            }
+                        </div>
+                    )
+                }
                 const removeBtnStyle = {
                     position: 'absolute',
                     right: '-25px',
@@ -1266,25 +1293,11 @@ class SourceForm extends React.Component {
                     width: '20px',
                     height: '20px'
                 }
-                const pathItems = paths.map && paths.map((path, index) => (
-                    <div style={{ paddingBottom: 10, position: 'relative' }} key={`path_${index}`}>
-                        <Input
-                            className="ant-input-lg"
-                            placeholder="例如: /rdos/batch"
-                            defaultValue={ path }
-                            data-index={index}
-                            onChange={this.debounceFtpChange}
-                        />
-                        { index > 0 ? <Button
-                                onClick={this.onRemoveFtpPath.bind(this, index)}
-                                title="删除当前路径"
-                                shape="circle"
-                                style={removeBtnStyle} 
-                                icon="minus"
-                            /> : '' 
-                        }
-                    </div>
-                ));
+                let pathItems = getItem(paths, 0);
+                if (isArray(paths)) {
+                    pathItems = paths.map && paths.map((path, index) => getItem(path, index));
+                }
+
                 formItem = [
                     <FormItem {...formItemLayout} label="路径" key="path">
                         {pathItems}
