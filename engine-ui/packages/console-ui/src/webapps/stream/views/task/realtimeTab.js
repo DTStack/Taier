@@ -216,7 +216,8 @@ class RealTimeTabPane extends Component {
         Api.cloneTask(task).then(res => {
             if (res.code === 1) {
                 message.success('任务克隆成功！')
-                this.closeModal()
+                this.closeModal();
+                dispatch(BrowserAction.openPage({ id: res.data.id })) // 需后端返回克隆之后的任务id
                 dispatch(TreeAction.getRealtimeTree({
                     id: task.nodePid,
                     catalogueType: MENU_TYPE.TASK_DEV

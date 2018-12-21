@@ -57,13 +57,17 @@ class DataSync extends React.Component {
         const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
         const { sourceMap, targetMap } = nextProps;
 
-        const oldSQL = oldTarget && oldTarget.type && (oldTarget.type.preSql || oldTarget.type.postSql);
-        const newSQL = targetMap && targetMap.type && (targetMap.type.preSql || targetMap.type.postSql);
+        const oldSQL = oldTarget && oldTarget.type && oldTarget.type.preSql;
+        const newSQL = targetMap && targetMap.type && targetMap.type.preSql;
+
+        const oldPostSQL = oldTarget && oldTarget.type && oldTarget.type.postSql;
+        const newPostSQL = targetMap && targetMap.type && targetMap.type.postSql;
 
         const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where !== undefined && oldSource.type.where !== undefined && oldSource.type.where !== sourceMap.type.where;
         const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && (oldSource.type.partition !== undefined || sourceMap.type.partition !== undefined) && oldSource.type.partition !== sourceMap.type.partition;
         const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.partition !== undefined || targetMap.type.partition !== undefined) && oldTarget.type.partition !== targetMap.type.partition;
         const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
+        const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
 
         // Output test conditions
@@ -79,6 +83,7 @@ class DataSync extends React.Component {
         isSourceParitionChange || // source type update
         isTargetPartitionChange || // target type update
         isSQLChange || // target type update
+        isPostSQLChange || // target type update
         isSourceColumnChange // source columns update
     }
 
