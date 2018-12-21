@@ -211,7 +211,7 @@ class OfflineTabPane extends Component {
         }).then(res => {
             if (res.code === 1) {
                 const arrData = res.data.children;
-
+                const expandedKeys = []
                 this.setState({ subMenus: arrData })
 
                 for (let i = 0; i < arrData.length; i++) {
@@ -228,9 +228,7 @@ class OfflineTabPane extends Component {
                                     taskType: menuItem.children[0].taskType,
                                     parentId: menuItem.children[0].parentId
                                 })
-                            this.setState({
-                                expandedKeys: [`${MENU_TYPE.TASK_DEV}-${menuItem.children[0].id}`]
-                            });
+                            expandedKeys.push(`${MENU_TYPE.TASK_DEV}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.SCRIPT: {
@@ -239,11 +237,12 @@ class OfflineTabPane extends Component {
                                 payload: menuItem.children[0]
                             });
                             this.props.loadTreeNode(menuItem.children[0].id,
-                                MENU_TYPE.TASK_DEV,
+                                MENU_TYPE.SCRIPT,
                                 {
                                     taskType: menuItem.children[0].taskType,
                                     parentId: menuItem.children[0].parentId
                                 })
+                            expandedKeys.push(`${MENU_TYPE.SCRIPT}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.RESOURCE: {
@@ -273,6 +272,9 @@ class OfflineTabPane extends Component {
                         }
                     }
                 }
+                this.setState({
+                    expandedKeys
+                })
             }
         });
     }
