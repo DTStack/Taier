@@ -124,9 +124,8 @@ public class FlinkClientBuilder {
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
         }
 
-        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
-            //TODO 测试强制设置为null
-            //config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+        if(flinkConfig.getFlinkClusterId() != null){//standalone必须设置
+            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));

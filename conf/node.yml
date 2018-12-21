@@ -1,12 +1,13 @@
 #engine
 slots: 10
 localAddress: localhost:8080
-nodeZkAddress: node1:24002,node2:24002,node3:24002/flink154_xc
+#nodeZkAddress: node1:24002,node2:24002,node3:24002/xc_engine
+nodeZkAddress: node01:2181,node02:2181,node03:2181/xc_engine
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
 
-isSecurity: true
+isSecurity: false
 userPrincipal: yanxi@HADOOP.COM
 zkPrincipal: yanxi@HADOOP.COM
 userKeytabPath: D:\kerberos\fusioninsight\yanxi_keytab\user.keytab
@@ -23,10 +24,10 @@ engineTypes:
     -
         typeName: flink150
         clusterMode: yarn
-        flinkZkAddress: node1:24002,node2:24002,node3:24002
+        flinkZkAddress: node01:2181,node02:2181,node03:2181
         #简化为只配置/flink150/ha
-        flinkHighAvailabilityStorageDir: /flink150/ha
-        flinkZkNamespace: /flink150
+        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
+        flinkZkNamespace: /flink155_1
         jarTmpDir: ../tmp150
         flinkPluginRoot: D:\flinkplugin
         remotePluginRootDir: /opt/dtstack/150_flinkplugin
