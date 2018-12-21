@@ -244,6 +244,11 @@ public class FlinkClientBuilder {
         ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig);
 
         ClusterClient<ApplicationId> clusterClient = null;
+
+        if(!flinkConfiguration.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
+            flinkConfiguration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
+        }
+
         AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration, yarnConf,".",
                 yarnClient, false);
 
