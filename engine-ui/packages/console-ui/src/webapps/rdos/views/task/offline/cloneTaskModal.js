@@ -6,7 +6,7 @@ import ajax from '../../../api';
 import { getContainer } from 'funcs';
 
 import {
-    modalAction
+    modalAction, workbenchAction
 } from '../../../store/modules/offlineTask/actionType';
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
@@ -265,6 +265,20 @@ dispatch => {
             return ajax.cloneTask(params)
                 .then(res => {
                     if (res.code === 1) {
+                        ajax.getOfflineTaskDetail({
+                            id: defaultData.id // 需后端返回克隆之后的任务id
+                        }).then(res => {
+                            if (res.code === 1) {
+                                dispatch({
+                                    type: workbenchAction.LOAD_TASK_DETAIL,
+                                    payload: res.data
+                                });
+                                dispatch({
+                                    type: workbenchAction.OPEN_TASK_TAB,
+                                    payload: defaultData.id
+                                });
+                            }
+                        });
                         benchActions.loadTreeNode(defaultData.nodePid, MENU_TYPE.TASK_DEV)
                         return true;
                     }
