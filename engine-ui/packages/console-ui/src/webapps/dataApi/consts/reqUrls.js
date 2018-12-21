@@ -38,6 +38,7 @@ export default {
     PARSER_SQL: `${DATA_API_BASE_URL}/apis/sqlParser`, // sql解析
     TEST_API: `${DATA_API_BASE_URL}/apis/apiTest`, // api测试
     CHECK_API_IS_EXIST: `${DATA_API_BASE_URL}/apis/checkNameExist`, // api名称是否存在
+    GET_API_TIME_INFO_FOR_MANAGER: `${DATA_API_BASE_URL}/apis/getApiTimeInfoForManager`, // api调用延迟
 
     // ===== 我的api =====//
     GET_APPLY_LIST: `${DATA_API_BASE_URL}/apply/userApplyList`, // 获取申请列表
@@ -50,6 +51,7 @@ export default {
     GET_API_CALL_ERROR_LOG_ADMIN: `${DATA_API_BASE_URL}/log/queryApiCallLogForManager`, // 管理员获取api错误统计日志
     GET_API_CALL_URL: `${DATA_API_BASE_URL}/apis/getApiCallUrl`, // 获取api调用方式
     GET_API_CREATOR_INFO: `${DATA_API_BASE_URL}/apis/getApiCreatorInfo`, // 获取api创建人的信息
+    GET_API_TIME_INFO: `${DATA_API_BASE_URL}/apis/getApiTimeInfoForNormal`, // api调用延迟
 
     // ===== 市场信息 =====//
     GET_CATALOGUE: `${DATA_API_BASE_URL}/catalogue/getCatalogue`, // 获取市场分类信息

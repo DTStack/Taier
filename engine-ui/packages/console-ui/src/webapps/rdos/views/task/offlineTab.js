@@ -222,6 +222,15 @@ class OfflineTabPane extends Component {
                                 type: taskTreeAction.RESET_TASK_TREE,
                                 payload: menuItem.children[0]
                             });
+                            this.props.loadTreeNode(menuItem.children[0].id,
+                                MENU_TYPE.TASK_DEV,
+                                {
+                                    taskType: menuItem.children[0].taskType,
+                                    parentId: menuItem.children[0].parentId
+                                })
+                            this.setState({
+                                expandedKeys: [`${MENU_TYPE.TASK_DEV}-${menuItem.children[0].id}`]
+                            });
                             break;
                         }
                         case MENU_TYPE.SCRIPT: {
@@ -229,6 +238,12 @@ class OfflineTabPane extends Component {
                                 type: scriptTreeAction.RESET_SCRIPT_TREE,
                                 payload: menuItem.children[0]
                             });
+                            this.props.loadTreeNode(menuItem.children[0].id,
+                                MENU_TYPE.TASK_DEV,
+                                {
+                                    taskType: menuItem.children[0].taskType,
+                                    parentId: menuItem.children[0].parentId
+                                })
                             break;
                         }
                         case MENU_TYPE.RESOURCE: {

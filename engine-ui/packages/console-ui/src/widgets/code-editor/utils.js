@@ -93,3 +93,10 @@ export function createLog (log, type = '') {
     const now = moment().format('HH:mm:ss');
     return `[${now}] <${type}> ${log}`
 }
+export function createTitle (title = '') {
+    const baseLength = 15;
+    const offsetLength = Math.floor(1.5 * title.length / 2);
+    let arr = new Array(Math.max(baseLength - offsetLength, 5));
+    const wraptext = arr.join('=');
+    return `${wraptext}${title}${wraptext}`
+}

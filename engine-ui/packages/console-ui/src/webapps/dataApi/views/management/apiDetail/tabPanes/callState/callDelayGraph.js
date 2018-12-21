@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { Col, Row } from 'antd';
 
 import Resize from 'widgets/resize';
-import { connect } from 'react-redux';
 import { lineAreaChartOptions } from '../../../../../consts';
-import { mineActions } from '../../../../../actions/mine';
+import api from '../../../../../api/apiManage'
 import { cloneDeep } from 'lodash'
 import utils from 'utils'
 
@@ -17,48 +16,30 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 
-const mapDispatchToProps = dispatch => ({
-    getApiCallInfo (apiId, time) {
-        return dispatch(
-            mineActions.getApiCallInfo({
-                apiId: apiId,
-                time: time,
-                useAdmin: true
-            })
-        )
-    }
-});
-
-@connect(null, mapDispatchToProps)
 class ManageCallDelayGraph extends Component {
     state = {
-        topCallUser: '',
-        failPercent: '',
-        callCount: '',
-        callList: [],
-        topCallList: [],
+        infoList: [],
         apiId: '',
-        dateType: ''
+        dateType: '',
+        avgDelay: ''
     }
     componentDidMount () {
-        this.getApiCallInfoList();
+        this.getApiCallTime();
     }
-    getApiCallInfoList () {
+    getApiCallTime () {
         let apiId = this.props.apiId;
         let time = this.props.dateType;
 
         if (!apiId || !time) {
             return;
         }
-        this.props.getApiCallInfo(apiId, time)
+        api.getApiCallTime({ apiId, time })
             .then(
                 (res) => {
                     if (res) {
                         this.setState({
-                            callList: res.data.infoList,
-                            topCallUser: res.data.topCallUserName,
-                            failPercent: res.data.failRate,
-                            callCount: res.data.callCount
+                            infoList: res.data.infoList,
+                            avgDelay: res.data.avgExecuteTime
                         }, () => {
                             this.initLineChart();
                         })
@@ -70,23 +51,25 @@ class ManageCallDelayGraph extends Component {
         if (this.state.lineChart) this.state.lineChart.resize()
     }
     initLineChart () {
-        let chartData = this.state.callList
+        let chartData = this.state.infoList
         let callCountDate = [];
         let times = [];
         for (let i = 0; i < chartData.length; i++) {
-            callCountDate.push(chartData[i].callCount)
+            const chart = chartData[i];
+            const time = chart.invokeTime;
+            callCountDate.push(chart.executeTime)
             switch (this.props.dateType) {
                 case '1':
-                    times.push(utils.formatHours(chartData[i].time));
+                    times.push(utils.formatHours(time));
                     break;
                 case '7':
-                    times.push(utils.formatDateHours(chartData[i].time));
+                    times.push(utils.formatDateHours(time));
                     break;
                 case '30':
-                    times.push(utils.formatDate(chartData[i].time));
+                    times.push(utils.formatDate(time));
                     break;
                 case '-1':
-                    times.push(utils.formatDate(chartData[i].time));
+                    times.push(utils.formatDate(time));
                     break;
             }
         }
@@ -142,25 +125,14 @@ class ManageCallDelayGraph extends Component {
         }
     }
     render () {
+        const { avgDelay } = this.state;
         return (
             <div>
                 <Row gutter={100} style={{ paddingLeft: '30px' }} className="m-count padding-l20 height-callstate-item">
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">{this.getDateText()}平均耗时</span>
-                            <span className="m-count-content font-black text-left">{this.state.callCount || 0}<span style={{ fontSize: 12 }}>s</span></span>
-                        </section>
-                    </Col>
-                    <Col span={4}>
-                        <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                            <span className="m-count-title text-left">{this.getDateText()}最高耗时</span>
-                            <span className="m-count-content font-red text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>s</span></span>
-                        </section>
-                    </Col>
-                    <Col span={8}>
-                        <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                            <span className="m-count-title text-left">{this.getDateText()}最低耗时</span>
-                            <span className="m-count-content font-black text-left">{this.state.failPercent || 0}<span style={{ fontSize: 12 }}>s</span></span>
+                            <span className="m-count-content font-black text-left">{avgDelay || 0}<span style={{ fontSize: 12 }}>s</span></span>
                         </section>
                     </Col>
                 </Row>
