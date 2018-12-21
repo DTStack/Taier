@@ -51,6 +51,76 @@ public class SparkYarnConfig {
     //在yarn队列中允许等待执行的任务数量
     private String yarnAccepterTaskNumber;
 
+    private boolean isSecurity;
+
+    private String sparkPrincipal;
+
+    private String sparkKeytabPath;
+
+    private String sparkKrb5ConfPath;
+
+    private String zkPrincipal;
+
+    private String zkKeytabPath;
+
+    private String zkLoginName;
+
+    public boolean isSecurity() {
+        return isSecurity;
+    }
+
+    public void setSecurity(boolean security) {
+        isSecurity = security;
+    }
+
+    public String getSparkPrincipal() {
+        return sparkPrincipal;
+    }
+
+    public void setSparkPrincipal(String sparkPrincipal) {
+        this.sparkPrincipal = sparkPrincipal;
+    }
+
+    public String getSparkKeytabPath() {
+        return sparkKeytabPath;
+    }
+
+    public void setSparkKeytabPath(String sparkKeytabPath) {
+        this.sparkKeytabPath = sparkKeytabPath;
+    }
+
+    public String getSparkKrb5ConfPath() {
+        return sparkKrb5ConfPath;
+    }
+
+    public void setSparkKrb5ConfPath(String sparkKrb5ConfPath) {
+        this.sparkKrb5ConfPath = sparkKrb5ConfPath;
+    }
+
+    public String getZkPrincipal() {
+        return zkPrincipal;
+    }
+
+    public void setZkPrincipal(String zkPrincipal) {
+        this.zkPrincipal = zkPrincipal;
+    }
+
+    public String getZkKeytabPath() {
+        return zkKeytabPath;
+    }
+
+    public void setZkKeytabPath(String zkKeytabPath) {
+        this.zkKeytabPath = zkKeytabPath;
+    }
+
+    public String getZkLoginName() {
+        return zkLoginName;
+    }
+
+    public void setZkLoginName(String zkLoginName) {
+        this.zkLoginName = zkLoginName;
+    }
+
     public String getTypeName() {
         return typeName;
     }

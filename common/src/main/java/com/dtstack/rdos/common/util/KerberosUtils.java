@@ -19,21 +19,6 @@ public class KerberosUtils {
 
     private static final String JAVA_SECURITY_KRB5_CONF_KEY = "java.security.krb5.conf";
 
-    private static final String LOGIN_FAILED_CAUSE_PASSWORD_WRONG =
-            "(wrong password) keytab file and user not match, you can kinit -k -t keytab user in client server to check";
-
-    private static final String LOGIN_FAILED_CAUSE_TIME_WRONG =
-            "(clock skew) time of local server and remote server not match, please check ntp to remote server";
-
-    private static final String LOGIN_FAILED_CAUSE_AES256_WRONG =
-            "(aes256 not support) aes256 not support by default jdk/jre, need copy local_policy.jar and US_export_policy.jar from remote server in path /opt/huawei/Bigdata/jdk/jre/lib/security";
-
-    private static final String LOGIN_FAILED_CAUSE_PRINCIPAL_WRONG =
-            "(no rule) principal format not support by default, need add property hadoop.security.auth_to_local(in core-site.xml) value RULE:[1:$1] RULE:[2:$1]";
-
-    private static final String LOGIN_FAILED_CAUSE_TIME_OUT =
-            "(time out) can not connect to kdc server or there is fire wall in the network";
-
     private static final boolean IS_IBM_JDK = System.getProperty("java.vendor").contains("IBM");
 
     public synchronized static void login(String userPrincipal, String userKeytabPath, String krb5ConfPath, Configuration conf)
@@ -82,42 +67,8 @@ public class KerberosUtils {
 
         // 3.set and check krb5config
         setKrb5Config(krb5ConfFile.getAbsolutePath());
-        setConfiguration(conf);
-
-        // 4.login and check for hadoop
-        loginHadoop(userPrincipal, userKeytabFile.getAbsolutePath());
 
         LOG.info("Login success!!!!!!!!!!!!!!");
-    }
-
-    private static void setConfiguration(Configuration conf) throws IOException {
-        UserGroupInformation.setConfiguration(conf);
-    }
-
-    private static boolean checkNeedLogin(String principal)
-            throws IOException {
-        if (!UserGroupInformation.isSecurityEnabled()) {
-            LOG.error("UserGroupInformation is not SecurityEnabled, please check if core-site.xml exists in classpath.");
-            throw new IOException(
-                    "UserGroupInformation is not SecurityEnabled, please check if core-site.xml exists in classpath.");
-        }
-        UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
-
-        if ((currentUser != null) && (currentUser.hasKerberosCredentials())) {
-            if (checkCurrentUserCorrect(principal)) {
-                LOG.info("current user is " + currentUser + "has logined.");
-                if (!currentUser.isFromKeytab()) {
-                    LOG.error("current user is not from keytab.");
-                    throw new IOException("current user is not from keytab.");
-                }
-                return false;
-            } else {
-                LOG.error("current user is " + currentUser + "has logined. please check your enviroment , especially when it used IBM JDK or kerberos for OS count login!!");
-                throw new IOException("current user is " + currentUser + " has logined. And please check your enviroment!!");
-            }
-        }
-
-        return true;
     }
 
     private static void setKrb5Config(String krb5ConfFile)
@@ -223,73 +174,6 @@ public class KerberosUtils {
             throw new IOException(zkServerPrincipalKey + " is " + ret + " is not "
                     + zkServerPrincipal + ".");
         }
-    }
-
-    private static void loginHadoop(String principal, String keytabFile)
-            throws IOException {
-        try {
-            UserGroupInformation.loginUserFromKeytab(principal, keytabFile);
-        } catch (IOException e) {
-            LOG.error("login failed with " + principal + " and " + keytabFile + ".");
-            LOG.error("perhaps cause 1 is " + LOGIN_FAILED_CAUSE_PASSWORD_WRONG + ".");
-            LOG.error("perhaps cause 2 is " + LOGIN_FAILED_CAUSE_TIME_WRONG + ".");
-            LOG.error("perhaps cause 3 is " + LOGIN_FAILED_CAUSE_AES256_WRONG + ".");
-            LOG.error("perhaps cause 4 is " + LOGIN_FAILED_CAUSE_PRINCIPAL_WRONG + ".");
-            LOG.error("perhaps cause 5 is " + LOGIN_FAILED_CAUSE_TIME_OUT + ".");
-
-            throw e;
-        }
-    }
-
-    private static void checkAuthenticateOverKrb()
-            throws IOException {
-        UserGroupInformation loginUser = UserGroupInformation.getLoginUser();
-        UserGroupInformation currentUser = UserGroupInformation.getCurrentUser();
-        if (loginUser == null) {
-            LOG.error("current user is " + currentUser + ", but loginUser is null.");
-            throw new IOException("current user is " + currentUser + ", but loginUser is null.");
-        }
-        if (!loginUser.equals(currentUser)) {
-            LOG.error("current user is " + currentUser + ", but loginUser is " + loginUser + ".");
-            throw new IOException("current user is " + currentUser + ", but loginUser is " + loginUser + ".");
-        }
-        if (!loginUser.hasKerberosCredentials()) {
-            LOG.error("current user is " + currentUser + " has no Kerberos Credentials.");
-            throw new IOException("current user is " + currentUser + " has no Kerberos Credentials.");
-        }
-        if (!UserGroupInformation.isLoginKeytabBased()) {
-            LOG.error("current user is " + currentUser + " is not Login Keytab Based.");
-            throw new IOException("current user is " + currentUser + " is not Login Keytab Based.");
-        }
-    }
-
-    private static boolean checkCurrentUserCorrect(String principal)
-            throws IOException {
-        UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-        if (ugi == null) {
-            LOG.error("current user still null.");
-            throw new IOException("current user still null.");
-        }
-
-        String defaultRealm = null;
-        try {
-            defaultRealm = KerberosUtil.getDefaultRealm();
-        } catch (Exception e) {
-            LOG.warn("getDefaultRealm failed.");
-            throw new IOException(e);
-        }
-
-        if ((defaultRealm != null) && (defaultRealm.length() > 0)) {
-            StringBuilder realm = new StringBuilder();
-            StringBuilder principalWithRealm = new StringBuilder();
-            realm.append("@").append(defaultRealm);
-            if (!principal.endsWith(realm.toString())) {
-                principalWithRealm.append(principal).append(realm);
-                principal = principalWithRealm.toString();
-            }
-        }
-
-        return principal.equals(ugi.getUserName());
     }
 
     /**

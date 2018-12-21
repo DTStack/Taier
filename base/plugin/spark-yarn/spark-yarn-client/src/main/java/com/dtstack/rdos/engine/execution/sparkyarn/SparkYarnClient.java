@@ -105,7 +105,7 @@ public class SparkYarnClient extends AbsClient {
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
-        if (ConfigParse.getSecurity()){
+        if (sparkYarnConfig.isSecurity()){
             initSecurity();
         }
         yarnClient = YarnClient.createYarnClient();
@@ -113,9 +113,10 @@ public class SparkYarnClient extends AbsClient {
         yarnClient.start();
     }
     private void initSecurity() {
-        String userPrincipal = ConfigParse.userPrincipal();
-        String userKeytabPath = ConfigParse.userKeytabPath();
-        String krb5ConfPath = ConfigParse.krb5ConfPath();
+        String userPrincipal = sparkYarnConfig.getSparkPrincipal();
+        String userKeytabPath = sparkYarnConfig.getSparkKeytabPath();
+        String krb5ConfPath = sparkYarnConfig.getSparkKrb5ConfPath();
+
         try {
             KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf);
         } catch (IOException e) {

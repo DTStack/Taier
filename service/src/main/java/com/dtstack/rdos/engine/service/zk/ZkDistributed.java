@@ -139,60 +139,15 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private static void initSecurity() {
-		String userPrincipal = ConfigParse.userPrincipal();
-		String userKeytabPath = ConfigParse.userKeytabPath();
-		String krb5ConfPath = ConfigParse.krb5ConfPath();
-		Configuration hadoopConf = new Configuration();
-		loadHadoopConf(ConfigParse.hadoopConfPath(), hadoopConf);
-		try {
-			KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 		String PRNCIPAL_NAME = ConfigParse.userPrincipal();
 		String LOGIN_CONTEXT_NAME = "Client";
 		String PATH_TO_KEYTAB = ConfigParse.userKeytabPath();
-		String PATH_TO_KRB5_CONF = ConfigParse.krb5ConfPath();
-
-		hadoopConf.set("username.client.keytab.file", PATH_TO_KEYTAB);
-		hadoopConf.set("username.client.kerberos.principal", PRNCIPAL_NAME);
 
 		try {
 			KerberosUtils.setJaasConf(LOGIN_CONTEXT_NAME, PRNCIPAL_NAME, PATH_TO_KEYTAB);
 			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
-			KerberosUtils.login(PRNCIPAL_NAME, PATH_TO_KEYTAB, PATH_TO_KRB5_CONF, hadoopConf);
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-
-	private static void loadHadoopConf(String dir, Configuration hadoopConf) {
-		File dirFile = new File(dir);
-		if(!dirFile.exists()){
-			logger.error("-----------not set env for HADOOP_CONF_DIR!!!");
-		}else if(!dirFile.isDirectory()){
-			logger.error("HADOOP_CONF_DIR:{} is not dir.", dir);
-		}else{
-			File[] xmlFileList = new File(dir).listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					if(name.endsWith(".xml")) {
-						return true;
-					}
-					return false;
-				}
-			});
-
-			if(xmlFileList != null) {
-				for(File xmlFile : xmlFileList) {
-					try {
-						hadoopConf.addResource(xmlFile.toURI().toURL());
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					}
-				}
-			}
 		}
 	}
 
