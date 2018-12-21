@@ -80,13 +80,14 @@ class LifeCycleSelect extends React.Component {
         </Option>)
     }
     render () {
-        const { width } = this.props
+        const { width } = this.props;
         const { selectValue, value } = this.state;
         return (
             <div>
                 <Select
                     value={`${selectValue}`}
                     style={{ width: width || 200 }}
+                    size="large"
                     placeholder="请选择存储生命周期"
                     onSelect={this.onSelect}
                 >
@@ -94,8 +95,9 @@ class LifeCycleSelect extends React.Component {
                 </Select>
                 {this.showCustom() ? (
                     <Input
+                        size="large"
                         value={value}
-                        style={{ width: '45%' }}
+                        style={{ width: 220, marginLeft: '5px' }}
                         type="number"
                         min={0}
                         addonAfter={'天'}
