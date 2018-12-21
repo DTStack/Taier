@@ -266,7 +266,7 @@ dispatch => {
                 .then(res => {
                     if (res.code === 1) {
                         ajax.getOfflineTaskDetail({
-                            id: defaultData.id // 需后端返回克隆之后的任务id
+                            id: res.data.id // 需后端返回克隆之后的任务id
                         }).then(res => {
                             if (res.code === 1) {
                                 dispatch({
@@ -275,7 +275,7 @@ dispatch => {
                                 });
                                 dispatch({
                                     type: workbenchAction.OPEN_TASK_TAB,
-                                    payload: defaultData.id
+                                    payload: res.data.id
                                 });
                             }
                         });
