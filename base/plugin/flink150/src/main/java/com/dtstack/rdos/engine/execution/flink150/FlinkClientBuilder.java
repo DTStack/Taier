@@ -246,12 +246,11 @@ public class FlinkClientBuilder {
         ClusterClient<ApplicationId> clusterClient = null;
         AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration, yarnConf,".",
                 yarnClient, false);
+
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
-            if (clusterDescriptor != null) {
-                clusterDescriptor.close();
-            }
+            clusterDescriptor.close();
             LOG.info("Couldn't retrieve Yarn cluster.", e);
             throw new RdosException("Couldn't retrieve Yarn cluster.");
         }
