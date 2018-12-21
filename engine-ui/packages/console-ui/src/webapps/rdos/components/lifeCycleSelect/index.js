@@ -36,7 +36,7 @@ class LifeCycleSelect extends React.Component {
     }
 
     static getDerivedStateFromProps (nextProps, prevState) {
-        if (nextProps.value != undefined && nextProps.value != prevState.value) {
+        if (typeof nextProps.value != 'undefined' && nextProps.value != prevState.value) {
             return {
                 value: nextProps.value
             }
@@ -52,12 +52,14 @@ class LifeCycleSelect extends React.Component {
         let nextValue = null;
         if (value != '-1') {
             nextValue = parseInt(value, 10)
+        } else {
+            nextValue = null;
         }
         this.setState({
             value: nextValue,
             selectValue: value
         }, () => {
-            this.props.onChange(value)
+            this.props.onChange(nextValue)
         })
     }
 
@@ -78,30 +80,31 @@ class LifeCycleSelect extends React.Component {
         </Option>)
     }
     render () {
-        const { width } = this.props
+        const { width } = this.props;
         const { selectValue, value } = this.state;
         return (
             <div>
                 <Select
                     value={`${selectValue}`}
                     style={{ width: width || 200 }}
+                    size="large"
                     placeholder="请选择存储生命周期"
                     onSelect={this.onSelect}
                 >
                     {this.renderOptions()}
                 </Select>
-                &nbsp;
-                {this.showCustom() ? (<span>
+                {this.showCustom() ? (
                     <Input
+                        size="large"
                         value={value}
-                        style={{ width: '45%' }}
+                        style={{ width: 220, marginLeft: '5px' }}
                         type="number"
                         min={0}
+                        addonAfter={'天'}
                         placeholder="请输入生命周期"
                         onChange={this.customChange}
                     />
-                    &nbsp;天
-                </span>) : null}
+                ) : null}
             </div>
         )
     }

@@ -34,7 +34,7 @@ class MetaDataForm extends React.Component {
                         }]
                     })(
                         <Select
-                            style={{ width: '200px' }}
+                            style={{ width: '350px' }}
                             placeholder="请选择项目标识"
                         >
                             {this.getProjectOptions()}
@@ -52,6 +52,7 @@ class MetaDataForm extends React.Component {
                         }]
                     })(
                         <Input
+                            style={{ width: '350px' }}
                             placeholder="请输入项目显示名称"
                         />
                     )}
@@ -70,12 +71,13 @@ class MetaDataForm extends React.Component {
                         }]
                     })(
                         <TextArea
+                            style={{ width: '350px' }}
                             placeholder="请输入项目描述"
-                            autosize={{ minRows: 3, maxRows: 7 }}
+                            autosize={{ minRows: 2, maxRows: 7 }}
                         />
                     )}
                 </FormItem>
-                <MetaDataTable database={projectName} />
+                <MetaDataTable key={projectName} database={projectName} />
                 <FormItem
                     label='所属类目'
                     {...formItemLayout}
@@ -89,7 +91,7 @@ class MetaDataForm extends React.Component {
                         <CatalogueSelect
                             showSearch
                             placeholder="请选择所属类目"
-                            style={{ width: '250px' }}
+                            style={{ width: '350px' }}
                         />
                     )}
                 </FormItem>
@@ -103,7 +105,7 @@ class MetaDataForm extends React.Component {
                             message: '生命周期不可为空'
                         }]
                     })(
-                        <LifeCycleSelect />
+                        <LifeCycleSelect width={350} />
                     )}
                 </FormItem>
             </Form>

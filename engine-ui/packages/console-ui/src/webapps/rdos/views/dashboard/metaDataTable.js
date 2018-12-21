@@ -12,14 +12,6 @@ class MetaDataTable extends React.Component {
     componentDidMount () {
         this.getTableList();
     }
-    // 在这边执行state和props改变之后的操作
-    componentDidUpdate (prevProps, prevState) {
-        const { database } = this.props;
-        const { database: oldDatabase } = prevProps;
-        if (database != oldDatabase) {
-            this.getTableList();
-        }
-    }
     async getTableList () {
         this.setState({
             tables: []
