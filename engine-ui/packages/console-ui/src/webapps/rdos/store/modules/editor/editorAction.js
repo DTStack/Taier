@@ -235,8 +235,8 @@ export function stopSql (currentTab, currentTabData, isSilent) {
  */
 export function execDataSync (currentTab, params) {
     return async dispatch => {
-        dispatch(setOutput(currentTab, createLog(`同步任务【${params.name}】开始执行`, 'info')))
-
+        dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`));
+        dispatch(addLoadingTab(currentTab));
         const res = await API.execDataSyncImmediately(params);
         // 假如已经是停止状态，则弃用结果
         if (stopSign[currentTab]) {
