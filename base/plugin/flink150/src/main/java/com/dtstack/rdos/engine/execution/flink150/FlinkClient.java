@@ -541,7 +541,7 @@ public class FlinkClient extends AbsClient {
             ApplicationId appId = ((YarnClusterClient) flinkClient).getApplicationId();
             ApplicationId yarnAppId = null;
             try {
-                yarnAppId = flinkClientBuilder.acquireApplicationId(flinkClientBuilder.getYarnClusterDescriptor(), flinkConfig);
+                yarnAppId = flinkClientBuilder.acquireApplicationId(flinkClientBuilder.getYarnClusterDescriptor().getYarnClient(), flinkConfig);
             } catch (RdosException appIdNotFindEx) {
             }
 

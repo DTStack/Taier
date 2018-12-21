@@ -125,7 +125,8 @@ public class FlinkClientBuilder {
         }
 
         if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
-            config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+            //TODO 测试强制设置为null
+            //config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
         config.setBytes(HadoopUtils.HADOOP_CONF_BYTES, HadoopUtils.serializeHadoopConf(hadoopConf));
@@ -239,12 +240,12 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
-        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration,yarnConf,".",
-                yarnClient, false);
 
-        ApplicationId applicationId = acquireApplicationId(clusterDescriptor, flinkConfig);
+        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig);
 
         ClusterClient<ApplicationId> clusterClient = null;
+        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration, yarnConf,".",
+                yarnClient, false);
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
@@ -317,13 +318,13 @@ public class FlinkClientBuilder {
                     false);
     }
 
-    public ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
+    public ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.RUNNING);
-            List<ApplicationReport> reportList = clusterDescriptor.getYarnClient().getApplications(set, enumSet);
+            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
 
             int maxMemory = -1;
             int maxCores = -1;
