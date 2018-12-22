@@ -7,30 +7,25 @@ const RadioGroup = Radio.Group
 class AddUpdateRules extends Component {
     state = {
         // 部分脱敏参数
-        partData: {
-            startInputValue: '',
-            finishInputValue: '',
-            repalceValue: ''
-        },
+        beginPos: '',
+        endPos: '',
+        replaceStr: '',
         newReplaceData: ''
     }
     // 改变开始值
-    changeStartValue = (value) => {
-        const { partData } = this.state;
+    changeBeginPos = (value) => {
         this.setState({
-            partData: Object.assign(partData, { startInputValue: value })
+            beginPos: value
         })
     }
-    changeFinishValue = (value) => {
-        const { partData } = this.state;
+    changeEndPos = (value) => {
         this.setState({
-            partData: Object.assign(partData, { finishInputValue: value })
+            endPos: value
         })
     }
-    changeReplaceValue = (e) => {
-        const { partData } = this.state;
+    changeReplaceStr = (e) => {
         this.setState({
-            partData: Object.assign(partData, { repalceValue: e.target.value.length == 1 ? e.target.value : '' })
+            replaceStr: e.target.value.length == 1 ? e.target.value : ''
         })
     }
     // 字符串替换
@@ -41,37 +36,35 @@ class AddUpdateRules extends Component {
     changedesenType = () => {
         this.setState({
             newReplaceData: '',
-            partData: {
-                startInputValue: '',
-                finishInputValue: '',
-                repalceValue: ''
-            }
+            beginPos: '',
+            endPos: '',
+            replaceStr: ''
         })
     }
     // 效果预览
     preview = () => {
         const { getFieldValue } = this.props.form;
         let sampleData = getFieldValue('sampleData');
-        const desensitizationType = getFieldValue('desensitizationType');
-        const { startInputValue, finishInputValue, repalceValue } = this.state.partData;
-        console.log(startInputValue, finishInputValue, repalceValue)
+        const maskType = getFieldValue('maskType');
+        const { beginPos, endPos, replaceStr } = this.state;
+        console.log(beginPos, endPos, replaceStr)
         console.log(sampleData);
-        if (desensitizationType === 0) {
+        if (maskType === 0) {
             if (sampleData) {
                 let sampleDataArr = sampleData.split('');
                 console.log(sampleData.split(''));
                 let repeatCount = 0;
-                if ((finishInputValue >= sampleDataArr.length) && (sampleDataArr.length >= startInputValue)) {
-                    repeatCount = sampleDataArr.length - startInputValue
-                } else if (finishInputValue < sampleDataArr.length && (sampleDataArr.length >= startInputValue)) {
-                    repeatCount = finishInputValue - startInputValue;
-                } else if (sampleDataArr.length < startInputValue) {
+                if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
+                    repeatCount = sampleDataArr.length - beginPos
+                } else if (endPos < sampleDataArr.length && (sampleDataArr.length >= beginPos)) {
+                    repeatCount = endPos - beginPos;
+                } else if (sampleDataArr.length < beginPos) {
                     repeatCount = 0;
                 }
-                // const repeatCount = finishInputValue >= sampleDataArr.length ? sampleDataArr.length - startInputValue : finishInputValue - startInputValue;
-                const newStr = this.repeatStr(repalceValue, repeatCount);
+                // const repeatCount = endPos >= sampleDataArr.length ? sampleDataArr.length - beginPos : endPos - beginPos;
+                const newStr = this.repeatStr(replaceStr, repeatCount);
                 console.log(newStr);
-                sampleDataArr.splice(startInputValue, (finishInputValue - startInputValue), newStr).join('');
+                sampleDataArr.splice(beginPos, (endPos - beginPos), newStr).join('');
                 console.log(sampleDataArr);
                 this.setState({
                     newReplaceData: sampleDataArr
@@ -100,12 +93,23 @@ class AddUpdateRules extends Component {
     }
     submit = () => {
         const { onOk } = this.props;
-        const { partData } = this.state;
+        const { beginPos, endPos, replaceStr } = this.state;
         const ruleData = this.props.form.getFieldsValue();
+        const partData = {
+            beginPos,
+            endPos,
+            replaceStr
+        }
+        let params = {};
+        if (ruleData.maskType === 1) {
+            params = Object.assign({}, ruleData)
+        } else {
+            params = Object.assign({ ...partData, ...ruleData })
+        }
         this.props.form.validateFields((err) => {
             if (!err) {
-                this.props.form.resetFields()
-                onOk({ ...ruleData, partData })
+                this.props.form.resetFields();
+                onOk(params)
             }
         });
     }
@@ -113,7 +117,7 @@ class AddUpdateRules extends Component {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { status, dataSource } = this.props;
         const isEdit = status === 'edit';
-        const desensitizationType = getFieldValue('desensitizationType');
+        const maskType = getFieldValue('maskType');
         // const sampleData = getFieldValue('sampleData');
         // const sampleDataLength = sampleData.split('').length || 1;
         // const sampleData = getFieldValue('sampleData'); // 样例数据
@@ -131,12 +135,12 @@ class AddUpdateRules extends Component {
                         {...formItemLayout}
                         label="规则名称"
                     >
-                        {getFieldDecorator('ruleName', {
+                        {getFieldDecorator('name', {
                             rules: [{
                                 required: true,
                                 message: '规则名称不可为空！'
                             }],
-                            initialValue: dataSource.ruleName ? dataSource.ruleName : ''
+                            initialValue: dataSource.name ? dataSource.name : ''
                         })(
                             <Input />
                         )}
@@ -145,12 +149,12 @@ class AddUpdateRules extends Component {
                         {...formItemLayout}
                         label="样例数据"
                     >
-                        {getFieldDecorator('sampleData', {
+                        {getFieldDecorator('example', {
                             rules: [{
                                 max: 200,
                                 message: '样例数据请控制在200个字符以内！'
-                            }]
-                            // initialValue: dataSource.ruleName ? dataSource.ruleName : ''
+                            }],
+                            initialValue: dataSource.example ? dataSource.example : ''
                         })(
                             <Input type="textarea" rows={4} />
                         )}
@@ -159,7 +163,7 @@ class AddUpdateRules extends Component {
                         {...formItemLayout}
                         label="脱敏效果"
                     >
-                        {getFieldDecorator('desensitizationType', {
+                        {getFieldDecorator('maskType', {
                             rules: [{
                                 required: true
                             }],
@@ -173,24 +177,24 @@ class AddUpdateRules extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>
-                    { desensitizationType === 0 ? <FormItem>
+                    { maskType === 0 ? <FormItem>
                         <div style={{ margin: '-10 0 0 150' }}>
                             将从
                             <InputNumber
                                 style={{ width: '70px' }}
                                 min={1}
-                                value={this.state.partData.startInputValue}
-                                onChange={this.changeStartValue}
+                                value={this.state.beginPos}
+                                onChange={this.changeBeginPos}
                             />位至第<InputNumber
                                 style={{ width: '70px' }}
-                                min={Number(this.state.partData.startInputValue)}
+                                min={Number(this.state.beginPos)}
                                 // max={sampleDataLength}
-                                value={this.state.partData.finishInputValue}
-                                onChange={this.changeFinishValue}
+                                value={this.state.endPos}
+                                onChange={this.changeEndPos}
                             />位替换为:<Input
                                 style={{ width: '50px' }}
-                                value={this.state.partData.repalceValue}
-                                onChange={this.changeReplaceValue}
+                                value={this.state.replaceStr}
+                                onChange={this.changeReplaceStr}
                             />
                             {/* <div style={{ color: 'red' }}>开始位置不能大于等于结束位置!</div> */}
                         </div>

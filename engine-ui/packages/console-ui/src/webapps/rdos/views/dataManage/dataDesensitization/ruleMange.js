@@ -10,9 +10,9 @@ class RuleManage extends Component {
         addVisible: false, // 添加规则
         table: [], // 表数据
         queryParams: {
-            pageIndex: 1,
+            currentPage: 1,
             pageSize: 20,
-            ruleName: undefined
+            name: undefined
         },
         status: 'add', // 新增或编辑
         source: {}, // 规则信息,
@@ -26,12 +26,12 @@ class RuleManage extends Component {
             }
         ]
     }
-    componentDidMonut () {
-        // this.search();
+    componentDidMount () {
+        this.search();
     }
     search = () => {
         this.setState({
-            cardLoading: false
+            cardLoading: true
         })
         const { queryParams } = this.state;
         ajax.searchRule(queryParams).then(res => {
@@ -48,8 +48,8 @@ class RuleManage extends Component {
         })
     }
     // 添加规则
-    addRule = (ruleData) => {
-        ajax.addRule(ruleData).then(res => {
+    addRule = (params) => {
+        ajax.addRule(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     addVisible: false
@@ -73,11 +73,11 @@ class RuleManage extends Component {
     changeName = (e) => {
         const { queryParams } = this.state;
         this.setState({
-            queryParams: Object.assign(queryParams, { ruleName: e.target.value })
+            queryParams: Object.assign(queryParams, { name: e.target.value })
         })
     }
     handleTableChange = (pagination, filters, sorter) => {
-        const queryParams = Object.assign(this.state.queryParams, { pageIndex: pagination.current })
+        const queryParams = Object.assign(this.state.queryParams, { currentPage: pagination.current })
         this.setState({
             queryParams
         }, this.search)

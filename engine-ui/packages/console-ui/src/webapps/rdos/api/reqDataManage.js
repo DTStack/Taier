@@ -80,7 +80,8 @@ export default {
     VIEW_TABLE_RELATION: `${RDOS_BASE_URL}/batch/batchHiveTableCount/viewTableRelation`, // 根据脱敏名称查看表关系明细 // 暂缺
     UPDATE_OPEN_STATUS: `${RDOS_BASE_URL}/batch/batchHiveTableCount/updateStatus`, // 切换开关状态 // 暂缺
     // 规则管理
-    GET_RULE_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableCount/ruleList`, // 获取规则列表 // 暂缺
-    ADD_RULE: `${RDOS_BASE_URL}/batch/batchHiveTableCount/addRule`, // 添加规则 // 暂缺
-    DEL_RULE: `${RDOS_BASE_URL}/batch/batchHiveTableCount/delRule` // 删除规则 // 暂缺
+    GET_RULE_LIST: `${RDOS_BASE_URL}/batch/dataMaskRule/listRules`, // 获取规则列表
+    ADD_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/createRule`, // 添加规则
+    UPDATE_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/updateRule`, // 更新规则
+    DEL_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/deleteRule` // 删除规则
 };
