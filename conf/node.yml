@@ -1,15 +1,18 @@
 #engine
 slots: 10
 localAddress: localhost:8080
-nodeZkAddress: kudu1:2181,kudu2:2181,kudu3:2181/flink154_yx
+#nodeZkAddress: node1:24002,node2:24002,node3:24002/xc_engine
+nodeZkAddress: node01:2181,node02:2181,node03:2181/xc_engine
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
-isSecurity: true
-userPrincipal: admin/kudu1@DTSTACK.COM
-zkPrincipal: zookeeper/hadoop
-userKeytabPath: /etc/hadoop/conf/admin.keytab
-krb5ConfPath: /etc/hadoop/conf/krb5.conf
+
+isSecurity: false
+userPrincipal: yanxi@HADOOP.COM
+zkPrincipal: yanxi@HADOOP.COM
+userKeytabPath: D:\kerberos\fusioninsight\yanxi_keytab\user.keytab
+krb5ConfPath: D:\kerberos\fusioninsight\yanxi_keytab\krb5.conf
+
 hadoopConfPath: /etc/hadoop/conf
 
 db:
@@ -21,12 +24,12 @@ engineTypes:
     -
         typeName: flink150
         clusterMode: yarn
-        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
+        flinkZkAddress: node01:2181,node02:2181,node03:2181
         #简化为只配置/flink150/ha
-        flinkHighAvailabilityStorageDir: /flink154_yx/ha
-        flinkZkNamespace: /flink154_yx
+        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
+        flinkZkNamespace: /flink155_1
         jarTmpDir: ../tmp150
-        flinkPluginRoot: /Users/jiangjunjie/Downloads/150_flinkplugin
+        flinkPluginRoot: D:\flinkplugin
         remotePluginRootDir: /opt/dtstack/150_flinkplugin
         #新增配置
         flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
@@ -35,7 +38,7 @@ engineTypes:
         #perjob
         #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
         flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
-        flinkJobHistory: http://kudu1:8082
+        #flinkJobHistory: http://kudu1:8082
 
 
     #-
@@ -46,12 +49,12 @@ engineTypes:
     #    flinkPluginRoot: E:\flinkplugin
     #    remotePluginRootDir: E:\flinkplugin
 
-    -
-        typeName: spark_yarn
-        sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
-        sparkSqlProxyPath: hdfs://kudu1:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
-        sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
-        sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1:9000/pythons/py4j-0.10.4-src.zip
+    #-
+    #    typeName: spark_yarn
+    #    sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
+    #    sparkSqlProxyPath: hdfs://kudu1:9000/user/spark/spark-0.0.1-SNAPSHOT.jar
+    #    sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
+    #    sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1:9000/pythons/py4j-0.10.4-src.zip
 
     #-
     #    typeName: datax

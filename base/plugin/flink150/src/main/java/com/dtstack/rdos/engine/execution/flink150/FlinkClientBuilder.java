@@ -124,7 +124,7 @@ public class FlinkClientBuilder {
             config.setString(HighAvailabilityOptions.HA_ZOOKEEPER_ROOT, flinkConfig.getFlinkZkNamespace());
         }
 
-        if(flinkConfig.getFlinkClusterId() != null){//不设置默认值"/default"
+        if(flinkConfig.getFlinkClusterId() != null){//standalone必须设置
             config.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
         }
 
@@ -239,18 +239,22 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
-        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration,yarnConf,".",
-                yarnClient, false);
 
-        ApplicationId applicationId = acquireApplicationId(clusterDescriptor, flinkConfig);
+        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig);
 
         ClusterClient<ApplicationId> clusterClient = null;
+
+        if(!flinkConfiguration.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
+            flinkConfiguration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
+        }
+
+        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration, yarnConf,".",
+                yarnClient, false);
+
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
-            if (clusterDescriptor != null) {
-                clusterDescriptor.close();
-            }
+            clusterDescriptor.close();
             LOG.info("Couldn't retrieve Yarn cluster.", e);
             throw new RdosException("Couldn't retrieve Yarn cluster.");
         }
@@ -317,13 +321,13 @@ public class FlinkClientBuilder {
                     false);
     }
 
-    public ApplicationId acquireApplicationId(AbstractYarnClusterDescriptor clusterDescriptor, FlinkConfig flinkConfig) {
+    public ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.RUNNING);
-            List<ApplicationReport> reportList = clusterDescriptor.getYarnClient().getApplications(set, enumSet);
+            List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
 
             int maxMemory = -1;
             int maxCores = -1;
