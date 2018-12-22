@@ -106,6 +106,7 @@ public class FlinkRestParseUtil {
 
         Map<String,Object> logMap = new HashMap<>();
         Map<String,Object> perfMap = new HashMap<>();
+        Map<String,Object> increConfMap = new HashMap<>();
 
         if(StringUtils.isNotEmpty(except)) {
             Map<String,Object> exceptMap = PublicUtil.jsonStrToObject(except, Map.class);
@@ -137,6 +138,14 @@ public class FlinkRestParseUtil {
                             perfMap.put("conversionErrors", Integer.valueOf(value));
                         } else if(name.equals("otherErrors")){
                             perfMap.put("otherErrors", Integer.valueOf(value));
+                        } else if(name.equals("tableCol")){
+                            String[] tableCol = value.split("-");
+                            increConfMap.put("table",tableCol[0]);
+                            increConfMap.put("increColumn",tableCol[1]);
+                        } else if(name.equals("endLocation")){
+                            increConfMap.put("endLocation",value);
+                        } else if(name.equals("startLocation")){
+                            increConfMap.put("startLocation",value);
                         }
                     }
                 }
@@ -237,6 +246,7 @@ public class FlinkRestParseUtil {
 
         logMap.put("perf", sb.toString());
         logMap.put("countInfo",perfMap);
+        logMap.put("increConf",increConfMap);
         return PublicUtil.objToString(logMap);
     }
 
