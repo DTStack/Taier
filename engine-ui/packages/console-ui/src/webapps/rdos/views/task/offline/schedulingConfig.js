@@ -538,12 +538,11 @@ class ScheduleForm extends React.Component {
         </Form>
     }
 
-    /* eslint-disable */
     checkTimeS (rule, value, callback) {
         const { form } = this.props;
         const endHour = form.getFieldValue('endHour');
-
         if (+value > +endHour) {
+            /* eslint-disable-next-line */
             callback('开始时间不能晚于结束时间');
         }
         callback();
@@ -554,6 +553,7 @@ class ScheduleForm extends React.Component {
         const beginHour = form.getFieldValue('beginHour');
 
         if (+value < +beginHour) {
+            /* eslint-disable-next-line */
             callback('结束时间不能早于开始时间');
         }
         callback();
@@ -565,6 +565,7 @@ class ScheduleForm extends React.Component {
         const endHour = +form.getFieldValue('endHour') * 60 + 59;
 
         if (beginHour * 60 + beginMin > endHour) {
+            /* eslint-disable-next-line */
             callback('开始时间不能晚于结束时间');
         }
         callback();
@@ -576,6 +577,7 @@ class ScheduleForm extends React.Component {
         const endHour = +form.getFieldValue('endHour') * 60 + 59;
 
         if (beginHour * 60 + beginMin > endHour) {
+            /* eslint-disable-next-line */
             callback('结束时间不能早于开始时间');
         }
         callback();
@@ -810,7 +812,7 @@ class SchedulingConfig extends React.Component {
             loading, wFScheduleConf, selfReliance
         } = this.state;
 
-        const { tabData, isWorkflowNode, couldEdit } = this.props;
+        const { tabData, isWorkflowNode, couldEdit, isIncrementMode } = this.props;
         console.log('tabData', tabData, isWorkflowNode);
 
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
@@ -928,17 +930,17 @@ class SchedulingConfig extends React.Component {
                                 <RadioGroup onChange={ this.setSelfReliance.bind(this) }
                                     value={ selfReliance }
                                 >
-                                    <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>
+                                    {!isIncrementMode && <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio> }
                                     <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
                                     <Radio style={radioStyle} value={3}>
                                         自依赖，等待上一调度周期结束，才能继续运行&nbsp;
-                                        <HelpDoc style={{ position: 'inherit' }} doc="taskDependentTypeDesc" />
+                                        <HelpDoc style={{ position: 'inherit' }} doc={!isIncrementMode ? "taskDependentTypeDesc" : "incrementModeScheduleTypeHelp"} />
                                     </Radio>
-                                    <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>
-                                    <Radio style={radioStyle} value={4}>
+                                    {!isIncrementMode && <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio> }
+                                    {!isIncrementMode && <Radio style={radioStyle} value={4}>
                                         等待下游任务的上一周期结束，才能继续运行&nbsp;
                                         <HelpDoc style={{ position: 'inherit' }} doc="taskDependentTypeDesc" />
-                                    </Radio>
+                                    </Radio> }
                                 </RadioGroup>
                             </Col>
                         </Row>
@@ -1026,6 +1028,7 @@ class TaskSelector extends React.Component {
             left: '0px',
             color: 'red'
         }
+
         return <div className="m-taskselector">
             <input onInput={(event) => {
                 this.resetError();

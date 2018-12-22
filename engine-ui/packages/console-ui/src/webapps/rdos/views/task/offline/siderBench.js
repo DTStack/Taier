@@ -6,7 +6,7 @@ import { Tabs } from 'antd';
 import utils from 'utils'
 
 import SQLEditor from 'widgets/editor';
-import { TASK_TYPE, PROJECT_TYPE } from '../../../comm/const';
+import { TASK_TYPE, PROJECT_TYPE, DATA_SYNC_MODE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 
 import TaskDetail from './taskDetail';
@@ -58,6 +58,8 @@ class SiderBench extends React.Component {
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
         const prefixLabel = isWorkflowNode ? '节点' : '任务';
+        const isIncrementMode = tabData.syncMode !== undefined && tabData.syncMode === DATA_SYNC_MODE.INCREMENT;
+
         const panes = [
             <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '属性与调度' : '任务属性'}</span>} key="params1">
                 <TaskDetail
@@ -76,6 +78,7 @@ class SiderBench extends React.Component {
                         isPro={isPro}
                         couldEdit={couldEdit}
                         tabData={tabData}
+                        isIncrementMode={isIncrementMode}
                     >
                     </SchedulingConfig>
                 </TabPane>

@@ -178,6 +178,17 @@ export const taskDependentTypeDesc = (
     </div>
 )
 
+
+export const incrementModeScheduleTypeHelp = (
+    <div>
+        功能解释：
+        <br />
+        每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
+        <br />
+        支持将数值类型、Timestamp类型作为增量标识字段
+    </div>
+)
+
 export const inputTaskHelp = (
     <div>
         利用TensorFlow或MXNet进行数据处理时，可指定此任务在HDFS上的路径信息，无需更新任务代码，方便您通过修改路径来更新数据
@@ -218,6 +229,38 @@ export const taskFailRetry = (
     <span>
         默认出错自动重试3次，时间间隔2分钟
     </span>
+)
+
+export const syncTaskHelp = (
+    <div>
+        功能释义：
+        <br />
+        向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
+        <br />
+        脚本模式：全能 高效，可深度调优，支持全部数据源
+        <br />
+        <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">查看支持的数据源</a>
+    </div>
+)
+
+export const syncModeHelp = (
+    <div>
+        功能释义：
+        <br />
+        无增量标识：可通过简单的过滤语句实现增量同步；
+        <br />
+        有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步
+    </div>
+)
+
+export const incrementColumnHelp = (
+    <div>
+        功能解释：
+        <br />
+        每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
+        <br />
+        支持将数值类型、Timestamp类型作为增量标识字段
+    </div>
 )
 /* eslint-disable */
 

@@ -166,6 +166,11 @@ export const DATA_SYNC_TYPE = { // 数据同步配置模式
     SCRIPT: 1
 }
 
+export const DATA_SYNC_MODE = { // 数据同步模式-正常/增量
+    NORMAL: 0, // 正常
+    INCREMENT: 1 // 增量
+}
+
 export const DEAL_MODEL_TYPE = {// python和深度学习操作类型
     EDIT: 1,
     RESOURCE: 0

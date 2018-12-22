@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Icon, Input, Select, Radio, Tooltip, message } from 'antd';
+import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -9,13 +9,13 @@ import {
     modalAction,
     taskTreeAction
 } from '../../../store/modules/offlineTask/actionType';
-import HelpDoc from '../../helpDoc'
+import HelpDoc, { relativeStyle } from '../../helpDoc'
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import {
     formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE,
-    HELP_DOC_URL, LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE
+    LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE
 } from '../../../comm/const'
 
 import FolderPicker from './folderTree';
@@ -60,6 +60,21 @@ class TaskForm extends React.Component {
         this.props.form.validateFields(['refResourceIdList']);
     }
 
+    checkSyncMode = async (rule, value, callback) => {
+        const { defaultData } = this.props;
+        // 当编辑同步任务，且改变同步模式为增量模式时，需要检测任务是否满足增量同步的条件
+        if (this.isEditExist && value === '1') {
+            const res = await ajax.checkSyncMode(defaultData);
+            if (res.code === 1) {
+                callback();
+            } else {
+                /* eslint-disable-next-line */
+                callback('当前同步任务不支持增量模式！');
+            }
+        }
+        callback();
+    }
+
     handleTaskTypeChange (value) {
         this.setState({
             value
@@ -101,18 +116,6 @@ class TaskForm extends React.Component {
 
         const taskOptions = taskTypes.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>
-        )
-
-        const syncTaskHelp = (
-            <div>
-                功能释义：
-                <br />
-                向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
-                <br />
-                脚本模式：全能 高效，可深度调优，支持全部数据源
-                <br />
-                <a href={HELP_DOC_URL.DATA_SOURCE} target="blank">查看支持的数据源</a>
-            </div>
         )
 
         const isMrTask = value === TASK_TYPE.MR
@@ -288,7 +291,7 @@ class TaskForm extends React.Component {
                             {getFieldDecorator('resourceIdList', {
                                 rules: [{
                                     required: true,
-                                    message: '请选择关联资源'
+                                    message: `请选择${resourceLable}`
                                 }, {
                                     validator: this.checkNotDir.bind(this)
                                 }],
@@ -366,29 +369,50 @@ class TaskForm extends React.Component {
                     </span>
                 }
                 {
-                    isSyncTast &&
-                    <FormItem
-                        {...formItemLayout}
-                        label={'配置模式'}
-                    >
-                        {getFieldDecorator('createModel', {
-                            rules: [{
-                                required: true, message: '请选择配置模式'
-                            }],
-                            initialValue: this.isEditExist ? defaultData.createModel : DATA_SYNC_TYPE.GUIDE
-                        })(
-                            <RadioGroup
-                                disabled={isCreateNormal ? false : !isCreateFromMenu}
-                            >
-                                <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
-                                <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
-                            </RadioGroup>
+                    isSyncTast && <div>
+                        <FormItem
+                            {...formItemLayout}
+                            label={'配置模式'}
+                        >
+                            {getFieldDecorator('createModel', {
+                                rules: [{
+                                    required: true, message: '请选择配置模式'
+                                }],
+                                initialValue: this.isEditExist ? defaultData.createModel : DATA_SYNC_TYPE.GUIDE
+                            })(
+                                <RadioGroup
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                >
+                                    <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
+                                    <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
+                                </RadioGroup>
 
-                        )}
-                        <Tooltip placement="right" title={syncTaskHelp}>
-                            <Icon type="question-circle-o" />
-                        </Tooltip>
-                    </FormItem>
+                            )}
+                            <HelpDoc doc="syncTaskHelp" style={relativeStyle} />
+                        </FormItem>
+                        {
+                            !createFromGraph &&
+                            <FormItem
+                                {...formItemLayout}
+                                label={'同步模式'}
+                            >
+                                {getFieldDecorator('syncMode', {
+                                    rules: [{
+                                        required: true, message: '请选择配置模式'
+                                    }, {
+                                        validator: this.checkSyncMode.bind(this)
+                                    }],
+                                    initialValue: this.isEditExist ? (defaultData.syncMode || '0') : '0'
+                                })(
+                                    <RadioGroup>
+                                        <Radio key="no" value={`${DATA_SYNC_MODE.NOMAL}`}>无增量标识</Radio>
+                                        <Radio key="yes" value={`${DATA_SYNC_MODE.INCREMENT}`}>有增量标识</Radio>
+                                    </RadioGroup>
+                                )}
+                                <HelpDoc doc="syncModeHelp" style={relativeStyle} />
+                            </FormItem>
+                        }
+                    </div>
                 }
                 {
                     !createFromGraph &&
@@ -444,7 +468,6 @@ class TaskForm extends React.Component {
         )
     }
 
-    /* eslint-disable */
     /**
      * @description 检查所选是否为文件夹
      * @param {any} rule
@@ -469,11 +492,11 @@ class TaskForm extends React.Component {
         loop([resTreeData]);
 
         if (nodeType === 'folder') {
+            /* eslint-disable-next-line */
             callback('请选择具体文件, 而非文件夹');
         }
         callback();
     }
-    /* eslint-disable */
 
     /**
      * @description 获取节点名称
@@ -506,7 +529,7 @@ class TaskModal extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            loading: false,
+            loading: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
@@ -545,12 +568,12 @@ class TaskModal extends React.Component {
                     values.readWriteLockVO = Object.assign({}, defaultData.readWriteLockVO);
                 }
                 this.setState({
-                    loading: true,
+                    loading: true
                 })
 
                 const handRes = (isSuccess) => {
                     this.setState({
-                        loading: false,
+                        loading: false
                     })
                     if (isSuccess) {
                         message.success('操作成功')
@@ -587,7 +610,7 @@ class TaskModal extends React.Component {
         this.props.emptyModalDefault();
         this.dtcount++;
         this.setState({
-            loading: false,
+            loading: false
         })
     }
 
@@ -618,25 +641,25 @@ class TaskModal extends React.Component {
                             size="large"
                             onClick={this.handleCancel}
                         >取消</Button>,
-                      <Button
-                        key="submit"
-                        type="primary"
-                        size="large"
-                        loading={loading}
-                        onClick={this.handleSubmit.bind(this)}
-                        > 确认 </Button>,
-                  ]}
-                  onCancel={this.handleCancel}
+                        <Button
+                            key="submit"
+                            type="primary"
+                            size="large"
+                            loading={loading}
+                            onClick={this.handleSubmit.bind(this)}
+                        > 确认 </Button>
+                    ]}
+                    onCancel={this.handleCancel}
                 >
                     <TaskFormWrapper
-                      ref={el => this.form = el}
-                      treeData={taskTreeData}
-                      resTreeData={resourceTreeData}
-                      defaultData={defaultData}
-                      createOrigin={workflow}
-                      taskTypes={taskTypes}
-                      labelPrefix={labelPrefix}
-                      createFromGraph={createFromGraph}
+                        ref={el => this.form = el}
+                        treeData={taskTreeData}
+                        resTreeData={resourceTreeData}
+                        defaultData={defaultData}
+                        createOrigin={workflow}
+                        taskTypes={taskTypes}
+                        labelPrefix={labelPrefix}
+                        createFromGraph={createFromGraph}
                     />
                 </Modal>
             </div>
