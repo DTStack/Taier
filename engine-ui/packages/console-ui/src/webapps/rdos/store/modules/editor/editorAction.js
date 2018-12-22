@@ -4,7 +4,7 @@ import utils from 'utils'
 import API from '../../../api';
 import { taskStatus, offlineTaskStatusFilter, TASK_TYPE } from '../../../comm/const'
 import { editorAction } from './actionTypes';
-import { createLinkMark, createLog } from 'widgets/code-editor/utils'
+import { createLinkMark, createLog, createTitle } from 'widgets/code-editor/utils'
 
 const INTERVALS = 1500;
 
@@ -118,6 +118,7 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
     dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
+    dispatch(output(currentTab, `${createTitle('任务信息')}\n${params.sql}\n${createTitle('')}`))
     function execContinue () {
         if (stopSign[currentTab]) {
             console.log('find stop sign in exec')

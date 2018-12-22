@@ -34,6 +34,8 @@ export default {
     },
     getApiCreatorInfo: function (params) {
         return http.post(req.GET_API_CREATOR_INFO, params);
+    },
+    getApiTimeInfo (params) {
+        return http.post(req.GET_API_TIME_INFO, params)
     }
-
 }

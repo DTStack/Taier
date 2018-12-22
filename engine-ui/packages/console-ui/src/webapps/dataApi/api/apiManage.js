@@ -20,6 +20,9 @@ export default {
     getApiUserApplyList (params) {
         return http.post(req.GET_API_BUY_STATE, params);
     },
+    getApiCallTime (params) {
+        return http.post(req.GET_API_TIME_INFO_FOR_MANAGER, params);
+    },
     updateCatalogue (params) {
         return http.post(req.UPDATE_CATAGORY, params);
     },

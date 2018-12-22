@@ -3,6 +3,7 @@ import { Col, Row } from 'antd';
 import Resize from 'widgets/resize';
 import { cloneDeep } from 'lodash'
 import { lineAreaChartOptions } from '../../../consts';
+import api from '../../../api/mine';
 import utils from 'utils'
 
 const GRAPH_TYPE = {
@@ -20,20 +21,34 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 class MyApiDelayGraph extends Component {
     state = {
-        apiId: '',
         data: {},
         graphType: GRAPH_TYPE.COUNT
     }
-    getInfo (apiId, dateType) {
+    componentDidMount () {
+        this.getInfo();
+    }
+    componentDidUpdate (prevProps, prevState) {
+        const { showRecord = {}, dateType } = this.props;
+        const { showRecord: prevShowRecord = {}, dateType: prevDateType } = prevProps;
+        if (showRecord.apiId !== prevShowRecord.apiId || dateType !== prevDateType) {
+            this.getInfo();
+        }
+    }
+    getInfo () {
+        const { showRecord = {}, dateType } = this.props;
+        const { apiId } = showRecord;
         if (!apiId) {
             return;
         }
-        this.props.getApiCallInfo(apiId, dateType)
+        api.getApiTimeInfo({
+            apiId,
+            time: dateType
+        })
             .then(
                 (res) => {
                     if (res) {
                         this.setState({
-                            data: res.data
+                            data: res.data || {}
                         }, () => {
                             this.initLineChart();
                         })
@@ -41,53 +56,34 @@ class MyApiDelayGraph extends Component {
                 }
             )
     }
-    componentDidMount () {
-        const { showRecord = {}, dateType } = this.props;
-        const { apiId } = showRecord;
-
-        this.getInfo(apiId, dateType);
-    }
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
-        const { showRecord: nextShowRecord = {}, dateType: nextDateType } = nextProps;
-        const { showRecord = {}, dateType } = this.props;
-        const { apiId } = showRecord;
-        const { apiId: nextApiId } = nextShowRecord;
-
-        if (apiId !== nextApiId || dateType !== nextDateType) {
-            this.setState({
-                apiId: nextProps.showRecord.apiId
-            }, () => {
-                if (nextProps.slidePaneShow) {
-                    this.getInfo(nextApiId, nextDateType);
-                }
-            })
-        }
-    }
     resize = () => {
-        if (this.state.lineChart) this.state.lineChart.resize()
+        if (this._lineChart) this._lineChart.resize()
     }
     initLineChart () {
-        if (!this.state.data || !this.state.data.infoList) {
+        const { infoList = [] } = this.state.data;
+        if (!infoList) {
             return;
         }
-        const chartData = this.state.data.infoList;
+        const chartData = infoList;
         let callCountDate = [];
-        let failCountDate = [];
         let times = [];
+        /**
+         * 处理加工图表数据
+         */
         for (let i = 0; i < chartData.length; i++) {
-            callCountDate.push(chartData[i].callCount)
-            failCountDate.push(chartData[i].failRate)
+            const chart = chartData[i];
+            callCountDate.push(chart.executeTime)
             if (this.props.dateType) {
+                const time = chart.invokeTime;
                 switch (this.props.dateType) {
                     case '1':
-                        times.push(utils.formatHours(chartData[i].time));
+                        times.push(utils.formatHours(time));
                         break;
                     case '7':
-                        times.push(utils.formatDateHours(chartData[i].time));
+                        times.push(utils.formatDateHours(time));
                         break;
                     case '30':
-                        times.push(utils.formatDate(chartData[i].time));
+                        times.push(utils.formatDate(time));
                         break;
                 }
             }
@@ -102,7 +98,12 @@ class MyApiDelayGraph extends Component {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
                 let unit = 's'
-                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' + params[i].color + '"></span>' + params[i].seriesName + ' : ' + params[i].value + unit;
+                relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' +
+                    params[i].color +
+                    '"></span>' +
+                    params[i].seriesName +
+                    ' : ' +
+                    params[i].value + unit;
             }
             return relVal;
         }
@@ -124,7 +125,7 @@ class MyApiDelayGraph extends Component {
         console.log(option)
         // 绘制图表
         myChart.setOption(option);
-        this.setState({ lineChart: myChart })
+        this._lineChart = myChart;
     }
     getDateText () {
         switch (this.props.dateType) {
@@ -139,25 +140,14 @@ class MyApiDelayGraph extends Component {
         }
     }
     render () {
+        const { data } = this.state;
         return (
             <div>
                 <Row gutter={130} className="m-count padding-l20 height-callstate-item">
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">{this.getDateText()}平均耗时</span>
-                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.callCount) || 0}<span style={{ fontSize: 12 }}>次</span></span>
-                        </section>
-                    </Col>
-                    <Col span={6}>
-                        <section className="m-count-section margin-t20" style={{ width: 100 }}>
-                            <span className="m-count-title text-left">{this.getDateText()}最高耗时</span>
-                            <span className="m-count-content font-red text-left">{(this.state.data && this.state.data.failRate) || 0}<span style={{ fontSize: 12 }}>%</span></span>
-                        </section>
-                    </Col>
-                    <Col span={8}>
-                        <section className="m-count-section margin-t20" style={{ width: 150 }}>
-                            <span className="m-count-title text-left">{this.getDateText()}最低耗时</span>
-                            <span className="m-count-content font-black text-left">{(this.state.data && this.state.data.totalCount) || '---'}</span>
+                            <span className="m-count-content font-black text-left">{(data && data.avgExecuteTime) || 0}<span style={{ fontSize: 12 }}>次</span></span>
                         </section>
                     </Col>
                 </Row>
