@@ -29,6 +29,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -128,6 +129,10 @@ public class SparkYarnClient extends AbsClient {
         HadoopConf customerConf = new HadoopConf();
         customerConf.initHadoopConf(sparkConfig.getHadoopConf());
         customerConf.initYarnConf(sparkConfig.getYarnConf());
+
+        if (sparkYarnConfig.isSecurity()){
+            customerConf.initHiveSecurityConf(sparkConfig.getHiveConf());
+        }
 
         yarnConf = customerConf.getYarnConfiguration();
     }
@@ -308,8 +313,8 @@ public class SparkYarnClient extends AbsClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
-        sparkConf.set("spark.yarn.keytab", ConfigParse.userKeytabPath());
-        sparkConf.set("spark.yarn.principal", ConfigParse.userPrincipal());
+        sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
+        sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;

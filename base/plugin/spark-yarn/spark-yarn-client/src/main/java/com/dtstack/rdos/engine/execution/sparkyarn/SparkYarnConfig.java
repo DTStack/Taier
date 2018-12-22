@@ -41,6 +41,8 @@ public class SparkYarnConfig {
 
     private Map<String, Object> yarnConf;
 
+    private Map<String, Object> hiveConf;
+
     private String defaultFS;
 
     private String hadoopUserName;
@@ -127,6 +129,14 @@ public class SparkYarnConfig {
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
+    }
+
+    public Map<String, Object> getHiveConf() {
+        return hiveConf;
+    }
+
+    public void setHiveConf(Map<String, Object> hiveConf) {
+        this.hiveConf = hiveConf;
     }
 
     public String getSparkYarnArchive() {

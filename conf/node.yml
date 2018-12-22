@@ -5,7 +5,7 @@ nodeZkAddress: kudu1:2181,kudu2:2181,kudu3:2181/flink154_yx
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
-isSecurity: true
+security: true
 userPrincipal: admin/kudu1@DTSTACK.COM
 zkPrincipal: zookeeper/kudu1
 userKeytabPath: /etc/hadoop/conf/admin.keytab
@@ -19,40 +19,19 @@ db:
 
 engineTypes:
     -
-        typeName: flink150
-        clusterMode: yarn
-        flinkZkAddress: kudu1:2181,kudu2:2181,kudu3:2181
-        #简化为只配置/flink150/ha
-        flinkHighAvailabilityStorageDir: /flink154_yx/ha
-        flinkZkNamespace: /flink154_yx
-        jarTmpDir: ../tmp150
-        flinkPluginRoot: /Users/jiangjunjie/Downloads/150_flinkplugin
-        remotePluginRootDir: /opt/dtstack/150_flinkplugin
-        #新增配置
-        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
-        #new
-        #flinkYarnNewModeMaxSlots: 4
-        #perjob
-        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
-        flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
-        flinkJobHistory: http://kudu1:8082
-        isSecurity: true
-        flinkPrincipal: admin/kudu1@DTSTACK.COM
-        flinkKeytabPath: /etc/hadoop/conf/admin.keytab
-        flinkKrb5ConfPath: /etc/hadoop/conf/krb5.conf
-        zkPrincipal: admin/kudu1@DTSTACK.COM
-        zkKeytabPath: /etc/hadoop/conf/admin.keytab
-        zkLoginName: Client
-    -
         typeName: spark_yarn
         sparkYarnArchive: hdfs://kudu1:9000/sparkjars/jars
         sparkSqlProxyPath: hdfs://kudu1:9000/user/spark/spark-sql-proxy-1.0.0.jar
         sparkSqlProxyMainClass: com.dtstack.sql.main.SqlProxy
         sparkPythonExtLibPath: hdfs://kudu1:9000/pythons/pyspark.zip,hdfs://kudu1:9000/pythons/py4j-0.10.4-src.zip
-        isSecurity: true
+        security: true
         sparkPrincipal: admin/kudu1@DTSTACK.COM
         sparkKeytabPath: /etc/hadoop/conf/admin.keytab
         sparkKrb5ConfPath: /etc/hadoop/conf/krb5.conf
         zkPrincipal: admin/kudu1@DTSTACK.COM
         zkKeytabPath: /etc/hadoop/conf/admin.keytab
         zkLoginName: Client
+        hiveConf:
+            hive.metastore.kerberos.principal: admin/kudu1@DTSTACK.COM
+            hive.metastore.sasl.enabled: true
+            hive.server2.authentication: kerberos

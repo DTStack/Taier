@@ -58,7 +58,7 @@ public class ConfigParse {
     }
 
     public static boolean getSecurity(){
-        Object isSecurity = configs.get("isSecurity");
+        Object isSecurity = configs.get("security");
         return isSecurity == null ? false : Boolean.parseBoolean(isSecurity.toString());
     }
 
