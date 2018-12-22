@@ -93,8 +93,6 @@ class ResForm extends React.Component {
                     {getFieldDecorator('file', {
                         rules: [{
                             required: true, message: '请选择上传文件'
-                        }, {
-                            validator: this.validateFileType
                         }]
                     })(
                         <div>
