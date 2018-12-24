@@ -402,10 +402,10 @@ class TaskForm extends React.Component {
                                     }, {
                                         validator: this.checkSyncMode.bind(this)
                                     }],
-                                    initialValue: this.isEditExist ? (defaultData.syncModel || '0') : '0'
+                                    initialValue: this.isEditExist ? (`${defaultData.syncModel}` || `${DATA_SYNC_MODE.NORMAL}`) : `${DATA_SYNC_MODE.NORMAL}`
                                 })(
                                     <RadioGroup>
-                                        <Radio key="no" value={`${DATA_SYNC_MODE.NOMAL}`}>无增量标识</Radio>
+                                        <Radio key="no" value={`${DATA_SYNC_MODE.NORMAL}`}>无增量标识</Radio>
                                         <Radio key="yes" value={`${DATA_SYNC_MODE.INCREMENT}`}>有增量标识</Radio>
                                     </RadioGroup>
                                 )}
