@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, message } from 'antd';
+import { Button, message, Card, Alert, Row, Col } from 'antd';
 import { hashHistory } from 'react-router';
 
 import api from '../../api';
-import MetaImportForm from './metaImportForm';
+import GoBack from 'main/components/go-back'
+import MetaImportForm, { metaFormLayout } from './metaImportForm';
 import { PROJECT_CREATE_MODEL } from '../../comm/const';
 
 class MetaDataImport extends React.Component {
@@ -63,13 +64,35 @@ class MetaDataImport extends React.Component {
         const { formData, projectList, loading } = this.state;
         return (
             <div className='c-metaImport l-metaImport'>
-                <MetaImportForm
-                    ref={(ref) => { this.form = ref; }}
-                    projectList={projectList}
-                    {...formData}
-                    onChange={this.formChange}
-                />
-                <Button loading={loading} onClick={this.create} type='primary'>导入</Button>
+                <div className='l-metaImport__header'>
+                    <GoBack
+                        type="textButton"
+                    />
+                    <span className='c-metaImport__header__title'>接入已有项目</span>
+                </div>
+                <Card
+                    noHovering
+                >
+                    <Alert
+                        className='l-metaImport__wanring'
+                        message="注意：本功能会将已有Hive表导入本平台进行管理，Hadoop内的数据本身不会移动或改变，在导入进行过程中，请勿新建表或执行其他表结构变更操作"
+                        type="warning"
+                        showIcon
+                        closable
+                    />
+                    <MetaImportForm
+                        ref={(ref) => { this.form = ref; }}
+                        projectList={projectList}
+                        {...formData}
+                        onChange={this.formChange}
+                    />
+                    <Row>
+                        <Col {...metaFormLayout.labelCol}></Col>
+                        <Col {...metaFormLayout.wrapperCol}>
+                            <Button loading={loading} onClick={this.create} type='primary'>导入</Button>
+                        </Col>
+                    </Row>
+                </Card>
             </div>
         )
     }

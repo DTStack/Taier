@@ -1,8 +1,9 @@
 import React from 'react';
 import utils from 'utils';
-import { Table } from 'antd';
+import { Table, Row, Col } from 'antd';
 
 import api from '../../api';
+import { metaFormLayout } from './metaImportForm';
 
 class MetaDataTable extends React.Component {
     state = {
@@ -54,18 +55,21 @@ class MetaDataTable extends React.Component {
     }
     render () {
         const { tables, loading } = this.state;
-        const { database } = this.props;
         return (
-            <section>
-                <p>数据库名：{database}</p>
-                <Table
-                    className='m-table border-table'
-                    columns={this.getColumns()}
-                    dataSource={tables}
-                    scroll={{ y: '300px' }}
-                    loading={loading}
-                    pagination={false}
-                />
+            <section className='l-metaImport__database__table'>
+                <Row>
+                    <Col {...metaFormLayout.labelCol}></Col>
+                    <Col {...metaFormLayout.wrapperCol}>
+                        <Table
+                            className='m-table border-table'
+                            columns={this.getColumns()}
+                            dataSource={tables}
+                            scroll={{ y: '300px' }}
+                            loading={loading}
+                            pagination={false}
+                        />
+                    </Col>
+                </Row>
             </section>
         )
     }
