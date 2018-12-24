@@ -188,7 +188,7 @@ public class FlinkClient extends AbsClient {
     }
 
     private void initYarnClient() {
-        if (ConfigParse.getSecurity()){
+        if (flinkConfig.isSecurity()){
             initSecurity();
         }
         yarnClient = YarnClient.createYarnClient();
@@ -199,27 +199,19 @@ public class FlinkClient extends AbsClient {
     }
 
     private void initSecurity() {
-        String userPrincipal = ConfigParse.userPrincipal();
-        String userKeytabPath = ConfigParse.userKeytabPath();
-        String krb5ConfPath = ConfigParse.krb5ConfPath();
+        String userPrincipal = flinkConfig.getFlinkPrincipal();
+        String userKeytabPath = flinkConfig.getFlinkKeytabPath();
+        String krb5ConfPath = flinkConfig.getFlinkKrb5ConfPath();
+        String zkPrincipal = flinkConfig.getZkPrincipal();
+        String zkKeytabPath = flinkConfig.getZkKeytabPath();
+        String zkLoginName = flinkConfig.getZkLoginName();
+        hadoopConf.set("username.client.keytab.file", zkKeytabPath);
+        hadoopConf.set("username.client.kerberos.principal", zkPrincipal);
+
         try {
+            KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
+            KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", flinkConfig.getZkPrincipal());
             KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String PRNCIPAL_NAME = ConfigParse.userPrincipal();
-        String LOGIN_CONTEXT_NAME = "Client";
-        String PATH_TO_KEYTAB = ConfigParse.userKeytabPath();
-        String PATH_TO_KRB5_CONF = ConfigParse.krb5ConfPath();
-
-        hadoopConf.set("username.client.keytab.file", PATH_TO_KEYTAB);
-        hadoopConf.set("username.client.kerberos.principal", PRNCIPAL_NAME);
-
-        try {
-            KerberosUtils.setJaasConf(LOGIN_CONTEXT_NAME, PRNCIPAL_NAME, PATH_TO_KEYTAB);
-            KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
-            KerberosUtils.login(PRNCIPAL_NAME, PATH_TO_KEYTAB, PATH_TO_KRB5_CONF, hadoopConf);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -44,11 +44,6 @@ public class YamlConfig implements Config{
             throw new EngineAgumentsException("nodeZkAddress");
         }
 
-        Boolean isSecurity = (Boolean)nodeConfig.get("isSecurity");
-        if(isSecurity == null){
-            throw new EngineAgumentsException("isSecurity");
-        }
-
     }
 
     @Override

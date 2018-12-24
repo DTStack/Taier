@@ -65,6 +65,68 @@ public class FlinkConfig {
 
     private String jobmanagerArchiveFsDir;
 
+    private boolean isSecurity;
+
+    private String flinkPrincipal;
+
+    private String flinkKeytabPath;
+
+    private String flinkKrb5ConfPath;
+
+    private String zkPrincipal;
+
+    private String zkKeytabPath;
+
+    private String zkLoginName;
+
+    public String getZkLoginName() {
+        return zkLoginName;
+    }
+
+    public void setZkLoginName(String zkLoginName) {
+        this.zkLoginName = zkLoginName;
+    }
+
+    public String getZkKeytabPath() {
+        return zkKeytabPath;
+    }
+
+    public void setZkKeytabPath(String zkKeytabPath) {
+        this.zkKeytabPath = zkKeytabPath;
+    }
+
+    public String getZkPrincipal() {
+        return zkPrincipal;
+    }
+
+    public void setZkPrincipal(String zkPrincipal) {
+        this.zkPrincipal = zkPrincipal;
+    }
+
+    public boolean isSecurity() {
+        return isSecurity;
+    }
+
+    public void setSecurity(boolean isSecurity) {
+        this.isSecurity = isSecurity;
+    }
+
+    public String getFlinkPrincipal() {
+        return flinkPrincipal;
+    }
+
+    public void setFlinkPrincipal(String flinkPrincipal) {
+        this.flinkPrincipal = flinkPrincipal;
+    }
+
+    public String getFlinkKeytabPath() {
+        return flinkKeytabPath;
+    }
+
+    public void setFlinkKeytabPath(String flinkKeytabPath) {
+        this.flinkKeytabPath = flinkKeytabPath;
+    }
+
     public String getFlinkZkAddress() {
         return flinkZkAddress;
     }
@@ -259,5 +321,13 @@ public class FlinkConfig {
 
     public void setJobmanagerArchiveFsDir(String jobmanagerArchiveFsDir) {
         this.jobmanagerArchiveFsDir = jobmanagerArchiveFsDir;
+    }
+
+    public String getFlinkKrb5ConfPath() {
+        return flinkKrb5ConfPath;
+    }
+
+    public void setFlinkKrb5ConfPath(String flinkKrb5ConfPath) {
+        this.flinkKrb5ConfPath = flinkKrb5ConfPath;
     }
 }
