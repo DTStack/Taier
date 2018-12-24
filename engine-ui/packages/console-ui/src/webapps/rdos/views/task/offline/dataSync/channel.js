@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 import {
     Form, InputNumber, Input,
     Select, Button, AutoComplete,
@@ -13,13 +14,24 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import LifeCycle from '../../../dataManage/lifeCycle';
+import API from '../../../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+const formItemLayout = {
+    labelCol: {
+        sm: { span: 6 }
+    },
+    wrapperCol: {
+        sm: { span: 14 }
+    }
+};
+
 class ChannelForm extends React.Component {
     state = {
-        isRecord: false
+        isRecord: false,
+        incrementColumns: []
     }
 
     constructor (props) {
@@ -32,18 +44,49 @@ class ChannelForm extends React.Component {
         })
     }
 
+    loadIncrementColumn = async () => {
+        const { sourceMap } = this.props;
+        const res = await API.getIncrementColumns({
+            sourceId: sourceMap.sourceId,
+            tableName: get(sourceMap, 'type.table')
+        });
+
+        if (res.code === 1) {
+            this.setState({
+                incrementColumns: res.data || []
+            })
+        }
+    }
+
+    renderIncrementColumns = () => {
+        const { sourceMap, isIncrementMode } = this.props;
+        const { incrementColumns } = this.state;
+        const { getFieldDecorator } = this.props.form;
+        const columnsOpts = incrementColumns.map(o => <Option key={o.key}>{o.key}（{o.type}）</Option>);
+        return isIncrementMode
+            ? <FormItem
+                {...formItemLayout}
+                label="增量标识字段"
+                style={{ height: '32px' }}
+            >
+                {getFieldDecorator('speed', {
+                    rules: [{
+                        required: true
+                    }],
+                    initialValue: sourceMap.increColumn || (incrementColumns[0] ? incrementColumns[0].key : '')
+                })(
+                    <Select>
+                        { columnsOpts }
+                    </Select>
+                )}
+                <HelpDoc doc="incrementColumnHelp"/>
+            </FormItem>
+            : '';
+    }
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const { setting, navtoStep } = this.props;
-
-        const formItemLayout = {
-            labelCol: {
-                sm: { span: 6 }
-            },
-            wrapperCol: {
-                sm: { span: 14 }
-            }
-        };
 
         const speedOption = [];
         const channelOption = [];
@@ -57,6 +100,7 @@ class ChannelForm extends React.Component {
 
         return <div className="g-step4">
             <Form>
+                {this.renderIncrementColumns()}
                 <FormItem
                     {...formItemLayout}
                     label="作业速率上限"

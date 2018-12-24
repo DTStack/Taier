@@ -158,7 +158,7 @@ class DataSyncWorkbench extends Component {
                             minHeight: '400px',
                             position: 'relative'
                         }}>
-                            <DataSync saveTab={saveTab} {...currentTabData} />
+                            <DataSync saveTab={saveTab} currentTabData={currentTabData} />
                         </div>
                         {
                             hasLog ? <Console

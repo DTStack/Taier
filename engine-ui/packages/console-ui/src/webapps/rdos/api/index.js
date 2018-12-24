@@ -445,6 +445,12 @@ export default {
     stopDataSyncImmediately(params) { // 停止执行SQL
         return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
     },
+    getIncrementColumns(params) { // 获取增量字段
+        return http.post(offlineReq.GET_INCREMENT_COLUMNS, params)
+    },
+    checkSyncMode(params) { // 检测是否满足增量数据同步
+        return http.post(offlineReq.CHECK_SYNC_MODE, params)
+    },
     /**
      * - 查询数据同步任务，SQL 执行结果
      * - 需要补充增量同步

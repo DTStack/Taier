@@ -69,9 +69,11 @@ export default {
     EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
     STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
     SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`, // 轮询调度查询sql结果
-    EXEC_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行数据同步
+    EXEC_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSyncImmediately`, // 立即执行数据同步
     STOP_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行数据同步
-    SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`, // 获取数据同步执行状态
+    SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
+    GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/getIncreColumn`, // 获取增量字段
+    CHECK_SYNC_MODE: `${RDOS_BASE_URL}/batch/batchDataSource/canSetIncreConf`, // 检测是否满足增量
 
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计

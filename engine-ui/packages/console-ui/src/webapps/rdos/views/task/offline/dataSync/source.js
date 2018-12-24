@@ -377,7 +377,8 @@ class SourceForm extends React.Component {
         const {
             sourceMap,
             dataSourceList,
-            navtoStep
+            navtoStep,
+            isIncrementMode
         } = this.props;
 
         const disablePreview =
@@ -417,7 +418,9 @@ class SourceForm extends React.Component {
                                     const disableSelect =
                                         src.type === DATA_SOURCE.ES ||
                                         src.type === DATA_SOURCE.REDIS ||
-                                        src.type === DATA_SOURCE.MONGODB;
+                                        src.type === DATA_SOURCE.MONGODB ||
+                                        // 增量模式需要禁用非关系型数据库
+                                        (isIncrementMode && !isRDB(src.type));
 
                                     return (
                                         <Option
@@ -680,19 +683,18 @@ class SourceForm extends React.Component {
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
-        const { sourceMap } = this.props;
+        const { sourceMap, isIncrementMode } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
-        const supportSubLibrary =
-            SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(
-                sourceMap &&
-                    sourceMap.sourceList &&
-                    sourceMap.sourceList[0].type
-            ) > -1;
+
         const getPopupContainer = this.props.getPopupContainer;
-        const haveChineseQuote =
-            !!(sourceMap &&
-            sourceMap.type &&
-            /(‘|’|”|“)/.test(sourceMap.type.where));
+        const haveChineseQuote = !!(sourceMap && sourceMap.type && /(‘|’|”|“)/.test(sourceMap.type.where));
+
+        // 非增量模式
+        const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap &&
+                sourceMap.sourceList &&
+                sourceMap.sourceList[0].type
+        ) > -1 && !isIncrementMode;
+
         let formItem;
         if (isEmpty(sourceMap)) return null;
 
@@ -1379,10 +1381,8 @@ class SourceForm extends React.Component {
                 ];
                 break;
             }
-            default:
-                break;
-            }
-
+            default: break;
+        }
         return formItem;
     };
 }
@@ -1404,7 +1404,7 @@ class Source extends React.Component {
 }
 
 const mapState = state => {
-    const { dataSync, workbench } = state.offlineTask;
+    const { workbench, dataSync } = state.offlineTask;
     const { isCurrentTabNew, currentTab } = workbench;
 
     return {

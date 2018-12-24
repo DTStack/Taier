@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, message } from 'antd';
 import { connect } from 'react-redux';
-import { cloneDeep, isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 
 import DataSyncSource from './source';
 import DataSyncTarget from './target';
@@ -19,6 +19,10 @@ import {
     workbenchActions as WBenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
 
+import {
+    DATA_SYNC_MODE
+} from '../../../../comm/const';
+
 import { isProjectCouldEdit } from '../../../../comm'
 
 const Step = Steps.Step;
@@ -34,10 +38,10 @@ class DataSync extends React.Component {
     }
 
     componentDidMount () {
-        const { id } = this.props;
+        const { currentTabData } = this.props;
 
-        this.getJobData({ taskId: id });
-        this.props.setTabId(id);
+        this.getJobData({ taskId: currentTabData.id });
+        this.props.setTabId(currentTabData.id);
         this.props.getDataSource();
     }
 
@@ -88,7 +92,8 @@ class DataSync extends React.Component {
     }
 
     getJobData = (params) => {
-        const { dataSyncSaved } = this.props;
+        const { currentTabData } = this.props;
+        const { dataSyncSaved } = currentTabData;
 
         ajax.getOfflineJobData(params).then(res => {
             if (!dataSyncSaved) {
@@ -127,12 +132,12 @@ class DataSync extends React.Component {
 
     // 组件离开保存数据到tabs中
     componentWillUnmount () {
-        const { id, dataSync } = this.props;
+        const { currentTabData, dataSync } = this.props;
         if (this.state.loading) {
             return;
         }
         this.props.saveDataSyncToTab({
-            id: id,
+            id: currentTabData.id,
             data: dataSync
         })
     }
@@ -158,89 +163,34 @@ class DataSync extends React.Component {
         this.props.saveTab();
     }
 
-    /**
-     * @description 拼装接口所需数据格式
-     * @param {any} data 数据同步job配置对象
-     * @returns {any} result 接口所需数据结构
-     * @memberof DataSync
-     */
-    generateRqtBody (data) {
-        // 深刻龙避免直接mutate store
-        let clone = cloneDeep(data);
-
-        const { tabs, currentTab } = this.props;
-        const { keymap, sourceMap, targetMap } = clone;
-        const { source, target } = keymap;
-        const { name, id } = this.props;
-
-        // 接口要求keymap中的连线映射数组放到sourceMap中
-        clone.sourceMap.column = source;
-        clone.targetMap.column = target;
-        clone.settingMap = clone.setting;
-        clone.name = name;
-        clone.taskId = id;
-
-        // type中的特定配置项也放到sourceMap中
-        const targetTypeObj = targetMap.type;
-        const sourceTypeObj = sourceMap.type;
-
-        for (let key in sourceTypeObj) {
-            if (sourceTypeObj.hasOwnProperty(key)) {
-                sourceMap[key] = sourceTypeObj[key]
-            }
-        }
-        for (let k2 in targetTypeObj) {
-            if (targetTypeObj.hasOwnProperty(k2)) {
-                targetMap[k2] = targetTypeObj[k2]
-            }
-        }
-
-        // 删除接口不必要的字段
-        delete clone.keymap;
-        delete clone.setting;
-        delete clone.dataSourceList;
-        delete clone.currentStep;
-
-        // 获取当前task对象并深克隆guest
-        let result = cloneDeep(tabs.filter(tab => tab.id === currentTab)[0]);
-
-        // 将以上步骤生成的数据同步配置拼装到task对象中
-        for (let key in clone) {
-            if (clone.hasOwnProperty(key)) {
-                result[key] = clone[key];
-            }
-        }
-
-        // 修改task配置时接口要求的标记位
-        result.preSave = true;
-
-        // 接口要求上游任务字段名修改为dependencyTasks
-        if (result.taskVOS) {
-            result.dependencyTasks = result.taskVOS.map(o => o);
-            result.taskVOS = null;
-        }
-
-        // 数据拼装结果
-        return result;
-    }
     getPopupContainer = () => {
         return this._datasyncDom;
     }
+
     render () {
         const { currentStep, loading } = this.state;
         const {
-            readWriteLockVO, notSynced, user, project,
-            sourceMap, targetMap
+            user, project,
+            sourceMap, targetMap,
+            currentTabData
         } = this.props;
+
+        const { readWriteLockVO, notSynced, syncMode } = currentTabData;
+
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
         const couldEdit = isProjectCouldEdit(project, user);
+        const isIncrementMode = syncMode !== undefined && syncMode === DATA_SYNC_MODE.INCREMENT;
 
         const steps = [
             {
                 title: '数据来源',
                 content: <DataSyncSource
                     getPopupContainer={this.getPopupContainer}
+                    sourceMap={sourceMap}
+                    targetMap={targetMap}
                     currentStep={currentStep}
+                    currentTabData={currentTabData}
+                    isIncrementMode={isIncrementMode}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
@@ -249,6 +199,10 @@ class DataSync extends React.Component {
                 content: <DataSyncTarget
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
+                    currentTabData={currentTabData}
+                    sourceMap={sourceMap}
+                    targetMap={targetMap}
+                    isIncrementMode={isIncrementMode}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
@@ -266,6 +220,8 @@ class DataSync extends React.Component {
                 content: <DataSyncChannel
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
+                    sourceMap={sourceMap}
+                    isIncrementMode={isIncrementMode}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
