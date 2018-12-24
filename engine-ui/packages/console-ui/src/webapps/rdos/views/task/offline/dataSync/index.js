@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { isEmpty } from 'lodash';
 
 import ToolBar from 'main/components/ide/toolbar';
 import Console from 'main/components/ide/console';
@@ -21,7 +22,7 @@ const propType = {
 }
 
 @connect(state => {
-    const { workbench } = state.offlineTask;
+    const { workbench, dataSync } = state.offlineTask;
     const { currentTab, tabs } = workbench;
     const currentTabData = tabs.filter(tab => {
         return tab.id === currentTab;
@@ -32,7 +33,8 @@ const propType = {
         project: state.project,
         user: state.user,
         currentTab,
-        currentTabData
+        currentTabData,
+        dataSync
     }
 }, dispatch => {
     // const taskAc = workbenchActions(dispatch);
@@ -98,7 +100,7 @@ class DataSyncWorkbench extends Component {
     }
 
     render () {
-        const { currentTabData, editor, saveTab } = this.props;
+        const { currentTabData, editor, saveTab, dataSync } = this.props;
 
         const currentTab = currentTabData.id;
         const consoleData = editor.console;
@@ -107,11 +109,12 @@ class DataSyncWorkbench extends Component {
             ? consoleData[currentTab] : { results: [] }
 
         const unSave = currentTabData.notSynced; // 未保存的同步任务无法运行
+        const unConfigured = dataSync.tabId === currentTab && isEmpty(dataSync.sourceMap);
         const toolbar = {
             enable: true,
             enableRun: true,
             disableEdit: true,
-            disableRun: unSave,
+            disableRun: unSave || unConfigured,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.onRun,
             onStop: this.onStop
