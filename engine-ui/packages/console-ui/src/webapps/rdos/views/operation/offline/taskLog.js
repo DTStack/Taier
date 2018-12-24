@@ -78,7 +78,7 @@ export function LogInfo (props) {
      * 数据增量同步配置信息
      */
     if (log['increInfo']) {
-        logText = `${logText}\n${wrappTitle('increInfo')}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`
+        logText = `${logText}\n${wrappTitle('增量标志信息')}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`
     }
 
     if (flinkLog || log['root-exception']) {
