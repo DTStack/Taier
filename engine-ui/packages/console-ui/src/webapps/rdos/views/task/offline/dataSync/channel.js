@@ -34,6 +34,12 @@ class ChannelForm extends React.Component {
         incrementColumns: []
     }
 
+    componentDidMount () {
+        if (this.props.isIncrementMode) {
+        }
+        this.loadIncrementColumn();
+    }
+
     constructor (props) {
         super(props);
     }
