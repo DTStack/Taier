@@ -89,7 +89,7 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
                                         return;
                                     }
                                     outputStatus(res.data.status, '.....')
-                                    doSelect(resolve, dispatch, jobId, currentTab)
+                                    doSelect(resolve, dispatch, jobId, currentTab, taskType)
                                 }, INTERVALS
                             )
                         }
