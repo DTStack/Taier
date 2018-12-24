@@ -5,7 +5,7 @@
     <parent>
         <artifactId>engine</artifactId>
         <groupId>com.dtstack.rdos</groupId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -22,14 +22,13 @@
         <spark.version>2.1.0</spark.version>
         <scala.version>2.11.7</scala.version>
         <spark.hadoop.version>2.7.3</spark.hadoop.version>
-
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.dtstack.rdos</groupId>
             <artifactId>base.common</artifactId>
-            <version>1.0.0</version>
+            <version>${revision}</version>
             <scope>provided</scope>
         </dependency>
 

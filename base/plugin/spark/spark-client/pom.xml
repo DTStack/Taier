@@ -3,10 +3,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.dtstack.rdos</groupId>
-    <artifactId>base.spark</artifactId>
-    <version>1.0.0</version>
-    <relativePath>../pom.xml</relativePath>
+      <groupId>com.dtstack.rdos</groupId>
+      <artifactId>base.spark</artifactId>
+	  <version>${revision}</version>
+      <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>spark-client</artifactId>
   <url>http://maven.apache.org</url>
