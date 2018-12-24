@@ -24,11 +24,11 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.hive/hive-exec -->
+
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-exec</artifactId>
-            <version>1.2.1</version>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_2.11</artifactId>
+            <version>${spark.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/xalan/xalan -->
@@ -37,28 +37,6 @@
             <artifactId>xalan</artifactId>
             <version>2.7.1</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.datanucleus/datanucleus-api-jdo -->
-        <dependency>
-            <groupId>org.datanucleus</groupId>
-            <artifactId>datanucleus-api-jdo</artifactId>
-            <version>3.2.6</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.datanucleus/datanucleus-rdbms -->
-        <dependency>
-            <groupId>org.datanucleus</groupId>
-            <artifactId>datanucleus-rdbms</artifactId>
-            <version>3.2.9</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.datanucleus/datanucleus-core -->
-        <dependency>
-            <groupId>org.datanucleus</groupId>
-            <artifactId>datanucleus-core</artifactId>
-            <version>3.2.10</version>
-        </dependency>
-
 
     </dependencies>
 
@@ -137,6 +115,10 @@
                                 <!-- The service transformer is needed to merge META-INF/services files -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                                    <resource>META-INF/MANIFEST.MF</resource>
+                                    <file>MANIFEST.MF</file>
+                                </transformer>
                             </transformers>
 
                             <artifactSet>

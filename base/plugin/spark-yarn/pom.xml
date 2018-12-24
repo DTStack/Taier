@@ -50,10 +50,10 @@
                     <artifactId>hadoop-client</artifactId>
                     <groupId>org.apache.hadoop</groupId>
                 </exclusion>
-                <exclusion>
+                <!--<exclusion>
                     <groupId>org.apache.hive</groupId>
                     <artifactId>hive-exec</artifactId>
-                </exclusion>
+                </exclusion>-->
             </exclusions>
         </dependency>
 
