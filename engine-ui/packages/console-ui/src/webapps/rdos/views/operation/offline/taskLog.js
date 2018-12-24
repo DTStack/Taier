@@ -74,6 +74,12 @@ export function LogInfo (props) {
     if (log['perf']) {
         logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(log['perf'], 'warning')}${safeSpace} \n`
     }
+    /**
+     * 数据增量同步配置信息
+     */
+    if (log['increInfo']) {
+        logText = `${logText}\n${wrappTitle('increInfo')}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`
+    }
 
     if (flinkLog || log['root-exception']) {
         logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(flinkLog, 'error')} \n ${createLogMark(log['root-exception'], 'error') || ''}`
