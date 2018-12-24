@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import moment from 'moment';
 import ajax from '../../../api/dataManage';
 import { Input, Spin, Table, Button, Card, Popconfirm, message, Tabs } from 'antd';
 import '../../../styles/pages/dataManage.scss';
@@ -11,7 +12,7 @@ const Search = Input.Search;
 const TabPane = Tabs.TabPane;
 @connect(state => {
     return {
-        allProjects: state.allProjects,
+        projects: state.projects,
         user: state.user
     }
 }, null)
@@ -25,28 +26,25 @@ class DesensitizationMange extends Component {
         tabKey: 'tableRelation', // 默认选中表关系
         table: [], // 表数据
         queryParams: {
-            pageIndex: 1,
+            currentPage: 1,
             pageSize: 20,
-            desensitizationName: undefined
-        },
+            name: undefined
+        }
         // mock
-        dataSource: [
-            {
-                key: '1',
-                desensitizationName: '身份证号脱敏',
-                tableNum: 12,
-                desensitizationRule: '身份证号',
-                person: 'admin@dtstack.com',
-                time: '2018-01-01 12:12:12',
-                deal: '删除'
-            }
-        ]
+        // dataSource: [
+        //     {
+        //         key: '1',
+        //         name: '身份证号脱敏',
+        //         relatedNum: 12,
+        //         ruleName: '身份证号',
+        //         modifyUserName: 'admin@dtstack.com',
+        //         gmtModified: '2018-01-01 12:12:12',
+        //         opear: '删除'
+        //     }
+        // ]
     }
     componentDidMount () {
         this.search();
-        // console.log('------------------');
-        // console.log(this.props.user);
-        // console.log(this.props.allProjects);
     }
     search = () => {
         this.setState({
@@ -69,11 +67,11 @@ class DesensitizationMange extends Component {
     changeName = (e) => {
         const { queryParams } = this.state;
         this.setState({
-            queryParams: Object.assign(queryParams, { desensitizationName: e.target.value })
+            queryParams: Object.assign(queryParams, { name: e.target.value })
         })
     }
     handleTableChange = (pagination, filters, sorter) => {
-        const queryParams = Object.assign(this.state.queryParams, { pageIndex: pagination.current })
+        const queryParams = Object.assign(this.state.queryParams, { currentPage: pagination.current })
         this.setState({
             queryParams
         }, this.search)
@@ -125,7 +123,7 @@ class DesensitizationMange extends Component {
             {
                 title: '脱敏名称',
                 width: 140,
-                dataIndex: 'desensitizationName',
+                dataIndex: 'name',
                 render: (text, record) => {
                     return (
                         <a onClick={() => { this.showDesensitization(record) }}>身份证号脱敏</a>
@@ -135,27 +133,30 @@ class DesensitizationMange extends Component {
             {
                 title: '关联表数量',
                 width: 140,
-                dataIndex: 'tableNum'
+                dataIndex: 'relatedNum'
             },
             {
                 title: '脱敏规则',
                 width: 140,
-                dataIndex: 'desensitizationRule'
+                dataIndex: 'ruleName'
             },
             {
                 title: '最近修改人',
                 width: 200,
-                dataIndex: 'person'
+                dataIndex: 'modifyUserName'
             },
             {
                 title: '最近修改时间',
                 width: 200,
-                dataIndex: 'time'
+                dataIndex: 'gmtModified',
+                render (text, record) {
+                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
+                }
             },
             {
                 title: '操作',
                 width: 140,
-                dataIndex: 'deal',
+                dataIndex: 'opera',
                 render: (text, record) => {
                     return (
                         <Popconfirm
@@ -173,7 +174,7 @@ class DesensitizationMange extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { cardLoading, dataSource, addVisible, visibleSlidePane, selectedDesensitization, tabKey } = this.state;
+        const { cardLoading, table, addVisible, visibleSlidePane, selectedDesensitization, tabKey } = this.state;
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -202,7 +203,7 @@ class DesensitizationMange extends Component {
                         <Table
                             className="m-table"
                             columns={columns}
-                            dataSource={dataSource}
+                            dataSource={table}
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>

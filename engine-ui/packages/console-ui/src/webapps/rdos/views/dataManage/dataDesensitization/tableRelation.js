@@ -139,8 +139,10 @@ class TableRelation extends Component {
         )
     }
     onSelectChange = (selectedRowKeys) => {
+        const checkAll = selectedRowKeys.length === this.state.tableData.data.length;
         this.setState({
-            selectedRowKeys
+            selectedRowKeys,
+            checkAll
         })
     }
     onCheckAllChange = (e) => {
@@ -240,7 +242,7 @@ class TableRelation extends Component {
             {
                 title: '操作',
                 width: 100,
-                dataIndex: 'deal',
+                dataIndex: 'opera',
                 render: (text, record) => {
                     return (
                         <a>查看血缘</a>

@@ -212,6 +212,9 @@ export default {
     addRule (params) {
         return http.post(dataManageReq.ADD_RULE, params)
     },
+    editRule (params) {
+        return http.post(dataManageReq.EDIT_RULE, params)
+    },
     updateRule (params) {
         return http.post(dataManageReq.UPDATE_RULE, params)
     },

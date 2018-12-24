@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, Radio, InputNumber, Button } from 'antd';
+import { Modal, Form, Input, Radio, InputNumber, Button, message } from 'antd';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
-const RadioGroup = Radio.Group
+const RadioGroup = Radio.Group;
 class AddUpdateRules extends Component {
     state = {
         // 部分脱敏参数
@@ -11,6 +11,17 @@ class AddUpdateRules extends Component {
         endPos: '',
         replaceStr: '',
         newReplaceData: ''
+    }
+    /* eslint-disable-next-line */
+    componentWillReceiveProps (nextProps) {
+        const dataSource = nextProps.dataSource;
+        if (this.props.dataSource != dataSource) {
+            this.setState({
+                beginPos: dataSource.beginPos,
+                endPos: dataSource.endPos,
+                replaceStr: dataSource.replaceStr
+            })
+        }
     }
     // 改变开始值
     changeBeginPos = (value) => {
@@ -32,24 +43,15 @@ class AddUpdateRules extends Component {
     repeatStr = (str, n) => {
         return new Array(n + 1).join(str)
     }
-    // 切换radio
-    changedesenType = () => {
-        this.setState({
-            newReplaceData: '',
-            beginPos: '',
-            endPos: '',
-            replaceStr: ''
-        })
-    }
     // 效果预览
     preview = () => {
         const { getFieldValue } = this.props.form;
-        let sampleData = getFieldValue('sampleData');
+        let sampleData = getFieldValue('example');
         const maskType = getFieldValue('maskType');
         const { beginPos, endPos, replaceStr } = this.state;
         console.log(beginPos, endPos, replaceStr)
         console.log(sampleData);
-        if (maskType === 0) {
+        if (maskType === 1) {
             if (sampleData) {
                 let sampleDataArr = sampleData.split('');
                 console.log(sampleData.split(''));
@@ -89,6 +91,12 @@ class AddUpdateRules extends Component {
     }
     cancel = () => {
         const { onCancel } = this.props;
+        this.setState({
+            beginPos: '',
+            endPos: '',
+            replaceStr: '',
+            newReplaceData: ''
+        })
         onCancel();
     }
     submit = () => {
@@ -101,15 +109,18 @@ class AddUpdateRules extends Component {
             replaceStr
         }
         let params = {};
-        if (ruleData.maskType === 1) {
-            params = Object.assign({}, ruleData)
+        if (ruleData.maskType === 0) {
+            params = Object.assign({ repeatStr: '*' }, ruleData)
         } else {
             params = Object.assign({ ...partData, ...ruleData })
         }
+        const isPartDes = ruleData.maskType === 1;
         this.props.form.validateFields((err) => {
-            if (!err) {
+            if (!err && (isPartDes ? (beginPos && endPos && replaceStr) : true)) {
                 this.props.form.resetFields();
                 onOk(params)
+            } else if (isPartDes ? (beginPos == '' || endPos == '' || replaceStr == '') : false) {
+                message.warning('请正确输入脱敏替换配置');
             }
         });
     }
@@ -175,20 +186,16 @@ class AddUpdateRules extends Component {
                         label="脱敏效果"
                     >
                         {getFieldDecorator('maskType', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: dataSource.maskType || 1
+                            rules: [],
+                            initialValue: dataSource.maskType || 0
                         })(
-                            <RadioGroup
-                                onChange={this.changedesenType}
-                            >
-                                <Radio value={1}>全部脱敏</Radio>
-                                <Radio value={0}>部分脱敏</Radio>
+                            <RadioGroup>
+                                <Radio value={0}>全部脱敏</Radio>
+                                <Radio value={1}>部分脱敏</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
-                    { maskType === 0 ? <FormItem>
+                    { maskType === 1 ? <FormItem>
                         <div style={{ margin: '-10 0 0 150' }}>
                             将从
                             <InputNumber
@@ -198,7 +205,7 @@ class AddUpdateRules extends Component {
                                 onChange={this.changeBeginPos}
                             />位至第<InputNumber
                                 style={{ width: '70px' }}
-                                min={Number(this.state.beginPos)}
+                                min={Number(this.state.beginPos) || 1 }
                                 // max={sampleDataLength}
                                 value={this.state.endPos}
                                 onChange={this.changeEndPos}
@@ -210,6 +217,40 @@ class AddUpdateRules extends Component {
                             {/* <div style={{ color: 'red' }}>开始位置不能大于等于结束位置!</div> */}
                         </div>
                     </FormItem> : ''}
+                    {/* {
+                        maskType === 1 && <div className='partDataForm' style={{ marginLeft: '130px' }}>
+                            <FormItem
+                                {...formItemLayout}
+                                // label="beginPos"
+                            >
+                                {getFieldDecorator('beginPos', {
+                                    initialValue: dataSource.beginPos ? dataSource.beginPos : ''
+                                })(
+                                    <InputNumber />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                // label="endPos"
+                            >
+                                {getFieldDecorator('endPos', {
+                                    initialValue: dataSource.endPos ? dataSource.endPos : ''
+                                })(
+                                    <InputNumber />
+                                )}
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                // label="replaceStr"
+                            >
+                                {getFieldDecorator('replaceStr', {
+                                    initialValue: dataSource.replaceStr ? dataSource.replaceStr : ''
+                                })(
+                                    <Input />
+                                )}
+                            </FormItem>
+                        </div>
+                    } */}
                     <FormItem
                         {...formItemLayout}
                     >

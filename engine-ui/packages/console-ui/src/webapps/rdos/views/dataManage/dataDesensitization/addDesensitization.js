@@ -8,7 +8,7 @@ const Option = Select.Option;
 // mock
 @connect(state => {
     return {
-        allProjects: state.allProjects,
+        projects: state.projects,
         user: state.user
     }
 }, null)
@@ -27,10 +27,11 @@ class AddDesensitization extends Component {
             }
         });
     }
+    /* eslint-disable */
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { allProjects } = this.props;
-        const projectsOptions = allProjects.map(item => {
+        const { projects } = this.props;
+        const projectsOptions = projects.map(item => {
             return <Option
                 title={item.projectAlias}
                 key={item.id}
@@ -52,7 +53,7 @@ class AddDesensitization extends Component {
                         {...formItemLayout}
                         label="脱敏名称"
                     >
-                        {getFieldDecorator('desensitizationName', {
+                        {getFieldDecorator('name', {
                             rules: [{
                                 required: true,
                                 message: '脱敏名称不可为空！'
@@ -65,7 +66,7 @@ class AddDesensitization extends Component {
                         {...formItemLayout}
                         label="项目"
                     >
-                        {getFieldDecorator('projects', {
+                        {getFieldDecorator('projectId', {
                             rules: [{
                                 required: true,
                                 message: '项目不可为空！'
@@ -74,7 +75,8 @@ class AddDesensitization extends Component {
                             <Select
                                 allowClear
                             >
-                                {projectsOptions}
+                                {/* {projectsOptions} */}
+                                <Option value={1}>1</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -82,7 +84,7 @@ class AddDesensitization extends Component {
                         {...formItemLayout}
                         label="表"
                     >
-                        {getFieldDecorator('tables', {
+                        {getFieldDecorator('tableId', {
                             rules: [{
                                 required: true,
                                 message: '表不可为空！'
@@ -91,7 +93,8 @@ class AddDesensitization extends Component {
                             <Select
                                 allowClear
                             >
-                                {projectsOptions}
+                                {/* {projectsOptions} */}
+                                <Option value={1}>1</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -99,7 +102,7 @@ class AddDesensitization extends Component {
                         {...formItemLayout}
                         label="字段"
                     >
-                        {getFieldDecorator('columns', {
+                        {getFieldDecorator('columnName', {
                             rules: [{
                                 required: true,
                                 message: '字段不可为空！'
@@ -108,7 +111,8 @@ class AddDesensitization extends Component {
                             <Select
                                 allowClear
                             >
-                                {projectsOptions}
+                                {/* {projectsOptions} */}
+                                <Option value='columns'>columns</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -119,7 +123,7 @@ class AddDesensitization extends Component {
                         {...formItemLayout}
                         label="样例数据"
                     >
-                        {getFieldDecorator('sampleData', {
+                        {getFieldDecorator('example', {
                             rules: [{
                                 max: 200,
                                 message: '样例数据请控制在200个字符以内！'
@@ -132,13 +136,18 @@ class AddDesensitization extends Component {
                         {...formItemLayout}
                         label="脱敏规则"
                     >
-                        {getFieldDecorator('rules', {
+                        {getFieldDecorator('ruleId', {
                             rules: [{
                                 required: true,
                                 message: '脱敏规则不可为空！'
                             }]
                         })(
-                            <Select />
+                            <Select
+                                allowClear
+                            >
+                                {/* {projectsOptions} */}
+                                <Option value={2}>2</Option>
+                            </Select>
                         )}
                     </FormItem>
                 </Form>

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ajax from '../../../api/dataManage';
 import { Input, Spin, Table, Button, Card, Popconfirm, message } from 'antd';
+import moment from 'moment';
 import AddUpdateRules from './addUpdateRules';
 const Search = Input.Search;
 
@@ -14,17 +15,18 @@ class RuleManage extends Component {
             pageSize: 20,
             name: undefined
         },
-        status: 'add', // 新增或编辑
-        source: {}, // 规则信息,
+        editModalKey: null,
+        status: undefined, // 新增或编辑
+        source: {} // 编辑规则信息,
         // mock
-        dataSource: [
-            {
-                key: '1',
-                ruleName: '身份证号',
-                person: 'admin@dtstack.com',
-                time: '2018-01-01 12:12:12'
-            }
-        ]
+        // dataSource: [
+        //     {
+        //         key: '1',
+        //         ruleName: '身份证号',
+        //         person: 'admin@dtstack.com',
+        //         time: '2018-01-01 12:12:12'
+        //     }
+        // ]
     }
     componentDidMount () {
         this.search();
@@ -70,6 +72,22 @@ class RuleManage extends Component {
             }
         })
     }
+    // 编辑规则
+    editRule = (record) => {
+        ajax.editRule({ id: record.id }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    source: res.data
+                })
+            }
+        })
+        this.setState({
+            addVisible: true,
+            status: 'edit',
+            source: record,
+            editModalKey: Math.random()
+        })
+    }
     changeName = (e) => {
         const { queryParams } = this.state;
         this.setState({
@@ -87,17 +105,20 @@ class RuleManage extends Component {
             {
                 title: '规则名称',
                 width: 140,
-                dataIndex: 'ruleName'
+                dataIndex: 'name'
             },
             {
                 title: '最近修改人',
                 width: 200,
-                dataIndex: 'person'
+                dataIndex: 'modifyUserName'
             },
             {
                 title: '最近修改时间',
                 width: 200,
-                dataIndex: 'time'
+                dataIndex: 'gmtModified',
+                render (text, record) {
+                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
+                }
             },
             {
                 title: '操作',
@@ -106,7 +127,7 @@ class RuleManage extends Component {
                 render: (text, record) => {
                     return (
                         <span>
-                            <a onClick={() => { this.setState({ addVisible: true, status: 'edit', source: record }) }}>编辑</a>
+                            <a onClick={() => { this.editRule(record) }}>编辑</a>
                             <span className="ant-divider"></span>
                             <Popconfirm
                                 title="确定删除此条规则吗?"
@@ -124,7 +145,7 @@ class RuleManage extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { dataSource, cardLoading, addVisible, status, source } = this.state;
+        const { table, cardLoading, addVisible, status, source, editModalKey } = this.state;
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -143,7 +164,7 @@ class RuleManage extends Component {
                         <Button
                             type='primary'
                             style={{ marginTop: '10px' }}
-                            onClick={() => { this.setState({ addVisible: true, status: 'add', source: {} }) }}
+                            onClick={() => { this.setState({ addVisible: true, status: 'add', source: {}, editModalKey: Math.random() }) }}
                         >
                             创建规则
                         </Button>
@@ -153,14 +174,15 @@ class RuleManage extends Component {
                         <Table
                             className="m-table"
                             columns={columns}
-                            dataSource={dataSource}
+                            dataSource={table}
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
                 </Card>
                 <AddUpdateRules
+                    key={editModalKey}
                     visible={addVisible}
-                    onCancel={() => { this.setState({ addVisible: false }) }}
+                    onCancel={() => { this.setState({ addVisible: false, source: {}, status: undefined }) }}
                     onOk={this.addRule}
                     status={status}
                     dataSource={source}
