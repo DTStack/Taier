@@ -82,7 +82,7 @@ class TableTipExtraPane extends React.Component {
                         <TextMark
                             className="c-table__column__name"
                             title={column.columnName}
-                            text={column.columnName}
+                            text={column.columnName + (column.isPartition ? '（分区）' : '')}
                             markText={searchValue}
                         />
                         <span
@@ -98,9 +98,21 @@ class TableTipExtraPane extends React.Component {
     }
 
     renderTables () {
-        const { data } = this.props;
-        const tableAndColumns = Object.entries(data);
-
+        let { data, partition } = this.props;
+        partition = partition || {};
+        let tableAndColumns = Object.entries(data);
+        tableAndColumns = tableAndColumns.map((item) => {
+            const tableName = item[0];
+            const columns = item[1];
+            const partitionColumns = partition[tableName];
+            if (partitionColumns) {
+                return [tableName, partitionColumns.map((column) => {
+                    return { ...column, isPartition: true };
+                }).concat(columns)];
+            } else {
+                return item
+            }
+        })
         return <div className="c-tablePane__tables">
             {tableAndColumns.length ? <div>
                 <Search
@@ -139,7 +151,9 @@ class TableTipExtraPane extends React.Component {
             }
         })
     }
-
+    /**
+     * 根据搜索条件过滤表格字段
+     */
     filterTable (tableAndColumns) {
         const { searchValue } = this.state;
         if (!searchValue) {

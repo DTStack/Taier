@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { formItemLayout } from '../../comm/const';
-
 import { Form, Select, Input } from 'antd';
 import MetaDataTable from './metaDataTable';
 import CatalogueSelect from '../../components/catalogueSelect';
@@ -11,6 +9,16 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const TextArea = Input.TextArea;
 
+export const metaFormLayout = {
+    labelCol: {
+        xs: { span: 24 },
+        sm: { span: 2 }
+    },
+    wrapperCol: {
+        xs: { span: 24 },
+        sm: { span: 14 }
+    }
+}
 class MetaDataForm extends React.Component {
     getProjectOptions () {
         const { projectList = [] } = this.props;
@@ -25,7 +33,7 @@ class MetaDataForm extends React.Component {
             <Form>
                 <FormItem
                     label='项目标识'
-                    {...formItemLayout}
+                    {...metaFormLayout}
                 >
                     {getFieldDecorator('projectName', {
                         rules: [{
@@ -34,7 +42,7 @@ class MetaDataForm extends React.Component {
                         }]
                     })(
                         <Select
-                            style={{ width: '350px' }}
+                            style={{ width: '340px' }}
                             placeholder="请选择项目标识"
                         >
                             {this.getProjectOptions()}
@@ -43,7 +51,7 @@ class MetaDataForm extends React.Component {
                 </FormItem>
                 <FormItem
                     label='项目显示名称'
-                    {...formItemLayout}
+                    {...metaFormLayout}
                 >
                     {getFieldDecorator('projectAlias', {
                         rules: [{
@@ -52,14 +60,14 @@ class MetaDataForm extends React.Component {
                         }]
                     })(
                         <Input
-                            style={{ width: '350px' }}
+                            style={{ width: '340px' }}
                             placeholder="请输入项目显示名称"
                         />
                     )}
                 </FormItem>
                 <FormItem
                     label='项目描述'
-                    {...formItemLayout}
+                    {...metaFormLayout}
                 >
                     {getFieldDecorator('projectDesc', {
                         rules: [{
@@ -71,16 +79,23 @@ class MetaDataForm extends React.Component {
                         }]
                     })(
                         <TextArea
-                            style={{ width: '350px' }}
+                            style={{ width: '340px' }}
                             placeholder="请输入项目描述"
                             autosize={{ minRows: 2, maxRows: 7 }}
                         />
                     )}
                 </FormItem>
+                <FormItem
+                    label='数据库名'
+                    {...metaFormLayout}
+                    style={{ marginBottom: '0px' }}
+                >
+                    {projectName}
+                </FormItem>
                 <MetaDataTable key={projectName} database={projectName} />
                 <FormItem
                     label='所属类目'
-                    {...formItemLayout}
+                    {...metaFormLayout}
                 >
                     {getFieldDecorator('catalogueId', {
                         rules: [{
@@ -91,13 +106,13 @@ class MetaDataForm extends React.Component {
                         <CatalogueSelect
                             showSearch
                             placeholder="请选择所属类目"
-                            style={{ width: '350px' }}
+                            style={{ width: '340px' }}
                         />
                     )}
                 </FormItem>
                 <FormItem
                     label='生命周期'
-                    {...formItemLayout}
+                    {...metaFormLayout}
                 >
                     {getFieldDecorator('lifecycle', {
                         rules: [{
@@ -105,7 +120,7 @@ class MetaDataForm extends React.Component {
                             message: '生命周期不可为空'
                         }]
                     })(
-                        <LifeCycleSelect width={350} />
+                        <LifeCycleSelect width={128} />
                     )}
                 </FormItem>
             </Form>
