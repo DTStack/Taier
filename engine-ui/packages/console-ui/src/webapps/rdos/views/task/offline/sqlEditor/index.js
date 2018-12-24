@@ -38,7 +38,8 @@ class EditorContainer extends Component {
         funcList: [],
         funcCompleteItems: [],
         tables: [],
-        columns: {},
+        columns: {}, // 当前sql中表的字段
+        partition: {}, // 当前sql中表的分区
         extraPaneLoading: false
     }
 
@@ -338,6 +339,7 @@ class EditorContainer extends Component {
      */
     getTableColumns (tableName) {
         let _tableColumns = this._tableColumns;
+        tableName = tableName.toLowerCase();
         if (_tableColumns[tableName]) {
             return Promise.resolve(_tableColumns[tableName])
         }
@@ -350,7 +352,11 @@ class EditorContainer extends Component {
                 (res) => {
                     this._tableLoading[tableName] = null;
                     if (res.code == 1) {
-                        _tableColumns[tableName] = [tableName, res.data ? res.data.column : [], res.data ? res.data.table : {}];
+                        _tableColumns[tableName] = [tableName, 
+                            res.data ? res.data.column : [], 
+                            res.data ? res.data.table : {},
+                            res.data ? res.data.partition : {},
+                        ];
                         return _tableColumns[tableName];
                     } else {
                         console.log('get table columns error')
@@ -369,6 +375,7 @@ class EditorContainer extends Component {
         let promiseList = [];
         let tables = [];
         let columns = {};
+        let partition = {};
         let tmpTables = {};
         for (let location of locations) {
             if (location.type == 'table') {
@@ -411,10 +418,12 @@ class EditorContainer extends Component {
                         if (!value || !value[1] || !value[1].length) {
                             continue;
                         }
-                        columns[value[0]] = value[1]
+                        columns[value[0]] = value[1];
+                        partition[value[0]] = value[3];
                     }
                     this.setState({
                         columns: columns,
+                        partition: partition,
                         extraPaneLoading: false
                     })
                 }
@@ -435,7 +444,7 @@ class EditorContainer extends Component {
         const data = consoleData && consoleData[currentTab]
             ? consoleData[currentTab] : { results: [] }
 
-        const { execConfirmVisible, confirmCode, funcList, columns, extraPaneLoading } = this.state;
+        const { execConfirmVisible, confirmCode, funcList, columns, partition, extraPaneLoading } = this.state;
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
@@ -497,6 +506,7 @@ class EditorContainer extends Component {
                     extraPane={showTableTooltip
                         ? <ExtraPane
                             data={columns}
+                            partition={partition}
                             loading={extraPaneLoading}
                             tabId={currentTabData.id}
                         />
