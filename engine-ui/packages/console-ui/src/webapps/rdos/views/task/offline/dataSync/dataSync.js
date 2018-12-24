@@ -175,11 +175,11 @@ class DataSync extends React.Component {
             currentTabData
         } = this.props;
 
-        const { readWriteLockVO, notSynced, syncMode } = currentTabData;
+        const { readWriteLockVO, notSynced, syncModel } = currentTabData;
 
         const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
         const couldEdit = isProjectCouldEdit(project, user);
-        const isIncrementMode = syncMode !== undefined && syncMode === DATA_SYNC_MODE.INCREMENT;
+        const isIncrementMode = syncModel !== undefined && syncModel === DATA_SYNC_MODE.INCREMENT;
 
         const steps = [
             {

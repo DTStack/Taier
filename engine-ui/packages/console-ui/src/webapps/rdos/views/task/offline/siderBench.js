@@ -58,7 +58,7 @@ class SiderBench extends React.Component {
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
         const isWorkflowNode = tabData && tabData.flowId && tabData.flowId !== 0;
         const prefixLabel = isWorkflowNode ? '节点' : '任务';
-        const isIncrementMode = tabData.syncMode !== undefined && tabData.syncMode === DATA_SYNC_MODE.INCREMENT;
+        const isIncrementMode = tabData.syncModel !== undefined && tabData.syncModel === DATA_SYNC_MODE.INCREMENT;
 
         const panes = [
             <TabPane tab={<span className="title-vertical">{isWorkflowNode ? '属性与调度' : '任务属性'}</span>} key="params1">
