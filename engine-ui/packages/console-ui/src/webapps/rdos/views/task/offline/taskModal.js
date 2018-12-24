@@ -396,13 +396,13 @@ class TaskForm extends React.Component {
                                 {...formItemLayout}
                                 label={'同步模式'}
                             >
-                                {getFieldDecorator('syncMode', {
+                                {getFieldDecorator('syncModel', {
                                     rules: [{
                                         required: true, message: '请选择配置模式'
                                     }, {
                                         validator: this.checkSyncMode.bind(this)
                                     }],
-                                    initialValue: this.isEditExist ? (defaultData.syncMode || '0') : '0'
+                                    initialValue: this.isEditExist ? (defaultData.syncModel || '0') : '0'
                                 })(
                                     <RadioGroup>
                                         <Radio key="no" value={`${DATA_SYNC_MODE.NOMAL}`}>无增量标识</Radio>
