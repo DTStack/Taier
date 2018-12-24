@@ -81,7 +81,7 @@ class RealTimeTabPane extends Component {
                 for (let i = 0; i < arrData.length; i++) {
                     const rootTree = arrData[i];
                     if (!expandTypeList.includes(rootTree.catalogueType)) {
-                        return;
+                        continue;
                     }
                     if (rootTree.children && rootTree.children[0]) {
                         dispatch(TreeAction.getRealtimeTree(rootTree.children[0]))
