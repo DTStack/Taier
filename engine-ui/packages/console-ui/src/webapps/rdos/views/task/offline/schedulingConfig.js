@@ -602,7 +602,7 @@ class SchedulingConfig extends React.Component {
 
     componentDidMount () {
         this.loadWorkflowConfig();
-        const { tabData } = this.props;
+        const { tabData, isIncrementMode } = this.props;
         let scheduleConf = JSON.parse(tabData.scheduleConf);
         let selfReliance = 0;
         // 此处为兼容代码
@@ -615,7 +615,12 @@ class SchedulingConfig extends React.Component {
             } else if (scheduleConf.selfReliance) {
                 selfReliance = scheduleConf.selfReliance;
             }
+            // 增量同步做默认处理
+            if (isIncrementMode && selfReliance !== 1) {
+                selfReliance = 3;
+            }
         }
+
         this.setState({
             selfReliance: selfReliance
         });
