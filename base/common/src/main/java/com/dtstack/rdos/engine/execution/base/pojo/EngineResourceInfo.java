@@ -43,7 +43,7 @@ public abstract class EngineResourceInfo {
         }
         int maxParallel = Math.max(sqlEnvParallel, mrParallel);
         if (totalSlots < maxParallel) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务配置资源超过集群最大资源");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务配置资源超过集群最大资源, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
         }
         return availableSlots >= maxParallel;
     }

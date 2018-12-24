@@ -1,15 +1,19 @@
 package com.dtstack.rdos.engine.service.zk;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.dtstack.rdos.common.config.ConfigParse;
+import com.dtstack.rdos.common.util.KerberosUtils;
 import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.service.db.dao.RdosNodeMachineDAO;
 import com.dtstack.rdos.engine.service.zk.cache.LocalCacheSyncZkListener;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
@@ -23,6 +27,9 @@ import com.dtstack.rdos.engine.service.zk.data.BrokerQueueNode;
 import com.dtstack.rdos.engine.execution.base.EngineDeployInfo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,12 +127,28 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private void initZk() throws IOException {
+		if (ConfigParse.getSecurity()){
+			initSecurity();
+		}
 		this.zkClient = CuratorFrameworkFactory.builder()
 				.connectString(this.zkAddress).retryPolicy(new ExponentialBackoffRetry(1000, 3))
 				.connectionTimeoutMs(1000)
 				.sessionTimeoutMs(1000).build();
 		this.zkClient.start();
 		logger.warn("connector zk success...");
+	}
+
+	private static void initSecurity() {
+		String PRNCIPAL_NAME = ConfigParse.userPrincipal();
+		String LOGIN_CONTEXT_NAME = "Client";
+		String PATH_TO_KEYTAB = ConfigParse.userKeytabPath();
+
+		try {
+			KerberosUtils.setJaasConf(LOGIN_CONTEXT_NAME, PRNCIPAL_NAME, PATH_TO_KEYTAB);
+			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public ZkDistributed zkRegistration() throws Exception {

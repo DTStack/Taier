@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -15,11 +16,11 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
 import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
+import com.dtstack.rdos.engine.execution.sparkyarn.util.KerberosUtils;
 import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -102,15 +103,33 @@ public class SparkYarnClient extends AbsClient {
         sparkYarnConfig.setDefaultFS(yarnConf.get(HadoopConfTool.FS_DEFAULTFS));
         System.setProperty(SPARK_YARN_MODE, "true");
         parseWebAppAddr();
+        if (sparkYarnConfig.isSecurity()){
+            initSecurity();
+        }
         yarnClient = YarnClient.createYarnClient();
         yarnClient.init(yarnConf);
         yarnClient.start();
+    }
+    private void initSecurity() {
+        String userPrincipal = sparkYarnConfig.getSparkPrincipal();
+        String userKeytabPath = sparkYarnConfig.getSparkKeytabPath();
+        String krb5ConfPath = sparkYarnConfig.getSparkKrb5ConfPath();
+
+        try {
+            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initYarnConf(SparkYarnConfig sparkConfig){
         HadoopConf customerConf = new HadoopConf();
         customerConf.initHadoopConf(sparkConfig.getHadoopConf());
         customerConf.initYarnConf(sparkConfig.getYarnConf());
+
+        if (sparkYarnConfig.isSecurity()){
+            customerConf.initHiveSecurityConf(sparkConfig.getHiveConf());
+        }
 
         yarnConf = customerConf.getYarnConfiguration();
     }
@@ -288,10 +307,11 @@ public class SparkYarnClient extends AbsClient {
         argList.add("--arg");
         argList.add(sqlExeJson);
 
-
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
+        sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
+        sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;
@@ -525,6 +545,9 @@ public class SparkYarnClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
+        if (ConfigParse.getSecurity()){
+            initSecurity();
+        }
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);

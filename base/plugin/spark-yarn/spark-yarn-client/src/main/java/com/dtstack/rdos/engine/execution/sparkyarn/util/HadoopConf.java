@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.sparkyarn.util;
 
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.base.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
@@ -152,6 +153,26 @@ public class HadoopConf {
         });
 
         yarnConfiguration.set(YarnConfTool.YARN_RESOURCEMANAGER_HA_ENABLED, haEnabled);//必要
+    }
+
+    public void initHiveSecurityConf(Map<String, Object> conf){
+        if(conf == null || conf.size() == 0){
+            //读取环境变量--走默认配置
+            yarnConfiguration = getDefaultYarnConfiguration();
+            return;
+        }
+
+        conf.keySet().forEach(key ->{
+            Object value = conf.get(key);
+            if (value instanceof String){
+                yarnConfiguration.set(key, (String) value);
+            } else if (value instanceof Boolean){
+                yarnConfiguration.setBoolean(key, (boolean) value);
+            } else {
+                throw new RdosException("init hive security conf failed!, type of value is not supported");
+            }
+        });
+
     }
 
     public static Configuration getDefaultConfiguration() {
