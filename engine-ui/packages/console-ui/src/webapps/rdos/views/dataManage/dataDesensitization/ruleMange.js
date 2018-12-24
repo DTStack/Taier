@@ -102,7 +102,7 @@ class RuleManage extends Component {
             {
                 title: '操作',
                 width: 140,
-                dataIndex: 'deal',
+                dataIndex: 'opera',
                 render: (text, record) => {
                     return (
                         <span>

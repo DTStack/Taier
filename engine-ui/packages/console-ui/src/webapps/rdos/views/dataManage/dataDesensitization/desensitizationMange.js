@@ -43,14 +43,14 @@ class DesensitizationMange extends Component {
         ]
     }
     componentDidMount () {
-        // this.search();
-        console.log('------------------');
-        console.log(this.props.user);
-        console.log(this.props.allProjects);
+        this.search();
+        // console.log('------------------');
+        // console.log(this.props.user);
+        // console.log(this.props.allProjects);
     }
     search = () => {
         this.setState({
-            cardLoading: false
+            cardLoading: true
         })
         const { queryParams } = this.state;
         ajax.searchDesensitization(queryParams).then(res => {

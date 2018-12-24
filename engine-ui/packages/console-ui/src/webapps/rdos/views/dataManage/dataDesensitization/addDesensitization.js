@@ -112,7 +112,7 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ marginLeft: '110px', marginTop: '-20px' }} className='desenAlert'>
+                    <div style={{ marginLeft: '104px', marginTop: '-10px' }} className='desenAlert'>
                         <Alert message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
                     </div>
                     <FormItem

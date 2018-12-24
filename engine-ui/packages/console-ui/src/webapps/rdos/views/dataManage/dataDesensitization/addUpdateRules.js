@@ -161,13 +161,24 @@ class AddUpdateRules extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
+                        label="id"
+                        style={{ display: 'none' }}
+                    >
+                        {getFieldDecorator('id', {
+                            initialValue: dataSource.id ? dataSource.id : ''
+                        })(
+                            <Input />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
                         label="脱敏效果"
                     >
                         {getFieldDecorator('maskType', {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: 1
+                            initialValue: dataSource.maskType || 1
                         })(
                             <RadioGroup
                                 onChange={this.changedesenType}
