@@ -346,7 +346,7 @@ class Workbench extends React.Component {
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
             </Row>
-            <ImportData visible={this.state.visible} />
+            <ImportData />
             {this.renderPublish()}
         </Row>
     }

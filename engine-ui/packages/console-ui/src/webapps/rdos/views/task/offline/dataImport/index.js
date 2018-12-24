@@ -30,6 +30,7 @@ const defaultState = {
     columnMap: [], // 映射
     matchType: 1, // 匹配方法
     sqlText: '', // SQL text
+    sync: true, // editor sync sign
     queryTable: '', // 查询表
     overwriteFlag: 0, // 导入模式
     originLineCount: 0, // 原数据总条数
@@ -59,7 +60,7 @@ class ImportLocalData extends Component {
                         fileName: file.name
                     }, dispatch)
                     this.setState({
-                        visible: false
+                        ...defaultState
                     })
                 }
             })
@@ -225,7 +226,7 @@ class ImportLocalData extends Component {
         return (
             <div>
                 <Button onClick={() => {
-                    this.setState({ visible: false })
+                    this.setState({ ...defaultState })
                 }}>取消</Button>
                 <Button
                     style={{
@@ -277,7 +278,7 @@ class ImportLocalData extends Component {
                     title="本地数据导入"
                     visible={visible}
                     onCancel={() => {
-                        this.setState({ visible: false })
+                        this.setState({ ...defaultState })
                     }}
                     footer={this.footer()}
                 >

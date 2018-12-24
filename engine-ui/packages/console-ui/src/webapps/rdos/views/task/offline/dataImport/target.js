@@ -233,7 +233,8 @@ class ImportTarget extends Component {
     ddlChange = (newVal) => {
         const { changeStatus } = this.props
         changeStatus({
-            sqlText: newVal
+            sqlText: newVal,
+            sync: false
         })
     }
 
@@ -346,7 +347,7 @@ class ImportTarget extends Component {
 
     render () {
         const { data, display, formState } = this.props
-        const { tableList, tableData, queryTable, asTitle } = formState
+        const { tableList, tableData, queryTable, asTitle, sync, sqlText } = formState
         const { pagination } = this.state;
 
         const columns = this.generateCols(data, tableData)
@@ -450,7 +451,13 @@ class ImportTarget extends Component {
                     onCancel={this.handleCancel}
                     onOk={this.createTable}
                 >
-                    <Editor language="dtsql" placeholder={DDL_IDE_PLACEHOLDER} onChange={this.ddlChange} />
+                    <Editor
+                        language="dtsql"
+                        placeholder={DDL_IDE_PLACEHOLDER}
+                        onChange={this.ddlChange}
+                        sync={sync}
+                        value={sqlText}
+                    />
                 </Modal>
             </div>
         )
