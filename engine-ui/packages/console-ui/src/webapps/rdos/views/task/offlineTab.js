@@ -250,6 +250,13 @@ class OfflineTabPane extends Component {
                                 type: resTreeAction.RESET_RES_TREE,
                                 payload: menuItem.children[0]
                             });
+                            this.props.loadTreeNode(menuItem.children[0].id,
+                                MENU_TYPE.RESOURCE,
+                                {
+                                    taskType: menuItem.children[0].taskType,
+                                    parentId: menuItem.children[0].parentId
+                                })
+                            expandedKeys.push(`${MENU_TYPE.RESOURCE}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.FUNCTION: {
