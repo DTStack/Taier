@@ -259,6 +259,7 @@ export function execDataSync (currentTab, params) {
                 selectData(dispatch, res.data.jobId, currentTab, TASK_TYPE.SYNC);
             } else {
                 dispatch(output(currentTab, createLog(`执行返回结果异常`, 'error')))
+                dispatch(removeLoadingTab(currentTab))
             }
         }
     }
