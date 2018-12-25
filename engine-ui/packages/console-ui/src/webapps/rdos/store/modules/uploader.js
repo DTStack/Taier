@@ -1,5 +1,6 @@
 import mc from 'mirror-creator';
 import API from '../../api';
+import { message } from 'antd';
 
 // 公共actionTypes
 const UploadAction = mc([
@@ -27,11 +28,18 @@ export const getUploadStatus = (params, dispatch) => {
     const getStatus = async () => {
         const res = await API.getUploadStatus(params.queryParams);
         if (res.data === 'done') {
+            message.success(`文件${params.fileName}上传成功!`);
             clearInterval(timeId);
             status = UPLOAD_STATUS.SUCCES;
-        } else if (res.data === 'fail') {
+            return dispatch(resetUploader());
+        } else if (res.code > 1) {
             status = UPLOAD_STATUS.FAIL;
             clearInterval(timeId);
+            setTimeout(() => {
+                dispatch(resetUploader());
+            }, TIME_INTERVAL)
+        } else if (res.data === 'exist') {
+            status = UPLOAD_STATUS.PROGRESSING;
         }
         dispatch({
             type: UploadAction.UPDATE,
@@ -69,7 +77,7 @@ export function uploader (state = initilaState, action) {
             if (data.status === UPLOAD_STATUS.SUCCES) {
                 percent = 100;
             } else if (data.status === UPLOAD_STATUS.PROGRESSING) {
-                percent = state.percent + 20
+                percent = state.percent >= 80 ? state.percent : state.percent + 20
             }
             return Object.assign({}, state, data, { percent });
         }
