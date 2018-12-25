@@ -549,7 +549,7 @@ public class SparkYarnClient extends AbsClient {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
         if (ConfigParse.getSecurity()){
-            initSecurity();`
+            initSecurity();
         }
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
