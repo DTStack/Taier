@@ -420,7 +420,9 @@ private[spark] class DtClient(
     // and add them as local resources to the application master.
     val fs = destDir.getFileSystem(hadoopConf)
 
-    initSecurity()
+    if (sparkConf.get("security").equalsIgnoreCase("true")){
+      initSecurity()
+    }
     // Merge credentials obtained from registered providers
     val nearestTimeOfNextRenewal = credentialManager.obtainCredentials(hadoopConf, credentials)
 
