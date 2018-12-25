@@ -280,6 +280,21 @@ class Index extends Component {
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
                             </Button>
+                            <Button
+                                style={{ float: 'left', margin: '10 0 0 15' }}
+                                type="primary"
+                                onClick={() => { hashHistory.push('/metaDataImport') }}>
+                                接入已有项目
+                            </Button>
+                            <Tooltip title={(
+                                <div>
+                                    <p>每个项目可以包含不同的数据、计算任务和人员</p>
+                                    <p>创建项目：创建全新的项目，不包含任何数据和计算任务等信息</p>
+                                    <p>导入已有项目：将已存在的Hive Database接入系统，一个Database作为一个项目</p>
+                                </div>
+                            )}>
+                                <Icon style={{ lineHeight: '45px', marginLeft: '10px' }} type="question-circle-o" />
+                            </Tooltip>
                         </Col>
                         <Col span="8" >
                             <div className="sortTitle">

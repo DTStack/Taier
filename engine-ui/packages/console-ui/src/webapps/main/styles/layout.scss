@@ -57,7 +57,18 @@
 .box-bg {
     background: $bgColor;
 }
-
+.o-box__title{
+    height: 45px;
+    line-height: 45px;
+    font-weight: normal;
+    font-size: 14px;
+    color: #333333;
+    letter-spacing: 0;
+    text-align: left;
+    &.l-box__title{
+        padding: 20px;
+    }
+}
 .box-title {
     height: 45px;
     line-height: 45px;

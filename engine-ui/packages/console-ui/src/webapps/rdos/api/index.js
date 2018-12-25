@@ -6,7 +6,7 @@ import http from './http'
 import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
-import { publishType } from '../comm/const';
+import { publishType, TASK_TYPE } from '../comm/const';
 
 /* eslint-disable */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || ''
@@ -118,6 +118,12 @@ export default {
     },
     getBindingProjectList(params) {
         return http.post(req.GET_COULD_BINDING_PROJECT_LIST, params)
+    },
+    getTableListFromDataBase (params) {
+        return http.post(req.GET_TABLE_LIST_FROM_DATABASE, params)
+    },
+    getRetainDBList (params) {
+        return http.post(req.GET_RETAINDB_LIST, params)
     },
     // ========== Role ========== //
     getRoleList(params) {
@@ -430,11 +436,31 @@ export default {
     execSQLImmediately(params) { // 立即执行SQL
         return http.post(offlineReq.EXEC_SQL_IMMEDIATELY, params)
     },
-    stopSQLImmediately(params) { // 停止执行SQL
+    stopSQLImmediately(params) { // 停止执行数据同步
         return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
     },
-    selectSQLResultData(params) { // 定时轮询获取sql结果
-        return http.post(offlineReq.SELECT_SQL_RESULT_DATA, params)
+    execDataSyncImmediately(params) { // 立即执行数据同步
+        return http.post(offlineReq.EXEC_DATA_SYNC_IMMEDIATELY, params)
+    },
+    stopDataSyncImmediately(params) { // 停止执行SQL
+        return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
+    },
+    getIncrementColumns(params) { // 获取增量字段
+        return http.post(offlineReq.GET_INCREMENT_COLUMNS, params)
+    },
+    checkSyncMode(params) { // 检测是否满足增量数据同步
+        return http.post(offlineReq.CHECK_SYNC_MODE, params)
+    },
+    /**
+     * - 查询数据同步任务，SQL 执行结果
+     * - 需要补充增量同步
+     * @param {Object} params 请求参数
+     * @param {Number} taskType 任务类型
+     */
+    selectExecResultData(params, taskType) { // 
+        const url = taskType && taskType === TASK_TYPE.SYNC 
+            ? offlineReq.SELECT_DATA_SYNC_RESULT : offlineReq.SELECT_SQL_RESULT_DATA;
+        return http.post(url, params)
     },
     checkIsLoop(prams) {
         return http.post(offlineReq.CHECK_IS_LOOP, prams)
@@ -675,6 +701,9 @@ export default {
     },
     importLocalData(params) {// 导入本地数据
         return http.postAsFormData(dataManageReq.UPLOAD_TABLE_DATA, params)
+    },
+    getUploadStatus(params) {
+        return http.post(dataManageReq.GET_UPLOAD_STATUS, params)
     },
     getTableRelTree(params) {
         return http.post(dataManageReq.GET_REL_TABLE_TREE, params)

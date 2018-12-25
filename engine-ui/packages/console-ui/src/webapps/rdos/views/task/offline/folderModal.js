@@ -34,12 +34,14 @@ class FolderForm extends React.Component {
         return (
             <Form>
                 <FormItem
-                    key="nodeName"
+                    key="dt_nodeName"
                     label="目录名称"
                     {...formItemLayout}
                     hasFeedback
                 >
-                    {getFieldDecorator('nodeName', {
+                    {/* 这里不能直接叫nodeName
+                https://github.com/facebook/react/issues/6284 */}
+                    {getFieldDecorator('dt_nodeName', {
                         rules: [
                             {
                                 max: 20,
@@ -72,12 +74,12 @@ class FolderForm extends React.Component {
                         <Input type="hidden"></Input>
                     )}
                     <FolderPicker
-                        type={ this.props.cateType }
+                        type={this.props.cateType}
                         ispicker
                         id="Task_CREATE_FOLDER"
-                        treeData={ this.props.treeData }
-                        onChange={ this.handleSelectTreeChange.bind(this) }
-                        defaultNode={ isCreateNormal
+                        treeData={this.props.treeData}
+                        onChange={this.handleSelectTreeChange.bind(this)}
+                        defaultNode={isCreateNormal
                             ? this.props.treeData.name
                             : this.getFolderName(defaultData)
                         }
@@ -130,6 +132,8 @@ class FolderModal extends React.Component {
 
         form.validateFields((err, values) => {
             if (!err) {
+                values['nodeName'] = values['dt_nodeName'];
+                values['dt_nodeName'] = undefined;
                 if (this.isCreate) {
                     this.props.addOfflineCatalogue(values, cateType)
                         .then(success => {
@@ -196,20 +200,20 @@ class FolderModal extends React.Component {
         return (
             <div id="JS_folder_modal">
                 <Modal
-                    title={ !this.isCreate ? '编辑文件夹' : '新建文件夹' }
-                    visible={ isModalShow }
-                    key={ this.dtcount }
+                    title={!this.isCreate ? '编辑文件夹' : '新建文件夹'}
+                    visible={isModalShow}
+                    key={this.dtcount}
                     footer={[
-                        <Button key="back" size="large" onClick={ this.handleCancel }>取消</Button>,
-                        <Button key="submit" type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
+                        <Button key="back" size="large" onClick={this.handleCancel}>取消</Button>,
+                        <Button key="submit" type="primary" size="large" onClick={this.handleSubmit}> 确认 </Button>
                     ]}
                     onCancel={this.handleCancel}
                     getContainer={() => getContainer('JS_folder_modal')}
                 >
                     <FolderFormWrapper
                         ref={el => this.form = el}
-                        treeData={ this.getTreeData(cateType) }
-                        defaultData={ defaultData }
+                        treeData={this.getTreeData(cateType)}
+                        defaultData={defaultData}
                     />
                 </Modal>
             </div>
@@ -229,8 +233,7 @@ export default connect(state => {
         functionTreeData: offlineTask.functionTree,
         scriptTreeData: offlineTask.scriptTree
     }
-},
-dispatch => {
+}, dispatch => {
     const benchActions = workbenchActions(dispatch)
     return {
         toggleCreateFolder: function () {

@@ -3,7 +3,8 @@ import { isArray } from 'lodash'
 import { Row } from 'antd'
 
 import Editor from 'widgets/code-editor'
-import { createLinkMark } from 'widgets/code-editor/utils'
+import { TASK_STATUS } from '../../../comm/const';
+import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
 
 const editorStyle = { height: '300px' }
 
@@ -19,7 +20,21 @@ const editorOptions = {
 function wrappTitle (title) {
     return `====================${title}====================`
 }
-
+function getLogType (status) {
+    switch (status) {
+        case TASK_STATUS.RUN_FAILED:
+        case TASK_STATUS.SUBMIT_FAILED:
+        case TASK_STATUS.PARENT_FAILD: {
+            return 'error'
+        }
+        case TASK_STATUS.FINISHED: {
+            return 'success'
+        }
+        default: {
+            return 'info'
+        }
+    }
+}
 export default function LogInfo (props) {
     const log = props.log || {};
     let engineLog = {};
@@ -47,7 +62,7 @@ export default function LogInfo (props) {
         logText = `完整日志下载地址：${createLinkMark({ href: log.downLoadLog, download: '' })}\n`;
     }
     if (baseLog.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${baseLog.msg_info}`
+        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(baseLog.msg_info, getLogType(props.status))}`
     }
 
     if (engineLogs) {

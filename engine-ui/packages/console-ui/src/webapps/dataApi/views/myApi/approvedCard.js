@@ -82,7 +82,7 @@ class ApprovedCard extends Component {
             );
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.nowView != nextProps.nowView && nextProps.nowView == 'approved') {
             this.getAppliedList();
         }
@@ -106,8 +106,7 @@ class ApprovedCard extends Component {
             pageIndex: page.current,
             sortedInfo: sorter,
             filterInfo: filter
-        },
-        () => {
+        }, () => {
             this.getAppliedList();
         });
     }
@@ -276,20 +275,17 @@ class ApprovedCard extends Component {
 
             ]
         }, {
+            title: 'API描述',
+            dataIndex: 'apiDesc',
+            key: 'apiDesc',
+            width: '150px'
+
+        }, {
             title: '最近24小时调用(次)',
             dataIndex: 'recentCallNum',
             key: 'recentCallNum'
 
         }, {
-            title: '最近24小时失败率',
-            dataIndex: 'recentFailRate',
-            key: 'recentFailRate',
-            render (text) {
-                return text + '%'
-            }
-
-        },
-        {
             title: '累计调用',
             dataIndex: 'totalCallNum',
             key: 'totalCallNum'
@@ -351,8 +347,7 @@ class ApprovedCard extends Component {
         this.setState({
             apiName: key,
             pageIndex: 1
-        },
-        () => {
+        }, () => {
             this.getAppliedList();
         })
     }
@@ -385,30 +380,28 @@ class ApprovedCard extends Component {
                     hideJump={true}
                     key={applyKey}
                 />
-                <div style={{ marginRight: '20px', position: 'relative' }}>
-                    <SlidePane
-                        {...this.props}
-                        isApproved={true}
-                        showRecord={this.state.showRecord}
-                        slidePaneShow={this.state.slidePaneShowNoApproved}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    ></SlidePane>
-                    <SlidePaneDisabled
-                        {...this.props}
-                        showRecord={this.state.showRecord}
-                        slidePaneShow={this.state.slidePaneShowDisabled}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    >
-                    </SlidePaneDisabled>
-                    <SlidePaneDetail
-                        style={{ right: '0px' }}
-                        {...this.props}
-                        showRecord={this.state.showRecord}
-                        slidePaneShow={this.state.slidePaneShowSuccess}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    >
-                    </SlidePaneDetail>
-                </div>
+                <SlidePane
+                    {...this.props}
+                    isApproved={true}
+                    showRecord={this.state.showRecord}
+                    slidePaneShow={this.state.slidePaneShowNoApproved}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                ></SlidePane>
+                <SlidePaneDisabled
+                    {...this.props}
+                    showRecord={this.state.showRecord}
+                    slidePaneShow={this.state.slidePaneShowDisabled}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                >
+                </SlidePaneDisabled>
+                <SlidePaneDetail
+                    style={{ right: '0px' }}
+                    {...this.props}
+                    showRecord={this.state.showRecord}
+                    slidePaneShow={this.state.slidePaneShowSuccess}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                >
+                </SlidePaneDetail>
                 <Card
                     noHovering
                 >

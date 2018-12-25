@@ -1,385 +1,192 @@
-import React from 'react';
-import { Steps, message } from 'antd';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
-import { cloneDeep, isEqual } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { isEmpty } from 'lodash';
 
-import DataSyncSource from './source';
-import DataSyncTarget from './target';
-import DataSyncKeymap from './keymap';
-import DataSyncChannel from './channel';
-import DataSyncSave from './save';
+import ToolBar from 'main/components/ide/toolbar';
+import Console from 'main/components/ide/console';
+import 'main/components/ide/ide.scss';
 
-import ajax from '../../../../api';
-import {
-    dataSourceListAction,
-    dataSyncAction,
-    workbenchAction
-} from '../../../../store/modules/offlineTask/actionType';
-import {
-    workbenchActions as WBenchActions
-} from '../../../../store/modules/offlineTask/offlineAction';
+import DataSync from './dataSync';
+// import {
+//     workbenchActions
+// } from '../../../../store/modules/offlineTask/offlineAction';
+import * as editorActions from '../../../../store/modules/editor/editorAction';
 
-import { isProjectCouldEdit } from '../../../../comm'
+const propType = {
+    editor: PropTypes.object,
+    toolbar: PropTypes.object,
+    console: PropTypes.object
+}
 
-const Step = Steps.Step;
+@connect(state => {
+    const { workbench, dataSync } = state.offlineTask;
+    const { currentTab, tabs } = workbench;
+    const currentTabData = tabs.filter(tab => {
+        return tab.id === currentTab;
+    })[0];
 
-class DataSync extends React.Component {
-    constructor (props) {
-        super(props);
+    return {
+        editor: state.editor,
+        project: state.project,
+        user: state.user,
+        currentTab,
+        currentTabData,
+        dataSync
     }
-
+}, dispatch => {
+    // const taskAc = workbenchActions(dispatch);
+    const editorAc = bindActionCreators(editorActions, dispatch);
+    const actions = Object.assign(editorAc)
+    return actions;
+})
+class DataSyncWorkbench extends Component {
     state = {
-        currentStep: 0,
-        loading: true
-    }
+        changeTab: true,
+        size: undefined
+    };
 
     componentDidMount () {
-        const { id } = this.props;
-
-        this.getJobData({ taskId: id });
-        this.props.setTabId(id);
-        this.props.getDataSource();
+        const currentNode = this.props.currentTabData;
+        if (currentNode) {
+            this.props.getTab(currentNode.id)// 初始化console所需的数据结构
+        }
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
-        // 如果列发生变化，则检测更新系统变量
-        if (this.onVariablesChange(this.props, nextProps)) {
-            this.props.updateDataSyncVariables(
-                nextProps.sourceMap,
-                nextProps.targetMap,
-                nextProps.taskCustomParams
-            )
+    UNSAFE_componentWillReceiveProps (nextProps) {
+        const current = nextProps.currentTabData
+        const old = this.props.currentTabData
+        if (current && current.id !== old.id) {
+            this.props.getTab(current.id)
         }
     }
 
-    onVariablesChange = (oldProps, nextProps) => {
-        const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
-        const { sourceMap, targetMap } = nextProps;
+    changeTab = state => {
+        let { changeTab } = this.state;
 
-        const oldSQL = oldTarget && oldTarget.type && (oldTarget.type.preSql || oldTarget.type.postSql);
-        const newSQL = targetMap && targetMap.type && (targetMap.type.preSql || targetMap.type.postSql);
+        if (state) {
+            changeTab = true;
+        } else {
+            changeTab = false;
+        }
 
-        const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where !== undefined && oldSource.type.where !== undefined && oldSource.type.where !== sourceMap.type.where;
-        const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && (oldSource.type.partition !== undefined || sourceMap.type.partition !== undefined) && oldSource.type.partition !== sourceMap.type.partition;
-        const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.partition !== undefined || targetMap.type.partition !== undefined) && oldTarget.type.partition !== targetMap.type.partition;
-        const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
-        const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
-
-        // Output test conditions
-        // console.log('old', oldSource, oldTarget);
-        // console.log('new', sourceMap, targetMap);
-        // console.log('isWhereChange', isWhereChange);
-        // console.log('isSourceParitionChange', isSourceParitionChange);
-        // console.log('isTargetPartitionChange', isTargetPartitionChange);
-        // console.log('isSQLChange', isSQLChange);
-        // console.log('isSourceColumnChange', isSourceColumnChange);
-
-        return isWhereChange || // source type update
-        isSourceParitionChange || // source type update
-        isTargetPartitionChange || // target type update
-        isSQLChange || // target type update
-        isSourceColumnChange // source columns update
-    }
-
-    getJobData = (params) => {
-        const { dataSyncSaved } = this.props;
-
-        ajax.getOfflineJobData(params).then(res => {
-            if (!dataSyncSaved) {
-                if (res.data) {
-                    const { sourceMap } = res.data;
-                    if (sourceMap.sourceList) {
-                        const loop = (source, index) => {
-                            return {
-                                ...source,
-                                key: index == 0 ? 'main' : ('key' + ~~Math.random() * 10000000)
-                            }
-                        }
-                        sourceMap.sourceList = sourceMap.sourceList.map(loop)
-                    }
-                }
-                this.props.initJobData(res.data);
-            } else {
-                // tabs中有则把数据取出来
-                this.props.getDataSyncSaved(dataSyncSaved);
-                this.setState({ currentStep: dataSyncSaved.currentStep.step });
-            }
-
-            if (!res.data) {
-                this.props.setTabNew();
-                this.navtoStep(0)
-            } else {
-                this.props.setTabSaved();
-                if (!dataSyncSaved) {
-                    this.navtoStep(4)
-                }
-            }
-
-            this.setState({ loading: false });
+        this.setState({
+            changeTab
         });
+    };
+
+    onRun = async () => {
+        const { execDataSync, currentTabData, currentTab } = this.props;
+        const params = { taskId: currentTabData.id, name: currentTabData.name };
+        execDataSync(currentTab, params);
     }
 
-    // 组件离开保存数据到tabs中
-    componentWillUnmount () {
-        const { id, dataSync } = this.props;
-        if (this.state.loading) {
-            return;
-        }
-        this.props.saveDataSyncToTab({
-            id: id,
-            data: dataSync
-        })
+    onStop = async () => {
+        const { stopDataSync, currentTab } = this.props;
+        stopDataSync(currentTab);
     }
 
-    next () {
-        this.setState({
-            currentStep: this.state.currentStep + 1
-        })
+    removeConsoleTab = (targetKey) => {
+        const { currentTab } = this.props;
+        this.props.removeRes(currentTab, parseInt(targetKey, 10))
     }
 
-    prev () {
-        this.setState({
-            currentStep: this.state.currentStep - 1
-        })
+    closeConsole = () => {
+        const { currentTab } = this.props;
+        this.props.resetConsole(currentTab)
     }
 
-    navtoStep (step) {
-        this.setState({ currentStep: step });
-        this.props.setCurrentStep(step);
-    }
-
-    save () {
-        this.props.saveTab();
-    }
-
-    /**
-     * @description 拼装接口所需数据格式
-     * @param {any} data 数据同步job配置对象
-     * @returns {any} result 接口所需数据结构
-     * @memberof DataSync
-     */
-    generateRqtBody (data) {
-        // 深刻龙避免直接mutate store
-        let clone = cloneDeep(data);
-
-        const { tabs, currentTab } = this.props;
-        const { keymap, sourceMap, targetMap } = clone;
-        const { source, target } = keymap;
-        const { name, id } = this.props;
-
-        // 接口要求keymap中的连线映射数组放到sourceMap中
-        clone.sourceMap.column = source;
-        clone.targetMap.column = target;
-        clone.settingMap = clone.setting;
-        clone.name = name;
-        clone.taskId = id;
-
-        // type中的特定配置项也放到sourceMap中
-        const targetTypeObj = targetMap.type;
-        const sourceTypeObj = sourceMap.type;
-
-        for (let key in sourceTypeObj) {
-            if (sourceTypeObj.hasOwnProperty(key)) {
-                sourceMap[key] = sourceTypeObj[key]
-            }
-        }
-        for (let k2 in targetTypeObj) {
-            if (targetTypeObj.hasOwnProperty(k2)) {
-                targetMap[k2] = targetTypeObj[k2]
-            }
-        }
-
-        // 删除接口不必要的字段
-        delete clone.keymap;
-        delete clone.setting;
-        delete clone.dataSourceList;
-        delete clone.currentStep;
-
-        // 获取当前task对象并深克隆guest
-        let result = cloneDeep(tabs.filter(tab => tab.id === currentTab)[0]);
-
-        // 将以上步骤生成的数据同步配置拼装到task对象中
-        for (let key in clone) {
-            if (clone.hasOwnProperty(key)) {
-                result[key] = clone[key];
-            }
-        }
-
-        // 修改task配置时接口要求的标记位
-        result.preSave = true;
-
-        // 接口要求上游任务字段名修改为dependencyTasks
-        if (result.taskVOS) {
-            result.dependencyTasks = result.taskVOS.map(o => o);
-            result.taskVOS = null;
-        }
-
-        // 数据拼装结果
-        return result;
-    }
-    getPopupContainer = () => {
-        return this._datasyncDom;
-    }
     render () {
-        const { currentStep, loading } = this.state;
-        const {
-            readWriteLockVO, notSynced, user, project,
-            sourceMap, targetMap
-        } = this.props;
-        const isLocked = readWriteLockVO && !readWriteLockVO.getLock;
-        const couldEdit = isProjectCouldEdit(project, user);
+        const { currentTabData, editor, saveTab, dataSync } = this.props;
 
-        const steps = [
-            {
-                title: '数据来源',
-                content: <DataSyncSource
-                    getPopupContainer={this.getPopupContainer}
-                    currentStep={currentStep}
-                    navtoStep={this.navtoStep.bind(this)}
-                />
-            },
-            {
-                title: '选择目标',
-                content: <DataSyncTarget
-                    getPopupContainer={this.getPopupContainer}
-                    currentStep={currentStep}
-                    navtoStep={this.navtoStep.bind(this)}
-                />
-            },
-            {
-                title: '字段映射',
-                content: <DataSyncKeymap
-                    currentStep={currentStep}
-                    sourceMap={sourceMap}
-                    targetMap={targetMap}
-                    navtoStep={this.navtoStep.bind(this)}
-                />
-            },
-            {
-                title: '通道控制',
-                content: <DataSyncChannel
-                    getPopupContainer={this.getPopupContainer}
-                    currentStep={currentStep}
-                    navtoStep={this.navtoStep.bind(this)}
-                />
-            },
-            {
-                title: '预览保存',
-                content: <DataSyncSave
-                    currentStep={currentStep}
-                    notSynced={notSynced}
-                    navtoStep={this.navtoStep.bind(this)}
-                    saveJob={this.save.bind(this)}
-                />
-            }
-        ];
+        const currentTab = currentTabData.id;
+        const consoleData = editor.console;
 
-        return loading ? null : <div className="m-datasync">
-            <Steps current={currentStep}>
-                {steps.map(item => <Step key={item.title} title={item.title} />)}
-            </Steps>
-            <div ref={(ref) => { this._datasyncDom = ref; }} className="steps-content" style={{ position: 'relative' }}>
-                {isLocked || !couldEdit ? <div className="steps-mask"></div> : null}
-                {steps[currentStep].content}
-            </div>
-        </div>
-    }
-}
+        const data = consoleData && consoleData[currentTab]
+            ? consoleData[currentTab] : { results: [] }
 
-const mapState = (state) => {
-    const { workbench, dataSync } = state.offlineTask;
-    return {
-        user: state.user,
-        project: state.project,
-        tabs: workbench.tabs,
-        dataSync: dataSync,
-        isCurrentTabNew: workbench.isCurrentTabNew,
-        sourceMap: dataSync.sourceMap,
-        targetMap: dataSync.targetMap,
-        currentTab: workbench.currentTab,
-        taskCustomParams: workbench.taskCustomParams
-    }
-};
-
-const mapDispatch = (dispatch, ownProps) => {
-    const wbActions = new WBenchActions(dispatch, ownProps);
-
-    return {
-        getDataSource: () => {
-            ajax.getOfflineDataSource()
-                .then(res => {
-                    let data = []
-                    if (res.code === 1) {
-                        data = res.data
-                    }
-                    dispatch({
-                        type: dataSourceListAction.LOAD_DATASOURCE,
-                        payload: data
-                    });
-                });
-        },
-        initJobData: (data) => {
-            dispatch({
-                type: dataSyncAction.INIT_JOBDATA,
-                payload: data
-            });
-        },
-        setTabNew: () => {
-            dispatch({
-                type: workbenchAction.SET_CURRENT_TAB_NEW
-            });
-        },
-        setTabSaved: () => {
-            dispatch({
-                type: workbenchAction.SET_CURRENT_TAB_SAVED
-            });
-        },
-        saveDataSyncToTab: (params) => {
-            dispatch({
-                type: workbenchAction.SAVE_DATASYNC_TO_TAB,
-                payload: {
-                    id: params.id,
-                    data: params.data
-                }
-            });
-        },
-        getDataSyncSaved: (params) => {
-            dispatch({
-                type: dataSyncAction.GET_DATASYNC_SAVED,
-                payload: params
-            });
-        },
-        setTabId: (id) => {
-            dispatch({
-                type: dataSyncAction.SET_TABID,
-                payload: id
-            });
-        },
-        setCurrentStep: (step) => {
-            dispatch({
-                type: dataSyncAction.SET_CURRENT_STEP,
-                payload: step
-            });
-        },
-        saveJobData (params) {
-            ajax.saveOfflineJobData(params)
-                .then(res => {
-                    if (res.code === 1) {
-                        message.success('保存成功！');
-                        dispatch({
-                            type: workbenchAction.SET_CURRENT_TAB_SAVED
-                        });
-                        dispatch({
-                            type: workbenchAction.MAKE_TAB_CLEAN
-                        })
-                    }
-                })
-        },
-        updateDataSyncVariables (sourceMap, targetMap, taskCustomParams) {
-            wbActions.updateDataSyncVariables(sourceMap, targetMap, taskCustomParams);
+        const unSave = currentTabData.notSynced; // 未保存的同步任务无法运行
+        const unConfigured = dataSync.tabId === currentTab && isEmpty(dataSync.sourceMap);
+        const toolbar = {
+            enable: true,
+            enableRun: true,
+            disableEdit: true,
+            disableRun: unSave || unConfigured,
+            isRunning: editor.running.indexOf(currentTab) > -1,
+            onRun: this.onRun,
+            onStop: this.onStop
         }
+
+        const console = {
+            data: data,
+            onConsoleClose: this.closeConsole,
+            onRemoveTab: this.removeConsoleTab
+        }
+
+        const { size } = this.state;
+
+        const hasLog = console && console.data && console.data.log;
+        const defaultSplitSize = hasLog ? '60%' : '100%';
+
+        return (
+            <div className="ide-editor">
+                <div className="ide-header bd-bottom">
+                    <ToolBar
+                        {...toolbar}
+                        changeTab={this.changeTab}
+                    />
+                </div>
+                <div style={{ zIndex: 901 }} className="ide-content">
+                    <SplitPane
+                        split="horizontal"
+                        minSize={100}
+                        maxSize={-77}
+                        defaultSize={defaultSplitSize}
+                        primary="first"
+                        key="ide-split-pane"
+                        size={size}
+                        allowResize={hasLog}
+                        onChange={(size) => {
+                            this.setState({
+                                size: size
+                            });
+                        }}
+                    >
+                        <div style={{
+                            width: '100%',
+                            height: '100%',
+                            minHeight: '400px',
+                            position: 'relative'
+                        }}>
+                            <DataSync saveTab={saveTab} currentTabData={currentTabData} />
+                        </div>
+                        {
+                            hasLog ? <Console
+                                onConsoleTabChange={this.changeTab}
+                                activedTab={this.state.changeTab}
+                                setSplitMax={() => {
+                                    this.setState({
+                                        size: '100px'
+                                    });
+                                }}
+                                setSplitMin={() => {
+                                    this.setState({
+                                        size: 'calc(100% - 40px)'
+                                    });
+                                }}
+                                {...console}
+                            /> : ''
+                        }
+                    </SplitPane>
+                </div>
+            </div>
+        );
     }
 }
 
-export default connect(mapState, mapDispatch)(DataSync);
+DataSyncWorkbench.propTypes = propType
+
+export default DataSyncWorkbench;

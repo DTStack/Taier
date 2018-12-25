@@ -253,7 +253,7 @@ class APIMarket extends Component {
                 return this.getCatagoryName(text);
             }
         }, {
-            title: '描述',
+            title: 'API描述',
             dataIndex: 'description',
             key: 'description',
             width: 300,
@@ -395,12 +395,13 @@ class APIMarket extends Component {
                 <h1 className="box-title">Api市场</h1>
                 <div className="margin-0-20 m-card box-2">
                     <SlidePane
-                        className="m-tabs tabs-filter-show"
+                        className="m-tabs"
                         visible={slidePaneShow}
-                        style={{ right: '-20px', width: '80%', minHeight: '720px', height: '100%' }}
+                        style={{ right: '-20px', width: '80%', minHeight: '600px', height: '100%' }}
                         onClose={this.closeSlide.bind(this)}>
                         <Tabs
                             animated={false}
+                            className="l-dt__tabs--scroll"
                         >
                             <Tabs.TabPane tab="API详情" key="callMethod">
                                 <div style={{ paddingLeft: '40px', paddingTop: '20px' }}>

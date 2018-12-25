@@ -50,9 +50,10 @@ export default class TaskLog extends Component {
         const ctx = this
         Api.statisticsTaskRunTime(params).then((res) => {
             if (res.code === 1) {
-                this.setState({ data: res.data })
-                const chartData = res.data.jobInfoList;
-                ctx.initLineChart(chartData)
+                this.setState({ data: res.data }, () => {
+                    const chartData = res.data.jobInfoList;
+                    ctx.initLineChart(chartData)
+                })
             }
         })
     }
@@ -64,10 +65,10 @@ export default class TaskLog extends Component {
             count: e.target.value
         })
     }
-    /* eslint-disable */
     handData = (data) => {
         const legend = ['执行时长', '读取数据', '脏数据'];
         const stayTiming = []; const readData = []; const dirtyData = [];
+        let xAxis = [];
 
         if (data) {
             for (let i = data.length - 1; i >= 0; i--) {
@@ -110,41 +111,19 @@ export default class TaskLog extends Component {
             ]
         }
     }
-    /* eslint-enable */
-    handNullData = (data) => {
-        const xAxis = [moment(new Date()).format('YYYY-MM-DD HH:mm:ss')];
-        const legend = ['无数据'];
-        const noData = [0]
-        return {
-            legend,
-            xAxis,
-            series: [
-                {
-                    name: '无数据',
-                    type: 'line',
-                    yAxisIndex: 0,
-                    markLine: {
-                        precision: 1
-                    },
-                    data: noData
-                }
-            ]
-        }
-    }
 
     initLineChart (chartData) {
         let data;
-        if (chartData.length > 0) {
-            data = this.handData(chartData);
-        } else {
-            data = this.handNullData();
+        if (!chartData || !chartData.length) {
+            return;
         }
+        data = this.handData(chartData);
 
         let myChart = echarts.init(document.getElementById('RunTimeTrend'));
         const option = cloneDeep(lineAreaChartOptions);
 
         option.grid = {
-            left: '3%',
+            left: '40px',
             right: '4%',
             bottom: '10%',
             containLabel: true
@@ -204,6 +183,8 @@ export default class TaskLog extends Component {
 
     render () {
         const { data } = this.state
+        const chartData = data.jobInfoList;
+        const isEmptyChart = !chartData || !chartData.length;
 
         const tStyle = {
             width: '55px',
@@ -251,9 +232,13 @@ export default class TaskLog extends Component {
                             </section>
                         </Col>
                     </Row>
-                    <Resize onResize={this.resizeChart}>
-                        <div id="RunTimeTrend" style={{ width: '100%', height: '350px' }}></div>
-                    </Resize>
+                    {isEmptyChart ? (
+                        <div className='o-chart__placeholder--empty'>
+                            暂无数据
+                        </div>)
+                        : (<Resize onResize={this.resizeChart}>
+                            <div id="RunTimeTrend" style={{ width: '100%', height: '350px' }}></div>
+                        </Resize>)}
                 </Card>
             </div>
         )

@@ -60,8 +60,6 @@ class AdminRole extends Component {
             this.getProjects(app)
         } else if (!databaseExsit && this.hasDatabase(app)) {
             this.getDatabase(app)
-        } else if (!databaseExsit && !this.hasDatabase(app)) {
-            this.loadRoles(app, params)
         } else if (MY_APPS.ANALYTICS_ENGINE == active) {
             params.databaseId = selecteDatabase;
             this.loadRoles(app, params)

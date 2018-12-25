@@ -57,9 +57,6 @@ export default {
     GET_FILL_DATA_DETAIL: `${RDOS_BASE_URL}/batch/batchJob/getFillDataDetailInfo`, // 获取补数据详情
     GET_JOB_CHILDREN: `${RDOS_BASE_URL}/batch/batchJobJob/displayOffSpring`, // 获取子job
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batch/batchJobJob/displayForefathers`, // 获取父节点
-    EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
-    STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
-    SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`, // 轮询调度查询sql结果
     CHECK_IS_LOOP: `${RDOS_BASE_URL}/batch/batchTask/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${RDOS_BASE_URL}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
@@ -69,6 +66,14 @@ export default {
     GET_SYNC_SCRIPT_TEMPLATE: `${RDOS_BASE_URL}/batch/batchTask/getJsonTemplate`, // 获取数据同步脚本模式的模版
     GET_RESTART_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRestartChildJob`, // 获取restart job列表
     DOWNLOAD_SQL_RESULT: `${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`, // 下载运行结果
+    EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
+    STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
+    SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`, // 轮询调度查询sql结果
+    EXEC_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSyncImmediately`, // 立即执行数据同步
+    STOP_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行数据同步
+    SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
+    GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/getIncreColumn`, // 获取增量字段
+    CHECK_SYNC_MODE: `${RDOS_BASE_URL}/batch/batchDataSource/canSetIncreConf`, // 检测是否满足增量
 
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计

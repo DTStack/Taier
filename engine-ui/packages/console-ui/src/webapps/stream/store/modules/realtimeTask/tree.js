@@ -29,12 +29,13 @@ export function getRealtimeTree(node) {
     } || defaultReqParams;
     newParams.isGetFile = true;
     return (dispatch) => {
-        Api.getCatalogues(newParams).then((res) => {
+        return Api.getCatalogues(newParams).then((res) => {
             const arrData = res.data;
-            return dispatch({
+            dispatch({
                 type: treeAction.GET_REALTIME_TREE,
                 data: arrData
             });
+            return arrData;
         })
     }
 }

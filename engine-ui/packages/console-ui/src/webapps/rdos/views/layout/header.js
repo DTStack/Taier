@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Modal } from 'antd';
-// import { Link } from 'react-router';
 
 import { MenuRight } from 'main/components/nav';
 
 import Api from '../../api';
-import { inOffline, inRealtime } from '../../comm';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
 
@@ -18,10 +16,8 @@ const confirm = Modal.confirm;
 
 @connect(state => {
     const { workbench } = state.offlineTask;
-    const { pages } = state.realtimeTask;
 
     return {
-        realTimeTabs: pages,
         offlineTabs: workbench.tabs
     }
 })
@@ -72,8 +68,8 @@ class Header extends Component {
     }
 
     checkUnSaveTask = (onOk) => {
-        const { realTimeTabs, offlineTabs } = this.props;
-        const tabsData = inOffline() ? offlineTabs : inRealtime() ? realTimeTabs : [];
+        const { offlineTabs } = this.props;
+        const tabsData = offlineTabs || [];
 
         const hasUnSave = (tabs) => {
             for (let tab of tabs) {
@@ -266,14 +262,13 @@ class Header extends Component {
 
     isIndex () {
         const { current } = this.state;
-        const isIndex = current == 'overview' || current == 'data-manage';
+        const isIndex = current == 'overview' || current == 'data-manage' || current == 'metaDataImport';
         return isIndex;
     }
 
     render () {
-        const { user, project, apps, app, router } = this.props;
+        const { user, project, apps, app } = this.props;
         const { devPath } = this.state;
-        let pathname = router.location.pathname;
 
         const isIndex = this.isIndex();
         const display = !isIndex ? 'inline-block' : 'none';
@@ -283,8 +278,7 @@ class Header extends Component {
         const basePath = app.link;
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
-        const showProjectSelect = !(pathname.indexOf('/data-manage') > -1 ||
-            pathname === '/');
+        const showProjectSelect = !isIndex;
         // const projectTypeView = this.renderProjectType();
         return (
             <div className="header">

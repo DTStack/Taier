@@ -3,10 +3,10 @@ import {
     message
 } from 'antd';
 
-import { createLinkMark } from 'widgets/code-editor/utils'
+import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 
 import API from '../api';
-// import { sqlExecStatus } from '../consts';
+import { sqlExecStatus } from '../consts';
 import editorAction from '../consts/editorActionType';
 
 // const INTERVALS = 1500;
@@ -68,12 +68,27 @@ function getUniqueKey (id) {
 //         resolve(false)
 //     }
 // }
-
+function getLogStatus (status) {
+    switch (status) {
+        case sqlExecStatus.FINISHED: {
+            return 'info';
+        }
+        case sqlExecStatus.FAILED: {
+            return 'error';
+        }
+        case sqlExecStatus.CANCELED: {
+            return 'warning';
+        }
+        default: {
+            return 'info'
+        }
+    }
+}
 /**
  * 输出SQL执行结果
  */
 function getDataOver (dispatch, currentTab, res, jobId) {
-    dispatch(output(currentTab, '执行完成!'));
+    dispatch(output(currentTab, createLog('执行完成!', 'info')));
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
@@ -89,7 +104,7 @@ async function exec (dispatch, currentTab, task, params, sqls, index, resolve, r
     params.uniqueKey = key;
     runningSql[currentTab] = key; // 默认的运行 Key
 
-    dispatch(output(currentTab, `第${index + 1}条任务开始执行`));
+    dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')));
 
     function execContinue () {
         if (stopSign[currentTab]) {
@@ -110,15 +125,15 @@ async function exec (dispatch, currentTab, task, params, sqls, index, resolve, r
         return;
     }
 
-    if (res && res.code && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
+    if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
     // 执行结束
     if (!res || (res && res.code != 1)) {
-        dispatch(output(currentTab, `请求异常！`))
+        dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
         dispatch(removeLoadingTab(currentTab))
     }
     if (res && res.code === 1) {
         // dispatch(output(currentTab, '执行完成'));
-        if (res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
+        if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, getLogStatus(res.data.status))))
         // 直接打印结果
         getDataOver(dispatch, currentTab, res, res.data.jobId);
 
@@ -150,7 +165,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
             const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
                 stopSign[currentTab] = true;
-                dispatch(output(currentTab, '执行停止'))
+                dispatch(output(currentTab, createLog('执行停止', 'warning')))
                 dispatch(removeLoadingTab(currentTab))
                 if (intervalsStore[currentTab]) {
                     clearTimeout(intervalsStore[currentTab])
@@ -170,7 +185,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
         });
 
         if (res.code === 1) {
-            dispatch(output(currentTab, '执行停止'));
+            dispatch(output(currentTab, createLog('执行停止', 'warning')));
             // 消除轮询定时器
             if (intervalsStore[currentTab]) {
                 clearTimeout(intervalsStore[currentTab])
@@ -190,7 +205,7 @@ export function stopSql (currentTab, currentTabData, isSilent) {
 export function output (tab, log) {
     return {
         type: editorAction.APPEND_CONSOLE_LOG,
-        data: `【${moment().format('HH:mm:ss')}】 ${log}`,
+        data: log,
         key: tab
     }
 }
@@ -198,7 +213,7 @@ export function output (tab, log) {
 export function setOutput (tab, log) {
     return {
         type: editorAction.SET_CONSOLE_LOG,
-        data: `【${moment().format('HH:mm:ss')}】 ${log}`,
+        data: createLog(log, 'info'),
         key: tab
     }
 }

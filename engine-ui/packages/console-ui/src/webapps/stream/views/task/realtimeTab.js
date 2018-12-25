@@ -68,7 +68,30 @@ class RealTimeTabPane extends Component {
     componentDidMount () {
         const { dispatch, realtimeTree } = this.props
         if (!realtimeTree || !realtimeTree.length) {
-            dispatch(TreeAction.getRealtimeTree(rootNode))
+            dispatch(TreeAction.getRealtimeTree(rootNode)).then((data) => {
+                /**
+                 * 默认展开第一个
+                 */
+                const arrData = data.children;
+                const expandedKeys = [];
+                const expandTypeList = [
+                    MENU_TYPE.TASK,
+                    MENU_TYPE.RESOURCE
+                ]
+                for (let i = 0; i < arrData.length; i++) {
+                    const rootTree = arrData[i];
+                    if (!expandTypeList.includes(rootTree.catalogueType)) {
+                        continue;
+                    }
+                    if (rootTree.children && rootTree.children[0]) {
+                        dispatch(TreeAction.getRealtimeTree(rootTree.children[0]))
+                        expandedKeys.push(rootTree.children[0].id + ':' + rootTree.children[0].type)
+                    }
+                }
+                this.setState({
+                    expandedKeys
+                })
+            })
         }
         dispatch(ResAction.getResources())
         this.loadTaskTypes();
@@ -216,7 +239,8 @@ class RealTimeTabPane extends Component {
         Api.cloneTask(task).then(res => {
             if (res.code === 1) {
                 message.success('任务克隆成功！')
-                this.closeModal()
+                this.closeModal();
+                dispatch(BrowserAction.openPage({ id: res.data.id })) // 需后端返回克隆之后的任务id
                 dispatch(TreeAction.getRealtimeTree({
                     id: task.nodePid,
                     catalogueType: MENU_TYPE.TASK_DEV
@@ -650,7 +674,7 @@ class RealTimeTabPane extends Component {
                                         loadData={this.loadTreeData}
                                         treeData={menuItem.children}
                                         treeType={menuItem.catalogueType}
-                                        expandedKeys={expandedKeys}
+                                        expandedKeys={this.safeExpandedKeys(expandedKeys, menuItem.children)}
                                         onExpand={this.onExpand}
                                     />
                                 </div>
@@ -910,7 +934,7 @@ class RealTimeTabPane extends Component {
 
                     <ContextMenu targetClassName="task-item">
                         <MenuItem onClick={this.initEditTask}>编辑</MenuItem>
-                        {/* <MenuItem onClick={this.cloneTask}>克隆</MenuItem> */}
+                        <MenuItem onClick={this.cloneTask}>克隆</MenuItem>
                         <Popconfirm
                             title="确定删除这个任务吗?"
                             onConfirm={this.deleteTask}

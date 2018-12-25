@@ -13,10 +13,10 @@ import {
     Col,
     Tooltip
 } from 'antd';
-import { isEmpty, debounce } from 'lodash';
+import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
-import { singletonNotification } from 'funcs';
+import { singletonNotification, debounceEventHander } from 'funcs';
 import ajax from '../../../../api';
 import {
     sourceMapAction,
@@ -247,7 +247,6 @@ class SourceForm extends React.Component {
         this.submitForm(null, key);
     }
 
-    /* eslint-disable */
     validatePath = (rule, value, callback) => {
         const { handleTableColumnChange, form } = this.props;
         const { getFieldValue } = form;
@@ -261,13 +260,13 @@ class SourceForm extends React.Component {
                     handleTableColumnChange(res.data);
                     callback();
                 }
+                /* eslint-disable-next-line */
                 callback('该路径无效！');
             });
         } else {
             callback();
         }
     };
-    /* eslint-disable */
 
     validateChineseCharacter = data => {
         const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
@@ -290,8 +289,45 @@ class SourceForm extends React.Component {
         }
     };
 
+    onFtpPathChange = (e) => {
+        const { sourceMap, handleSourceMapChange } = this.props;
+        let paths = get(sourceMap, 'type.path', ['']);
+        if (!isArray(paths)) {
+            paths = [paths];
+        }
+        const index = parseInt(e.target.getAttribute('data-index'), 10);
+        paths[index] = e.target.value;
+        const srcmap = Object.assign({}, sourceMap);
+        srcmap.type.path = paths;
+        handleSourceMapChange(srcmap);
+    }
+
+    debounceFtpChange = debounceEventHander(this.onFtpPathChange, 300, { maxWait: 2000 });
+
+    onAddFtpPath = () => {
+        const { sourceMap, handleSourceMapChange } = this.props;
+        let paths = get(sourceMap, 'type.path', ['']);
+        if (!isArray(paths)) {
+            paths = [paths];
+        }
+        paths.push('');
+        const srcmap = Object.assign({}, sourceMap);
+        srcmap.type.path = paths;
+        handleSourceMapChange(srcmap);
+    }
+
+    onRemoveFtpPath = (index) => {
+        const { sourceMap, handleSourceMapChange } = this.props;
+        const paths = get(sourceMap, 'type.path', ['']);
+        const srcmap = Object.assign({}, sourceMap);
+        paths.splice(index, 1);
+        srcmap.type.path = paths;
+        console.log('onRemoveFtpPath'.srcmap)
+        handleSourceMapChange(srcmap);
+    }
+
     submitForm (event, sourceKey) {
-        const { form, handleSourceMapChange } = this.props;
+        const { form, handleSourceMapChange, sourceMap } = this.props;
 
         this.timerID = setTimeout(() => {
             let values = form.getFieldsValue();
@@ -302,7 +338,7 @@ class SourceForm extends React.Component {
                     delete values[key];
                 }
             }
-            const srcmap = assign(values, {
+            const srcmap = assign({}, sourceMap.type, values, {
                 src: this.getDataObjById(values.sourceId)
             });
             handleSourceMapChange(srcmap, sourceKey);
@@ -327,9 +363,8 @@ class SourceForm extends React.Component {
                 if (!err) {
                     // 校验中文字符，如果有则发出警告
                     this.validateChineseCharacter(formData);
-                    /* eslint-disable */
+                    /* eslint-disable-next-line */
                     cb.call(null, 1);
-                    /* eslint-disable */
                 }
             }
         );
@@ -343,6 +378,7 @@ class SourceForm extends React.Component {
             sourceMap,
             dataSourceList,
             navtoStep,
+            isIncrementMode
         } = this.props;
 
         const disablePreview =
@@ -382,7 +418,9 @@ class SourceForm extends React.Component {
                                     const disableSelect =
                                         src.type === DATA_SOURCE.ES ||
                                         src.type === DATA_SOURCE.REDIS ||
-                                        src.type === DATA_SOURCE.MONGODB;
+                                        src.type === DATA_SOURCE.MONGODB ||
+                                        // 增量模式需要禁用非关系型数据库
+                                        (isIncrementMode && !isRDB(src.type));
 
                                     return (
                                         <Option
@@ -443,7 +481,7 @@ class SourceForm extends React.Component {
                         <Button
                             loading={this.state.loading}
                             type="primary"
-                            onClick={() => this.next(navtoStep)}
+                            onClick={() => setTimeout(() => this.next(navtoStep), 600)}
                         >
                             下一步
                         </Button>
@@ -645,694 +683,706 @@ class SourceForm extends React.Component {
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
-        const { sourceMap } = this.props;
+        const { sourceMap, isIncrementMode } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
-        const supportSubLibrary =
-            SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(
-                sourceMap &&
-                    sourceMap.sourceList &&
-                    sourceMap.sourceList[0].type
-            ) > -1;
+
         const getPopupContainer = this.props.getPopupContainer;
-        const haveChineseQuote =
-            !!(sourceMap &&
-            sourceMap.type &&
-            /(‘|’|”|“)/.test(sourceMap.type.where));
+        const haveChineseQuote = !!(sourceMap && sourceMap.type && /(‘|’|”|“)/.test(sourceMap.type.where));
+
+        // 非增量模式
+        const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap &&
+                sourceMap.sourceList &&
+                sourceMap.sourceList[0].type
+        ) > -1 && !isIncrementMode;
+
         let formItem;
         if (isEmpty(sourceMap)) return null;
-        switch (sourceMap.type.type) {
-        case DATA_SOURCE.DB2:
-        case DATA_SOURCE.MYSQL:
-        case DATA_SOURCE.ORACLE:
-        case DATA_SOURCE.SQLSERVER:
-        case DATA_SOURCE.POSTGRESQL: {
-            formItem = [
-                !selectHack ? (
-                    <FormItem {...formItemLayout} label="表名" key="table">
-                        {getFieldDecorator('table', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '数据源表为必选项！'
-                                }
-                            ],
-                            initialValue: isEmpty(sourceMap)
-                                ? ''
-                                : supportSubLibrary
-                                    ? sourceMap.sourceList[0].tables
-                                    : sourceMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                mode={
-                                    supportSubLibrary ? 'tags' : 'combobox'
-                                }
-                                showSearch
-                                showArrow={true}
-                                onBlur={this.debounceTableSearch.bind(
-                                    this,
-                                    sourceMap.type.type
-                                )}
-                                optionFilterProp="value"
-                            >
-                                {(
-                                    this.state.tableListMap[sourceMap.sourceId] || []
-                                ).map(table => {
-                                    return (
-                                        <Option
-                                            key={`rdb-${table}`}
-                                            value={table}
-                                        >
-                                            {table}
-                                        </Option>
-                                    );
-                                })}
-                            </Select>
-                        )}
-                        {supportSubLibrary && (
-                            <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                <Icon
-                                    className="help-doc"
-                                    type="question-circle-o"
-                                />
-                            </Tooltip>
-                        )}
-                    </FormItem>
-                ) : null,
-                ...this.renderExtDataSource(),
-                supportSubLibrary && (
-                    <Row className="form-item-follow-text">
-                        <Col
-                            style={{ textAlign: 'left' }}
-                            span={formItemLayout.wrapperCol.sm.span}
-                            offset={formItemLayout.labelCol.sm.span}
-                        >
-                            <a onClick={this.addDataSource.bind(this)}>
-                                    添加数据源
-                            </a>
-                        </Col>
-                    </Row>
-                ),
-                <FormItem {...formItemLayout} label="数据过滤" key="where">
-                    {getFieldDecorator('where', {
-                        rules: [
-                            {
-                                max: 1000,
-                                message: '过滤语句不可超过1000个字符!'
-                            }
-                        ],
-                        initialValue: isEmpty(sourceMap)
-                            ? ''
-                            : sourceMap.type.where
-                    })(
-                        <Input
-                            type="textarea"
-                            placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                    <HelpDoc doc="dataFilterDoc" />
-                </FormItem>,
-                haveChineseQuote && (
-                    <Row className="form-item-follow-text">
-                        <Col
-                            style={{ textAlign: 'left' }}
-                            span={formItemLayout.wrapperCol.sm.span}
-                            offset={formItemLayout.labelCol.sm.span}
-                        >
-                            <p className="warning-color">
-                                    当前输入含有中文引号
-                            </p>
-                        </Col>
-                    </Row>
-                ),
-                <FormItem {...formItemLayout} label="切分键" key="splitPK">
-                    {getFieldDecorator('splitPK', {
-                        rules: [],
-                        initialValue: isEmpty(sourceMap)
-                            ? ''
-                            : sourceMap.type.splitPK
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            showSearch
-                            showArrow={true}
-                            onChange={this.submitForm.bind(this)}
-                        >
-                            {(
-                                (sourceMap.copate &&
-                                        sourceMap.copate
-                                            .map(v => v.key)
-                                            .filter(
-                                                (v, index, self) =>
-                                                    self.indexOf(v) === index
-                                            )) ||
-                                    []
-                            ).map((copateValue, index) => {
-                                return (
-                                    <Option
-                                        key={`copate-${index}`}
-                                        value={copateValue}
-                                    >
-                                        {copateValue}
-                                    </Option>
-                                );
-                            })}
-                        </Select>
-                    )}
-                    <HelpDoc doc="selectKey" />
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.CARBONDATA: {
-            formItem = [
-                !selectHack ? (
-                    <FormItem {...formItemLayout} label="表名" key="table">
-                        {getFieldDecorator('table', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '数据源表为必选项！'
-                                }
-                            ],
-                            initialValue: isEmpty(sourceMap)
-                                ? ''
-                                : sourceMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                mode={'combobox'}
-                                showSearch
-                                showArrow={true}
-                                onBlur={this.debounceTableSearch.bind(
-                                    this,
-                                    sourceMap.type.type
-                                )}
-                                optionFilterProp="value"
-                            >
-                                {(
-                                    this.state.tableListMap[sourceMap.sourceId] || []
-                                ).map(table => {
-                                    return (
-                                        <Option
-                                            key={`carbondata-${table}`}
-                                            value={table}
-                                        >
-                                            {table}
-                                        </Option>
-                                    );
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>
-                ) : null,
-                ...this.renderExtDataSource(),
-                <FormItem {...formItemLayout} label="数据过滤" key="where">
-                    {getFieldDecorator('where', {
-                        rules: [
-                            {
-                                max: 1000,
-                                message: '过滤语句不可超过1000个字符!'
-                            }
-                        ],
-                        initialValue: isEmpty(sourceMap)
-                            ? ''
-                            : sourceMap.type.where
-                    })(
-                        <Input
-                            type="textarea"
-                            placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                    <HelpDoc doc="dataFilterDoc" />
-                </FormItem>,
-                haveChineseQuote && (
-                    <Row className="form-item-follow-text">
-                        <Col
-                            style={{ textAlign: 'left' }}
-                            span={formItemLayout.wrapperCol.sm.span}
-                            offset={formItemLayout.labelCol.sm.span}
-                        >
-                            <p className="warning-color">
-                                    当前输入含有中文引号
-                            </p>
-                        </Col>
-                    </Row>
-                )
-            ];
-            break;
-        }
-        case DATA_SOURCE.MAXCOMPUTE:
-        case DATA_SOURCE.HIVE: {
-            // Hive
-            formItem = [
-                !selectHack && (
-                    <FormItem {...formItemLayout} label="表名" key="table">
-                        {getFieldDecorator('table', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '数据源表为必选项！'
-                                }
-                            ],
-                            initialValue: isEmpty(sourceMap)
-                                ? ''
-                                : sourceMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                mode="combobox"
-                                onBlur={this.debounceTableSearch.bind(
-                                    this,
-                                    null
-                                )}
-                                optionFilterProp="value"
-                            >
-                                {(
-                                    this.state.tableListMap[sourceMap.sourceId] || []
-                                ).map(table => {
-                                    return (
-                                        <Option
-                                            key={`rdb-${table}`}
-                                            value={table}
-                                        >
-                                            {table}
-                                        </Option>
-                                    );
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>
-                ),
-                <FormItem {...formItemLayout} label="分区" key="partition">
-                    {getFieldDecorator('partition', {
-                        rules: [],
-                        initialValue: isEmpty(sourceMap)
-                            ? ''
-                            : sourceMap.type.partition
-                    })(
-                        <Input
-                            placeholder="请填写分区"
-                            placeholder="pt=${bdp.system.bizdate}"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                    <HelpDoc doc="partitionDesc" />
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.HDFS: {
-            // HDFS
-            formItem = [
-                <FormItem 
-                    {...formItemLayout}
-                    label="路径"
-                    key="path"
-                >
-                    {getFieldDecorator('path', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '路径不得为空！'
-                            },
-                            {
-                                max: 200,
-                                message: '路径不得超过200个字符！'
-                            },
-                            {
-                                validator: this.validatePath
-                            }
-                        ],
-                        validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(sourceMap)
-                            ? ''
-                            : sourceMap.type.path
-                    })(
-                        <Input
-                            placeholder="例如: /rdos/batch"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                    <HelpDoc doc="hdfsPath" />
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="文件类型"
-                    key="fileType"
-                >
-                    {getFieldDecorator('fileType', {
-                        rules: [
-                            {
-                                required: true
-                            }
-                        ],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.fileType
-                                    ? sourceMap.type.fileType
-                                    : 'text'
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            onChange={this.submitForm.bind(this)}
-                        >
-                            <Option value="orc">orc</Option>
-                            <Option value="text">text</Option>
-                            <Option value="parquet">parquet</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    style={{
-                        display: fileType === 'text' ? 'block' : 'none'
-                    }}
-                    label="列分隔符"
-                    key="fieldDelimiter"
-                >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [],
-                        initialValue: isEmpty(sourceMap)
-                            ? ','
-                            : sourceMap.type.fieldDelimiter
-                    })(
-                        <Input
-                            /* eslint-disable */
-                            placeholder="若不填写，则默认为\001"
-                            /* eslint-disable */
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                    <HelpDoc doc="splitCharacter" />
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="编码"
-                    key="encoding"
-                    style={{
-                        display: fileType === 'text' ? 'block' : 'none'
-                    }}
-                >
-                    {getFieldDecorator('encoding', {
-                        rules: [
-                            {
-                                required: true
-                            }
-                        ],
-                        initialValue:
-                                !sourceMap.type || !sourceMap.type.encoding
-                                    ? 'utf-8'
-                                    : sourceMap.type.encoding
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            onChange={this.submitForm.bind(this)}
-                        >
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.HBASE: {
-            formItem = [
-                !selectHack && (
-                    <FormItem {...formItemLayout} label="表名" key="table">
-                        {getFieldDecorator('table', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '数据源表为必选项！'
-                                }
-                            ],
-                            initialValue: isEmpty(sourceMap)
-                                ? ''
-                                : sourceMap.type.table
-                        })(
-                            <Select
-                                getPopupContainer={getPopupContainer}
-                                showSearch
-                                mode="combobox"
-                                onBlur={this.debounceTableSearch.bind(
-                                    this,
-                                    null
-                                )}
-                                optionFilterProp="value"
-                            >
-                                {(
-                                    this.state.tableListMap[sourceMap.sourceId] || []
-                                ).map(table => {
-                                    return (
-                                        <Option
-                                            key={`hbase-${table}`}
-                                            value={table}
-                                        >
-                                            {table}
-                                        </Option>
-                                    );
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>
-                ),
-                <FormItem {...formItemLayout} label="编码" key="encoding">
-                    {getFieldDecorator('encoding', {
-                        rules: [
-                            {
-                                required: true
-                            }
-                        ],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.encoding
-                                    ? sourceMap.type.encoding
-                                    : 'utf-8'
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            onChange={this.submitForm.bind(this)}
-                        >
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="开始行健"
-                    key="startRowkey"
-                >
-                    {getFieldDecorator('startRowkey', {
-                        rules: [],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.startRowkey
-                                    ? sourceMap.type.startRowkey
-                                    : ''
-                    })(
-                        <Input
-                            placeholder="startRowkey"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="结束行健"
-                    key="endRowkey"
-                >
-                    {getFieldDecorator('endRowkey', {
-                        rules: [],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.endRowkey
-                                    ? sourceMap.type.endRowkey
-                                    : ''
-                    })(
-                        <Input
-                            placeholder="endRowkey"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    className="txt-left"
-                    label="行健二进制转换"
-                    key="isBinaryRowkey"
-                >
-                    {getFieldDecorator('isBinaryRowkey', {
-                        rules: [],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.isBinaryRowkey
-                                    ? sourceMap.type.isBinaryRowkey
-                                    : '0'
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value="0" style={{ float: 'left' }}>
-                                    FALSE
-                            </Radio>
-                            <Radio value="1" style={{ float: 'left' }}>
-                                    TRUE
-                            </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="每次RPC请求获取行数"
-                    key="scanCacheSize"
-                >
-                    {getFieldDecorator('scanCacheSize', {
-                        rules: [],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.scanCacheSize
-                                    ? sourceMap.type.scanCacheSize
-                                    : ''
-                    })(
-                        <Input
-                            onChange={this.submitForm.bind(this)}
-                            placeholder="请输入大小, 默认为256"
-                            type="number"
-                            min={0}
-                            suffix="行"
-                        />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="每次RPC请求获取列数"
-                    key="scanBatchSize"
-                >
-                    {getFieldDecorator('scanBatchSize', {
-                        rules: [],
-                        initialValue:
-                                sourceMap.type && sourceMap.type.scanBatchSize
-                                    ? sourceMap.type.scanBatchSize
-                                    : ''
-                    })(
-                        <Input
-                            onChange={this.submitForm.bind(this)}
-                            placeholder="请输入大小, 默认为100"
-                            type="number"
-                            min={0}
-                            suffix="列"
-                        />
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        case DATA_SOURCE.FTP: {
-            formItem = [
-                <FormItem {...formItemLayout} label="路径" key="path">
-                    {getFieldDecorator('path', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '路径不得为空！'
-                            },
-                            {
-                                max: 200,
-                                message: '路径不得超过200个字符！'
-                            },
-                            {
-                                validator: this.validatePath
-                            }
-                        ],
-                        validateTrigger: 'onSubmit',
-                        initialValue: isEmpty(sourceMap)
-                            ? ''
-                            : sourceMap.type.path
-                    })(
-                        <Input
-                            placeholder="例如: /rdos/batch"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="列分隔符"
-                    key="fieldDelimiter"
-                >
-                    {getFieldDecorator('fieldDelimiter', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '分隔符不可为空！'
-                            }
-                        ],
-                        initialValue: isEmpty(sourceMap)
-                            ? ','
-                            : sourceMap.type.fieldDelimiter
-                    })(
-                        <Input
-                            placeholder="默认值为,"
-                            onChange={this.submitForm.bind(this)}
-                        />
-                    )}
-                    <HelpDoc doc="splitCharacter" />
-                </FormItem>,
-                <FormItem {...formItemLayout} label="编码" key="encoding">
-                    {getFieldDecorator('encoding', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '必须选择一种编码！'
-                            }
-                        ],
-                        initialValue:
-                                !sourceMap.type || !sourceMap.type.encoding
-                                    ? 'utf-8'
-                                    : sourceMap.type.encoding
-                    })(
-                        <Select
-                            getPopupContainer={getPopupContainer}
-                            onChange={this.submitForm.bind(this)}
-                        >
-                            <Option value="utf-8">utf-8</Option>
-                            <Option value="gbk">gbk</Option>
-                        </Select>
-                    )}
-                </FormItem>,
-                <FormItem
-                    {...formItemLayout}
-                    label="是否包含表头"
-                    key="isFirstLineHeader"
-                >
-                    {getFieldDecorator('isFirstLineHeader', {
-                        rules: [
-                            {
-                                required: true,
-                                message: '必须选择一种编码！'
-                            }
-                        ],
-                        initialValue:
-                                !sourceMap.type ||
-                                !sourceMap.type.isFirstLineHeader
-                                    ? false
-                                    : sourceMap.type.isFirstLineHeader
-                    })(
-                        <RadioGroup onChange={this.submitForm.bind(this)}>
-                            <Radio value={true} style={{ float: 'left' }}>
-                                    是
-                            </Radio>
-                            <Radio value={false} style={{ float: 'left' }}>
-                                    否
-                            </Radio>
-                        </RadioGroup>
-                    )}
-                </FormItem>
-            ];
-            break;
-        }
-        default:
-            break;
-        }
 
+        switch (sourceMap.type.type) {
+            case DATA_SOURCE.DB2:
+            case DATA_SOURCE.MYSQL:
+            case DATA_SOURCE.ORACLE:
+            case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.POSTGRESQL: {
+                formItem = [
+                    !selectHack ? (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '数据源表为必选项！'
+                                    }
+                                ],
+                                initialValue: isEmpty(sourceMap)
+                                    ? ''
+                                    : supportSubLibrary
+                                        ? sourceMap.sourceList[0].tables
+                                        : sourceMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    mode={
+                                        supportSubLibrary ? 'tags' : 'combobox'
+                                    }
+                                    showSearch
+                                    showArrow={true}
+                                    onBlur={this.debounceTableSearch.bind(
+                                        this,
+                                        sourceMap.type.type
+                                    )}
+                                    optionFilterProp="value"
+                                >
+                                    {(
+                                        this.state.tableListMap[sourceMap.sourceId] || []
+                                    ).map(table => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                            {supportSubLibrary && (
+                                <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                    <Icon
+                                        className="help-doc"
+                                        type="question-circle-o"
+                                    />
+                                </Tooltip>
+                            )}
+                        </FormItem>
+                    ) : null,
+                    ...this.renderExtDataSource(),
+                    supportSubLibrary && (
+                        <Row className="form-item-follow-text">
+                            <Col
+                                style={{ textAlign: 'left' }}
+                                span={formItemLayout.wrapperCol.sm.span}
+                                offset={formItemLayout.labelCol.sm.span}
+                            >
+                                <a onClick={this.addDataSource.bind(this)}>
+                                        添加数据源
+                                </a>
+                            </Col>
+                        </Row>
+                    ),
+                    <FormItem {...formItemLayout} label="数据过滤" key="where">
+                        {getFieldDecorator('where', {
+                            rules: [
+                                {
+                                    max: 1000,
+                                    message: '过滤语句不可超过1000个字符!'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.where
+                        })(
+                            <Input
+                                type="textarea"
+                                placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="dataFilterDoc" />
+                    </FormItem>,
+                    haveChineseQuote && (
+                        <Row className="form-item-follow-text">
+                            <Col
+                                style={{ textAlign: 'left' }}
+                                span={formItemLayout.wrapperCol.sm.span}
+                                offset={formItemLayout.labelCol.sm.span}
+                            >
+                                <p className="warning-color">
+                                        当前输入含有中文引号
+                                </p>
+                            </Col>
+                        </Row>
+                    ),
+                    <FormItem {...formItemLayout} label="切分键" key="splitPK">
+                        {getFieldDecorator('splitPK', {
+                            rules: [],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.splitPK
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                showSearch
+                                showArrow={true}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                {(
+                                    (sourceMap.copate &&
+                                            sourceMap.copate
+                                                .map(v => v.key)
+                                                .filter(
+                                                    (v, index, self) =>
+                                                        self.indexOf(v) === index
+                                                )) ||
+                                        []
+                                ).map((copateValue, index) => {
+                                    return (
+                                        <Option
+                                            key={`copate-${index}`}
+                                            value={copateValue}
+                                        >
+                                            {copateValue}
+                                        </Option>
+                                    );
+                                })}
+                            </Select>
+                        )}
+                        <HelpDoc doc="selectKey" />
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.CARBONDATA: {
+                formItem = [
+                    !selectHack ? (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '数据源表为必选项！'
+                                    }
+                                ],
+                                initialValue: isEmpty(sourceMap)
+                                    ? ''
+                                    : sourceMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    mode={'combobox'}
+                                    showSearch
+                                    showArrow={true}
+                                    onBlur={this.debounceTableSearch.bind(
+                                        this,
+                                        sourceMap.type.type
+                                    )}
+                                    optionFilterProp="value"
+                                >
+                                    {(
+                                        this.state.tableListMap[sourceMap.sourceId] || []
+                                    ).map(table => {
+                                        return (
+                                            <Option
+                                                key={`carbondata-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ) : null,
+                    ...this.renderExtDataSource(),
+                    <FormItem {...formItemLayout} label="数据过滤" key="where">
+                        {getFieldDecorator('where', {
+                            rules: [
+                                {
+                                    max: 1000,
+                                    message: '过滤语句不可超过1000个字符!'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.where
+                        })(
+                            <Input
+                                type="textarea"
+                                placeholder="请参考相关SQL语法填写where过滤语句（不要填写where关键字）。该过滤语句通常用作增量同步"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="dataFilterDoc" />
+                    </FormItem>,
+                    haveChineseQuote && (
+                        <Row className="form-item-follow-text">
+                            <Col
+                                style={{ textAlign: 'left' }}
+                                span={formItemLayout.wrapperCol.sm.span}
+                                offset={formItemLayout.labelCol.sm.span}
+                            >
+                                <p className="warning-color">
+                                        当前输入含有中文引号
+                                </p>
+                            </Col>
+                        </Row>
+                    )
+                ];
+                break;
+            }
+            case DATA_SOURCE.MAXCOMPUTE:
+            case DATA_SOURCE.HIVE: {
+                // Hive
+                formItem = [
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '数据源表为必选项！'
+                                    }
+                                ],
+                                initialValue: isEmpty(sourceMap)
+                                    ? ''
+                                    : sourceMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    mode="combobox"
+                                    onBlur={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                    optionFilterProp="value"
+                                >
+                                    {(
+                                        this.state.tableListMap[sourceMap.sourceId] || []
+                                    ).map(table => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    <FormItem {...formItemLayout} label="分区" key="partition">
+                        {getFieldDecorator('partition', {
+                            rules: [],
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.partition
+                        })(
+                            <Input
+                                placeholder="请填写分区"
+                                /* eslint-disable */
+                                placeholder="pt=${bdp.system.bizdate}"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="partitionDesc" />
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HDFS: {
+                // HDFS
+                formItem = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="路径"
+                        key="path"
+                    >
+                        {getFieldDecorator('path', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '路径不得为空！'
+                                },
+                                {
+                                    max: 200,
+                                    message: '路径不得超过200个字符！'
+                                },
+                                {
+                                    validator: this.validatePath
+                                }
+                            ],
+                            validateTrigger: 'onSubmit',
+                            initialValue: isEmpty(sourceMap)
+                                ? ''
+                                : sourceMap.type.path
+                        })(
+                            <Input
+                                placeholder="例如: /rdos/batch"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="hdfsPath" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件类型"
+                        key="fileType"
+                    >
+                        {getFieldDecorator('fileType', {
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.fileType
+                                        ? sourceMap.type.fileType
+                                        : 'text'
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                <Option value="orc">orc</Option>
+                                <Option value="text">text</Option>
+                                <Option value="parquet">parquet</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        style={{
+                            display: fileType === 'text' ? 'block' : 'none'
+                        }}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [],
+                            initialValue: isEmpty(sourceMap)
+                                ? ','
+                                : sourceMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                /* eslint-disable */
+                                placeholder="若不填写，则默认为\001"
+                                /* eslint-disable */
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="编码"
+                        key="encoding"
+                        style={{
+                            display: fileType === 'text' ? 'block' : 'none'
+                        }}
+                    >
+                        {getFieldDecorator('encoding', {
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                    !sourceMap.type || !sourceMap.type.encoding
+                                        ? 'utf-8'
+                                        : sourceMap.type.encoding
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.HBASE: {
+                formItem = [
+                    !selectHack && (
+                        <FormItem {...formItemLayout} label="表名" key="table">
+                            {getFieldDecorator('table', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '数据源表为必选项！'
+                                    }
+                                ],
+                                initialValue: isEmpty(sourceMap)
+                                    ? ''
+                                    : sourceMap.type.table
+                            })(
+                                <Select
+                                    getPopupContainer={getPopupContainer}
+                                    showSearch
+                                    mode="combobox"
+                                    onBlur={this.debounceTableSearch.bind(
+                                        this,
+                                        null
+                                    )}
+                                    optionFilterProp="value"
+                                >
+                                    {(
+                                        this.state.tableListMap[sourceMap.sourceId] || []
+                                    ).map(table => {
+                                        return (
+                                            <Option
+                                                key={`hbase-${table}`}
+                                                value={table}
+                                            >
+                                                {table}
+                                            </Option>
+                                        );
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    <FormItem {...formItemLayout} label="编码" key="encoding">
+                        {getFieldDecorator('encoding', {
+                            rules: [
+                                {
+                                    required: true
+                                }
+                            ],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.encoding
+                                        ? sourceMap.type.encoding
+                                        : 'utf-8'
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="开始行健"
+                        key="startRowkey"
+                    >
+                        {getFieldDecorator('startRowkey', {
+                            rules: [],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.startRowkey
+                                        ? sourceMap.type.startRowkey
+                                        : ''
+                        })(
+                            <Input
+                                placeholder="startRowkey"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="结束行健"
+                        key="endRowkey"
+                    >
+                        {getFieldDecorator('endRowkey', {
+                            rules: [],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.endRowkey
+                                        ? sourceMap.type.endRowkey
+                                        : ''
+                        })(
+                            <Input
+                                placeholder="endRowkey"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        className="txt-left"
+                        label="行健二进制转换"
+                        key="isBinaryRowkey"
+                    >
+                        {getFieldDecorator('isBinaryRowkey', {
+                            rules: [],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.isBinaryRowkey
+                                        ? sourceMap.type.isBinaryRowkey
+                                        : '0'
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value="0" style={{ float: 'left' }}>
+                                        FALSE
+                                </Radio>
+                                <Radio value="1" style={{ float: 'left' }}>
+                                        TRUE
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="每次RPC请求获取行数"
+                        key="scanCacheSize"
+                    >
+                        {getFieldDecorator('scanCacheSize', {
+                            rules: [],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.scanCacheSize
+                                        ? sourceMap.type.scanCacheSize
+                                        : ''
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入大小, 默认为256"
+                                type="number"
+                                min={0}
+                                suffix="行"
+                            />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="每次RPC请求获取列数"
+                        key="scanBatchSize"
+                    >
+                        {getFieldDecorator('scanBatchSize', {
+                            rules: [],
+                            initialValue:
+                                    sourceMap.type && sourceMap.type.scanBatchSize
+                                        ? sourceMap.type.scanBatchSize
+                                        : ''
+                        })(
+                            <Input
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="请输入大小, 默认为100"
+                                type="number"
+                                min={0}
+                                suffix="列"
+                            />
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            case DATA_SOURCE.FTP: {
+                const paths = get(sourceMap, 'type.path', ['']);
+                const getItem = (path, index) => {
+                    return (
+                        <div style={{ paddingBottom: 10, position: 'relative' }} key={`path_${index}`}>
+                            <Input
+                                className="ant-input-lg"
+                                placeholder="例如: /rdos/batch"
+                                defaultValue={ path }
+                                data-index={index}
+                                onChange={this.debounceFtpChange}
+                            />
+                            { index > 0 ? <Button
+                                    onClick={this.onRemoveFtpPath.bind(this, index)}
+                                    title="删除当前路径"
+                                    shape="circle"
+                                    style={removeBtnStyle} 
+                                    icon="minus"
+                                /> : '' 
+                            }
+                        </div>
+                    )
+                }
+                const removeBtnStyle = {
+                    position: 'absolute',
+                    right: '-25px',
+                    top: '6px',
+                    cursor:' pointer',
+                    width: '20px',
+                    height: '20px'
+                }
+                let pathItems = getItem(paths, 0);
+                if (isArray(paths)) {
+                    pathItems = paths.map && paths.map((path, index) => getItem(path, index));
+                }
+
+                formItem = [
+                    <FormItem {...formItemLayout} label="路径" key="path">
+                        {pathItems}
+                        <div style={{ lineHeight: '12px' }}><a onClick={this.onAddFtpPath}>添加路径</a></div>
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="列分隔符"
+                        key="fieldDelimiter"
+                    >
+                        {getFieldDecorator('fieldDelimiter', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '分隔符不可为空！'
+                                }
+                            ],
+                            initialValue: isEmpty(sourceMap)
+                                ? ','
+                                : sourceMap.type.fieldDelimiter
+                        })(
+                            <Input
+                                placeholder="默认值为,"
+                                onChange={this.submitForm.bind(this)}
+                            />
+                        )}
+                        <HelpDoc doc="splitCharacter" />
+                    </FormItem>,
+                    <FormItem {...formItemLayout} label="编码" key="encoding">
+                        {getFieldDecorator('encoding', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '必须选择一种编码！'
+                                }
+                            ],
+                            initialValue:
+                                    !sourceMap.type || !sourceMap.type.encoding
+                                        ? 'utf-8'
+                                        : sourceMap.type.encoding
+                        })(
+                            <Select
+                                getPopupContainer={getPopupContainer}
+                                onChange={this.submitForm.bind(this)}
+                            >
+                                <Option value="utf-8">utf-8</Option>
+                                <Option value="gbk">gbk</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="是否包含表头"
+                        key="isFirstLineHeader"
+                    >
+                        {getFieldDecorator('isFirstLineHeader', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '必须选择一种编码！'
+                                }
+                            ],
+                            initialValue:
+                                    !sourceMap.type ||
+                                    !sourceMap.type.isFirstLineHeader
+                                        ? false
+                                        : sourceMap.type.isFirstLineHeader
+                        })(
+                            <RadioGroup onChange={this.submitForm.bind(this)}>
+                                <Radio value={true} style={{ float: 'left' }}>
+                                        是
+                                </Radio>
+                                <Radio value={false} style={{ float: 'left' }}>
+                                        否
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ];
+                break;
+            }
+            default: break;
+        }
         return formItem;
     };
 }
@@ -1354,7 +1404,7 @@ class Source extends React.Component {
 }
 
 const mapState = state => {
-    const { dataSync, workbench } = state.offlineTask;
+    const { workbench, dataSync } = state.offlineTask;
     const { isCurrentTabNew, currentTab } = workbench;
 
     return {

@@ -154,7 +154,7 @@ class DiffParams extends React.Component {
                 upstreamTask: false,
                 crosscycleDependence: false
             },
-            currentValue: this.props.taskType === 'realTimeTask' ? this.props.currentRealTabData : this.props.currentTabData,
+            currentValue: this.props.currentTabData,
             currentParse: {},
             tabKey: this.props.taskType === 'realTimeTask' ? 'params' : 'config'
         }
@@ -175,11 +175,6 @@ class DiffParams extends React.Component {
             this.setState({
                 tabKey: 'config'
             })
-        } else if (this.props.taskType === 'realTimeTask') {
-            this.getRealData()
-            this.setState({
-                currentValue: nextProps.currentRealTabData
-            })
         }
     }
     /* eslint-disable */
@@ -199,12 +194,6 @@ class DiffParams extends React.Component {
                 }, this.contrastData)
             }
         })
-    }
-
-    getRealData= () => {
-        this.setState({
-            historyvalue: this.props.currentRealTabData && (this.props.currentRealTabData.taskVersions[0] || {})
-        }, this.contrastData)
     }
 
     checkTime = (time) => {
@@ -371,8 +360,6 @@ class DiffParams extends React.Component {
     componentDidMount = () => {
         if (this.props.taskType != 'realTimeTask') {
             this.getData(this.versionId)
-        } else {
-            this.getRealData()
         }
     }
 
@@ -429,13 +416,11 @@ class DiffParams extends React.Component {
 
 const mapState = state => {
     const { currentTab, tabs } = state.offlineTask.workbench;
-    const { currentPage } = state.realtimeTask;
     const currentTabData = tabs.filter(tab => {
         return tab.id === currentTab;
     })[0];
     return {
         currentTabData,
-        currentRealTabData: currentPage,
         editor: state.editor
     };
 };

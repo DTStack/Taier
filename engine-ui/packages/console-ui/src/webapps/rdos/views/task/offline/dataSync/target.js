@@ -213,9 +213,8 @@ class TargetForm extends React.Component {
     }
 
     prev (cb) {
-        /* eslint-disable */
+        /* eslint-disable-next-line */
         cb.call(null, 0);
-        /* eslint-disable */
     }
 
     next (cb) {
@@ -224,9 +223,8 @@ class TargetForm extends React.Component {
         form.validateFields((err, values) => {
             if (!err) {
                 this.validateChineseCharacter(values);
-                /* eslint-disable */
+                /* eslint-disable-next-line */
                 cb.call(null, 2);
-                /* eslint-disable */
             }
         })
     }
@@ -257,7 +255,7 @@ class TargetForm extends React.Component {
             }
         })
     }
-    showCreateModal () {
+    showCreateModal = () => {
         const { sourceMap } = this.props;
         this.setState({
             loading: true
@@ -293,8 +291,9 @@ class TargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { modalLoading } = this.state;
         const {
-            targetMap, dataSourceList, navtoStep
+            targetMap, dataSourceList, navtoStep, isIncrementMode
         } = this.props;
+
         const getPopupContainer = this.props.getPopupContainer;
         return <div className="g-step2">
             <Modal className="m-codemodal"
@@ -330,9 +329,17 @@ class TargetForm extends React.Component {
                             {dataSourceList.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
 
+                                /**
+                                 * 禁用ES, REDIS, MONGODB,
+                                 * 增量模式禁用非 HIVE, HDFS数据源
+                                 */
                                 const disableSelect = src.type === DATA_SOURCE.ES ||
                                     src.type === DATA_SOURCE.REDIS ||
-                                    src.type === DATA_SOURCE.MONGODB
+                                    src.type === DATA_SOURCE.MONGODB ||
+                                    (isIncrementMode && (
+                                        src.type !== DATA_SOURCE.HIVE ||
+                                        src.type !== DATA_SOURCE.HDFS
+                                    ))
 
                                 return <Option
                                     key={src.id}
@@ -362,7 +369,7 @@ class TargetForm extends React.Component {
 
     debounceTableSearch = debounce(this.changeTable, 600, { 'maxWait': 2000 })
 
-    renderDynamicForm () {
+    renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack, loading } = this.state;
 
@@ -461,14 +468,11 @@ class TargetForm extends React.Component {
                             }],
                             initialValue: targetMap.type && targetMap.type.writeMode ? targetMap.type.writeMode : 'insert'
                         })(
-                            <RadioGroup onChange={this.submitForm.bind(this)}>
-                                <Radio value="insert" style={{ float: 'left' }}>
-                                    视为脏数据，保留原有数据（Insert Into）
-                            </Radio>
-                                <Radio value="replace" style={{ float: 'left' }}>
-                                    替换原有数据（Replace Into）
-                            </Radio>
-                            </RadioGroup>
+                            <Select onChange={this.submitForm.bind(this)}>
+                                <Option value="insert">insert into（当主键/约束冲突，报脏数据）</Option>
+                                <Option value="replace">replace into（当主键/约束冲突，先delete再insert，未映射的字段会被映射为NULL）</Option>
+                                <Option value="update">on duplicate key update（当主键/约束冲突，update数据，未映射的字段值不变）</Option>
+                            </Select>
                         )}
                     </FormItem>
                 ];
@@ -505,7 +509,7 @@ class TargetForm extends React.Component {
                             </Select>
                         )}
                     </FormItem>,
-                    isNativeHive ?<FormItem
+                    isNativeHive ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
@@ -516,13 +520,12 @@ class TargetForm extends React.Component {
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                /* eslint-disable */
+                                /* eslint-disable-next-line */
                                 placeholder="pt=${bdp.system.bizdate}"
-                            /* eslint-disable */
                             ></Input>
                         )}
                         <HelpDoc doc="partitionDesc" />
-                    </FormItem>:null,
+                    </FormItem> : null,
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
@@ -538,10 +541,10 @@ class TargetForm extends React.Component {
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
-                            </Radio>
+                                </Radio>
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
-                            </Radio>
+                                </Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
@@ -933,16 +936,16 @@ class Target extends React.Component {
 }
 
 const mapState = state => {
-    const { dataSync, workbench } = state.offlineTask;
+    const { workbench, dataSync } = state.offlineTask;
     const { isCurrentTabNew, currentTab } = workbench;
 
     return {
         currentTab,
         isCurrentTabNew,
-        targetMap: dataSync.targetMap,
+        project: state.project,
         sourceMap: dataSync.sourceMap,
-        dataSourceList: dataSync.dataSourceList,
-        project: state.project
+        targetMap: dataSync.targetMap,
+        dataSourceList: dataSync.dataSourceList
     };
 };
 

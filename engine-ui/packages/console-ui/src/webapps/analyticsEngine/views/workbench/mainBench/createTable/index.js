@@ -36,13 +36,22 @@ class CreateTable extends Component {
         const steps = [
             {
                 title: '基本信息',
-                content: <StepOne databaseList={folderTree.children || []} tabData={this.props.data} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData} handleCancel={this.props.handleCancel} toTableDetail={this.props.toTableDetail}/>
+                content: <StepOne
+                    databaseList={folderTree.children || []}
+                    tabData={this.props.data}
+                    handleLastStep={this.props.handleLastStep}
+                    handleNextStep={this.props.handleNextStep}
+                    saveNewTableData={this.props.saveNewTableData}
+                    handleCancel={this.props.handleCancel}
+                    toTableDetail={this.props.toTableDetail}
+                    loadCatalogue = {this.props.loadCatalogue}
+                />
             }, {
                 title: '字段与分区',
-                content: <StepTwo tabData={this.props.data} handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData}/>
+                content: <StepTwo tabData={this.props.data} handleSave={this.props.handleSave} handleLastStep={this.props.handleLastStep} handleNextStep={this.props.handleNextStep} saveNewTableData={this.props.saveNewTableData} />
             }, {
                 title: '新建完成',
-                content: <StepFour tabData={this.props.data} toTableDetail={this.props.toTableDetail}/>
+                content: <StepFour tabData={this.props.data} toTableDetail={this.props.toTableDetail} />
             }
         ]
         return (
@@ -50,7 +59,7 @@ class CreateTable extends Component {
                 <Steps current={currentStep}>
                     {
                         steps.map(o => (
-                            <Step key={o.title} title={o.title}/>
+                            <Step key={o.title} title={o.title} />
                         ))
                     }
                 </Steps>

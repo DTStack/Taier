@@ -43,7 +43,7 @@ class ImportTarget extends Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { visible } = this.props;
         const { visible: visibleNext } = nextProps;
         if (visible != visibleNext && !visibleNext) {
@@ -174,9 +174,9 @@ class ImportTarget extends Component {
     mapChange = (value, index) => {
         const { formState, changeStatus } = this.props
         const arr = [...formState.columnMap];
-        arr[index] = {
+        arr[index] = Object.assign({}, arr[index], {
             key: value
-        }
+        });
         changeStatus({
             columnMap: arr,
             targetExchangeWarning: false
@@ -233,7 +233,8 @@ class ImportTarget extends Component {
     ddlChange = (newVal) => {
         const { changeStatus } = this.props
         changeStatus({
-            sqlText: newVal
+            sqlText: newVal,
+            sync: false
         })
     }
 
@@ -268,7 +269,7 @@ class ImportTarget extends Component {
                 let columnIndex = index + (pagination.current - 1) * pagination.pageSize;
                 return (<span>
                     <Select
-                        value={ formState.matchType === 0 ? '' : columnMap[columnIndex] && columnMap[columnIndex].key }
+                        value={formState.matchType === 0 ? '' : (columnMap[columnIndex] && columnMap[columnIndex].key) || ''}
                         disabled={formState.matchType === 0}
                         onSelect={(value) => { this.mapChange(value, columnIndex) }}
                         style={{ width: '200px' }}
@@ -284,17 +285,19 @@ class ImportTarget extends Component {
             title: '操作',
             key: 'operation',
             render: (text, record, index) => {
+                let columnIndex = index + (pagination.current - 1) * pagination.pageSize;
                 const colmunType = record.columnType && record.columnType.toLowerCase();
                 const showFormat = colmunType === 'date' || colmunType === 'datetime' ||
-                colmunType === 'time' || colmunType === 'timestamp';
+                    colmunType === 'time' || colmunType === 'timestamp';
                 return showFormat ? (
                     <span>
                         <Input
+                            value={columnMap[columnIndex] && columnMap[columnIndex].format}
                             placeholder="字段格式化"
                             style={{ width: 100, marginRight: 5 }}
-                            onChange={e => this.debounceFormatChange(e.target.value, index)}
+                            onChange={e => this.onFormatChange(e.target.value, columnIndex)}
                         />
-                        <HelpDoc style={ relativeStyle } doc="dateTimeFormat" />
+                        <HelpDoc style={relativeStyle} doc="dateTimeFormat" />
                     </span>
                 ) : ''
             }
@@ -344,7 +347,7 @@ class ImportTarget extends Component {
 
     render () {
         const { data, display, formState } = this.props
-        const { tableList, tableData, queryTable, asTitle } = formState
+        const { tableList, tableData, queryTable, asTitle, sync, sqlText } = formState
         const { pagination } = this.state;
 
         const columns = this.generateCols(data, tableData)
@@ -448,7 +451,13 @@ class ImportTarget extends Component {
                     onCancel={this.handleCancel}
                     onOk={this.createTable}
                 >
-                    <Editor language="dtsql" placeholder={DDL_IDE_PLACEHOLDER} onChange={this.ddlChange} />
+                    <Editor
+                        language="dtsql"
+                        placeholder={DDL_IDE_PLACEHOLDER}
+                        onChange={this.ddlChange}
+                        sync={sync}
+                        value={sqlText}
+                    />
                 </Modal>
             </div>
         )

@@ -31,6 +31,8 @@ export default {
     UPDATE_PROJECT_SCHEDULE: `${RDOS_BASE_URL}/common/project/closeOrOpenSchedule`, // 开启或关闭项目调度
     BIND_PRODUCTION_PROJECT: `${RDOS_BASE_URL}/common/project/bindingProject`, // 绑定生产项目
     GET_COULD_BINDING_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getBindingProjects`, // 获取可以绑定的项目
+    GET_TABLE_LIST_FROM_DATABASE: `${RDOS_BASE_URL}/common/project/getTableList`, // 从目标数据库获取表列表
+    GET_RETAINDB_LIST: `${RDOS_BASE_URL}/common/project/getRetainDB`, // 获取可以创建项目的数据库--v3.3.0
 
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表

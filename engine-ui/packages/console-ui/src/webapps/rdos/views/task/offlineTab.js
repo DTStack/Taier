@@ -211,7 +211,7 @@ class OfflineTabPane extends Component {
         }).then(res => {
             if (res.code === 1) {
                 const arrData = res.data.children;
-
+                const expandedKeys = []
                 this.setState({ subMenus: arrData })
 
                 for (let i = 0; i < arrData.length; i++) {
@@ -222,6 +222,13 @@ class OfflineTabPane extends Component {
                                 type: taskTreeAction.RESET_TASK_TREE,
                                 payload: menuItem.children[0]
                             });
+                            this.props.loadTreeNode(menuItem.children[0].id,
+                                MENU_TYPE.TASK_DEV,
+                                {
+                                    taskType: menuItem.children[0].taskType,
+                                    parentId: menuItem.children[0].parentId
+                                })
+                            expandedKeys.push(`${MENU_TYPE.TASK_DEV}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.SCRIPT: {
@@ -229,6 +236,13 @@ class OfflineTabPane extends Component {
                                 type: scriptTreeAction.RESET_SCRIPT_TREE,
                                 payload: menuItem.children[0]
                             });
+                            this.props.loadTreeNode(menuItem.children[0].id,
+                                MENU_TYPE.SCRIPT,
+                                {
+                                    taskType: menuItem.children[0].taskType,
+                                    parentId: menuItem.children[0].parentId
+                                })
+                            expandedKeys.push(`${MENU_TYPE.SCRIPT}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.RESOURCE: {
@@ -236,6 +250,13 @@ class OfflineTabPane extends Component {
                                 type: resTreeAction.RESET_RES_TREE,
                                 payload: menuItem.children[0]
                             });
+                            this.props.loadTreeNode(menuItem.children[0].id,
+                                MENU_TYPE.RESOURCE,
+                                {
+                                    taskType: menuItem.children[0].taskType,
+                                    parentId: menuItem.children[0].parentId
+                                })
+                            expandedKeys.push(`${MENU_TYPE.RESOURCE}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.FUNCTION: {
@@ -258,6 +279,9 @@ class OfflineTabPane extends Component {
                         }
                     }
                 }
+                this.setState({
+                    expandedKeys
+                })
             }
         });
     }

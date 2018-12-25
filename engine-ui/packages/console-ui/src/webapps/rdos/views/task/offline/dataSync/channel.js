@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 import {
     Form, InputNumber, Input,
     Select, Button, AutoComplete,
@@ -8,18 +9,36 @@ import {
 
 import {
     settingAction,
-    workbenchAction
+    workbenchAction,
+    sourceMapAction
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
 import LifeCycle from '../../../dataManage/lifeCycle';
+import API from '../../../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+const formItemLayout = {
+    labelCol: {
+        sm: { span: 6 }
+    },
+    wrapperCol: {
+        sm: { span: 14 }
+    }
+};
+
 class ChannelForm extends React.Component {
     state = {
-        isRecord: false
+        isRecord: false,
+        incrementColumns: []
+    }
+
+    componentDidMount () {
+        if (this.props.isIncrementMode) {
+        }
+        this.loadIncrementColumn();
     }
 
     constructor (props) {
@@ -32,18 +51,59 @@ class ChannelForm extends React.Component {
         })
     }
 
+    loadIncrementColumn = async () => {
+        const { sourceMap } = this.props;
+        const res = await API.getIncrementColumns({
+            sourceId: sourceMap.sourceId,
+            tableName: get(sourceMap, 'type.table')
+        });
+
+        if (res.code === 1) {
+            this.setState({
+                incrementColumns: res.data || []
+            })
+        }
+    }
+
+    onIncrementColumnChange = (value) => {
+        const { sourceMap, handleSourceMapChange } = this.props;
+        const srcmap = Object.assign({}, sourceMap, { increColumn: value });
+        handleSourceMapChange(srcmap);
+    }
+
+    renderIncrementColumns = () => {
+        const { sourceMap, isIncrementMode } = this.props;
+        const { incrementColumns } = this.state;
+        const { getFieldDecorator } = this.props.form;
+        const columnsOpts = incrementColumns.map(o => <Option key={o.key}>{o.key}（{o.type}）</Option>);
+        return isIncrementMode
+            ? <FormItem
+                {...formItemLayout}
+                label="增量标识字段"
+                style={{ height: '32px' }}
+            >
+                {getFieldDecorator('syncModel', {
+                    rules: [{
+                        required: true,
+                        message: '必须选择增量标识字段！'
+                    }],
+                    initialValue: sourceMap.increColumn || undefined
+                })(
+                    <Select
+                        placeholder="请选择增量标识字段"
+                        onChange={this.onIncrementColumnChange}
+                    >
+                        { columnsOpts }
+                    </Select>
+                )}
+                <HelpDoc doc="incrementColumnHelp"/>
+            </FormItem>
+            : '';
+    }
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const { setting, navtoStep } = this.props;
-
-        const formItemLayout = {
-            labelCol: {
-                sm: { span: 6 }
-            },
-            wrapperCol: {
-                sm: { span: 14 }
-            }
-        };
 
         const speedOption = [];
         const channelOption = [];
@@ -57,6 +117,7 @@ class ChannelForm extends React.Component {
 
         return <div className="g-step4">
             <Form>
+                {this.renderIncrementColumns()}
                 <FormItem
                     {...formItemLayout}
                     label="作业速率上限"
@@ -215,6 +276,8 @@ const ChannelFormWrap = Form.create({
         if (!setting.isSaveDirty) {
             values.tableName = null;
         }
+        // Remove no use
+        setting.syncModel = undefined;
         changeChannelSetting(values);
     }
 })(ChannelForm);
@@ -229,9 +292,9 @@ class Channel extends React.Component {
 
 const mapState = state => {
     const { dataSync } = state.offlineTask;
-    const { setting, targetMap } = dataSync;
+    const { setting, targetMap, sourceMap } = dataSync;
 
-    return { setting, targetMap };
+    return { setting, targetMap, sourceMap };
 };
 
 const mapDispatch = dispatch => {
@@ -240,6 +303,16 @@ const mapDispatch = dispatch => {
             dispatch({
                 type: settingAction.CHANGE_CHANNEL_FIELDS,
                 payload: params
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+        handleSourceMapChange: (srcmap, key) => {
+            dispatch({
+                type: sourceMapAction.DATA_SOURCEMAP_CHANGE,
+                payload: srcmap,
+                key: key || 'main'
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY

@@ -232,6 +232,13 @@ export function handleSave () {
         }
         let stopFlag = false;
         let bucketList = [];
+        if (!params.columns || !params.columns.length) {
+            notification.error({
+                message: '提示',
+                description: '字段不能为空'
+            })
+            return;
+        }
         params.columns.map(o => {
             if (!o.name || o.name === '' || !o.type) {
                 notification.error({
@@ -285,7 +292,8 @@ export function handleSave () {
         // params.partitionType = params.partitions.partitionType;
         // params.partitions = params.partitions.columns;
 
-        const res = await API.createTable({ ...params,
+        const res = await API.createTable({
+            ...params,
             partConfig: params.partitions.partConfig,
             partitionType: params.partitions.partitionType,
             partitions: params.partitions.columns,

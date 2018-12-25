@@ -76,7 +76,13 @@ export const COLLECT_TYPE = {
     TIME: 1,
     FILE: 2
 }
-
+/**
+ * 项目创建方式
+ */
+export const PROJECT_CREATE_MODEL = {
+    NORMAL: 0,
+    IMPORT: 1
+}
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
@@ -158,6 +164,11 @@ export const PYTON_VERSION = {
 export const DATA_SYNC_TYPE = { // 数据同步配置模式
     GUIDE: 0,
     SCRIPT: 1
+}
+
+export const DATA_SYNC_MODE = { // 数据同步模式-正常/增量
+    NORMAL: 0, // 正常
+    INCREMENT: 1 // 增量
 }
 
 export const DEAL_MODEL_TYPE = {// python和深度学习操作类型

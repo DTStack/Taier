@@ -6,7 +6,7 @@ import {
 } from 'antd';
 import { hashHistory } from 'react-router';
 
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, assign } from 'lodash';
 
 import utils from 'utils'
 import FullScreenButton from 'widgets/fullscreen';
@@ -18,6 +18,7 @@ import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
 import ThemeSwitcher from 'main/components/theme-switcher';
+import UploaderProgressBar from '../../../components/uploader-progress';
 
 import MainBench from './mainBench';
 import SiderBench from './siderBench';
@@ -25,11 +26,13 @@ import ImportData from './dataImport';
 
 import { showSeach } from '../../../store/modules/comm';
 import {
-    workbenchActions
+    workbenchActions,
+    getDataSyncReqParams
 } from '../../../store/modules/offlineTask/offlineAction';
 import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
 
 import { isProjectCouldEdit } from '../../../comm';
+import { UPLOAD_STATUS } from '../../../store/modules/uploader';
 
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
@@ -169,12 +172,17 @@ class Workbench extends React.Component {
         )
     }
 
+    renderGlobalMessage = () => {
+        const { uploader, dispatch } = this.props;
+        return <UploaderProgressBar key={uploader.status} uploader={uploader} dispatch={dispatch} />
+    }
+
     render () {
         const {
             tabs, currentTab, currentTabData,
             dataSync, taskCustomParams,
             closeTab, closeAllorOthers, project,
-            user, editor, dispatch
+            user, editor, dispatch, uploader
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
@@ -208,6 +216,7 @@ class Workbench extends React.Component {
         const showPublish = isTask;
 
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
+        const disableImport = uploader.status === UPLOAD_STATUS.PROGRESSING;
 
         return <Row className="m-workbench task-editor">
             <header className="workbench-toolbar clear">
@@ -230,7 +239,7 @@ class Workbench extends React.Component {
                             </Button>
                         </span>
                     )}
-                    <Dropdown overlay={this.importMenu()} trigger={['click']}>
+                    <Dropdown disabled={disableImport} overlay={this.importMenu()} trigger={['click']}>
                         <Button>
                             <MyIcon className="my-icon" type="import" themeDark={themeDark} />
                             导入<Icon type="down" />
@@ -251,7 +260,6 @@ class Workbench extends React.Component {
                         }}
                     />
                 </Col>
-
                 {showPublish ? (<Col className="right">
 
                     {couldEdit && (<span>
@@ -287,6 +295,7 @@ class Workbench extends React.Component {
                         </Button>
                     </a>
                 </Col>) : null}
+                { this.renderGlobalMessage() }
             </header>
             <Row className="task-browser">
                 <div className="browser-content">
@@ -337,7 +346,7 @@ class Workbench extends React.Component {
                     <SiderBench tabData={currentTabData} key={currentTabData && currentTabData.id} />
                 </div>
             </Row>
-            <ImportData visible={this.state.visible} />
+            <ImportData />
             {this.renderPublish()}
         </Row>
     }
@@ -391,7 +400,7 @@ class Workbench extends React.Component {
 
     saveTab (isSave) {
         this.setState({ theReqIsEnd: false })
-        const { saveTab, dataSync, currentTabData } = this.props;
+        const { saveTab, currentTabData } = this.props;
 
         // 如果是工作流任务，需要对保存操作提前做校验
         if (
@@ -403,16 +412,16 @@ class Workbench extends React.Component {
             return false;
         }
 
-        let result = this.generateRqtBody(dataSync);
+        let saveData = this.generateRqtBody();
+
         let type = 'task'
         // 非任务类型，脚本类型
         if (!utils.checkExist(currentTabData.taskType)) {
-            result = currentTabData;
+            saveData = currentTabData;
             type = 'script';
         }
-        // 修改task配置时接口要求的标记位
-        result.preSave = true;
-        saveTab(result, isSave, type);
+
+        saveTab(saveData, isSave, type);
         setTimeout(() => {
             this.setState({
                 theReqIsEnd: true
@@ -435,8 +444,7 @@ class Workbench extends React.Component {
             message.error('备注信息不可超过200个字符！')
             return false;
         }
-        // 修改task配置时接口要求的标记位
-        result.preSave = true;
+
         result.publishDesc = publishDesc;// 发布信息
         this.setState({
             submitLoading: true
@@ -490,111 +498,29 @@ class Workbench extends React.Component {
      * @returns {any} result 接口所需数据结构
      * @memberof DataSync
      */
-    generateRqtBody (data) {
+    generateRqtBody () {
+        const { currentTabData, dataSync } = this.props;
+
         // deepClone避免直接mutate store
-        let clone = cloneDeep(data);
-
-        const { tabs, currentTab, currentTabData } = this.props;
-        const { keymap, sourceMap, targetMap } = clone;
-        let { source = [], target = [] } = keymap;
-        let serverSource = []; let serverTarget = [];
-
-        /**
-         * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
-         */
-        function getKey (item) {
-            if (typeof item == 'string') {
-                return item
-            } else {
-                return item.key;
-            }
-        }
-        /**
-         * 获取targetMap的顺序
-         */
-        const { column: targetColumn = [] } = targetMap;
-        let indexMap = {};// 顺序记录表
-        let tmpTarget = [];// 含有映射关系的target数组
-        for (let i = 0; i < target.length; i++) {
-            const targetItem = target[i];
-            const sourceItem = source[i];
-            tmpTarget[i] = {
-                target: targetItem,
-                source: sourceItem
-            }
-        }
-        targetColumn.map((item, index) => {
-            indexMap[getKey(item)] = index;
-        })
-
-        tmpTarget.sort(
-            (a, b) => {
-                const indexA = indexMap[getKey(a.target)];
-                const indexB = indexMap[getKey(b.target)];
-                return indexA - indexB;
-            }
-        )
-        serverSource = tmpTarget.map(
-            (item) => {
-                return item.source;
-            }
-        )
-        serverTarget = tmpTarget.map(
-            (item) => {
-                return item.target
-            }
-        )
-        // 接口要求keymap中的连线映射数组放到sourceMap中
-        clone.sourceMap.column = serverSource;
-        clone.targetMap.column = serverTarget;
-
-        clone.settingMap = clone.setting;
-        clone.name = currentTabData.name;
-        clone.taskId = currentTabData.id;
-
-        // type中的特定配置项也放到sourceMap中
-        const targetTypeObj = targetMap.type;
-        const sourceTypeObj = sourceMap.type;
-
-        for (let key in sourceTypeObj) {
-            if (sourceTypeObj.hasOwnProperty(key)) {
-                sourceMap[key] = sourceTypeObj[key]
-            }
-        }
-        for (let k2 in targetTypeObj) {
-            if (targetTypeObj.hasOwnProperty(k2)) {
-                targetMap[k2] = targetTypeObj[k2]
-            }
-        }
-
-        // 删除接口不必要的字段
-        delete clone.keymap;
-        delete clone.setting;
-        delete clone.dataSourceList;
-
-        // 获取当前task对象并深克隆
-        let result = cloneDeep(tabs.filter(tab => tab.id === currentTab)[0]);
-
-        // 将以上步骤生成的数据同步配置拼装到task对象中
-        for (let key in clone) {
-            if (clone.hasOwnProperty(key)) {
-                result[key] = clone[key];
-            }
+        let reqBody = cloneDeep(currentTabData);
+        // 如果当前任务为数据同步任务
+        if (currentTabData.id === dataSync.tabId) {
+            reqBody = assign(reqBody, getDataSyncReqParams(dataSync))
         }
         // 修改task配置时接口要求的标记位
-        result.preSave = true;
+        reqBody.preSave = true;
 
         // 接口要求上游任务字段名修改为dependencyTasks
-        if (result.taskVOS) {
-            result.dependencyTasks = result.taskVOS.map(o => o);
-            result.taskVOS = null;
+        if (reqBody.taskVOS) {
+            reqBody.dependencyTasks = reqBody.taskVOS.map(o => o);
+            reqBody.taskVOS = null;
         }
 
         // 删除不必要的字段
-        delete result.taskVersions;
+        delete reqBody.taskVersions;
 
         // 数据拼装结果
-        return result;
+        return reqBody;
     }
 }
 
@@ -613,6 +539,7 @@ const mapState = state => {
         dataSync,
         taskCustomParams,
         user: state.user,
+        uploader: state.uploader,
         scriptTreeData: scriptTree,
         project: state.project,
         editor: state.editor

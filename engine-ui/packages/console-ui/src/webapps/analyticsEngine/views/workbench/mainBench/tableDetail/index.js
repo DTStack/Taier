@@ -3,6 +3,7 @@ import moment from 'moment'
 import API from '../../../../api'
 import { Button, Tabs, Row, notification, Menu, Modal, message, Popover } from 'antd';
 import MyIcon from '../../../../components/icon';
+import { CATALOGUE_TYPE } from '../../../../consts'
 
 import PaneData from './paneData';
 import PaneField from './paneField';
@@ -79,7 +80,7 @@ class TableDetail extends Component {
                       if (res.code === 1) {
                           message.success('删除成功');
                           self.props.closeTab();
-                          self.props.loadCatalogue();
+                          self.props.loadCatalogue({ id: databaseId }, CATALOGUE_TYPE.DATA_BASE);
                       } else {
                           notification.error({
                               message: '提示',

@@ -468,6 +468,7 @@ export default class StepTwo extends Component {
             {
                 title: '操作',
                 dataIndex: 'action',
+                width: '150px',
                 render: (text, record) => (
                     <span className="action-span">
                         <a
@@ -595,6 +596,7 @@ export default class StepTwo extends Component {
             {
                 title: '操作',
                 dataIndex: 'action',
+                width: '150px',
                 render: (text, record) => (
                     <span className="action-span">
                         <a
@@ -629,7 +631,6 @@ export default class StepTwo extends Component {
                 render: (text, record) => (
                     <Input
                         autoFocus
-                        style={{ width: 159 }}
                         defaultValue={text}
                         onChange={e => this.handleNameChange(e, record)}
                     />
@@ -642,7 +643,7 @@ export default class StepTwo extends Component {
                     <span>
                         <Select
                             style={{
-                                width: record.type === 'DECIMAL' ? 90 : 159,
+                                width: record.type === 'DECIMAL' ? 90 : 140,
                                 marginRight: 5
                             }}
                             defaultValue={text || undefined}
@@ -777,6 +778,7 @@ export default class StepTwo extends Component {
             {
                 title: '操作',
                 dataIndex: 'action',
+                width: '150px',
                 render: (text, record) => (
                     <span className="action-span">
                         <a

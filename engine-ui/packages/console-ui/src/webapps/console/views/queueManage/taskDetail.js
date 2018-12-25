@@ -394,12 +394,13 @@ class TaskDetail extends Component {
                 currentPage: pageIndex
             }).then((res) => {
                 if (res.code == 1) {
+                    const data = res.data || {};
                     this.setState({
-                        dataSource: res.data.topN,
+                        dataSource: data.topN,
                         table: {
                             ...table,
                             loading: false,
-                            total: res.data.queueSize
+                            total: data.queueSize
                         }
                     })
                     console.log(res);

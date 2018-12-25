@@ -6,7 +6,7 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             "/api/dq": {
-                target: "http://172.16.8.192:8089",
+                target: "http://172.16.8.104:8089",
                 // target: "http://172.16.6.135:8089", // tmp server
                 // target: "http://172.16.0.79:8089",
                 // ignorePath: true, 

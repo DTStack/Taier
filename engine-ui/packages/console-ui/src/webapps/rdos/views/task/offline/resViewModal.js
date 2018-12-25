@@ -1,12 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Spin } from 'antd';
+import { Modal, Button, Spin, message } from 'antd';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
 import utils from 'utils';
 import { getContainer } from 'funcs';
 
 import ajax from '../../../api';
-import { ResType } from '../../../components/status';
 
 import {
     modalAction
@@ -21,14 +21,12 @@ class ResViewModal extends React.Component {
         };
     }
 
-    /* eslint-disable */
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps.resId !== this.props.resId) {
             this.getResDetail(nextProps.resId);
         }
     }
-    /* eslint-disable */
 
     getResDetail (resId) {
         if (!resId) return;
@@ -44,6 +42,10 @@ class ResViewModal extends React.Component {
                     });
                 }
             })
+    }
+
+    copyOk = () => {
+        message.success('复制成功！');
     }
 
     render () {
@@ -74,8 +76,14 @@ class ResViewModal extends React.Component {
                                     <td>{ data.resourceDesc }</td>
                                 </tr>
                                 <tr>
-                                    <td>资源类型</td>
-                                    <td> <ResType value={data.resourceType} /></td>
+                                    <td>存储路径</td>
+                                    <td>
+                                        {data.url}
+                                        <CopyToClipboard key="copy" text={data.url}
+                                            onCopy={this.copyOk}>
+                                            <a style={{ marginLeft: 4 }}>复制</a>
+                                        </CopyToClipboard>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>创建</td>

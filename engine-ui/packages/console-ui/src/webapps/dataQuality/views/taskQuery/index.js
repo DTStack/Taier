@@ -598,7 +598,12 @@ class TaskQuery extends Component {
                                     activeKey={tabKey}
                                     onChange={this.onTabChange}
                                 >
-                                    <TabPane tab="监控报告" key="1">
+                                    <TabPane tab="监控报告" key="1" style={{
+                                        overflow: 'auto',
+                                        position: 'absolute',
+                                        top: '36px',
+                                        bottom: '0px'
+                                    }}>
                                         <TaskDetailPane
                                             currentTab={tabKey}
                                             data={currentTask}
