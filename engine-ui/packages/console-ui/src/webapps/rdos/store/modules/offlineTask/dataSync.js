@@ -149,16 +149,14 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, increColumn, extTable = {} } = action.payload;
+            const { sourceId, splitPK, src, table, extTable = {} } = action.payload;
             if (!src) return state;
-
             const { type } = src;
             const key = action.key;
             const clone = cloneDeep(state);
 
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
-            clone.increColumn = increColumn;
 
             if (RDB_TYPE_ARRAY.indexOf(+type) !== -1) {
                 clone.splitPK = splitPK;
@@ -182,6 +180,10 @@ const sourceMap = (state = {}, action) => {
             }
 
             return clone;
+        }
+
+        case sourceMapAction.DATA_SOURCEMAP_UPDATE: {
+            return assign({}, state, action.payload);
         }
 
         case sourceMapAction.SOURCE_TABLE_COLUMN_CHANGE: {

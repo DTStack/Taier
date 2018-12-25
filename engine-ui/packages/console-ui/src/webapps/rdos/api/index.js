@@ -443,7 +443,7 @@ export default {
         return http.post(offlineReq.EXEC_DATA_SYNC_IMMEDIATELY, params)
     },
     stopDataSyncImmediately(params) { // 停止执行SQL
-        return http.post(offlineReq.STOP_SQL_IMMEDIATELY, params)
+        return http.post(offlineReq.STOP_DATA_SYNC_IMMEDIATELY, params)
     },
     getIncrementColumns(params) { // 获取增量字段
         return http.post(offlineReq.GET_INCREMENT_COLUMNS, params)

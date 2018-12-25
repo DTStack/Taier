@@ -73,6 +73,7 @@ class DataSync extends React.Component {
         const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
         const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
+        const isPathChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.path !== undefined && oldSource.type.path !== undefined && oldSource.type.path !== sourceMap.type.path;
 
         // Output test conditions
         // console.log('old', oldSource, oldTarget);
@@ -82,13 +83,15 @@ class DataSync extends React.Component {
         // console.log('isTargetPartitionChange', isTargetPartitionChange);
         // console.log('isSQLChange', isSQLChange);
         // console.log('isSourceColumnChange', isSourceColumnChange);
+        console.log('isPathChange', isPathChange);
 
         return isWhereChange || // source type update
         isSourceParitionChange || // source type update
         isTargetPartitionChange || // target type update
         isSQLChange || // target type update
         isPostSQLChange || // target type update
-        isSourceColumnChange // source columns update
+        isSourceColumnChange || // source columns update
+        isPathChange // Path change
     }
 
     getJobData = (params) => {
@@ -229,6 +232,7 @@ class DataSync extends React.Component {
                 content: <DataSyncSave
                     currentStep={currentStep}
                     notSynced={notSynced}
+                    isIncrementMode={isIncrementMode}
                     navtoStep={this.navtoStep.bind(this)}
                     saveJob={this.save.bind(this)}
                 />

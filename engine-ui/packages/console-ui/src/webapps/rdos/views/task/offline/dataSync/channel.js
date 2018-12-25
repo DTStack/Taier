@@ -37,8 +37,8 @@ class ChannelForm extends React.Component {
 
     componentDidMount () {
         if (this.props.isIncrementMode) {
+            this.loadIncrementColumn();
         }
-        this.loadIncrementColumn();
     }
 
     constructor (props) {
@@ -66,9 +66,8 @@ class ChannelForm extends React.Component {
     }
 
     onIncrementColumnChange = (value) => {
-        const { sourceMap, handleSourceMapChange } = this.props;
-        const srcmap = Object.assign({}, sourceMap, { increColumn: value });
-        handleSourceMapChange(srcmap);
+        const { handleSourceChange } = this.props;
+        handleSourceChange({ increColumn: value });
     }
 
     renderIncrementColumns = () => {
@@ -308,11 +307,10 @@ const mapDispatch = dispatch => {
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-        handleSourceMapChange: (srcmap, key) => {
+        handleSourceChange: (src, key) => {
             dispatch({
-                type: sourceMapAction.DATA_SOURCEMAP_CHANGE,
-                payload: srcmap,
-                key: key || 'main'
+                type: sourceMapAction.DATA_SOURCEMAP_UPDATE,
+                payload: src
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY

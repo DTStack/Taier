@@ -1,7 +1,7 @@
 import React from 'react';
 import { message, Modal, Tag } from 'antd'
 import { hashHistory } from 'react-router'
-import { uniqBy, cloneDeep } from 'lodash'
+import { uniqBy, cloneDeep, isArray, get } from 'lodash'
 
 import utils from 'utils';
 import ajax from '../../../api'
@@ -331,6 +331,16 @@ export const workbenchActions = (dispatch) => {
                         str += `${sourceMap.column[i].key || sourceMap.column[i].index} ${sourceMap.column[i].value || ''}`;
                     }
                     const vbs = matchTaskParams(taskCustomParams, str);
+                    taskVariables = taskVariables.concat(vbs);
+                }
+
+                // 处理路径中的变量
+                let path = get(sourceMap, 'type.path')
+                if (path) {
+                    if (isArray(path)) {
+                        path = path.map(o => `${o},`)
+                    }
+                    const vbs = matchTaskParams(taskCustomParams, path)
                     taskVariables = taskVariables.concat(vbs);
                 }
             }

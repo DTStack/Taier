@@ -270,11 +270,11 @@ export function execDataSync (currentTab, params) {
  */
 export function stopDataSync (currentTab, isSilent) {
     return async (dispatch, getState) => {
+        stopSign[currentTab] = true;
         // 静默关闭，不通知任何人（服务器，用户）
         if (isSilent) {
             const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
-                stopSign[currentTab] = true;
                 dispatch(output(currentTab, createLog('执行停止', 'warning')))
                 dispatch(removeLoadingTab(currentTab))
                 if (intervalsStore[currentTab]) {
