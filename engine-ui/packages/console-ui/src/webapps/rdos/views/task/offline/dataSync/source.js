@@ -16,6 +16,7 @@ import {
 import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
+// import utils from 'utils';
 import { singletonNotification, debounceEventHander } from 'funcs';
 import ajax from '../../../../api';
 import {
@@ -338,6 +339,7 @@ class SourceForm extends React.Component {
                     delete values[key];
                 }
             }
+            // values.type.partition = utils.tirm(values.type.partition);
             const srcmap = assign({}, sourceMap.type, values, {
                 src: this.getDataObjById(values.sourceId)
             });
