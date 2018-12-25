@@ -95,7 +95,14 @@ export const dataSourceTypes = [ // 数据源类型
     'Hive',
     'HBase',
     'FTP',
-    'MaxCompute'
+    'MaxCompute',
+    'ADS',
+    '',
+    '',
+    '',
+    'POSTAGERSQL',
+    'RDS',
+    'DB2'
 ]
 
 export const formItemLayout = { // 表单常用布局
