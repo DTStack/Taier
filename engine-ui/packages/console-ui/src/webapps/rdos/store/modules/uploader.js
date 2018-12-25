@@ -26,11 +26,12 @@ export const getUploadStatus = (params, dispatch) => {
     })
     const getStatus = async () => {
         const res = await API.getUploadStatus(params.queryParams);
-        if (res.code === 1) {
+        if (res.data === 'done') {
             clearInterval(timeId);
             status = UPLOAD_STATUS.SUCCES;
-        } else if (res.code > 1) {
+        } else if (res.data === 'fail') {
             status = UPLOAD_STATUS.FAIL;
+            clearInterval(timeId);
         }
         dispatch({
             type: UploadAction.UPDATE,
