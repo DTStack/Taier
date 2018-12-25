@@ -481,7 +481,7 @@ class SourceForm extends React.Component {
                         <Button
                             loading={this.state.loading}
                             type="primary"
-                            onClick={() => this.next(navtoStep)}
+                            onClick={() => setTimeout(() => this.next(navtoStep), 600)}
                         >
                             下一步
                         </Button>

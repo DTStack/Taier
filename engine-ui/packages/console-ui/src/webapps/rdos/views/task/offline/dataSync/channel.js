@@ -9,7 +9,8 @@ import {
 
 import {
     settingAction,
-    workbenchAction
+    workbenchAction,
+    sourceMapAction
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
@@ -32,6 +33,12 @@ class ChannelForm extends React.Component {
     state = {
         isRecord: false,
         incrementColumns: []
+    }
+
+    componentDidMount () {
+        if (this.props.isIncrementMode) {
+        }
+        this.loadIncrementColumn();
     }
 
     constructor (props) {
@@ -58,6 +65,12 @@ class ChannelForm extends React.Component {
         }
     }
 
+    onIncrementColumnChange = (value) => {
+        const { sourceMap, handleSourceMapChange } = this.props;
+        const srcmap = Object.assign({}, sourceMap, { increColumn: value });
+        handleSourceMapChange(srcmap);
+    }
+
     renderIncrementColumns = () => {
         const { sourceMap, isIncrementMode } = this.props;
         const { incrementColumns } = this.state;
@@ -69,13 +82,17 @@ class ChannelForm extends React.Component {
                 label="增量标识字段"
                 style={{ height: '32px' }}
             >
-                {getFieldDecorator('speed', {
+                {getFieldDecorator('syncModel', {
                     rules: [{
-                        required: true
+                        required: true,
+                        message: '必须选择增量标识字段！'
                     }],
-                    initialValue: sourceMap.increColumn || (incrementColumns[0] ? incrementColumns[0].key : '')
+                    initialValue: sourceMap.increColumn || undefined
                 })(
-                    <Select>
+                    <Select
+                        placeholder="请选择增量标识字段"
+                        onChange={this.onIncrementColumnChange}
+                    >
                         { columnsOpts }
                     </Select>
                 )}
@@ -259,6 +276,8 @@ const ChannelFormWrap = Form.create({
         if (!setting.isSaveDirty) {
             values.tableName = null;
         }
+        // Remove no use
+        setting.syncModel = undefined;
         changeChannelSetting(values);
     }
 })(ChannelForm);
@@ -273,9 +292,9 @@ class Channel extends React.Component {
 
 const mapState = state => {
     const { dataSync } = state.offlineTask;
-    const { setting, targetMap } = dataSync;
+    const { setting, targetMap, sourceMap } = dataSync;
 
-    return { setting, targetMap };
+    return { setting, targetMap, sourceMap };
 };
 
 const mapDispatch = dispatch => {
@@ -284,6 +303,16 @@ const mapDispatch = dispatch => {
             dispatch({
                 type: settingAction.CHANGE_CHANNEL_FIELDS,
                 payload: params
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
+        handleSourceMapChange: (srcmap, key) => {
+            dispatch({
+                type: sourceMapAction.DATA_SOURCEMAP_CHANGE,
+                payload: srcmap,
+                key: key || 'main'
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY

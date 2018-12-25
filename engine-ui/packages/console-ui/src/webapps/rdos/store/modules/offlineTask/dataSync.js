@@ -149,7 +149,7 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, extTable = {} } = action.payload;
+            const { sourceId, splitPK, src, table, increColumn, extTable = {} } = action.payload;
             if (!src) return state;
 
             const { type } = src;
@@ -158,6 +158,7 @@ const sourceMap = (state = {}, action) => {
 
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
+            clone.increColumn = increColumn;
 
             if (RDB_TYPE_ARRAY.indexOf(+type) !== -1) {
                 clone.splitPK = splitPK;
@@ -203,7 +204,7 @@ const sourceMap = (state = {}, action) => {
             const colData = action.payload;
             const clone = cloneDeep(state);
             if (colData) {
-                clone.column[colData.index] = colData.value
+                clone.column[colData.index] = assign({}, clone.column[colData.index], colData.value)
             }
             return clone;
         }
@@ -532,7 +533,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
             if (map) {
                 const index = clone.source.findIndex((item) => isFieldMatch(item, old))
                 if (index > 0) {
-                    clone.source[index] = replace;
+                    clone.source[index] = assign({}, clone.source[index], replace);
                     return clone;
                 }
             }

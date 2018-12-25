@@ -561,7 +561,7 @@ class BaseForm extends Component {
                             initialValue: config.protocol || 'ftp'
                         })(
                             <RadioGroup onChange={this.ftpProtocalChange}>
-                                <Radio value="ftp">Standard</Radio>
+                                <Radio value="ftp">FTP</Radio>
                                 <Radio value="sftp">SFTP</Radio>
                             </RadioGroup>
                         )}

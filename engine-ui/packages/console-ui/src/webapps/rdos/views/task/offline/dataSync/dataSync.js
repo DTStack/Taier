@@ -220,7 +220,6 @@ class DataSync extends React.Component {
                 content: <DataSyncChannel
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
-                    sourceMap={sourceMap}
                     isIncrementMode={isIncrementMode}
                     navtoStep={this.navtoStep.bind(this)}
                 />
