@@ -136,6 +136,7 @@
     border-bottom: 5px solid transparent;
     cursor: row-resize;
     width: 100%;
+    z-index: 999;
 }
 
 .Resizer.horizontal:hover {
