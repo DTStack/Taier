@@ -358,6 +358,11 @@ export const workbenchActions = (dispatch) => {
                     const vbs = matchTaskParams(taskCustomParams, targetMap.type.partition)
                     taskVariables = taskVariables.concat(vbs);
                 }
+
+                if (targetMap.type.fileName) {
+                    const vbs = matchTaskParams(taskCustomParams, targetMap.type.fileName)
+                    taskVariables = taskVariables.concat(vbs);
+                }
             }
             // 去重复参数
             const uniqArr = uniqBy(taskVariables, (o) => o.paramName);
