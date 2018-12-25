@@ -326,6 +326,9 @@ class ManageBasicProperties extends Component {
                             })(
                                 <Input style={{ width: '85%' }} />
                             )}
+                            <span style={{ marginLeft: '5px' }}>
+                                <HelpDoc doc="apiPathInfo" />
+                            </span>
                         </FormItem>
                         <Row style={{ marginTop: '40px' }}>
                             <Col className="form-title-line" {...formItemLayout.labelCol}>

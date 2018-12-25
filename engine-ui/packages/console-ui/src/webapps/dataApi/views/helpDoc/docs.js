@@ -12,3 +12,8 @@ export const securityTip = (
         <p>如果您未建立任何安全组，可进入安全组进行新建</p>
     </div>
 )
+export const apiPathInfo = (
+    <div>
+        <p>API path 即 API 调用路径。若填写，生成的 API 调用 URL 中将包含 API path，可帮助用户快速识别调用的 API。</p>
+    </div>
+)
