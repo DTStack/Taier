@@ -162,9 +162,10 @@ export const partitionDesc = (
 // 自定义参数配置
 export const customParams = (
     <div>
-        <p>支持常量或变量</p>
+        <p>在代码中输入的格式为：${`{key1}`}，key1为变量名，在当前面板中为key1赋值</p>
+        <p>支持常量或变量赋值</p>
         <p>常量直接输入字符串或数字</p>
-        变量基于bdp.system.cyctime取值，例如“key1={'${yyyy}'}”取bdp.system.cyctime的年的部分
+        <p>变量基于bdp.system.cyctime取值，格式为：key1=$[yyyy]，其中的yyyy是取bdp.system.cyctime的年的部分</p>
         <p>详细说明请参考<a href={HELP_DOC_URL.TASKPARAMS} target="blank">《帮助文档》</a></p>
     </div>
 )
