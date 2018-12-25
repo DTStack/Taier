@@ -38,7 +38,6 @@ const hdfsConf =
 class BaseForm extends Component {
     state = {
         sourceType: 1,
-        hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs',
         hadoopConfigStr: hdfsConf,
         hasCarbonDataConfig: false,
@@ -50,9 +49,6 @@ class BaseForm extends Component {
         if (!isEmpty(sourceData)) {
             let initialState = {
                 sourceType: sourceData.type
-            }
-            if (sourceData.dataJson && sourceData.dataJson.hadoopConfig) {
-                initialState.hasHdfsConfig = true;
             }
             if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
                 const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
@@ -112,14 +108,8 @@ class BaseForm extends Component {
     }
 
     sourceChange = (value) => {
-        this.setState({ sourceType: parseInt(value, 10), hasHdfsConfig: false })
+        this.setState({ sourceType: parseInt(value, 10) })
         this.props.form.resetFields();
-    }
-
-    enableHdfsConfig = (e) => {
-        this.setState({
-            hasHdfsConfig: !e.target.value
-        })
     }
 
     ftpProtocalChange = (e) => {
@@ -135,9 +125,9 @@ class BaseForm extends Component {
     }
 
     hadoopConfigChange = (e) => {
-        const { hadoopConfig, hasHdfsConfig, hadoopConfigStr } = this.state
+        const { hadoopConfig, hadoopConfigStr } = this.state
         const value = e.target.value.split('//')[1]
-        if (hasHdfsConfig && value) {
+        if (value) {
             const reg = new RegExp(`${hadoopConfig}`, 'g')
             const newStr = hadoopConfigStr.replace(reg, value)
             this.setState({
@@ -172,7 +162,7 @@ class BaseForm extends Component {
 
     renderDynamic () {
         const { form, sourceData, showUserNameWarning } = this.props;
-        const { hasHdfsConfig, sourceType, ftpProtocal, hasCarbonDataConfig } = this.state;
+        const { sourceType, ftpProtocal, hasCarbonDataConfig } = this.state;
 
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -199,53 +189,36 @@ class BaseForm extends Component {
                         })(
                             <Input placeholder="hdfs://host:port" />
                         )}
-                    </FormItem>,
-                    <FormItem
-                        key="hasHdfsConfig"
-                        {...tailFormItemLayout}
-                    >
-                        {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: hasHdfsConfig
-                        })(
-                            <Checkbox
-                                checked={hasHdfsConfig}
-                                onChange={this.enableHdfsConfig}>
-                                高可用配置
-                            </Checkbox>
-                        )}
                     </FormItem>
                 ]
-                if (hasHdfsConfig) {
-                    formItems.push(
-                        <FormItem
-                            {...formItemLayout}
-                            label="高可用配置"
-                            key="hadoopConfig"
-                            hasFeedback
-                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
-                        >
-                            {getFieldDecorator('dataJson.hadoopConfig', {
-                                rules: [{
-                                    required: true, message: 'Hadoop配置不可为空！'
-                                }],
-                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
-                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
-                            })(
-                                <Input
-                                    rows={5}
-                                    className="no-scroll-bar"
-                                    type="textarea"
-                                    placeholder={hdfsConf}
-                                />
-                            )}
-                            <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon
-                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                                copyText={hdfsConf}
+                formItems.push(
+                    <FormItem
+                        {...formItemLayout}
+                        label="高可用配置"
+                        key="hadoopConfig"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hadoopConfig', {
+                            rules: [{
+                                required: true, message: 'Hadoop配置不可为空！'
+                            }],
+                            initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                        })(
+                            <Input
+                                rows={5}
+                                className="no-scroll-bar"
+                                type="textarea"
+                                placeholder={hdfsConf}
                             />
-                        </FormItem>
-                    )
-                }
+                        )}
+                        <HelpDoc doc="hdfsConfig" />
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={hdfsConf}
+                        />
+                    </FormItem>
+                )
                 return formItems;
             }
             case DATA_SOURCE.CARBONDATA: {
@@ -259,8 +232,7 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！'
-                            },
-                            jdbcRulePattern
+                            }, jdbcRulePattern
                             ],
                             initialValue: config.jdbcUrl || ''
                         })(
@@ -333,54 +305,36 @@ class BaseForm extends Component {
                             })(
                                 <Input placeholder="hdfs://host:port" />
                             )}
-                        </FormItem>,
-                        <FormItem
-                            key="hasHdfsConfig"
-                            {...tailFormItemLayout}
-                        >
-                            {getFieldDecorator('hasHdfsConfig', {
-                                initialValue: hasHdfsConfig
-                            })(
-                                <Checkbox
-                                    checked={hasHdfsConfig}
-                                    onChange={this.enableHdfsConfig}>
-                                    高可用配置
-                                </Checkbox>
-                            )}
                         </FormItem>
                     )
+                    formItems.push(
+                        <FormItem
+                            {...formItemLayout}
+                            label="高可用配置"
+                            key="hadoopConfig"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('dataJson.hadoopConfig', {
+                                rules: [{
+                                    required: true, message: 'Hadoop配置不可为空！'
+                                }],
+                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                            })(
+                                <Input
+                                    className="no-scroll-bar"
+                                    type="textarea" rows={5}
 
-                    if (hasHdfsConfig) {
-                        formItems.push(
-                            <FormItem
-                                {...formItemLayout}
-                                label="高可用配置"
-                                key="hadoopConfig"
-                                hasFeedback
-                                style={{ display: hasHdfsConfig ? 'block' : 'none' }}
-                            >
-                                {getFieldDecorator('dataJson.hadoopConfig', {
-                                    rules: [{
-                                        required: true, message: 'Hadoop配置不可为空！'
-                                    }],
-                                    initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
-                                        ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
-                                })(
-                                    <Input
-                                        className="no-scroll-bar"
-                                        type="textarea" rows={5}
-
-                                        placeholder={hdfsConf}
-                                    />
-                                )}
-                                <HelpDoc doc="hdfsConfig" />
-                                <CopyIcon
-                                    style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                                    copyText={hdfsConf}
+                                    placeholder={hdfsConf}
                                 />
-                            </FormItem>
-                        )
-                    }
+                            )}
+                            <HelpDoc doc="hdfsConfig" />
+                            <CopyIcon
+                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                                copyText={hdfsConf}
+                            />
+                        </FormItem>
+                    )
                 }
                 return formItems
             }
@@ -395,9 +349,7 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！'
-                            },
-                            jdbcRulePattern
-                            ],
+                            }, jdbcRulePattern],
                             initialValue: config.jdbcUrl || ''
                         })(
                             <Input autoComplete="off" />
@@ -450,53 +402,36 @@ class BaseForm extends Component {
                         })(
                             <Input placeholder="hdfs://host:port" />
                         )}
-                    </FormItem>,
-                    <FormItem
-                        key="hasHdfsConfig"
-                        {...tailFormItemLayout}
-                    >
-                        {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: hasHdfsConfig
-                        })(
-                            <Checkbox
-                                checked={hasHdfsConfig}
-                                onChange={this.enableHdfsConfig}>
-                                高可用配置
-                            </Checkbox>
-                        )}
                     </FormItem>
                 ]
-                if (hasHdfsConfig) {
-                    formItems.push(
-                        <FormItem
-                            {...formItemLayout}
-                            label="高可用配置"
-                            key="hadoopConfig"
-                            hasFeedback
-                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
-                        >
-                            {getFieldDecorator('dataJson.hadoopConfig', {
-                                rules: [{
-                                    required: true, message: 'Hadoop配置不可为空！'
-                                }],
-                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
-                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
-                            })(
-                                <Input
-                                    className="no-scroll-bar"
-                                    type="textarea" rows={5}
+                formItems.push(
+                    <FormItem
+                        {...formItemLayout}
+                        label="高可用配置"
+                        key="hadoopConfig"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hadoopConfig', {
+                            rules: [{
+                                required: true, message: 'Hadoop配置不可为空！'
+                            }],
+                            initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                        })(
+                            <Input
+                                className="no-scroll-bar"
+                                type="textarea" rows={5}
 
-                                    placeholder={hdfsConf}
-                                />
-                            )}
-                            <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon
-                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                                copyText={hdfsConf}
+                                placeholder={hdfsConf}
                             />
-                        </FormItem>
-                    )
-                }
+                        )}
+                        <HelpDoc doc="hdfsConfig" />
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={hdfsConf}
+                        />
+                    </FormItem>
+                )
                 return formItems
             }
             case DATA_SOURCE.HBASE: {
@@ -876,8 +811,7 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！'
-                            },
-                            jdbcRulePattern
+                            }, jdbcRulePattern
                             ],
                             initialValue: config.jdbcUrl || ''
                         })(
@@ -886,9 +820,9 @@ class BaseForm extends Component {
                         <Tooltip overlayClassName="big-tooltip" title={
                             (
                                 <span style={{ wordBreak: ' break-all' }}>
-                                SID示例：{ jdbcUrlExample[sourceType][0]}
-                                    <br/>
-                                ServiceName示例：{jdbcUrlExample[sourceType][1]}
+                                    SID示例：{jdbcUrlExample[sourceType][0]}
+                                    <br />
+                                    ServiceName示例：{jdbcUrlExample[sourceType][1]}
                                 </span>
                             )
                         }>
@@ -945,8 +879,7 @@ class BaseForm extends Component {
                         {getFieldDecorator('dataJson.jdbcUrl', {
                             rules: [{
                                 required: true, message: 'jdbcUrl不可为空！'
-                            },
-                            jdbcRulePattern
+                            }, jdbcRulePattern
                             ],
                             initialValue: config.jdbcUrl || ''
                         })(
