@@ -337,6 +337,7 @@ public class SparkYarnClient extends AbsClient {
             sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
             sparkConf.set("security", String.valueOf(sparkYarnConfig.isSecurity()));
         }
+        sparkConf.set("security", "false");
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
