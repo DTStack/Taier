@@ -302,7 +302,7 @@ class TaskForm extends React.Component {
                             <FolderPicker
                                 type={MENU_TYPE.RESOURCE}
                                 ispicker
-                                placeholder="请选择关联资源"
+                                placeholder={`请选择${resourceLable}`}
                                 isFilepicker
                                 acceptRes={acceptType}
                                 treeData={this.props.resTreeData}
@@ -553,6 +553,9 @@ class TaskModal extends React.Component {
             if (!err) {
                 values.lockVersion = 0;
                 values.version = 0;
+
+                // 编辑基本信息标识
+                if (isEditExist) values.isEditBaseInfo = true;
 
                 if (values.resourceIdList) {
                     values.resourceIdList = [values.resourceIdList];

@@ -4,7 +4,7 @@ import moment from 'moment';
 
 import SecurityDetailModal from '../../components/securityDetailModal';
 
-import { API_METHOD, API_METHOD_KEY } from '../../consts';
+import { API_METHOD, API_METHOD_KEY, API_MODE, dataSourceTypes } from '../../consts';
 import { getApiMarketValue } from '../../utils';
 
 class Content extends Component {
@@ -179,14 +179,18 @@ class Content extends Component {
                     <section style={{ marginTop: 19.3 }}>
                         <h1 className="title-border-l-blue">配置信息</h1>
                         <div style={{ marginTop: 10 }}>
-                            <p data-title="数据源类型：" className="pseudo-title p-line">{apiConfig.dataSourceType}</p>
-                            <p data-title="数据源名称：" className="pseudo-title p-line">{apiConfig.dataSourceName}</p>
-                            <p data-title="数据表名称：" className="pseudo-title p-line">{apiConfig.tableName}</p>
-                            <p data-title="SQL配置信息：" className="pseudo-title p-line">
-                                <pre style={{ maxHeight: '100px', overflow: 'auto', verticalAlign: 'top', display: 'inline-block' }}>
-                                    {this.getValue('respJson') ? JSON.stringify(this.getValue('respJson'), null, '    \r') : '暂无返回样例'}
-                                </pre>
-                            </p>
+                            <p data-title="数据源类型：" className="pseudo-title p-line">{dataSourceTypes[apiConfig.dataSrcType]}</p>
+                            <p data-title="数据源名称：" className="pseudo-title p-line">{apiConfig.dataSrcName}</p>
+                            {API_MODE.GUIDE == apiConfig.paramCfgType ? (
+                                <p data-title="数据表名称：" className="pseudo-title p-line">{apiConfig.dataSrcTable}</p>
+                            ) : null}
+                            {API_MODE.SQL == apiConfig.paramCfgType ? (
+                                <p data-title="SQL配置信息：" className="pseudo-title p-line">
+                                    <pre style={{ maxHeight: '100px', overflow: 'auto', verticalAlign: 'top', display: 'inline-block' }}>
+                                        {apiConfig.dataSrcSQL}
+                                    </pre>
+                                </p>
+                            ) : null}
                         </div>
                     </section>
                 )}

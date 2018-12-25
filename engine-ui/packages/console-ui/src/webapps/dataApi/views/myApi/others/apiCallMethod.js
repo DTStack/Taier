@@ -33,6 +33,7 @@ class ApiCallMethod extends Component {
         beginTime: undefined,
         endTime: undefined,
         callLimit: 0,
+        apiConfig: {},
         securityList: []
     }
 
@@ -89,7 +90,8 @@ class ApiCallMethod extends Component {
             beginTime: undefined,
             endTime: undefined,
             callLimit: 0,
-            securityList: []
+            securityList: [],
+            apiConfig: {}
         })
         if (!apiId) {
             return;
@@ -98,13 +100,24 @@ class ApiCallMethod extends Component {
         if (mode != 'manage') {
             this.getApiCallUrl(apiId);
             this.fetchSecurityList(apiId);
+        } else {
+            this.fetchApiConfig(apiId);
         }
 
         this.props.getApiDetail(apiId);
         this.props.getApiExtInfo(apiId);
     }
+    fetchApiConfig (apiId) {
+        apiManage.getApiConfigInfo({ apiId }).then((res) => {
+            if (res.code == 1) {
+                this.setState({
+                    apiConfig: res.data
+                })
+            }
+        })
+    }
     render () {
-        const { callUrl, beginTime, endTime, callLimit, securityList } = this.state;
+        const { callUrl, beginTime, endTime, callLimit, securityList, apiConfig } = this.state;
         const { showRecord = {}, apiMarket, mode, showUserInfo } = this.props;
         let { apiId, id } = showRecord;
         apiId = mode == 'manage' ? id : apiId;
@@ -116,7 +129,7 @@ class ApiCallMethod extends Component {
                         securityList={securityList}
                         showSecurity={mode != 'manage'}
                         showApiConfig={mode == 'manage'}
-                        apiConfig={{}}
+                        apiConfig={apiConfig}
                         showUserInfo={showUserInfo}
                         callLimit={callLimit}
                         beginTime={beginTime}

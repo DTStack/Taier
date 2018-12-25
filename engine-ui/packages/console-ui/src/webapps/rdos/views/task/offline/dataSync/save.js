@@ -18,7 +18,7 @@ export default class Save extends React.Component {
 
     render () {
         const { navtoStep } = this;
-        const { notSynced } = this.props;
+        const { notSynced, isIncrementMode } = this.props;
 
         return <div className="g-step5">
             <div className="m-preview"
@@ -31,7 +31,10 @@ export default class Save extends React.Component {
                         onClick={ () => this.navtoStep(0) }>修改</a>
                     }
                 >
-                    <Source readonly />
+                    <Source
+                        readonly
+                        isIncrementMode={isIncrementMode}
+                    />
                     <Mask />
                 </Card>
                 <Card bordered={ false }
@@ -41,7 +44,10 @@ export default class Save extends React.Component {
                         onClick={ () => this.navtoStep(1) }>修改</a>
                     }
                 >
-                    <Target readonly />
+                    <Target
+                        readonly
+                        isIncrementMode={isIncrementMode}
+                    />
                     <Mask />
                 </Card>
                 <Card bordered={ false }
@@ -61,7 +67,10 @@ export default class Save extends React.Component {
                         onClick={ () => this.navtoStep(3) }>修改</a>
                     }
                 >
-                    <Channel readonly />
+                    <Channel
+                        readonly
+                        isIncrementMode={isIncrementMode}
+                    />
                     <Mask />
                 </Card>
             </div>

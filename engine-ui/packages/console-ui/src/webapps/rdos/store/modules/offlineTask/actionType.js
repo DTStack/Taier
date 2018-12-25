@@ -117,6 +117,7 @@ export const dataSourceListAction = mc([
 ], { prefix: 'offline/dataSync/dataSourceList/' });
 
 export const sourceMapAction = mc([
+    'DATA_SOURCEMAP_UPDATE',
     'DATA_SOURCE_CHANGE',
     'DATA_SOURCEMAP_CHANGE',
     'SOURCE_TABLE_COLUMN_CHANGE',

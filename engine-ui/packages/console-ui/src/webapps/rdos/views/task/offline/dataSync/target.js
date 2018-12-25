@@ -337,7 +337,7 @@ class TargetForm extends React.Component {
                                     src.type === DATA_SOURCE.REDIS ||
                                     src.type === DATA_SOURCE.MONGODB ||
                                     (isIncrementMode && (
-                                        src.type !== DATA_SOURCE.HIVE ||
+                                        src.type !== DATA_SOURCE.HIVE &&
                                         src.type !== DATA_SOURCE.HDFS
                                     ))
 
