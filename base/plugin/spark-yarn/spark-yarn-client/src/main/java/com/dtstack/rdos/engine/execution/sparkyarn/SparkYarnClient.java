@@ -335,6 +335,7 @@ public class SparkYarnClient extends AbsClient {
         if (sparkYarnConfig.isSecurity()){
             sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
             sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
+            sparkConf.set("security", String.valueOf(sparkYarnConfig.isSecurity()));
         }
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
