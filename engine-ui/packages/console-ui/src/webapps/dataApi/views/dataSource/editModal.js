@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Input, Button, Select, Form, Checkbox, message, Tooltip, Icon } from 'antd';
+import { Modal, Input, Button, Select, Form, message, Tooltip, Icon } from 'antd';
 
 import HelpDoc from '../helpDoc';
 import { formItemLayout, tailFormItemLayout, DATA_SOURCE } from '../../consts';
@@ -37,7 +37,6 @@ const mapDispatchToProps = dispatch => ({
 class DataSourceModal extends Component {
     state = {
         sourceType: 1,
-        hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs'
 
     }
@@ -53,7 +52,7 @@ class DataSourceModal extends Component {
 
         if (newData.id !== oldData.id) {
             if (newData.type === 7) {
-                this.setState({ sourceType: newData.type || 1, hasHdfsConfig: true });
+                this.setState({ sourceType: newData.type || 1 });
             } else {
                 this.setState({ sourceType: newData.type || 1 });
             }
@@ -115,11 +114,6 @@ class DataSourceModal extends Component {
         }
     }
 
-    enableHdfsConfig = (e) => {
-        this.setState({
-            hasHdfsConfig: !e.target.value
-        });
-    }
     enableDetailConfig = (e) => {
         this.setState({
             detailConfig: !e.target.value
@@ -127,7 +121,7 @@ class DataSourceModal extends Component {
     }
 
     renderDynamic () {
-        const { hasHdfsConfig, sourceType } = this.state
+        const { sourceType } = this.state
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -183,18 +177,7 @@ class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>,
-                    <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
-                        {
-                            getFieldDecorator('hasHdfsConfig', {
-                                initialValue: false
-                            })(
-                                <Checkbox checked={hasHdfsConfig} onChange={this.enableHdfsConfig}>
-                                    高可用配置
-                                </Checkbox>
-                            )
-                        }
-                    </FormItem>,
-                    <FormItem {...formItemLayout} label="高可用配置" key="hadoopConfig" style={{ display: hasHdfsConfig ? 'block' : 'none' }}>
+                    <FormItem {...formItemLayout} label="高可用配置" key="hadoopConfig" >
                         {
                             getFieldDecorator('dataJson.hadoopConfig', {
                                 rules: [],
@@ -358,28 +341,6 @@ class DataSourceModal extends Component {
                             )
                         }
                     </FormItem>
-                    //     <FormItem {...tailFormItemLayout} key="hasHdfsConfig">
-                    //     {
-                    //         getFieldDecorator('hasHdfsConfig', {
-                    //             initialValue: false,
-                    //         })(
-                    //             <Checkbox checked={detailConfig} onChange={this.enableDetailConfig}>
-                    //                 高级配置
-                    //             </Checkbox>,
-                    //         )
-                    //     }
-                    // </FormItem>,
-                    // <FormItem {...formItemLayout} label="连接池信息" key="detailConfig" style={{display: detailConfig ? 'block' : 'none'}}>
-                    //     {
-                    //         getFieldDecorator('dataJson.config', {
-                    //             rules: [],
-                    //             initialValue: config.config || ''
-                    //         })(
-                    //             <Input type="textarea" rows={5} placeholder={configConf} />,
-                    //         )
-                    //     }
-                    //     {/* <HelpDoc doc="hdfsConfig" /> */}
-                    // </FormItem>
                 ]
             }
         }

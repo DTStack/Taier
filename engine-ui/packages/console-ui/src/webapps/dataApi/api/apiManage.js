@@ -76,5 +76,8 @@ export default {
     },
     listSecurityGroupByApiId (params) {
         return http.post(req.LIST_SECURITY_GROUP_BY_ID, params)
+    },
+    getApiConfigInfo (params) {
+        return http.post(req.GET_API_CONFIG_INFO, params)
     }
 }

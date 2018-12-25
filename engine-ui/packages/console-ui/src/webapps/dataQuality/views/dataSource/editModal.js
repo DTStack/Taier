@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     Modal, Input, Button, Select, Icon,
-    Form, Checkbox, message, Tooltip
+    Form, message, Tooltip
 } from 'antd';
 
 import utils from 'utils';
@@ -48,7 +48,6 @@ const mapDispatchToProps = dispatch => ({
 class DataSourceModal extends Component {
     state = {
         sourceType: undefined,
-        hasHdfsConfig: false,
         hadoopConfig: 'defaultDfs'
     };
 
@@ -64,8 +63,7 @@ class DataSourceModal extends Component {
         if (newData && newData !== oldData) {
             if (newData.type === 7) {
                 this.setState({
-                    sourceType: newData.type || 1,
-                    hasHdfsConfig: true
+                    sourceType: newData.type || 1
                 });
             } else {
                 this.setState({ sourceType: newData.type || 1 });
@@ -135,14 +133,8 @@ class DataSourceModal extends Component {
         this.props.form.resetFields();
     };
 
-    enableHdfsConfig = e => {
-        this.setState({
-            hasHdfsConfig: !e.target.value
-        });
-    };
-
     renderDynamic () {
-        const { hasHdfsConfig, sourceType } = this.state;
+        const { sourceType } = this.state;
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
@@ -196,24 +188,9 @@ class DataSourceModal extends Component {
                                 initialValue: config.defaultFS || ''
                             })(<Input placeholder="hdfs://host:port" />)}
                         </FormItem>
-                        <FormItem {...tailFormItemLayout}>
-                            {getFieldDecorator('hasHdfsConfig', {
-                                initialValue: false
-                            })(
-                                <Checkbox
-                                    checked={hasHdfsConfig}
-                                    onChange={this.enableHdfsConfig}
-                                >
-                                    高可用配置
-                                </Checkbox>
-                            )}
-                        </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="高可用配置"
-                            style={{
-                                display: hasHdfsConfig ? 'block' : 'none'
-                            }}
                         >
                             {getFieldDecorator('dataJson.hadoopConfig', {
                                 rules: [],
@@ -381,7 +358,6 @@ class DataSourceModal extends Component {
             status,
             dataSource
         } = this.props;
-        // const { hasHdfsConfig } = this.state;
         const { getFieldDecorator } = form;
 
         return (
