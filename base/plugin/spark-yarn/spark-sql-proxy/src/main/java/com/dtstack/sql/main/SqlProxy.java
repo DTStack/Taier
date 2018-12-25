@@ -1,10 +1,6 @@
 package com.dtstack.sql.main;
 
-import com.dtstack.rdos.common.config.ConfigParse;
 import com.google.common.base.Charsets;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
