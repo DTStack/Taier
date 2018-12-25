@@ -351,25 +351,9 @@
     border: none;
     background: none;
 }
-// 部分脱敏表单
-// .partDataForm .ant-form-item {
-//     float: left;
-//     font-size: 12px;
-//     margin-bottom: 24px;
-//     color: rgba(0, 0, 0, 0.65);
-//     vertical-align: top;
-// }
 // DML DDL样式
 .content {
     overflow: hidden;
-    // border: 1px solid red;
-    // margin-left: 50px;
-    // margin-bottom: 30px;
-    // margin-top: -20px;
-    // .title {
-    //     border-bottom: 1px solid #e9e9e9;
-    //     margin-bottom: 5px;
-    // }
     .ant-checkbox-wrapper {
         min-width: 100px;
         cursor: pointer;
@@ -386,4 +370,10 @@
 }
 .ant-card-head {
     border-bottom: none
+}
+// 数据地图侧边栏图标
+.icon-dataMapSlider {
+    float: left;
+    display: block;
+    margin: 12px 10px 0 0;
 }

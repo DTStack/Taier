@@ -199,6 +199,15 @@ export default {
     delDesensitization (params) {
         return http.post(dataManageReq.DEL_DESENSITIZATION, params)
     },
+    getTableList (params) {
+        return http.post(dataManageReq.GET_TABLE_LIST, params)
+    },
+    getColumnsList (params) {
+        return http.post(dataManageReq.GET_COLUMNS_LIST, params)
+    },
+    getdesRulesList (params) {
+        return http.post(dataManageReq.GET_DESRULES_LIST, params)
+    },
     viewTableRelation (params) {
         return http.post(dataManageReq.VIEW_TABLE_RELATION, params)
     },

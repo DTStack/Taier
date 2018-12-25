@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Form, Input, Select, Alert } from 'antd';
+import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
@@ -13,6 +14,98 @@ const Option = Select.Option;
     }
 }, null)
 class AddDesensitization extends Component {
+    state = {
+        tableList: [],
+        columnsList: [],
+        rulesList: []
+    }
+    componentDidMount () {
+        // console.log('------------------------');
+        this.getdesRulesList();
+    }
+    // 获取表列表
+    getTableList = (params) => {
+        // const { getFieldValue } = this.props.form;
+        // const projectId = getFieldValue('projectId');
+        ajax.getTableList(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tableList: res.data
+                })
+            }
+        })
+    }
+    tableListOption () {
+        const { tableList } = this.state;
+        return tableList.map((item, index) => {
+            return <Option
+                key={item.id}
+                value={`${item.id}`}
+            >
+                {item.tableName}
+            </Option>
+        })
+    }
+    // 字段
+    getColumnsList = (value) => {
+        const { getFieldValue } = this.props.form;
+        const projectId = getFieldValue('projectId');
+        // const tableId = getFieldValue('tableId');
+        if (projectId && value) {
+            ajax.getColumnsList({ tableId: value, projectId: projectId }).then(res => {
+                if (res.code === 1) {
+                    this.setState({
+                        columnsList: res.data
+                    })
+                }
+            })
+        }
+    }
+    columnsOption () {
+        const { columnsList } = this.state;
+        return columnsList.map((item, index) => {
+            return <Option
+                key={item.key}
+                value={item.type}
+            >
+                {item.type}
+            </Option>
+        })
+    }
+    // 脱敏规则
+    getdesRulesList = () => {
+        ajax.getdesRulesList().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    rulesList: res.data
+                })
+            }
+        })
+    }
+    rulesOption () {
+        const { rulesList } = this.state;
+        return rulesList.map((item, index) => {
+            return <Option
+                key={item.id}
+                value={`${item.id}`}
+            >
+                {item.name}
+            </Option>
+        })
+    }
+    // 选择项目
+    changeProject (value) {
+        this.setState({
+            tableList: [],
+            columnsList: []
+        }, this.getTableList({ projectId: value }))
+    }
+    // 选择表
+    changeTable (value) {
+        this.setState({
+            columnsList: []
+        }, this.getColumnsList(value))
+    }
     cancel = () => {
         const { onCancel } = this.props;
         onCancel();
@@ -59,7 +152,7 @@ class AddDesensitization extends Component {
                                 message: '脱敏名称不可为空！'
                             }]
                         })(
-                            <Input />
+                            <Input placeholder='请输入脱敏名称' />
                         )}
                     </FormItem>
                     <FormItem
@@ -73,10 +166,11 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                allowClear
+                                placeholder='请选择项目'
+                                onChange={this.changeProject.bind(this)}
+                                // allowClear
                             >
-                                {/* {projectsOptions} */}
-                                <Option value={1}>1</Option>
+                                {projectsOptions}
                             </Select>
                         )}
                     </FormItem>
@@ -91,10 +185,11 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                allowClear
+                                placeholder='请选择表'
+                                onChange={this.changeTable.bind(this)}
+                                // allowClear
                             >
-                                {/* {projectsOptions} */}
-                                <Option value={1}>1</Option>
+                                {this.tableListOption()}
                             </Select>
                         )}
                     </FormItem>
@@ -109,14 +204,14 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                allowClear
+                                placeholder='请选择字段'
+                                // allowClear
                             >
-                                {/* {projectsOptions} */}
-                                <Option value='columns'>columns</Option>
+                                {this.columnsOption()}
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ marginLeft: '104px', marginTop: '-10px' }} className='desenAlert'>
+                    <div style={{ marginLeft: '106px', marginTop: '-22px' }} className='desenAlert'>
                         <Alert message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
                     </div>
                     <FormItem
@@ -129,7 +224,7 @@ class AddDesensitization extends Component {
                                 message: '样例数据请控制在200个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input type="textarea" rows={4} placeholder='请输入样例数据，不超过200字符'/>
                         )}
                     </FormItem>
                     <FormItem
@@ -143,13 +238,17 @@ class AddDesensitization extends Component {
                             }]
                         })(
                             <Select
-                                allowClear
+                                placeholder='请选择脱敏规则'
+                                // allowClear
                             >
-                                {/* {projectsOptions} */}
-                                <Option value={2}>2</Option>
+                                {this.rulesOption()}
                             </Select>
                         )}
                     </FormItem>
+                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-15px' }}>
+                        <img src="/public/rdos/img/icon/icon-preview.svg" style={{ display: 'block', float: 'left' }} />
+                        <a style={{ marginLeft: '5px' }}>效果预览</a>
+                    </div>
                 </Form>
             </Modal>
         )

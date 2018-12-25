@@ -22,27 +22,30 @@ class DesensitizationMange extends Component {
         cardLoading: false,
         addVisible: false,
         visibleSlidePane: false, // 查看脱敏明细
-        selectedDesensitization: '', // 选中脱敏
-        tabKey: 'tableRelation', // 默认选中表关系
+        selectedId: '', // 选中脱敏
+        nowView: 'tableRelation', // 默认选中表关系
         table: [], // 表数据
+        editModalKey: null,
         queryParams: {
             currentPage: 1,
             pageSize: 20,
             name: undefined
-        }
+        },
+        tableId: undefined, // 点击查看血缘表Id
         // mock
-        // dataSource: [
-        //     {
-        //         key: '1',
-        //         name: '身份证号脱敏',
-        //         relatedNum: 12,
-        //         ruleName: '身份证号',
-        //         modifyUserName: 'admin@dtstack.com',
-        //         gmtModified: '2018-01-01 12:12:12',
-        //         opear: '删除'
-        //     }
-        // ]
+        dataSource: [
+            {
+                key: '1',
+                name: '身份证号脱敏',
+                relatedNum: 12,
+                ruleName: '身份证号',
+                modifyUserName: 'admin@dtstack.com',
+                gmtModified: '2018-01-01 12:12:12',
+                opear: '删除'
+            }
+        ]
     }
+    /* eslint-disable */
     componentDidMount () {
         this.search();
     }
@@ -103,19 +106,25 @@ class DesensitizationMange extends Component {
     showDesensitization = (record) => {
         this.setState({
             visibleSlidePane: true,
-            selectedDesensitization: record
+            selectedId: record
         })
     }
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false,
-            selectedDesensitization: null
+            selectedId: null
         })
     }
     // 面板切换
     onTabChange = (tabKey) => {
         this.setState({
-            tabKey
+            nowView: tabKey
+        })
+    }
+    // 获取点击具体查看血缘
+    handleClickTable = (tableId) => {
+        this.setState({
+            tableId
         })
     }
     initialColumns = () => {
@@ -174,7 +183,7 @@ class DesensitizationMange extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { cardLoading, table, addVisible, visibleSlidePane, selectedDesensitization, tabKey } = this.state;
+        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, dataSource, tableId } = this.state;
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -193,7 +202,7 @@ class DesensitizationMange extends Component {
                         <Button
                             type='primary'
                             style={{ marginTop: '10px' }}
-                            onClick={() => { this.setState({ addVisible: true }) }}
+                            onClick={() => { this.setState({ addVisible: true, editModalKey: Math.random() }) }}
                         >
                             添加脱敏
                         </Button>
@@ -203,7 +212,7 @@ class DesensitizationMange extends Component {
                         <Table
                             className="m-table"
                             columns={columns}
-                            dataSource={table}
+                            dataSource={dataSource}
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
@@ -213,27 +222,32 @@ class DesensitizationMange extends Component {
                         visible={visibleSlidePane}
                         style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                     >
-                        <Tabs animated={false} onChange={this.onTabChange}>
+                        <Tabs animated={false} onChange={this.onTabChange} activeKey={nowView}>
                             <TabPane tab="表关系" key="tableRelation">
                                 <TableRelation
                                     // reload={this.search}
-                                    tabKey={tabKey}
+                                    tabKey={nowView}
                                     visibleSlidePane={visibleSlidePane}
+                                    onTabChange={this.onTabChange}
+                                    handleClickTable={this.handleClickTable}
                                     // goToTaskDev={this.props.goToTaskDev}
                                     // clickPatchData={this.clickPatchData}
-                                    tabData={selectedDesensitization}
+                                    tableData={selectedId}
                                 />
                             </TabPane>
                             <TabPane tab="血缘关系" key="bloodRelation">
                                 <BloodRelation
+                                    tabKey={nowView}
                                     visibleSlidePane={visibleSlidePane}
-                                    tableData={selectedDesensitization}
+                                    tableId={tableId}
+                                    tableData={selectedId}
                                 />
                             </TabPane>
                         </Tabs>
                     </SlidePane>
                 </Card>
                 <AddDesensitization
+                    key={editModalKey}
                     visible={addVisible}
                     onCancel={() => { this.setState({ addVisible: false }) }}
                     onOk={this.addDesensitization}

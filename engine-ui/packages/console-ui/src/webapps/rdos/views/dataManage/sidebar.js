@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Menu, Icon } from 'antd'
+import { Menu } from 'antd'
 import { Link } from 'react-router'
+import '../../styles/pages/dataManage.scss'
 const SubMenu = Menu.SubMenu;
 export default class Sidebar extends Component {
     constructor (props) {
@@ -52,30 +53,30 @@ export default class Sidebar extends Component {
                 >
                     <Menu.Item key="assets">
                         <Link to={`${base}/assets`}>
-                            <Icon type="pie-chart" />数据资产
+                            <img src="/public/rdos/img/icon/icon-dataasset.svg" className='icon-dataMapSlider' />数据资产
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="search">
                         <Link to={`${base}/search`}>
-                            <Icon type="search" />查找数据
+                            <img src="/public/rdos/img/icon/icon-searchdata.svg" className='icon-dataMapSlider' />查找数据
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="table">
                         <Link to={`${base}/table`}>
-                            <Icon type="database" />数据表管理
+                            <img src="/public/rdos/img/icon/icon-datasheet.svg" className='icon-dataMapSlider' />数据表管理
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="auth">
                         <Link to={`${base}/auth`}>
-                            <Icon type="user" />权限管理
+                            <img src="/public/rdos/img/icon/icon-access.svg" className='icon-dataMapSlider' />权限管理
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="catalogue">
                         <Link to={`${base}/catalogue`}>
-                            <Icon type="book" />数据类目
+                            <img src="/public/rdos/img/icon/icon-classity.svg" className='icon-dataMapSlider' />数据类目
                         </Link>
                     </Menu.Item>
-                    <SubMenu key="desensitization" title={<span><Icon type="exclamation-circle-o" /><span className="nav-text">数据脱敏</span></span>}>
+                    <SubMenu key="desensitization" title={<span><img src="/public/rdos/img/icon/icon-tuomin.svg" className='icon-dataMapSlider' /><span className="nav-text">数据脱敏</span></span>}>
                         <Menu.Item key="desensitization-manage">
                             <Link to={`${base}/desensitization-manage`}>
                                 脱敏管理
