@@ -45,7 +45,6 @@ public class SqlProxy {
         SparkSession spark = SparkSession
                 .builder()
                 .appName(appName)
-                .config("spark.yarn.dist.files", "file:///opt/dtstack/spark/conf/hive-site.xml")
                 .enableHiveSupport()
                 .getOrCreate();
 
