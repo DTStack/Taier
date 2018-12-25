@@ -310,10 +310,6 @@ public class SparkYarnClient extends AbsClient {
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
-        if (sparkYarnConfig.isSecurity()){
-            sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
-            sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
-        }
         fillExtSparkConf(sparkConf, jobClient.getConfProperties());
 
         ApplicationId appId = null;
@@ -336,6 +332,10 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
+        if (sparkYarnConfig.isSecurity()){
+            sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
+            sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
+        }
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
