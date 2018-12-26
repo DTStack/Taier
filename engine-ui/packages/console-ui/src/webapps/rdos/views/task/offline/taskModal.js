@@ -14,7 +14,7 @@ import HelpDoc, { relativeStyle } from '../../helpDoc'
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import {
-    formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE, DATA_SYNC_TYPE,
+    formItemLayout, TASK_TYPE, MENU_TYPE, DATA_SYNC_TYPE,
     LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE
 } from '../../../comm/const'
 
@@ -125,7 +125,6 @@ class TaskForm extends React.Component {
         const isPython23 = value == TASK_TYPE.PYTHON_23
         const isMl = value == TASK_TYPE.ML;
         const isHadoopMR = value == TASK_TYPE.HAHDOOPMR;
-        const acceptType = (isMl || isHadoopMR || isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
 
         const initialTaskType = this.isEditExist ? defaultData.taskType
@@ -304,7 +303,6 @@ class TaskForm extends React.Component {
                                 ispicker
                                 placeholder={`请选择${resourceLable}`}
                                 isFilepicker
-                                acceptRes={acceptType}
                                 treeData={this.props.resTreeData}
                                 onChange={this.handleResSelectTreeChange.bind(this)}
                                 defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].resourceName}
