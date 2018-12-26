@@ -48,7 +48,8 @@ class BaseForm extends Component {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
             let initialState = {
-                sourceType: sourceData.type
+                sourceType: sourceData.type,
+                ftpProtocal: (sourceData.dataJson && sourceData.dataJson.protocol) || 'ftp'
             }
             if (sourceData.dataJson && sourceData.type === DATA_SOURCE.CARBONDATA) {
                 const hdfsConf = sourceData.dataJson.hdfsCustomConfig;
