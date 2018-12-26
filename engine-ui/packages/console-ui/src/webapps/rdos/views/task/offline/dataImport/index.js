@@ -181,7 +181,9 @@ class ImportLocalData extends Component {
 
         for (let i = 0; i < data.length; i++) {
             const str = data[i].replace(/\r/, '') // 清除无用\r字符
-            arr.push(str.split(splitVal))
+            if (str) {
+                arr.push(str.split(splitVal))
+            }
         }
 
         const subArr = arr.slice(startLine - 1)
