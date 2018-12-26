@@ -61,6 +61,8 @@ class DataSync extends React.Component {
         const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
         const { sourceMap, targetMap } = nextProps;
 
+        if (oldSource.sourceId !== sourceMap.sourceId || oldTarget.sourceId !== targetMap.sourceId) { return false };
+
         const oldSQL = oldTarget && oldTarget.type && oldTarget.type.preSql;
         const newSQL = targetMap && targetMap.type && targetMap.type.preSql;
 
@@ -77,14 +79,15 @@ class DataSync extends React.Component {
         const isTargetFileNameChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.fileName !== undefined || targetMap.type.fileName !== undefined) && oldTarget.type.fileName !== targetMap.type.fileName;
 
         // Output test conditions
-        // console.log('old', oldSource, oldTarget);
-        // console.log('new', sourceMap, targetMap);
-        // console.log('isWhereChange', isWhereChange);
-        // console.log('isSourceParitionChange', isSourceParitionChange);
-        // console.log('isTargetPartitionChange', isTargetPartitionChange);
-        // console.log('isSQLChange', isSQLChange);
-        // console.log('isSourceColumnChange', isSourceColumnChange);
-        // console.log('isPathChange', isPathChange);
+        console.log('dataSync', oldProps.dataSync, nextProps.dataSync)
+        console.log('old', oldSource, oldTarget);
+        console.log('new', sourceMap, targetMap);
+        console.log('isWhereChange', isWhereChange);
+        console.log('isSourceParitionChange', isSourceParitionChange);
+        console.log('isTargetPartitionChange', isTargetPartitionChange);
+        console.log('isSQLChange', isSQLChange);
+        console.log('isSourceColumnChange', isSourceColumnChange);
+        console.log('isPathChange', isPathChange);
 
         return isWhereChange || // source type update
         isSourceParitionChange || // source type update
