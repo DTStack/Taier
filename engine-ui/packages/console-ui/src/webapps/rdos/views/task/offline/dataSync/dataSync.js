@@ -46,7 +46,7 @@ class DataSync extends React.Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         // 如果列发生变化，则检测更新系统变量
         if (this.onVariablesChange(this.props, nextProps)) {
             this.props.updateDataSyncVariables(
@@ -74,6 +74,7 @@ class DataSync extends React.Component {
         const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
         const isPathChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.path !== undefined && oldSource.type.path !== undefined && oldSource.type.path !== sourceMap.type.path;
+        const isTargetFileNameChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.fileName !== undefined || targetMap.type.fileName !== undefined) && oldTarget.type.fileName !== targetMap.type.fileName;
 
         // Output test conditions
         // console.log('old', oldSource, oldTarget);
@@ -83,7 +84,7 @@ class DataSync extends React.Component {
         // console.log('isTargetPartitionChange', isTargetPartitionChange);
         // console.log('isSQLChange', isSQLChange);
         // console.log('isSourceColumnChange', isSourceColumnChange);
-        console.log('isPathChange', isPathChange);
+        // console.log('isPathChange', isPathChange);
 
         return isWhereChange || // source type update
         isSourceParitionChange || // source type update
@@ -91,7 +92,8 @@ class DataSync extends React.Component {
         isSQLChange || // target type update
         isPostSQLChange || // target type update
         isSourceColumnChange || // source columns update
-        isPathChange // Path change
+        isPathChange || // Path change
+        isTargetFileNameChange // 目标文件名
     }
 
     getJobData = (params) => {
@@ -175,7 +177,9 @@ class DataSync extends React.Component {
         const {
             user, project,
             sourceMap, targetMap,
-            currentTabData
+            currentTabData,
+            taskCustomParams,
+            updateDataSyncVariables
         } = this.props;
 
         const { readWriteLockVO, notSynced, syncModel } = currentTabData;
@@ -189,11 +193,11 @@ class DataSync extends React.Component {
                 title: '数据来源',
                 content: <DataSyncSource
                     getPopupContainer={this.getPopupContainer}
-                    sourceMap={sourceMap}
-                    targetMap={targetMap}
                     currentStep={currentStep}
                     currentTabData={currentTabData}
                     isIncrementMode={isIncrementMode}
+                    updateDataSyncVariables={updateDataSyncVariables}
+                    taskCustomParams={taskCustomParams}
                     navtoStep={this.navtoStep.bind(this)}
                 />
             },
@@ -203,8 +207,6 @@ class DataSync extends React.Component {
                     getPopupContainer={this.getPopupContainer}
                     currentStep={currentStep}
                     currentTabData={currentTabData}
-                    sourceMap={sourceMap}
-                    targetMap={targetMap}
                     isIncrementMode={isIncrementMode}
                     navtoStep={this.navtoStep.bind(this)}
                 />

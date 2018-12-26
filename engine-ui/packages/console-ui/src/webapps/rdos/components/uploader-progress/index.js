@@ -1,32 +1,19 @@
 import React, { Component } from 'react'
 import {
     Col, Progress
-    , message
 } from 'antd';
 import {
     UPLOAD_STATUS
-    , resetUploader
 } from '../../store/modules/uploader';
 
 const defaultStyle = {
     height: '28px',
     lineHeight: '28px'
 }
-
 class UploaderProgressBar extends Component {
     constructor (props) {
         super(props)
         this.state = {};
-    }
-
-    componentDidMount () {
-        const uploader = this.props.uploader;
-        if (uploader && uploader.status === UPLOAD_STATUS.SUCCES) {
-            message.success(`文件${uploader.fileName}上传成功!`);
-            this.props.dispatch(resetUploader());
-        } else if (uploader && uploader.status === UPLOAD_STATUS.FAIL) {
-            message.success(`文件${uploader.fileName}上传失败!`);
-        }
     }
 
     render () {
