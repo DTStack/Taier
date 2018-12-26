@@ -139,15 +139,11 @@ public class ZkDistributed implements Closeable{
 	}
 
 	private static void initSecurity() {
-		String PRNCIPAL_NAME = ConfigParse.userPrincipal();
-		String LOGIN_CONTEXT_NAME = "Client";
-		String PATH_TO_KEYTAB = ConfigParse.userKeytabPath();
-
 		try {
-			KerberosUtils.setJaasConf(LOGIN_CONTEXT_NAME, PRNCIPAL_NAME, PATH_TO_KEYTAB);
+			KerberosUtils.setJaasConf(ConfigParse.loginContextName(), ConfigParse.userPrincipal(), ConfigParse.userKeytabPath());
 			KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", ConfigParse.zkPrincipal());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 

@@ -2,6 +2,7 @@ package com.dtstack.rdos.common.config;
 
 import com.dtstack.rdos.common.util.AddressUtil;
 import com.dtstack.rdos.common.util.MathUtil;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 
@@ -64,6 +65,7 @@ public class ConfigParse {
 
     public static String userPrincipal(){
         Object userPrincipal = configs.get("userPrincipal");
+        Preconditions.checkNotNull(userPrincipal,"userPrincipal is not null");
         return userPrincipal.toString();
     }
 
@@ -74,17 +76,19 @@ public class ConfigParse {
 
     public static String userKeytabPath(){
         Object userKeytabPath = configs.get("userKeytabPath");
+        Preconditions.checkNotNull(userKeytabPath,"userKeytabPath is not null");
         return userKeytabPath.toString();
     }
 
     public static String krb5ConfPath(){
         Object krb5ConfPath = configs.get("krb5ConfPath");
+        Preconditions.checkNotNull(krb5ConfPath,"krb5ConfPath is not null");
         return krb5ConfPath.toString();
     }
 
-    public static String hadoopConfPath(){
-        Object krb5ConfPath = configs.get("hadoopConfPath");
-        return krb5ConfPath.toString();
+    public static String loginContextName(){
+        Object loginContextName = configs.get("loginContextName");
+        return loginContextName ==null?"Client":loginContextName.toString();
     }
 
     public static List<Map<String,Object>> getEngineTypeList(){
