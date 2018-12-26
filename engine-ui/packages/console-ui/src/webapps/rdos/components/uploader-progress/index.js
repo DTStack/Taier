@@ -29,7 +29,7 @@ class UploaderProgressBar extends Component {
         }
         return (
             <Col className="right" style={defaultStyle}>
-                <span>文件 <a style={{ maxWidth: 80 }} className="ellipsis">{uploader.fileName}</a> { msg }</span>
+                <span>文件 <a style={{ maxWidth: 80, cursor: 'initial' }} className="ellipsis">{uploader.fileName}</a> { msg }</span>
                 <Progress
                     style={{ width: 80 }}
                     percent={uploader.percent || 10}

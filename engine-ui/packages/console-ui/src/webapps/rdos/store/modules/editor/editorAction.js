@@ -66,6 +66,7 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
                         case taskStatus.FINISHED: {
                             // 成功
                             getDataOver(dispatch, currentTab, res, jobId)
+                            dispatch(removeLoadingTab(currentTab))
                             resolve(true);
                             return;
                         }
@@ -290,6 +291,7 @@ export function stopDataSync (currentTab, isSilent) {
 
         const res = await API.stopDataSyncImmediately({ jobId: jobId });
         if (res && res.code === 1) {
+            dispatch(removeLoadingTab(currentTab))
             dispatch(output(currentTab, createLog('执行停止', 'warning')))
         }
     }

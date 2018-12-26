@@ -23,6 +23,14 @@ $ yarn add package.name
 $ git cz
 ```
 
+## 合并并Push dev
+
+```bash
+# 该命令会先切换到 开发分支（dev), pull 远程的dev 分支后，会合并当前的工作分支, 然后
+# 执行 git push 操作，最后切回到工作分支，rebase 开发分支的内容
+$ npm run push-dev
+```
+
 ## 版本发布
 
 ```bash
