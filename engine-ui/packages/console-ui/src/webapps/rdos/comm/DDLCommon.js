@@ -12,5 +12,5 @@ export const DDL_IDE_PLACEHOLDER =
     name String,
     salary String, 
     destination String)
-    STORED AS TEXTFILE
+    STORED AS ORC
     lifecycle 10`;
