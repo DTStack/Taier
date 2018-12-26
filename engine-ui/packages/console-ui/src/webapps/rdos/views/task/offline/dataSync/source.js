@@ -16,7 +16,7 @@ import {
 import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
-// import utils from 'utils';
+import utils from 'utils';
 import { singletonNotification, debounceEventHander } from 'funcs';
 import ajax from '../../../../api';
 import {
@@ -269,6 +269,15 @@ class SourceForm extends React.Component {
         }
     };
 
+    checkSpaceCharacter = (rule, value, callback) => {
+        const reg = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+        if (reg.test(value)) {
+            /* eslint-disable-next-line */
+            callback('该参数不能包含空格符！')
+        }
+        callback()
+    }
+
     validateChineseCharacter = data => {
         const reg = /(，|。|；|[\u4e00-\u9fa5]+)/; // 中文字符，中文逗号，句号，分号
         let has = false;
@@ -291,16 +300,22 @@ class SourceForm extends React.Component {
     };
 
     onFtpPathChange = (e) => {
-        const { sourceMap, handleSourceMapChange } = this.props;
+        const {
+            sourceMap, handleSourceMapChange,
+            taskCustomParams,
+            updateDataSyncVariables
+        } = this.props;
         let paths = get(sourceMap, 'type.path', ['']);
         if (!isArray(paths)) {
             paths = [paths];
         }
         const index = parseInt(e.target.getAttribute('data-index'), 10);
-        paths[index] = e.target.value;
+        paths[index] = utils.trim(e.target.value);
         const srcmap = Object.assign({}, sourceMap);
         srcmap.type.path = paths;
         handleSourceMapChange(srcmap);
+        // 提取路径中的自定义参数
+        updateDataSyncVariables(srcmap, null, taskCustomParams)
     }
 
     debounceFtpChange = debounceEventHander(this.onFtpPathChange, 300, { maxWait: 2000 });
@@ -339,7 +354,13 @@ class SourceForm extends React.Component {
                     delete values[key];
                 }
             }
-            // values.type.partition = utils.tirm(values.type.partition);
+            // 去空格
+            if (values.partition) {
+                values.partition = utils.trim(values.partition);
+            }
+            if (values.path && !isArray(values.path)) {
+                values.path = utils.trim(values.path);
+            }
             const srcmap = assign({}, sourceMap.type, values, {
                 src: this.getDataObjById(values.sourceId)
             });
@@ -916,7 +937,7 @@ class SourceForm extends React.Component {
                                 offset={formItemLayout.labelCol.sm.span}
                             >
                                 <p className="warning-color">
-                                        当前输入含有中文引号
+                                    当前输入含有中文引号
                                 </p>
                             </Col>
                         </Row>
@@ -969,7 +990,11 @@ class SourceForm extends React.Component {
                     ),
                     <FormItem {...formItemLayout} label="分区" key="partition">
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [
+                                // {
+                                //     validator: this.checkSpaceCharacter
+                                // }
+                            ],
                             initialValue: isEmpty(sourceMap)
                                 ? ''
                                 : sourceMap.type.partition

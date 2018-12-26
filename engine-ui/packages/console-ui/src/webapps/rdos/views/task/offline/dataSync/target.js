@@ -4,6 +4,7 @@ import { Form, Input, Select, Button, Radio, Modal, Icon, message } from 'antd';
 import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
+import utils from 'utils';
 import { singletonNotification } from 'funcs';
 import Editor from 'widgets/editor';
 
@@ -182,6 +183,16 @@ class TargetForm extends React.Component {
              * targetMap
              */
             let values = form.getFieldsValue();
+            // 去空格
+            if (values.partition) {
+                values.partition = utils.trim(values.partition);
+            }
+            if (values.path) {
+                values.path = utils.trim(values.path);
+            }
+            if (values.fileName) {
+                values.fileName = utils.trim(values.fileName);
+            }
             const srcmap = assign(values, {
                 src: this.getDataObjById(values.sourceId)
             });
