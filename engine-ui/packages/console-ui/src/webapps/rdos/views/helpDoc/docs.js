@@ -182,8 +182,6 @@ export const taskDependentTypeDesc = (
 
 export const incrementModeScheduleTypeHelp = (
     <div>
-        功能解释：
-        <br />
         每次同步时，自动记录增量标识的最大值，下次运行时，会从上一次的最大值继续同步数据，实现增量同步
         <br />
         支持将数值类型、Timestamp类型作为增量标识字段
