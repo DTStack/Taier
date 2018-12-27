@@ -59,7 +59,6 @@ class ScheduleForm extends React.Component {
             wFScheduleConf.periodType === '0' ||
             wFScheduleConf.periodType === '1');
 
-        console.log('disabledInvoke:', disabledInvokeTime, wFScheduleConf)
         const generateHours = () => {
             let options = [];
             for (let i = 0; i <= 23; i++) {
@@ -582,8 +581,6 @@ class ScheduleForm extends React.Component {
         }
         callback();
     }
-    /* eslint-disable */
-
 };
 
 const FormWrap = Form.create()(ScheduleForm);
@@ -617,13 +614,13 @@ class SchedulingConfig extends React.Component {
             }
         }
         // 增量同步做默认处理
-        if (isIncrementMode && selfReliance !== 1 ) {
+        if (isIncrementMode && selfReliance !== 1) {
             selfReliance = 3;
         }
 
         this.setState({
             selfReliance: selfReliance
-        }, this.handleScheduleConf);
+        });
 
         this.loadWorkflowConfig();
     }
@@ -677,7 +674,6 @@ class SchedulingConfig extends React.Component {
     }
 
     recommentTaskChoose (list) {
-        console.log(list);
         for (let i = 0; i < list.length; i++) {
             this.props.addVOS(list[i]);
         }
@@ -690,12 +686,6 @@ class SchedulingConfig extends React.Component {
         this.setState({
             recommentTaskModalVisible: false
         })
-    }
-
-    handleScheduleStatus (evt) {
-        const { checked } = evt.target;
-        // mutate
-        this.props.changeScheduleStatus(checked ? 2 : 1);
     }
 
     handleScheduleStatus (evt) {
@@ -818,7 +808,6 @@ class SchedulingConfig extends React.Component {
         } = this.state;
 
         const { tabData, isWorkflowNode, couldEdit, isIncrementMode } = this.props;
-        console.log('tabData', tabData, isWorkflowNode);
 
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
@@ -841,8 +830,6 @@ class SchedulingConfig extends React.Component {
             }, scheduleConf);
             scheduleConf.periodType = 2;
         }
-
-        console.log('isLocked:', isLocked);
 
         const columns = [
             {
@@ -939,7 +926,7 @@ class SchedulingConfig extends React.Component {
                                     <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
                                     <Radio style={radioStyle} value={3}>
                                         自依赖，等待上一调度周期结束，才能继续运行&nbsp;
-                                        <HelpDoc style={{ position: 'inherit' }} doc={!isIncrementMode ? "taskDependentTypeDesc" : "incrementModeScheduleTypeHelp"} />
+                                        <HelpDoc style={{ position: 'inherit' }} doc={!isIncrementMode ? 'taskDependentTypeDesc' : 'incrementModeScheduleTypeHelp'} />
                                     </Radio>
                                     {!isIncrementMode && <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio> }
                                     {!isIncrementMode && <Radio style={radioStyle} value={4}>
