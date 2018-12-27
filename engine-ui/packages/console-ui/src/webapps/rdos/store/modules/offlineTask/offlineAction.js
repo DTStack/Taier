@@ -1106,6 +1106,10 @@ export const getDataSyncReqParams = (dataSyncStore) => {
     delete clone.keymap;
     delete clone.setting;
     delete clone.dataSourceList;
+    const paths = get(clone, 'sourceMap.path');
+    if (paths && isArray(paths)) {
+        clone.sourceMap.path = paths.filter(o => o !== '');
+    }
 
     // 数据拼装结果
     return clone;

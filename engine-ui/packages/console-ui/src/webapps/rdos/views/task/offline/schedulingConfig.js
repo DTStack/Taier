@@ -615,15 +615,15 @@ class SchedulingConfig extends React.Component {
             } else if (scheduleConf.selfReliance) {
                 selfReliance = scheduleConf.selfReliance;
             }
-            // 增量同步做默认处理
-            if (isIncrementMode && selfReliance !== 1) {
-                selfReliance = 3;
-            }
+        }
+        // 增量同步做默认处理
+        if (isIncrementMode && selfReliance !== 1 ) {
+            selfReliance = 3;
         }
 
         this.setState({
             selfReliance: selfReliance
-        });
+        }, this.handleScheduleConf);
 
         this.loadWorkflowConfig();
     }
