@@ -11,21 +11,10 @@ import { Modal, Input, Form, message } from 'antd';
 import { formItemLayout } from '../../consts';
 import Api from '../../api/console';
 class Reorder extends Component {
-    /* eslint-disable */
     // 请求顺序调整接口
     changeJobPriority () {
         const { priorityResource } = this.props;
         const jobIndex = this.props.form.getFieldValue('jobIndex');
-        // 获取集群
-        const arr = (priorityResource.groupName || '').split('_');
-        if (arr.length == 1) {
-            clusterName = priorityResource.groupName
-        } else {
-            for (var i = 0; i <= arr.length; i++) {
-                clusterName = arr[0];
-                groupName = arr[1];
-            }
-        }
         Api.changeJobPriority({
             engineType: priorityResource.engineType,
             groupName: priorityResource.groupName,
@@ -41,6 +30,7 @@ class Reorder extends Component {
             }
         })
     }
+    /* eslint-disable */
     validatejobIndex (rule, value, callback) {
         const { total } = this.props;
         if (value > total) {
