@@ -94,6 +94,10 @@ public class RestartDealer {
                 return false;
             }
 
+            if(!jobClient.getIsFailRetry()){
+                return false;
+            }
+
             IRestartStrategy restartStrategy = client.getRestartStrategy();
             if(restartStrategy == null){
                 LOG.warn("engineType " + engineType + " not support restart." );
@@ -180,6 +184,20 @@ public class RestartDealer {
         IRestartStrategy restartStrategy = client.getRestartStrategy();
         if(restartStrategy == null){
             LOG.warn("engineType " + engineType + " not support restart." );
+            return false;
+        }
+
+        RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+        if(jobCache == null){
+            LOG.error("can't get record from rdos_engine_job_cache by jobId:{}", jobId);
+            return false;
+        }
+
+        String jobInfo = jobCache.getJobInfo();
+        ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
+        JobClient jobClient = new JobClient(paramAction);
+
+        if(!jobClient.getIsFailRetry()){
             return false;
         }
 
