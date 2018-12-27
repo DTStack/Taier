@@ -40,8 +40,8 @@
     通常推荐`ssh`的方式.
 
     ```bash
-    http://git.dtstack.cn/dtinsight-front-end/data-stack-web.git // https
-    ssh://git@git.dtstack.cn:10022/dtinsight-front-end/data-stack-web.git // ssh
+    http://git.dtstack.cn/dtstack/data-stack-web.git // https
+    ssh://git@git.dtstack.cn:10022/dtstack/data-stack-web.git // ssh
     ```
 
 2. 安装 Node.js
