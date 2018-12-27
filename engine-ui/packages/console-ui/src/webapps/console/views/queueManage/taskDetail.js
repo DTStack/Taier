@@ -538,7 +538,14 @@ class TaskDetail extends Component {
                 title: '集群',
                 dataIndex: 'clusterName',
                 render (text, record) {
-                    return record ? record.groupName.subString(0, record.groupName.indexOf('_')) : ''
+                    // let str = record.groupName;
+                    // return str ? String(str).subString(0, String(str).indexOf('_')) : ''
+                    const arr = (record.groupName || '').split('_');
+                    if (arr.length == 1) {
+                        return record.groupName
+                    } else {
+                        return arr[0]
+                    }
                 },
                 width: '70px'
             },
