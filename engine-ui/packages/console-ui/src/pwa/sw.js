@@ -1,4 +1,4 @@
-var cacheWhitelist = ['DTinsight_v1'];
+var cacheWhitelist = ['DTinsight'];
 
 // service worker 注册事件
 this.addEventListener('install', function (e) {
@@ -154,16 +154,10 @@ this.addEventListener('fetch', function (e) {
     var cacheName = cacheWhitelist[0];
     // 页面，js，css等资源网络优先
     // 当500毫秒还没返回就直接使用缓存。
-    // if (matchRules(url, [/.(js|html|css)(\?|#|$)/i]) && matchRules(url, [/^https:\/\/(y.qq.com|c.y.qq.com|y.gtimg)/i])) {
-    //     e.respondWith(networkCacheRace(cacheName, request));
-    // }
     if (matchRules(url, [/.(js|html|css|txt)(\?|#|$)/i])) {
         e.respondWith(networkCacheRace(cacheName, request));
     } else if (matchRules(url, [/.(png|jpg|jpeg|gif|webp)(\?|#|$)/i])) {
         // 图片缓存优先
-        // else if (matchRules(url, [/.(png|jpg|jpeg|gif|webp)(\?|#|$)/i]) && matchRules(url, [/^https:\/\/(y.qq.com|c.y.qq.com|y.gtimg)/i])) {
-        //     e.respondWith(firstCache(cacheName, request));
-        // }
         e.respondWith(firstCache(cacheName, request));
     }
 });

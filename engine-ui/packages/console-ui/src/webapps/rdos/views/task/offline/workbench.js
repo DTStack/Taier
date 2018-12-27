@@ -13,7 +13,7 @@ import FullScreenButton from 'widgets/fullscreen';
 
 import ajax from '../../../api';
 
-import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE } from '../../../comm/const';
+import { formItemLayout, TASK_TYPE, DATA_SYNC_TYPE, PROJECT_TYPE, DATA_SYNC_MODE } from '../../../comm/const';
 import MyIcon from '../../../components/icon';
 import SyncBadge from '../../../components/sync-badge';
 import TabIcon from '../../../components/tab-icon';
@@ -491,8 +491,6 @@ class Workbench extends React.Component {
     }
 
     /**
-     * TODO offlineAction 封装 getDataSyncReqParams 方法
-     * TODO 后面使用独立方法重构下面的代码
      * @description 拼装接口所需数据格式
      * @param {any} data 数据同步job配置对象
      * @returns {any} result 接口所需数据结构
@@ -505,7 +503,11 @@ class Workbench extends React.Component {
         let reqBody = cloneDeep(currentTabData);
         // 如果当前任务为数据同步任务
         if (currentTabData.id === dataSync.tabId) {
-            reqBody = assign(reqBody, getDataSyncReqParams(dataSync))
+            const isIncrementMode = currentTabData.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
+            reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
+            if (!isIncrementMode) {
+                reqBody.sourceMap.increColumn = undefined; // Delete increColumn
+            }
         }
         // 修改task配置时接口要求的标记位
         reqBody.preSave = true;

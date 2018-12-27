@@ -144,7 +144,7 @@ class CatalogueTree extends Component {
 
     onInitAdd = (data) => {
         const expendKeys = [...this.state.expendKeys];
-        expendKeys.push(`${data.bindData.id}`)
+        expendKeys.push(`${data.nodeId}`)
         this.setState({
             expendKeys,
             disabledAdd: true
@@ -159,7 +159,7 @@ class CatalogueTree extends Component {
         const loopTree = (tree) => {
             return tree && tree.map(data => {
                 const item = data.bindData
-                const key = item.id;
+                const key = data.nodeId;
                 const isFolder = item.type === 'folder'
                 const isTable = item.type === 'table'
                 const isLeaf = !data.children || data.children.length === 0
