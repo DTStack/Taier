@@ -178,12 +178,12 @@ class TaskDetail extends Component {
             }).then(res => {
                 if (res.code == 1) {
                     this.setState({
-                        dataSource: res.data.theJob,
+                        dataSource: res.data ? res.data.theJob : [],
                         // 单个任务信息
-                        singleTaskInfo: res.data.theJob,
+                        singleTaskInfo: res.data ? res.data.theJob : undefined,
                         // 获取执行顺序
                         queueNum: res.data,
-                        setNode: res.data.node,
+                        setNode: res.data ? res.data.node : '',
                         // moreTaskNum: res.data.queueSize,
                         table: {
                             ...table,
@@ -538,7 +538,7 @@ class TaskDetail extends Component {
                 title: '集群',
                 dataIndex: 'clusterName',
                 render (text, record) {
-                    return record.groupName.subString(0, record.groupName.indexOf('_'))
+                    return record ? record.groupName.subString(0, record.groupName.indexOf('_')) : ''
                 },
                 width: '70px'
             },
