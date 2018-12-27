@@ -75,7 +75,8 @@ class DataSync extends React.Component {
         const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
         const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
-        const isPathChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.path !== undefined && oldSource.type.path !== undefined && oldSource.type.path !== sourceMap.type.path;
+        const isSourcePathChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.path !== undefined && oldSource.type.path !== undefined && oldSource.type.path !== sourceMap.type.path;
+        const isTargetPathChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.path !== undefined || targetMap.type.path !== undefined) && oldTarget.type.path !== targetMap.type.path;
         const isTargetFileNameChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.fileName !== undefined || targetMap.type.fileName !== undefined) && oldTarget.type.fileName !== targetMap.type.fileName;
 
         // Output test conditions
@@ -95,7 +96,8 @@ class DataSync extends React.Component {
         isSQLChange || // target type update
         isPostSQLChange || // target type update
         isSourceColumnChange || // source columns update
-        isPathChange || // Path change
+        isSourcePathChange || // Path change
+        isTargetPathChange || // target path
         isTargetFileNameChange // 目标文件名
     }
 
