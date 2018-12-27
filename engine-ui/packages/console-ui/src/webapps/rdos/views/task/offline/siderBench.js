@@ -78,6 +78,7 @@ class SiderBench extends React.Component {
                         isPro={isPro}
                         couldEdit={couldEdit}
                         tabData={tabData}
+                        key={`schedule-${tabData && tabData.version}`}
                         isIncrementMode={isIncrementMode}
                     >
                     </SchedulingConfig>
