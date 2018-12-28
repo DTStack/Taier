@@ -305,6 +305,7 @@ export const workbenchActions = (dispatch) => {
         },
 
         /**
+         * TODO 可以先组装需要匹配的字符串，再用 matchTaskParams 统一处理
          * 集中处理Data同步中的变量,例如${system.date}
          * @param {Object} dataSync
          */
@@ -361,6 +362,16 @@ export const workbenchActions = (dispatch) => {
 
                 if (targetMap.type.fileName) {
                     const vbs = matchTaskParams(taskCustomParams, targetMap.type.fileName)
+                    taskVariables = taskVariables.concat(vbs);
+                }
+
+                // 处理路径中的变量
+                let path = get(targetMap, 'type.path')
+                if (path) {
+                    if (isArray(path)) {
+                        path = path.map(o => `${o},`)
+                    }
+                    const vbs = matchTaskParams(taskCustomParams, path)
                     taskVariables = taskVariables.concat(vbs);
                 }
             }

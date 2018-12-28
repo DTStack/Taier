@@ -130,7 +130,7 @@ class DataSyncWorkbench extends Component {
 
         const hasLog = console && console.data && console.data.log;
         const defaultSplitSize = hasLog ? '60%' : '100%';
-
+        const showSize = !hasLog ? '100%' : size;
         return (
             <div className="ide-editor">
                 <div className="ide-header bd-bottom">
@@ -146,8 +146,8 @@ class DataSyncWorkbench extends Component {
                         maxSize={-77}
                         defaultSize={defaultSplitSize}
                         primary="first"
-                        key="ide-split-pane"
-                        size={size}
+                        key={`ide-split-pane`}
+                        size={showSize}
                         allowResize={hasLog}
                         onChange={(size) => {
                             this.setState({
