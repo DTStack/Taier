@@ -149,8 +149,6 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
-        boolean yarnCluster = false;
-        try{
             this.flinkExtProp = prop;
             String propStr = PublicUtil.objToString(prop);
             flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
@@ -165,16 +163,13 @@ public class FlinkClient extends AbsClient {
             initHadoopConf(flinkConfig);
             flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
 
-            yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
+            boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
             flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
             if (yarnCluster){
                 initYarnClient();
             }else{
                 initClient();
             }
-        }catch(Throwable e){
-            logger.error("",e);
-        }finally {
             if(yarnCluster){
                 Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
                 AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".");
@@ -185,7 +180,6 @@ public class FlinkClient extends AbsClient {
                 //启动守护线程---用于获取当前application状态和更新flink对应的application
                 yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClient));
             }
-        }
     }
 
     private void initYarnClient() {
