@@ -167,9 +167,8 @@ public class FlinkClient extends AbsClient {
             flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
             if (yarnCluster){
                 initYarnClient();
-            }else{
-                initClient();
             }
+            initClient();
             if(yarnCluster){
                 Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
                 AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".");
