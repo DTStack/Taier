@@ -144,21 +144,8 @@ class TaskDetail extends Component {
         const { table } = this.state;
         const { singleTaskInfo } = this.state;
         const { setNode } = this.state;
-        console.log(singleTaskInfo[0]);
-        console.log(singleTaskInfo[0].engineType);
-        console.log(singleTaskInfo[0].groupName);
-        console.log(singleTaskInfo[0].node);
         // 获取集群
-        let clusterNameTran;
-        const arr = (singleTaskInfo[0].groupName || '').split('_');
-        if (arr.length == 1) {
-            clusterNameTran = singleTaskInfo[0].groupName
-        } else {
-            for (var i = 0; i <= arr.length; i++) {
-                clusterNameTran = arr[0];
-            }
-        }
-
+        const clusterNameTran = singleTaskInfo[0].groupName.subString(0, singleTaskInfo[0].groupName.indexOf('_'))
         this.setState({
             isClickGroup: true,
             table: {
@@ -191,12 +178,12 @@ class TaskDetail extends Component {
             }).then(res => {
                 if (res.code == 1) {
                     this.setState({
-                        dataSource: res.data.theJob,
+                        dataSource: res.data ? res.data.theJob : [],
                         // 单个任务信息
-                        singleTaskInfo: res.data.theJob,
+                        singleTaskInfo: res.data ? res.data.theJob : undefined,
                         // 获取执行顺序
                         queueNum: res.data,
-                        setNode: res.data.node,
+                        setNode: res.data ? res.data.node : '',
                         // moreTaskNum: res.data.queueSize,
                         table: {
                             ...table,
@@ -420,15 +407,8 @@ class TaskDetail extends Component {
     /* eslint-disable */
     changeJobPriority (record) {
         // 获取集群
-        const arr = (record.groupName || '').split('_');
-        if (arr.length == 1) {
-            clusterName = record.groupName
-        } else {
-            for (var i = 0; i <= arr.length; i++) {
-                clusterName = arr[0];
-                groupName = arr[1];
-            }
-        }
+        // let clusterName = record.groupName.subString(0, record.groupName.indexOf('_'));
+        // let groupName = record.groupName.subString(record.groupName.indexOf('_') + 1);
         const { node } = this.state;
         return Api.changeJobPriority({
             engineType: record.engineType,
@@ -558,15 +538,14 @@ class TaskDetail extends Component {
                 title: '集群',
                 dataIndex: 'clusterName',
                 render (text, record) {
+                    // let str = record.groupName;
+                    // return str ? String(str).subString(0, String(str).indexOf('_')) : ''
                     const arr = (record.groupName || '').split('_');
                     if (arr.length == 1) {
                         return record.groupName
                     } else {
-                        for (var i = 0; i <= arr.length; i++) {
-                            return arr[0]
-                        }
+                        return arr[0]
                     }
-                    // return record.groupName;
                 },
                 width: '70px'
             },

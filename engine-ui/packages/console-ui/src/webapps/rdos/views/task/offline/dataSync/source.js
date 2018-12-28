@@ -395,6 +395,7 @@ class SourceForm extends React.Component {
     getPopupContainer () {
         return this.props.dataSyncRef;
     }
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const {
