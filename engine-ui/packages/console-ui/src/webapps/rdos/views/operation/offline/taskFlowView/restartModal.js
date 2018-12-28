@@ -139,6 +139,7 @@ class RestartModal extends Component {
                 status === TASK_STATUS.RUN_FAILED || // 运行失败
                 status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
                 status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
+                status === TASK_STATUS.RUNNING || // 运行中
                 status === TASK_STATUS.STOPED; // 已停止
 
                 const content = <Row>
