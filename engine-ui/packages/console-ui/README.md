@@ -7,7 +7,9 @@
 
 ```bash
 $ npm i
-$ npm run dev
+$ # 开发构建
+$ npm start 或者 npm run dev
+$ # 生产构建
 $ npm run build
 ```
 推荐使用yarn管理依赖
@@ -37,8 +39,17 @@ $ npm run push-dev
 # 默认分支为 master , 发布为此版本更新
 $ npm run release
 
-# 指定版本发布名称为 v1.0.0-test
+#【自定义】版本发布名称为 v1.0.0-test
 $ npm run release -- -r v1.0.0-test
+
+# 指定升级版本为【次】版本号
+$ npm run release -- -r minor
+
+# 指定升级版本为【主】版本号
+$ npm run release -- -r major
+
+# 指定升级版本为【修订】版本号
+$ npm run release -- -r patch
 
 # 指定发布分支
 $ npm run release -- -b branchName
@@ -55,12 +66,12 @@ $ npm run changelog
 ```
 
 # 其他文档
+- [部署文档](./docs/Deploy.md)
 - [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
 ](http://git.dtstack.cn/ziv/data-stack-web/wikis/Development)
 - [Redmine Issue追踪](http://redmine.prod.dtstack.cn/projects/dtinsight200)
-- [Confluence文档](http://confluence.dev.dtstack.cn/display/RDOS/RD-OS)
-- [部署说明](http://git.dtstack.cn/ziv/data-stack-web/wikis/deploy)
-- [RDOS API接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
+- [Confluence 文档](http://confluence.dev.dtstack.cn/display/RDOS/RD-OS)
+- [RDOS API 接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
 
 

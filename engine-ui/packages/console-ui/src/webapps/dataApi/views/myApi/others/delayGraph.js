@@ -97,7 +97,7 @@ class MyApiDelayGraph extends Component {
         option.tooltip.formatter = function (params) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
-                let unit = 's'
+                let unit = 'ms'
                 relVal += '<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:' +
                     params[i].color +
                     '"></span>' +
@@ -109,7 +109,7 @@ class MyApiDelayGraph extends Component {
         }
         option.series = [{
             symbol: 'none',
-            name: '耗时(s)',
+            name: '耗时(ms)',
             data: callCountDate,
             type: 'line',
             smooth: true,
@@ -120,7 +120,7 @@ class MyApiDelayGraph extends Component {
             }
         }];
         option.yAxis[0].axisLabel.formatter = null;
-        option.yAxis[0].name = '耗时(s)';
+        option.yAxis[0].name = '耗时(ms)';
         option.xAxis[0].data = times;
         console.log(option)
         // 绘制图表

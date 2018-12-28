@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.2.1",
+  "version": "3.3.0",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
@@ -95,6 +95,7 @@
     "worker-loader": "^2.0.0"
   },
   "scripts": {
+    "start": "npm run dev",
     "dev": "webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",

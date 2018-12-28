@@ -1,9 +1,9 @@
-# 部署文档
+# 数栈前端部署文档
 
 
 ## 一、 Web Server 安装配置说明
 
-前端目前统一使用 Nginx 或者Tengine 作为 Web 服务器容器，可根据实际情况选择。目前我们测试环境的版本配置如下：
+前端目前统一使用 Nginx 或者 Tengine 作为 Web 服务器容器，可根据实际情况选择。目前我们测试环境的版本配置如下：
 
 > 系统: CentOS Linux release 7.3.1611 (Core)<br>
 > Server: Nginx version: nginx/1.12.0
@@ -14,24 +14,24 @@
 
 1. location ~ ^/api <br>
 `header, pass` 属性需要根据具体情况手动配置, 
-目前默认配置的Host为测试服务器地址，部署到生产环境中时，则需要更改到正式地址。
+目前默认配置的 Host 为测试服务器地址，部署到生产环境中时，则需要更改到正式地址。
 
 2. root <br>
-目前 `root` 配置的根路径为前端静态文件的根目录地址，也就是我们打包后通常`dist`文件夹所在的目录。打包好dist文件后，需要放到 `root` 指定的目录地址。
+目前 `root` 配置的根路径为前端静态文件的根目录地址，也就是我们打包后通常`dist`文件夹所在的目录。打包好 dist 文件后，需要放到 `root` 指定的目录地址。
 
-<i style="color:red">* 注：可以通过`nginx_init.sh`脚本，帮你安装Nignx 和拷贝默认服务器配置文件</i>
+<i style="color:red">* 注：可以通过`nginx_init.sh`脚本，帮你安装 Nignx 和拷贝默认服务器配置文件</i>
 
 ## 二、获取生产代码
 
-目前前端代码仓库中，默认的`master`分支为最新的稳定版本，如果需要其他历史版本，则可以通过查看历史打包`标签`记录的方式获得。
+目前前端代码仓库中，默认的`master`分支为最新的稳定版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)。
 
-获取生产环境的代码通常有`2`种方式，第一种则是直接把前端gitlab仓库项目对于的版本 `clone` 到本地, 安装打包环境后，并手动打包发布文件；第二种则是直接从gitlab仓库中，找到对应Tab版本并下载，使用下载后代码中`dist`中打包好的文件即可，因为前端在发布时，会把打包好的dist上传。
+获取生产环境的代码通常有`2`种方式，第一种则是直接把前端 gitlab 仓库项目对于的版本 `clone` 到本地, 安装打包环境后，并手动打包发布文件；第二种则是直接从 gitlab 仓库中，找到对应Tab版本并下载，使用下载后代码中`dist`中打包好的文件即可，因为前端在发布时，会把打包好的 dist 上传。
 
 接下来，说一下如何手动打包生成代码。
 
 ### 打包之前
 
-在开始打包项目前，你需要清楚的是，DTinsight 前端是一个集合了`DTinsight.IDE、DTinsight.Valid、DTinsight.API、DTinsight.Tag、DTinsight.Console、DTinsight.Analytics`若干应用的项目。考虑到不同客户的需求情况，故设计成根据具体应用需求生成对应的发布文件的方式，也就是说假如你只需要，`DTinsight.IDE` 这一个应用，只需要配置该一个应用即可，打包后生成的代码仅此包含改项目的运行代码。该配置项的文件为：`src/config/base.js` 与`src/config/defaultApps.js`，在 `src/config` 目录下找到这2个配置文件，并找到对应App的启用`（enable）`字段，`true` 表示启用，`false`关闭。
+在开始打包项目前，你需要清楚的是，DTinsight 前端是一个集合了`DTinsight.IDE、DTinsight.Valid、DTinsight.API、DTinsight.Tag、DTinsight.Console、DTinsight.Analytics`若干应用的项目。考虑到不同客户的需求情况，故设计成根据具体应用需求生成对应的发布文件的方式，也就是说假如你只需要，`DTinsight.IDE` 这一个应用，只需要配置该一个应用即可，打包后生成的代码仅此包含改项目的运行代码。该配置项的文件为：`src/config/base.js` 与`src/config/defaultApps.js`，在 `src/config` 目录下找到这2个配置文件，并找到对应 App 的启用`（enable）`字段，`true` 表示启用，`false`关闭。
 
 ### 打包源码
 
@@ -40,8 +40,10 @@
     通常推荐`ssh`的方式.
 
     ```bash
-    http://git.dtstack.cn/dtstack/data-stack-web.git // https
-    ssh://git@git.dtstack.cn:10022/dtstack/data-stack-web.git // ssh
+    $ # http
+    $ git clone http://git.dtstack.cn/dtstack/data-stack-web.git
+    $ # ssh
+    $ git clone ssh://git@git.dtstack.cn:10022/dtstack/data-stack-web.git // ssh
     ```
 
 2. 安装 Node.js
@@ -56,11 +58,11 @@
     ```
 
     运行`build`命令后，会在根目录下生产一份用于成产环境的代码 `dist`,
-    打包完成后，可以通过`git`提交到远程仓库，或者直接copy代码到部署服务器.
+    打包完成后，可以通过`git`提交到远程仓库，或者直接 copy 代码到部署服务器.
 
-### 三、根据生产环境，替换相关配置
+## 三、生产环境的相关`配置`
 
-由于数栈的Web有依赖 `UIC`、 `API Server` 等相关服务，所以在生成打包文件后，需要根据实际情况进行配置。目前数栈产品是多个项目的集合，所以每个项目都有单独的相关配置`（config) `文件，而具体的 config 文件在`dist`中的分布如下：
+#### 生成代码的目录结构说明
 
 ```bash
 | - dist
@@ -73,35 +75,75 @@
     | - console.html
     | - analytics.html
     | - public
-        | - main
+        | - common # 公共目录
+            | - config # 公共配置文件
+        | - main # 首页入口应用
             | - config
                 | - config.js
-        | - rdos
+        | - rdos # 离线计算应用
             | - config
                 | - config.js
-        | - stream
+        | - stream # 实时计算应用
             | - config
                 | - config.js
-        | - dataQuality
+        | - dataQuality # 数据质量应用
             | - config
                 | - config.js
-        | - dataApi
+        | - dataApi # 数据API应用
             | - config
                 | - config.js
-        | - dataLabel
+        | - dataLabel # 数据标签应用
             | - config
                 | - config.js
-        | - console
+        | - console # 控制台应用
             | - config
                 | - config.js
-        | - analyticsEngine
+        | - analyticsEngine # 分析引擎应用
             | - config
                 | - config.js
     | - ...
 ```
-上面的 `config`文件主要包含即是 UIC 相关的配置, `dataQuality` 项目中则需要独立配置下的 `API Server` 地址，该配置主要用来提供给第三方 API 调用`远程触发`服务。
 
-> 3.1.0版本更新：新增common/config.js文件，所有的应用都会从该文件继承配置。
+由于数栈 Web 有依赖 `UIC` 等相关服务，所以在生成打包文件后，需要根据实际情况进行配置。目前数栈产品是多个项目的集合，所以每个项目都保有独立的自定义配置`（config) `文件。
 
-###  四、版本验证
-安装成功后，打开首页，在页脚有对应版本号，表示升级文件是否生效。另外，想验证功能的话，可以打开 `dist` 目录中的[README](./README.md)文件，查看升级日志后，进行操作。
+以上 common 目录下的 config 配置为全局配置文件，服务所有应用的功能配置（UIC, 默认配置）项。其他的的每个应用的`config`文件主要包含应用本身自定义的内容。比较特别的是`dataQuality` 项目中则需要单独配置远程触发功能的 `API Server` 地址，该功能主要用来给第三方 提供 API 调用服务。配置方法请看下面：
+
+
+#### 生产环境必配 <color style="color:red;">必配项</color>
+生成配置是部署应用后必须要更改的配置项，否则会造成应用<color style="color:red;">无法正常访问！</color>
+
+- 数栈 UIC
+
+    配置地址在 `common/config.js` 中，修改参数为`UIC_URL`, `UIC_DOMAIN`两项
+- 数据质量远程调用
+
+    配置地址在 `dataQuality/config/config.js` 中，修改参数为`API_SERVER`
+
+#### 数栈应用的`自定义`
+数据目前支持修改应用Logo, Loading 动画中的应用名称（name)、
+
+- 门户页面自定义
+
+    配置地址在`common/config.js` 中，具体如下：
+
+``` json
+    prefix: 'DTinsight', // 应用前缀
+    indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
+    showCopyright: true, // 是否显示版权信息
+    name: '数栈' // 网页的title
+```
+
+- 应用 Logo名称, Loading、title配置
+
+    配置地址在各应用自身的`config.js` 中，修改参数为`name`
+
+
+##  四、版本验证与更新日志
+安装成功后，打开首页，在页脚有对应版本号，表示升级文件是否生效。另外，想验证功能的话，可以打开 `dist/docs` 目录中的[CHANGELOG](./CHANGELOG.md)文件。查看更新日志后，进行验证操作。
+
+## 其他
+默认 Bug 反馈 xiaowei@dtstack.com
+
+- [Issue](http://redmine.prod.dtstack.cn/projects/dtinsight200/issues)
+- [README](./README.md)
+- [历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)
