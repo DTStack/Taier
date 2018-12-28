@@ -23,7 +23,7 @@ echo "Release as $release"
 # Tag prefix
 prefix="DTinsight_v"
 
-# git pull origin $master
+git pull origin $master
 echo "Current pull origin $master."
 
 # Auto generate version number and tag
