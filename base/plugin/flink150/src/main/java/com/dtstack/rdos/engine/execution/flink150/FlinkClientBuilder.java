@@ -346,6 +346,7 @@ public class FlinkClientBuilder {
                 }
 
                 //flink-yarnsession 启动后不能立即提交任务
+                LOG.info("current--->{},flink--->{}",System.currentTimeMillis(),report.getStartTime());
                 if(System.currentTimeMillis()-report.getStartTime()<=2*60*1000){
                     continue;
                 }

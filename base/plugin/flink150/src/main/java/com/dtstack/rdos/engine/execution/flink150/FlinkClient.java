@@ -149,41 +149,42 @@ public class FlinkClient extends AbsClient {
 
     @Override
     public void init(Properties prop) throws Exception {
+        boolean yarnCluster = false;
+        try{
+            this.flinkExtProp = prop;
+            String propStr = PublicUtil.objToString(prop);
+            flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
+            prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
 
-        this.flinkExtProp = prop;
-        String propStr = PublicUtil.objToString(prop);
-        flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
-        prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
+            tmpFileDirPath = flinkConfig.getJarTmpDir();
+            Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
 
-        tmpFileDirPath = flinkConfig.getJarTmpDir();
-        Preconditions.checkNotNull(tmpFileDirPath, "you need to set tmp file path for jar download.");
+            syncPluginInfo = SyncPluginInfo.create(flinkConfig);
+            sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
 
-        syncPluginInfo = SyncPluginInfo.create(flinkConfig);
-        sqlPluginInfo = SqlPluginInfo.create(flinkConfig);
+            initHadoopConf(flinkConfig);
+            flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
 
-        initHadoopConf(flinkConfig);
-        flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
-
-        boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
-        flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
-        if (yarnCluster){
-            initYarnClient();
-        }
-
-        initClient();
-
-        if(yarnCluster){
-            Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
-            AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".");
-            clusterClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
-        }
-
-        if (yarnCluster){
-            yarnMonitorES = new ThreadPoolExecutor(1, 1,
-                    0L, TimeUnit.MILLISECONDS,
-                    new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
-            //启动守护线程---用于获取当前application状态和更新flink对应的application
-            yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClient));
+            yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
+            flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
+            if (yarnCluster){
+                initYarnClient();
+            }else{
+                initClient();
+            }
+        }catch(Throwable e){
+            logger.error("",e);
+        }finally {
+            if(yarnCluster){
+                Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
+                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".");
+                clusterClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
+                yarnMonitorES = new ThreadPoolExecutor(1, 1,
+                        0L, TimeUnit.MILLISECONDS,
+                        new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
+                //启动守护线程---用于获取当前application状态和更新flink对应的application
+                yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClient));
+            }
         }
     }
 
