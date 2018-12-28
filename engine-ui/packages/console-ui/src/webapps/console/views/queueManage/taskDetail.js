@@ -145,7 +145,16 @@ class TaskDetail extends Component {
         const { singleTaskInfo } = this.state;
         const { setNode } = this.state;
         // 获取集群
-        const clusterNameTran = singleTaskInfo[0].groupName.subString(0, singleTaskInfo[0].groupName.indexOf('_'))
+        // const clusterNameTran = singleTaskInfo[0].groupName.subString(0, singleTaskInfo[0].groupName.indexOf('_'))
+        let clusterNameTran;
+        const arr = (singleTaskInfo[0].groupName || '').split('_');
+        if (arr.length == 1) {
+            clusterNameTran = singleTaskInfo[0].groupName
+        } else {
+            for (var i = 0; i <= arr.length; i++) {
+                clusterNameTran = arr[0];
+            }
+        }
         this.setState({
             isClickGroup: true,
             table: {
