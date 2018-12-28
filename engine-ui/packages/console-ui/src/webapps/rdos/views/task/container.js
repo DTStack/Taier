@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import Sidebar from './sidebar';
 import SearchTaskModal from './searchTaskModal';
 import { stopSql, getEditorThemeClassName } from '../../store/modules/editor/editorAction';
+import { getUploadStatus, UPLOAD_STATUS } from '../../store/modules/uploader'
 
 const { Content } = Layout;
 
@@ -18,7 +19,7 @@ const defaultPro = {
 };
 
 function mapStateToProps (state) {
-    return { editor: state.editor };
+    return { editor: state.editor, uploader: state.uploader };
 }
 
 @connect(mapStateToProps)
@@ -35,6 +36,8 @@ class Container extends Component {
         if (process.env.NODE_ENV === 'production') {
             window.addEventListener('beforeunload', this.beforeunload, false);
         }
+        // Load uploader status from cache
+        this.loadUploader();
     }
 
     componentWillUnmount () {
@@ -69,6 +72,22 @@ class Container extends Component {
             self.setState({ loading: 'success' });
         }, 200);
     };
+
+    /**
+     * If have unfinished upload task,
+     * this function will to get upload status from cache data,
+     * and goto call server side to get newest upload status.
+     */
+    loadUploader = () => {
+        const { uploader, dispatch } = this.props;
+        const haveUndoneUpload = uploader && uploader.status !== UPLOAD_STATUS.READY && uploader.queryParams !== '';
+        if (haveUndoneUpload) {
+            dispatch(getUploadStatus({
+                queryParams: uploader.queryParams,
+                fileName: uploader.fileName
+            }, dispatch));
+        }
+    }
 
     loadIDETheme = (theme) => {
         console.log('componentDidMount 离线计算：', this.props.editor)
