@@ -346,7 +346,7 @@ public class FlinkClientBuilder {
                 }
 
                 //flink-yarnsession 启动后不能立即提交任务
-                if(System.currentTimeMillis()-report.getStartTime()<=60*1000){
+                if(System.currentTimeMillis()-report.getStartTime()<=2*60*1000){
                     continue;
                 }
                 int thisMemory = report.getApplicationResourceUsageReport().getNeededResources().getMemory();
