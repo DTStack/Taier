@@ -95,6 +95,7 @@
     "worker-loader": "^2.0.0"
   },
   "scripts": {
+    "start": "npm run dev",
     "dev": "webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
