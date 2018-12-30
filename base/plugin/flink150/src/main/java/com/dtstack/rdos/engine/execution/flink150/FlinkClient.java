@@ -678,6 +678,7 @@ public class FlinkClient extends AbsClient {
             String reqUrl = String.format("%s%s", getReqUrl(flinkClient), path);
             return PoolHttpClient.get(reqUrl);
         } catch (Exception e) {
+            logger.error("",e);
             return null;
         }
     }
