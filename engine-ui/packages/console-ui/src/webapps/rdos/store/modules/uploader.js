@@ -1,6 +1,8 @@
 import mc from 'mirror-creator';
-import API from '../../api';
 import { message } from 'antd';
+import localDb from 'utils/localDb';
+
+import API from '../../api';
 
 // 公共actionTypes
 const UploadAction = mc([
@@ -62,14 +64,24 @@ export const resetUploader = () => {
     }
 }
 
-// Reducers
-const initilaState = {
+const defaultState = {
     status: UPLOAD_STATUS.READY, // 状态
     queryParams: '',
-    fileName: 'testfile', // 文件名称
+    fileName: '', // 文件名称
     percent: 20 // 进度百分比, 模拟进度
+};
+const getInitialData = function () {
+    let initialState = localDb.get('uploader_cache');
+    if (!initialState) {
+        return defaultState;
+    }
+    return initialState;
 }
-export function uploader (state = initilaState, action) {
+
+// Reducers
+export function uploader (state = getInitialData(), action) {
+    let nextState;
+
     switch (action.type) {
         case UploadAction.UPDATE: {
             const data = action.payload;
@@ -79,11 +91,16 @@ export function uploader (state = initilaState, action) {
             } else if (data.status === UPLOAD_STATUS.PROGRESSING) {
                 percent = state.percent >= 80 ? state.percent : state.percent + 20
             }
-            return Object.assign({}, state, data, { percent });
+            nextState = Object.assign({}, state, data, { percent });
+            break;
         }
         case UploadAction.RESET:
-            return initilaState;
+            nextState = defaultState;
+            break;
         default:
-            return state;
+            nextState = state;
     }
+
+    localDb.get('uploader_cache', nextState);
+    return nextState;
 }
