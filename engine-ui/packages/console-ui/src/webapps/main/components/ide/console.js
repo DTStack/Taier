@@ -69,11 +69,6 @@ class Console extends Component {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
                 const title = <span>结果{tab.id ? tab.id : (index + 1)}</span>;
-                const exportStyle = {
-                    position: 'relative',
-                    top: tab.data && tab.data.length > 1 ? '-45px' : '10px',
-                    height: '30px'
-                };
 
                 return (
                     <TabPane
@@ -88,7 +83,7 @@ class Console extends Component {
                                     }`}
                                 download
                             >
-                                <Button className="btn-download" style={exportStyle}>下载</Button>
+                                <Button className="btn-download">下载</Button>
                             </a>
                         ) : null} />
 

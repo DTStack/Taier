@@ -58,7 +58,7 @@ class Result extends React.Component {
                         fillHandle={false}// 拖动复制单元格
                         manualRowResize={true}// 拉伸功能
                         manualColumnResize={true}// 拉伸功能
-                        colWidths={500}
+                        colWidths={200}
                         rowHeights={30}
                         columnHeaderHeight={25}
                         contextMenu={['copy']}
