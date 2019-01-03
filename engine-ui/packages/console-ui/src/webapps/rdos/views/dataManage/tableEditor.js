@@ -259,12 +259,17 @@ class TableEditor extends Component {
 
     delTable () {
         const the = this;
+        const { tableData } = this.props;
+        const {
+            belongProjectId
+        } = tableData;
         confirm({
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',
             onOk () {
                 ajax.dropTable({
-                    tableId: the.tableId
+                    tableId: the.tableId,
+                    projectId: belongProjectId
                 }).then(res => {
                     if (res.code === 1) {
                         message.info('删除成功, 即将返回列表页');
