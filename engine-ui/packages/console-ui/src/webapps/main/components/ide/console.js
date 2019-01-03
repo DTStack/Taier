@@ -76,7 +76,7 @@ class Console extends Component {
                         tab={title}
                         key={`${index}`}
                     >
-                        <Result id={tab.id} data={tab.data} extraView={tab.jobId && tab.data ? (
+                        <Result isShow={index==activeKey} data={tab.data} extraView={tab.jobId && tab.data ? (
                             <a
                                 href={`${this.props.downloadUri}?jobId=${
                                     tab.jobId

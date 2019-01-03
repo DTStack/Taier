@@ -10,13 +10,24 @@ class Result extends React.Component {
             pageSize: 10
         }
     };
-    shouldComponentUpdate (nextProps, nextState) {
-        // 只有结果id改变，才会更新，防止handsontable在display:none的状态下更新导致渲染错误
-        if (this.props.id != nextProps.id || nextState != this.state) {
-            return true;
-        } else {
-            return false;
+    tableRef = React.createRef()
+    componentDidUpdate (prevProps, prevState) {
+        if (prevProps != this.props && this.props.isShow) {
+            if (this.tableRef) {
+                this.removeRenderClock();
+                this._renderColck = setTimeout(() => {
+                    this.tableRef.current.hotInstance.render();
+                })
+            }
         }
+    }
+    removeRenderClock () {
+        if (this._renderColck) {
+            clearTimeout(this._renderColck)
+        }
+    }
+    componentWillUnmount (prevProps, prevState) {
+        this.removeRenderClock();
     }
     getPageData (data) {
         let result = [];
@@ -48,6 +59,7 @@ class Result extends React.Component {
             <div className='c-ide-result'>
                 <div className='c-ide-result__table'>
                     <HotTable
+                        ref={this.tableRef}
                         className='o-handsontable-no-border'
                         style={{ width: '100%', height: '100%' }}
                         language='zh-CN'
