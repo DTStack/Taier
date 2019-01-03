@@ -5,6 +5,7 @@ import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.am.ApplicationMaster;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.exceptions.RequestOverLimitException;
+import com.dtstack.yarn.util.KerberosUtils;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
@@ -14,7 +15,10 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Master;
+import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
@@ -40,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -57,12 +62,23 @@ public class Client {
     private final FileSystem dfs;
     private YarnClient yarnClient;
     private Path appMasterJar;
+    private String security = "false";
+    private String hdfsPrincipal;
+    private String hdfsKeytabPath;
+    private String hdfsKrb5ConfPath;
 
 
     private static FsPermission JOB_FILE_PERMISSION = FsPermission.createImmutable((short) 0644);
 
     public Client(DtYarnConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
         this.conf = conf;
+        if ("true".equals(conf.get("security"))){
+            security = "true";
+            hdfsPrincipal = conf.get("hdfsPrincipal");
+            hdfsKeytabPath = conf.get("hdfsKeytabPath");
+            hdfsKrb5ConfPath = conf.get("hdfsKrb5ConfPath");
+            KerberosUtils.login(hdfsPrincipal, hdfsKeytabPath, hdfsKrb5ConfPath, conf);
+        }
         this.dfs = FileSystem.get(conf);
 
         yarnClient = YarnClient.createYarnClient();
@@ -243,12 +259,21 @@ public class Client {
         List<String> appMasterLaunchcommands = new ArrayList<>();
         appMasterLaunchcommands.add(command.toString());
 
+        ByteBuffer token = null;
+        if ("true".equals(conf.get("security"))){
+            Credentials credentials = new Credentials(UserGroupInformation.getCurrentUser().getCredentials());
+            dfs.addDelegationTokens(Master.getMasterPrincipal(conf), credentials);
+            DataOutputBuffer dob = new DataOutputBuffer();
+            credentials.writeTokenStorageToStream(dob);
+            token = ByteBuffer.wrap(dob.getData());
+        }
+
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
         capability.setVirtualCores(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
         applicationContext.setResource(capability);
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
-                localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
+                localResources, appMasterEnv, appMasterLaunchcommands, null, token, null);
 
         applicationContext.setAMContainerSpec(amContainer);
 
