@@ -21,10 +21,10 @@ export default class PaneField extends Component {
                 pageSize: 10
             },
             dataList: [],
-            columnData: [],
-            partData: [],
             dataType: 'column'
         }
+    }
+    componentDidMount (props) {
         this.initData(this.props);
     }
     changeData = (e) => {
@@ -35,83 +35,52 @@ export default class PaneField extends Component {
 
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
-        console.log(this.state.paginationParams)
         this.initData(nextProps);
     }
 
     initData = (props) => {
-        console.log(props)
         let {
-            paginationParams
+            paginationParams,
+            dataType
         } = this.state;
-        this.setState({
-            columnData: props.data.columnData || [],
-            partData: props.data.partData || []
-        })
+        const columnData = props.data.columnData || [];
+        const partData = props.data.partData || [];
 
-        let data = this.state.dataType === 'column' ? this.state.columnData : this.state.partData;
-        console.log(data)
+        let data = dataType === 'column' ? columnData : partData;
         if (data && data.length === 0) {
-            //   this.state.paginationParams.total = 0;
             this.setState({
                 paginationParams: {
-                    ...this.state.paginationParams,
-                    total: 0
-                }
-            }, () => {
-                this.setState({
-                    dataList: [],
-                    paginationParams: this.state.paginationParams
-                })
+                    ...paginationParams,
+                    total: 0,
+                    current: 1
+                },
+                dataList: []
             })
             return;
         }
-
-        //   this.state.paginationParams.total = data.length || 0;
         this.setState({
             paginationParams: {
-                ...this.state.paginationParams,
-                total: data.length || 0
-            }
-        })
-        console.log(this.state.paginationParams)
-        console.log((this.state.paginationParams.current - 1) * this.state.paginationParams.pageSize)
-        console.log(data)
-        console.log(data.slice(10, 10))
-        // this.state.paginationParams.current = 1;
-        //   this.state.dataList = data.slice((this.state.paginationParams.current - 1) * this.state.paginationParams.pageSize, paginationParams.current * paginationParams.pageSize)
-        this.setState({
-            dataList: data.slice(
-                (this.state.paginationParams.current - 1) * this.state.paginationParams.pageSize,
-                paginationParams.current * paginationParams.pageSize
-            ),
-            paginationParams: this.state.paginationParams
-        })
+                ...paginationParams,
+                total: data.length || 0,
+                current: 1
+            },
+            dataList: data
+        });
     }
 
     handleTableChange = (pagination, filters, sorter) => {
-        console.log(pagination)
         let {
-            dataList,
-            columnData,
-            partData,
             paginationParams
         } = this.state
-        let data = this.state.dataType === 'column' ? columnData : partData
-
-        paginationParams.current = pagination.current;
-        console.log((paginationParams.current - 1) * paginationParams.pageSize, paginationParams.current * paginationParams.pageSize)
-        dataList = data.slice((paginationParams.current - 1) * paginationParams.pageSize, paginationParams.current * paginationParams.pageSize);
-        console.log(dataList)
         this.setState({
-            dataList: dataList,
-            paginationParams: paginationParams
+            paginationParams: {
+                ...paginationParams,
+                current: pagination.current
+            }
         })
     }
-
-    render () {
-        const { dataList } = this.state;
-        const tableCOl = [{
+    getTableCol () {
+        return [{
             title: '字段名称',
             dataIndex: 'name'
         }, {
@@ -144,9 +113,10 @@ export default class PaneField extends Component {
             render: (text, record) => (
                 text || '-'
             )
-        }
-        ];
-        const partitionCol = [{
+        }];
+    }
+    getPartitionCol () {
+        return [{
             title: '字段名称',
             dataIndex: 'name'
         }, {
@@ -158,8 +128,12 @@ export default class PaneField extends Component {
             render: (text, record) => (
                 text || '-'
             )
-        }
-        ]
+        }];
+    }
+    render () {
+        const { dataList, paginationParams, dataType } = this.state;
+        const tableCOl = this.getTableCol();
+        const partitionCol = this.getPartitionCol();
         return (
             <div className="pane-field-container">
                 <div className="func-box" style={{ marginBottom: 10 }}>
@@ -168,14 +142,14 @@ export default class PaneField extends Component {
                         <RadioButton value="partition">分区字段</RadioButton>
                     </RadioGroup>
 
-                    <span style={{ color: 'rgb(204, 204, 204)' }}>共{this.state.paginationParams.total}个字段</span>
+                    <span style={{ color: 'rgb(204, 204, 204)' }}>共{paginationParams.total}个字段</span>
                 </div>
                 <Table
-                    columns={this.state.dataType === 'column' ? tableCOl : partitionCol}
+                    columns={dataType === 'column' ? tableCOl : partitionCol}
                     size="small"
                     dataSource={dataList}
                     rowKey="id"
-                    pagination={this.state.paginationParams}
+                    pagination={paginationParams}
                     onChange={this.handleTableChange}>
                 </Table>
             </div>
