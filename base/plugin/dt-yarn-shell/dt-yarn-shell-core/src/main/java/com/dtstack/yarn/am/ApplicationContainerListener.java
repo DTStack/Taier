@@ -8,12 +8,14 @@ import com.dtstack.yarn.common.HeartbeatResponse;
 import com.dtstack.yarn.common.LocalRemotePath;
 import com.dtstack.yarn.container.ContainerEntity;
 import com.dtstack.yarn.container.DtContainerId;
+import com.dtstack.yarn.util.KerberosUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.ProtocolSignature;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.Server;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.api.records.NodeId;
 
@@ -51,9 +53,12 @@ public class ApplicationContainerListener
 
     private ContainerLostDetector containerLostDetector;
 
+    private Configuration conf;
+
     public ApplicationContainerListener(ApplicationContext applicationContext, Configuration conf) {
         super("slotManager");
         setConfig(conf);
+        this.conf = conf;
         this.applicationContext = applicationContext;
         this.entities = Collections.synchronizedList(new ArrayList<>());
         this.containerLostDetector = new ContainerLostDetector(this);
@@ -66,6 +71,13 @@ public class ApplicationContainerListener
     @Override
     public void start() {
         LOG.info("Starting application containers handler server");
+        try {
+            LOG.info(UserGroupInformation.getCurrentUser());
+            KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
+            LOG.info(UserGroupInformation.getCurrentUser());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         RPC.Builder builder = new RPC.Builder(getConfig());
         builder.setProtocol(ApplicationContainerProtocol.class);
         builder.setInstance(this);

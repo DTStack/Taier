@@ -8,6 +8,7 @@ import com.dtstack.yarn.common.LocalRemotePath;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
+import com.dtstack.yarn.util.KerberosUtils;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,15 +18,23 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.ipc.Client;
 import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.ipc.RpcEngine;
+import org.apache.hadoop.ipc.WritableRpcEngine;
 import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.security.SaslRpcServer;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import javax.net.SocketFactory;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -37,6 +46,9 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.apache.hadoop.ipc.RPC.getRpcTimeout;
 
 public class DtContainer {
 
@@ -95,8 +107,22 @@ public class DtContainer {
         int appMasterPort = Integer.valueOf(System.getenv(DtYarnConstants.Environment.APPMASTER_PORT.toString()));
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
-            amClient = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID, addr, conf);
+            LOG.info(UserGroupInformation.isSecurityEnabled());
+            KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
+            LOG.info(UserGroupInformation.getCurrentUser());
+            LOG.info(UserGroupInformation.isSecurityEnabled());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            /*amClient = RPC.getProxy(ApplicationContainerProtocol.class,
+                    ApplicationContainerProtocol.versionID, addr, conf);*/
+            Class protocol = ApplicationContainerProtocol.class;
+            UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+            SocketFactory factory = NetUtils.getDefaultSocketFactory(conf);
+            amClient = (ApplicationContainerProtocol) new WritableRpcEngine().getProxy(protocol, ApplicationContainerProtocol.versionID,
+                    addr, ugi, conf, factory, getRpcTimeout(conf), null).getProxy();
+            LOG.info("dtc125: " + ugi);
         } catch (IOException e) {
             LOG.error("Connecting to ApplicationMaster " + appMasterHost + ":" + appMasterPort + " failed!");
             LOG.error("Container will suicide!");
