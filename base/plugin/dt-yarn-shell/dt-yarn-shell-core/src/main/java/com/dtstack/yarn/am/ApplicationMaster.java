@@ -14,6 +14,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DataOutputBuffer;
+import org.apache.hadoop.mapred.Master;
+import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
@@ -37,6 +41,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -399,8 +404,16 @@ public class ApplicationMaster extends CompositeService {
                 + container.getId());
 
         containerEnv.put(DtYarnConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
+
+        ByteBuffer token = null;
+        if ("true".equals(conf.get("security"))){
+            Credentials credentials = new Credentials(UserGroupInformation.getCurrentUser().getCredentials());
+            DataOutputBuffer dob = new DataOutputBuffer();
+            credentials.writeTokenStorageToStream(dob);
+            token = ByteBuffer.wrap(dob.getData());
+        }
         ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
-                containerLocalResource, containerEnv, containerLaunchcommands, null, null, null);
+                containerLocalResource, containerEnv, containerLaunchcommands, null, token, null);
 
         try {
             LOG.info("nmAsync.class: " + nmAsync.getClass().getName());
