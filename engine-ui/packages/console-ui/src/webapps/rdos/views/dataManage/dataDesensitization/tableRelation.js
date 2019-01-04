@@ -19,6 +19,7 @@ class TableRelation extends Component {
         queryParams: {
             pageIndex: 1,
             pageSize: 20,
+            configId: '',
             projectId: ''
         },
         checkAll: false,
@@ -57,9 +58,9 @@ class TableRelation extends Component {
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentDesensitization = this.props.tableData;
-        if (currentDesensitization.projectId != nextProps.tableData.projectId) {
+        if (currentDesensitization.projectId != nextProps.tableData.projectId && currentDesensitization.id != nextProps.tableData.id) {
             this.setState({
-                queryParams: Object.assign(this.state.queryParams, { projectId: nextProps.tableData.projectId })
+                queryParams: Object.assign(this.state.queryParams, { configId: nextProps.tableData.id, projectId: nextProps.tableData.projectId })
             }, () => {
                 this.search() // 加载表关系
             })
