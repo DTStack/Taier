@@ -74,7 +74,13 @@ class Header extends Component {
                 </span>
             </span>
         );
-        return <Navigator logo={logo} menuItems={menuItems} {...this.props} />;
+        return <Navigator
+            logo={logo}
+            menuItems={menuItems}
+            {...this.props}
+            showHelpSite={true}
+            helpUrl='http://rdos.dev.dtstack.net:8080/public/helpSite/dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html'
+        />;
     }
 }
 export default Header;
