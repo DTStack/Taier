@@ -14,36 +14,25 @@ const Option = Select.Option;
 }, null)
 class TableRelation extends Component {
     state = {
-        tableData: [], // 表数据
+        tableData: [], // 父级传递参数
         openStatusLoading: false, // 开关切换loading
         queryParams: {
             pageIndex: 1,
             pageSize: 20,
-            configId: '',
-            projectId: ''
+            configId: ''
         },
+        // editRecord: [], // 勾选ids
         checkAll: false,
         selectedRowKeys: [],
         openApply: undefined, // 批量开启还是关闭
         // 按项目名，表名，字段名，开关状态搜索
-        projectId: undefined,
+        pjId: undefined,
         tableName: undefined,
-        columnsName: undefined,
-        openStatus: '',
+        enable: '',
+        dataSource: [],
+        relatedProject: [] // 项目列表
+        // ids: [] // 选中ids
         // mock
-        dataSource: [
-            {
-                key: '1',
-                tableName: 'test1',
-                tableColumns: 12,
-                projects: 'test',
-                projectsName: '测试',
-                modifyUserName: 'admin@dtstack.com',
-                gmtModified: '2018-01-01 12:12:12',
-                status: 1, // 1为开，0为关
-                deal: '查看血缘'
-            }
-        ]
     }
     componentDidMount () {
         const currentDesensitization = this.props.tableData;
@@ -51,35 +40,36 @@ class TableRelation extends Component {
             this.loadTableRelation({
                 pageIndex: 1,
                 pageSize: 20,
-                projectId: currentDesensitization.projectId
+                configId: currentDesensitization.id
+            })
+            this.getRelatedPorjects({
+                configId: currentDesensitization.id
             })
         }
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentDesensitization = this.props.tableData;
-        if (currentDesensitization.projectId != nextProps.tableData.projectId && currentDesensitization.id != nextProps.tableData.id) {
+        if (currentDesensitization.id != nextProps.tableData.id) {
             this.setState({
-                queryParams: Object.assign(this.state.queryParams, { configId: nextProps.tableData.id, projectId: nextProps.tableData.projectId })
+                queryParams: Object.assign(this.state.queryParams, { configId: nextProps.tableData.id })
             }, () => {
                 this.search() // 加载表关系
+                this.getRelatedPorjects({ configId: nextProps.tableData.id }) // 加载项目列表
             })
         }
     }
     // 加载表关系
     search = () => {
-        const { queryParams, projectId, tableName, columnsName, openStatus } = this.state;
-        if (projectId) {
-            queryParams.projectId = projectId
+        const { queryParams, pjId, tableName, enable } = this.state;
+        if (pjId) {
+            queryParams.pjId = pjId
         }
         if (tableName) {
             queryParams.tableName = tableName
         }
-        if (columnsName) {
-            queryParams.columnsName = columnsName
-        }
-        if (openStatus) {
-            queryParams.state = openStatus
+        if (enable) {
+            queryParams.state = enable
         }
         this.loadTableRelation(queryParams)
     }
@@ -87,28 +77,49 @@ class TableRelation extends Component {
         ajax.viewTableRelation(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    tableData: res.data
+                    dataSource: res.data
                 })
             }
         })
     }
+    // 获取关联项目
+    getRelatedPorjects = (params) => {
+        ajax.getRelatedPorjects(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    relatedProject: res.data
+                })
+            }
+        })
+    }
+    projectsOptions () {
+        const { relatedProject } = this.state;
+        return relatedProject.map((item, index) => {
+            return <Option
+                key={item.pjId}
+                value={`${item.pjId}`}
+            >
+                {item.projectName}
+            </Option>
+        })
+    }
     // 切换开关
     changeOpenStatus = (checked, record) => {
-        const enable = checked === 0; // 开状态
+        const enable = checked === 0 ? 1 : 0; // 开状态
         this.setState({
             openStatusLoading: true
         })
-        this.operaSwitch({ ids: [record.id], enable: !enable })
+        this.operaSwitch({ ids: [record.id], enable })
     }
     // 批量按钮
     batchOpera = (openApply) => {
-        const text = openApply ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
+        const text = openApply === 0 ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
         const { selectedRowKeys } = this.state;
         if (selectedRowKeys > 0) {
             confirm({
                 title: '开启/关闭脱敏',
                 content: `开启脱敏后，数据开发、运维、访客角色的用户${text}？`,
-                okText: openApply ? '开启脱敏' : '关闭脱敏',
+                okText: openApply === 0 ? '开启脱敏' : '关闭脱敏',
                 cancelText: '取消',
                 onCancel: () => {
                     this.setState({
@@ -138,7 +149,7 @@ class TableRelation extends Component {
     // 改变project
     changeProject = (value) => {
         this.setState({
-            queryParams: Object.assign(this.state.queryParams, { projectId: value })
+            queryParams: Object.assign(this.state.queryParams, { pjId: value })
         }, this.search)
     }
     // 表名字段名搜索
@@ -158,24 +169,24 @@ class TableRelation extends Component {
                     </Checkbox>
                 </div>
                 <div style={{ display: 'inline-block', marginLeft: '15px' }}>
-                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, true)}>批量开启</Button>&nbsp;
-                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, false)}>批量关闭</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 0)}>批量开启</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 1)}>批量关闭</Button>&nbsp;
                 </div>
             </div>
         )
     }
     onSelectChange = (selectedRowKeys) => {
-        // const checkAll = selectedRowKeys.length === this.state.tableData.data.length;
+        const checkAll = selectedRowKeys.length === this.state.dataSource.data.length;
         this.setState({
-            selectedRowKeys
-            // checkAll
+            selectedRowKeys,
+            checkAll
         })
     }
     onCheckAllChange = (e) => {
-        const { tableData } = this.state;
+        const { dataSource } = this.state;
         let selectedRowKeys = [];
         if (e.target.checked) {
-            selectedRowKeys = tableData.data.map(item => item.tableId)
+            selectedRowKeys = dataSource.data.map(item => item.tableId)
         }
         this.setState({
             checkAll: e.target.checked,
@@ -186,7 +197,7 @@ class TableRelation extends Component {
     handleTableChange = (pagination, filters) => {
         const queryParams = Object.assign(this.state.queryParams, {
             pageIndex: pagination.current,
-            openStatus: filters.status
+            enable: filters.enable
         })
         this.setState({
             queryParams
@@ -211,7 +222,7 @@ class TableRelation extends Component {
             {
                 title: '字段',
                 width: 140,
-                dataIndex: 'tableColumns',
+                dataIndex: 'columnName',
                 render: (text, record) => {
                     return text
                 }
@@ -219,7 +230,7 @@ class TableRelation extends Component {
             {
                 title: '项目名称',
                 width: 140,
-                dataIndex: 'projects',
+                dataIndex: 'projectName',
                 render: (text, record) => {
                     return text
                 }
@@ -227,7 +238,7 @@ class TableRelation extends Component {
             {
                 title: '项目显示名称',
                 width: 140,
-                dataIndex: 'projectsName',
+                dataIndex: 'projectAlia',
                 render: (text, record) => {
                     return text
                 }
@@ -289,17 +300,6 @@ class TableRelation extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange
         }
-        const { projects } = this.props;
-        const projectsOptions = projects.map(item => {
-            return <Option
-                title={item.projectAlias}
-                key={item.id}
-                name={item.projectAlias}
-                value={`${item.id}`}
-            >
-                {item.projectAlias}
-            </Option>
-        })
         return (
             <div className='m-card'>
                 <Card
@@ -315,7 +315,7 @@ class TableRelation extends Component {
                                 style={{ width: '150px', marginRight: '20px' }}
                                 onChange={this.changeProject}
                             >
-                                {projectsOptions}
+                                {this.projectsOptions()}
                             </Select>
                             <Search
                                 placeholder="按表名、字段名搜索"

@@ -80,9 +80,10 @@ export default {
     DEL_DESENSITIZATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/deleteConfig`, // 删除脱敏
     GET_TABLE_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableListByProjectId`, // 获取表列表
     GET_COLUMNS_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableColumns`, // 获取表字段
-    GET_DESRULES_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/listRules`, // 获取脱敏规则列表 // 暂缺
+    GET_DESRULES_LIST: `${RDOS_BASE_URL}/batch/dataMaskRule/getRulesByTenantId`, // 获取脱敏规则列表
     VIEW_TABLE_RELATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedTables`, // 根据脱敏名称查看关系明细
-    UPDATE_OPEN_STATUS: `${RDOS_BASE_URL}/batch/dataMaskConfig/disable`, // 切换开关状态
+    GET_RELATED_PROJECTS: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedPorjects`, // 获取关联项目
+    UPDATE_OPEN_STATUS: `${RDOS_BASE_URL}/batch/dataMaskConfig/enable`, // 切换开关状态
     // 规则管理
     GET_RULE_LIST: `${RDOS_BASE_URL}/batch/dataMaskRule/listRules`, // 获取规则列表
     ADD_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/createRule`, // 添加规则

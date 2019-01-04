@@ -212,6 +212,9 @@ export default {
     viewTableRelation (params) {
         return http.post(dataManageReq.VIEW_TABLE_RELATION, params)
     },
+    getRelatedPorjects (params) {
+        return http.post(dataManageReq.GET_RELATED_PROJECTS, params)
+    },
     updateOpenStatus (params) {
         return http.post(dataManageReq.UPDATE_OPEN_STATUS, params)
     },
