@@ -154,7 +154,8 @@ class TableList extends Component {
         let initialColumns = [
             {
                 title: '表名',
-                width: 120,
+                width: 250,
+                fixed: 'left',
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render (text, record) {
@@ -163,6 +164,8 @@ class TableList extends Component {
             },
             {
                 title: '类目',
+                width: 100,
+                fixed: 'left',
                 key: 'catalogue',
                 dataIndex: 'catalogue',
                 render (text, record) {
@@ -190,16 +193,21 @@ class TableList extends Component {
             {
                 title: '占用存储',
                 key: 'tableSize',
+                width: 90,
+                fixed: 'right',
                 dataIndex: 'tableSize'
             },
             {
                 title: '生命周期',
                 key: 'lifeDay',
+                width: 90,
+                fixed: 'right',
                 dataIndex: 'lifeDay'
             },
             {
                 title: '操作',
                 key: 'id',
+                fixed: 'right',
                 width: 120,
                 render (text, record) {
                     switch (queryParams.listType) {
@@ -227,6 +235,8 @@ class TableList extends Component {
             let addInitalColumns = [{
                 title: '有效期',
                 key: 'timeTeft',
+                fixed: 'right',
+                width: 90,
                 dataIndex: 'timeTeft',
                 render (text, record) {
                     return text ? `${text}天` : ' '
@@ -234,6 +244,8 @@ class TableList extends Component {
             }, {
                 title: '通过时间',
                 key: 'passTime',
+                fixed: 'right',
+                width: 90,
                 dataIndex: 'passTime',
                 render (text, record) {
                     return text ? utils.formatDateTime(text) : ' '
@@ -314,6 +326,7 @@ class TableList extends Component {
                                 dataSource={table.data}
                                 pagination={pagination}
                                 onChange={this.handleTableChange}
+                                scroll={{ x: '1100px' }}
                             />
                         </div>
                     </Card>

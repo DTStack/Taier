@@ -250,6 +250,12 @@
         tr>th:first-child {
             padding-left: 20px;
         }
+        .ant-table-fixed-right{
+            tr>td:first-child,
+            tr>th:first-child {
+            padding-left: 8px;
+            }
+        }
     }
 }
 

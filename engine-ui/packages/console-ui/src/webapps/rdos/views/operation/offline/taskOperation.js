@@ -392,18 +392,20 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: 120,
+            width: '200px',
             render: (text, record) => {
                 const name = record.batchTask && record.batchTask.name
                 const showName = record.batchTask.isDeleted === 1
                     ? `${name} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{name}</a>;
                 return showName;
-            }
+            },
+            fixed: 'left'
         }, {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            width: '100px',
             render: (text, record) => {
                 return <span>
                     <TaskStatus value={text} />
@@ -416,7 +418,7 @@ class OfflineTaskList extends Component {
                         : null}
                 </span>
             },
-            width: '110px',
+            fixed: 'left',
             filters: offlineTaskStatusFilter,
             filterMultiple: true,
             filteredValue: taskStatus
@@ -428,6 +430,7 @@ class OfflineTaskList extends Component {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
             width: '90px',
+            fixed: 'left',
             filters: taskTypeFilter
         }, {
             title: '调度周期',
@@ -437,13 +440,13 @@ class OfflineTaskList extends Component {
                 return <TaskTimeType value={text} />
             },
             width: '90px',
+            fixed: 'left',
             filters: offlineTaskPeriodFilter
         }, {
             title: '业务日期',
             dataIndex: 'businessDate',
             key: 'businessDate',
-            sorter: true,
-            width: '90px'
+            sorter: true
         }, {
             title: '计划时间',
             dataIndex: 'cycTime',
@@ -460,12 +463,6 @@ class OfflineTaskList extends Component {
             key: 'execEndDate',
             sorter: true
         }, {
-            title: '运行时长',
-            dataIndex: 'execTime',
-            key: 'execTime',
-            sorter: true,
-            width: '90px'
-        }, {
             title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser',
@@ -473,6 +470,13 @@ class OfflineTaskList extends Component {
                 return record.batchTask && record.batchTask.ownerUser &&
                     record.batchTask.ownerUser.userName
             }
+        }, {
+            title: '运行时长',
+            dataIndex: 'execTime',
+            key: 'execTime',
+            sorter: true,
+            width: '100px',
+            fixed: 'right'
         }]
     }
 
@@ -706,6 +710,7 @@ class OfflineTaskList extends Component {
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
                             onExpand={this.onExpand}
+                            scroll={{ x: '1400px' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"

@@ -372,6 +372,8 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
+            width: '200px',
+            fixed: 'left',
             render: (text, record) => {
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)`
@@ -382,6 +384,7 @@ class PatchDataDetail extends Component {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            fixed: 'left',
             render: (text, record) => {
                 return <span>
                     <TaskStatus value={text} />
@@ -401,6 +404,8 @@ class PatchDataDetail extends Component {
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
+            width: '100px',
+            fixed: 'left',
             render: (text, record) => {
                 return <TaskType value={text} />
             },
@@ -421,14 +426,16 @@ class PatchDataDetail extends Component {
             key: 'exeStartTime',
             sorter: true
         }, {
-            title: '运行时长',
-            dataIndex: 'exeTime',
-            key: 'exeTime',
-            sorter: true
-        }, {
             title: '责任人',
             dataIndex: 'dutyUserName',
             key: 'dutyUserName'
+        }, {
+            title: '运行时长',
+            dataIndex: 'exeTime',
+            key: 'exeTime',
+            width: '100px',
+            fixed: 'right',
+            sorter: true
         }]
     }
 
@@ -665,6 +672,7 @@ class PatchDataDetail extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
+                            scroll={{ x: '1200px' }}
                             className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
