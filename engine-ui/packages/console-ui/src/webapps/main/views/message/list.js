@@ -51,9 +51,11 @@ class MessageList extends Component {
         }, params);
 
         Api.getMessage(selectedApp, reqParams).then(res => {
-            this.setState({
-                table: res.data
-            })
+            if (res.code == 1) {
+                this.setState({
+                    table: res.data
+                })
+            }
         })
     }
 

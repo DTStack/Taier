@@ -86,7 +86,7 @@ export const EXCHANGE_ADMIN_API_STATUS = {
 
 export const dataSourceTypes = [ // 数据源类型
     '未知类型',
-    'MySql',
+    'MySQL',
     'Oracle',
     'SQLServer',
     'PostgreSQL',
