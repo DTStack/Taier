@@ -200,9 +200,6 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [{
-                                required: true, message: 'Hadoop配置不可为空！'
-                            }],
                             initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                 ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                         })(
@@ -316,9 +313,6 @@ class BaseForm extends Component {
                             hasFeedback
                         >
                             {getFieldDecorator('dataJson.hadoopConfig', {
-                                rules: [{
-                                    required: true, message: 'Hadoop配置不可为空！'
-                                }],
                                 initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                     ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                             })(
@@ -413,9 +407,6 @@ class BaseForm extends Component {
                         hasFeedback
                     >
                         {getFieldDecorator('dataJson.hadoopConfig', {
-                            rules: [{
-                                required: true, message: 'Hadoop配置不可为空！'
-                            }],
                             initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                 ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                         })(
