@@ -82,10 +82,10 @@ class Container extends Component {
         const { uploader, dispatch } = this.props;
         const haveUndoneUpload = uploader && uploader.status !== UPLOAD_STATUS.READY && uploader.queryParams !== '';
         if (haveUndoneUpload) {
-            dispatch(getUploadStatus({
+            getUploadStatus({
                 queryParams: uploader.queryParams,
                 fileName: uploader.fileName
-            }, dispatch));
+            }, dispatch)
         }
     }
 
