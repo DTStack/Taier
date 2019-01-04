@@ -5,6 +5,7 @@
   "main": "src/app.js",
   "license": "MIT",
   "dependencies": {
+    "@handsontable/react": "^2.1.0",
     "@types/lodash": "^4.14.118",
     "antd": "2.13.14",
     "codemirror": "5.25.0",
@@ -12,6 +13,7 @@
     "diff-match-patch": "1.0.0",
     "dt-sql-parser": "^1.1.10",
     "echarts": "3.8.5",
+    "handsontable": "^6.2.2",
     "history": "4.6.1",
     "lodash": "4.17.11",
     "mirror-creator": "1.1.0",

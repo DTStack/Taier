@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { isEqual } from 'lodash';
-import { Table, Tabs, Icon, Tooltip, Button } from 'antd';
+import { Tabs, Icon, Tooltip, Button } from 'antd';
 
+import Result from './result';
 import CodeEditor from 'widgets/code-editor';
 import { defaultEditorOptions } from 'widgets/code-editor/config';
 
@@ -9,75 +10,13 @@ const TabPane = Tabs.TabPane;
 
 const defaultConsoleTab = 'console-log';
 
-class Result extends Component {
-    state = {
-        currentPage: 1
-    };
-
-    onChange = page => {
-        this.setState({
-            currentPage: page.current
-        });
-    };
-
-    generateCols (data) {
-        const { currentPage } = this.state;
-
-        if (data && data.length > 0) {
-            const arr = [
-                {
-                    title: '序号',
-                    key: 't-id',
-                    render: (text, item, index) => {
-                        return (currentPage - 1) * 10 + (index + 1);
-                    }
-                }
-            ];
-
-            data.forEach((item, index) => {
-                arr.push({
-                    title: item,
-                    key: index + item,
-                    render: (text, item) => {
-                        return (
-                            <textarea title={item[index]} value={item[index]} />
-                        );
-                    }
-                });
-            });
-
-            return arr;
-        }
-
-        return [];
-    }
-
-    render () {
-        const data = this.props.data;
-        const showData = data.slice(1, data.length);
-        const columns = this.generateCols(data[0]);
-
-        return (
-            <Table
-                rowKey="id"
-                scroll={{ x: true }}
-                className="console-table"
-                bordered
-                dataSource={showData}
-                onChange={this.onChange}
-                columns={columns}
-            />
-        );
-    }
-}
-
 class Console extends Component {
     state = {
         activeKey: defaultConsoleTab
     };
     /* eslint-disable */
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
 
@@ -126,14 +65,10 @@ class Console extends Component {
     };
 
     renderTabs (tabs) {
+        const { activeKey }  = this.state;
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
                 const title = <span>结果{tab.id ? tab.id : (index + 1)}</span>;
-                const exportStyle = {
-                    position: 'relative',
-                    top: tab.data && tab.data.length > 1 ? '-45px' : '10px',
-                    height: '30px'
-                };
 
                 return (
                     <TabPane
@@ -141,17 +76,17 @@ class Console extends Component {
                         tab={title}
                         key={`${index}`}
                     >
-                        <Result data={tab.data} />
-                        {tab.jobId && tab.data ? (
+                        <Result isShow={index==activeKey} data={tab.data} extraView={tab.jobId && tab.data ? (
                             <a
                                 href={`${this.props.downloadUri}?jobId=${
                                     tab.jobId
-                                }`}
+                                    }`}
                                 download
                             >
-                                <Button className="btn-download" style={exportStyle}>下载</Button>
+                                <Button className="btn-download">下载</Button>
                             </a>
-                        ) : null}
+                        ) : null} />
+
                     </TabPane>
                 );
             });
