@@ -87,6 +87,7 @@ const mergeTreeNodes = (treeNodeData, mergeSource) => {
             } else if (mergeSource.parentNodes) {
                 treeNodeData.parentNodes = cloneDeep(mergeSource.parentNodes);
             }
+            treeNodeData.subNodes = cloneDeep(mergeSource.subNodes);
             return;
         }
 
@@ -168,13 +169,7 @@ class TaskFlowView extends Component {
                 ctx.setState({ data, selectedJob: data })
                 // 替换 jobVos 字段为 parentNodes
                 replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
-                ctx.doInsertVertex(res.data)
-
-                // const result = Object.assign({}, require('./mockJson.json'));
-                // ctx.setState({ data: result.data, selectedJob: result.data })
-                // // 替换 jobVos 字段为 parentNodes
-                // replacTreeNodeField(result.data, 'jobVOS', 'parentNodes', 'parentNodes')
-                // ctx.doInsertVertex(result.data)
+                ctx.doInsertVertex(res.data);
             }
             ctx.setState({ loading: 'success' })
         })
@@ -279,9 +274,10 @@ class TaskFlowView extends Component {
             const task = cell.value.batchTask || {};
             const taskType = taskTypeText(task.taskType);
             const taskStatus = taskStatusText(cell.value.status);
+            const isDelete = task.isDeleted === 1 ? '（已删除）' : ''; // 已删除
 
             if (task) {
-                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}</span>
+                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}${isDelete}</span>
                 <span class="vertex-desc">${taskType}(${taskStatus})</span>
                 </div>`
             }
@@ -334,7 +330,6 @@ class TaskFlowView extends Component {
                 treeNodeData._geometry = currentNodeGeo;
                 console.log('geo:', treeNodeData.batchTask.name, treeNodeData._geometry);
 
-
                 relationTree.push({
                     parent: parent,
                     source: treeNodeData
@@ -368,9 +363,7 @@ class TaskFlowView extends Component {
                             target: treeNodeData
                         });
 
-                        if (nodeData.parentNodes) {
-                            loop(nodeData, parent, level - 1, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, level - 1, currentNodeGeo)
                     }
                 }
 
@@ -403,9 +396,7 @@ class TaskFlowView extends Component {
                             target: nodeData
                         });
 
-                        if (nodeData.jobVOS) {
-                            loop(nodeData, parent, ++level, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, ++level, currentNodeGeo)
                     }
                 }
             }
@@ -453,7 +444,7 @@ class TaskFlowView extends Component {
                 style
             )
 
-            if (isWorkflow) {
+            if (isWorkflow && data.subNodes) {
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }
 
@@ -501,22 +492,6 @@ class TaskFlowView extends Component {
         }
     }
 
-    // hierarchyLayout = (arr) => {
-    //     if (arr) {
-    //         for (let i = 0; i < arr.length; i++) {
-    //             const { source, target } = arr[i];
-    //             if (target) {
-    //                 const countInfo = getRowCountOfSameLevel(arr, target);
-    //                 source._geometry.count = countInfo.count;
-    //                 target._geometry.index = countInfo.index;
-    //                 target._geometry.count = countInfo.count;
-    //                 target._geometry = getGeoByRelativeNode(source._geometry, target._geometry);
-    //             }
-    //             console.log('hierarchyLayout:', arr[i]);
-    //         }
-    //     }
-    // }
-
     doInsertVertex = (data) => {
         const graph = this.graph;
 
@@ -551,11 +526,14 @@ class TaskFlowView extends Component {
         };
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-            if (!cell) return
+            if (!cell) return;
+
             const currentNode = cell.data;
 
             const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId && currentNode.batchTask.flowId !== 0;
             const taskId = currentNode.batchTask && currentNode.batchTask.id;
+            const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
+            if (isDelete) return;
 
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {

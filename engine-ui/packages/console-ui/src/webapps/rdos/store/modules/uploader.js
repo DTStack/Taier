@@ -101,6 +101,6 @@ export function uploader (state = getInitialData(), action) {
             nextState = state;
     }
 
-    localDb.get('uploader_cache', nextState);
+    localDb.set('uploader_cache', nextState);
     return nextState;
 }
