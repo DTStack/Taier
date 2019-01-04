@@ -108,21 +108,19 @@ class SiderBench extends React.Component {
                     />
                 </TabPane>
             )
-            if (tabData.taskType !== TASK_TYPE.SYNC) {
-                panes.push(
-                    <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
-                        <SQLEditor
-                            options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false } }}
-                            key={'params' + tabData.id}
-                            value={tabData.taskParams}
-                            onFocus={() => { }}
-                            focusOut={() => { }}
-                            language="ini"
-                            onChange={this.handleTaskParamChange.bind(this)}
-                        />
-                    </TabPane>
-                )
-            }
+            panes.push(
+                <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
+                    <SQLEditor
+                        options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false } }}
+                        key={'params' + tabData.id}
+                        value={tabData.taskParams}
+                        onFocus={() => { }}
+                        focusOut={() => { }}
+                        language="ini"
+                        onChange={this.handleTaskParamChange.bind(this)}
+                    />
+                </TabPane>
+            )
         } else if (utils.checkExist(tabData.type)) {
             return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
                 <ScriptDetail tabData={tabData} isPro={isPro} couldEdit={couldEdit} />
