@@ -81,7 +81,7 @@ export default {
     GET_TABLE_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableListByProjectId`, // 获取表列表
     GET_COLUMNS_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableColumns`, // 获取表字段
     GET_DESRULES_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/listRules`, // 获取脱敏规则列表 // 暂缺
-    VIEW_TABLE_RELATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedTables`, // 根据脱敏名称查看表关系明细
+    VIEW_TABLE_RELATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedTables`, // 根据脱敏名称查看关系明细
     UPDATE_OPEN_STATUS: `${RDOS_BASE_URL}/batch/dataMaskConfig/disable`, // 切换开关状态
     // 规则管理
     GET_RULE_LIST: `${RDOS_BASE_URL}/batch/dataMaskRule/listRules`, // 获取规则列表

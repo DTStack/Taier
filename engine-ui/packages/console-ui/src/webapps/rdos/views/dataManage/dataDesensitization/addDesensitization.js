@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Select, Alert } from 'antd';
+import { Modal, Form, Input, Select, Alert, message } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
 
@@ -20,7 +20,9 @@ class AddDesensitization extends Component {
         this.state = {
             tableList: [],
             columnsList: [],
-            rulesList: [props.rulesList] // 脱敏规则列表
+            rulesList: [props.rulesList], // 脱敏规则列表
+            newReplaceData: '',
+            selectRule: [] // 选中的脱敏规则
         }
     }
     componentDidMount () {
@@ -91,6 +93,67 @@ class AddDesensitization extends Component {
             </Option>
         })
     }
+    // 字符串替换
+    repeatStr = (str, n) => {
+        return new Array(n + 1).join(str)
+    }
+    // 预览
+    preview = () => {
+        const { getFieldValue } = this.props.form;
+        let sampleData = getFieldValue('example');
+        let ruleId = getFieldValue('ruleId');
+        const { maskType, beginPos, endPos, replaceStr } = this.state.selectRule;
+        if (!ruleId) {
+            message.warning('请先选择脱敏规则');
+        } else {
+            if (maskType === 1) {
+                if (sampleData) {
+                    let sampleDataArr = sampleData.split('');
+                    console.log(sampleData.split(''));
+                    let repeatCount = 0;
+                    if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
+                        repeatCount = sampleDataArr.length - beginPos
+                    } else if (endPos < sampleDataArr.length && (sampleDataArr.length >= beginPos)) {
+                        repeatCount = endPos - beginPos;
+                    } else if (sampleDataArr.length < beginPos) {
+                        repeatCount = 0;
+                    }
+                    // const repeatCount = endPos >= sampleDataArr.length ? sampleDataArr.length - beginPos : endPos - beginPos;
+                    const newStr = this.repeatStr(replaceStr, repeatCount);
+                    console.log(newStr);
+                    sampleDataArr.splice(beginPos, (endPos - beginPos), newStr).join('');
+                    console.log(sampleDataArr);
+                    this.setState({
+                        newReplaceData: sampleDataArr
+                    })
+                }
+            } else {
+                if (sampleData) {
+                    let sampleDataAllArr = sampleData.split('');
+                    const newStr = this.repeatStr('*', sampleDataAllArr.length);
+                    sampleDataAllArr.splice(0, sampleDataAllArr.length, newStr).join('');
+                    console.log(newStr);
+                    console.log(sampleDataAllArr);
+                    this.setState({
+                        newReplaceData: sampleDataAllArr
+                    })
+                } else {
+                    this.setState({
+                        newReplaceData: ''
+                    })
+                }
+            }
+        }
+    }
+    changeRule (value) {
+        const { rulesList } = this.state;
+        const selectRule = rulesList.filter((item, index) => {
+            return `${item.id}` === value
+        })
+        this.setState({
+            selectRule: selectRule[0]
+        })
+    }
     // 选择项目
     changeProject (value) {
         this.props.form.resetFields(['tableId', 'columnName']);
@@ -123,6 +186,7 @@ class AddDesensitization extends Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { projects } = this.props;
+        const { newReplaceData } = this.state;
         const projectsOptions = projects.map(item => {
             return <Option
                 title={item.projectAlias}
@@ -238,6 +302,7 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择脱敏规则'
+                                onChange={this.changeRule.bind(this)}
                                 // allowClear
                             >
                                 {this.rulesOption()}
@@ -246,7 +311,8 @@ class AddDesensitization extends Component {
                     </FormItem>
                     <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-6px' }}>
                         <img src="/public/rdos/img/icon/icon-preview.svg" style={{ display: 'block', float: 'left' }} />
-                        <a style={{ marginLeft: '5px' }}>效果预览</a>
+                        <a onClick={this.preview} style={{ marginLeft: '5px' }}>效果预览</a>
+                        <div>{newReplaceData}</div>
                     </div>
                 </Form>
             </Modal>

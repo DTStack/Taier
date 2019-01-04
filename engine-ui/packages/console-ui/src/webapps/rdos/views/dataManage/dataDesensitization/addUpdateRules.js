@@ -136,7 +136,7 @@ class AddUpdateRules extends Component {
         return (
             <Modal
                 visible={this.props.visible}
-                width='650'
+                width='600'
                 title={isEdit ? '编辑规则' : '创建规则'}
                 onCancel={this.cancel}
                 onOk={this.submit}
