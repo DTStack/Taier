@@ -93,7 +93,7 @@ class TableRelation extends Component {
     }
     // 切换开关
     changeOpenStatus = (checked, record) => {
-        const enable = checked === 1; // 开状态
+        const enable = checked === 0; // 开状态
         this.setState({
             openStatusLoading: true
         })
@@ -250,13 +250,13 @@ class TableRelation extends Component {
             {
                 title: '启用状态',
                 width: 140,
-                dataIndex: 'status',
+                dataIndex: 'enable',
                 filters: [
-                    { text: '开', value: '1' },
-                    { text: '关', value: '0' }
+                    { text: '开', value: '0' },
+                    { text: '关', value: '1' }
                 ],
                 render: (text, record) => {
-                    const isChecked = text === 1; // 开
+                    const isChecked = text === 0; // 开
                     const { openStatusLoading } = this.state;
                     return (
                         <Switch
