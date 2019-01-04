@@ -79,7 +79,9 @@ public class TaskListener implements Runnable{
 				}else if(ComputeType.BATCH.getType().equals(jobClient.getComputeType().getType())){
 
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
-						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId());
+						JobResult jobResult = jobClient.getJobResult();
+						String appId = jobResult.getData(JobResult.EXT_ID_KEY);
+						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
 						rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
 						WorkNode.getInstance().saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString(), null);
 

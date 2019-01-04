@@ -280,9 +280,11 @@ public class FlinkClient extends AbsClient {
         //只有当程序本身没有指定并行度的时候该参数才生效
         Integer runParallelism = FlinkUtil.getJobParallelism(jobClient.getConfProperties());
 
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+
         jobClientThreadLocal.set(jobClient);
         try {
-            Pair<String, String> runResult = runJob(packagedProgram, runParallelism);
+            Pair<String, String> runResult = runJob(packagedProgram, runParallelism,taskRunMode);
             return JobResult.createSuccessResult(runResult.getFirst(), runResult.getSecond());
         }catch (Exception e){
             return JobResult.createErrorResult(e);
@@ -292,11 +294,11 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private Pair<String, String> runJob(PackagedProgram program, int parallelism) throws Exception {
+    private Pair<String, String> runJob(PackagedProgram program, int parallelism,FlinkYarnMode taskRunMode) throws Exception {
 
         JobClient jobClient = jobClientThreadLocal.get();
 
-        if (FlinkYarnMode.isPerJob(flinkYarnMode) && ComputeType.STREAM == jobClient.getComputeType()){
+        if (FlinkYarnMode.isPerJob(flinkYarnMode) && FlinkYarnMode.isPerJob(taskRunMode)){
 
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority());
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, prometheusGatewayConfig, jobClient.getTaskId());

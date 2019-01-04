@@ -18,6 +18,7 @@
         <result column="engine_log" property="engineLog" jdbcType="VARCHAR"/>
         <result column="log_info" property="logInfo" jdbcType="VARCHAR"/>
         <result column="source_type" property="sourceType" jdbcType="INTEGER" />
+        <result column="application_id" property="applicationId" jdbcType="VARCHAR"/>
     </resultMap>
 	
    <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
@@ -45,11 +46,11 @@
     </update>
    
    <update id="updateJobEngineId" parameterType="java.util.HashMap">
-	   update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId} where job_id=#{jobId};
+	   update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId},application_id=#{appId} where job_id=#{jobId};
    </update>
 
    <update id="updateJobEngineIdAndStatus" parameterType="java.util.HashMap">
-       update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId},status=#{status} where job_id=#{jobId};
+       update rdos_engine_batch_job set gmt_modified=now(),exec_start_time=now(),engine_job_id=#{engineId},status=#{status},application_id=#{appId} where job_id=#{jobId};
    </update>
    
    <update id="updateJobStatusAndExecTime" parameterType="java.util.HashMap">

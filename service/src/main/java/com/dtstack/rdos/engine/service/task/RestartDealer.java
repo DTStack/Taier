@@ -215,7 +215,7 @@ public class RestartDealer {
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus());
+            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{

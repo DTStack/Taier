@@ -1,7 +1,10 @@
 package com.dtstack.rdos.engine.execution.flink150.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ConfigConstrant;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.client.program.PackagedProgram;
@@ -289,6 +292,23 @@ public class FlinkUtil {
     public static long getBufferTimeoutMillis(Properties properties){
         String mills = properties.getProperty(ConfigConstrant.SQL_BUFFER_TIMEOUT_MILLIS);
         return StringUtils.isNotBlank(mills)?Long.parseLong(mills):0L;
+    }
+
+    /**
+     * get task run mode
+     * @param properties
+     * @return
+     */
+    public static FlinkYarnMode getTaskRunMode(Properties properties, ComputeType computeType){
+        String modeStr = properties.getProperty(ConfigConstrant.FLINK_TASK_RUN_MODE_KEY);
+        if (StringUtils.isEmpty(modeStr)){
+            if(ComputeType.STREAM == computeType){
+                return FlinkYarnMode.PER_JOB;
+            } else {
+                return FlinkYarnMode.NEW;
+            }
+        }
+        return FlinkYarnMode.mode(modeStr);
     }
 
     public static URLClassLoader createNewClassLoader(List<URL> jarURLList, ClassLoader superClassLoader){

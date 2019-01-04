@@ -521,7 +521,8 @@ public class ActionServiceImpl {
             engineStreamTaskDAO.updateSubmitLog(jobId, "");
             engineStreamTaskDAO.updateEngineLog(jobId, "");
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus());
+            // TODO
+            batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
             batchJobDAO.updateSubmitLog(jobId, "");
             batchJobDAO.updateEngineLog(jobId, "");
         }

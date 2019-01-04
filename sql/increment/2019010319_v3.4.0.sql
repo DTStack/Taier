@@ -1,0 +1,1 @@
+alter table `rdos_engine_batch_job` add COLUMN(`application_id` varchar(256) DEFAULT NULL);
