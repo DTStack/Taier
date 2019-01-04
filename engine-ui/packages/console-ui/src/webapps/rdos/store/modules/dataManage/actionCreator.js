@@ -1,4 +1,4 @@
-import { tableAction, logAction, cataloguesAction } from './actionType';
+import { tableAction, logAction, cataloguesAction, desensitizationAction } from './actionType';
 import { message } from 'antd';
 import tableMaApi from '../../../api/dataManage';
 import ajax from '../../../api';
@@ -145,6 +145,21 @@ export default {
     getDataCatalogues (data) {
         return {
             type: cataloguesAction.DATA_CATALOGUES,
+            payload: data
+        }
+    },
+    getdesRulesList (params) {
+        return dispatch => {
+            tableMaApi.getdesRulesList(params).then(res => {
+                if (res.code === 1) {
+                    dispatch(this.getdesRulesListData(res.data))
+                }
+            })
+        }
+    },
+    getdesRulesListData (data) {
+        return {
+            type: desensitizationAction.GET_DESENSITIZATION_RULES,
             payload: data
         }
     }
