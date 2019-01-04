@@ -64,9 +64,8 @@ class RealTimeTabPane extends Component {
         expandedKeys: [],
         expandedKeys2: []
     }
-
-    componentDidMount () {
-        const { dispatch } = this.props
+    initRealtimeTree (props) {
+        const { dispatch, currentPage } = props;
         dispatch(TreeAction.getRealtimeTree(rootNode)).then((data) => {
             /**
              * 默认展开第一个
@@ -89,8 +88,13 @@ class RealTimeTabPane extends Component {
             }
             this.setState({
                 expandedKeys
-            })
+            });
+            this.locateFilePos(currentPage.id, MENU_TYPE.TASK_DEV)
         })
+    }
+    componentDidMount () {
+        const { dispatch } = this.props
+        this.initRealtimeTree(this.props);
         dispatch(ResAction.getResources())
         this.loadTaskTypes();
     }
@@ -101,7 +105,7 @@ class RealTimeTabPane extends Component {
         const newData = nextProps.project
         if (newData && old.id !== 0 && old.id !== newData.id) {
             const { dispatch } = this.props
-            dispatch(TreeAction.getRealtimeTree(rootNode))
+            this.initRealtimeTree();
             dispatch(ResAction.getResources());
             this.setState({
                 expandedKeys: [],
