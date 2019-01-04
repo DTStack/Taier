@@ -40,7 +40,7 @@ class IDEEditor extends Component {
     renderEditorPane () {
         const { editor, editorInstanceRef, extraPane } = this.props;
         const { editorSize } = this.state;
-        const editorView = <Editor editorInstanceRef={editorInstanceRef} {...editor} />;
+        const editorView = <Editor style={{ minHeight: '100px' }} editorInstanceRef={editorInstanceRef} {...editor} />;
         const extraView = extraPane;
         if (extraPane) {
             return <SplitPane
