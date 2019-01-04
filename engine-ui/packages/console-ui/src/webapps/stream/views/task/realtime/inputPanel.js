@@ -186,7 +186,7 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label={<span>
                             <span style={{ paddingRight: '5px' }}>Offset</span>
-                            <Tooltip title={<div>
+                            <Tooltip overlayClassName="big-tooltip" title={<div>
                                 <p>latest：从Kafka Topic内最新的数据开始消费</p>
                                 <p>earliest：从Kafka Topic内最老的数据开始消费</p>
                             </div>}>
@@ -205,7 +205,7 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label={<span>
                             <span style={{ paddingRight: '5px' }}>时间特征</span>
-                            <Tooltip title={<div>
+                            <Tooltip overlayClassName="big-tooltip" title={<div>
                                 <p>ProcTime：按照Flink的处理时间处理</p>
                                 <p>EventTime：按照流式数据本身包含的业务时间戳处理</p>
                             </div>}>
