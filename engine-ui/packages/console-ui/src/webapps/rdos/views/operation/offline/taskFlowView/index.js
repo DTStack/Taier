@@ -444,7 +444,7 @@ class TaskFlowView extends Component {
                 style
             )
 
-            if (isWorkflow && data.subNodes) {
+            if (isWorkflow) {
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }
 
