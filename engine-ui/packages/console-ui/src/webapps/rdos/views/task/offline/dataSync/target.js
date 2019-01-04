@@ -610,9 +610,8 @@ class TargetForm extends React.Component {
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
-                                /* eslint-disable */
+                                /* eslint-disable-next-line */
                                 placeholder="pt=${bdp.system.bizdate}"
-                            /* eslint-disable */
                             ></Input>
                         )}
                         <HelpDoc doc="partitionDesc" />
@@ -632,10 +631,10 @@ class TargetForm extends React.Component {
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
-                            </Radio>
+                                </Radio>
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
-                            </Radio>
+                                </Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
