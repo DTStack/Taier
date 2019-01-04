@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Table, Select } from 'antd';
+import { Table, Select } from 'antd';
 import moment from 'moment';
 
 import Api from '../../api/console';
@@ -214,9 +214,12 @@ class ResourceManage extends React.Component {
         const columns = this.initTableColumns();
         return (
             <div className="contentBox">
-                <Card
-                    style={{ width: '900px', color: 'rgba(1,1,1,0.84)' }}
-                    noHovering
+                <div
+                    style={{
+                        width: '900px',
+                        color: 'rgba(1,1,1,0.84)',
+                        padding: '20px'
+                    }}
                 >
                     <h2>什么是资源管理</h2>
                     <p style={{ marginTop: '20px' }}>资源管理是以租户为单位进行计算资源的分配，当您需要多个租户，并且每个租户分配不同比例的资源容量时需要使用本功能，例如：您的集群有10个节点，每个节点的配置为8核16GB内存，总资源为80核160GB内存，那么您可以新建“销售”和“开发”2个租户，为销售租户分配30%的资源容量，为开发租户分配70%的资源容量。</p>
@@ -228,7 +231,7 @@ class ResourceManage extends React.Component {
                         <li>4、以资源队列的形式分配资源，资源队列的维护在配置文件中，本模块只是将资源队列绑定到租户；</li>
                         <li>5、可能已有的任务占用了较多的资源，导致更新配置后不会立即生效，需要等待已占用的资源释放；</li>
                     </ul>
-                </Card>
+                </div>
                 <Table
                     rowClassName={(record, index) => {
                         return record.className
@@ -236,7 +239,6 @@ class ResourceManage extends React.Component {
                     rowKey={(record) => {
                         return record.clusterId + '~' + record.queueId
                     }}
-                    style={{ marginTop: '20px' }}
                     className="m-table no-card-table"
                     pagination={this.getPagination()}
                     loading={loading}
