@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { cloneDeep } from 'lodash';
-import { tableAction, logAction, cataloguesAction } from './actionType';
+import { tableAction, logAction, cataloguesAction, desensitizationAction } from './actionType';
 
 // move up/down
 /* eslint-disable */
@@ -186,7 +186,19 @@ const dataCatalogues = (state = {
     }
 }
 
+const desensitization = (state = {
+    desensitizationRules: {}
+}, action) => {
+    switch (action.type) {
+        case desensitizationAction.GET_DESENSITIZATION_RULES : {
+            return action.payload
+        }
+        default:
+            return state;
+    }
+}
+
 export const dataManageReducer = combineReducers({
-    tableManage, log, dataCatalogues
+    tableManage, log, dataCatalogues, desensitization
 });
 /* eslint-disable */

@@ -205,6 +205,7 @@ export default {
     getColumnsList (params) {
         return http.post(dataManageReq.GET_COLUMNS_LIST, params)
     },
+    //  添加脱敏时获取脱敏列表
     getdesRulesList (params) {
         return http.post(dataManageReq.GET_DESRULES_LIST, params)
     },

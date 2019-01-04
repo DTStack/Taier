@@ -10,23 +10,29 @@ const Option = Select.Option;
 @connect(state => {
     return {
         projects: state.projects,
-        user: state.user
+        user: state.user,
+        rulesList: state.dataManage.desensitization
     }
 }, null)
 class AddDesensitization extends Component {
-    state = {
-        tableList: [],
-        columnsList: [],
-        rulesList: []
+    constructor (props) {
+        super(props);
+        this.state = {
+            tableList: [],
+            columnsList: [],
+            rulesList: [props.rulesList] // 脱敏规则列表
+        }
     }
     componentDidMount () {
-        // console.log('------------------------');
-        this.getdesRulesList();
     }
     // 获取表列表
     getTableList = (params) => {
         // const { getFieldValue } = this.props.form;
         // const projectId = getFieldValue('projectId');
+        this.setState({
+            tableList: [],
+            columnsList: []
+        })
         ajax.getTableList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -50,7 +56,9 @@ class AddDesensitization extends Component {
     getColumnsList = (value) => {
         const { getFieldValue } = this.props.form;
         const projectId = getFieldValue('projectId');
-        // const tableId = getFieldValue('tableId');
+        this.setState({
+            columnsList: []
+        })
         if (projectId && value) {
             ajax.getColumnsList({ tableId: value, projectId: projectId }).then(res => {
                 if (res.code === 1) {
@@ -72,16 +80,6 @@ class AddDesensitization extends Component {
             </Option>
         })
     }
-    // 脱敏规则
-    getdesRulesList = () => {
-        ajax.getdesRulesList().then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    rulesList: res.data
-                })
-            }
-        })
-    }
     rulesOption () {
         const { rulesList } = this.state;
         return rulesList.map((item, index) => {
@@ -95,16 +93,17 @@ class AddDesensitization extends Component {
     }
     // 选择项目
     changeProject (value) {
+        this.props.form.resetFields(['tableId', 'columnName']);
         this.setState({
             tableList: [],
             columnsList: []
-        }, this.getTableList({ projectId: value }))
+        })
+        this.getTableList({ projectId: value })
     }
     // 选择表
     changeTable (value) {
-        this.setState({
-            columnsList: []
-        }, this.getColumnsList(value))
+        this.props.form.resetFields(['columnName']);
+        this.getColumnsList(value)
     }
     cancel = () => {
         const { onCancel } = this.props;
@@ -211,7 +210,7 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ marginLeft: '106px', marginTop: '-22px' }} className='desenAlert'>
+                    <div style={{ marginLeft: '106px', marginTop: '-14px' }} className='desenAlert'>
                         <Alert message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
                     </div>
                     <FormItem
@@ -245,7 +244,7 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-15px' }}>
+                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-6px' }}>
                         <img src="/public/rdos/img/icon/icon-preview.svg" style={{ display: 'block', float: 'left' }} />
                         <a style={{ marginLeft: '5px' }}>效果预览</a>
                     </div>
