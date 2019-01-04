@@ -31,19 +31,19 @@ class DesensitizationMange extends Component {
             pageSize: 20,
             name: undefined
         },
-        tableId: undefined, // 点击查看血缘表Id
+        tableId: undefined // 点击查看血缘表Id
         // mock
-        dataSource: [
-            {
-                key: '1',
-                name: '身份证号脱敏',
-                relatedNum: 12,
-                ruleName: '身份证号',
-                modifyUserName: 'admin@dtstack.com',
-                gmtModified: '2018-01-01 12:12:12',
-                opear: '删除'
-            }
-        ]
+        // dataSource: [
+        //     {
+        //         key: '1',
+        //         name: '身份证号脱敏',
+        //         relatedNum: 12,
+        //         ruleName: '身份证号',
+        //         modifyUserName: 'admin@dtstack.com',
+        //         gmtModified: '2018-01-01 12:12:12',
+        //         opear: '删除'
+        //     }
+        // ]
     }
     /* eslint-disable */
     componentDidMount () {
@@ -183,7 +183,7 @@ class DesensitizationMange extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, dataSource, tableId } = this.state;
+        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, tableId } = this.state;
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -212,7 +212,7 @@ class DesensitizationMange extends Component {
                         <Table
                             className="m-table"
                             columns={columns}
-                            dataSource={dataSource}
+                            dataSource={table}
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
