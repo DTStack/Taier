@@ -991,18 +991,14 @@ class SourceForm extends React.Component {
                     ),
                     <FormItem {...formItemLayout} label="分区" key="partition">
                         {getFieldDecorator('partition', {
-                            rules: [
-                                // {
-                                //     validator: this.checkSpaceCharacter
-                                // }
-                            ],
+                            rules: [],
                             initialValue: isEmpty(sourceMap)
                                 ? ''
                                 : sourceMap.type.partition
                         })(
                             <Input
                                 placeholder="请填写分区"
-                                /* eslint-disable */
+                                /* eslint-disable-next-line */
                                 placeholder="pt=${bdp.system.bizdate}"
                                 onChange={this.submitForm.bind(this)}
                             />
