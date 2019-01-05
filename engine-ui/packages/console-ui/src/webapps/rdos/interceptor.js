@@ -50,8 +50,7 @@ export function authAfterFormated(response) {
             return Promise.reject(response);
         case 3: { // 功能无权限
             // 通过判断dom数量，限制通知数量
-            const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
-            if (notifyMsgs.length === 0) {
+            if (response.message) {
                 singletonNotification(
                     '权限通知', 
                     response.message, 
