@@ -21,8 +21,9 @@ class TableRelation extends Component {
             pageSize: 20,
             configId: ''
         },
-        // editRecord: [], // 勾选ids
+        loading: false,
         checkAll: false,
+        editRecord: [], // 单击开关
         selectedRowKeys: [],
         openApply: undefined, // 批量开启还是关闭
         // 按项目名，表名，字段名，开关状态搜索
@@ -31,8 +32,6 @@ class TableRelation extends Component {
         enable: '',
         dataSource: [],
         relatedProject: [] // 项目列表
-        // ids: [] // 选中ids
-        // mock
     }
     componentDidMount () {
         const currentDesensitization = this.props.tableData;
@@ -74,10 +73,18 @@ class TableRelation extends Component {
         this.loadTableRelation(queryParams)
     }
     loadTableRelation = (params) => {
+        this.setState({
+            loading: true
+        })
         ajax.viewTableRelation(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    dataSource: res.data
+                    dataSource: res.data,
+                    loading: false
+                })
+            } else {
+                this.setState({
+                    loading: false
                 })
             }
         })
@@ -106,16 +113,15 @@ class TableRelation extends Component {
     // 切换开关
     changeOpenStatus = (checked, record) => {
         const enable = checked === 0 ? 1 : 0; // 开状态
-        this.setState({
-            openStatusLoading: true
-        })
+        console.log(checked)
+        console.log(record)
         this.operaSwitch({ ids: [record.id], enable })
     }
     // 批量按钮
     batchOpera = (openApply) => {
         const text = openApply === 0 ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
         const { selectedRowKeys } = this.state;
-        if (selectedRowKeys > 0) {
+        if (selectedRowKeys.length > 0) {
             confirm({
                 title: '开启/关闭脱敏',
                 content: `开启脱敏后，数据开发、运维、访客角色的用户${text}？`,
@@ -136,13 +142,22 @@ class TableRelation extends Component {
     }
     // 调用更新按钮接口
     operaSwitch = (params) => {
+        this.setState({
+            openStatusLoading: true
+        })
         ajax.updateOpenStatus(params).then(res => {
-            this.setState({
-                openStatusLoading: false
-            })
             if (res.code === 1) {
                 message.success('状态切换成功!');
+                this.setState({
+                    selectedRowKeys: [],
+                    checkAll: false,
+                    openStatusLoading: false
+                })
                 this.search();
+            } else {
+                this.setState({
+                    openStatusLoading: false
+                })
             }
         })
     }
@@ -176,7 +191,7 @@ class TableRelation extends Component {
         )
     }
     onSelectChange = (selectedRowKeys) => {
-        const checkAll = selectedRowKeys.length === this.state.dataSource.data.length;
+        const checkAll = selectedRowKeys.length === this.state.dataSource.length;
         this.setState({
             selectedRowKeys,
             checkAll
@@ -186,8 +201,9 @@ class TableRelation extends Component {
         const { dataSource } = this.state;
         let selectedRowKeys = [];
         if (e.target.checked) {
-            selectedRowKeys = dataSource.data.map(item => item.tableId)
+            selectedRowKeys = dataSource.map(item => item.id)
         }
+        console.log(selectedRowKeys)
         this.setState({
             checkAll: e.target.checked,
             selectedRowKeys
@@ -245,7 +261,7 @@ class TableRelation extends Component {
             },
             {
                 title: '最近修改人',
-                width: 150,
+                width: 170,
                 dataIndex: 'modifyUserName',
                 render: (text, record) => {
                     return text
@@ -253,7 +269,7 @@ class TableRelation extends Component {
             },
             {
                 title: '最近修改时间',
-                width: 150,
+                width: 170,
                 dataIndex: 'gmtModified',
                 render: (text, record) => {
                     return moment(text).format('YYYY-MM-DD HH:mm:ss')
@@ -261,7 +277,7 @@ class TableRelation extends Component {
             },
             {
                 title: '启用状态',
-                width: 140,
+                width: 100,
                 dataIndex: 'enable',
                 filters: [
                     { text: '开', value: '0' },
@@ -276,14 +292,14 @@ class TableRelation extends Component {
                             unCheckedChildren="关"
                             disabled={openStatusLoading}
                             checked={isChecked}
-                            onChange={this.changeOpenStatus.bind(this, record)}
+                            onChange={() => this.changeOpenStatus(text, record)}
                         />
                     )
                 }
             },
             {
                 title: '操作',
-                width: 100,
+                width: 80,
                 dataIndex: 'opera',
                 render: (text, record) => {
                     return (
@@ -295,7 +311,7 @@ class TableRelation extends Component {
     }
     render () {
         const columns = this.initColumns();
-        const { dataSource, selectedRowKeys } = this.state;
+        const { dataSource, selectedRowKeys, loading } = this.state;
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange
@@ -309,7 +325,7 @@ class TableRelation extends Component {
                     title={
                         <div style={{ marginTop: '10px' }}>
                             <Select
-                                // allowClear
+                                allowClear
                                 // defaultValue={}
                                 placeholder='项目名称'
                                 style={{ width: '150px', marginRight: '20px' }}
@@ -318,7 +334,7 @@ class TableRelation extends Component {
                                 {this.projectsOptions()}
                             </Select>
                             <Search
-                                placeholder="按表名、字段名搜索"
+                                placeholder="按表名搜索"
                                 style={{ width: '200px' }}
                                 onChange={this.changeName}
                                 onSearch={this.search}
@@ -328,11 +344,13 @@ class TableRelation extends Component {
                 >
                     <Table
                         className="m-table-fix m-table"
+                        rowKey="id"
+                        loading={loading}
                         columns={columns}
                         dataSource={dataSource}
                         rowSelection={rowSelection}
                         onChange={this.handleTableChange}
-                        footer={this.tableFooter}
+                        footer={dataSource.length > 0 ? this.tableFooter : ''}
                     />
                 </Card>
             </div>
