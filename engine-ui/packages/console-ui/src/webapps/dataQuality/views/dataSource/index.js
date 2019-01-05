@@ -10,8 +10,8 @@ import {
     Icon,
     Tooltip
 } from 'antd';
-import moment from 'moment';
 
+import { ExtTableCell } from '../../components/extDataSourceMsg';
 import { Circle } from 'widgets/circle';
 import DataSourceForm from './editModal';
 import { dataSourceFilter } from '../../consts';
@@ -139,7 +139,7 @@ class DataSource extends Component {
                 title: '数据源名称',
                 dataIndex: 'dataName',
                 key: 'dataName',
-                width: '18%',
+                width: '200px',
                 render: text => (
                     <div className="ellipsis-td" title={text}>
                         {text}
@@ -152,7 +152,7 @@ class DataSource extends Component {
                 key: 'type',
                 filters: dataSourceFilter,
                 filterMultiple: false,
-                width: '10%',
+                width: '100px',
                 render (text, record) {
                     return record.sourceTypeValue;
                 }
@@ -161,20 +161,15 @@ class DataSource extends Component {
                 title: '描述信息',
                 dataIndex: 'dataDesc',
                 key: 'dataDesc',
-                width: '22%'
+                width: '250px'
             },
             {
-                title: '最近修改人',
-                dataIndex: 'modifyUserName',
-                key: 'modifyUserName',
-                width: '15%'
-            },
-            {
-                title: '最近修改时间',
-                dataIndex: 'gmtModified',
-                key: 'gmtModified',
-                render: text => moment(text).format('YYYY-MM-DD HH:mm:ss'),
-                width: '15%'
+                title: '连接信息',
+                dataIndex: 'ext',
+                key: 'ext',
+                render: (empty, record) => {
+                    return <ExtTableCell key={record.id} sourceData={record} />
+                }
             },
             {
                 title: '应用状态',
@@ -194,7 +189,7 @@ class DataSource extends Component {
                 render: active => {
                     return active === 1 ? '使用中' : '未使用';
                 },
-                width: '10%'
+                width: '100px'
             },
             {
                 title: (
@@ -207,7 +202,7 @@ class DataSource extends Component {
                 ),
                 dataIndex: 'linkState',
                 key: 'linkState',
-                width: '10%',
+                width: '90px',
                 render: linkState => {
                     return linkState === 1 ? (
                         <span>
@@ -223,7 +218,7 @@ class DataSource extends Component {
             },
             {
                 title: '操作',
-                width: '10%',
+                width: '120px',
                 render: (text, record) => {
                     return (
                         <span>

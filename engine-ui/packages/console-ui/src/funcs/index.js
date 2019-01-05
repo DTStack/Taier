@@ -283,8 +283,9 @@ export function timeout (promise, ms) {
  * @param {*} message
  */
 export function singletonNotification (title, message, type, style) {
-    const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
-    if (notifyMsgs.length === 0) {
+    const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
+
+    if (!notifyMsgs.length || notifyMsgs[notifyMsgs.length - 1].innerHTML != message) {
         notification[type || 'error']({
             message: title,
             description: message,

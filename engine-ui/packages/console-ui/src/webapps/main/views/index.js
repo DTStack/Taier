@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 
+import { notification } from 'antd';
 import NotFund from 'widgets/notFund'
 
 import { getInitUser } from '../actions/user'
@@ -14,7 +15,9 @@ const propType = {
 const defaultPro = {
     children: []
 }
-
+notification.config({
+    duration: null
+})
 @connect(state => {
     return {
         user: state.user
