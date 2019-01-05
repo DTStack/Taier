@@ -31,19 +31,7 @@ class DesensitizationMange extends Component {
             pageSize: 20,
             name: undefined
         },
-        tableId: undefined // 点击查看血缘表Id
-        // mock
-        // dataSource: [
-        //     {
-        //         key: '1',
-        //         name: '身份证号脱敏',
-        //         relatedNum: 12,
-        //         ruleName: '身份证号',
-        //         modifyUserName: 'admin@dtstack.com',
-        //         gmtModified: '2018-01-01 12:12:12',
-        //         opear: '删除'
-        //     }
-        // ]
+        tableInfo: undefined // 表点击查看血缘信息
     }
     /* eslint-disable */
     componentDidMount () {
@@ -78,6 +66,16 @@ class DesensitizationMange extends Component {
         this.setState({
             queryParams
         }, this.search)
+    }
+    showaddModal = () => {
+        ajax.voidCheckPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    addVisible: true,
+                    editModalKey: Math.random() 
+                })
+            }
+        })
     }
     // 添加脱敏
     addDesensitization = (desensitization) => {
@@ -120,12 +118,18 @@ class DesensitizationMange extends Component {
         this.setState({
             nowView: tabKey
         })
+        // if (tabKey === 'bloodRelation') {
+        //     console.log('血缘');
+        // }
     }
     // 获取点击具体查看血缘
-    handleClickTable = (tableId) => {
+    handleClickTable = (tableInfo) => {
         this.setState({
-            tableId
+            tableInfo
+        }, () => {
+            console.log(tableInfo)
         })
+        
     }
     initialColumns = () => {
         return [
@@ -185,7 +189,7 @@ class DesensitizationMange extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, tableId } = this.state;
+        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, tableInfo } = this.state;
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -204,7 +208,7 @@ class DesensitizationMange extends Component {
                         <Button
                             type='primary'
                             style={{ marginTop: '10px' }}
-                            onClick={() => { this.setState({ addVisible: true, editModalKey: Math.random() }) }}
+                            onClick={this.showaddModal}
                         >
                             添加脱敏
                         </Button>
@@ -240,8 +244,9 @@ class DesensitizationMange extends Component {
                             <TabPane tab="血缘关系" key="bloodRelation">
                                 <BloodRelation
                                     tabKey={nowView}
+                                    // onTabChange={this.onTabChange}
                                     visibleSlidePane={visibleSlidePane}
-                                    tableId={tableId}
+                                    tableDetail={tableInfo}
                                     tableData={selectedId}
                                 />
                             </TabPane>
@@ -251,6 +256,7 @@ class DesensitizationMange extends Component {
                 <AddDesensitization
                     key={editModalKey}
                     visible={addVisible}
+                    onTabChange={this.onTabChange}
                     onCancel={() => { this.setState({ addVisible: false }) }}
                     onOk={this.addDesensitization}
                 />

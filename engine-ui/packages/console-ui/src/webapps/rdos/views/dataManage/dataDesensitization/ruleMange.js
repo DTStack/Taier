@@ -74,18 +74,22 @@ class RuleManage extends Component {
     }
     // 编辑规则
     editRule = (record) => {
-        ajax.editRule({ id: record.id }).then(res => {
+        ajax.voidCheckPermission().then(res => {
             if (res.code === 1) {
+                ajax.editRule({ id: record.id }).then(res => {
+                    if (res.code === 1) {
+                        this.setState({
+                            source: res.data
+                        })
+                    }
+                })
                 this.setState({
-                    source: res.data
+                    addVisible: true,
+                    status: 'edit',
+                    source: record,
+                    editModalKey: Math.random()
                 })
             }
-        })
-        this.setState({
-            addVisible: true,
-            status: 'edit',
-            source: record,
-            editModalKey: Math.random()
         })
     }
     changeName = (e) => {

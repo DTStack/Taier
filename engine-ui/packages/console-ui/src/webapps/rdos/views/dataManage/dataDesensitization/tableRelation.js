@@ -81,6 +81,8 @@ class TableRelation extends Component {
                 this.setState({
                     dataSource: res.data,
                     loading: false
+                }, () => {
+                    this.props.handleClickTable(this.state.dataSource[0]) // 解决第一次切换tab栏
                 })
             } else {
                 this.setState({
