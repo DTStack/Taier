@@ -1,5 +1,6 @@
 import { debounce, endsWith } from 'lodash';
-import { notification } from 'antd'
+import { notification, Modal } from 'antd'
+import React from 'react';
 
 /**
  * 存放一些零碎的公共方法
@@ -279,21 +280,61 @@ export function timeout (promise, ms) {
 
 /**
  * 全局唯一的notification实例
+ * 规则：在固定时间段内，相连并且相同的错误信息只会弹出一个。
  * @param {*} title
  * @param {*} message
  */
 export function singletonNotification (title, message, type, style) {
     const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
 
-    if (!notifyMsgs.length || notifyMsgs[notifyMsgs.length - 1].innerHTML != message) {
-        notification[type || 'error']({
-            message: title,
-            description: message,
+    /**
+    *  1.当前无实例
+    * 2.当前存在实例，但是当前实例的最后一个信息和调用的信息不相等
+    * 3.存在实例，并且相等，但是已经超出了限定的时间
+    */
+    if (!notifyMsgs.length ||
+        notifyMsgs[notifyMsgs.length - 1].innerHTML != message ||
+        checkIsTimeout()
+    ) {
+        dtNotification(title, message, type, {
             style
-        });
+        })
     }
 }
+let _singletonNotificationCursorTime = 0;
+/**
+ * 校验是否处在单实例的时间段
+ */
+function checkIsTimeout () {
+    const offset = 1000;
+    const now = new Date().getTime();
+    const old = _singletonNotificationCursorTime;
 
+    _singletonNotificationCursorTime = new Date().getTime();
+    if (now - offset > old) {
+        return true
+    }
+    return false;
+}
+/**
+ * 包装一下
+ */
+export function dtNotification (title, message, type, config) {
+    const showType = type || 'error';
+    const showMessage = message.length > 100 ? (<span>
+        {message.substring(0, 100)}... <a onClick={() => {
+            Modal[showType]({
+                title: title,
+                content: message
+            })
+        }}>查看详情</a>
+    </span>) : message;
+    notification[showType]({
+        ...config,
+        message: title,
+        description: showMessage
+    });
+}
 export function getContainer (id) {
     const container = document.createElement('div');
     document.getElementById(id).appendChild(container);
