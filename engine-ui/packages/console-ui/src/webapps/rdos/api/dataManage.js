@@ -193,6 +193,10 @@ export default {
     searchDesensitization (params) {
         return http.post(dataManageReq.GET_DESENSITIZATION_LIST, params)
     },
+    // 检查新增脱敏是否有权限
+    voidCheckPermission (params) {
+        return http.post(dataManageReq.CHECK_PERMISSION, params)
+    },
     addDesensitization (params) {
         return http.post(dataManageReq.ADD_DESENSITIZATION, params)
     },
@@ -217,6 +221,19 @@ export default {
     },
     updateOpenStatus (params) {
         return http.post(dataManageReq.UPDATE_OPEN_STATUS, params)
+    },
+    // 血缘
+    getTree (params) {
+        return http.post(dataManageReq.GET_TREE, params)
+    },
+    getChildColumns (params) {
+        return http.post(dataManageReq.GET_DOWNCOLUMNS, params)
+    },
+    getParentColumns (params) {
+        return http.post(dataManageReq.GET_UPCOLUMNS, params)
+    },
+    updateLineageStatus (params) {
+        return http.post(dataManageReq.UPDATA_LINEAGE_STATUS, params) // 链路启用/禁用
     },
     // 规则管理
     searchRule (params) {

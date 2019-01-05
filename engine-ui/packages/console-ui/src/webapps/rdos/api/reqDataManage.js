@@ -77,6 +77,7 @@ export default {
     // 脱敏管理
     GET_DESENSITIZATION_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/listConfigs`, // 获取数据脱敏列表
     ADD_DESENSITIZATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/createDataMaskConfig`, // 添加脱敏
+    CHECK_PERMISSION: `${RDOS_BASE_URL}/batch/dataMaskConfig/voidCheckPermission`, // 检查是否有权限
     DEL_DESENSITIZATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/deleteConfig`, // 删除脱敏
     GET_TABLE_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableListByProjectId`, // 获取表列表
     GET_COLUMNS_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableColumns`, // 获取表字段
@@ -84,6 +85,11 @@ export default {
     VIEW_TABLE_RELATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedTables`, // 根据脱敏名称查看关系明细
     GET_RELATED_PROJECTS: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedPorjects`, // 获取关联项目
     UPDATE_OPEN_STATUS: `${RDOS_BASE_URL}/batch/dataMaskConfig/enable`, // 切换开关状态
+    // 血缘
+    GET_TREE: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTree`, // 表查看血缘
+    GET_UPCOLUMNS: `${RDOS_BASE_URL}/batch/dataMaskConfig/getUpwardColumns`, // 获取上游字段
+    GET_DOWNCOLUMNS: `${RDOS_BASE_URL}/batch/dataMaskConfig/getDownwardColumns`, // 获取下游字段
+    UPDATA_LINEAGE_STATUS: `${RDOS_BASE_URL}/batch/dataMaskConfig/enableLineageChain`, // 链路脱敏启用/禁用
     // 规则管理
     GET_RULE_LIST: `${RDOS_BASE_URL}/batch/dataMaskRule/listRules`, // 获取规则列表
     ADD_RULE: `${RDOS_BASE_URL}/batch/dataMaskRule/createRule`, // 添加规则

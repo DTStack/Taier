@@ -1,13 +1,12 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { hashHistory } from 'react-router'
 import {
     Tooltip, Spin, Icon, message, Alert
 } from 'antd'
-
 import { cloneDeep } from 'lodash';
-
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
-
 const Mx = require('public/rdos/mxgraph')({
     mxBasePath: 'public/rdos/mxgraph',
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -37,14 +36,15 @@ const getVertexNode = (obj) => {
     return obj
 }
 
-const getTableReqParams = (tableData) => {
-    if (!tableData) return {};
+const getTableReqParams = (tableDetail) => {
+    if (!tableDetail) return {};
     const params = {
-        tableName: tableData.tableName,
+        tableName: tableDetail.tableName,
+        configId: tableDetail.configId,
+        belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
+        column: tableDetail.columnName || tableDetail.column,
         pageIndex: 1,
-        pageSize: 6,
-        belongProjectId: tableData.belongProjectId,
-        dataSourceId: tableData.dataSourceId
+        pageSize: 6
     }
     return params;
 }
@@ -52,15 +52,18 @@ const getTableReqParams = (tableData) => {
 export const isEqTable = (from, compareTo) => {
     return from.tableName === compareTo.tableName &&
         from.belongProjectId === compareTo.belongProjectId &&
-        from.dataSourceId === compareTo.dataSourceId
+        from.column === compareTo.column
 }
-
-export default class BloodRelation extends React.Component {
+@connect(state => {
+    return {
+        projects: state.projects,
+        user: state.user
+    }
+}, null)
+class BloodRelation extends React.Component {
     state = {
         selectedData: '', // 选中的数据
         treeData: {}, // 树形数据
-        tableInfo: {},
-        relationTasks: {}, // 关联任务
         loading: 'success',
         currentPage: 1,
         currentChild: {},
@@ -73,44 +76,31 @@ export default class BloodRelation extends React.Component {
         this.layout = '';
         this.graph = '';
         const editor = this.Container
-        const tableData = this.props.tableData
+        const tableDetail = this.props.tableDetail
         this.loadEditor(editor)
         this.listenOnClick();
-        if (tableData) {
-            const params = getTableReqParams(tableData)
-            this.loadTableTree(params)
-            this.loadVertexData(params)
+        if (tableDetail) {
+            const params = getTableReqParams(tableDetail)
+            this.loadColumnTree(params)
+        }
+        // this.props.onTabChange('bloodRelation')
+    }
+    /* eslint-disable-next-line */
+    componentWillReceiveProps (nextProps) {
+        const currentTable = this.props.tableDetail;
+        if (currentTable.id != nextProps.tableDetail.id) {
+            const params = getTableReqParams(nextProps.tableDetail)
+            this.loadColumnTree(params)
         }
     }
-
-    loadVertexData = (params) => {
-        this.loadTableInfo(params)
-        this.loadRelTableTasks(params)
-    }
-
-    loadTableInfo = (params) => {
-        Api.getRelTableInfo(params).then(res => {
-            if (res.code === 1) {
-                this.setState({ tableInfo: res.data })
-            }
-        })
-    }
-
-    loadRelTableTasks = (params) => {
-        params.pageSize = 5;
-        params.pageIndex = params.pageIndex || 1;
-        Api.getRelTableTasks(params).then(res => {
-            if (res.code === 1) {
-                this.setState({ relationTasks: res.data })
-            }
-        })
-    }
-
-    loadTableTree = (params) => {
+    loadColumnTree = (params) => {
         this.showLoading()
-        Api.getTableRelTree(params).then(res => {
+        Api.getTree(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
+                this.setState({
+                    tableInfo: data
+                })
                 const treeData = this.initRootTree(data);
                 this.doInsertVertex(treeData)
             }
@@ -118,12 +108,14 @@ export default class BloodRelation extends React.Component {
         })
     }
 
-    loadChildrenTable = (params) => {
+    loadChildrenColumn = (params) => {
         this.showLoading()
-        Api.getChildRelTables(params).then(res => {
+        console.log('----------------');
+        console.log(params);
+        Api.getChildColumns(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                if (data.childResult.data && data.childResult.data.length > 0) {
+                if (data.childResult && data.childResult.data && data.childResult.data.length > 0) {
                     this.setState({ currentChild: data })
                     const treeNodes = this.preHandTreeNodes(data, 'child');
                     this.renderTree(treeNodes)
@@ -135,12 +127,14 @@ export default class BloodRelation extends React.Component {
         })
     }
 
-    loadParentTable = (params) => {
+    loadParentColumn = (params) => {
         this.showLoading()
-        Api.getParentRelTable(params).then(res => {
+        console.log('----------------');
+        console.log(params);
+        Api.getParentColumns(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
-                if (data.parentResult.data && data.parentResult.data.length > 0) {
+                if (data.parentResult && data.parentResult.data && data.parentResult.data.length > 0) {
                     this.setState({ currentParent: data })
                     const treeNodes = this.preHandTreeNodes(data, 'parent');
                     this.renderTree(treeNodes)
@@ -151,6 +145,15 @@ export default class BloodRelation extends React.Component {
             this.hideLoading();
         })
     }
+    // 链路脱敏启用/禁用
+    updateLineageStatus = (params) => {
+        Api.updateLineageStatus(params).then(res => {
+            if (res.code === 1) {
+                message.success('操作成功');
+                this.loadColumnTree(params)
+            }
+        })
+    }
 
     onPageChange = (current, type) => {
         const { currentChild, currentParent } = this.state;
@@ -158,11 +161,11 @@ export default class BloodRelation extends React.Component {
         if (type === 'parent') {
             const params = getTableReqParams(currentParent);
             params.pageIndex = current;
-            this.loadParentTable(params);
+            this.loadParentColumn(params);
         } else {
             const params = getTableReqParams(currentChild);
             params.pageIndex = current;
-            this.loadChildrenTable(params);
+            this.loadChildrenColumn(params);
         }
     }
 
@@ -481,7 +484,7 @@ export default class BloodRelation extends React.Component {
         } else {
             const data = cell.getAttribute('data');
             const obj = data ? JSON.parse(data) : '';
-            return obj ? obj.tableName : ''
+            return obj ? `${obj.tableName}.${obj.column}` : ''
         }
     }
 
@@ -491,8 +494,8 @@ export default class BloodRelation extends React.Component {
                 const data = cell.getAttribute('data');
                 const obj = data ? JSON.parse(data) : '';
                 if (obj) {
-                    const name = obj.tableName || '';
-                    return `<div class="table-vertex"><span style="text-align: center;" class="table-vertex-content"><span class="table-vertex-title" style="color: #333333;" title="${name}">${name}</span></span>
+                    const name = `${obj.tableName}.${obj.column}` || '';
+                    return `<div class="table-vertex"><span style="text-align: center;"><span class="table-vertex-title" style="color: #333333;" title="${name}">${name}</span></span>
                     </div>`
                 }
             }
@@ -516,19 +519,19 @@ export default class BloodRelation extends React.Component {
             if (!cell) return
 
             const table = JSON.parse(cell.getAttribute('data'));
-            const params = getTableReqParams(table);
+            console.log('++++++++++++++++');
+            console.log(table);
+            let params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
-
+            const tableId = table.tableId
             if (table.isParent) {
                 if (table.isCurrentParent) {
                     menu.addItem('收起上游', null, function () {
-                        ctx.loadParentTable(parentParams)
-                        ctx.loadVertexData(parentParams)
+                        ctx.loadParentColumn(parentParams)
                     })
                 } else {
                     menu.addItem('展开上游（1层）', null, function () {
-                        ctx.loadParentTable(params)
-                        ctx.loadVertexData(params)
+                        ctx.loadParentColumn(params)
                     })
                 }
             }
@@ -536,19 +539,47 @@ export default class BloodRelation extends React.Component {
             if (table.isChild) {
                 if (table.isCurrentChild) {
                     menu.addItem('收起下游', null, function () {
-                        ctx.loadChildrenTable(parentParams)
-                        ctx.loadVertexData(parentParams)
+                        ctx.loadChildrenColumn(parentParams)
                     })
                 } else {
                     menu.addItem('展开下游（1层）', null, function () {
-                        ctx.loadChildrenTable(params)
-                        ctx.loadVertexData(params)
+                        ctx.loadChildrenColumn(params)
                     })
                 }
             }
+
+            if (table) {
+                menu.addItem('查看表详情', null, function () {
+                    ctx.jumpTableInfo(tableId)
+                })
+                const closeDesen = menu.addItem('关闭脱敏', null, null);
+                const openDesen = menu.addItem('开启脱敏', null, null);
+                menu.addItem('当前节点', null, function () {
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 0, tableId }))
+                }, closeDesen)
+                menu.addItem('全部下游节点', null, function () {
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 2, tableId }))
+                }, closeDesen)
+                menu.addItem('全部上游节点', null, function () {
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 1, tableId }))
+                }, closeDesen)
+                menu.addItem('当前节点', null, function () {
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 0, tableId }))
+                }, openDesen)
+                menu.addItem('全部下游节点', null, function () {
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 2, tableId }))
+                }, openDesen)
+                menu.addItem('全部上游节点', null, function () {
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 1, tableId }))
+                }, openDesen)
+            }
         }
     }
-
+    jumpTableInfo = (tableId) => {
+        hashHistory.push({
+            pathname: `/data-manage/table/view/${tableId}`
+        })
+    }
     listenOnClick = () => {
         const ctx = this;
 
@@ -585,8 +616,7 @@ export default class BloodRelation extends React.Component {
                     data = data ? JSON.parse(data) : '';
                     if (data) {
                         ctx.setState({ selectedData: data })
-                        const params = getTableReqParams(data);
-                        ctx.loadVertexData(params)
+                        // const params = getTableReqParams(data);
                     }
                 }
             }
@@ -780,3 +810,5 @@ export default class BloodRelation extends React.Component {
         return style
     }
 }
+
+export default BloodRelation;
