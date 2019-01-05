@@ -135,7 +135,7 @@ class DesensitizationMange extends Component {
                 dataIndex: 'name',
                 render: (text, record) => {
                     return (
-                        <a onClick={() => { this.showDesensitization(record) }}>身份证号脱敏</a>
+                        <a onClick={() => { this.showDesensitization(record) }}>{text}</a>
                     )
                 }
             },
@@ -167,7 +167,9 @@ class DesensitizationMange extends Component {
                 width: 140,
                 dataIndex: 'opera',
                 render: (text, record) => {
+                    const relatedNum = record.relatedNum;
                     return (
+                        relatedNum === 0 ? 
                         <Popconfirm
                             title="确定删除此条脱敏吗?"
                             okText="是"
@@ -175,7 +177,7 @@ class DesensitizationMange extends Component {
                             onConfirm={() => { this.delete(record) }}
                         >
                             <a>删除</a>
-                        </Popconfirm>
+                        </Popconfirm> : '删除'
                     )
                 }
             }

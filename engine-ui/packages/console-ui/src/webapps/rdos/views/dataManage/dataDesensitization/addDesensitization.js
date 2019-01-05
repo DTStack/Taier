@@ -3,15 +3,13 @@ import { connect } from 'react-redux';
 import { Modal, Form, Input, Select, Alert, message } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
-
 const FormItem = Form.Item;
 const Option = Select.Option;
 // mock
 @connect(state => {
     return {
         projects: state.projects,
-        user: state.user,
-        rulesList: state.dataManage.desensitization
+        user: state.user
     }
 }, null)
 class AddDesensitization extends Component {
@@ -20,12 +18,23 @@ class AddDesensitization extends Component {
         this.state = {
             tableList: [],
             columnsList: [],
-            rulesList: [props.rulesList], // 脱敏规则列表
+            rulesList: [], // 脱敏规则列表
             newReplaceData: '',
             selectRule: [] // 选中的脱敏规则
         }
     }
     componentDidMount () {
+        this.getdesRulesList();
+    }
+    // 获取脱敏规则列表
+    getdesRulesList = () => {
+        ajax.getdesRulesList().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    rulesList: res.data
+                })
+            }
+        })
     }
     // 获取表列表
     getTableList = (params) => {

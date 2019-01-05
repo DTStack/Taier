@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon, message } from 'antd';
+import { bindActionCreators } from 'redux';
 
 import utils from 'utils';
 
@@ -9,7 +10,11 @@ import { isProjectCouldEdit } from '../../../../../comm'
 import CommonEditor from '../../commonEditor'
 import Toolbar from './toolbar.js';
 
+import {
+    workbenchActions
+} from '../../../../../store/modules/offlineTask/offlineAction';
 import { workbenchAction } from '../../../../../store/modules/offlineTask/actionType';
+import * as editorActions from '../../../../../store/modules/editor/editorAction';
 
 @connect(state => {
     return {
@@ -17,7 +22,9 @@ import { workbenchAction } from '../../../../../store/modules/offlineTask/action
         user: state.user
     }
 }, dispatch => {
-    return {
+    const taskAc = workbenchActions(dispatch);
+    const editorAc = bindActionCreators(editorActions, dispatch);
+    const actions = Object.assign({
         dispatch: dispatch,
         updateTaskFields (params) {
             dispatch({
@@ -25,9 +32,26 @@ import { workbenchAction } from '../../../../../store/modules/offlineTask/action
                 payload: params
             });
         }
-    }
+    }, editorAc, taskAc)
+    return actions;
 })
 class DataSyncScript extends Component {
+    componentDidMount () {
+        const currentTab = this.props.id;
+        if (currentTab) {
+            this.props.getTab(currentTab)// 初始化console所需的数据结构
+        }
+    }
+
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
+        const current = nextProps.currentTabData
+        const old = this.props.currentTabData
+        if (current && current.id !== old.id) {
+            this.props.getTab(current.id)
+        }
+    }
+
     onFormat () {
         const { sqlText, dispatch } = this.props;
         const data = {
@@ -63,6 +87,17 @@ class DataSyncScript extends Component {
         return <Toolbar {...this.props} />
     }
 
+    onRun = async () => {
+        const { execDataSync, currentTabData, id } = this.props;
+        const params = { taskId: currentTabData.id, name: currentTabData.name };
+        execDataSync(id, params);
+    }
+
+    onStop = async () => {
+        const { stopDataSync, id } = this.props;
+        stopDataSync(id);
+    }
+
     render () {
         const { taskCustomParams, id, sqlText, currentTabData, project, user } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
@@ -75,9 +110,11 @@ class DataSyncScript extends Component {
                 currentTab={id}
                 currentTabData={currentTabData}
                 toolBarOptions={{
-                    enableRun: false,
+                    enableRun: true,
                     enableFormat: couldEdit,
                     disableEdit: !couldEdit,
+                    onRun: this.onRun,
+                    onStop: this.onStop,
                     onFormat: this.onFormat.bind(this),
                     rightCustomButton: this.getRightButton(),
                     leftCustomButton: couldEdit && this.getLeftButton()
