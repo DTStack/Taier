@@ -17,7 +17,7 @@ import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
 import utils from 'utils';
-import { singletonNotification, debounceEventHander } from 'funcs';
+import { singletonNotification, debounceEventHander, filterValueOption } from 'funcs';
 import ajax from '../../../../api';
 import {
     sourceMapAction,
@@ -676,6 +676,7 @@ class SourceForm extends React.Component {
                                             source.key
                                         )}
                                         optionFilterProp="value"
+                                        filterOption={filterValueOption}
                                     >
                                         {(
                                             this.state.tableListMap[source.sourceId] || []
@@ -756,6 +757,7 @@ class SourceForm extends React.Component {
                                         sourceMap.type.type
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []
@@ -892,6 +894,7 @@ class SourceForm extends React.Component {
                                         sourceMap.type.type
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []
@@ -972,6 +975,7 @@ class SourceForm extends React.Component {
                                         null
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []
@@ -1146,6 +1150,7 @@ class SourceForm extends React.Component {
                                         null
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []

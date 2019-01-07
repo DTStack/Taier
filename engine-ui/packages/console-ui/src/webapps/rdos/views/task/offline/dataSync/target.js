@@ -5,7 +5,7 @@ import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
 import utils from 'utils';
-import { singletonNotification } from 'funcs';
+import { singletonNotification, filterValueOption } from 'funcs';
 import Editor from 'widgets/editor';
 
 import ajax from '../../../../api';
@@ -423,6 +423,7 @@ class TargetForm extends React.Component {
                                 mode="combobox"
                                 // disabled={ !isCurrentTabNew }
                                 optionFilterProp="value"
+                                filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
                             >
                                 {this.state.tableList.map(table => {
@@ -508,6 +509,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 optionFilterProp="value"
+                                filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
                             >
                                 {this.state.tableList.map(table => {
@@ -581,6 +583,7 @@ class TargetForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
+                                filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
                                 optionFilterProp="value"
                             >
@@ -772,6 +775,7 @@ class TargetForm extends React.Component {
                                 onChange={this.debounceTableSearch.bind(this)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
+                                filterOption={filterValueOption}
                             >
                                 {this.state.tableList.map(table => {
                                     return <Option key={`hbase-target-${table}`} value={table}>

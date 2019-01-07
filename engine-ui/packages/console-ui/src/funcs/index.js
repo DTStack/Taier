@@ -368,3 +368,10 @@ export function initConfig () {
         ...appConf
     }
 }
+
+/**
+ * 不区分大小写的过滤 value Option
+ */
+export const filterValueOption = (input, option) => {
+    return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+}

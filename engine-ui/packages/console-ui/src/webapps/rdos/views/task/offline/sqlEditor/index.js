@@ -55,6 +55,19 @@ class EditorContainer extends Component {
         this.initFuncList();
     }
 
+    // eslint-disable-next-line
+   UNSAFE_componentWillReceiveProps (nextProps) {
+        const current = nextProps.currentTabData
+        const old = this.props.currentTabData
+        const project = nextProps.project
+        const oldProject = this.props.project
+        if (project.id != oldProject.id) {
+            this.initTableList(project.id);
+        }
+        if (current && current.id !== old.id) {
+            this.props.getTab(current.id)
+        }
+    }
     initTableList (id) {
         id = id || this.props.project.id;
         if (!id) {
@@ -82,21 +95,6 @@ class EditorContainer extends Component {
                 }
             )
     }
-    /* eslint-disable */
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
-        const current = nextProps.currentTabData
-        const old = this.props.currentTabData
-        const project = nextProps.project
-        const oldProject = this.props.project
-        if (project.id != oldProject.id) {
-            this.initTableList(project.id);
-        }
-        if (current && current.id !== old.id) {
-            this.props.getTab(current.id)
-        }
-    }
-    /* eslint-disable */
 
     handleEditorTxtChange = (newVal, editorInstance) => {
         const task = this.props.currentTabData
@@ -352,10 +350,10 @@ class EditorContainer extends Component {
                 (res) => {
                     this._tableLoading[tableName] = null;
                     if (res.code == 1) {
-                        _tableColumns[tableName] = [tableName, 
-                            res.data ? res.data.column : [], 
+                        _tableColumns[tableName] = [tableName,
+                            res.data ? res.data.column : [],
                             res.data ? res.data.table : {},
-                            res.data ? res.data.partition : {},
+                            res.data ? res.data.partition : {}
                         ];
                         return _tableColumns[tableName];
                     } else {
