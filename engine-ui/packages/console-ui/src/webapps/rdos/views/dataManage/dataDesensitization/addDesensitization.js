@@ -85,9 +85,9 @@ class AddDesensitization extends Component {
         return columnsList.map((item, index) => {
             return <Option
                 key={item.key}
-                value={item.type}
+                value={item.key}
             >
-                {item.type}
+                {item.key}
             </Option>
         })
     }
