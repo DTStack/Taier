@@ -92,6 +92,19 @@ class DataSource extends Component {
         }
     };
 
+    // 点击新增数据源
+    openAddDatasource = () => {
+        DSApi.checkDataSourcePermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    source: {},
+                    status: 'add',
+                    title: '添加数据源'
+                })
+            }
+        })
+    }
     remove = record => {
         if (record.active === 1) {
             message.info('此数据源已在任务中被引用，无法删除!');
@@ -123,12 +136,16 @@ class DataSource extends Component {
     };
 
     initEdit = source => {
-        this.setState({
-            visible: true,
-            title: '编辑数据源',
-            status: 'edit',
-            source
-        });
+        DSApi.checkDataSourcePermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    title: '编辑数据源',
+                    status: 'edit',
+                    source
+                })
+            }
+        })
     };
 
     initColumns = () => {
@@ -270,14 +287,7 @@ class DataSource extends Component {
                 type="primary"
                 style={{ margin: '10px 0' }}
                 className="right"
-                onClick={() => {
-                    this.setState({
-                        visible: true,
-                        source: {},
-                        status: 'add',
-                        title: '添加数据源'
-                    });
-                }}
+                onClick={this.openAddDatasource}
             >
                 新增数据源
             </Button>

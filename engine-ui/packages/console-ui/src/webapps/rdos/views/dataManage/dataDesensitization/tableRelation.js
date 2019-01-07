@@ -33,29 +33,34 @@ class TableRelation extends Component {
         dataSource: [],
         relatedProject: [] // 项目列表
     }
-    componentDidMount () {
-        const currentDesensitization = this.props.tableData;
-        if (currentDesensitization) {
-            this.loadTableRelation({
-                pageIndex: 1,
-                pageSize: 20,
-                configId: currentDesensitization.id
-            })
-            this.getRelatedPorjects({
-                configId: currentDesensitization.id
-            })
-        }
-    }
+    // componentDidMount () {
+    //     const currentDesensitization = this.props.tableData;
+    //     if (currentDesensitization) {
+    //         this.loadTableRelation({
+    //             pageIndex: 1,
+    //             pageSize: 20,
+    //             configId: currentDesensitization.id
+    //         })
+    //         this.getRelatedPorjects({
+    //             configId: currentDesensitization.id
+    //         })
+    //     }
+    // }
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentDesensitization = this.props.tableData;
-        if (currentDesensitization.id != nextProps.tableData.id) {
+        const { tabKey, tableData } = nextProps;
+        if (currentDesensitization.id != tableData.id) {
             this.setState({
-                queryParams: Object.assign(this.state.queryParams, { configId: nextProps.tableData.id })
+                queryParams: Object.assign(this.state.queryParams, { configId: tableData.id })
             }, () => {
                 this.search() // 加载表关系
-                this.getRelatedPorjects({ configId: nextProps.tableData.id }) // 加载项目列表
+                this.getRelatedPorjects({ configId: tableData.id }) // 加载项目列表
             })
+        }
+        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'tableRelation') {
+            this.search()
+            this.getRelatedPorjects({ configId: tableData.id })
         }
     }
     // 加载表关系
