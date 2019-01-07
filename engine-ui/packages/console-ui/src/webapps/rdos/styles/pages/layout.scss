@@ -29,16 +29,13 @@ $activeColor: #262e36; // 主色
 
         .my-menu {
             line-height: 47px;
-            background: $color1;
             border-bottom: 0;
-
             &.menu-margin{
                 >.my-menu-item:nth-of-type(1){
                     margin-right: 100px;
                 }
             }
             .my-menu-item {
-                color: #fff;
                 font-size: 14px;
                 &.ant-menu-item-disabled.tip{
                     cursor: default;

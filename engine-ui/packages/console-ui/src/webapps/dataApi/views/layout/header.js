@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
+import { getHeaderLogo } from 'main/consts';
 
 @connect(state => {
     return {
@@ -20,6 +21,7 @@ class Header extends Component {
 
     render () {
         const baseUrl = '/dataApi.html#/api'
+        const { app } = this.props;
         let showList = {
             overview: false,
             market: false,
@@ -83,18 +85,11 @@ class Header extends Component {
 
         const logo = <span>
             <img
-                style={{ height: '36px', width: '36px', marginTop: '5px' }}
+                className='c-header__logo c-header__logo--api'
                 alt="logo"
-                src="/public/dataApi/img/logo.svg"
+                src={getHeaderLogo(app.id)}
             />
-            <span style={{
-                paddingLeft: '10px',
-                fontSize: '14px',
-                color: '#ffffff',
-                position: 'absolute',
-                left: '80px',
-                top: 0
-            }}>
+            <span className='c-header__title c-header__title--api'>
                 {window.APP_CONF.prefix}.API
             </span>
         </span>;

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Modal } from 'antd';
 
 import { MenuRight } from 'main/components/nav';
+import { getHeaderLogo } from 'main/consts';
 
 import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
@@ -248,22 +249,14 @@ class Header extends Component {
         const showProjectSelect =
             !(pathname.indexOf('/data-manage') > -1 || pathname === '/');
         return (
-            <div className="header">
+            <div className={`header ${window.APP_CONF.theme || 'default'}`}>
                 <div onClick={this.goIndex} className="logo left txt-left">
                     <img
-                        style={{ height: '20px', marginTop: '10px' }}
+                        className='c-header__logo c-header__logo--stream'
                         alt="logo"
-                        src="/public/stream/img/logo.svg"
+                        src={getHeaderLogo(app.id)}
                     />
-                    <span
-                        style={{
-                            fontSize: '14px',
-                            color: '#ffffff',
-                            position: 'absolute',
-                            left: '70px',
-                            top: 0
-                        }}
-                    >
+                    <span className='c-header__title c-header__title--stream'>
                         {window.APP_CONF.prefix}.Stream
                     </span>
                 </div>

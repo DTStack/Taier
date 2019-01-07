@@ -216,3 +216,103 @@
 .ant-input-affix-wrapper .ant-input {
     min-height: auto;
 }
+
+.header{
+    // 主题定义
+    &.aliyun{
+        background: $aliyunbgColor;
+        .logo{
+            .c-header__logo{
+                height: 30px;
+                margin-top: 10px;
+                &.c-header__logo--rdos,
+                &.c-header__logo--stream{
+                    margin-top:5px;
+                }
+            }
+            .c-header__title{
+                left: 50px;
+            }
+        }
+        .ant-menu-horizontal{
+            & > .ant-menu-item:hover,
+            & > .ant-menu-submenu:hover,
+            & > .ant-menu-item-active,
+            & > .ant-menu-submenu-active,
+            & > .ant-menu-item-open,
+            & > .ant-menu-submenu-open,
+            & > .ant-menu-item-selected{
+                background:$aliyunbgColor;
+            }
+            & > .ant-menu-item:not(.ant-menu-item-selected){
+                color:#AFBCC4;
+            }
+            & > .ant-menu-submenu{
+                background: inherit;
+                .ant-menu-submenu-title:hover{
+                    color:#fff;
+                }
+                color:#AFBCC4;
+            }
+        }
+    }
+    //默认主题
+    &.default{
+        .logo{
+            position: relative;
+            .c-header__logo{
+                &.c-header__logo--api,
+                &.c-header__logo--dq,
+                &.c-header__logo--label{
+                    width: 40px;
+                    height: 40px;
+                    margin-top: 5px;
+                }
+                &.c-header__logo--rdos,
+                &.c-header__logo--stream{
+                    margin-top:10px;
+                }
+            }
+            .c-header__title{
+                &.c-header__title--api,
+                &.c-header__title--dq,
+                &.c-header__title--label{
+                    left: 52px;
+                }
+                &.c-header__title--rdos,
+                &.c-header__title--stream{
+                    left: 37px;
+                }
+                
+            }
+        }
+    }
+    //基础公用样式
+    .logo{
+        position: relative;
+        .c-header__logo{
+            height: 20px;
+            margin-top: 15px;
+        }
+        .c-header__title{
+            font-size: 14px;
+            color: #ffffff;
+            position: absolute;
+            left: 40px;
+            top: 0;
+            &.c-header__title--main{
+                letter-spacing: 1px;
+            }
+        }
+    }
+    .ant-menu-horizontal{
+        .ant-menu-submenu{
+            color: #fff;
+        }
+        & > .ant-menu-submenu{
+            .ant-menu-submenu-title:hover{
+                color:#fff;
+            }
+        }
+    }
+}

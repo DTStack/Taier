@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
+import { getHeaderLogo } from 'main/consts';
 
 @connect(state => {
     return {
@@ -18,7 +19,7 @@ class Header extends Component {
     }
 
     render () {
-        // const { user, apps } = this.props;
+        const { app } = this.props;
         const baseUrl = '/dataQuality.html#';
         const menuItems = [
             {
@@ -56,20 +57,11 @@ class Header extends Component {
         const logo = (
             <span>
                 <img
-                    style={{ height: '36px', width: '36px', marginTop: '5px' }}
+                    className='c-header__logo c-header__logo--dq'
                     alt="logo"
-                    src="/public/dataQuality/img/logo.svg"
+                    src={getHeaderLogo(app.id)}
                 />
-                <span
-                    style={{
-                        paddingLeft: '10px',
-                        fontSize: '14px',
-                        color: '#ffffff',
-                        position: 'absolute',
-                        left: '80px',
-                        top: 0
-                    }}
-                >
+                <span className='c-header__title c-header__title--dq'>
                     {window.APP_CONF.prefix}.Valid
                 </span>
             </span>

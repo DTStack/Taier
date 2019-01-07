@@ -33,7 +33,6 @@ $activeColor: #262e36; // 主色
 
         .my-menu {
             line-height: 47px;
-            background: $color1;
             border-bottom: 0;
 
             &.menu-margin{
@@ -42,7 +41,6 @@ $activeColor: #262e36; // 主色
                 }
             }
             .my-menu-item {
-                color: #fff;
                 font-size: 14px;
                 &.ant-menu-item-disabled.tip{
                     cursor: default;
