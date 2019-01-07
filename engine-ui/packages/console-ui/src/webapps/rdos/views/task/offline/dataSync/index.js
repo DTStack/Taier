@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'antd';
+import { Button, Modal } from 'antd';
 import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -15,6 +15,8 @@ import {
     workbenchActions
 } from '../../../../store/modules/offlineTask/offlineAction';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
+
+const confirm = Modal.confirm;
 
 const propType = {
     editor: PropTypes.object,
@@ -100,8 +102,27 @@ class DataSyncWorkbench extends Component {
         this.props.resetConsole(currentTab)
     }
 
+    onConvertDataSyncToScriptMode = () => {
+        const { convertDataSyncToScriptMode, currentTabData } = this.props;
+        confirm({
+            title: '转换为脚本',
+            content: (<div>
+                <p style={{ color: '#f04134' }}>此操作不可逆，是否继续？</p>
+                <p>当前为向导模式，配置简单快捷，脚本模式可灵活配置更多参数，定制化程度高</p>
+            </div>),
+            okText: '确认',
+            cancelText: '取消',
+            onOk: function () {
+                convertDataSyncToScriptMode(currentTabData)
+            },
+            onCancel () {
+                console.log('Cancel');
+            }
+        });
+    }
+
     render () {
-        const { currentTabData, editor, saveTab, dataSync, convertDataSyncToScriptMode } = this.props;
+        const { currentTabData, editor, saveTab, dataSync } = this.props;
 
         const currentTab = currentTabData.id;
         const consoleData = editor.console;
@@ -114,7 +135,7 @@ class DataSyncWorkbench extends Component {
             disabled={isLocked}
             icon="swap"
             title="转换同步任务由向导模式为脚本模式"
-            onClick={() => convertDataSyncToScriptMode(currentTabData)}>
+            onClick={this.onConvertDataSyncToScriptMode}>
                 转换为脚本
         </Button>);
 
