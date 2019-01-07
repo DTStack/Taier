@@ -82,7 +82,7 @@ class TableRelation extends Component {
                     dataSource: res.data,
                     loading: false
                 }, () => {
-                    this.props.handleClickTable(this.state.dataSource[0]) // 解决第一次切换tab栏
+                    this.props.handleClickTable(this.state.dataSource[0] ? this.state.dataSource[0] : {}) // 解决第一次切换tab栏
                 })
             } else {
                 this.setState({

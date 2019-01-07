@@ -31,7 +31,7 @@ class DesensitizationMange extends Component {
             pageSize: 20,
             name: undefined
         },
-        tableInfo: undefined // 表点击查看血缘信息
+        tableInfo: {} // 表点击查看血缘信息
     }
     /* eslint-disable */
     componentDidMount () {
@@ -109,8 +109,7 @@ class DesensitizationMange extends Component {
     }
     closeSlidePane = () => {
         this.setState({
-            visibleSlidePane: false,
-            selectedId: null
+            visibleSlidePane: false
         })
     }
     // 面板切换
@@ -247,7 +246,6 @@ class DesensitizationMange extends Component {
                                     // onTabChange={this.onTabChange}
                                     visibleSlidePane={visibleSlidePane}
                                     tableDetail={tableInfo}
-                                    tableData={selectedId}
                                 />
                             </TabPane>
                         </Tabs>
