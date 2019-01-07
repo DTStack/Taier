@@ -299,6 +299,10 @@ export default {
         return http.post(offlineReq.SAVE_TASK, task)
     },
 
+    convertDataSyncToScriptMode(params) {
+        return http.post(offlineReq.CONVERT_SYNC_T0_SCRIPT_MODE, params)
+    },
+
     renameTask(task) {
         return http.post(offlineReq.RENAME_TASK, task)
     },
