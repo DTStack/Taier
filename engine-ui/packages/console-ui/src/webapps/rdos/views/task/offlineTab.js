@@ -82,16 +82,11 @@ class OfflineTabPane extends Component {
         }
         // 任务定位滚动
         if (this.props.currentTab !== nextProps.currentTab) {
-            let type = MENU_TYPE.TASK_DEV; let menu = MENU_TYPE.TASK;
+            let type = MENU_TYPE.TASK_DEV;
             if (nextTab && nextTab.scriptText !== undefined) {
                 type = MENU_TYPE.SCRIPT;
-                menu = MENU_TYPE.SCRIPT;
             }
-            this.setState({
-                menu
-            }, () => {
-                this.locateFilePos(nextProps.currentTab, null, type, nextTab)
-            })
+            this.locateFilePos(nextProps.currentTab, null, type, nextTab)
         }
     }
 
@@ -121,6 +116,23 @@ class OfflineTabPane extends Component {
         this.props.loadTreeNode(id, type);
         this.setState({
             expandedKeys: [`${type}-${id}`]
+        })
+    }
+
+    onLocatePos = (currentTab, name) => {
+        let menu = MENU_TYPE.TASK;
+        let type = MENU_TYPE.TASK_DEV;
+        const tabData = this.props.currentTabData;
+        if (tabData && tabData.scriptText !== undefined) {
+            menu = MENU_TYPE.SCRIPT;
+            type = MENU_TYPE.SCRIPT;
+        }
+        this.setState({
+            menu
+        }, () => {
+            setTimeout(() => {
+                this.locateFilePos(currentTab, name, type);
+            }, 100);
         })
     }
 
@@ -344,7 +356,6 @@ class OfflineTabPane extends Component {
             scriptTreeData,
             tableTreeData,
             currentTab,
-            currentTabData,
             project,
             user
         } = this.props;
@@ -365,7 +376,7 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="定位">
                                     <Icon
                                         type="environment"
-                                        onClick={() => this.locateFilePos(currentTab, null, MENU_TYPE.TASK_DEV, currentTabData)}
+                                        onClick={() => this.onLocatePos(currentTab, null)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新">
@@ -412,7 +423,7 @@ class OfflineTabPane extends Component {
                                 <Tooltip title="定位" placement="bottom">
                                     <Icon
                                         type="environment"
-                                        onClick={() => this.locateFilePos(currentTab, null, menuItem.catalogueType, currentTabData)}
+                                        onClick={() => this.onLocatePos(currentTab, null)}
                                     />
                                 </Tooltip>
                                 <Tooltip title="刷新" placement="bottom">
