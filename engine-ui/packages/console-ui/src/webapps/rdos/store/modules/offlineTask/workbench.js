@@ -253,7 +253,6 @@ export const workbenchReducer = (state = getCachedData(), action) => {
 
             clone.tabs = clone.tabs.map(tab => {
                 if (tab.id === obj.id) {
-                    console.log('tabs:', tab)
                     // 对任务变量做特殊处理, 合并2个数组
                     if (obj.taskVariables && tab.taskVariables && obj.taskVariables.length > 0 && tab.taskVariables.length > 0) {
                         const varArr = [...obj.taskVariables]

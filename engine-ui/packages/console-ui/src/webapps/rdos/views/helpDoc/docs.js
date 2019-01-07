@@ -148,7 +148,6 @@ export const customSystemParams = (
 
 export const partitionDesc = (
     <div>
-        <p>功能释义</p>
         <p>分区配置支持调度参数，比如常用系统变量:</p>
         <p>
             <span>${`{bdp.system.premonth}`}</span><br/>
@@ -232,8 +231,6 @@ export const taskFailRetry = (
 
 export const syncTaskHelp = (
     <div>
-        功能释义：
-        <br />
         向导模式：便捷、简单，可视化字段映射，快速完成同步任务配置
         <br />
         脚本模式：全能 高效，可深度调优，支持全部数据源
@@ -244,8 +241,6 @@ export const syncTaskHelp = (
 
 export const syncModeHelp = (
     <div>
-        功能释义：
-        <br />
         无增量标识：可通过简单的过滤语句实现增量同步；
         <br />
         有增量标识：系统记录每次同步的点位，执行时可从上次点位继续同步

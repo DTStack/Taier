@@ -45,7 +45,7 @@ export default {
     GET_DATA_SOURCES_COLUMN: `${DQ_BASE_URL}/dataSource/tablecolumn`, // 查询数据源下的列
     GET_DATA_SOURCES_PART: `${DQ_BASE_URL}/dataSource/getPartValue`, // 查询数据源下的分区
     GET_DATA_SOURCES_PREVIEW: `${DQ_BASE_URL}/dataSource/preview`, // 预览数据源下的数据
-
+    CHECK_DATASOURCE_PERMISSION: `${DQ_BASE_URL}/dataSource/checkPermission`, // 检查数据源是否有权限
     // ===== 逐行校验 ===== //
     GET_CHECK_LIST: `${DQ_BASE_URL}/verify/pageQuery`, // 逐行校验列表数据
     GET_CHECK_DETAIL: `${DQ_BASE_URL}/verify/getOne`, // 单个数据详情

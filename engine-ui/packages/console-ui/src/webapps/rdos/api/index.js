@@ -299,6 +299,10 @@ export default {
         return http.post(offlineReq.SAVE_TASK, task)
     },
 
+    convertDataSyncToScriptMode(params) {
+        return http.post(offlineReq.CONVERT_SYNC_T0_SCRIPT_MODE, params)
+    },
+
     renameTask(task) {
         return http.post(offlineReq.RENAME_TASK, task)
     },
@@ -626,6 +630,9 @@ export default {
     getDataSourceTypes(params) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
+    checkIsPermission(params) {
+        return http.post(offlineReq.CHECK_IS_PERMISSION, params)
+    },
 
     // ============== dataSource 整库同步 ==================
     saveSyncConfig(params) {
@@ -645,6 +652,9 @@ export default {
     },
     getTaskOfOfflineSource(params) {
         return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
+    },
+    checkSyncPermission(params) {
+        return http.post(offlineReq.CHECK_SYNC_PERMISSION, params)
     },
 
     // ============== dataManage 数据管理 ==================

@@ -269,6 +269,22 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
+        convertDataSyncToScriptMode: async task => {
+            const reqParams = {
+                id: task.id,
+                syncModel: task.syncModel,
+                lockVersion: task.lockVersion,
+                version: task.version,
+                preSave: task.preSave,
+                readWriteLockVO: task.readWriteLockVO
+            }
+            const res = await ajax.convertDataSyncToScriptMode(reqParams);
+            if (res.code === 1) {
+                message.success('转换成功！');
+                reloadTaskTab(task.id);
+            }
+        },
+
         /**
          * 更新Tab数据
          */
@@ -835,7 +851,7 @@ export const workbenchActions = (dispatch) => {
             ajax.deleteScript(params)
                 .then(res => {
                     if (res.code == 1) {
-                        message.info('删除成功');
+                        message.success('删除成功');
                         dispatch({
                             type: scriptTreeAction.DEL_SCRIPT,
                             payload: {

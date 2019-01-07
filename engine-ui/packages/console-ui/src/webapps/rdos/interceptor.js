@@ -59,7 +59,7 @@ export function authAfterFormated (response) {
                     maxHeightStyle,
                 );
             }
-            return Promise.reject(response);
+            return response;
         }
         case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
             hashHistory.push('/');
