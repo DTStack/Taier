@@ -80,7 +80,7 @@ class BloodRelation extends React.Component {
         const tableDetail = this.props.tableDetail
         this.loadEditor(editor)
         this.listenOnClick();
-        if (tableDetail) {
+        if (tableDetail && tableDetail.configId) {
             const params = getTableReqParams(tableDetail)
             this.setState({
                 allHideparams: params
@@ -96,7 +96,8 @@ class BloodRelation extends React.Component {
             const params = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(params)
         }
-        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation') {
+        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation' && nextProps.tableDetail.id) {
+            // 切换tab请求
             const paramsNext = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(paramsNext)
         }
@@ -111,8 +112,11 @@ class BloodRelation extends React.Component {
                 })
                 const treeData = this.initRootTree(data);
                 this.doInsertVertex(treeData)
+                this.hideLoading();
+            } else {
+                this.Container.innerHTML = '';
+                this.hideLoading();
             }
-            this.hideLoading();
         })
     }
 
@@ -156,6 +160,36 @@ class BloodRelation extends React.Component {
                 message.success('操作成功');
                 this.loadColumnTree(params)
             }
+        })
+    }
+    // 收回上下游
+    revokeChildrenColumn = (params) => {
+        this.showLoading()
+        Api.getChildColumns(params).then(res => {
+            if (res.code === 1) {
+                const data = res.data
+                if (data.childResult && data.childResult.data && data.childResult.data.length > 0) {
+                    this.setState({ currentChild: data })
+                    const treeNodes = this.preHandTreeNodes(data, 'child');
+                    this.renderTree(treeNodes)
+                }
+            }
+            this.hideLoading();
+        })
+    }
+
+    revokeParentColumn = (params) => {
+        this.showLoading()
+        Api.getParentColumns(params).then(res => {
+            if (res.code === 1) {
+                const data = res.data
+                if (data.parentResult && data.parentResult.data && data.parentResult.data.length > 0) {
+                    this.setState({ currentParent: data })
+                    const treeNodes = this.preHandTreeNodes(data, 'parent');
+                    this.renderTree(treeNodes)
+                }
+            }
+            this.hideLoading();
         })
     }
 
@@ -552,11 +586,18 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开上游（1层）', null, function () {
                         ctx.loadParentColumn(params)
-                        ctx.loadChildrenColumn(ctx.state.allHideparams) // 收起全部下游
+                        ctx.revokeChildrenColumn(ctx.state.allHideparams) // 收起全部下游
                     })
                 }
             }
-
+            if (table.isRoot) {
+                menu.addItem('展开上游（1层）', null, function () {
+                    ctx.loadParentColumn(params)
+                })
+                menu.addItem('展开下游（1层）', null, function () {
+                    ctx.loadChildrenColumn(params)
+                })
+            }
             if (table.isChild) {
                 if (table.isCurrentChild) {
                     menu.addItem('收起下游', null, function () {
@@ -565,7 +606,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开下游（1层）', null, function () {
                         ctx.loadChildrenColumn(params)
-                        ctx.loadParentColumn(ctx.state.allHideparams) // 收起全部上游
+                        ctx.revokeParentColumn(ctx.state.allHideparams) // 收起全部上游
                     })
                 }
             }

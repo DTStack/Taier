@@ -61,6 +61,18 @@ class RuleManage extends Component {
             }
         })
     }
+    // 更新规则
+    updateRule = (params) => {
+        ajax.updateRule(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    addVisible: false
+                })
+                message.success('更新成功!');
+                this.search();
+            }
+        })
+    }
     // 删除规则
     delete = (record) => {
         ajax.delRule({
@@ -187,7 +199,7 @@ class RuleManage extends Component {
                     key={editModalKey}
                     visible={addVisible}
                     onCancel={() => { this.setState({ addVisible: false, source: {}, status: undefined }) }}
-                    onOk={this.addRule}
+                    onOk={status === 'add' ? this.addRule : this.updateRule}
                     status={status}
                     dataSource={source}
                 />
