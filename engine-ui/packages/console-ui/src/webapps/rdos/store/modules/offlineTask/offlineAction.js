@@ -851,7 +851,7 @@ export const workbenchActions = (dispatch) => {
             ajax.deleteScript(params)
                 .then(res => {
                     if (res.code == 1) {
-                        message.info('删除成功');
+                        message.success('删除成功');
                         dispatch({
                             type: scriptTreeAction.DEL_SCRIPT,
                             payload: {
