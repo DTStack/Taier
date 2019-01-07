@@ -28,7 +28,7 @@ export default {
     FROZEN_TASK: `${RDOS_BASE_URL}/batch/batchTask/frozenTask`, // 冻结/解冻任务
     TASK_VERSION_SCHEDULE_CONF: `${RDOS_BASE_URL}/batch/batchTask/taskVersionScheduleConf `,
     UPDATE_TASK_OWNER: `${RDOS_BASE_URL}/batch/batchTask/setOwnerUser `,
-
+    CONVERT_SYNC_T0_SCRIPT_MODE: `${RDOS_BASE_URL}/batch/batchTask/guideToTemplate `, // 转换数据同步从向导到脚本模式
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/addOrUpdateScript`, // 保存脚本
     FORCE_UPDATE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/forceUpdate`, // 强制更新

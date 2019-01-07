@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { Button } from 'antd';
 import SplitPane from 'react-split-pane';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -10,9 +11,9 @@ import Console from 'main/components/ide/console';
 import 'main/components/ide/ide.scss';
 
 import DataSync from './dataSync';
-// import {
-//     workbenchActions
-// } from '../../../../store/modules/offlineTask/offlineAction';
+import {
+    workbenchActions
+} from '../../../../store/modules/offlineTask/offlineAction';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 
 const propType = {
@@ -37,9 +38,9 @@ const propType = {
         dataSync
     }
 }, dispatch => {
-    // const taskAc = workbenchActions(dispatch);
+    const taskAc = workbenchActions(dispatch);
     const editorAc = bindActionCreators(editorActions, dispatch);
-    const actions = Object.assign(editorAc)
+    const actions = Object.assign(editorAc, taskAc)
     return actions;
 })
 class DataSyncWorkbench extends Component {
@@ -100,13 +101,22 @@ class DataSyncWorkbench extends Component {
     }
 
     render () {
-        const { currentTabData, editor, saveTab, dataSync } = this.props;
+        const { currentTabData, editor, saveTab, dataSync, convertDataSyncToScriptMode } = this.props;
 
         const currentTab = currentTabData.id;
         const consoleData = editor.console;
+        const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
 
         const data = consoleData && consoleData[currentTab]
-            ? consoleData[currentTab] : { results: [] }
+            ? consoleData[currentTab] : { results: [] };
+
+        const convertToScriptMode = (<Button
+            disabled={isLocked}
+            icon="swap"
+            title="转换同步任务由向导模式为脚本模式"
+            onClick={() => convertDataSyncToScriptMode(currentTabData)}>
+                转换为脚本
+        </Button>);
 
         const unSave = currentTabData.notSynced; // 未保存的同步任务无法运行
         const unConfigured = dataSync.tabId === currentTab && isEmpty(dataSync.sourceMap);
@@ -117,7 +127,8 @@ class DataSyncWorkbench extends Component {
             disableRun: unSave || unConfigured,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.onRun,
-            onStop: this.onStop
+            onStop: this.onStop,
+            leftCustomButton: convertToScriptMode
         }
 
         const console = {

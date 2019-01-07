@@ -269,6 +269,22 @@ export const workbenchActions = (dispatch) => {
             });
         },
 
+        convertDataSyncToScriptMode: async task => {
+            const reqParams = {
+                id: task.id,
+                syncModel: task.syncModel,
+                lockVersion: task.lockVersion,
+                version: task.version,
+                preSave: task.preSave,
+                readWriteLockVO: task.readWriteLockVO
+            }
+            const res = await ajax.convertDataSyncToScriptMode(reqParams);
+            if (res.code === 1) {
+                message.success('转换成功！');
+                reloadTaskTab(task.id);
+            }
+        },
+
         /**
          * 更新Tab数据
          */
