@@ -70,7 +70,7 @@ class Dashboard extends Component {
                         <div className="c-banner__content l-content">
                             <div className="c-banner__content__txt">
                                 <h1>{window.APP_CONF.indexTitle}</h1>
-                                <span>企业级一站式数据中台-让数据产生价值</span>
+                                <span>{window.APP_CONF.indexDesc}</span>
                             </div>
                             <div className="c-banner__content__img">
                                 <img src={getThemeBanner()} />
