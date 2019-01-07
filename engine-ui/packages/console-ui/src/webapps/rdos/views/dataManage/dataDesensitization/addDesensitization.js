@@ -116,25 +116,26 @@ class AddDesensitization extends Component {
             message.warning('请先选择脱敏规则');
         } else {
             if (maskType === 1) {
-                if (sampleData) {
+                if (sampleData && (beginPos <= endPos)) {
                     let sampleDataArr = sampleData.split('');
-                    console.log(sampleData.split(''));
+                    console.log(sampleDataArr);
                     let repeatCount = 0;
                     if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
-                        repeatCount = sampleDataArr.length - beginPos
+                        repeatCount = sampleDataArr.length - beginPos + 1
                     } else if (endPos < sampleDataArr.length && (sampleDataArr.length >= beginPos)) {
-                        repeatCount = endPos - beginPos;
+                        repeatCount = endPos - beginPos + 1;
                     } else if (sampleDataArr.length < beginPos) {
                         repeatCount = 0;
                     }
-                    // const repeatCount = endPos >= sampleDataArr.length ? sampleDataArr.length - beginPos : endPos - beginPos;
                     const newStr = this.repeatStr(replaceStr, repeatCount);
                     console.log(newStr);
-                    sampleDataArr.splice(beginPos, (endPos - beginPos), newStr).join('');
+                    sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
                     console.log(sampleDataArr);
                     this.setState({
                         newReplaceData: sampleDataArr
                     })
+                } else {
+                    message.warning('请正确输入脱敏替换配置');
                 }
             } else {
                 if (sampleData) {

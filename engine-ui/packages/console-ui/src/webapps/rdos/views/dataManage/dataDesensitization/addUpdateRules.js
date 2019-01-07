@@ -7,9 +7,9 @@ const RadioGroup = Radio.Group;
 class AddUpdateRules extends Component {
     state = {
         // 部分脱敏参数
-        beginPos: '',
-        endPos: '',
-        replaceStr: '',
+        beginPos: 1,
+        endPos: 1,
+        replaceStr: '*',
         newReplaceData: ''
     }
     /* eslint-disable-next-line */
@@ -39,6 +39,16 @@ class AddUpdateRules extends Component {
             replaceStr: e.target.value.length == 1 ? e.target.value : ''
         })
     }
+    changeRadio = (e) => {
+        const { status, dataSource } = this.props;
+        if ((status === 'edit') && e.target.value === 1 && dataSource.beginPos === 0 && dataSource.endPos === 0) {
+            this.setState({
+                beginPos: 1,
+                endPos: 1,
+                replaceStr: '*'
+            })
+        }
+    }
     // 字符串替换
     repeatStr = (str, n) => {
         return new Array(n + 1).join(str)
@@ -52,25 +62,26 @@ class AddUpdateRules extends Component {
         console.log(beginPos, endPos, replaceStr)
         console.log(sampleData);
         if (maskType === 1) {
-            if (sampleData) {
+            if (sampleData && (beginPos <= endPos)) {
                 let sampleDataArr = sampleData.split('');
-                console.log(sampleData.split(''));
+                console.log(sampleDataArr);
                 let repeatCount = 0;
                 if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
-                    repeatCount = sampleDataArr.length - beginPos
+                    repeatCount = sampleDataArr.length - beginPos + 1
                 } else if (endPos < sampleDataArr.length && (sampleDataArr.length >= beginPos)) {
-                    repeatCount = endPos - beginPos;
+                    repeatCount = endPos - beginPos + 1;
                 } else if (sampleDataArr.length < beginPos) {
                     repeatCount = 0;
                 }
-                // const repeatCount = endPos >= sampleDataArr.length ? sampleDataArr.length - beginPos : endPos - beginPos;
                 const newStr = this.repeatStr(replaceStr, repeatCount);
                 console.log(newStr);
-                sampleDataArr.splice(beginPos, (endPos - beginPos), newStr).join('');
+                sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
                 console.log(sampleDataArr);
                 this.setState({
                     newReplaceData: sampleDataArr
                 })
+            } else {
+                message.warning('请正确输入脱敏替换配置');
             }
         } else {
             if (sampleData) {
@@ -116,10 +127,10 @@ class AddUpdateRules extends Component {
         }
         const isPartDes = ruleData.maskType === 1;
         this.props.form.validateFields((err) => {
-            if (!err && (isPartDes ? (beginPos && endPos && replaceStr) : true)) {
+            if (!err && (isPartDes ? (beginPos && endPos && replaceStr && (beginPos <= endPos)) : true)) {
                 this.props.form.resetFields();
                 onOk(params)
-            } else if (isPartDes ? (beginPos == '' || endPos == '' || replaceStr == '') : false) {
+            } else {
                 message.warning('请正确输入脱敏替换配置');
             }
         });
@@ -186,10 +197,13 @@ class AddUpdateRules extends Component {
                         label="脱敏效果"
                     >
                         {getFieldDecorator('maskType', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '脱敏效果不可为空！'
+                            }],
                             initialValue: dataSource.maskType || 0
                         })(
-                            <RadioGroup>
+                            <RadioGroup onChange={this.changeRadio}>
                                 <Radio value={0}>全部脱敏</Radio>
                                 <Radio value={1}>部分脱敏</Radio>
                             </RadioGroup>
@@ -201,12 +215,12 @@ class AddUpdateRules extends Component {
                             <InputNumber
                                 style={{ width: '70px' }}
                                 min={1}
+                                // defaultValue={1}
                                 value={this.state.beginPos}
                                 onChange={this.changeBeginPos}
                             />位至第<InputNumber
                                 style={{ width: '70px' }}
-                                min={Number(this.state.beginPos) || 1 }
-                                // max={sampleDataLength}
+                                min={1}
                                 value={this.state.endPos}
                                 onChange={this.changeEndPos}
                             />位替换为:<Input
