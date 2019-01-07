@@ -91,7 +91,8 @@ class TableRelation extends Component {
                 })
             } else {
                 this.setState({
-                    loading: false
+                    loading: false,
+                    dataSource: []
                 })
             }
         })
