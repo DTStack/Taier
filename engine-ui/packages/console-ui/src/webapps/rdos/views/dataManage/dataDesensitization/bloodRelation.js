@@ -80,7 +80,7 @@ class BloodRelation extends React.Component {
         const tableDetail = this.props.tableDetail
         this.loadEditor(editor)
         this.listenOnClick();
-        if (tableDetail) {
+        if (tableDetail && tableDetail.configId) {
             const params = getTableReqParams(tableDetail)
             this.setState({
                 allHideparams: params
@@ -96,7 +96,7 @@ class BloodRelation extends React.Component {
             const params = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(params)
         }
-        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation') {
+        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation' && nextProps.tableDetail.id) {
             const paramsNext = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(paramsNext)
         }
