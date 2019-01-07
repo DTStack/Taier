@@ -139,3 +139,15 @@ export function getHeaderLogo (app, theme) {
 
     return mainLogoMap[app][theme] || defaultLogo;
 }
+
+export function getThemeBanner (theme) {
+    theme = theme || window.APP_CONF.theme || 'default';
+    switch (theme) {
+        case 'aliyun': {
+            return 'public/main/img/aliyun-banner.png';
+        }
+        default: {
+            return 'public/main/img/pic_banner.png';
+        }
+    }
+}
