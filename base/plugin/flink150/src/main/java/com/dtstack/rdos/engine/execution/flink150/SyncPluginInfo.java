@@ -2,6 +2,8 @@ package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
+import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
@@ -79,7 +81,8 @@ public class SyncPluginInfo {
         if(StringUtils.isNotEmpty(monitorAddress)) {
             programArgList.add(monitorAddress);
         } else {
-            programArgList.add(flinkClient.getReqUrl());
+            FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+            programArgList.add(flinkClient.getReqUrl(taskRunMode));
         }
 
         return programArgList;

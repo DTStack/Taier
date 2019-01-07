@@ -30,6 +30,6 @@ public class ConfigConstrant {
 
     public static final String FLINK_TIME_CHARACTERISTIC_KEY = "time.characteristic";
 
-    public static final String FLINK_TASK_RUN_MODE_KEY = "taskRunMode";
+    public static final String FLINK_TASK_RUN_MODE_KEY = "flinkTaskRunMode";
 
 }

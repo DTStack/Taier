@@ -53,8 +53,6 @@ public class FlinkConfig {
 
     private Map<String, Object> yarnConf;
 
-    private String flinkYarnMode;
-
     private String flinkJarPath;
 
     private String elasticCapacity;
@@ -273,14 +271,6 @@ public class FlinkConfig {
 
     public void setQueue(String queue) {
         this.queue = queue;
-    }
-
-    public String getFlinkYarnMode() {
-        return flinkYarnMode;
-    }
-
-    public void setFlinkYarnMode(String flinkYarnMode) {
-        this.flinkYarnMode = flinkYarnMode;
     }
 
     public String getFlinkJarPath() {

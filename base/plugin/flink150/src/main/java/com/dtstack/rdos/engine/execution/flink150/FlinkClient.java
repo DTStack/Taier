@@ -3,7 +3,6 @@ package com.dtstack.rdos.engine.execution.flink150;
 import avro.shaded.com.google.common.collect.Sets;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -131,8 +130,6 @@ public class FlinkClient extends AbsClient {
     /**客户端是否处于可用状态*/
     private AtomicBoolean isClientOn = new AtomicBoolean(false);
 
-    private FlinkYarnMode flinkYarnMode;
-
     private YarnClient yarnClient;
 
     private ExecutorService yarnMonitorES;
@@ -164,7 +161,6 @@ public class FlinkClient extends AbsClient {
             flinkClientBuilder = FlinkClientBuilder.create(hadoopConf, yarnConf);
 
             boolean yarnCluster = flinkConfig.getClusterMode().equals(Deploy.yarn.name());
-            flinkYarnMode = yarnCluster? FlinkYarnMode.mode(flinkConfig.getFlinkYarnMode()) : null;
             if (yarnCluster){
                 initYarnClient();
             }
@@ -298,7 +294,7 @@ public class FlinkClient extends AbsClient {
 
         JobClient jobClient = jobClientThreadLocal.get();
 
-        if (FlinkYarnMode.isPerJob(flinkYarnMode) && FlinkYarnMode.isPerJob(taskRunMode)){
+        if (FlinkYarnMode.isPerJob(taskRunMode)){
 
             ClusterSpecification clusterSpecification = FLinkConfUtil.createClusterSpecification(flinkClientBuilder.getFlinkConfiguration(), jobClient.getJobPriority());
             AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, prometheusGatewayConfig, jobClient.getTaskId());
@@ -591,9 +587,9 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public String getReqUrl() {
+    public String getReqUrl(FlinkYarnMode flinkYarnMode) {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
-            return getLegacyReqUrl();
+            return "";
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
             return getNewReqUrl();
         } else {

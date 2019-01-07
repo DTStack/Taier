@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
+import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
@@ -18,7 +19,6 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -47,14 +47,13 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     public boolean judgeSlots(JobClient jobClient) {
 
         FlinkConfig flinkConfig = getJobFlinkConf(jobClient.getPluginInfo());
-        String flinkYarnMode = null;
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
         String queue = DEFAULT_QUEUE;
         if(flinkConfig != null){
-            flinkYarnMode = flinkConfig.getFlinkYarnMode();
             queue = flinkConfig.getQueue();
         }
 
-        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.PER_JOB.name().equalsIgnoreCase(flinkYarnMode)){
+        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.isPerJob(taskRunMode)){
             return judgePerjobResource(jobClient, queue);
         }
 
