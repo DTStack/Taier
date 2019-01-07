@@ -1,8 +1,11 @@
 package com.dtstack.yarn.container;
 
 import com.dtstack.yarn.DtYarnConfiguration;
+import com.dtstack.yarn.am.DTTokenIdentifier;
+import com.dtstack.yarn.am.DTTokenSecretMgr;
 import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
+import com.dtstack.yarn.common.DTYarnShellConstant;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
 import com.dtstack.yarn.common.type.AppType;
@@ -17,16 +20,22 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.ipc.WritableRpcEngine;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.Groups;
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.apache.hadoop.security.token.Token;
 
-import javax.net.SocketFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -35,13 +44,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
-import static org.apache.hadoop.ipc.RPC.getRpcTimeout;
 
 public class DtContainer {
 
@@ -79,6 +87,7 @@ public class DtContainer {
         localFs = FileSystem.getLocal(conf);
 
         conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
+        conf.addResource(new Path("hdfs-side.xml"));
         LOG.info("user is " + conf.get("hadoop.job.ugi"));
         containerId = new DtContainerId(ConverterUtils.toContainerId(System
                 .getenv(ApplicationConstants.Environment.CONTAINER_ID.name())));
@@ -100,23 +109,29 @@ public class DtContainer {
         int appMasterPort = Integer.valueOf(System.getenv(DtYarnConstants.Environment.APPMASTER_PORT.toString()));
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
-            LOG.info(UserGroupInformation.isSecurityEnabled());
-            KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
-            LOG.info(UserGroupInformation.getCurrentUser());
-            LOG.info(UserGroupInformation.isSecurityEnabled());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            /*amClient = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID, addr, conf);*/
-            Class protocol = ApplicationContainerProtocol.class;
+            LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
             UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-            SocketFactory factory = NetUtils.getDefaultSocketFactory(conf);
-            amClient = (ApplicationContainerProtocol) new WritableRpcEngine().getProxy(protocol, ApplicationContainerProtocol.versionID,
-                    addr, ugi, conf, factory, getRpcTimeout(conf), null).getProxy();
-            LOG.info("dtc125: " + ugi);
-        } catch (IOException e) {
+            LOG.warn("-ugi---:" + ugi);
+            LOG.warn("isenabled:" + UserGroupInformation.isSecurityEnabled());
+
+            LOG.error("hdfs principal:" + conf.get("hdfsPrincipal"));
+            final Configuration newConf = new Configuration(conf);
+            newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+            newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
+            UserGroupInformation.setConfiguration(newConf);
+            SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
+
+            SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+
+            amClient = RPC.getProxy(ApplicationContainerProtocol.class, ApplicationContainerProtocol.versionID, addr, newConf);
+            LocalRemotePath[] localRemotePaths = amClient.getOutputLocation();
+            LOG.warn("get localRemotePaths:" + localRemotePaths.length);
+
+            LOG.warn("-------KerberosUtils--------");
+            KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
+            LOG.warn("-------KerberosUtils end --------");
+        } catch (Exception e) {
+            LOG.error("-----------", e);
             LOG.error("Connecting to ApplicationMaster " + appMasterHost + ":" + appMasterPort + " failed!");
             LOG.error("Container will suicide!");
             System.exit(1);
@@ -127,7 +142,6 @@ public class DtContainer {
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
         containerStatusNotifier.start();
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
-
     }
 
     public Configuration getConf() {

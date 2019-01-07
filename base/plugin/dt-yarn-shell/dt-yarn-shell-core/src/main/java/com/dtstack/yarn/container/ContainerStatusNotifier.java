@@ -75,6 +75,7 @@ public class ContainerStatusNotifier implements Runnable {
         int retry = 0;
         while (true) {
             try {
+                LOG.debug("Begin Send HeartBeat to ApplicationMaster");
                 heartbeatResponse = protocol.heartbeat(containerId, heartbeatRequest);
                 LOG.debug("Send HeartBeat to ApplicationMaster");
                 return heartbeatResponse;
