@@ -117,9 +117,12 @@ class DesensitizationMange extends Component {
         this.setState({
             nowView: tabKey
         })
-        // if (tabKey === 'bloodRelation') {
-        //     console.log('血缘');
-        // }
+        if (tabKey === 'bloodRelation') {
+            console.log('血缘');
+        }
+        if (tabKey === 'tableRelation') {
+            console.log('表');
+        }
     }
     // 获取点击具体查看血缘
     handleClickTable = (tableInfo) => {
@@ -225,18 +228,15 @@ class DesensitizationMange extends Component {
                         className="m-tabs bd-top bd-right m-slide-pane"
                         onClose={this.closeSlidePane}
                         visible={visibleSlidePane}
-                        style={{ right: '0px', width: '85%', height: '100%', minHeight: '600px' }}
+                        style={{ right: '0px', width: '90%', height: '100%', minHeight: '600px' }}
                     >
                         <Tabs animated={false} onChange={this.onTabChange} activeKey={nowView}>
                             <TabPane tab="表关系" key="tableRelation">
                                 <TableRelation
-                                    // reload={this.search}
                                     tabKey={nowView}
                                     visibleSlidePane={visibleSlidePane}
                                     onTabChange={this.onTabChange}
                                     handleClickTable={this.handleClickTable}
-                                    // goToTaskDev={this.props.goToTaskDev}
-                                    // clickPatchData={this.clickPatchData}
                                     tableData={selectedId}
                                 />
                             </TabPane>

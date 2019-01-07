@@ -68,7 +68,8 @@ class BloodRelation extends React.Component {
         currentPage: 1,
         currentChild: {},
         currentParent: {},
-        visible: false
+        visible: false,
+        allHideparams: {} // 根节点参数，用于展开上下游收起对应上下游
     }
 
     componentDidMount () {
@@ -81,16 +82,23 @@ class BloodRelation extends React.Component {
         this.listenOnClick();
         if (tableDetail) {
             const params = getTableReqParams(tableDetail)
+            this.setState({
+                allHideparams: params
+            })
             this.loadColumnTree(params)
         }
-        // this.props.onTabChange('bloodRelation')
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentTable = this.props.tableDetail;
+        const { tabKey } = nextProps;
         if (currentTable.id != nextProps.tableDetail.id) {
             const params = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(params)
+        }
+        if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation') {
+            const paramsNext = getTableReqParams(nextProps.tableDetail)
+            this.loadColumnTree(paramsNext)
         }
     }
     loadColumnTree = (params) => {
@@ -110,8 +118,6 @@ class BloodRelation extends React.Component {
 
     loadChildrenColumn = (params) => {
         this.showLoading()
-        console.log('----------------');
-        console.log(params);
         Api.getChildColumns(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
@@ -129,8 +135,6 @@ class BloodRelation extends React.Component {
 
     loadParentColumn = (params) => {
         this.showLoading()
-        console.log('----------------');
-        console.log(params);
         Api.getParentColumns(params).then(res => {
             if (res.code === 1) {
                 const data = res.data
@@ -465,13 +469,31 @@ class BloodRelation extends React.Component {
     }
 
     getStyles = (data) => {
-        if (data.isParent) {
+        console.log('---------------------------');
+        console.log(data)
+        if (data.isParent && data.enable === 1) {
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
-        } else if (data.isRoot) {
+        }
+        if (data.isParent && data.enable === 0) {
+            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        }
+        if (data.isRoot && data.enable === 1) {
             return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        } else if (data.isChild) {
+        }
+        if (data.isRoot && data.enable === 0) {
+            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        }
+        if (data.isChild && data.enable === 1) {
             return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
         }
+        if (data.isChild && data.enable === 0) {
+            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        }
+        // else if (data.isRoot) {
+        //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        // } else if (data.isChild) {
+        //     return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
     }
 
     formatTooltip = (cell) => {
@@ -519,8 +541,6 @@ class BloodRelation extends React.Component {
             if (!cell) return
 
             const table = JSON.parse(cell.getAttribute('data'));
-            console.log('++++++++++++++++');
-            console.log(table);
             let params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
             const tableId = table.tableId
@@ -532,6 +552,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开上游（1层）', null, function () {
                         ctx.loadParentColumn(params)
+                        ctx.loadChildrenColumn(ctx.state.allHideparams) // 收起全部下游
                     })
                 }
             }
@@ -544,6 +565,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开下游（1层）', null, function () {
                         ctx.loadChildrenColumn(params)
+                        ctx.loadParentColumn(ctx.state.allHideparams) // 收起全部上游
                     })
                 }
             }
@@ -651,6 +673,14 @@ class BloodRelation extends React.Component {
                 <div className="graph-legend">
                     <div className='desenAlert' style={{ marginLeft: '-17px', marginTop: '-40px' }}>
                         <Alert message='点击右键，可以展开上下游、开启/关闭脱敏' type="info" showIcon />
+                    </div>
+                    <div>
+                        <span
+                            className="legend-item"
+                            style={{ background: '#EEEEEE', border: '1px solid #CCCCCC' }}
+                        >
+                        </span>
+                        脱敏
                     </div>
                     <div>
                         <span

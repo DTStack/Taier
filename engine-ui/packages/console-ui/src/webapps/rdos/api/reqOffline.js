@@ -125,6 +125,7 @@ export default {
     GET_DATA_SOURCE_TYPES: `${RDOS_BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${RDOS_BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
     GET_TASK_LIST_OF_OFFLINE_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getSourceTaskRef`, // 获取离线数据源的任务
+    CHECK_IS_PERMISSION: `${RDOS_BASE_URL}/batch/batchDataSource/checkPermission`, // 检查是否有权限
 
     GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
     ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
@@ -138,6 +139,7 @@ export default {
     GET_SYNC_DETAIL: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/getDetail`, // 获取整库同步详情
     PUBLISH_SYNC_TASK: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/task`, // 发布单表
     CHECK_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkTransformConfig`, // 检查高级配置
+    CHECK_SYNC_PERMISSION: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkPermission`, // 检查同步历史是否有权限
 
     // ===== 项目统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/tableCount`, // 表总量

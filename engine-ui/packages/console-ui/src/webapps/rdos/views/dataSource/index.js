@@ -96,7 +96,19 @@ class DataSourceMana extends Component {
             }
         })
     }
-
+    // 点击新增数据源
+    openAddDatasource = () => {
+        Api.checkIsPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    source: {},
+                    status: 'add',
+                    title: '添加数据源'
+                })
+            }
+        })
+    }
     remove = (source) => {
         const ctx = this
         if (source.active === 1) {
@@ -132,11 +144,15 @@ class DataSourceMana extends Component {
     }
 
     initEdit = (source) => {
-        this.setState({
-            visible: true,
-            title: '编辑数据源',
-            status: 'edit',
-            source: cloneDeep(source)
+        Api.checkIsPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    title: '编辑数据源',
+                    status: 'edit',
+                    source: cloneDeep(source)
+                })
+            }
         })
     }
     getTypeName (type) {
@@ -328,10 +344,14 @@ class DataSourceMana extends Component {
     }
 
     openSyncModal = (record) => {
-        this.setState({
-            syncModalVisible: true,
-            source: record
-        });
+        Api.checkSyncPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    syncModalVisible: true,
+                    source: record
+                });
+            }
+        })
     }
 
     closeSyncModal = () => {
@@ -364,14 +384,7 @@ class DataSourceMana extends Component {
                 type="primary"
                 style={{ marginTop: 10 }}
                 className="right"
-                onClick={() => {
-                    this.setState({
-                        visible: true,
-                        source: {},
-                        status: 'add',
-                        title: '添加数据源'
-                    })
-                }}
+                onClick={this.openAddDatasource}
             >新增数据源</Button>
         )
 
