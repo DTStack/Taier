@@ -41,25 +41,10 @@ class Result extends React.Component {
         result = data.slice(begin, end);
         return result;
     }
-    hotTableCustomRender (instance, td, row, col, prop, value, cellProperties) {
-        if (row == 1) {
-            td.style.background = '#000';
-        }
-        return td;
-    }
-    generateCols (arr) {
-        return arr.map((item, index) => {
-            return {
-                // renderer: this.hotTableCustomRender,
-                data: index
-            }
-        })
-    }
     render () {
         const { pagination } = this.state;
         const { extraView, data } = this.props;
         const showData = data.slice(1, data.length);
-        const columns = this.generateCols(data[0]);
         return (
             // <Table
             //     rowKey="id"
@@ -78,7 +63,6 @@ class Result extends React.Component {
                         style={{ width: '100%', height: '100%' }}
                         language='zh-CN'
                         colHeaders={data[0]}
-                        columns={columns}
                         data={this.getPageData(showData)}
                         readOnly={true}
                         rowHeaders={true}// 数字行号
