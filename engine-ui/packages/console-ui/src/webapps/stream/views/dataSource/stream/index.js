@@ -352,9 +352,17 @@ class DataSourceManaStream extends Component {
         )
     }
 }
+class WrapDataSourceMana extends React.Component {
+    render () {
+        const { project } = this.props;
+        return (
+            <DataSourceManaStream key={project.id} {...this.props} />
+        )
+    }
+}
 export default connect((state) => {
     return {
         project: state.project,
         sourceTypes: state.dataSource.sourceTypes
     }
-})(DataSourceManaStream)
+})(WrapDataSourceMana)
