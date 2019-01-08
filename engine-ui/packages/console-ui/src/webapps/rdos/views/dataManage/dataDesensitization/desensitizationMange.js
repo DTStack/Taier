@@ -182,7 +182,7 @@ class DesensitizationMange extends Component {
                             onConfirm={() => { this.delete(record) }}
                         >
                             <a>删除</a>
-                        </Popconfirm> : '删除'
+                        </Popconfirm> : <span style={{ color: '#ccc' }}>删除</span>
                     )
                 }
             }

@@ -100,6 +100,40 @@ class AddDesensitization extends Component {
             </Option>
         })
     }
+    // 判断是否输入正确脱敏配置
+    isPassConfig = (sampleDataArr, beginPos, endPos) => {
+        const firstCase = (endPos >= sampleDataArr.length && sampleDataArr.length >= beginPos) ||
+        (endPos > sampleDataArr.length && sampleDataArr.length >= beginPos) ||
+        (endPos >= sampleDataArr.length && sampleDataArr.length > beginPos) ||
+        (endPos > sampleDataArr.length && sampleDataArr.length > beginPos);
+
+        const secondCase = (endPos <= sampleDataArr.length && endPos >= beginPos) ||
+        (endPos < sampleDataArr.length && endPos >= beginPos) ||
+        (endPos <= sampleDataArr.length && endPos > beginPos) ||
+        (endPos < sampleDataArr.length && endPos > beginPos);
+
+        const thirdCase = (sampleDataArr.length < beginPos && beginPos < endPos) ||
+        (sampleDataArr.length < beginPos && beginPos <= endPos) ||
+        (sampleDataArr.length <= beginPos && beginPos < endPos) ||
+        (sampleDataArr.length <= beginPos && beginPos <= endPos);
+        return {
+            firstCase,
+            secondCase,
+            thirdCase
+        }
+    }
+    /** 设置newReplaceData
+     * sampleDataArr 样例数据
+     * beginPos 开始输入值
+     * endPos结束输入值
+     * newStr 替换新字符
+    */
+    setNewReplaceData = (sampleDataArr, beginPos, endPos, newStr) => {
+        sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
+        this.setState({
+            newReplaceData: sampleDataArr
+        })
+    }
     // 字符串替换
     repeatStr = (str, n) => {
         return new Array(n + 1).join(str)
@@ -109,26 +143,34 @@ class AddDesensitization extends Component {
         const { getFieldValue } = this.props.form;
         let sampleData = getFieldValue('example');
         let ruleId = getFieldValue('ruleId');
-        const { maskType, beginPos, endPos, replaceStr } = this.state.selectRule;
+        const { maskType, replaceStr } = this.state.selectRule;
+        let { beginPos, endPos } = {
+            beginPos: Number(this.state.selectRule.beginPos),
+            endPos: Number(this.state.selectRule.endPos)
+        }
         if (!ruleId) {
             message.warning('请先选择脱敏规则');
         } else {
             if (maskType === 1) {
-                if (sampleData && (beginPos <= endPos)) {
-                    let sampleDataArr = sampleData.split('');
-                    let repeatCount = 0;
-                    if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
-                        repeatCount = sampleDataArr.length - beginPos + 1
-                    } else if (endPos < sampleDataArr.length && (sampleDataArr.length >= beginPos)) {
-                        repeatCount = endPos - beginPos + 1;
-                    } else if (sampleDataArr.length < beginPos) {
-                        repeatCount = 0;
-                    }
+                this.setState({
+                    newReplaceData: ''
+                })
+                let sampleDataArr = (sampleData || '').split('');
+                console.log(sampleDataArr.length, beginPos, endPos)
+                let repeatCount = 0;
+                const cases = this.isPassConfig(sampleDataArr, beginPos, endPos);
+                if (cases.firstCase) {
+                    repeatCount = sampleDataArr.length - beginPos + 1;
                     const newStr = this.repeatStr(replaceStr, repeatCount);
-                    sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
-                    this.setState({
-                        newReplaceData: sampleDataArr
-                    })
+                    this.setNewReplaceData(sampleDataArr, beginPos, endPos, newStr);
+                } else if (cases.secondCase) {
+                    repeatCount = endPos - beginPos + 1;
+                    const newStr = this.repeatStr(replaceStr, repeatCount);
+                    this.setNewReplaceData(sampleDataArr, beginPos, endPos, newStr);
+                } else if (cases.thirdCase) {
+                    repeatCount = 0;
+                    const newStr = this.repeatStr(replaceStr, repeatCount);
+                    this.setNewReplaceData(sampleDataArr, beginPos, endPos, newStr);
                 } else {
                     message.warning('请正确输入脱敏替换配置');
                 }
