@@ -242,8 +242,10 @@ export function splitSql (sqlText) {
             }
         }
     }
+    // 清空
+    results.push(sqlText.substring(index, sqlText.length));
 
-    return results;
+    return results.filter(Boolean);
 }
 
 export function getRandomInt (min, max) {
