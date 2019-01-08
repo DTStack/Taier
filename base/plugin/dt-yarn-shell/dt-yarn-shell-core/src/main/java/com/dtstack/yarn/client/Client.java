@@ -20,6 +20,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Master;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.protocolrecords.GetNewApplicationResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
@@ -259,22 +260,24 @@ public class Client {
         List<String> appMasterLaunchcommands = new ArrayList<>();
         appMasterLaunchcommands.add(command.toString());
 
-        ByteBuffer token = null;
+       /* ByteBuffer token = null;
         if ("true".equals(conf.get("security"))){
             Credentials credentials = new Credentials(UserGroupInformation.getCurrentUser().getCredentials());
             dfs.addDelegationTokens(Master.getMasterPrincipal(conf), credentials);
             DataOutputBuffer dob = new DataOutputBuffer();
             credentials.writeTokenStorageToStream(dob);
             token = ByteBuffer.wrap(dob.getData());
-        }
+        }*/
 
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
         capability.setVirtualCores(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
         applicationContext.setResource(capability);
         ContainerLaunchContext amContainer = ContainerLaunchContext.newInstance(
-                localResources, appMasterEnv, appMasterLaunchcommands, null, token, null);
+                localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
 
+
+        amContainer.setTokens(setupTokens());
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);
@@ -285,6 +288,27 @@ public class Client {
 
         return applicationId.toString();
     }
+
+    private ByteBuffer setupTokens() throws IOException {
+        Credentials credentials = new Credentials();
+        String tokenRenewer = conf.get(YarnConfiguration.RM_PRINCIPAL);
+        if (tokenRenewer == null || tokenRenewer.length() == 0) {
+            throw new IOException(
+                    "Can't get Master Kerberos principal for the RM to use as renewer");
+        }
+
+        // For now, only getting tokens for the default file-system.
+        final Token<?> tokens[] = dfs.addDelegationTokens(tokenRenewer, credentials);
+        if (tokens != null) {
+            for (Token<?> token : tokens) {
+                LOG.info("Got dt for " + dfs.getUri() + "; " + token);
+            }
+        }
+        DataOutputBuffer dob = new DataOutputBuffer();
+        credentials.writeTokenStorageToStream(dob);
+        return ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+    }
+
 
     private void checkArguments(DtYarnConfiguration taskConf, GetNewApplicationResponse newApplication) {
         int maxMem = newApplication.getMaximumResourceCapability().getMemory();

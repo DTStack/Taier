@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 public class ContainerLostDetector implements Runnable {
 
     //超时3分钟 失败
-    private static final long MAX_HEART_BEAT_WAIT_TIME = 3 * 60 * 1000L;
+    private static final long MAX_HEART_BEAT_WAIT_TIME = 1 * 60 * 1000L;
 
     private ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 

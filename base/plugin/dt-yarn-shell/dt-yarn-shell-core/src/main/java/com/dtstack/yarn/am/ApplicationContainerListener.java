@@ -2,6 +2,7 @@ package com.dtstack.yarn.am;
 
 import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.ApplicationContext;
+import com.dtstack.yarn.common.DTYarnShellConstant;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.HeartbeatRequest;
 import com.dtstack.yarn.common.HeartbeatResponse;
@@ -12,14 +13,30 @@ import com.dtstack.yarn.util.KerberosUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.ha.protocolPB.HAServiceProtocolPB;
+import org.apache.hadoop.ha.protocolPB.ZKFCProtocolPB;
+import org.apache.hadoop.hdfs.DFSUtil;
+import org.apache.hadoop.hdfs.client.HdfsUtils;
+import org.apache.hadoop.hdfs.security.token.delegation.DelegationTokenSecretManager;
+import org.apache.hadoop.ipc.ProtobufRpcEngine;
 import org.apache.hadoop.ipc.ProtocolSignature;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.Server;
+import org.apache.hadoop.ipc.WritableRpcEngine;
+import org.apache.hadoop.mapreduce.v2.hs.HSAuditLogger;
+import org.apache.hadoop.mapreduce.v2.security.client.ClientHSSecurityInfo;
+import org.apache.hadoop.security.Groups;
+import org.apache.hadoop.security.SecurityInfo;
+import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.authorize.ServiceAuthorizationManager;
 import org.apache.hadoop.service.AbstractService;
 import org.apache.hadoop.yarn.api.records.NodeId;
+import org.apache.hadoop.yarn.server.security.BaseContainerTokenSecretManager;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,28 +87,55 @@ public class ApplicationContainerListener
 
     @Override
     public void start() {
-        LOG.info("Starting application containers handler server");
-        try {
-            LOG.info(UserGroupInformation.getCurrentUser());
-            KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
-            LOG.info(UserGroupInformation.getCurrentUser());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        RPC.Builder builder = new RPC.Builder(getConfig());
-        builder.setProtocol(ApplicationContainerProtocol.class);
-        builder.setInstance(this);
-        builder.setBindAddress("0.0.0.0");
-        builder.setPort(0);
-        try {
-            server = builder.build();
+
+       try{
+
+           LOG.error("hdfs principal:" + conf.get("hdfsPrincipal"));
+           final Configuration newConf = new Configuration(conf);
+           newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+           newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
+
+
+           SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+
+           //RPC.setProtocolEngine(newConf, ApplicationContainerProtocol.class, WritableRpcEngine.class);
+
+            RPC.Builder builder = new RPC.Builder(newConf)
+            .setProtocol(ApplicationContainerProtocol.class)
+            .setInstance(this)
+            .setBindAddress("0.0.0.0")
+            .setPort(0)
+            .setVerbose(false)
+            .setNumHandlers(5);
+            //builder.setSecretManager(new DelegationTokenSecretManager(0, 0, 0, 0, null));
+            //builder.setSecretManager(new DTTokenSecretMgr());
+
+           server = builder.build();
+
+           ((RPC.Server) server).addProtocol(RPC.RpcKind.RPC_WRITABLE, ApplicationContainerProtocol.class, this);
+
+
+            server.start();
+            containerLostDetector.start();
+
+            ServiceAuthorizationManager serviceAuthorizationManager = server.getServiceAuthorizationManager();
+            serviceAuthorizationManager.refreshWithLoadedConfiguration(newConf, new DTPolicyProvider());
+            LOG.error(serviceAuthorizationManager);
+
+            /*InetSocketAddress addr = NetUtils.getConnectAddress(server);
+            ApplicationContainerProtocol proxy = RPC.getProxy(ApplicationContainerProtocol.class,
+                    ApplicationContainerProtocol.versionID, addr, newConf);
+            String str = proxy.getAuthUser();
+            LOG.error("-----proxyAuthUser" + str);*/
+           LOG.error("----start rpc success----");
         } catch (Exception e) {
             LOG.error("Error starting application containers handler server!", e);
             e.printStackTrace();
             return;
-        }
-        server.start();
-        containerLostDetector.start();
+        }finally {
+           //SecurityUtil.setSecurityInfoProviders(new SecurityInfo[0]);
+       }
+
     }
 
 
@@ -162,58 +206,61 @@ public class ApplicationContainerListener
 
     @Override
     public HeartbeatResponse heartbeat(DtContainerId containerId, HeartbeatRequest heartbeatRequest) {
-        DtContainerStatus currentContainerStatus = heartbeatRequest.getXLearningContainerStatus();
 
-        if (LOG.isDebugEnabled()){
-            LOG.debug("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
-        }
+        try{
+            DtContainerStatus currentContainerStatus = heartbeatRequest.getXLearningContainerStatus();
 
-        ContainerEntity oldEntity = getLaneOf(containerId);
-        if(oldEntity != null) {
-            DtContainerStatus status = heartbeatRequest.getXLearningContainerStatus();
-            oldEntity.setLastBeatTime(System.currentTimeMillis());
-            if(oldEntity.getDtContainerStatus() != status) {
-                LOG.info("Received heartbeat container status change from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
-                oldEntity.setDtContainerStatus(status);
-                if(status == DtContainerStatus.TIMEOUT) {
-                    failed = true;
-                    failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
-                    LOG.error(failedMsg);
-                } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() >= maxAttempts) {
-                    failed = true;
-                    failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
-                    LOG.error(failedMsg);
+            LOG.warn("Received heartbeat from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
+
+            ContainerEntity oldEntity = getLaneOf(containerId);
+            if(oldEntity != null) {
+                DtContainerStatus status = heartbeatRequest.getXLearningContainerStatus();
+                oldEntity.setLastBeatTime(System.currentTimeMillis());
+                if(oldEntity.getDtContainerStatus() != status) {
+                    LOG.info("Received heartbeat container status change from container " + containerId.toString() + ", status is " + currentContainerStatus.toString());
+                    oldEntity.setDtContainerStatus(status);
+                    if(status == DtContainerStatus.TIMEOUT) {
+                        failed = true;
+                        failedMsg = "container timeout. " + heartbeatRequest.getErrMsg();
+                        LOG.error(failedMsg);
+                    } else if((status == DtContainerStatus.FAILED) && oldEntity.getAttempts() >= maxAttempts) {
+                        failed = true;
+                        failedMsg = "container max attempts exceed. \n" + heartbeatRequest.getErrMsg();
+                        LOG.error(failedMsg);
+                    }
                 }
+            } else {
+                LOG.warn("entities: " + entities + ", getLaneOf(containerId:"+containerId+") is not found");
             }
-        } else {
-            LOG.warn("entities: " + entities + ", getLaneOf(containerId:"+containerId+") is not found");
+
+            return new HeartbeatResponse(100L);
+        }catch (Exception e){
+            LOG.error("-----", e);
+            throw e;
         }
 
-        return new HeartbeatResponse(100L);
     }
 
     @Override
     public LocalRemotePath[] getOutputLocation() {
-        return applicationContext.getOutputs().toArray(new LocalRemotePath[0]);
+        LOG.error("-----call getOutputLocation-----");
+        return new LocalRemotePath[0];
     }
 
     @Override
     public LocalRemotePath[] getInputSplit(DtContainerId containerId) {
-        return applicationContext.getInputs(containerId).toArray(new LocalRemotePath[0]);
+        LOG.error("-----call getInputSplit-----");
+        return new LocalRemotePath[0];
     }
 
 
     @Override
     public long getProtocolVersion(String protocol, long clientVersion) throws IOException {
-        return ApplicationContainerProtocol.versionID;
+        return 0;
     }
 
     @Override
-    public ProtocolSignature getProtocolSignature(
-            String protocol, long clientVersion, int clientMethodsHash) throws IOException {
-        return ProtocolSignature.getProtocolSignature(this, protocol,
-                clientVersion, clientMethodsHash);
+    public ProtocolSignature getProtocolSignature(String protocol, long clientVersion, int clientMethodsHash) throws IOException {
+        return null;
     }
-
-
 }
