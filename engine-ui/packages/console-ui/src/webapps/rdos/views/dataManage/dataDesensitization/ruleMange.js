@@ -15,18 +15,10 @@ class RuleManage extends Component {
             pageSize: 20,
             name: undefined
         },
+        total: 0,
         editModalKey: null,
         status: undefined, // 新增或编辑
-        source: {} // 编辑规则信息,
-        // mock
-        // dataSource: [
-        //     {
-        //         key: '1',
-        //         ruleName: '身份证号',
-        //         person: 'admin@dtstack.com',
-        //         time: '2018-01-01 12:12:12'
-        //     }
-        // ]
+        source: {} // 编辑规则信息
     }
     componentDidMount () {
         this.search();
@@ -39,7 +31,8 @@ class RuleManage extends Component {
         ajax.searchRule(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    table: res.data,
+                    table: res.data.data,
+                    total: res.data.totalCount,
                     cardLoading: false
                 })
             } else {
@@ -98,16 +91,17 @@ class RuleManage extends Component {
                 this.setState({
                     addVisible: true,
                     status: 'edit',
-                    source: record,
                     editModalKey: Math.random()
                 })
             }
         })
     }
     changeName = (e) => {
-        const { queryParams } = this.state;
         this.setState({
-            queryParams: Object.assign(queryParams, { name: e.target.value })
+            queryParams: Object.assign(this.state.queryParams, {
+                name: e.target.value,
+                currentPage: 1
+            })
         })
     }
     handleTableChange = (pagination, filters, sorter) => {
@@ -141,18 +135,23 @@ class RuleManage extends Component {
                 width: 140,
                 dataIndex: 'opera',
                 render: (text, record) => {
+                    const isInlay = record.tenantId === -1; // 内置规则
                     return (
                         <span>
                             <a onClick={() => { this.editRule(record) }}>编辑</a>
                             <span className="ant-divider"></span>
-                            <Popconfirm
-                                title="确定删除此条规则吗?"
-                                okText="是"
-                                cancelText="否"
-                                onConfirm={() => { this.delete(record) }}
-                            >
-                                <a>删除</a>
-                            </Popconfirm>
+                            {
+                                isInlay ? <span style={{ color: '#ccc' }}>删除</span> : (
+                                    <Popconfirm
+                                        title="确定删除此条规则吗?"
+                                        okText="是"
+                                        cancelText="否"
+                                        onConfirm={() => { this.delete(record) }}
+                                    >
+                                        <a>删除</a>
+                                    </Popconfirm>
+                                )
+                            }
                         </span>
                     )
                 }
@@ -161,7 +160,12 @@ class RuleManage extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { table, cardLoading, addVisible, status, source, editModalKey } = this.state;
+        const { table, cardLoading, addVisible, status, source, editModalKey, queryParams, total } = this.state;
+        const pagination = {
+            current: queryParams.currentPage,
+            pageSize: queryParams.pageSize,
+            total
+        }
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -191,6 +195,7 @@ class RuleManage extends Component {
                             className="m-table"
                             columns={columns}
                             dataSource={table}
+                            pagination={pagination}
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
