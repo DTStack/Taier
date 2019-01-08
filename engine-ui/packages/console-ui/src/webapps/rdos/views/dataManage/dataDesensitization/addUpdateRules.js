@@ -10,7 +10,8 @@ class AddUpdateRules extends Component {
         beginPos: 1,
         endPos: 1,
         replaceStr: '*',
-        newReplaceData: ''
+        newReplaceData: '',
+        clickTimes: 1 // 解决编辑首次不显示部分脱敏内容
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
@@ -25,13 +26,15 @@ class AddUpdateRules extends Component {
     }
     // 改变开始值
     changeBeginPos = (value) => {
+        const numVal = value ? value.toString().replace(/[^\d]/g, '') : '';
         this.setState({
-            beginPos: value
+            beginPos: numVal
         })
     }
     changeEndPos = (value) => {
+        const numVal = value ? value.toString().replace(/[^\d]/g, '') : '';
         this.setState({
-            endPos: value
+            endPos: numVal
         })
     }
     changeReplaceStr = (e) => {
@@ -41,11 +44,18 @@ class AddUpdateRules extends Component {
     }
     changeRadio = (e) => {
         const { status, dataSource } = this.props;
+        let { clickTimes } = this.state;
+        const isInlay = dataSource.tenantId === -1; // 内置规则
         if ((status === 'edit') && e.target.value === 1 && dataSource.beginPos === 0 && dataSource.endPos === 0) {
             this.setState({
                 beginPos: 1,
                 endPos: 1,
                 replaceStr: '*'
+            })
+        }
+        if (status === 'edit' && !isInlay && dataSource.maskType === 1) {
+            this.setState({
+                clickTimes: clickTimes + 1
             })
         }
     }
@@ -130,7 +140,7 @@ class AddUpdateRules extends Component {
             if (!err && (isPartDes ? (beginPos && endPos && replaceStr && (beginPos <= endPos)) : true)) {
                 this.props.form.resetFields();
                 onOk(params)
-            } else {
+            } else if (!err) {
                 message.warning('请正确输入脱敏替换配置');
             }
         });
@@ -140,10 +150,8 @@ class AddUpdateRules extends Component {
         const { status, dataSource } = this.props;
         const isEdit = status === 'edit';
         const maskType = getFieldValue('maskType');
-        // const sampleData = getFieldValue('sampleData');
-        // const sampleDataLength = sampleData.split('').length || 1;
-        // const sampleData = getFieldValue('sampleData'); // 样例数据
-        const { newReplaceData } = this.state;
+        const { newReplaceData, clickTimes } = this.state;
+        const isInlay = dataSource.tenantId === -1; // 内置规则
         return (
             <Modal
                 visible={this.props.visible}
@@ -151,6 +159,13 @@ class AddUpdateRules extends Component {
                 title={isEdit ? '编辑规则' : '创建规则'}
                 onCancel={this.cancel}
                 onOk={this.submit}
+                footer={
+                    isEdit && isInlay ? <Button type="primary" size="large" onClick={this.cancel}>关闭</Button>
+                        : [
+                            <Button key="cancel" size="large" onClick={this.cancel}>取消</Button>,
+                            <Button key="submit" type="primary" size="large" onClick={this.submit}>确定</Button>
+                        ]
+                }
             >
                 <Form>
                     <FormItem
@@ -164,7 +179,7 @@ class AddUpdateRules extends Component {
                             }],
                             initialValue: dataSource.name ? dataSource.name : ''
                         })(
-                            <Input />
+                            <Input disabled={isInlay} />
                         )}
                     </FormItem>
                     <FormItem
@@ -178,7 +193,7 @@ class AddUpdateRules extends Component {
                             }],
                             initialValue: dataSource.example ? dataSource.example : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input type="textarea" rows={4} disabled={isInlay} />
                         )}
                     </FormItem>
                     <FormItem
@@ -189,7 +204,7 @@ class AddUpdateRules extends Component {
                         {getFieldDecorator('id', {
                             initialValue: dataSource.id ? dataSource.id : ''
                         })(
-                            <Input />
+                            <Input disabled={isInlay} />
                         )}
                     </FormItem>
                     <FormItem
@@ -201,34 +216,35 @@ class AddUpdateRules extends Component {
                                 required: true,
                                 message: '脱敏效果不可为空！'
                             }],
-                            initialValue: dataSource.maskType || 0
+                            initialValue: (dataSource && dataSource.maskType) || 0
                         })(
-                            <RadioGroup onChange={this.changeRadio}>
+                            <RadioGroup onChange={this.changeRadio} disabled={isInlay}>
                                 <Radio value={0}>全部脱敏</Radio>
                                 <Radio value={1}>部分脱敏</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
-                    { maskType === 1 ? <FormItem>
+                    { maskType === 1 || (isEdit && dataSource.maskType === 1 && clickTimes === 1) ? <FormItem>
                         <div style={{ margin: '-10 0 0 150' }}>
                             将从
                             <InputNumber
+                                disabled={isInlay}
                                 style={{ width: '70px' }}
                                 min={1}
-                                // defaultValue={1}
                                 value={this.state.beginPos}
                                 onChange={this.changeBeginPos}
                             />位至第<InputNumber
+                                disabled={isInlay}
                                 style={{ width: '70px' }}
                                 min={1}
                                 value={this.state.endPos}
                                 onChange={this.changeEndPos}
                             />位替换为:<Input
+                                disabled={isInlay}
                                 style={{ width: '50px' }}
                                 value={this.state.replaceStr}
                                 onChange={this.changeReplaceStr}
                             />
-                            {/* <div style={{ color: 'red' }}>开始位置不能大于等于结束位置!</div> */}
                         </div>
                     </FormItem> : ''}
                     {/* {

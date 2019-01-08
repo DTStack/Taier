@@ -17,10 +17,11 @@ class TableRelation extends Component {
         tableData: [], // 父级传递参数
         openStatusLoading: false, // 开关切换loading
         queryParams: {
-            pageIndex: 1,
+            currentPage: 1,
             pageSize: 20,
             configId: ''
         },
+        total: 0,
         loading: false,
         checkAll: false,
         editRecord: [], // 单击开关
@@ -37,7 +38,7 @@ class TableRelation extends Component {
     //     const currentDesensitization = this.props.tableData;
     //     if (currentDesensitization) {
     //         this.loadTableRelation({
-    //             pageIndex: 1,
+    //             currentPage: 1,
     //             pageSize: 20,
     //             configId: currentDesensitization.id
     //         })
@@ -84,7 +85,8 @@ class TableRelation extends Component {
         ajax.viewTableRelation(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    dataSource: res.data,
+                    dataSource: res.data.data,
+                    total: res.data.totalCount,
                     loading: false
                 }, () => {
                     this.props.handleClickTable(this.state.dataSource[0] ? this.state.dataSource[0] : {}) // 解决第一次切换tab栏
@@ -220,7 +222,7 @@ class TableRelation extends Component {
     // table change
     handleTableChange = (pagination, filters) => {
         const queryParams = Object.assign(this.state.queryParams, {
-            pageIndex: pagination.current,
+            currentPage: pagination.current,
             enable: filters.enable
         })
         this.setState({
@@ -319,10 +321,15 @@ class TableRelation extends Component {
     }
     render () {
         const columns = this.initColumns();
-        const { dataSource, selectedRowKeys, loading } = this.state;
+        const { dataSource, selectedRowKeys, loading, total, queryParams } = this.state;
         const rowSelection = {
             selectedRowKeys,
             onChange: this.onSelectChange
+        }
+        const pagination = {
+            current: queryParams.currentPage,
+            pageSize: queryParams.pageSize,
+            total
         }
         return (
             <div className='m-card'>
@@ -358,7 +365,8 @@ class TableRelation extends Component {
                         dataSource={dataSource}
                         rowSelection={rowSelection}
                         onChange={this.handleTableChange}
-                        footer={dataSource.length > 0 ? this.tableFooter : ''}
+                        pagination={pagination}
+                        footer={dataSource && dataSource.length > 0 ? this.tableFooter : ''}
                     />
                 </Card>
             </div>
