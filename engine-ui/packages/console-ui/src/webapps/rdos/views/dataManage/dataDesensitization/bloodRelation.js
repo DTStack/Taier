@@ -503,8 +503,6 @@ class BloodRelation extends React.Component {
     }
 
     getStyles = (data) => {
-        console.log('---------------------------');
-        console.log(data)
         // enable区分是否脱敏
         if (data.isParent && data.enable === 1) {
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'

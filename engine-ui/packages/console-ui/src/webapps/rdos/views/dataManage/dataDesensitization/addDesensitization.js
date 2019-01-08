@@ -38,8 +38,6 @@ class AddDesensitization extends Component {
     }
     // 获取表列表
     getTableList = (params) => {
-        // const { getFieldValue } = this.props.form;
-        // const projectId = getFieldValue('projectId');
         this.setState({
             tableList: [],
             columnsList: []
@@ -118,7 +116,6 @@ class AddDesensitization extends Component {
             if (maskType === 1) {
                 if (sampleData && (beginPos <= endPos)) {
                     let sampleDataArr = sampleData.split('');
-                    console.log(sampleDataArr);
                     let repeatCount = 0;
                     if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
                         repeatCount = sampleDataArr.length - beginPos + 1
@@ -128,9 +125,7 @@ class AddDesensitization extends Component {
                         repeatCount = 0;
                     }
                     const newStr = this.repeatStr(replaceStr, repeatCount);
-                    console.log(newStr);
                     sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
-                    console.log(sampleDataArr);
                     this.setState({
                         newReplaceData: sampleDataArr
                     })
@@ -142,8 +137,6 @@ class AddDesensitization extends Component {
                     let sampleDataAllArr = sampleData.split('');
                     const newStr = this.repeatStr('*', sampleDataAllArr.length);
                     sampleDataAllArr.splice(0, sampleDataAllArr.length, newStr).join('');
-                    console.log(newStr);
-                    console.log(sampleDataAllArr);
                     this.setState({
                         newReplaceData: sampleDataAllArr
                     })
