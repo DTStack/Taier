@@ -455,6 +455,9 @@ export default {
     checkSyncMode(params) { // 检测是否满足增量数据同步
         return http.post(offlineReq.CHECK_SYNC_MODE, params)
     },
+    getHivePartitions(params) { // 获取Hive分区
+        return http.post(offlineReq.CHECK_HIVE_PARTITIONS, params)
+    },
     /**
      * - 查询数据同步任务，SQL 执行结果
      * - 需要补充增量同步
