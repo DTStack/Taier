@@ -28,7 +28,7 @@ class DesensitizationMange extends Component {
         editModalKey: null,
         queryParams: {
             currentPage: 1,
-            pageSize: 1,
+            pageSize: 20,
             name: undefined
         },
         total: 0,
@@ -122,12 +122,6 @@ class DesensitizationMange extends Component {
         this.setState({
             nowView: tabKey
         })
-        if (tabKey === 'bloodRelation') {
-            console.log('血缘');
-        }
-        if (tabKey === 'tableRelation') {
-            console.log('表');
-        }
     }
     // 获取点击具体查看血缘
     handleClickTable = (tableInfo) => {

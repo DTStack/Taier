@@ -69,12 +69,9 @@ class AddUpdateRules extends Component {
         let sampleData = getFieldValue('example');
         const maskType = getFieldValue('maskType');
         const { beginPos, endPos, replaceStr } = this.state;
-        console.log(beginPos, endPos, replaceStr)
-        console.log(sampleData);
         if (maskType === 1) {
             if (sampleData && (beginPos <= endPos)) {
                 let sampleDataArr = sampleData.split('');
-                console.log(sampleDataArr);
                 let repeatCount = 0;
                 if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
                     repeatCount = sampleDataArr.length - beginPos + 1
@@ -84,9 +81,7 @@ class AddUpdateRules extends Component {
                     repeatCount = 0;
                 }
                 const newStr = this.repeatStr(replaceStr, repeatCount);
-                console.log(newStr);
                 sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
-                console.log(sampleDataArr);
                 this.setState({
                     newReplaceData: sampleDataArr
                 })
@@ -98,8 +93,6 @@ class AddUpdateRules extends Component {
                 let sampleDataAllArr = sampleData.split('');
                 const newStr = this.repeatStr('*', sampleDataAllArr.length);
                 sampleDataAllArr.splice(0, sampleDataAllArr.length, newStr).join('');
-                console.log(newStr);
-                console.log(sampleDataAllArr);
                 this.setState({
                     newReplaceData: sampleDataAllArr
                 })
@@ -247,40 +240,6 @@ class AddUpdateRules extends Component {
                             />
                         </div>
                     </FormItem> : ''}
-                    {/* {
-                        maskType === 1 && <div className='partDataForm' style={{ marginLeft: '130px' }}>
-                            <FormItem
-                                {...formItemLayout}
-                                // label="beginPos"
-                            >
-                                {getFieldDecorator('beginPos', {
-                                    initialValue: dataSource.beginPos ? dataSource.beginPos : ''
-                                })(
-                                    <InputNumber />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                // label="endPos"
-                            >
-                                {getFieldDecorator('endPos', {
-                                    initialValue: dataSource.endPos ? dataSource.endPos : ''
-                                })(
-                                    <InputNumber />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                // label="replaceStr"
-                            >
-                                {getFieldDecorator('replaceStr', {
-                                    initialValue: dataSource.replaceStr ? dataSource.replaceStr : ''
-                                })(
-                                    <Input />
-                                )}
-                            </FormItem>
-                        </div>
-                    } */}
                     <FormItem
                         {...formItemLayout}
                     >

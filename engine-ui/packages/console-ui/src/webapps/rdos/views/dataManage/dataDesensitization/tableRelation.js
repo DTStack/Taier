@@ -123,8 +123,6 @@ class TableRelation extends Component {
     // 切换开关
     changeOpenStatus = (checked, record) => {
         const enable = checked === 0 ? 1 : 0; // 开状态
-        console.log(checked)
-        console.log(record)
         this.operaSwitch({ ids: [record.id], enable })
     }
     // 批量按钮
@@ -213,7 +211,6 @@ class TableRelation extends Component {
         if (e.target.checked) {
             selectedRowKeys = dataSource.map(item => item.id)
         }
-        console.log(selectedRowKeys)
         this.setState({
             checkAll: e.target.checked,
             selectedRowKeys
