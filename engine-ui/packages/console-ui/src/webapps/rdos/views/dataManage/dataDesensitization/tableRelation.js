@@ -18,7 +18,7 @@ class TableRelation extends Component {
         openStatusLoading: false, // 开关切换loading
         queryParams: {
             currentPage: 1,
-            pageSize: 20,
+            pageSize: 2,
             configId: ''
         },
         total: 0,
@@ -172,13 +172,19 @@ class TableRelation extends Component {
     // 改变project
     changeProject = (value) => {
         this.setState({
-            queryParams: Object.assign(this.state.queryParams, { pjId: value })
+            queryParams: Object.assign(this.state.queryParams, {
+                pjId: value,
+                currentPage: 1
+            })
         }, this.search)
     }
     // 表名字段名搜索
     changeName = (e) => {
         this.setState({
-            queryParams: Object.assign(this.state.queryParams, { tableName: e.target.value })
+            queryParams: Object.assign(this.state.queryParams, {
+                tableName: e.target.value,
+                currentPage: 1
+            })
         })
     }
     tableFooter = (currentPageData) => {
@@ -223,7 +229,9 @@ class TableRelation extends Component {
             enable: filters.enable
         })
         this.setState({
-            queryParams
+            queryParams,
+            selectedRowKeys: [],
+            checkAll: false
         }, this.search)
     }
     // 查看血缘

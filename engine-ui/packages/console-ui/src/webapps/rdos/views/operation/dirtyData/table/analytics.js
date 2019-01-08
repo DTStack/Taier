@@ -168,7 +168,7 @@ export default class TableAnalytics extends Component {
                         showSearch
                         placeholder="分区下拉选项"
                         onChange={this.onPartitionChange}
-                        style={{ width: '126px', marginTop: '10px' }}
+                        style={{ width: '200px', marginTop: '10px' }}
                     >
                         { partitionsOptions }
                     </Select>
