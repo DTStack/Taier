@@ -31,6 +31,7 @@ class DesensitizationMange extends Component {
             pageSize: 20,
             name: undefined
         },
+        total: 0,
         tableInfo: {} // 表点击查看血缘信息
     }
     /* eslint-disable */
@@ -45,7 +46,8 @@ class DesensitizationMange extends Component {
         ajax.searchDesensitization(queryParams).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    table: res.data,
+                    table: res.data.data,
+                    total: res.data.totalCount,
                     cardLoading: false
                 })
             } else {
@@ -58,7 +60,10 @@ class DesensitizationMange extends Component {
     changeName = (e) => {
         const { queryParams } = this.state;
         this.setState({
-            queryParams: Object.assign(queryParams, { name: e.target.value })
+            queryParams: Object.assign(queryParams, {
+                name: e.target.value,
+                currentPage: 1
+            })
         })
     }
     handleTableChange = (pagination, filters, sorter) => {
@@ -117,12 +122,6 @@ class DesensitizationMange extends Component {
         this.setState({
             nowView: tabKey
         })
-        if (tabKey === 'bloodRelation') {
-            console.log('血缘');
-        }
-        if (tabKey === 'tableRelation') {
-            console.log('表');
-        }
     }
     // 获取点击具体查看血缘
     handleClickTable = (tableInfo) => {
@@ -191,7 +190,12 @@ class DesensitizationMange extends Component {
     }
     render () {
         const columns = this.initialColumns();
-        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, tableInfo } = this.state;
+        const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, tableInfo, queryParams, total } = this.state;
+        const pagination = {
+            current: queryParams.currentPage,
+            pageSize: queryParams.pageSize,
+            total
+        }
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -221,6 +225,7 @@ class DesensitizationMange extends Component {
                             className="m-table"
                             columns={columns}
                             dataSource={table}
+                            pagination={pagination}
                             onChange={this.handleTableChange.bind(this)}
                         />
                     </Spin>
