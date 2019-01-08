@@ -14,7 +14,6 @@ const TreeNode = Tree.TreeNode
 class RestartModal extends Component {
     state = {
         treeData: [],
-        selected: [],
         expandedKeys: [],
         currentNode: '',
         checkedKeys: []
@@ -39,7 +38,7 @@ class RestartModal extends Component {
     }
 
     restartChildNodes = () => {
-        const { onCancel, restartNode } = this.props
+        const { restartNode } = this.props
         const checked = this.state.checkedKeys
 
         if (checked.length === 0) {
@@ -57,7 +56,7 @@ class RestartModal extends Component {
         Api.restartAndResume(reqParams).then((res) => {
             if (res.code === 1) {
                 message.success('重跑成功!')
-                onCancel();
+                this.cancleModal();
             }
         })
     }
@@ -96,7 +95,7 @@ class RestartModal extends Component {
 
     cancleModal = () => {
         this.setState({
-            selected: []
+            checkedKeys: []
         })
         this.props.onCancel()
     }
@@ -130,16 +129,15 @@ class RestartModal extends Component {
                 const id = `${item.batchTask ? item.id : item.jobId}`;
 
                 const name = item.taskName || (item.batchTask && item.batchTask.name);
-                const status = item.jobStatus || item.status;
+                const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
                 const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
 
                 // 禁止重跑并恢复调度
-                const disableChecked = status === TASK_STATUS.WAIT_SUBMIT || // 未运行
+                const canRestart = status === TASK_STATUS.WAIT_SUBMIT || // 未运行
                 status === TASK_STATUS.FINISHED || // 已完成
                 status === TASK_STATUS.RUN_FAILED || // 运行失败
                 status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
                 status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
-                status === TASK_STATUS.RUNNING || // 运行中
                 status === TASK_STATUS.STOPED; // 已停止
 
                 const content = <Row>
@@ -152,7 +150,7 @@ class RestartModal extends Component {
                 if (item.childs) {
                     return (<TreeNode
                         data={item}
-                        disableCheckbox={!disableChecked}
+                        disableCheckbox={!canRestart}
                         value={id}
                         title={content}
                         key={id}>

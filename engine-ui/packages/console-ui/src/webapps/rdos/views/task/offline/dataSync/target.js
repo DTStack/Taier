@@ -37,6 +37,7 @@ class TargetForm extends React.Component {
             tableList: [],
             visible: false,
             modalLoading: false,
+            tablePartitionList: [], // 表分区列表
             loading: false // 请求
         };
     }
@@ -166,9 +167,32 @@ class TargetForm extends React.Component {
         })
     }
 
+    getHivePartions = (tableName) => {
+        const {
+            targetMap
+        } = this.props;
+
+        const { isNativeHive, sourceId, type } = targetMap;
+        if (type && (
+            type.type === DATA_SOURCE.HIVE ||
+            type.type === DATA_SOURCE.MAXCOMPUTE ||
+            (isNativeHive && type.type !== DATA_SOURCE.CARBONDATA)
+        )) {
+            ajax.getHivePartitions({
+                sourceId: sourceId,
+                tableName
+            }).then(res => {
+                this.setState({
+                    tablePartitionList: res.data || []
+                });
+            });
+        }
+    }
+
     changeTable (value) {
         if (value) {
             this.getTableColumn(value);
+            this.getHivePartions(value);
         }
         this.submitForm();
     }
@@ -528,14 +552,33 @@ class TargetForm extends React.Component {
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
-                            <Input
+                            <Select
+                                mode="combobox"
+                                showSearch
+                                showArrow={true}
+                                optionFilterProp="value"
+                                placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
-                                /* eslint-disable-next-line */
-                                placeholder="pt=${bdp.system.bizdate}"
-                            ></Input>
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map(pt => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </Option>
+                                        );
+                                    })}
+                            </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
                     </FormItem> : null,
@@ -608,14 +651,33 @@ class TargetForm extends React.Component {
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
-                            <Input
+                            <Select
+                                mode="combobox"
+                                showSearch
+                                showArrow={true}
+                                optionFilterProp="value"
+                                placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
-                                /* eslint-disable-next-line */
-                                placeholder="pt=${bdp.system.bizdate}"
-                            ></Input>
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map(pt => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </Option>
+                                        );
+                                    })}
+                            </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
                     </FormItem>,

@@ -42,6 +42,7 @@ const {
     mxGraphView,
     mxGraphHandler,
     mxRectangle,
+    mxCellHighlight,
     mxText
 } = Mx
 
@@ -71,6 +72,14 @@ const replacTreeNodeField = (treeNode, sourceField, targetField, arrField) => {
         for (let i = 0; i < children.length; i++) {
             replacTreeNodeField(children[i], sourceField, targetField, arrField);
         }
+    }
+}
+
+const applyCellStyle = (cellState, style) => {
+    if (cellState) {
+        cellState.style = Object.assign(cellState.style, style);
+        cellState.shape.apply(cellState);
+        cellState.shape.redraw();
     }
 }
 
@@ -174,6 +183,7 @@ class TaskFlowView extends Component {
             ctx.setState({ loading: 'success' })
         })
     }
+
     /* eslint-disable */
     loadEditor = (container) => {
         mxGraphView.prototype.optimizeVmlReflows = false;
@@ -185,23 +195,23 @@ class TaskFlowView extends Component {
         graph.setPanning(true);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
-        graph.setConnectable(true)
-        graph.setTooltips(true)
-        graph.view.setScale(1)
+        graph.setConnectable(true);
+        graph.setTooltips(true);
+        graph.view.setScale(1);
         // Enables HTML labels
         graph.setHtmlLabels(true);
 
-        graph.setAllowDanglingEdges(false)
+        graph.setAllowDanglingEdges(false);
         // 禁止连接
-        graph.setConnectable(false)
+        graph.setConnectable(false);
         // 禁止Edge对象移动
         graph.isCellsMovable = function (cell) {
             var cell = graph.getSelectionCell()
-            return !(cell && cell.edge)
+            return !(cell && cell.edge);
         }
         // 禁止cell编辑
         graph.isCellEditable = function () {
-            return false
+            return false;
         }
 
         /**
@@ -219,7 +229,7 @@ class TaskFlowView extends Component {
         // Redirects selection to parent
         graph.selectCellForEvent = function (cell) {
             if (cell.isPart) {
-                cell = graph.getModel().getParent(cell)
+                cell = graph.getModel().getParent(cell);
                 return cell;
             }
             mxGraph.prototype.selectCellForEvent.apply(this, arguments);
@@ -617,6 +627,9 @@ class TaskFlowView extends Component {
     initGraphEvent = () => {
         const ctx = this;
         const graph = this.graph;
+        let highlightEdges = [];
+        let selectedCell = null;
+
         if (graph) {
             graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 const cell = evt.getProperty('cell')
@@ -627,12 +640,55 @@ class TaskFlowView extends Component {
             })
 
             graph.addListener(mxEvent.CLICK, function (sender, evt) {
-                const cell = evt.getProperty('cell')
+                const cell = evt.getProperty('cell');
+
+                const activeElement = document.activeElement;
+                // 当从编辑对象触发点击事件时，清除activeElement的焦点
+                if (
+                    activeElement && activeElement.className.indexOf('vertex-input') > -1) {
+                    activeElement.blur();
+                }
                 if (cell && cell.vertex) {
                     const currentNode = cell.data;
-                    ctx.setState({ selectedJob: currentNode })
+                    ctx.setState({ selectedJob: currentNode });
+
+                    graph.clearSelection();
+                    const cellState = graph.view.getState(cell);
+                    const style = {}
+                    style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
+                    style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
+                    applyCellStyle(cellState, style);
+    
+                    const outEdges = graph.getOutgoingEdges(cell);
+                    const inEdges = graph.getIncomingEdges(cell);
+                    const edges = outEdges.concat(inEdges);
+                    for (let i = 0; i < edges.length; i++) {
+                        const highlight = new mxCellHighlight(graph, '#2491F7', 2);
+                        const state = graph.view.getState(edges[i]);
+                        highlight.highlight(state);
+                        highlightEdges.push(highlight);
+                    }
+                    selectedCell = cell;
+                } else if (cell === undefined) {
+                    const cells = graph.getSelectionCells();
+                    graph.removeSelectionCells(cells);
                 }
             })
+
+            graph.clearSelection = function (evt) {
+                if (selectedCell) {
+                    const cellState = graph.view.getState(selectedCell);
+                    const style = {}
+                    style[mxConstants.STYLE_FILLCOLOR] = '#F5F5F5';
+                    style[mxConstants.STYLE_STROKECOLOR] = '#C5C5C5';
+                    applyCellStyle(cellState, style);
+    
+                    for (let i = 0; i < highlightEdges.length; i++) {
+                        highlightEdges[i].hide();
+                    }
+                    selectedCell = null;
+                }
+            };
         }
     }
 
