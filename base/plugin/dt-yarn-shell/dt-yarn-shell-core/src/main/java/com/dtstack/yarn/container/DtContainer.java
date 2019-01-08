@@ -1,8 +1,6 @@
 package com.dtstack.yarn.container;
 
 import com.dtstack.yarn.DtYarnConfiguration;
-import com.dtstack.yarn.am.DTTokenIdentifier;
-import com.dtstack.yarn.am.DTTokenSecretMgr;
 import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DTYarnShellConstant;
@@ -20,21 +18,15 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
-import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
-import org.apache.hadoop.security.Credentials;
-import org.apache.hadoop.security.Groups;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
-import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.apache.hadoop.security.token.Token;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -71,7 +62,7 @@ public class DtContainer {
 
     private final FileSystem localFs;
 
-    private final FileSystem dfs;
+    private FileSystem dfs;
 
     private final AppType appType;
 
@@ -82,12 +73,15 @@ public class DtContainer {
 
         this.conf = new DtYarnConfiguration();
 
-        this.dfs = FileSystem.get(conf);
+        Path hdfsSidePath = new Path("hdfs-side.xml");
+        Path coreSidePath = new Path("core-side.xml");
+
+        conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
+        conf.addResource(coreSidePath);
+        conf.addResource(hdfsSidePath);
 
         localFs = FileSystem.getLocal(conf);
 
-        conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
-        conf.addResource(new Path("hdfs-side.xml"));
         LOG.info("user is " + conf.get("hadoop.job.ugi"));
         containerId = new DtContainerId(ConverterUtils.toContainerId(System
                 .getenv(ApplicationConstants.Environment.CONTAINER_ID.name())));
@@ -110,7 +104,11 @@ public class DtContainer {
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
+
+            UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"));
+            UserGroupInformation.setLoginUser(myGui);
             UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+
             LOG.warn("-ugi---:" + ugi);
             LOG.warn("isenabled:" + UserGroupInformation.isSecurityEnabled());
 
@@ -129,6 +127,7 @@ public class DtContainer {
 
             LOG.warn("-------KerberosUtils--------");
             KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
+            this.dfs = FileSystem.get(conf);
             LOG.warn("-------KerberosUtils end --------");
         } catch (Exception e) {
             LOG.error("-----------", e);
