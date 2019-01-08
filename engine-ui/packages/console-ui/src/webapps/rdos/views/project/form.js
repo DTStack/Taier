@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Input, Modal } from 'antd'
+import { Form, Input, Modal, Switch } from 'antd'
 
 import { formItemLayout } from '../../comm/const'
 
@@ -13,6 +13,8 @@ class ProjectForm extends Component {
         form.validateFields((err) => {
             if (!err) {
                 setTimeout(() => { form.resetFields() }, 200)
+                project.scheduleStatus = project.scheduleStatus ? 0 : 1;
+                project.isAllowDownload = project.isAllowDownload ? 1 : 0;
                 onOk(project)
             }
         });
@@ -81,6 +83,34 @@ class ProjectForm extends Component {
                             }]
                         })(
                             <Input type="textarea" rows={4} placeholder="项目描述请控制在200个字符以内" />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="启动周期调度"
+                    >
+                        {getFieldDecorator('scheduleStatus', {
+                            rules: [{
+                                required: true
+                            }],
+                            valuePropName: 'checked',
+                            initialValue: true
+                        })(
+                            <Switch checkedChildren="开" unCheckedChildren="关" />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="下载SELECT结果"
+                    >
+                        {getFieldDecorator('isAllowDownload', {
+                            rules: [{
+                                required: true
+                            }],
+                            valuePropName: 'checked',
+                            initialValue: true
+                        })(
+                            <Switch checkedChildren="开" unCheckedChildren="关" />
                         )}
                     </FormItem>
                 </Form>

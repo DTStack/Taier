@@ -279,6 +279,39 @@ export function timeout (promise, ms) {
         promise.then(resolve, reject);
     })
 }
+/**
+ * 初始化notification
+ */
+export function initNotification () {
+    notification.config({
+        duration: null
+    })
+    const changeArr = ['error', 'success']
+    const iconMap = {
+        'error': <img src='public/main/img/icon/notification-error.svg' />,
+        'success': <img src='public/main/img/icon/notification-success.svg' />
+    }
+    changeArr.forEach((key) => {
+        const oldFunc = notification[key];
+        notification[key] = function (config = {}) {
+            const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
+            config = {
+                ...config,
+                icon: iconMap[key],
+                className: 'dt-notification',
+                message: <span>
+                    {config.message}
+                    {notifyMsgs.length ? null : (
+                        <a onClick={() => {
+                            notification.destroy();
+                        }} className='dt-notification__close-btn'>全部关闭</a>
+                    )}
+                </span>
+            }
+            oldFunc.apply(notification, [config]);
+        }
+    })
+}
 
 /**
  * 全局唯一的notification实例
