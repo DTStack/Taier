@@ -60,6 +60,7 @@ class ProjectConfig extends Component {
     state = {
         visibleUpdateDesc: false,
         scheduleStatusLoading: false,
+        isAllowDownloadLoading: false,
         bindLoading: false,
         visibleChangeProduce: false,
         bindProject: {},
@@ -105,6 +106,29 @@ class ProjectConfig extends Component {
                     if (res.code == 1) {
                         message.success('周期调度状态切换成功！')
                         const newProject = cloneDeep(Object.assign(project, { scheduleStatus: checked ? 0 : 1 }))
+                        dispatch(ProjectAction.setProject(newProject))
+                        dispatch(ProjectAction.getProjects())
+                    }
+                }
+            )
+    }
+    changeAllowDownloadStatus (checked) {
+        const { project, dispatch } = this.props
+        this.setState({
+            isAllowDownloadLoading: true
+        })
+        checked = checked ? 1 : 0;
+        Api.updateProjectAllowDownLoad({
+            status: checked
+        })
+            .then(
+                (res) => {
+                    this.setState({
+                        isAllowDownloadLoading: false
+                    })
+                    if (res.code == 1) {
+                        message.success('切换成功！')
+                        const newProject = cloneDeep(Object.assign(project, { isAllowDownloadLoading: checked }))
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
                     }
@@ -226,10 +250,12 @@ class ProjectConfig extends Component {
         }
     }
     render () {
-        const { visibleUpdateDesc, scheduleStatusLoading, visibleChangeProduce, bindProject, bindLoading, projectBindList } = this.state
-        const { params, project = {} } = this.props
-        const scheduleStatus = project && project.scheduleStatus;
+        const { visibleUpdateDesc, scheduleStatusLoading, isAllowDownloadLoading, visibleChangeProduce, bindProject, bindLoading, projectBindList } = this.state
+        let { params, project } = this.props;
+        project = project || {};
+        const { isAllowDownload, scheduleStatus } = project;
         const isScheduleEnAbled = scheduleStatus == 0;
+        const isAllowDownLoadEnAbled = isAllowDownload == 1;
         const adminLength = project && project.adminUsers && project.adminUsers.length;
         const memberLength = project && project.memberUsers && project.memberUsers.length;
         const admins = project && project.adminUsers && project.adminUsers.length > 0
@@ -279,6 +305,17 @@ class ProjectConfig extends Component {
                                         disabled={scheduleStatusLoading}
                                         checked={isScheduleEnAbled}
                                         onChange={this.changeScheduleStatus.bind(this)} />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="t-title">下载SELECT结果</td>
+                                <td>
+                                    <Switch
+                                        checkedChildren="开"
+                                        unCheckedChildren="关"
+                                        disabled={isAllowDownloadLoading}
+                                        checked={isAllowDownLoadEnAbled}
+                                        onChange={this.changeAllowDownloadStatus.bind(this)} />
                                 </td>
                             </tr>
                         </tbody>

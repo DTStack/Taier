@@ -65,6 +65,7 @@ class Console extends Component {
     };
 
     renderTabs (tabs) {
+        const { isDisEabledDownload } = this.props;
         const { activeKey }  = this.state;
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
@@ -76,7 +77,7 @@ class Console extends Component {
                         tab={title}
                         key={`${index}`}
                     >
-                        <Result isShow={index==activeKey} data={tab.data} extraView={tab.jobId && tab.data ? (
+                        <Result isShow={index==activeKey} data={tab.data} extraView={!isDisEabledDownload && tab.jobId && tab.data ? (
                             <a
                                 href={`${this.props.downloadUri}?jobId=${
                                     tab.jobId

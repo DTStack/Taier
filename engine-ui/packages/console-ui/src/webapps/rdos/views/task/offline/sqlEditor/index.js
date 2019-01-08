@@ -491,7 +491,8 @@ class EditorContainer extends Component {
             data: data,
             onConsoleClose: this.closeConsole,
             onRemoveTab: this.removeConsoleTab,
-            downloadUri: reqOfflineUrl.DOWNLOAD_SQL_RESULT
+            downloadUri: reqOfflineUrl.DOWNLOAD_SQL_RESULT,
+            isDisEabledDownload: project.isAllowDownload == 0
         }
 
         return (

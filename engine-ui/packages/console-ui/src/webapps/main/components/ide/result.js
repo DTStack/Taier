@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pagination } from 'antd';
-import { HotTable } from '@handsontable/react';
-import 'handsontable/languages/zh-CN.js';
+import SpreadSheet from 'widgets/spreadsheet';
 
 class Result extends React.Component {
     state = {
@@ -10,25 +9,6 @@ class Result extends React.Component {
             pageSize: 10
         }
     };
-    tableRef = React.createRef()
-    componentDidUpdate (prevProps, prevState) {
-        if (prevProps != this.props && this.props.isShow) {
-            if (this.tableRef) {
-                this.removeRenderClock();
-                this._renderColck = setTimeout(() => {
-                    this.tableRef.current.hotInstance.render();
-                })
-            }
-        }
-    }
-    removeRenderClock () {
-        if (this._renderColck) {
-            clearTimeout(this._renderColck)
-        }
-    }
-    componentWillUnmount (prevProps, prevState) {
-        this.removeRenderClock();
-    }
     getPageData (data) {
         let result = [];
         if (!data) {
@@ -57,23 +37,9 @@ class Result extends React.Component {
             // />
             <div className='c-ide-result'>
                 <div className='c-ide-result__table'>
-                    <HotTable
-                        ref={this.tableRef}
-                        className='o-handsontable-no-border'
-                        style={{ width: '100%', height: '100%' }}
-                        language='zh-CN'
-                        colHeaders={data[0]}
+                    <SpreadSheet
+                        columns={data[0]}
                         data={this.getPageData(showData)}
-                        readOnly={true}
-                        rowHeaders={true}// 数字行号
-                        fillHandle={false}// 拖动复制单元格
-                        manualRowResize={true}// 拉伸功能
-                        manualColumnResize={true}// 拉伸功能
-                        colWidths={200}
-                        rowHeights={30}
-                        columnHeaderHeight={25}
-                        contextMenu={['copy']}
-                        stretchH='all' // 填充空白区域
                     />
                 </div>
                 <div className='c-ide-result__tools'>

@@ -113,6 +113,9 @@ export default {
     updateProjectSchedule(params) {
         return http.post(req.UPDATE_PROJECT_SCHEDULE, params)
     },
+    updateProjectAllowDownLoad(params) {
+        return http.post(req.UPDATE_PROJECT_ALLOW_DOWNLOAD, params)
+    },
     bindProductionProject(params) {
         return http.post(req.BIND_PRODUCTION_PROJECT, params)
     },

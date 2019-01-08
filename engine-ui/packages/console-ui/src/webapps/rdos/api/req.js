@@ -29,6 +29,7 @@ export default {
     SET_STICKY: `${RDOS_BASE_URL}/common/project/setSticky`, // 首页project查询
     DELETE_PROJECT: `${RDOS_BASE_URL}/common/project/deleteProject`, // 删除项目接口
     UPDATE_PROJECT_SCHEDULE: `${RDOS_BASE_URL}/common/project/closeOrOpenSchedule`, // 开启或关闭项目调度
+    UPDATE_PROJECT_ALLOW_DOWNLOAD: `${RDOS_BASE_URL}/common/project/closeOrOpenDownloadSelect`, // 开启/关闭允许select结果的下载
     BIND_PRODUCTION_PROJECT: `${RDOS_BASE_URL}/common/project/bindingProject`, // 绑定生产项目
     GET_COULD_BINDING_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getBindingProjects`, // 获取可以绑定的项目
     GET_TABLE_LIST_FROM_DATABASE: `${RDOS_BASE_URL}/common/project/getTableList`, // 从目标数据库获取表列表

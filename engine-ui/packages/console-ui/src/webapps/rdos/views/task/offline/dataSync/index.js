@@ -122,7 +122,7 @@ class DataSyncWorkbench extends Component {
     }
 
     render () {
-        const { currentTabData, editor, saveTab, dataSync } = this.props;
+        const { currentTabData, editor, saveTab, dataSync, project } = this.props;
 
         const currentTab = currentTabData.id;
         const consoleData = editor.console;
@@ -199,6 +199,7 @@ class DataSyncWorkbench extends Component {
                             hasLog ? <Console
                                 onConsoleTabChange={this.changeTab}
                                 activedTab={this.state.changeTab}
+                                isDisEabledDownload={project.isAllowDownload == 0}
                                 setSplitMax={() => {
                                     this.setState({
                                         size: '100px'
