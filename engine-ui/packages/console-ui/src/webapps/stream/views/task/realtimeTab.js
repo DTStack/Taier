@@ -105,7 +105,7 @@ class RealTimeTabPane extends Component {
         const newData = nextProps.project
         if (newData && old.id !== 0 && old.id !== newData.id) {
             const { dispatch } = this.props
-            this.initRealtimeTree();
+            this.initRealtimeTree(nextProps);
             dispatch(ResAction.getResources());
             this.setState({
                 expandedKeys: [],
