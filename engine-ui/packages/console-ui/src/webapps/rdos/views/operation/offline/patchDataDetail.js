@@ -405,7 +405,6 @@ class PatchDataDetail extends Component {
             dataIndex: 'taskType',
             key: 'taskType',
             width: '100px',
-            fixed: 'left',
             render: (text, record) => {
                 return <TaskType value={text} />
             },
@@ -426,16 +425,15 @@ class PatchDataDetail extends Component {
             key: 'exeStartTime',
             sorter: true
         }, {
-            title: '责任人',
-            dataIndex: 'dutyUserName',
-            key: 'dutyUserName'
-        }, {
             title: '运行时长',
             dataIndex: 'exeTime',
             key: 'exeTime',
             width: '100px',
-            fixed: 'right',
             sorter: true
+        }, {
+            title: '责任人',
+            dataIndex: 'dutyUserName',
+            key: 'dutyUserName'
         }]
     }
 

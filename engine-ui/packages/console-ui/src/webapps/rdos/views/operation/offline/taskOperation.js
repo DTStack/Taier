@@ -430,7 +430,6 @@ class OfflineTaskList extends Component {
                 return <TaskType value={record.batchTask && record.batchTask.taskType} />
             },
             width: '90px',
-            fixed: 'left',
             filters: taskTypeFilter
         }, {
             title: '调度周期',
@@ -440,7 +439,6 @@ class OfflineTaskList extends Component {
                 return <TaskTimeType value={text} />
             },
             width: '90px',
-            fixed: 'left',
             filters: offlineTaskPeriodFilter
         }, {
             title: '业务日期',
@@ -463,6 +461,11 @@ class OfflineTaskList extends Component {
             key: 'execEndDate',
             sorter: true
         }, {
+            title: '运行时长',
+            dataIndex: 'execTime',
+            key: 'execTime',
+            sorter: true
+        }, {
             title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser',
@@ -470,13 +473,6 @@ class OfflineTaskList extends Component {
                 return record.batchTask && record.batchTask.ownerUser &&
                     record.batchTask.ownerUser.userName
             }
-        }, {
-            title: '运行时长',
-            dataIndex: 'execTime',
-            key: 'execTime',
-            sorter: true,
-            width: '100px',
-            fixed: 'right'
         }]
     }
 
