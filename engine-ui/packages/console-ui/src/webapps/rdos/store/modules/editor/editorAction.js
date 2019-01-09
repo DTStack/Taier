@@ -2,7 +2,7 @@ import moment from 'moment'
 import utils from 'utils'
 
 import API from '../../../api';
-import { taskStatus, offlineTaskStatusFilter, TASK_TYPE } from '../../../comm/const'
+import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS } from '../../../comm/const'
 import { editorAction } from './actionTypes';
 import { createLinkMark, createLog, createTitle } from 'widgets/code-editor/utils'
 
@@ -43,6 +43,10 @@ function getDataOver (dispatch, currentTab, res, jobId) {
  */
 function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
     function outputStatus (status, extText) {
+        // 当为数据同步日志时，运行日志就不显示了
+        if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
+            return;
+        }
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value == status) {
                 dispatch(output(currentTab, createLog(`${offlineTaskStatusFilter[i].text}${extText || ''}`, 'info')))
