@@ -19,7 +19,8 @@ export const UPLOAD_STATUS = {
     FAIL: 'fail'
 }
 
-// Actions
+// ============= Actions =============
+
 export const getUploadStatus = (params, dispatch) => {
     let timeId;
     let status = UPLOAD_STATUS.PROGRESSING;
@@ -64,6 +65,8 @@ export const resetUploader = () => {
     }
 }
 
+// ============= Reducers =============
+
 const defaultState = {
     status: UPLOAD_STATUS.READY, // 状态
     queryParams: '',
@@ -78,7 +81,6 @@ const getInitialData = function () {
     return initialState;
 }
 
-// Reducers
 export function uploader (state = getInitialData(), action) {
     let nextState;
 
