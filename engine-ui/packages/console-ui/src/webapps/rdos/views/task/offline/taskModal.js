@@ -38,7 +38,7 @@ class TaskForm extends React.Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillMount () {
+    UNSAFE_componentWillMount () {
         const { defaultData } = this.props;
         this.setState({
             operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
