@@ -115,6 +115,7 @@ class DesensitizationMange extends Component {
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false
+            // selectedId: null
         })
     }
     /**
@@ -225,6 +226,15 @@ class DesensitizationMange extends Component {
                     <Spin tip="正在加载中..." spinning={cardLoading}>
                         <Table
                             className="m-table"
+                            rowClassName={
+                                (record, index) => {
+                                    if (this.state.selectedId && this.state.selectedId.id == record.id) {
+                                        return 'row-select'
+                                    } else {
+                                        return '';
+                                    }
+                                }
+                            }
                             columns={columns}
                             dataSource={table}
                             pagination={pagination}

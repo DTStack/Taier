@@ -508,24 +508,30 @@ class BloodRelation extends React.Component {
 
     getStyles = (data) => {
         // enable字段区分是否脱敏
-        if (data.isParent && data.enable === 1) {
-            return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        if (data.enable === 1) {
+            return 'whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CCCCCC;verticalLabelPosition=bottom;verticalAlign=top'
         }
-        if (data.isParent && data.enable === 0) {
-            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        if (data.enable === 0) {
+            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#CCCCCC;verticalLabelPosition=bottom;verticalAlign=top'
         }
-        if (data.isRoot && data.enable === 1) {
-            return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-        if (data.isRoot && data.enable === 0) {
-            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-        if (data.isChild && data.enable === 1) {
-            return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-        if (data.isChild && data.enable === 0) {
-            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
+        // if (data.isParent && data.enable === 1) {
+        //     return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isParent && data.enable === 0) {
+        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isRoot && data.enable === 1) {
+        //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isRoot && data.enable === 0) {
+        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isChild && data.enable === 1) {
+        //     return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isChild && data.enable === 0) {
+        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
         // else if (data.isRoot) {
         //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
         // } else if (data.isChild) {
@@ -728,6 +734,14 @@ class BloodRelation extends React.Component {
                     <div>
                         <span
                             className="legend-item"
+                            style={{ background: '#FFFFFF', border: '1px solid #CCCCCC' }}
+                        >
+                        </span>
+                        未脱敏
+                    </div>
+                    {/* <div>
+                        <span
+                            className="legend-item"
                             style={{ background: '#E6F7FF', border: '1px solid #90D5FF' }}>
                         </span>
                         上游
@@ -747,7 +761,7 @@ class BloodRelation extends React.Component {
                         >
                         </span>
                         下游
-                    </div>
+                    </div> */}
                 </div>
             </div>
         )

@@ -174,7 +174,7 @@ class TableRelation extends Component {
                     openStatusLoading: false
                 })
                 message.success('状态切换成功!');
-                this.debounceSearch();
+                this.search();
             } else {
                 this.setState({
                     openStatusLoading: false
@@ -182,8 +182,8 @@ class TableRelation extends Component {
             }
         })
     }
-    debounceOperaSwitch = debounce(this.operaSwitch, 300, { 'maxWait': 2000 })
-    debounceSearch = debounce(this.search, 300, { 'maxWait': 2000 })
+    debounceOperaSwitch = debounce(this.operaSwitch, 200, { 'maxWait': 2000 })
+    // debounceSearch = debounce(this.search, 300, { 'maxWait': 2000 })
     /**
      * 改变project
      */
