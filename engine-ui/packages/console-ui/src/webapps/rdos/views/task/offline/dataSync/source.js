@@ -49,6 +49,7 @@ class SourceForm extends React.Component {
             showPreview: false,
             dataSource: [],
             columns: [],
+            tablePartitionList: [], // 表分区列表
             loading: false // 请求
         };
     }
@@ -238,12 +239,34 @@ class SourceForm extends React.Component {
                 loading: true
             });
             this.getTableColumn(value, type);
+            // 如果源为hive, 则加载分区字段
+            this.getHivePartions(value);
         }
         this.submitForm();
         this.setState({
             showPreview: false
         });
     }
+
+    getHivePartions = (tableName) => {
+        const {
+            sourceMap
+        } = this.props;
+
+        if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE) {
+            return;
+        }
+
+        ajax.getHivePartitions({
+            sourceId: sourceMap.sourceId,
+            tableName
+        }).then(res => {
+            this.setState({
+                tablePartitionList: res.data || []
+            });
+        });
+    }
+
     changeExtTable (key, value) {
         this.submitForm(null, key);
     }
@@ -1000,12 +1023,27 @@ class SourceForm extends React.Component {
                                 ? ''
                                 : sourceMap.type.partition
                         })(
-                            <Input
-                                placeholder="请填写分区"
-                                /* eslint-disable-next-line */
-                                placeholder="pt=${bdp.system.bizdate}"
+                            <Select
+                                mode="combobox"
+                                showSearch
+                                showArrow={true}
+                                optionFilterProp="value"
+                                placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
-                            />
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map(pt => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </Option>
+                                        );
+                                    })}
+                            </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
                     </FormItem>

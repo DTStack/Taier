@@ -18,8 +18,8 @@ class AddUpdateRules extends Component {
         const dataSource = nextProps.dataSource;
         if (this.props.dataSource != dataSource) {
             this.setState({
-                beginPos: dataSource.beginPos,
-                endPos: dataSource.endPos,
+                beginPos: Number(dataSource.beginPos),
+                endPos: Number(dataSource.endPos),
                 replaceStr: dataSource.replaceStr
             })
         }
@@ -59,33 +59,83 @@ class AddUpdateRules extends Component {
             })
         }
     }
+    // 判断是否输入正确脱敏配置
+    isPassConfig = (sampleDataArr, beginPos, endPos) => {
+        const firstCase = (endPos >= sampleDataArr.length && sampleDataArr.length >= beginPos) ||
+        (endPos > sampleDataArr.length && sampleDataArr.length >= beginPos) ||
+        (endPos >= sampleDataArr.length && sampleDataArr.length > beginPos) ||
+        (endPos > sampleDataArr.length && sampleDataArr.length > beginPos);
+
+        const secondCase = (endPos <= sampleDataArr.length && endPos >= beginPos) ||
+        (endPos < sampleDataArr.length && endPos >= beginPos) ||
+        (endPos <= sampleDataArr.length && endPos > beginPos) ||
+        (endPos < sampleDataArr.length && endPos > beginPos);
+
+        const thirdCase = (sampleDataArr.length < beginPos && beginPos < endPos) ||
+        (sampleDataArr.length < beginPos && beginPos <= endPos) ||
+        (sampleDataArr.length <= beginPos && beginPos < endPos) ||
+        (sampleDataArr.length <= beginPos && beginPos <= endPos);
+        return {
+            firstCase,
+            secondCase,
+            thirdCase
+        }
+    }
+    /** 设置newReplaceData
+     * sampleDataArr 样例数据
+     * beginPos 开始输入值
+     * endPos结束输入值
+     * newStr 替换新字符
+    */
+    setNewReplaceData = (sampleDataArr, beginPos, endPos, newStr) => {
+        sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
+        this.setState({
+            newReplaceData: sampleDataArr
+        })
+    }
     // 字符串替换
     repeatStr = (str, n) => {
+        console.log(n, str)
         return new Array(n + 1).join(str)
     }
     // 效果预览
+    /* eslint-disable */
     preview = () => {
         const { getFieldValue } = this.props.form;
         let sampleData = getFieldValue('example');
         const maskType = getFieldValue('maskType');
-        const { beginPos, endPos, replaceStr } = this.state;
+        let { replaceStr } = this.state;
+        let { beginPos, endPos } = {
+            beginPos: Number(this.state.beginPos),
+            endPos: Number(this.state.endPos)
+        }
         if (maskType === 1) {
-            if (sampleData && (beginPos <= endPos)) {
-                let sampleDataArr = sampleData.split('');
-                let repeatCount = 0;
-                if ((endPos >= sampleDataArr.length) && (sampleDataArr.length >= beginPos)) {
-                    repeatCount = sampleDataArr.length - beginPos + 1
-                } else if (endPos < sampleDataArr.length && (sampleDataArr.length >= beginPos)) {
-                    repeatCount = endPos - beginPos + 1;
-                } else if (sampleDataArr.length < beginPos) {
-                    repeatCount = 0;
-                }
+            this.setState({
+                newReplaceData: ''
+            })
+            let sampleDataArr = sampleData.split('');
+            console.log(sampleDataArr.length, beginPos, endPos)
+            let repeatCount = 0;
+            const cases = this.isPassConfig(sampleDataArr, beginPos, endPos);
+            console.log('----------')
+            console.log(cases);
+            console.log(cases.firstCase);
+            console.log(cases.secondCase);
+            console.log(cases.thirdCase);
+            if (cases.firstCase) {
+                repeatCount = sampleDataArr.length - beginPos + 1;
                 const newStr = this.repeatStr(replaceStr, repeatCount);
-                sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
-                this.setState({
-                    newReplaceData: sampleDataArr
-                })
+                this.setNewReplaceData(sampleDataArr, beginPos, endPos, newStr);
+            } else if (cases.secondCase) {
+                repeatCount = endPos - beginPos + 1;
+                const newStr = this.repeatStr(replaceStr, repeatCount);
+                this.setNewReplaceData(sampleDataArr, beginPos, endPos, newStr);
+            } else if (cases.thirdCase) {
+                repeatCount = 0;
+                const newStr = this.repeatStr(replaceStr, repeatCount);
+                this.setNewReplaceData(sampleDataArr, beginPos, endPos, newStr);
             } else {
+                // message.warning(sampleDataArr.length > 0 ? '请正确输入脱敏替换配置' : '请输入样例数据');
                 message.warning('请正确输入脱敏替换配置');
             }
         } else {
@@ -115,7 +165,11 @@ class AddUpdateRules extends Component {
     }
     submit = () => {
         const { onOk } = this.props;
-        const { beginPos, endPos, replaceStr } = this.state;
+        const { replaceStr } = this.state;
+        let { beginPos, endPos } = {
+            beginPos: Number(this.state.beginPos),
+            endPos: Number(this.state.endPos)
+        }
         const ruleData = this.props.form.getFieldsValue();
         const partData = {
             beginPos,
@@ -128,9 +182,13 @@ class AddUpdateRules extends Component {
         } else {
             params = Object.assign({ ...partData, ...ruleData })
         }
+        const { getFieldValue } = this.props.form;
+        let sampleData = getFieldValue('example');
+        let sampleDataArr = sampleData.split('') || '';
+        const cases = this.isPassConfig(sampleDataArr, beginPos, endPos); // 是否正确脱敏输入配置
         const isPartDes = ruleData.maskType === 1;
         this.props.form.validateFields((err) => {
-            if (!err && (isPartDes ? (beginPos && endPos && replaceStr && (beginPos <= endPos)) : true)) {
+            if (!err && (isPartDes ? (beginPos && endPos && replaceStr && (cases.firstCase || cases.secondCase || cases.thirdCase)) : true)) {
                 this.props.form.resetFields();
                 onOk(params)
             } else if (!err) {

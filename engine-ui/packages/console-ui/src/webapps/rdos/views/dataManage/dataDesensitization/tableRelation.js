@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { debounce } from 'lodash';
 import { Input, Select, Card, Table, Checkbox, Switch, message, Button, Modal } from 'antd';
 import ajax from '../../../api/dataManage';
 import moment from 'moment';
@@ -27,7 +28,7 @@ class TableRelation extends Component {
         editRecord: [], // 单击开关
         selectedRowKeys: [],
         openApply: undefined, // 批量开启还是关闭
-        // 按项目名，表名，字段名，开关状态搜索
+        // 按项目名，表名，开关状态搜索
         pjId: undefined,
         tableName: undefined,
         enable: '',
@@ -123,7 +124,7 @@ class TableRelation extends Component {
     // 切换开关
     changeOpenStatus = (checked, record) => {
         const enable = checked === 0 ? 1 : 0; // 开状态
-        this.operaSwitch({ ids: [record.id], enable })
+        this.debounceOperaSwitch({ ids: [record.id], enable })
     }
     // 批量按钮
     batchOpera = (openApply) => {
@@ -150,18 +151,18 @@ class TableRelation extends Component {
     }
     // 调用更新按钮接口
     operaSwitch = (params) => {
-        this.setState({
-            openStatusLoading: true
-        })
         ajax.updateOpenStatus(params).then(res => {
+            this.setState({
+                openStatusLoading: true
+            })
             if (res.code === 1) {
-                message.success('状态切换成功!');
                 this.setState({
                     selectedRowKeys: [],
                     checkAll: false,
                     openStatusLoading: false
                 })
-                this.search();
+                message.success('状态切换成功!');
+                this.debounceSearch();
             } else {
                 this.setState({
                     openStatusLoading: false
@@ -169,16 +170,24 @@ class TableRelation extends Component {
             }
         })
     }
+    debounceOperaSwitch = debounce(this.operaSwitch, 300, { 'maxWait': 2000 })
+    debounceSearch = debounce(this.search, 300, { 'maxWait': 2000 })
     // 改变project
     changeProject = (value) => {
         this.setState({
-            queryParams: Object.assign(this.state.queryParams, { pjId: value })
+            queryParams: Object.assign(this.state.queryParams, {
+                pjId: value,
+                currentPage: 1
+            })
         }, this.search)
     }
     // 表名字段名搜索
     changeName = (e) => {
         this.setState({
-            queryParams: Object.assign(this.state.queryParams, { tableName: e.target.value })
+            queryParams: Object.assign(this.state.queryParams, {
+                tableName: e.target.value,
+                currentPage: 1
+            })
         })
     }
     tableFooter = (currentPageData) => {
@@ -223,7 +232,9 @@ class TableRelation extends Component {
             enable: filters.enable
         })
         this.setState({
-            queryParams
+            queryParams,
+            selectedRowKeys: [],
+            checkAll: false
         }, this.search)
     }
     // 查看血缘
