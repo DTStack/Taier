@@ -109,7 +109,7 @@
 以上 common 目录下的 config 配置为全局配置文件，服务所有应用的功能配置（UIC, 默认配置）项。其他的的每个应用的`config`文件主要包含应用本身自定义的内容。比较特别的是`dataQuality` 项目中则需要单独配置远程触发功能的 `API Server` 地址，该功能主要用来给第三方 提供 API 调用服务。配置方法请看下面：
 
 
-#### 生产环境必配 <color style="color:red;">必配项</color>
+#### 生产环境必配 <color style="color:red;">`必配项`</color>
 生成配置是部署应用后必须要更改的配置项，否则会造成应用<color style="color:red;">无法正常访问！</color>
 
 - 数栈 UIC
