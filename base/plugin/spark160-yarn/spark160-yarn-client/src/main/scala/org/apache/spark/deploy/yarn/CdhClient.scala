@@ -23,6 +23,9 @@ import java.nio.ByteBuffer
 import java.util.{Properties, UUID}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
+import com.dtstack.rdos.common.config.ConfigParse
+import com.dtstack.rdos.engine.execution.spark160.sparkyarn.util.KerberosUtils
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet, ListBuffer, Map}
 import scala.reflect.runtime.universe
@@ -329,6 +332,18 @@ private[spark] class CdhClient(
     fc.resolvePath(qualifiedDestPath)
   }
 
+  def initSecurity():Unit = {
+    val userPrincipal = ConfigParse.userPrincipal
+    val userKeytabPath = ConfigParse.userKeytabPath
+    val krb5ConfPath = ConfigParse.krb5ConfPath
+    try
+      KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf)
+    catch {
+      case e: IOException =>
+        e.printStackTrace()
+    }
+  }
+
   /**
     * Upload any resources to the distributed cache if needed. If a resource is intended to be
     * consumed locally, set up the appropriate config for downstream code to handle it properly.
@@ -342,6 +357,9 @@ private[spark] class CdhClient(
     // Upload Spark and the application JAR to the remote file system if necessary,
     // and add them as local resources to the application master.
     val fs = FileSystem.get(hadoopConf)
+    if (sparkConf.get("security").equalsIgnoreCase("true")){
+      initSecurity()
+    }
     val dst = new Path(fs.getHomeDirectory(), appStagingDir)
     val nns = YarnSparkHadoopUtil.get.getNameNodesToAccess(sparkConf) + dst
     YarnSparkHadoopUtil.get.obtainTokensForNamenodes(nns, hadoopConf, credentials)

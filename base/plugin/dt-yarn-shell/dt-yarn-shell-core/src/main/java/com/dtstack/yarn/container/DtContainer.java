@@ -3,11 +3,13 @@ package com.dtstack.yarn.container;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.DtYarnConstants;
+import com.dtstack.yarn.common.DTYarnShellConstant;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
+import com.dtstack.yarn.util.KerberosUtils;
 import com.dtstack.yarn.util.Utilities;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,6 +21,8 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.security.SecurityUtil;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
@@ -58,7 +62,7 @@ public class DtContainer {
 
     private final FileSystem localFs;
 
-    private final FileSystem dfs;
+    private FileSystem dfs;
 
     private final AppType appType;
 
@@ -69,11 +73,15 @@ public class DtContainer {
 
         this.conf = new DtYarnConfiguration();
 
-        this.dfs = FileSystem.get(conf);
+        Path hdfsSidePath = new Path("hdfs-side.xml");
+        Path coreSidePath = new Path("core-side.xml");
+
+        conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
+        conf.addResource(coreSidePath);
+        conf.addResource(hdfsSidePath);
 
         localFs = FileSystem.getLocal(conf);
 
-        conf.addResource(new Path(DtYarnConstants.LEARNING_JOB_CONFIGURATION));
         LOG.info("user is " + conf.get("hadoop.job.ugi"));
         containerId = new DtContainerId(ConverterUtils.toContainerId(System
                 .getenv(ApplicationConstants.Environment.CONTAINER_ID.name())));
@@ -95,9 +103,31 @@ public class DtContainer {
         int appMasterPort = Integer.valueOf(System.getenv(DtYarnConstants.Environment.APPMASTER_PORT.toString()));
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
-            amClient = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID, addr, conf);
-        } catch (IOException e) {
+            LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
+            final Configuration newConf = new Configuration(conf);
+
+            if ("true".equals(conf.get("security"))){
+                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"));
+                UserGroupInformation.setLoginUser(myGui);
+                UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+                LOG.info("-ugi---:" + ugi);
+                LOG.info("isenabled:" + UserGroupInformation.isSecurityEnabled());
+                LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
+                newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
+                UserGroupInformation.setConfiguration(newConf);
+                SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
+
+                SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+            }
+
+            amClient = RPC.getProxy(ApplicationContainerProtocol.class, ApplicationContainerProtocol.versionID, addr, newConf);
+            LocalRemotePath[] localRemotePaths = amClient.getOutputLocation();
+            LOG.info("get localRemotePaths:" + localRemotePaths.length);
+
+            this.dfs = FileSystem.get(conf);
+        } catch (Exception e) {
+            LOG.error("-----------", e);
             LOG.error("Connecting to ApplicationMaster " + appMasterHost + ":" + appMasterPort + " failed!");
             LOG.error("Container will suicide!");
             System.exit(1);
@@ -108,7 +138,6 @@ public class DtContainer {
         containerStatusNotifier = new ContainerStatusNotifier(amClient, conf, containerId);
         containerStatusNotifier.start();
         containerStatusNotifier.reportContainerStatusNow(DtContainerStatus.INITIALIZING);
-
     }
 
     public Configuration getConf() {

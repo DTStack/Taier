@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -332,12 +331,12 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
+        sparkConf.set("security", "false");
         if (sparkYarnConfig.isSecurity()){
             sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
             sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
             sparkConf.set("security", String.valueOf(sparkYarnConfig.isSecurity()));
         }
-        sparkConf.set("security", "false");
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
@@ -549,7 +548,7 @@ public class SparkYarnClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
-        if (ConfigParse.getSecurity()){
+        if (sparkYarnConfig.isSecurity()){
             initSecurity();
         }
         try {

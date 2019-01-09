@@ -92,7 +92,7 @@ public class MathUtil {
             return defaultVal;
         }
 
-        return getBoolean(defaultVal);
+        return getBoolean(obj);
     }
 
     public static String getString(Object obj){
@@ -114,5 +114,10 @@ public class MathUtil {
         }
 
         return getString(obj);
+    }
+
+    public static void main(String[] args) {
+        Boolean target = true;
+        System.out.println(MathUtil.getBoolean(target, false));
     }
 }
