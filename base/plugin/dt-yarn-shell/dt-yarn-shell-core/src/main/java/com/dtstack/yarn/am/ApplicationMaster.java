@@ -105,8 +105,27 @@ public class ApplicationMaster extends CompositeService {
         this(ApplicationMaster.class.getName());
     }
 
-    private void init() {
+    private void init() throws IOException {
         LOG.info("appmaster init start...");
+
+        Credentials credentials =
+                UserGroupInformation.getCurrentUser().getCredentials();
+        DataOutputBuffer dob = new DataOutputBuffer();
+        credentials.writeTokenStorageToStream(dob);
+        // Now remove the AM->RM token so that containers cannot access it.
+        Iterator<Token<?>> iter = credentials.getAllTokens().iterator();
+        LOG.info("Executing with tokens:");
+        while (iter.hasNext()) {
+            Token<?> token = iter.next();
+            LOG.info(token);
+            if (token.getKind().equals(AMRMTokenIdentifier.KIND_NAME)) {
+                iter.remove();
+            }
+        }
+
+        allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+        LOG.info("-------------");
+
         rmCallbackHandler = new RMCallbackHandler();
         amrmAsync = AMRMClientAsync.createAMRMClientAsync(1000, rmCallbackHandler);
         amrmAsync.init(conf);
@@ -196,23 +215,8 @@ public class ApplicationMaster extends CompositeService {
 
     private boolean run() throws IOException, NoSuchAlgorithmException, InterruptedException {
         LOG.info("ApplicationMaster Starting ...");
-
-        Credentials credentials =
-                UserGroupInformation.getCurrentUser().getCredentials();
         LOG.error("---ugi:" + UserGroupInformation.getCurrentUser() );
-        DataOutputBuffer dob = new DataOutputBuffer();
-        credentials.writeTokenStorageToStream(dob);
-        // Now remove the AM->RM token so that containers cannot access it.
-        Iterator<Token<?>> iter = credentials.getAllTokens().iterator();
-        LOG.info("Executing with tokens:");
-        while (iter.hasNext()) {
-            Token<?> token = iter.next();
-            LOG.info(token);
-            if (token.getKind().equals(AMRMTokenIdentifier.KIND_NAME)) {
-                iter.remove();
-            }
-        }
-        allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+
 
         register();
 
