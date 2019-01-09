@@ -244,6 +244,12 @@
             & > .ant-menu-item-selected{
                 background:$aliyunbgColor;
             }
+            & > .ant-menu-item:not(.ant-menu-item-selected):hover,
+            & > .ant-menu-submenu:hover,
+            & > .ant-menu-item-active,
+            & > .ant-menu-submenu-active{
+                border-bottom-color: transparent;
+            }
             & > .ant-menu-item:not(.ant-menu-item-selected){
                 color:#AFBCC4;
             }
@@ -254,6 +260,7 @@
                 }
                 color:#AFBCC4;
             }
+           
         }
     }
     //默认主题
