@@ -548,6 +548,7 @@ class RealTimeTaskList extends Component {
                         onChange={this.handleTableChange}
                     />
                     <GoOnTask
+                        key={this.state.goOnTask}
                         visible={!!this.state.goOnTask}
                         taskId={this.state.goOnTask}
                         onOk={this.goOnTaskSuccess}

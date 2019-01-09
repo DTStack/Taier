@@ -23,20 +23,9 @@ class GoOnTask extends Component {
         externalPath: '',
         rangeValue: []
     }
-
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps, nextState) {
-        const taskId = nextProps.taskId
-        const visible = nextProps.visible;
-        const oldVisible = this.props.visible;
-
-        if (visible && oldVisible !== visible) {
-            this.setState({
-                checkPoints: [],
-                dateRange: null,
-                externalPath: '',
-                rangeValue: []
-            })
+    componentDidMount () {
+        const taskId = this.props.taskId;
+        if (taskId) {
             this.getCheckPointRange({
                 taskId
             })
@@ -181,7 +170,7 @@ class GoOnTask extends Component {
                             disabled={!dateRange}
                             value={externalPath}
                         >
-                            { options }
+                            {options}
                         </Select>
                     </span>
                 </div>
