@@ -215,7 +215,7 @@ public class ApplicationMaster extends CompositeService {
 
     private boolean run() throws IOException, NoSuchAlgorithmException, InterruptedException {
         LOG.info("ApplicationMaster Starting ...");
-        LOG.error("---ugi:" + UserGroupInformation.getCurrentUser() );
+        LOG.info("---ugi:" + UserGroupInformation.getCurrentUser() );
 
 
         register();

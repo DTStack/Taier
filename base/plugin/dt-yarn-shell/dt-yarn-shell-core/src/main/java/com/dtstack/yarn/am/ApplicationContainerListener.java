@@ -92,13 +92,12 @@ public class ApplicationContainerListener
 
            LOG.error("hdfs principal:" + conf.get("hdfsPrincipal"));
            final Configuration newConf = new Configuration(conf);
-           newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-           newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
-
+           if ("true".equals(conf.get("security"))){
+               newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+               newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
+           }
 
            SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
-
-           //RPC.setProtocolEngine(newConf, ApplicationContainerProtocol.class, WritableRpcEngine.class);
 
             RPC.Builder builder = new RPC.Builder(newConf)
             .setProtocol(ApplicationContainerProtocol.class)
@@ -107,13 +106,10 @@ public class ApplicationContainerListener
             .setPort(0)
             .setVerbose(false)
             .setNumHandlers(5);
-            //builder.setSecretManager(new DelegationTokenSecretManager(0, 0, 0, 0, null));
-            //builder.setSecretManager(new DTTokenSecretMgr());
 
            server = builder.build();
 
            ((RPC.Server) server).addProtocol(RPC.RpcKind.RPC_WRITABLE, ApplicationContainerProtocol.class, this);
-
 
             server.start();
             containerLostDetector.start();
@@ -122,11 +118,6 @@ public class ApplicationContainerListener
             serviceAuthorizationManager.refreshWithLoadedConfiguration(newConf, new DTPolicyProvider());
             LOG.error(serviceAuthorizationManager);
 
-            /*InetSocketAddress addr = NetUtils.getConnectAddress(server);
-            ApplicationContainerProtocol proxy = RPC.getProxy(ApplicationContainerProtocol.class,
-                    ApplicationContainerProtocol.versionID, addr, newConf);
-            String str = proxy.getAuthUser();
-            LOG.error("-----proxyAuthUser" + str);*/
            LOG.error("----start rpc success----");
         } catch (Exception e) {
             LOG.error("Error starting application containers handler server!", e);

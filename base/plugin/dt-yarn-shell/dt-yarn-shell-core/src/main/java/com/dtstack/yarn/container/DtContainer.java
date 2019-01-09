@@ -104,31 +104,28 @@ public class DtContainer {
         InetSocketAddress addr = new InetSocketAddress(appMasterHost, appMasterPort);
         try {
             LOG.info("appMasterHost:" + appMasterHost + ", port:" + appMasterPort);
-
-            UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"));
-            UserGroupInformation.setLoginUser(myGui);
-            UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-
-            LOG.warn("-ugi---:" + ugi);
-            LOG.warn("isenabled:" + UserGroupInformation.isSecurityEnabled());
-
-            LOG.error("hdfs principal:" + conf.get("hdfsPrincipal"));
             final Configuration newConf = new Configuration(conf);
-            newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
-            newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
-            UserGroupInformation.setConfiguration(newConf);
-            SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
 
-            SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+            if ("true".equals(conf.get("security"))){
+                UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"));
+                UserGroupInformation.setLoginUser(myGui);
+                UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+                LOG.info("-ugi---:" + ugi);
+                LOG.info("isenabled:" + UserGroupInformation.isSecurityEnabled());
+                LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
+                newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
+                newConf.set(DTYarnShellConstant.RPC_SERVER_KEYTAB, conf.get("hdfsKeytabPath"));
+                UserGroupInformation.setConfiguration(newConf);
+                SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, newConf);
+
+                SecurityUtil.login(newConf,DTYarnShellConstant.RPC_SERVER_KEYTAB, DTYarnShellConstant.RPC_SERVER_PRINCIPAL);
+            }
 
             amClient = RPC.getProxy(ApplicationContainerProtocol.class, ApplicationContainerProtocol.versionID, addr, newConf);
             LocalRemotePath[] localRemotePaths = amClient.getOutputLocation();
-            LOG.warn("get localRemotePaths:" + localRemotePaths.length);
+            LOG.info("get localRemotePaths:" + localRemotePaths.length);
 
-            LOG.warn("-------KerberosUtils--------");
-            KerberosUtils.login(conf.get("hdfsPrincipal"), conf.get("hdfsKeytabPath"), conf.get("hdfsKrb5ConfPath"), conf);
             this.dfs = FileSystem.get(conf);
-            LOG.warn("-------KerberosUtils end --------");
         } catch (Exception e) {
             LOG.error("-----------", e);
             LOG.error("Connecting to ApplicationMaster " + appMasterHost + ":" + appMasterPort + " failed!");

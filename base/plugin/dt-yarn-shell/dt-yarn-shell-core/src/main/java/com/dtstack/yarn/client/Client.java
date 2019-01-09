@@ -63,7 +63,6 @@ public class Client {
     private final FileSystem dfs;
     private YarnClient yarnClient;
     private Path appMasterJar;
-    private String security = "false";
     private String hdfsPrincipal;
     private String hdfsKeytabPath;
     private String hdfsKrb5ConfPath;
@@ -74,7 +73,6 @@ public class Client {
     public Client(DtYarnConfiguration conf) throws IOException, ParseException, ClassNotFoundException, YarnException {
         this.conf = conf;
         if ("true".equals(conf.get("security"))){
-            security = "true";
             hdfsPrincipal = conf.get("hdfsPrincipal");
             hdfsKeytabPath = conf.get("hdfsKeytabPath");
             hdfsKrb5ConfPath = conf.get("hdfsKrb5ConfPath");
@@ -268,7 +266,9 @@ public class Client {
                 localResources, appMasterEnv, appMasterLaunchcommands, null, null, null);
 
 
-        amContainer.setTokens(setupTokens());
+        if ("true".equals(conf.get("security"))){
+            amContainer.setTokens(setupTokens());
+        }
         applicationContext.setAMContainerSpec(amContainer);
 
         Priority priority = Records.newRecord(Priority.class);
