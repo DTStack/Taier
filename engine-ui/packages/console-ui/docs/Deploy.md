@@ -25,7 +25,7 @@
 
 目前前端代码仓库中，默认的`master`分支为最新的稳定版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)。
 
-获取生产环境的代码通常有`2`种方式，第一种则是直接把前端 gitlab 仓库项目对于的版本 `clone` 到本地, 安装打包环境后，并手动打包发布文件；第二种则是直接从 gitlab 仓库中，找到对应Tag版本并下载，使用下载后代码中`dist`中打包好的文件即可，因为前端在发布时，会把打包好的 dist 上传。
+获取生产环境的代码是直接把前端 gitlab 仓库项目对于的版本 `clone` 到本地，找到对应Tag版本或者branch代码 checkout，然后执行相对于的 build 指令。
 
 接下来，说一下如何手动打包生成代码。
 
