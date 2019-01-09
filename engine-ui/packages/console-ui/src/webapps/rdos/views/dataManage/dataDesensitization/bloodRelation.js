@@ -155,12 +155,14 @@ class BloodRelation extends React.Component {
     }
     /**
      * 链路脱敏启用/禁用
+     * @param params 当前节点参数
+     * @param rootParams 根节点参数
      */
-    updateLineageStatus = (params) => {
+    updateLineageStatus = (params, rootParams) => {
         Api.updateLineageStatus(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功');
-                this.loadColumnTree(params)
+                this.loadColumnTree(rootParams)
             }
         })
     }
@@ -586,6 +588,7 @@ class BloodRelation extends React.Component {
             const table = JSON.parse(cell.getAttribute('data'));
             let params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
+            const rootParams = ctx.state.allHideparams;
             const tableId = table.tableId
             if (table.isParent) {
                 if (table.isCurrentParent) {
@@ -595,7 +598,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开上游（1层）', null, function () {
                         ctx.loadParentColumn(params)
-                        ctx.revokeChildrenColumn(ctx.state.allHideparams) // 收起全部下游
+                        ctx.revokeChildrenColumn(rootParams) // 收起全部下游
                     })
                 }
             }
@@ -615,7 +618,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开下游（1层）', null, function () {
                         ctx.loadChildrenColumn(params)
-                        ctx.revokeParentColumn(ctx.state.allHideparams) // 收起全部上游
+                        ctx.revokeParentColumn(rootParams) // 收起全部上游
                     })
                 }
             }
@@ -626,22 +629,22 @@ class BloodRelation extends React.Component {
                 const closeDesen = menu.addItem('关闭脱敏', null, null);
                 const openDesen = menu.addItem('开启脱敏', null, null);
                 menu.addItem('当前节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 0, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 0, tableId }), rootParams)
                 }, closeDesen)
                 menu.addItem('全部下游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 2, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 2, tableId }), rootParams)
                 }, closeDesen)
                 menu.addItem('全部上游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 1, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 1, tableId }), rootParams)
                 }, closeDesen)
                 menu.addItem('当前节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 0, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 0, tableId }), rootParams)
                 }, openDesen)
                 menu.addItem('全部下游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 2, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 2, tableId }), rootParams)
                 }, openDesen)
                 menu.addItem('全部上游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 1, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 1, tableId }), rootParams)
                 }, openDesen)
             }
         }
