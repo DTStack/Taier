@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
+import { isArray } from 'lodash';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -318,7 +319,7 @@ class TaskForm extends React.Component {
                                     rules: [{
                                         validator: this.checkNotDir.bind(this)
                                     }],
-                                    initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 ? defaultData.refResourceList.map(res => res.resourceName) : []
+                                    initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 ? defaultData.refResourceList.map(res => res.id) : []
                                 })(
                                     <Input type="hidden" />
                                 )}
@@ -559,7 +560,7 @@ class TaskModal extends React.Component {
                     values.resourceIdList = [values.resourceIdList];
                 }
 
-                if (values.refResourceIdList) {
+                if (values.refResourceIdList && !isArray(values.refResourceIdList)) {
                     values.refResourceIdList = [values.refResourceIdList];
                 }
 
