@@ -34,7 +34,6 @@ class DesensitizationMange extends Component {
         total: 0,
         tableInfo: {} // 表点击查看血缘信息
     }
-    /* eslint-disable */
     componentDidMount () {
         this.search();
     }
@@ -77,12 +76,14 @@ class DesensitizationMange extends Component {
             if (res.code === 1) {
                 this.setState({
                     addVisible: true,
-                    editModalKey: Math.random() 
+                    editModalKey: Math.random()
                 })
             }
         })
     }
-    // 添加脱敏
+    /**
+     * 添加脱敏
+     */
     addDesensitization = (desensitization) => {
         ajax.addDesensitization(desensitization).then(res => {
             if (res.code === 1) {
@@ -94,7 +95,6 @@ class DesensitizationMange extends Component {
             }
         })
     }
-    // 删除脱敏
     delete = (record) => {
         ajax.delDesensitization({
             id: record.id
@@ -117,20 +117,23 @@ class DesensitizationMange extends Component {
             visibleSlidePane: false
         })
     }
-    // 面板切换
+    /**
+     * Tab栏切换
+     */
     onTabChange = (tabKey) => {
         this.setState({
             nowView: tabKey
         })
     }
-    // 获取点击具体查看血缘
+    /**
+     * 获取点击具体查看血缘
+     */
     handleClickTable = (tableInfo) => {
         this.setState({
             tableInfo
         }, () => {
             console.log(tableInfo)
         })
-        
     }
     initialColumns = () => {
         return [
@@ -174,8 +177,7 @@ class DesensitizationMange extends Component {
                 render: (text, record) => {
                     const relatedNum = record.relatedNum;
                     return (
-                        relatedNum === 0 ? 
-                        <Popconfirm
+                        relatedNum === 0 ? <Popconfirm
                             title="确定删除此条脱敏吗?"
                             okText="是"
                             cancelText="否"

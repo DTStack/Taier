@@ -42,7 +42,9 @@ class RuleManage extends Component {
             }
         })
     }
-    // 添加规则
+    /**
+     * 添加规则
+     */
     addRule = (params) => {
         ajax.addRule(params).then(res => {
             if (res.code === 1) {
@@ -54,7 +56,9 @@ class RuleManage extends Component {
             }
         })
     }
-    // 更新规则
+    /**
+     * 更新规则
+     */
     updateRule = (params) => {
         ajax.updateRule(params).then(res => {
             if (res.code === 1) {
@@ -66,7 +70,9 @@ class RuleManage extends Component {
             }
         })
     }
-    // 删除规则
+    /**
+     * 删除规则
+     */
     delete = (record) => {
         ajax.delRule({
             id: record.id
@@ -77,7 +83,9 @@ class RuleManage extends Component {
             }
         })
     }
-    // 编辑规则
+    /**
+     * 编辑规则
+     */
     editRule = (record) => {
         ajax.voidCheckPermission().then(res => {
             if (res.code === 1) {
@@ -135,7 +143,7 @@ class RuleManage extends Component {
                 width: 140,
                 dataIndex: 'opera',
                 render: (text, record) => {
-                    const isInlay = record.tenantId === -1; // 内置规则
+                    const isInlay = record.tenantId === -1; // 是否内置规则
                     return (
                         <span>
                             <a onClick={() => { this.editRule(record) }}>编辑</a>

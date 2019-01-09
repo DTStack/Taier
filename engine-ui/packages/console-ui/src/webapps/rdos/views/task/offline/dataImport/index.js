@@ -9,7 +9,7 @@ import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../../api/dataManage'
 
-import { getUploadStatus } from '../../../../store/modules/uploader'
+import { getUploadStatus, updateUploader, UPLOAD_STATUS } from '../../../../store/modules/uploader'
 
 const defaultState = {
     file: '',
@@ -50,6 +50,10 @@ class ImportLocalData extends Component {
             this.setState({
                 loading: true
             })
+            dispatch(updateUploader({
+                status: UPLOAD_STATUS.PROGRESSING,
+                fileName: file.name
+            }))
             API.importLocalData(params).then((res) => {
                 this.setState({
                     loading: false
@@ -223,6 +227,10 @@ class ImportLocalData extends Component {
         this.setState({ step: 'source' })
     }
 
+    onCancel = () => {
+        this.setState({ ...defaultState });
+    }
+
     footer () {
         const { step, loading } = this.state
         return (
@@ -279,9 +287,7 @@ class ImportLocalData extends Component {
                     maskClosable={false}
                     title="本地数据导入"
                     visible={visible}
-                    onCancel={() => {
-                        this.setState({ ...defaultState })
-                    }}
+                    onCancel={this.onCancel}
                     footer={this.footer()}
                 >
                     <DataSource

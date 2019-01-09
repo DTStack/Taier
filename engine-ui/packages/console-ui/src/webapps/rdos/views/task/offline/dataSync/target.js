@@ -552,10 +552,7 @@ class TargetForm extends React.Component {
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [{
-                                required: true,
-                                message: '目标分区为必填项！'
-                            }],
+                            rules: [],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
                             <Select
@@ -651,10 +648,7 @@ class TargetForm extends React.Component {
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [{
-                                required: true,
-                                message: '目标分区为必填项！'
-                            }],
+                            rules: [],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
                             <Select
