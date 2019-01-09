@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.sparkyarn;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
-import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
@@ -549,7 +548,7 @@ public class SparkYarnClient extends AbsClient {
     public EngineResourceInfo getAvailSlots() {
 
         SparkYarnResourceInfo resourceInfo = new SparkYarnResourceInfo();
-        if (ConfigParse.getSecurity()){
+        if (sparkYarnConfig.isSecurity()){
             initSecurity();
         }
         try {
