@@ -1,14 +1,19 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import com.alibaba.druid.support.json.JSONParser;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.internal.LinkedTreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.util.Preconditions;
+import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +21,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,20 +77,25 @@ public class SyncPluginInfo {
     }
 
     public List<String> createSyncPluginArgs(JobClient jobClient, FlinkClient flinkClient){
-
         String args = jobClient.getClassArgs();
         List<String> programArgList = Lists.newArrayList();
         if(StringUtils.isNotBlank(args)){
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
 
-        programArgList.add("-monitor");
-        if(StringUtils.isNotEmpty(monitorAddress)) {
-            programArgList.add(monitorAddress);
+        programArgList.add("-mode");
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+        if(FlinkYarnMode.isPerJob(taskRunMode)){
+            programArgList.add("yarnPer");
         } else {
-            FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
-            programArgList.add(flinkClient.getReqUrl(taskRunMode));
+            programArgList.add("yarn");
         }
+
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(jobClient.getPluginInfo()).getAsJsonObject();
+        Gson gson = new Gson();
+        programArgList.add("-yarnConf");
+        programArgList.add(gson.toJson(json.get("yarnConf")));
 
         return programArgList;
     }
