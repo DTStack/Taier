@@ -260,15 +260,6 @@ public class Client {
         List<String> appMasterLaunchcommands = new ArrayList<>();
         appMasterLaunchcommands.add(command.toString());
 
-       /* ByteBuffer token = null;
-        if ("true".equals(conf.get("security"))){
-            Credentials credentials = new Credentials(UserGroupInformation.getCurrentUser().getCredentials());
-            dfs.addDelegationTokens(Master.getMasterPrincipal(conf), credentials);
-            DataOutputBuffer dob = new DataOutputBuffer();
-            credentials.writeTokenStorageToStream(dob);
-            token = ByteBuffer.wrap(dob.getData());
-        }*/
-
         Resource capability = Records.newRecord(Resource.class);
         capability.setMemory(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_MEMORY, DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY));
         capability.setVirtualCores(taskConf.getInt(DtYarnConfiguration.LEARNING_AM_CORES, DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES));
