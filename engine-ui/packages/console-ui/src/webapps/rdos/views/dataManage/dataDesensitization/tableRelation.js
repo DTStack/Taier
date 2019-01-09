@@ -35,19 +35,20 @@ class TableRelation extends Component {
         dataSource: [],
         relatedProject: [] // 项目列表
     }
-    // componentDidMount () {
-    //     const currentDesensitization = this.props.tableData;
-    //     if (currentDesensitization) {
-    //         this.loadTableRelation({
-    //             currentPage: 1,
-    //             pageSize: 20,
-    //             configId: currentDesensitization.id
-    //         })
-    //         this.getRelatedPorjects({
-    //             configId: currentDesensitization.id
-    //         })
-    //     }
-    // }
+    /** componentDidMount () {
+        const currentDesensitization = this.props.tableData;
+        if (currentDesensitization) {
+            this.loadTableRelation({
+                currentPage: 1,
+                pageSize: 20,
+                configId: currentDesensitization.id
+            })
+            this.getRelatedPorjects({
+                configId: currentDesensitization.id
+            })
+        }
+    }
+    */
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const currentDesensitization = this.props.tableData;
@@ -65,7 +66,10 @@ class TableRelation extends Component {
             this.getRelatedPorjects({ configId: tableData.id })
         }
     }
-    // 加载表关系
+    /**
+     * 加载表关系
+     * @param {Object} queryParams 搜索筛选条件
+     */
     search = () => {
         const { queryParams, pjId, tableName, enable } = this.state;
         if (pjId) {
@@ -100,7 +104,9 @@ class TableRelation extends Component {
             }
         })
     }
-    // 获取关联项目
+    /**
+     * 获取关联项目
+     */
     getRelatedPorjects = (params) => {
         ajax.getRelatedPorjects(params).then(res => {
             if (res.code === 1) {
@@ -121,12 +127,16 @@ class TableRelation extends Component {
             </Option>
         })
     }
-    // 切换开关
+    /**
+     * 切换开关按钮
+     */
     changeOpenStatus = (checked, record) => {
         const enable = checked === 0 ? 1 : 0; // 开状态
         this.debounceOperaSwitch({ ids: [record.id], enable })
     }
-    // 批量按钮
+    /**
+     * 批量按钮
+     */
     batchOpera = (openApply) => {
         const text = openApply === 0 ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
         const { selectedRowKeys } = this.state;
@@ -149,7 +159,9 @@ class TableRelation extends Component {
             message.warning('请勾选要操作的列表')
         }
     }
-    // 调用更新按钮接口
+    /**
+     * 调用更新按钮接口
+     */
     operaSwitch = (params) => {
         ajax.updateOpenStatus(params).then(res => {
             this.setState({
@@ -172,7 +184,9 @@ class TableRelation extends Component {
     }
     debounceOperaSwitch = debounce(this.operaSwitch, 300, { 'maxWait': 2000 })
     debounceSearch = debounce(this.search, 300, { 'maxWait': 2000 })
-    // 改变project
+    /**
+     * 改变project
+     */
     changeProject = (value) => {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
@@ -181,7 +195,9 @@ class TableRelation extends Component {
             })
         }, this.search)
     }
-    // 表名字段名搜索
+    /**
+     * 表名字段名搜索
+     */
     changeName = (e) => {
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
@@ -349,7 +365,6 @@ class TableRelation extends Component {
                         <div style={{ marginTop: '10px' }}>
                             <Select
                                 allowClear
-                                // defaultValue={}
                                 placeholder='项目名称'
                                 style={{ width: '150px', marginRight: '20px' }}
                                 onChange={this.changeProject}

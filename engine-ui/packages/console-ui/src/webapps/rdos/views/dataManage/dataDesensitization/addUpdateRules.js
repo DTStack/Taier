@@ -59,7 +59,12 @@ class AddUpdateRules extends Component {
             })
         }
     }
-    // 判断是否输入正确脱敏配置
+    /**
+     * 判断是否输入正确脱敏配置
+     * @param {Array} sampleDataArr 样例数组
+     * @param {Number} beginPos 开始值
+     * @param {Number} endPos 结束值
+     */
     isPassConfig = (sampleDataArr, beginPos, endPos) => {
         const firstCase = (endPos >= sampleDataArr.length && sampleDataArr.length >= beginPos) ||
         (endPos > sampleDataArr.length && sampleDataArr.length >= beginPos) ||
@@ -81,25 +86,32 @@ class AddUpdateRules extends Component {
             thirdCase
         }
     }
-    /** 设置newReplaceData
-     * sampleDataArr 样例数据
-     * beginPos 开始输入值
-     * endPos结束输入值
-     * newStr 替换新字符
-    */
+
+    /**
+     * 设置newReplaceData
+     * @param {Array} sampleDataArr 样例数据
+     * @param {Number} beginPos 开始值
+     * @param {Number} endPos 结束值
+     * @param {String} newStr 替换新字符
+     */
     setNewReplaceData = (sampleDataArr, beginPos, endPos, newStr) => {
         sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
         this.setState({
             newReplaceData: sampleDataArr
         })
     }
-    // 字符串替换
+
+    /**
+     * 字符串替换
+     */
     repeatStr = (str, n) => {
         console.log(n, str)
         return new Array(n + 1).join(str)
     }
-    // 效果预览
-    /* eslint-disable */
+
+    /**
+     * 效果预览
+     */
     preview = () => {
         const { getFieldValue } = this.props.form;
         let sampleData = getFieldValue('example');

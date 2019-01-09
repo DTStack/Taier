@@ -153,7 +153,9 @@ class BloodRelation extends React.Component {
             this.hideLoading();
         })
     }
-    // 链路脱敏启用/禁用
+    /**
+     * 链路脱敏启用/禁用
+     */
     updateLineageStatus = (params) => {
         Api.updateLineageStatus(params).then(res => {
             if (res.code === 1) {
@@ -162,7 +164,9 @@ class BloodRelation extends React.Component {
             }
         })
     }
-    // 收回上下游
+    /**
+     * 收回上下游(展开上游收回下游，展开下游收回上游)
+     */
     revokeChildrenColumn = (params) => {
         this.showLoading()
         Api.getChildColumns(params).then(res => {
@@ -503,7 +507,7 @@ class BloodRelation extends React.Component {
     }
 
     getStyles = (data) => {
-        // enable区分是否脱敏
+        // enable字段区分是否脱敏
         if (data.isParent && data.enable === 1) {
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
         }

@@ -26,7 +26,9 @@ class AddDesensitization extends Component {
     componentDidMount () {
         this.getdesRulesList();
     }
-    // 获取脱敏规则列表
+    /**
+     * 获取脱敏规则列表
+     */
     getdesRulesList = () => {
         ajax.getdesRulesList().then(res => {
             if (res.code === 1) {
@@ -36,7 +38,9 @@ class AddDesensitization extends Component {
             }
         })
     }
-    // 获取表列表
+    /**
+     * 获取表列表
+     */
     getTableList = (params) => {
         this.setState({
             tableList: [],
@@ -61,7 +65,9 @@ class AddDesensitization extends Component {
             </Option>
         })
     }
-    // 字段
+    /**
+     * 字段列表
+     */
     getColumnsList = (value) => {
         const { getFieldValue } = this.props.form;
         const projectId = getFieldValue('projectId');
@@ -100,7 +106,14 @@ class AddDesensitization extends Component {
             </Option>
         })
     }
-    // 判断是否输入正确脱敏配置
+
+    /**
+     * 判断是否输入正确脱敏配置
+     * @param {Array} sampleDataArr 样例数组
+     * @param {Number} beginPos 开始值
+     * @param {Number} endPos 结束值
+     * @returns {Object} 是否正确输入情况
+     */
     isPassConfig = (sampleDataArr, beginPos, endPos) => {
         const firstCase = (endPos >= sampleDataArr.length && sampleDataArr.length >= beginPos) ||
         (endPos > sampleDataArr.length && sampleDataArr.length >= beginPos) ||
@@ -122,23 +135,31 @@ class AddDesensitization extends Component {
             thirdCase
         }
     }
-    /** 设置newReplaceData
-     * sampleDataArr 样例数据
-     * beginPos 开始输入值
-     * endPos结束输入值
-     * newStr 替换新字符
-    */
+
+    /**
+     * 设置newReplaceData
+     * @param {Array} sampleDataArr 样例数据
+     * @param {Number} beginPos 开始值
+     * @param {Number} endPos 结束值
+     * @param {String} newStr 替换新字符
+     */
     setNewReplaceData = (sampleDataArr, beginPos, endPos, newStr) => {
         sampleDataArr.splice(beginPos - 1, (endPos - beginPos + 1), newStr).join('');
         this.setState({
             newReplaceData: sampleDataArr
         })
     }
-    // 字符串替换
+
+    /**
+     * 字符串替换
+     */
     repeatStr = (str, n) => {
         return new Array(n + 1).join(str)
     }
-    // 预览
+
+    /**
+     * 预览
+     */
     preview = () => {
         const { getFieldValue } = this.props.form;
         let sampleData = getFieldValue('example');
@@ -199,7 +220,9 @@ class AddDesensitization extends Component {
             selectRule: selectRule[0]
         })
     }
-    // 选择项目
+    /**
+     * 选择项目
+     */
     changeProject (value) {
         this.props.form.resetFields(['tableId', 'columnName']);
         this.setState({
@@ -208,7 +231,9 @@ class AddDesensitization extends Component {
         })
         this.getTableList({ projectId: value })
     }
-    // 选择表
+    /**
+     * 选择表
+     */
     changeTable (value) {
         this.props.form.resetFields(['columnName']);
         this.getColumnsList(value)
@@ -227,7 +252,6 @@ class AddDesensitization extends Component {
             }
         });
     }
-    /* eslint-disable */
     render () {
         const { getFieldDecorator } = this.props.form;
         const { projects } = this.props;
@@ -276,7 +300,6 @@ class AddDesensitization extends Component {
                             <Select
                                 placeholder='请选择项目'
                                 onChange={this.changeProject.bind(this)}
-                                // allowClear
                             >
                                 {projectsOptions}
                             </Select>
@@ -295,7 +318,6 @@ class AddDesensitization extends Component {
                             <Select
                                 placeholder='请选择表'
                                 onChange={this.changeTable.bind(this)}
-                                // allowClear
                             >
                                 {this.tableListOption()}
                             </Select>
@@ -313,7 +335,6 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择字段'
-                                // allowClear
                             >
                                 {this.columnsOption()}
                             </Select>
@@ -348,7 +369,6 @@ class AddDesensitization extends Component {
                             <Select
                                 placeholder='请选择脱敏规则'
                                 onChange={this.changeRule.bind(this)}
-                                // allowClear
                             >
                                 {this.rulesOption()}
                             </Select>
