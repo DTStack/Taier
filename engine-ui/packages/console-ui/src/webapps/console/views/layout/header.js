@@ -51,7 +51,6 @@ class Header extends Component {
             </span>
         </span>;
         return <Navigator
-            logoWidth="170px"
             logo={logo}
             menuItems={menuItems}
             {...this.props}

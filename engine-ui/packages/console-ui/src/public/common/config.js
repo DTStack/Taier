@@ -6,5 +6,5 @@ window.COMMON_CONF = {
     UIC_DOMAIN: '.dtstack.net', // UIC域名
     prefix: 'DTinsight', // 应用前缀
     name: '数栈', // 网页的title
-    theme: 'aliyun' // 主题
+    theme: 'default' // 主题
 }
