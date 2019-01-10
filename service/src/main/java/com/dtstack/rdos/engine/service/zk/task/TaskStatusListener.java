@@ -20,6 +20,8 @@ import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.data.BrokerDataShard;
 import com.google.common.base.Strings;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -32,7 +34,9 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -77,8 +81,12 @@ public class TaskStatusListener implements Runnable{
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(true), new CustomThreadFactory("taskStatusListener"));
+                new SynchronousQueue<>(true), new CustomThreadFactory("taskStatusListener"));
 
+    private Cache<String, Integer> checkpointGetTotalNumCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
+
+    //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
+    private int checkpointGetRate = 10;
 
     @Override
 	public void run() {
@@ -272,7 +280,7 @@ public class TaskStatusListener implements Runnable{
      * @param jobId
      */
     private void dealStreamAfterGetStatus(Integer status, String jobId, String engineTypeName, String zkTaskId,
-                                          int computeType, JobIdentifier jobIdentifier, String pluginInfo){
+                                          int computeType, JobIdentifier jobIdentifier, String pluginInfo) throws ExecutionException {
 
 
         Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
@@ -285,6 +293,17 @@ public class TaskStatusListener implements Runnable{
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
             rdosStreamTaskDAO.updateTaskStatus(jobId, status);
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
+        }
+
+        //运行中的stream任务需要更新checkpoint 并且 控制频率
+        Integer checkpointCallNum = checkpointGetTotalNumCache.get(engineTaskId, () -> 0);
+        if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
+            if(checkpointCallNum%checkpointGetRate == 0){
+                String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
+                updateStreamJobCheckPoint(jobId, engineTaskId, checkPointJsonStr);
+            }
+
+            checkpointGetTotalNumCache.put(engineTaskId, checkpointCallNum + 1);
         }
 
         if(RdosTaskStatus.needClean(status)){
