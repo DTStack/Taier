@@ -16,7 +16,8 @@ import {
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
 import {
-    workbenchActions as WBenchActions
+    workbenchActions as WBenchActions,
+    getDataSyncSaveTabParams
 } from '../../../../store/modules/offlineTask/offlineAction';
 
 import {
@@ -170,7 +171,9 @@ class DataSync extends React.Component {
     }
 
     save () {
-        this.props.saveTab();
+        const { dataSync, currentTabData } = this.props;
+        const params = getDataSyncSaveTabParams(currentTabData, dataSync);
+        this.props.saveTab(params, true, 'task');
     }
 
     getPopupContainer = () => {
