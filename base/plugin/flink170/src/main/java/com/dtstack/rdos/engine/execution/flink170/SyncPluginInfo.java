@@ -2,7 +2,6 @@ package com.dtstack.rdos.engine.execution.flink170;
 
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.flink170.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink170.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink170.util.FlinkUtil;
 import com.google.common.collect.Lists;
@@ -71,7 +70,6 @@ public class SyncPluginInfo {
     }
 
     public List<String> createSyncPluginArgs(JobClient jobClient, FlinkClient flinkClient){
-
         String args = jobClient.getClassArgs();
         List<String> programArgList = Lists.newArrayList();
         if(StringUtils.isNotBlank(args)){
