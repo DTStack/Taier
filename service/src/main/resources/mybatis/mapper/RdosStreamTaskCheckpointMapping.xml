@@ -33,4 +33,13 @@
         </if>
         order by gmt_modified asc
     </select>
+
+    <select id="getByTaskIdAndEngineTaskId" resultMap="rdosStreamCheckpointResult">
+        select
+        <include refid="select_content_fragment"/>
+        from rdos_stream_task_checkpoint
+        where is_deleted=0 and task_id=#{taskId}
+        and task_engine_id = #{taskEngineId}
+        order by gmt_modified asc
+    </select>
 </mapper>

@@ -287,6 +287,13 @@ public class TaskStatusListener implements Runnable{
             updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
         }
 
+        //运行中的stream任务需要更新checkpoint
+        //TODO 控制频率
+        if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
+            String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
+            updateStreamJobCheckPoint(jobId, engineTaskId, checkPointJsonStr);
+        }
+
         if(RdosTaskStatus.needClean(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
