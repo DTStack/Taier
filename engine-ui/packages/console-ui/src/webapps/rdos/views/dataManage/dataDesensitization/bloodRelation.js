@@ -37,16 +37,19 @@ const getVertexNode = (obj) => {
 }
 
 const getTableReqParams = (tableDetail) => {
-    if (!tableDetail) return {};
-    const params = {
-        tableName: tableDetail.tableName,
-        configId: tableDetail.configId,
-        belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
-        column: tableDetail.columnName || tableDetail.column,
-        pageIndex: 1,
-        pageSize: 6
+    if (!tableDetail) {
+        return {}
+    } else {
+        const params = {
+            tableName: tableDetail.tableName,
+            configId: tableDetail.configId,
+            belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
+            column: tableDetail.columnName || tableDetail.column,
+            pageIndex: 1,
+            pageSize: 6
+        }
+        return params;
     }
-    return params;
 }
 
 export const isEqTable = (from, compareTo) => {
@@ -92,9 +95,23 @@ class BloodRelation extends React.Component {
     componentWillReceiveProps (nextProps) {
         const currentTable = this.props.tableDetail;
         const { tabKey } = nextProps;
-        if (currentTable.id != nextProps.tableDetail.id) {
+        /**
+         * 当表关系无数据时不加载血缘关系
+         */
+        if (JSON.stringify(nextProps.tableDetail) != '{}' && currentTable.id != nextProps.tableDetail.id) {
             const params = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(params)
+        }
+        /**
+         * 清除上次血缘缓存信息
+         */
+        if (JSON.stringify(nextProps.tableDetail) == '{}') {
+            console.log('清除');
+            this.Container.innerHTML = '';
+            this.layout = '';
+            this.graph = '';
+            const editor = this.Container;
+            this.loadEditor(editor)
         }
         if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation' && nextProps.tableDetail.id) {
             // 切换tab请求
@@ -115,6 +132,10 @@ class BloodRelation extends React.Component {
                 this.hideLoading();
             } else {
                 this.Container.innerHTML = '';
+                this.layout = '';
+                this.graph = '';
+                const editor = this.Container;
+                this.loadEditor(editor)
                 this.hideLoading();
             }
         })
