@@ -42,6 +42,18 @@ class RuleManage extends Component {
             }
         })
     }
+    clickAddRule = () => {
+        ajax.voidCheckPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    addVisible: true,
+                    status: 'add',
+                    source: {},
+                    editModalKey: Math.random()
+                })
+            }
+        })
+    }
     /**
      * 添加规则
      */
@@ -192,7 +204,7 @@ class RuleManage extends Component {
                         <Button
                             type='primary'
                             style={{ marginTop: '10px' }}
-                            onClick={() => { this.setState({ addVisible: true, status: 'add', source: {}, editModalKey: Math.random() }) }}
+                            onClick={this.clickAddRule}
                         >
                             创建规则
                         </Button>
