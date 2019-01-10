@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
@@ -683,8 +684,7 @@ public class FlinkClient extends AbsClient {
             String reqUrl = String.format("%s%s", getReqUrl(flinkClient), path);
             return PoolHttpClient.get(reqUrl);
         } catch (Exception e) {
-            logger.error("",e);
-            return null;
+            throw new RdosException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
 
@@ -693,7 +693,7 @@ public class FlinkClient extends AbsClient {
         try {
             return PoolHttpClient.get(reqUrl);
         } catch (IOException e) {
-            return null;
+            throw new RdosException(ErrorCode.HTTP_CALL_ERROR, e);
         }
     }
 

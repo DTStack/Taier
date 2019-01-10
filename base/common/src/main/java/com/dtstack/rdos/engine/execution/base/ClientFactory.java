@@ -25,6 +25,7 @@ public class ClientFactory {
         typeRefClassName.put("flink130", "com.dtstack.rdos.engine.execution.flink130.FlinkClient");
         typeRefClassName.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkClient");
         typeRefClassName.put("flink150", "com.dtstack.rdos.engine.execution.flink150.FlinkClient");
+        typeRefClassName.put("flink170", "com.dtstack.rdos.engine.execution.flink170.FlinkClient");
         typeRefClassName.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkClient");
         typeRefClassName.put("datax", "com.dtstack.rdos.engine.execution.datax.DataxClient");
         typeRefClassName.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient");

@@ -14,8 +14,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.DataOutputBuffer;
+import org.apache.hadoop.net.NetUtils;
+import org.apache.hadoop.security.Credentials;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.service.CompositeService;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
+import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterResponse;
 import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 import org.apache.hadoop.yarn.api.records.Container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
@@ -30,6 +36,7 @@ import org.apache.hadoop.yarn.client.api.AMRMClient;
 import org.apache.hadoop.yarn.client.api.async.AMRMClientAsync;
 import org.apache.hadoop.yarn.client.api.async.NMClientAsync;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.security.AMRMTokenIdentifier;
 import org.apache.hadoop.yarn.util.Records;
 
 import java.io.IOException;
@@ -37,9 +44,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -73,6 +82,12 @@ public class ApplicationMaster extends CompositeService {
      */
     ApplicationContainerListener containerListener;
 
+    private ByteBuffer allTokens;
+
+    NMCallbackHandler nmAsyncHandler;
+
+    String appMasterHostname;
+
 
     private ApplicationMaster(String name) {
         super(name);
@@ -90,15 +105,36 @@ public class ApplicationMaster extends CompositeService {
         this(ApplicationMaster.class.getName());
     }
 
-    private void init() {
+    private void init() throws IOException {
         LOG.info("appmaster init start...");
+
+        Credentials credentials =
+                UserGroupInformation.getCurrentUser().getCredentials();
+        DataOutputBuffer dob = new DataOutputBuffer();
+        credentials.writeTokenStorageToStream(dob);
+        // Now remove the AM->RM token so that containers cannot access it.
+        Iterator<Token<?>> iter = credentials.getAllTokens().iterator();
+        LOG.info("Executing with tokens:");
+        while (iter.hasNext()) {
+            Token<?> token = iter.next();
+            LOG.info(token);
+            if (token.getKind().equals(AMRMTokenIdentifier.KIND_NAME)) {
+                iter.remove();
+            }
+        }
+
+        allTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+        LOG.info("-------------");
+
         rmCallbackHandler = new RMCallbackHandler();
         amrmAsync = AMRMClientAsync.createAMRMClientAsync(1000, rmCallbackHandler);
         amrmAsync.init(conf);
+        amrmAsync.start();
 
-        NMCallbackHandler nmAsyncHandler = new NMCallbackHandler(this);
+        nmAsyncHandler = new NMCallbackHandler(this);
         this.nmAsync = NMClientAsync.createNMClientAsync(nmAsyncHandler);
         this.nmAsync.init(conf);
+        this.amrmAsync.start();
 
         addService(amrmAsync);
         addService(nmAsync);
@@ -118,8 +154,15 @@ public class ApplicationMaster extends CompositeService {
         LOG.info("appmaster register start...");
         try {
             LOG.info("amrmAsync: " + amrmAsync);
-            amrmAsync.registerApplicationMaster(this.messageService.getServerAddress().getHostName(),
+            appMasterHostname = NetUtils.getHostname();
+            RegisterApplicationMasterResponse response = amrmAsync.registerApplicationMaster(appMasterHostname,
                     this.messageService.getServerAddress().getPort(), null);
+
+            int maxMem = response.getMaximumResourceCapability().getMemory();
+            LOG.info("Max mem capabililty of resources in this cluster " + maxMem);
+
+            int maxVCores = response.getMaximumResourceCapability().getVirtualCores();
+            LOG.info("Max vcores capabililty of resources in this cluster " + maxVCores);
         } catch (Exception e) {
             LOG.info("app master register failed: " + DebugUtil.stackTrace(e));
             throw new RuntimeException("Registering application master failed,", e);
@@ -172,6 +215,8 @@ public class ApplicationMaster extends CompositeService {
 
     private boolean run() throws IOException, NoSuchAlgorithmException, InterruptedException {
         LOG.info("ApplicationMaster Starting ...");
+        LOG.info("---ugi:" + UserGroupInformation.getCurrentUser() );
+
 
         register();
 
@@ -399,12 +444,15 @@ public class ApplicationMaster extends CompositeService {
                 + container.getId());
 
         containerEnv.put(DtYarnConstants.Environment.XLEARNING_TF_INDEX.toString(), String.valueOf(index));
+
         ContainerLaunchContext ctx = ContainerLaunchContext.newInstance(
-                containerLocalResource, containerEnv, containerLaunchcommands, null, null, null);
+                containerLocalResource, containerEnv, containerLaunchcommands, null, allTokens.duplicate(), null);
 
         try {
             LOG.info("nmAsync.class: " + nmAsync.getClass().getName());
             LOG.info("nmAsync.client: " + nmAsync.getClient());
+
+            nmAsyncHandler.addContainer(container.getId(), container);
             nmAsync.startContainerAsync(container, ctx);
         } catch (Exception e) {
             LOG.info("exception: " + DebugUtil.stackTrace(e));
@@ -412,6 +460,7 @@ public class ApplicationMaster extends CompositeService {
         }
 
     }
+
 
     private void clearContainerInfo(ContainerId containerId) {
         Path cIdPath = Utilities.getRemotePath((YarnConfiguration) conf, containerId.getApplicationAttemptId().getApplicationId(), "containers/" + containerId.toString());

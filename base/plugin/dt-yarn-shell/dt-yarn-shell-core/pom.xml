@@ -63,6 +63,7 @@
             <artifactId>hadoop-yarn-client</artifactId>
             <version>${hadoop2.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
