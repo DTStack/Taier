@@ -132,8 +132,6 @@ class DesensitizationMange extends Component {
     handleClickTable = (tableInfo) => {
         this.setState({
             tableInfo
-        }, () => {
-            console.log(tableInfo)
         })
     }
     initialColumns = () => {

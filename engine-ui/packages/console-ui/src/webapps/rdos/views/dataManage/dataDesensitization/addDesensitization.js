@@ -299,6 +299,9 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择项目'
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 onChange={this.changeProject.bind(this)}
                             >
                                 {projectsOptions}
@@ -317,6 +320,9 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择表'
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 onChange={this.changeTable.bind(this)}
                             >
                                 {this.tableListOption()}
