@@ -6,7 +6,7 @@ import com.dtstack.rdos.engine.execution.rdbs.executor.ConnFactory;
 public class SqlserverConnFactory extends ConnFactory {
 
     public SqlserverConnFactory() {
-        driverName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
+        driverName = "net.sourceforge.jtds.jdbc.Driver";
         testSql = "select 1111";
     }
 
