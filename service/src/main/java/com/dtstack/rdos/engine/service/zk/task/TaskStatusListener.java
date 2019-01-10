@@ -5,6 +5,7 @@ import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
+import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -77,7 +78,7 @@ public class TaskStatusListener implements Runnable{
 
 	private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
-	/**失败任务的额外处理：当前只是对失败任务继续更新日志*/
+	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS,
@@ -113,6 +114,14 @@ public class TaskStatusListener implements Runnable{
                 String key = failedTaskEntry.getKey();
                 updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
+
+                //flink任务在失败或者取消情况下多次更新checkpoint
+                if(failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()
+                        && failedTaskInfo.getEngineType().equals(EngineType.Flink.getVal())){
+                    //更新checkpoint
+                    updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
+                }
+
                 failedTaskInfo.tryLog();
 
                 if(!failedTaskInfo.canTryLogAgain()){
@@ -200,7 +209,7 @@ public class TaskStatusListener implements Runnable{
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, jobIdentifier, pluginInfoStr);
                 }
 
-                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
+                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus) || RdosTaskStatus.CANCELED.equals(rdosTaskStatus)){
                     FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
@@ -299,8 +308,7 @@ public class TaskStatusListener implements Runnable{
         Integer checkpointCallNum = checkpointGetTotalNumCache.get(engineTaskId, () -> 0);
         if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
             if(checkpointCallNum%checkpointGetRate == 0){
-                String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
-                updateStreamJobCheckPoint(jobId, engineTaskId, checkPointJsonStr);
+                updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
             }
 
             checkpointGetTotalNumCache.put(engineTaskId, checkpointCallNum + 1);
@@ -315,9 +323,13 @@ public class TaskStatusListener implements Runnable{
             }
 
             //TODO 各个插件的操作移动到插件本身
-            String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
-            updateStreamJobCheckPoint(jobId, engineTaskId, checkPointJsonStr);
+            updateStreamJobCheckpoints(jobIdentifier, engineTypeName, pluginInfo);
         }
+    }
+
+    private void updateStreamJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo){
+        String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
+        updateStreamJobCheckPoint(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), checkPointJsonStr);
     }
 
     private void updateStreamJobCheckPoint(String taskId, String engineTaskId, String checkpointJsonStr){

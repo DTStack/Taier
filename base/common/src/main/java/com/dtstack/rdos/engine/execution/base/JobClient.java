@@ -106,7 +106,12 @@ public class JobClient extends OrderObject{
     }
 
     public static String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
-        return ClientOperator.getInstance().getCheckpoints(engineType, pluginInfo, jobIdentifier);
+        try{
+            return ClientOperator.getInstance().getCheckpoints(engineType, pluginInfo, jobIdentifier);
+        }catch (Exception e){
+            logger.error("", e);
+            return null;
+        }
     }
 
     @Deprecated
