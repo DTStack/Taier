@@ -37,10 +37,12 @@ export default class TableAnalytics extends Component {
         ajax.getDirtyDataAnalytics(params).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    data: res.data,
-                    loading: false
+                    data: res.data
                 });
             }
+            this.setState({
+                loading: false
+            });
         });
     }
 
@@ -124,7 +126,6 @@ export default class TableAnalytics extends Component {
     }
 
     render () {
-        console.log(this.state.errorType);
         const { data, tablePartitions, tableCountInfo } = this.state
 
         const partitionsOptions = tablePartitions && tablePartitions.map((p, index) =>
@@ -135,10 +136,6 @@ export default class TableAnalytics extends Component {
 
         const cols = this.generateCols(data[0])
         const showData = data.slice(1, data.length)
-        // const dirtyDataCount = tableCountInfo && (
-        //     tableCountInfo.conversion + tableCountInfo.duplicate +
-        //     tableCountInfo.npe + tableCountInfo.other
-        // )
 
         const tablePane = <Table
             columns={cols}
@@ -149,6 +146,9 @@ export default class TableAnalytics extends Component {
             onChange={this.changePage}
         />
 
+        const tabPane = {
+            minHeight: 300
+        }
         return (
             <Card
                 bordered={false}
@@ -175,17 +175,17 @@ export default class TableAnalytics extends Component {
                 }
             >
                 <Row style={{ marginTop: '1px' }}>
-                    <Tabs onChange={ this.onTabChange.bind(this) } animated={false}>
-                        <TabPane tab={`空指针`} key="npe">
+                    <Tabs className="bd-top" onChange={ this.onTabChange.bind(this) } animated={false}>
+                        <TabPane style={tabPane} tab={`空指针`} key="npe">
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`主键冲突`} key="duplicate">
+                        <TabPane style={tabPane} tab={`主键冲突`} key="duplicate">
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`类型转换`} key="conversion" >
+                        <TabPane style={tabPane} tab={`类型转换`} key="conversion" >
                             {tablePane}
                         </TabPane>
-                        <TabPane tab={`其他`} key="other">
+                        <TabPane style={tabPane} tab={`其他`} key="other">
                             {tablePane}
                         </TabPane>
                     </Tabs>
