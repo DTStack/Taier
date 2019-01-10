@@ -1,5 +1,6 @@
 import React from 'react';
 
+import './style.scss';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/languages/zh-CN.js';
 
@@ -47,6 +48,9 @@ class SpreadSheet extends React.Component {
         }
         return null;
     }
+    afterGetRowHeaderRenderers (renderers) {
+        console.log(renderers);
+    }
     render () {
         const { columns } = this.props;
         const showData = this.getData();
@@ -54,7 +58,7 @@ class SpreadSheet extends React.Component {
             <HotTable
                 ref={this.tableRef}
                 className='o-handsontable-no-border'
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%' }}
                 language='zh-CN'
                 colHeaders={columns}
                 data={showData}
@@ -68,6 +72,7 @@ class SpreadSheet extends React.Component {
                 colWidths={200}
                 rowHeights={30}
                 columnHeaderHeight={25}
+                afterGetRowHeaderRenderers={this.afterGetRowHeaderRenderers}
                 contextMenu={['copy']}
                 stretchH='all' // 填充空白区域
             />

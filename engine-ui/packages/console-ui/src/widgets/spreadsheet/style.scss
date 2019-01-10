@@ -8,3 +8,12 @@
         }
     }
 }
+.ht_clone_left.handsontable{
+    .htCore{
+        tbody{
+            tr th{
+                display: block;
+            }
+        }
+    }
+}

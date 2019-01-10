@@ -244,6 +244,7 @@
             & > .ant-menu-item-selected{
                 background:$aliyunbgColor;
             }
+            // hover的时候不显示下划线
             & > .ant-menu-item:not(.ant-menu-item-selected):hover,
             & > .ant-menu-submenu:hover,
             & > .ant-menu-item-active,
