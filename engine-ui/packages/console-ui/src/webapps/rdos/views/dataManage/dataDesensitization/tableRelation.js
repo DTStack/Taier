@@ -17,10 +17,14 @@ class TableRelation extends Component {
     state = {
         tableData: [], // 父级传递参数
         openStatusLoading: false, // 开关切换loading
+        // 按项目名，表名，开关状态搜索
         queryParams: {
             currentPage: 1,
             pageSize: 20,
-            configId: ''
+            configId: '',
+            pjId: undefined,
+            tableName: undefined,
+            enable: undefined
         },
         total: 0,
         loading: false,
@@ -28,10 +32,6 @@ class TableRelation extends Component {
         editRecord: [], // 单击开关
         selectedRowKeys: [],
         openApply: undefined, // 批量开启还是关闭
-        // 按项目名，表名，开关状态搜索
-        pjId: undefined,
-        tableName: undefined,
-        enable: '',
         dataSource: [],
         relatedProject: [] // 项目列表
     }
@@ -49,13 +49,19 @@ class TableRelation extends Component {
         }
     }
     */
-    /* eslint-disable-next-line */
+    /* eslint-disable */
     componentWillReceiveProps (nextProps) {
         const currentDesensitization = this.props.tableData;
         const { tabKey, tableData } = nextProps;
         if (currentDesensitization.id != tableData.id) {
             this.setState({
-                queryParams: Object.assign(this.state.queryParams, { configId: tableData.id })
+                selectedRowKeys: [],
+                checkAll: false,
+                queryParams: Object.assign(this.state.queryParams, {
+                    configId: tableData.id,
+                    pjId: undefined,
+                    tableName: undefined
+                })
             }, () => {
                 this.search() // 加载表关系
                 this.getRelatedPorjects({ configId: tableData.id }) // 加载项目列表
@@ -71,7 +77,8 @@ class TableRelation extends Component {
      * @param {Object} queryParams 搜索筛选条件
      */
     search = () => {
-        const { queryParams, pjId, tableName, enable } = this.state;
+        const { queryParams } = this.state;
+        const { pjId, tableName, enable } = this.state.queryParams;
         if (pjId) {
             queryParams.pjId = pjId
         }
@@ -79,7 +86,7 @@ class TableRelation extends Component {
             queryParams.tableName = tableName
         }
         if (enable) {
-            queryParams.state = enable
+            queryParams.enable = enable
         }
         this.loadTableRelation(queryParams)
     }
@@ -174,7 +181,7 @@ class TableRelation extends Component {
                     openStatusLoading: false
                 })
                 message.success('状态切换成功!');
-                this.debounceSearch();
+                this.search();
             } else {
                 this.setState({
                     openStatusLoading: false
@@ -182,8 +189,8 @@ class TableRelation extends Component {
             }
         })
     }
-    debounceOperaSwitch = debounce(this.operaSwitch, 300, { 'maxWait': 2000 })
-    debounceSearch = debounce(this.search, 300, { 'maxWait': 2000 })
+    debounceOperaSwitch = debounce(this.operaSwitch, 200, { 'maxWait': 2000 })
+    // debounceSearch = debounce(this.search, 300, { 'maxWait': 2000 })
     /**
      * 改变project
      */
@@ -367,6 +374,7 @@ class TableRelation extends Component {
                                 allowClear
                                 placeholder='项目名称'
                                 style={{ width: '150px', marginRight: '20px' }}
+                                value={queryParams.pjId}
                                 onChange={this.changeProject}
                             >
                                 {this.projectsOptions()}
@@ -374,6 +382,7 @@ class TableRelation extends Component {
                             <Search
                                 placeholder="按表名搜索"
                                 style={{ width: '200px' }}
+                                value={queryParams.tableName}
                                 onChange={this.changeName}
                                 onSearch={this.search}
                             />

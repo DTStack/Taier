@@ -37,16 +37,19 @@ const getVertexNode = (obj) => {
 }
 
 const getTableReqParams = (tableDetail) => {
-    if (!tableDetail) return {};
-    const params = {
-        tableName: tableDetail.tableName,
-        configId: tableDetail.configId,
-        belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
-        column: tableDetail.columnName || tableDetail.column,
-        pageIndex: 1,
-        pageSize: 6
+    if (!tableDetail) {
+        return {}
+    } else {
+        const params = {
+            tableName: tableDetail.tableName,
+            configId: tableDetail.configId,
+            belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
+            column: tableDetail.columnName || tableDetail.column,
+            pageIndex: 1,
+            pageSize: 6
+        }
+        return params;
     }
-    return params;
 }
 
 export const isEqTable = (from, compareTo) => {
@@ -92,9 +95,23 @@ class BloodRelation extends React.Component {
     componentWillReceiveProps (nextProps) {
         const currentTable = this.props.tableDetail;
         const { tabKey } = nextProps;
-        if (currentTable.id != nextProps.tableDetail.id) {
+        /**
+         * 当表关系无数据时不加载血缘关系
+         */
+        if (JSON.stringify(nextProps.tableDetail) != '{}' && currentTable.id != nextProps.tableDetail.id) {
             const params = getTableReqParams(nextProps.tableDetail)
             this.loadColumnTree(params)
+        }
+        /**
+         * 清除上次血缘缓存信息
+         */
+        if (JSON.stringify(nextProps.tableDetail) == '{}') {
+            console.log('清除');
+            this.Container.innerHTML = '';
+            this.layout = '';
+            this.graph = '';
+            const editor = this.Container;
+            this.loadEditor(editor)
         }
         if (tabKey && this.props.tabKey !== tabKey && tabKey === 'bloodRelation' && nextProps.tableDetail.id) {
             // 切换tab请求
@@ -115,6 +132,10 @@ class BloodRelation extends React.Component {
                 this.hideLoading();
             } else {
                 this.Container.innerHTML = '';
+                this.layout = '';
+                this.graph = '';
+                const editor = this.Container;
+                this.loadEditor(editor)
                 this.hideLoading();
             }
         })
@@ -155,12 +176,14 @@ class BloodRelation extends React.Component {
     }
     /**
      * 链路脱敏启用/禁用
+     * @param params 当前节点参数
+     * @param rootParams 根节点参数
      */
-    updateLineageStatus = (params) => {
+    updateLineageStatus = (params, rootParams) => {
         Api.updateLineageStatus(params).then(res => {
             if (res.code === 1) {
                 message.success('操作成功');
-                this.loadColumnTree(params)
+                this.loadColumnTree(rootParams)
             }
         })
     }
@@ -508,24 +531,30 @@ class BloodRelation extends React.Component {
 
     getStyles = (data) => {
         // enable字段区分是否脱敏
-        if (data.isParent && data.enable === 1) {
-            return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        if (data.enable === 1) {
+            return 'whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#CCCCCC;verticalLabelPosition=bottom;verticalAlign=top'
         }
-        if (data.isParent && data.enable === 0) {
-            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        if (data.enable === 0) {
+            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#CCCCCC;verticalLabelPosition=bottom;verticalAlign=top'
         }
-        if (data.isRoot && data.enable === 1) {
-            return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-        if (data.isRoot && data.enable === 0) {
-            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-        if (data.isChild && data.enable === 1) {
-            return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
-        if (data.isChild && data.enable === 0) {
-            return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        }
+        // if (data.isParent && data.enable === 1) {
+        //     return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isParent && data.enable === 0) {
+        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isRoot && data.enable === 1) {
+        //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isRoot && data.enable === 0) {
+        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isChild && data.enable === 1) {
+        //     return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
+        // if (data.isChild && data.enable === 0) {
+        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
+        // }
         // else if (data.isRoot) {
         //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
         // } else if (data.isChild) {
@@ -580,6 +609,7 @@ class BloodRelation extends React.Component {
             const table = JSON.parse(cell.getAttribute('data'));
             let params = getTableReqParams(table);
             const parentParams = getTableReqParams(table.parent);
+            const rootParams = ctx.state.allHideparams;
             const tableId = table.tableId
             if (table.isParent) {
                 if (table.isCurrentParent) {
@@ -589,7 +619,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开上游（1层）', null, function () {
                         ctx.loadParentColumn(params)
-                        ctx.revokeChildrenColumn(ctx.state.allHideparams) // 收起全部下游
+                        ctx.revokeChildrenColumn(rootParams) // 收起全部下游
                     })
                 }
             }
@@ -609,7 +639,7 @@ class BloodRelation extends React.Component {
                 } else {
                     menu.addItem('展开下游（1层）', null, function () {
                         ctx.loadChildrenColumn(params)
-                        ctx.revokeParentColumn(ctx.state.allHideparams) // 收起全部上游
+                        ctx.revokeParentColumn(rootParams) // 收起全部上游
                     })
                 }
             }
@@ -620,22 +650,22 @@ class BloodRelation extends React.Component {
                 const closeDesen = menu.addItem('关闭脱敏', null, null);
                 const openDesen = menu.addItem('开启脱敏', null, null);
                 menu.addItem('当前节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 0, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 0, tableId }), rootParams)
                 }, closeDesen)
                 menu.addItem('全部下游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 2, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 2, tableId }), rootParams)
                 }, closeDesen)
                 menu.addItem('全部上游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 1, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 1, opType: 1, tableId }), rootParams)
                 }, closeDesen)
                 menu.addItem('当前节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 0, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 0, tableId }), rootParams)
                 }, openDesen)
                 menu.addItem('全部下游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 2, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 2, tableId }), rootParams)
                 }, openDesen)
                 menu.addItem('全部上游节点', null, function () {
-                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 1, tableId }))
+                    ctx.updateLineageStatus(Object.assign(params, { enable: 0, opType: 1, tableId }), rootParams)
                 }, openDesen)
             }
         }
@@ -728,6 +758,14 @@ class BloodRelation extends React.Component {
                     <div>
                         <span
                             className="legend-item"
+                            style={{ background: '#FFFFFF', border: '1px solid #CCCCCC' }}
+                        >
+                        </span>
+                        未脱敏
+                    </div>
+                    {/* <div>
+                        <span
+                            className="legend-item"
                             style={{ background: '#E6F7FF', border: '1px solid #90D5FF' }}>
                         </span>
                         上游
@@ -747,7 +785,7 @@ class BloodRelation extends React.Component {
                         >
                         </span>
                         下游
-                    </div>
+                    </div> */}
                 </div>
             </div>
         )
