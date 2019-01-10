@@ -16,29 +16,29 @@ krb5ConfPath: D:\kerberos\fusioninsight\yanxi_keytab\krb5.conf
 hadoopConfPath: /etc/hadoop/conf
 
 db:
-   url: jdbc:mysql://172.16.8.104:3306/rdos_test_spark1x?charset=utf8&autoReconnect=true
+   url: jdbc:mysql://172.16.10.45:3306/ide?charset=utf8&autoReconnect=true
    userName: dtstack
    pwd: abc123
 
 engineTypes:
-    -
-        typeName: flink150
-        clusterMode: yarn
-        flinkZkAddress: node01:2181,node02:2181,node03:2181
-        #简化为只配置/flink150/ha
-        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
-        flinkZkNamespace: /flink155_1
-        jarTmpDir: ../tmp150
-        flinkPluginRoot: D:\flinkplugin
-        remotePluginRootDir: /opt/dtstack/150_flinkplugin
-        #新增配置
-        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
-        #new
-        #flinkYarnNewModeMaxSlots: 4
-        #perjob
-        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
-        flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
-        #flinkJobHistory: http://kudu1:8082
+#    -
+#        typeName: flink150
+#        clusterMode: yarn
+#        flinkZkAddress: node01:2181,node02:2181,node03:2181
+#        #简化为只配置/flink150/ha
+#        flinkHighAvailabilityStorageDir: hdfs://ns1/flink155_1/ha
+#        flinkZkNamespace: /flink155_1
+#        jarTmpDir: ../tmp150
+#        flinkPluginRoot: D:\flinkplugin
+#        remotePluginRootDir: /opt/dtstack/150_flinkplugin
+#        #新增配置
+#        flinkYarnMode: PER_JOB # flinkOnYarn 三种模式： new、legacy、per_job
+#        #new
+#        #flinkYarnNewModeMaxSlots: 4
+#        #perjob
+#        #flinkConfigDir: /opt/dtstack/flink-1.5.0/conf
+#        flinkJarPath: /Users/jiangjunjie/Documents/OpenCode/flink/flink-dist/target/flink-1.5.4-bin/flink-1.5.4/lib
+#        #flinkJobHistory: http://kudu1:8082
 
 
     #-

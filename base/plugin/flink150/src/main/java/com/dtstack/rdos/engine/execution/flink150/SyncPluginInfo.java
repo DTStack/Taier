@@ -83,19 +83,13 @@ public class SyncPluginInfo {
             programArgList.addAll(Arrays.asList(args.split("\\s+")));
         }
 
-        programArgList.add("-mode");
-        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
-        if(FlinkYarnMode.isPerJob(taskRunMode)){
-            programArgList.add("yarnPer");
+        programArgList.add("-monitor");
+        if(StringUtils.isNotEmpty(monitorAddress)) {
+            programArgList.add(monitorAddress);
         } else {
-            programArgList.add("yarn");
+            FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+            programArgList.add(flinkClient.getReqUrl(taskRunMode));
         }
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(jobClient.getPluginInfo()).getAsJsonObject();
-        Gson gson = new Gson();
-        programArgList.add("-yarnConf");
-        programArgList.add(gson.toJson(json.get("yarnConf")));
 
         return programArgList;
     }

@@ -18,10 +18,18 @@
 
 package org.apache.flink.client.deployment;
 
+import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.configuration.TaskManagerOptions;
+import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
+
+import java.io.File;
+import java.net.URL;
+import java.util.List;
 
 /**
  * Description of the cluster to start by the {@link ClusterDescriptor}.
@@ -33,12 +41,64 @@ public final class ClusterSpecification {
     private final int slotsPerTaskManager;
     private final int priority;
 
+    private int parallelism;
+    private Configuration configuration;
+    private YarnConfiguration yarnConfiguration;
+    private JobGraph jobGraph;
+    private SavepointRestoreSettings spSetting;
+    private List<URL> classpaths;
+    private String entryPointClass;
+    private String[] programArgs;
+    private File jarFile;
+    private boolean createProgramDelay = false;
+    private PackagedProgram program;
+
     private ClusterSpecification(int masterMemoryMB, int taskManagerMemoryMB, int numberTaskManagers, int slotsPerTaskManager, int priority) {
         this.masterMemoryMB = masterMemoryMB;
         this.taskManagerMemoryMB = taskManagerMemoryMB;
         this.numberTaskManagers = numberTaskManagers;
         this.slotsPerTaskManager = slotsPerTaskManager;
         this.priority = priority;
+    }
+
+    public PackagedProgram getProgram() {
+        return program;
+    }
+
+    public void setProgram(PackagedProgram program) {
+        this.program = program;
+    }
+
+    public YarnConfiguration getYarnConfiguration() {
+        return yarnConfiguration;
+    }
+
+    public void setYarnConfiguration(YarnConfiguration yarnConfiguration) {
+        this.yarnConfiguration = yarnConfiguration;
+    }
+
+    public JobGraph getJobGraph() {
+        return jobGraph;
+    }
+
+    public void setJobGraph(JobGraph jobGraph) {
+        this.jobGraph = jobGraph;
+    }
+
+    public int getParallelism() {
+        return parallelism;
+    }
+
+    public void setParallelism(int parallelism) {
+        this.parallelism = parallelism;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 
     public int getMasterMemoryMB() {
@@ -59,6 +119,54 @@ public final class ClusterSpecification {
 
     public int getPriority(){
         return priority;
+    }
+
+    public SavepointRestoreSettings getSpSetting() {
+        return spSetting;
+    }
+
+    public void setSpSetting(SavepointRestoreSettings spSetting) {
+        this.spSetting = spSetting;
+    }
+
+    public List<URL> getClasspaths() {
+        return classpaths;
+    }
+
+    public void setClasspaths(List<URL> classpaths) {
+        this.classpaths = classpaths;
+    }
+
+    public String getEntryPointClass() {
+        return entryPointClass;
+    }
+
+    public void setEntryPointClass(String entryPointClass) {
+        this.entryPointClass = entryPointClass;
+    }
+
+    public String[] getProgramArgs() {
+        return programArgs;
+    }
+
+    public void setProgramArgs(String[] programArgs) {
+        this.programArgs = programArgs;
+    }
+
+    public File getJarFile() {
+        return jarFile;
+    }
+
+    public void setJarFile(File jarFile) {
+        this.jarFile = jarFile;
+    }
+
+    public boolean isCreateProgramDelay() {
+        return createProgramDelay;
+    }
+
+    public void setCreateProgramDelay(boolean createProgramDelay) {
+        this.createProgramDelay = createProgramDelay;
     }
 
     @Override
