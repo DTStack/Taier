@@ -114,7 +114,7 @@ class GoOnTask extends Component {
             const max = moment(dateRange.right)
 
             min.set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-            max.set({ hour: 24, minute: 59, second: 59, millisecond: 0 })
+            max.set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
 
             return current.valueOf() < min.valueOf() || current.valueOf() > max.valueOf()
         }
