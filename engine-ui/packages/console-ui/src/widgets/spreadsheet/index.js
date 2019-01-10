@@ -48,8 +48,8 @@ class SpreadSheet extends React.Component {
         }
         return null;
     }
-    afterGetRowHeaderRenderers (renderers) {
-        console.log(renderers);
+    afterGetRowHeader (row, th) {
+        console.log(row);
     }
     render () {
         const { columns } = this.props;
@@ -70,9 +70,8 @@ class SpreadSheet extends React.Component {
                 manualRowResize={true}// 拉伸功能
                 manualColumnResize={true}// 拉伸功能
                 colWidths={200}
-                rowHeights={30}
+                afterGetRowHeader={this.afterGetRowHeader}
                 columnHeaderHeight={25}
-                afterGetRowHeaderRenderers={this.afterGetRowHeaderRenderers}
                 contextMenu={['copy']}
                 stretchH='all' // 填充空白区域
             />
