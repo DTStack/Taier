@@ -1,11 +1,13 @@
 import React from 'react';
 
+import CopyUtils from 'utils/copy';
 import './style.scss';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/languages/zh-CN.js';
 
 class SpreadSheet extends React.Component {
     tableRef = React.createRef()
+    copyUtils = new CopyUtils()
     componentDidUpdate (prevProps, prevState) {
         if (prevProps != this.props) {
             if (this.tableRef) {
@@ -51,6 +53,16 @@ class SpreadSheet extends React.Component {
     afterGetRowHeader (row, th) {
         console.log(row);
     }
+    beforeCopy (arr, arr2) {
+        /**
+         * 去除格式化
+         */
+        const value = arr.map((row) => {
+            return row.join('\t');
+        }).join('\n');
+        this.copyUtils.copy(value);
+        return false;
+    }
     render () {
         const { columns } = this.props;
         const showData = this.getData();
@@ -70,6 +82,7 @@ class SpreadSheet extends React.Component {
                 manualRowResize={true}// 拉伸功能
                 manualColumnResize={true}// 拉伸功能
                 colWidths={200}
+                beforeCopy={this.beforeCopy.bind(this)}
                 afterGetRowHeader={this.afterGetRowHeader}
                 columnHeaderHeight={25}
                 contextMenu={['copy']}
