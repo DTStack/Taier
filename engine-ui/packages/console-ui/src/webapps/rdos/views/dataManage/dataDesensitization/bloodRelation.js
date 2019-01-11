@@ -537,29 +537,6 @@ class BloodRelation extends React.Component {
         if (data.enable === 0) {
             return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#CCCCCC;verticalLabelPosition=bottom;verticalAlign=top'
         }
-        // if (data.isParent && data.enable === 1) {
-        //     return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
-        // if (data.isParent && data.enable === 0) {
-        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#90D5FF;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
-        // if (data.isRoot && data.enable === 1) {
-        //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
-        // if (data.isRoot && data.enable === 0) {
-        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
-        // if (data.isChild && data.enable === 1) {
-        //     return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
-        // if (data.isChild && data.enable === 0) {
-        //     return 'whiteSpace=wrap;fillColor=#EEEEEE;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
-        // else if (data.isRoot) {
-        //     return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;verticalLabelPosition=bottom;verticalAlign=top'
-        // } else if (data.isChild) {
-        //     return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;verticalLabelPosition=bottom;verticalAlign=top'
-        // }
     }
 
     formatTooltip = (cell) => {
@@ -608,14 +585,14 @@ class BloodRelation extends React.Component {
 
             const table = JSON.parse(cell.getAttribute('data'));
             let params = getTableReqParams(table);
-            const parentParams = getTableReqParams(table.parent);
+            // const parentParams = getTableReqParams(table.parent);
             const rootParams = ctx.state.allHideparams;
             const tableId = table.tableId
             if (table.isParent) {
                 if (table.isCurrentParent) {
-                    menu.addItem('收起上游', null, function () {
-                        ctx.loadParentColumn(parentParams)
-                    })
+                    // menu.addItem('收起上游', null, function () {
+                    //     ctx.loadParentColumn(parentParams)
+                    // })
                 } else {
                     menu.addItem('展开上游（1层）', null, function () {
                         ctx.loadParentColumn(params)
@@ -633,9 +610,9 @@ class BloodRelation extends React.Component {
             }
             if (table.isChild) {
                 if (table.isCurrentChild) {
-                    menu.addItem('收起下游', null, function () {
-                        ctx.loadChildrenColumn(parentParams)
-                    })
+                    // menu.addItem('收起下游', null, function () {
+                    //     ctx.loadChildrenColumn(parentParams)
+                    // })
                 } else {
                     menu.addItem('展开下游（1层）', null, function () {
                         ctx.loadChildrenColumn(params)
