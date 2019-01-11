@@ -67,9 +67,9 @@ $ npm run changelog
 
 # 其他文档
 - [部署文档](./docs/Deploy.md)
-- [Git 协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
+- [Git 协作工作流](http://git.dtstack.cn/dtstack/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
-](http://git.dtstack.cn/ziv/data-stack-web/wikis/Development)
+](http://git.dtstack.cn/dtstack/data-stack-web/wikis/Development)
 - [Redmine Issue 追踪](http://redmine.prod.dtstack.cn/projects/dtinsight200)
 - [Confluence 文档](http://confluence.dev.dtstack.cn/display/RDOS/RD-OS)
 - [RDOS API 接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
