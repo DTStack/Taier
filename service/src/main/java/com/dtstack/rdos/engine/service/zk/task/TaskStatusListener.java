@@ -209,7 +209,9 @@ public class TaskStatusListener implements Runnable{
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, zkTaskId, computeType, jobIdentifier, pluginInfoStr);
                 }
 
-                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus) || RdosTaskStatus.CANCELED.equals(rdosTaskStatus)){
+                if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)
+                        || RdosTaskStatus.CANCELED.equals(rdosTaskStatus)
+                        || RdosTaskStatus.KILLED.equals(rdosTaskStatus)){
                     FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
