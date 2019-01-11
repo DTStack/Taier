@@ -48,6 +48,7 @@ export default class Sidebar extends Component {
                     onClick={this.handleClick}
                     style={{ width: 200, height: '100%' }}
                     selectedKeys={[this.state.current]}
+                    defaultOpenKeys={['desensitization', 'rule-manage']}
                     defaultSelectedKeys={[this.state.current]}
                     mode="inline"
                 >

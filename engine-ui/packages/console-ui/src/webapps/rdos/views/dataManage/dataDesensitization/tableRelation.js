@@ -137,17 +137,22 @@ class TableRelation extends Component {
     /**
      * 切换开关按钮
      */
-    changeOpenStatus = (checked, record) => {
+    changeOpenStatus = (checked, record, status) => {
         const enable = checked === 0 ? 1 : 0; // 开状态
-        this.debounceOperaSwitch({ ids: [record.id], enable })
+        this.batchOpera(enable, status, record)
     }
     /**
      * 批量按钮
+     * @param openApply 开启/关闭
+     * @param status 批量/单击
+     * @param record 单击数据
      */
-    batchOpera = (openApply) => {
+    batchOpera = (openApply, status, record) => {
         const text = openApply === 0 ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
+        const isSingle = status == 'single'; // 单击开关
+        console.log(record.id)
         const { selectedRowKeys } = this.state;
-        if (selectedRowKeys.length > 0) {
+        if (selectedRowKeys.length > 0 || record.id) {
             confirm({
                 title: '开启/关闭脱敏',
                 content: `开启脱敏后，数据开发、运维、访客角色的用户${text}？`,
@@ -159,7 +164,10 @@ class TableRelation extends Component {
                     })
                 },
                 onOk: () => {
-                    this.operaSwitch({ ids: selectedRowKeys, enable: openApply })
+                    this.operaSwitch({
+                        ids: isSingle ? [record.id] : selectedRowKeys,
+                        enable: openApply
+                    })
                 }
             })
         } else {
@@ -224,8 +232,8 @@ class TableRelation extends Component {
                     </Checkbox>
                 </div>
                 <div style={{ display: 'inline-block', marginLeft: '15px' }}>
-                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 0)}>批量开启</Button>&nbsp;
-                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 1)}>批量关闭</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 0, 'batch')}>批量开启</Button>&nbsp;
+                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 1, 'batch')}>批量关闭</Button>&nbsp;
                 </div>
             </div>
         )
@@ -333,7 +341,7 @@ class TableRelation extends Component {
                             unCheckedChildren="关"
                             disabled={openStatusLoading}
                             checked={isChecked}
-                            onChange={() => this.changeOpenStatus(text, record)}
+                            onChange={() => this.changeOpenStatus(text, record, 'single')}
                         />
                     )
                 }
