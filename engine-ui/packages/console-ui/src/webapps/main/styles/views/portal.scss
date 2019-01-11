@@ -1,6 +1,6 @@
 .portal {
 
-    .middle {
+    .l-content {
         width: 980px;
         margin: auto;
         overflow: hidden;
@@ -10,38 +10,82 @@
         background: #ffffff;
     }
 
-    .banner {
+    .c-banner {
+        position: relative;
         height: 280px;
         width: 100%;
-        background-image: linear-gradient(-180deg, #003C70 0%, #146375 100%);
-
-        img {
-            width: 538px;
-            height: 232px;
-        }
-
-        .txt {
-            margin-left: 30px;
-            margin-top: 110px;
-            
-
-            h1 {
-                font-size: 36px;
-                color: #FFFFFF;
-                letter-spacing: 1.17px;
-                font-weight: initial;
+        &.default{
+            background-image: linear-gradient(-180deg, #003C70 0%, #146375 100%);
+            img {
+                width: 538px;
+                height: 232px;
             }
-            span {
-                opacity: 0.73;
-                font-size: 20px;
-                color: #CEF3FF;
-                letter-spacing: 0.65px;
+    
+            .c-banner__content__txt {
+                margin-left: 30px;
+                margin-top: 110px;
+                float: left;
+    
+                h1 {
+                    font-size: 36px;
+                    color: #FFFFFF;
+                    letter-spacing: 1.17px;
+                    font-weight: initial;
+                }
+                span {
+                    opacity: 0.73;
+                    font-size: 20px;
+                    color: #CEF3FF;
+                    letter-spacing: 0.65px;
+                }
+            }
+    
+            .c-banner__content__img {
+                float: left;
+                margin-left: 30px;
+                margin-top: 40px;
             }
         }
-
-        .img {
-            margin-left: 30px;
-            margin-top: 40px;
+        &.aliyun{
+            .l-content{
+                width: 100%;
+            }
+            background-image: linear-gradient(-180deg, #001852 0%, #003078 30%);
+    
+            .c-banner__content__txt {
+                position: absolute;
+                top: 47px;
+                left:50%;
+                transform: translateX(-50%);
+                text-align: center;
+                h1 {
+                    font-size: 32px;
+                    color: #FFFFFF;
+                    letter-spacing: 1.04px;
+                    line-height: 45px;
+                    font-weight: normal;
+                }
+                span {
+                    line-height: 20px;
+                    opacity: 0.66;
+                    font-size: 14px;
+                    color: #E3F1FF;
+                    letter-spacing: 1.13px;
+                    font-weight: lighter;
+                }
+            }
+    
+            .c-banner__content__img {
+                width: 100%;
+                overflow: hidden;
+                position: relative;
+                img {
+                    height: 100%;
+                    position: relative;
+                    left:50%;
+                    transform: translateX(-50%);
+                }
+            }
         }
     }
 
@@ -147,4 +191,28 @@
         }
     }
 
+}
+
+.c-summary{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 28px;
+    .c-summary__title{
+        color: #333333;
+        font-size: 22px;
+        letter-spacing: 1.78px;
+        text-align: center;
+        line-height: 30px;
+    }
+    .c-summary__content{
+        font-size: 14px;
+        color: #999999;
+        letter-spacing: 1.13px;
+        text-align: center;
+        line-height: 20px;
+        margin-top: 8px;
+        width: 430px;
+    }
 }

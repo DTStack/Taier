@@ -7,7 +7,7 @@ import Header from '../layout/header'
 import Footer from '../layout/footer';
 import { getInitUser } from '../../actions/user'
 
-import { MY_APPS } from '../../consts';
+import { MY_APPS, getThemeBanner } from '../../consts';
 import '../../styles/views/portal.scss';
 
 @connect(state => {
@@ -53,22 +53,41 @@ class Dashboard extends Component {
     }
 
     render () {
+        const showSummary = window.APP_CONF.showSummary;
+        let summary = window.APP_CONF.summary;
+        /**
+         * 容错处理
+         */
+        if (showSummary && !summary) {
+            console.error('summary配置不正确，请检查配置文件！');
+            summary = {};
+        }
         return (
             <div className="portal">
                 <Header />
                 <div className="container">
-                    <div className="banner">
-                        <div className="middle">
-                            <div className="left txt">
+                    <div className={`c-banner ${window.APP_CONF.theme || 'default'}`}>
+                        <div className="c-banner__content l-content">
+                            <div className="c-banner__content__txt">
                                 <h1>{window.APP_CONF.indexTitle}</h1>
-                                <span>企业级一站式数据中台-让数据产生价值</span>
+                                <span>{window.APP_CONF.indexDesc}</span>
                             </div>
-                            <div className="left img">
-                                <img src="/public/main/img/pic_banner.png" />
+                            <div className="c-banner__content__img">
+                                <img src={getThemeBanner()} />
                             </div>
                         </div>
                     </div>
-                    <div className="applink middle">
+                    <div className="applink l-content">
+                        {showSummary && (
+                            <section className='c-summary'>
+                                <h className='c-summary__title'>
+                                    {window.APP_CONF.summary.title}
+                                </h>
+                                <div className='c-summary__content'>
+                                    {window.APP_CONF.summary.content}
+                                </div>
+                            </section>
+                        )}
                         {this.renderApps()}
                     </div>
                     <Footer></Footer>

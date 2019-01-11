@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Menu, Icon, Dropdown, Modal } from 'antd';
 
 import { MenuRight } from 'main/components/nav';
+import { getHeaderLogo } from 'main/consts';
 
 import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
@@ -281,23 +282,15 @@ class Header extends Component {
         const showProjectSelect = !isIndex;
         // const projectTypeView = this.renderProjectType();
         return (
-            <div className="header">
+            <div className={`header ${window.APP_CONF.theme || 'default'}`}>
                 <div onClick={this.goIndex} className="logo left txt-left">
                     <img
-                        style={{ height: '20px', marginTop: '10px' }}
+                        className='c-header__logo c-header__logo--rdos'
                         alt="logo"
-                        src="/public/rdos/img/logo.svg"
+                        src={getHeaderLogo(app.id)}
                     />
-                    <span
-                        style={{
-                            fontSize: '14px',
-                            color: '#ffffff',
-                            position: 'absolute',
-                            left: '70px',
-                            top: 0
-                        }}
-                    >
-                        {window.APP_CONF.prefix}.Batch
+                    <span className='c-header__title c-header__title--rdos'>
+                        {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}Batch
                     </span>
                 </div>
                 <div className="menu left" style={{ position: 'relative' }}>

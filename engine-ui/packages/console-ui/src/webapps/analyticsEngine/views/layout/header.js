@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
-
+import { getHeaderLogo } from 'main/consts';
 @connect(state => {
     return {
         user: state.user,
@@ -19,21 +19,15 @@ class Header extends Component {
 
     render () {
         const menuItems = [];
-
+        const { app } = this.props;
         const logo = <span>
             <img
-                style={{ height: '20px', marginTop: '15px' }}
+                className='c-header__logo c-header__logo--analytics'
                 alt="logo"
-                src="/public/analyticsEngine/img/logo.svg"
+                src={getHeaderLogo(app.id)}
             />
-            <span style={{
-                fontSize: '14px',
-                color: '#ffffff',
-                position: 'absolute',
-                left: '70px',
-                top: 0
-            }}>
-                {window.APP_CONF.prefix}.Analytics
+            <span className='c-header__title c-header__title--analytics'>
+                {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}Analytics
             </span>
         </span>
         return <Navigator

@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
+import { getHeaderLogo } from 'main/consts';
 
 @connect(state => {
     return {
@@ -18,7 +19,7 @@ class Header extends Component {
     }
 
     render () {
-        // const { user, apps } = this.props;
+        const { app } = this.props;
         const baseUrl = '/dataQuality.html#';
         const menuItems = [
             {
@@ -56,25 +57,22 @@ class Header extends Component {
         const logo = (
             <span>
                 <img
-                    style={{ height: '36px', width: '36px', marginTop: '5px' }}
+                    className='c-header__logo c-header__logo--dq'
                     alt="logo"
-                    src="/public/dataQuality/img/logo.svg"
+                    src={getHeaderLogo(app.id)}
                 />
-                <span
-                    style={{
-                        paddingLeft: '10px',
-                        fontSize: '14px',
-                        color: '#ffffff',
-                        position: 'absolute',
-                        left: '80px',
-                        top: 0
-                    }}
-                >
-                    {window.APP_CONF.prefix}.Valid
+                <span className='c-header__title c-header__title--dq'>
+                    {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}Valid
                 </span>
             </span>
         );
-        return <Navigator logo={logo} menuItems={menuItems} {...this.props} />;
+        return <Navigator
+            logo={logo}
+            menuItems={menuItems}
+            {...this.props}
+            showHelpSite={true}
+            helpUrl='http://rdos.dev.dtstack.net:8080/public/helpSite/dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html'
+        />;
     }
 }
 export default Header;

@@ -201,8 +201,9 @@ class Navigator extends Component {
             menuLeft, menuRight, logoWidth
         } = this.props;
         const { current } = this.state
+        const theme = window.APP_CONF.theme;
         return (
-            <header className="header">
+            <header className={`header ${theme||'default'}`}>
                 <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>

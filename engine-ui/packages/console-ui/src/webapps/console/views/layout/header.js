@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
+import { getHeaderLogo } from 'main/consts';
 
 @connect(state => {
     return {
@@ -20,6 +21,7 @@ class Header extends Component {
 
     render () {
         const baseUrl = '/console.html#/console'
+        const { app } = this.props;
 
         const menuItems = [{
             id: 'queueManage',
@@ -40,22 +42,15 @@ class Header extends Component {
 
         const logo = <span>
             <img
-                style={{ height: '20px', width: '20px', marginTop: '13px' }}
+                className='c-header__logo c-header__logo--console'
                 alt="logo"
-                src="/public/console/img/logo.svg"
+                src={getHeaderLogo(app.id)}
             />
-            <span style={{
-                fontSize: '14px',
-                color: '#ffffff',
-                position: 'absolute',
-                left: '80px',
-                top: 0
-            }}>
-                {window.APP_CONF.prefix}.Console
+            <span className='c-header__title c-header__title--console'>
+                {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}Console
             </span>
         </span>;
         return <Navigator
-            logoWidth="170px"
             logo={logo}
             menuItems={menuItems}
             {...this.props}

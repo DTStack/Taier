@@ -19,7 +19,7 @@ $activeColor: #262e36; // 主色
         padding-left: 8px;
     }
     .logo {
-        width: 180px;
+        width: 200px;
         height: 50px;
         img {
             height: 38px;
@@ -28,7 +28,7 @@ $activeColor: #262e36; // 主色
 
     .my-menu {
         line-height: 47px;
-        background: $bgColor2;
+        background: inherit;
         border-bottom: 0;
 
         .ant-menu-item {
@@ -88,7 +88,7 @@ $activeColor: #262e36; // 主色
     }
 
     .menu-right {
-        background: $bgColor2;
+        background: inherit;
         padding-right: 20px;
         width: 100%;
         height: 100%;

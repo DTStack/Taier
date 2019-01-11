@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
 import Navigator from '../../components/nav';
+import { getHeaderLogo } from '../../consts'
 
 @connect(state => {
     return {
@@ -20,19 +21,11 @@ class Header extends Component {
         const { apps } = this.props;
         const logo = <span>
             <img
+                className='c-header__logo'
                 alt="logo"
-                style={{ height: '20px', marginTop: '15px' }}
-                src="public/main/img/logo.svg"
+                src={getHeaderLogo()}
             />
-            <span style={{
-                paddingLeft: '10px',
-                fontSize: '14px',
-                color: '#ffffff',
-                position: 'absolute',
-                left: '70px',
-                top: 0,
-                letterSpacing: '1px'
-            }}>
+            <span className='c-header__title c-header__title--main'>
                 {window.APP_CONF.prefix}
             </span>
         </span>;
