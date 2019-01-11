@@ -973,6 +973,15 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} />
                             )}
                         </FormItem>
+                        {this.renderExtraParam('flinkConf')}
+                        {isView ? null : (
+                            <Row>
+                                <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                    <a onClick={this.addParam.bind(this, 'flinkConf')}>添加自定义参数</a>
+                                </Col>
+                            </Row>
+                        )}
                     </div>
 
                     {/* Learning */}
