@@ -152,6 +152,7 @@ class GoOnTask extends Component {
                 <div>
                     <span style={{ marginRight: '5px' }}>
                         <RangePicker
+                            style={{ width: '300px' }}
                             format="YYYY-MM-DD HH:mm:ss"
                             disabledDate={this.disabledDate}
                             onChange={this.taskReadRangeChange}
