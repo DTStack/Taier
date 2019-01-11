@@ -117,7 +117,7 @@ public class TaskStatusListener implements Runnable{
 
                 //flink任务在失败或者取消情况下多次更新checkpoint
                 if(failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()
-                        && failedTaskInfo.getEngineType().equals(EngineType.Flink.getVal())){
+                        && EngineType.isFlink(failedTaskInfo.getEngineType())){
                     //更新checkpoint
                     updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
                 }
