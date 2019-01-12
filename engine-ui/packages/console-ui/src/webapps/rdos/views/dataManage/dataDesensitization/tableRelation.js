@@ -155,14 +155,15 @@ class TableRelation extends Component {
      * @param record 单击数据
      */
     batchOpera = (openApply, status, record) => {
-        const text = openApply === 0 ? '只能查看脱敏后的数据是否确认开启' : '可以查看原始数据是否确认关闭';
+        const text = openApply === 0 ? '开启脱敏后，数据开发、运维、访客角色的用户只能查看脱敏后的数据是否确认开启？' :
+        '关闭脱敏后，数据开发、运维、访客角色的用户可以查看原始数据是否确认关闭？';
         const isSingle = status == 'single'; // 单击开关
         console.log(record.id)
         const { selectedRowKeys } = this.state;
         if (selectedRowKeys.length > 0 || record.id) {
             confirm({
                 title: '开启/关闭脱敏',
-                content: `开启脱敏后，数据开发、运维、访客角色的用户${text}？`,
+                content: text,
                 okText: openApply === 0 ? '开启脱敏' : '关闭脱敏',
                 cancelText: '取消',
                 onCancel: () => {
