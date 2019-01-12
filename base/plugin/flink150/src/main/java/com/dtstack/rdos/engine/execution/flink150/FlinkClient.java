@@ -200,6 +200,10 @@ public class FlinkClient extends AbsClient {
         hadoopConf.set("username.client.keytab.file", zkKeytabPath);
         hadoopConf.set("username.client.kerberos.principal", zkPrincipal);
 
+        //测试添加
+        hadoopConf.set("yarn.resourcemanager.principal", userPrincipal);
+        yarnConf.set("yarn.resourcemanager.principal", userPrincipal);
+
         try {
             SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, hadoopConf);
             UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(zkPrincipal, zkKeytabPath);
