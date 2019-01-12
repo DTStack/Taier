@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.1"></a>
+## [3.3.1](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.0...3.3.1) (2019-01-11)
+
+
+### Features
+
+* **aliyun:** add aliyun style ([5b0728c](http://git.dtstack.cn/ziv/data-stack-web/commits/5b0728c))
+
+
+
 <a name="3.3.0"></a>
 # [3.3.0](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.2.1...3.3.0) (2018-12-28)
 
