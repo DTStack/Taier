@@ -202,6 +202,9 @@ public class FlinkClient extends AbsClient {
 
         try {
             SecurityUtil.setAuthenticationMethod(UserGroupInformation.AuthenticationMethod.KERBEROS, hadoopConf);
+            UserGroupInformation myGui = UserGroupInformation.loginUserFromKeytabAndReturnUGI(zkPrincipal, zkKeytabPath);
+            UserGroupInformation.setLoginUser(myGui);
+
             KerberosUtils.setJaasConf(zkLoginName, zkPrincipal, zkKeytabPath);
             KerberosUtils.setZookeeperServerPrincipal("zookeeper.server.principal", flinkConfig.getZkPrincipal());
             KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
