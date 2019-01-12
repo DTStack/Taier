@@ -450,6 +450,7 @@ class TableRelation extends Component {
                         className="m-table-fix m-table"
                         rowKey="id"
                         loading={loading}
+                        scroll={{ y: 420 }}
                         columns={columns}
                         dataSource={dataSource}
                         rowSelection={rowSelection}
