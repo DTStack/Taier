@@ -45,8 +45,8 @@ const getTableReqParams = (tableDetail) => {
             configId: tableDetail.configId,
             belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
             column: tableDetail.columnName || tableDetail.column,
-            pageIndex: 1,
-            pageSize: 6
+            currentPage: 1,
+            pageSize: 5
         }
         return params;
     }
@@ -225,11 +225,11 @@ class BloodRelation extends React.Component {
 
         if (type === 'parent') {
             const params = getTableReqParams(currentParent);
-            params.pageIndex = current;
+            params.currentPage = current;
             this.loadParentColumn(params);
         } else {
             const params = getTableReqParams(currentChild);
-            params.pageIndex = current;
+            params.currentPage = current;
             this.loadChildrenColumn(params);
         }
     }
@@ -549,7 +549,7 @@ class BloodRelation extends React.Component {
         } else {
             const data = cell.getAttribute('data');
             const obj = data ? JSON.parse(data) : '';
-            return obj ? `${obj.tableName}.${obj.column}` : ''
+            return obj ? `${obj.projectName}.${obj.tableName}.${obj.column}` : ''
         }
     }
 
@@ -682,13 +682,6 @@ class BloodRelation extends React.Component {
                         case 'childNext': {
                             ctx.onPageChange(childPage.currentPage + 1, 'child');
                         }
-                    }
-                } else {
-                    let data = cell.getAttribute('data')
-                    data = data ? JSON.parse(data) : '';
-                    if (data) {
-                        ctx.setState({ selectedData: data })
-                        // const params = getTableReqParams(data);
                     }
                 }
             }

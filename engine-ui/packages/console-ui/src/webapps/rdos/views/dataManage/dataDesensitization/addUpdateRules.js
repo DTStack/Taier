@@ -191,7 +191,6 @@ class AddUpdateRules extends Component {
         const isPartDes = ruleData.maskType === 1;
         this.props.form.validateFields((err) => {
             if (!err && (isPartDes ? (beginPos && endPos && replaceStr && (cases.firstCase || cases.secondCase || cases.thirdCase)) : true)) {
-                this.props.form.resetFields();
                 onOk(params)
             } else if (!err) {
                 message.warning('请正确输入脱敏替换配置');
@@ -202,7 +201,6 @@ class AddUpdateRules extends Component {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { status, dataSource } = this.props;
         const isEdit = status === 'edit';
-        const maskType = getFieldValue('maskType');
         const { newReplaceData } = this.state;
         const isInlay = dataSource.tenantId === -1; // 内置规则
         return (
@@ -277,7 +275,7 @@ class AddUpdateRules extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>
-                    { maskType ? <FormItem>
+                    { getFieldValue('maskType') ? <FormItem>
                         <div style={{ margin: '-10 0 0 150' }}>
                             将从
                             <InputNumber
