@@ -5,6 +5,7 @@ import { Input, Select, Card, Table, Checkbox, Switch, message, Button, Modal } 
 import ajax from '../../../api/dataManage';
 import moment from 'moment';
 const Search = Input.Search;
+const InputGroup = Input.Group;
 const confirm = Modal.confirm;
 const Option = Select.Option;
 @connect(state => {
@@ -24,6 +25,7 @@ class TableRelation extends Component {
             configId: '',
             pjId: undefined,
             tableName: undefined,
+            columnName: undefined,
             enable: undefined
         },
         total: 0,
@@ -33,7 +35,8 @@ class TableRelation extends Component {
         selectedRowKeys: [],
         openApply: undefined, // 批量开启还是关闭
         dataSource: [],
-        relatedProject: [] // 项目列表
+        relatedProject: [], // 项目列表
+        searchType: '按表名' // 搜索类型
     }
     /** componentDidMount () {
         const currentDesensitization = this.props.tableData;
@@ -60,7 +63,8 @@ class TableRelation extends Component {
                 queryParams: Object.assign(this.state.queryParams, {
                     configId: tableData.id,
                     pjId: undefined,
-                    tableName: undefined
+                    tableName: undefined,
+                    columnName: undefined
                 })
             }, () => {
                 this.search() // 加载表关系
@@ -78,12 +82,15 @@ class TableRelation extends Component {
      */
     search = () => {
         const { queryParams } = this.state;
-        const { pjId, tableName, enable } = this.state.queryParams;
+        const { pjId, tableName, columnName, enable } = this.state.queryParams;
         if (pjId) {
             queryParams.pjId = pjId
         }
         if (tableName) {
             queryParams.tableName = tableName
+        }
+        if (columnName) {
+            queryParams.columnName = columnName
         }
         if (enable) {
             queryParams.enable = enable
@@ -214,11 +221,42 @@ class TableRelation extends Component {
      * 表名字段名搜索
      */
     changeName = (e) => {
+        const { searchType } = this.state;
         this.setState({
             queryParams: Object.assign(this.state.queryParams, {
-                tableName: e.target.value,
+                tableName: searchType === '按表名' ? e.target.value : undefined,
+                columnName: searchType === '按字段名' ? e.target.value : undefined,
                 currentPage: 1
             })
+        })
+    }
+    /**
+     * 设置搜索类型
+     */
+    selectSearchType = (value) => {
+        this.setState({
+            searchType: value
+        })
+    }
+    searchRequire = (v) => {
+        let { tableName, columnName } = this.state.queryParams;
+        const { searchType } = this.state;
+        let value = v.trim();// 去掉首位空格
+        if (searchType === '按表名') {
+            tableName = value;
+            columnName = undefined
+        } else {
+            tableName = undefined;
+            columnName = value
+        }
+        this.setState({
+            queryParams: Object.assign(this.state.queryParams, {
+                tableName,
+                columnName,
+                currentPage: 1
+            })
+        }, () => {
+            this.search()
         })
     }
     tableFooter = (currentPageData) => {
@@ -273,6 +311,36 @@ class TableRelation extends Component {
         const { onTabChange, handleClickTable } = this.props;
         onTabChange('bloodRelation'); // 切换至血缘关系
         handleClickTable(record);
+    }
+
+    getCardTitle = () => {
+        const { queryParams, searchType} = this.state;
+        return (
+            <div className="flex font-12" style={{ marginTop: '10px' }}>
+                <Select
+                    allowClear
+                    placeholder='项目名称'
+                    style={{ width: '150px', marginRight: '20px' }}
+                    value={queryParams.pjId}
+                    onChange={this.changeProject}
+                >
+                    {this.projectsOptions()}
+                </Select>
+                <InputGroup compact style={{ width: 500 }}>
+                    <Select defaultValue="按表名" onChange={this.selectSearchType}>
+                        <Option value="按表名">按表名</Option>
+                        <Option value="按字段名">按字段名</Option>
+                    </Select>
+                    <Search
+                        placeholder="按表名、字段名搜索"
+                        style={{ width: '200px' }}
+                        value={searchType == '按表名' ? queryParams.tableName : queryParams.columnName}
+                        onChange={this.changeName}
+                        onSearch={this.searchRequire}
+                    />
+                </InputGroup>
+            </div>
+        )
     }
     initColumns = () => {
         return [
@@ -376,26 +444,7 @@ class TableRelation extends Component {
                     noHovering
                     bordered={false}
                     loading={false}
-                    title={
-                        <div style={{ marginTop: '10px' }}>
-                            <Select
-                                allowClear
-                                placeholder='项目名称'
-                                style={{ width: '150px', marginRight: '20px' }}
-                                value={queryParams.pjId}
-                                onChange={this.changeProject}
-                            >
-                                {this.projectsOptions()}
-                            </Select>
-                            <Search
-                                placeholder="按表名搜索"
-                                style={{ width: '200px' }}
-                                value={queryParams.tableName}
-                                onChange={this.changeName}
-                                onSearch={this.search}
-                            />
-                        </div>
-                    }
+                    title={this.getCardTitle()}
                 >
                     <Table
                         className="m-table-fix m-table"
