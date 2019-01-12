@@ -127,6 +127,13 @@ public class HadoopConf {
         //非必须:如果多个hadoopclient之间不互相影响需要取消cache
         String disableCache = HadoopConfTool.getFsHdfsImplDisableCache(conf);
         configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
+        configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
+
+        for (Map.Entry<String, Object> keyVal : conf.entrySet()) {
+            if(keyVal.getKey().contains(".principal") && keyVal.getValue() != null){
+                configuration.set(keyVal.getKey(), keyVal.getValue().toString());
+            }
+        }
     }
 
     public void initYarnConf(Map<String, Object> conf){
