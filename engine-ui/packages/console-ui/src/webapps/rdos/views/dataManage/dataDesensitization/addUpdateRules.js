@@ -10,8 +10,9 @@ class AddUpdateRules extends Component {
         beginPos: 1,
         endPos: 1,
         replaceStr: '*',
-        newReplaceData: '',
-        clickTimes: 1 // 解决编辑首次不显示部分脱敏内容
+        newReplaceData: ''
+    }
+    componentDidMount () {
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
@@ -44,18 +45,12 @@ class AddUpdateRules extends Component {
     }
     changeRadio = (e) => {
         const { status, dataSource } = this.props;
-        let { clickTimes } = this.state;
-        const isInlay = dataSource.tenantId === -1; // 内置规则
+        // const isInlay = dataSource.tenantId === -1; // 内置规则
         if ((status === 'edit') && e.target.value === 1 && dataSource.beginPos === 0 && dataSource.endPos === 0) {
             this.setState({
                 beginPos: 1,
                 endPos: 1,
                 replaceStr: '*'
-            })
-        }
-        if (status === 'edit' && !isInlay && dataSource.maskType === 1) {
-            this.setState({
-                clickTimes: clickTimes + 1
             })
         }
     }
@@ -129,11 +124,6 @@ class AddUpdateRules extends Component {
             console.log(sampleDataArr.length, beginPos, endPos)
             let repeatCount = 0;
             const cases = this.isPassConfig(sampleDataArr, beginPos, endPos);
-            console.log('----------')
-            console.log(cases);
-            console.log(cases.firstCase);
-            console.log(cases.secondCase);
-            console.log(cases.thirdCase);
             if (cases.firstCase) {
                 repeatCount = sampleDataArr.length - beginPos + 1;
                 const newStr = this.repeatStr(replaceStr, repeatCount);
@@ -201,7 +191,6 @@ class AddUpdateRules extends Component {
         const isPartDes = ruleData.maskType === 1;
         this.props.form.validateFields((err) => {
             if (!err && (isPartDes ? (beginPos && endPos && replaceStr && (cases.firstCase || cases.secondCase || cases.thirdCase)) : true)) {
-                this.props.form.resetFields();
                 onOk(params)
             } else if (!err) {
                 message.warning('请正确输入脱敏替换配置');
@@ -212,8 +201,7 @@ class AddUpdateRules extends Component {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { status, dataSource } = this.props;
         const isEdit = status === 'edit';
-        const maskType = getFieldValue('maskType');
-        const { newReplaceData, clickTimes } = this.state;
+        const { newReplaceData } = this.state;
         const isInlay = dataSource.tenantId === -1; // 内置规则
         return (
             <Modal
@@ -287,7 +275,7 @@ class AddUpdateRules extends Component {
                             </RadioGroup>
                         )}
                     </FormItem>
-                    { maskType === 1 || (isEdit && dataSource.maskType === 1 && clickTimes === 1) ? <FormItem>
+                    { getFieldValue('maskType') ? <FormItem>
                         <div style={{ margin: '-10 0 0 150' }}>
                             将从
                             <InputNumber
