@@ -169,7 +169,7 @@ class TargetForm extends React.Component {
 
     getHivePartions = (tableName) => {
         const {
-            targetMap
+            targetMap, handleTargetMapChange
         } = this.props;
 
         const { isNativeHive, sourceId, type } = targetMap;
@@ -185,6 +185,8 @@ class TargetForm extends React.Component {
                 this.setState({
                     tablePartitionList: res.data || []
                 });
+                const havePartition = res.data && res.data.length > 0;
+                handleTargetMapChange({ havePartition });
             });
         }
     }
@@ -411,6 +413,9 @@ class TargetForm extends React.Component {
         const { targetMap, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
         const { isNativeHive } = targetMap;
+        // 是否拥有分区
+        const havePartition = targetMap.type && targetMap.type.havePartition;
+        console.log('havePartition:', havePartition);
         let formItem;
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
@@ -546,13 +551,16 @@ class TargetForm extends React.Component {
                             </Select>
                         )}
                     </FormItem>,
-                    isNativeHive ? <FormItem
+                    isNativeHive && havePartition ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
                             <Select
@@ -642,13 +650,16 @@ class TargetForm extends React.Component {
                             onClick={this.showCreateModal.bind(this)}
                             className="help-doc" >一键生成目标表</a>)}
                     </FormItem>,
-                    <FormItem
+                    havePartition ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
                             <Select
@@ -674,7 +685,7 @@ class TargetForm extends React.Component {
                             </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
-                    </FormItem>,
+                    </FormItem> : '',
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"

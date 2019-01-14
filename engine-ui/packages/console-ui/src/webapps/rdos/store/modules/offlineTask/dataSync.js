@@ -319,13 +319,13 @@ const targetMap = (state = {}, action) => {
 
         case targetMapAction.DATA_TARGETMAP_CHANGE: {
             const {
-                sourceId, src, rowkey
+                sourceId, src, rowkey, havePartition
             } = action.payload;
             const clone = cloneDeep(state);
 
             if (sourceId) clone.sourceId = sourceId;
             if (rowkey) clone.type.rowkey = rowkey;
-
+            if (havePartition) clone.type.havePartition = havePartition;
             if (src) {
                 const { type } = src;
                 clone.name = src.dataName;
@@ -334,7 +334,7 @@ const targetMap = (state = {}, action) => {
                 delete action.payload.sourceId;
                 delete action.payload.src;
 
-                clone.type = assign(action.payload, { type });
+                clone.type = assign(clone.type, action.payload, { type });
             }
 
             return clone;
