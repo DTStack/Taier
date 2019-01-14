@@ -282,7 +282,42 @@ class TaskForm extends React.Component {
                     )
                 }
                 {
-                    (isHadoopMR || isMl || isMrTask || isPyTask || ((isDeepLearning || isPython23) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
+                    isPyTask && <div>
+                        <FormItem
+                            {...formItemLayout}
+                            label="操作模式"
+                        >
+                            {getFieldDecorator('operateModel', {
+                                rules: [{
+                                    required: true, message: '请选择操作模式'
+                                }],
+                                initialValue: operateModel
+                            })(
+                                <RadioGroup
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                    onChange={this.handleOperateModel.bind(this)}
+                                >
+                                    <Radio key={DEAL_MODEL_TYPE.RESOURCE} value={DEAL_MODEL_TYPE.RESOURCE}>资源上传</Radio>
+                                    <Radio key={DEAL_MODEL_TYPE.EDIT} value={DEAL_MODEL_TYPE.EDIT}>WEB编辑</Radio>
+                                </RadioGroup>
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="参数"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('exeArgs', {
+                                rules: [],
+                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
+                            })(
+                                <Input placeholder="请输入任务参数" />
+                            )}
+                        </FormItem>
+                    </div>
+                }
+                {
+                    (isHadoopMR || isMl || isMrTask || ((isDeepLearning || isPython23 || isPyTask) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
                         <FormItem
                             {...formItemLayout}
                             label={resourceLable}
