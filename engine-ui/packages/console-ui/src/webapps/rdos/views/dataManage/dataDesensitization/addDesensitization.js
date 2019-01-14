@@ -5,7 +5,7 @@ import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
 const FormItem = Form.Item;
 const Option = Select.Option;
-// mock
+
 @connect(state => {
     return {
         projects: state.projects,
@@ -347,7 +347,7 @@ class AddDesensitization extends Component {
                         )}
                     </FormItem>
                     <div style={{ marginLeft: '106px', marginTop: '-14px' }} className='desenAlert'>
-                        <Alert message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
+                        <Alert className='dt-ant-alert__desc--fontColor' style={{ color: '#666666' }} message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
                     </div>
                     <FormItem
                         {...formItemLayout}
@@ -380,7 +380,7 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-6px' }}>
+                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-18px', float: 'left' }}>
                         <img src="/public/rdos/img/icon/icon-preview.svg" style={{ display: 'block', float: 'left' }} />
                         <a onClick={this.preview} style={{ marginLeft: '5px' }}>效果预览</a>
                         <div>{newReplaceData}</div>
