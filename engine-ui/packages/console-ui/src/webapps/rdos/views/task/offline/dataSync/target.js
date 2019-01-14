@@ -169,9 +169,10 @@ class TargetForm extends React.Component {
 
     getHivePartions = (tableName) => {
         const {
-            targetMap, handleTargetMapChange
+            targetMap, handleTargetMapChange, form
         } = this.props;
-
+        // Reset partition
+        form.setFieldsValue({ partition: '' });
         const { isNativeHive, sourceId, type } = targetMap;
         if (type && (
             type.type === DATA_SOURCE.HIVE ||
