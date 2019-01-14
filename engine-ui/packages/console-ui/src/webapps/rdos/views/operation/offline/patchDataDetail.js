@@ -193,8 +193,7 @@ class PatchDataDetail extends Component {
             warning({
                 title: '提示',
                 content: `
-                    除去“失败”、“停止”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
-                    请您重新选择!
+                    “失败”、“取消”、“成功”状态和“已删除”的任务，不能被杀死 !
                 `
             })
         }
@@ -263,6 +262,8 @@ class PatchDataDetail extends Component {
                 const res = tasks.find(task => task.id === id)
                 if (res && (
                     res.status === TASK_STATUS.SUBMIT_FAILED ||
+                    res.status === TASK_STATUS.RUN_FAILED ||
+                    res.status === TASK_STATUS.PARENT_FAILD ||
                     res.status === TASK_STATUS.STOPED ||
                     res.status === TASK_STATUS.FINISHED ||
                     res.batchTask.isDeleted === 1
@@ -562,7 +563,15 @@ class PatchDataDetail extends Component {
                             </span>&nbsp;
                             <span className="status_overview_fail_font">
                                 <Circle className="status_overview_fail" />&nbsp;
-                            失败: &nbsp;{statistics.FAILED || 0}
+                            提交失败: &nbsp;{statistics.SUBMITFAILD || 0}
+                            </span>&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            运行失败: &nbsp;{statistics.FAILED || 0}
+                            </span>&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            上游失败: &nbsp;{statistics.PARENTFAILED || 0}
                             </span>&nbsp;
                             <span className="status_overview_frozen_font">
                                 <Circle className="status_overview_frozen" />&nbsp;

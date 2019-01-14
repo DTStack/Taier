@@ -207,16 +207,16 @@ export const TASK_STATUS = { // 任务状态
     FINISHED: 5,
     STOPING: 6,
     STOPED: 7,
-    RUN_FAILED: 8,
-    SUBMIT_FAILED: 9,
+    RUN_FAILED: 8, // 运行失败
+    SUBMIT_FAILED: 9, // 提交失败
+    PARENT_FAILD: 21, // 上游失败
     SUBMITTING: 10,
     RESTARTING: 11,
     SET_SUCCESS: 12,
     KILLED: 13,
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
-    FROZEN: 18,
-    PARENT_FAILD: 21 // 上游失败
+    FROZEN: 18
 }
 
 // 表模型规则
@@ -322,6 +322,8 @@ export const taskStatus = {
     'RUNNING': 4,
     'CANCELED': 7,
     'FAILED': 8,
+    'SUBMITFAILD': 9,
+    'PARENTFAILED': 21,
     'SUBMITTING': 10,
     'FROZEN': 18
 }
@@ -361,10 +363,18 @@ export const offlineTaskStatusFilter = [{
     value: 7
 }, {
     id: 7,
-    text: '失败',
-    value: 8
+    text: '提交失败',
+    value: 9
 }, {
     id: 8,
+    text: '运行失败',
+    value: 8
+}, {
+    id: 9,
+    text: '上游失败',
+    value: 21
+}, {
+    id: 10,
     text: '冻结',
     value: 18
 }]
