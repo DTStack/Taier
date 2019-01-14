@@ -121,7 +121,7 @@ class TaskForm extends React.Component {
 
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
-        const isSyncTast = value == TASK_TYPE.SYNC
+        const isSyncTask = value == TASK_TYPE.SYNC
         const isDeepLearning = value == TASK_TYPE.DEEP_LEARNING
         const isPython23 = value == TASK_TYPE.PYTHON_23
         const isMl = value == TASK_TYPE.ML;
@@ -368,7 +368,7 @@ class TaskForm extends React.Component {
                     </span>
                 }
                 {
-                    isSyncTast && <div>
+                    isSyncTask && <div>
                         <FormItem
                             {...formItemLayout}
                             label={'配置模式'}
