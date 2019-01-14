@@ -589,16 +589,14 @@ class BloodRelation extends React.Component {
             const rootParams = ctx.state.allHideparams;
             const tableId = table.tableId
             if (table.isParent) {
-                if (table.isCurrentParent) {
-                    // menu.addItem('收起上游', null, function () {
-                    //     ctx.loadParentColumn(parentParams)
-                    // })
-                } else {
-                    menu.addItem('展开上游（1层）', null, function () {
-                        ctx.loadParentColumn(params)
-                        ctx.revokeChildrenColumn(rootParams) // 收起全部下游
-                    })
-                }
+                menu.addItem('展开上游（1层）', null, function () {
+                    ctx.loadParentColumn(params)
+                    ctx.revokeChildrenColumn(rootParams) // 收起全部下游
+                })
+                menu.addItem('展开下游（1层）', null, function () {
+                    ctx.loadChildrenColumn(params)
+                    ctx.revokeParentColumn(rootParams) // 收起全部上游
+                })
             }
             if (table.isRoot) {
                 menu.addItem('展开上游（1层）', null, function () {
@@ -609,16 +607,14 @@ class BloodRelation extends React.Component {
                 })
             }
             if (table.isChild) {
-                if (table.isCurrentChild) {
-                    // menu.addItem('收起下游', null, function () {
-                    //     ctx.loadChildrenColumn(parentParams)
-                    // })
-                } else {
-                    menu.addItem('展开下游（1层）', null, function () {
-                        ctx.loadChildrenColumn(params)
-                        ctx.revokeParentColumn(rootParams) // 收起全部上游
-                    })
-                }
+                menu.addItem('展开上游（1层）', null, function () {
+                    ctx.loadParentColumn(params)
+                    ctx.revokeChildrenColumn(rootParams) // 收起全部下游
+                })
+                menu.addItem('展开下游（1层）', null, function () {
+                    ctx.loadChildrenColumn(params)
+                    ctx.revokeParentColumn(rootParams) // 收起全部上游
+                })
             }
             if (table) {
                 menu.addItem('查看表详情', null, function () {
