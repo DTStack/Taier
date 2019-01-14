@@ -263,7 +263,7 @@ class TableRelation extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 30px', display: 'inline-block' }}>
+                <div style={{ padding: '15px 10px 10px 27px', display: 'inline-block' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -321,7 +321,7 @@ class TableRelation extends Component {
                 <Select
                     allowClear
                     placeholder='项目名称'
-                    style={{ width: '150px', marginRight: '20px' }}
+                    style={{ width: '150px', marginRight: '10px' }}
                     value={queryParams.pjId}
                     onChange={this.changeProject}
                 >
@@ -355,7 +355,7 @@ class TableRelation extends Component {
             },
             {
                 title: '字段',
-                width: 140,
+                width: 100,
                 dataIndex: 'columnName',
                 render: (text, record) => {
                     return text
@@ -363,7 +363,7 @@ class TableRelation extends Component {
             },
             {
                 title: '项目名称',
-                width: 140,
+                width: 120,
                 dataIndex: 'projectName',
                 render: (text, record) => {
                     return text
@@ -371,7 +371,7 @@ class TableRelation extends Component {
             },
             {
                 title: '项目显示名称',
-                width: 140,
+                width: 113,
                 dataIndex: 'projectAlia',
                 render: (text, record) => {
                     return text
@@ -379,7 +379,7 @@ class TableRelation extends Component {
             },
             {
                 title: '最近修改人',
-                width: 170,
+                width: 117,
                 dataIndex: 'modifyUserName',
                 render: (text, record) => {
                     return text
@@ -387,7 +387,7 @@ class TableRelation extends Component {
             },
             {
                 title: '最近修改时间',
-                width: 170,
+                width: 150,
                 dataIndex: 'gmtModified',
                 render: (text, record) => {
                     return moment(text).format('YYYY-MM-DD HH:mm:ss')
@@ -395,7 +395,7 @@ class TableRelation extends Component {
             },
             {
                 title: '启用状态',
-                width: 100,
+                width: 80,
                 dataIndex: 'enable',
                 filters: [
                     { text: '开', value: '0' },
@@ -406,8 +406,6 @@ class TableRelation extends Component {
                     const { openStatusLoading } = this.state;
                     return (
                         <Switch
-                            checkedChildren="开"
-                            unCheckedChildren="关"
                             disabled={openStatusLoading}
                             checked={isChecked}
                             onChange={() => this.changeOpenStatus(text, record, 'single')}
@@ -448,7 +446,9 @@ class TableRelation extends Component {
                     title={this.getCardTitle()}
                 >
                     <Table
-                        className="m-table-fix m-table"
+                        className="m-table-fix m-table m-table-desen"
+                        // bordered
+                        style={{marginLeft: '20px'}}
                         rowKey="id"
                         loading={loading}
                         scroll={{ y: 420 }}
