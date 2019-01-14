@@ -372,12 +372,12 @@
     border-bottom: none
 }
 // 数据地图侧边栏图标
-.icon-dataMapSlider {
+.sidebar__icon {
     float: left;
     display: block;
     margin: 12px 10px 0 0;
 }
-.addDesAlert.ant-alert-info .ant-alert-icon {
+.dt-ant-alert__desc--fontColor.ant-alert-info .ant-alert-icon {
     color: #999999;
 }
 .m-table-desen .ant-table-thead > tr > th.ant-table-selection-column, .ant-table-tbody > tr > td.ant-table-selection-column {

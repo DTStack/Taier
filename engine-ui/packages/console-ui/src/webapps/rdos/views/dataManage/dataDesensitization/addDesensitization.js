@@ -347,7 +347,7 @@ class AddDesensitization extends Component {
                         )}
                     </FormItem>
                     <div style={{ marginLeft: '106px', marginTop: '-14px' }} className='desenAlert'>
-                        <Alert className='addDesAlert' style={{ color: '#666666' }} message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
+                        <Alert className='dt-ant-alert__desc--fontColor' style={{ color: '#666666' }} message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
                     </div>
                     <FormItem
                         {...formItemLayout}
