@@ -63,6 +63,21 @@ class SpreadSheet extends React.Component {
         this.copyUtils.copy(value);
         return false;
     }
+    getContextMenu () {
+        const that = this;
+        return {
+            items: {
+                copy: {
+                    name: '复制',
+                    callback: function () {
+                        let indexArr = this.getSelected();
+                        let copyDataArr = this.getData.apply(this, indexArr[0]);
+                        that.beforeCopy(copyDataArr);
+                    }
+                }
+            }
+        }
+    }
     render () {
         const { columns } = this.props;
         const showData = this.getData();
@@ -85,7 +100,7 @@ class SpreadSheet extends React.Component {
                 beforeCopy={this.beforeCopy.bind(this)}
                 afterGetRowHeader={this.afterGetRowHeader}
                 columnHeaderHeight={25}
-                contextMenu={['copy']}
+                contextMenu={this.getContextMenu()}
                 stretchH='all' // 填充空白区域
             />
         )
