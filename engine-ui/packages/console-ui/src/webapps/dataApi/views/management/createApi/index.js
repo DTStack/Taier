@@ -63,6 +63,9 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     },
+    /**
+     * 关闭api编辑的提示
+     */
     disAbleTipChange () {
         return dispatch({
             type: apiManageActionType.CHANGE_DISABLE_TIP
@@ -80,10 +83,8 @@ class NewApi extends Component {
         testApi: {},
         mode: undefined,
         loading: false,
-        apiEdit: false,
-        isSaveResult: false,
-        InputIsEdit: true,
-        OutputIsEdit: true
+        apiEdit: false, // 编辑还是新建
+        isSaveResult: false
 
     }
     // eslint-disable-next-line
@@ -118,12 +119,6 @@ class NewApi extends Component {
                     }
                 }
             );
-    }
-    changeColumnsEditStatus (input, output) {
-        this.setState({
-            InputIsEdit: input,
-            OutputIsEdit: output
-        })
     }
     saveResult (e) {
         this.setState({
@@ -161,6 +156,10 @@ class NewApi extends Component {
         }
         return null;
     }
+    /**
+     * 将服务端columns转换为本地需要的格式
+     * @param {arr} columns 要转换的columns
+     */
     exchangeServerParams (columns) {
         if (!columns) {
             return [];
@@ -396,7 +395,14 @@ class NewApi extends Component {
         }
     }
     render () {
-        const { mode, paramsConfig, basicProperties, apiEdit, loading, isSaveResult, InputIsEdit, OutputIsEdit } = this.state;
+        const {
+            mode,
+            paramsConfig,
+            basicProperties,
+            apiEdit,
+            loading,
+            isSaveResult
+        } = this.state;
 
         const steps = [
             {
@@ -442,8 +448,6 @@ class NewApi extends Component {
                                         <Step title="完成" />
                                     </Steps>
                                     <Content
-                                        apiManage={this.props.apiManage}
-                                        disAbleTipChange={this.props.disAbleTipChange}
                                         apiEdit={apiEdit}
                                         dataSourceId={this.state.basicProperties.dataSource}
                                         tableId={this.state.basicProperties.table}
@@ -455,14 +459,11 @@ class NewApi extends Component {
                                         prev={this.prev.bind(this)}
                                         mode={mode}
                                         isSaveResult={isSaveResult}
-                                        InputIsEdit={InputIsEdit}
-                                        OutputIsEdit={OutputIsEdit}
                                         saveData={this.saveData.bind(this, key)}
                                         cancelAndSave={this.cancelAndSave.bind(this, key)}
                                         apiTest={this.apiTest.bind(this)}
                                         dataChange={this[key].bind(this)}
                                         saveResult={this.saveResult.bind(this)}
-                                        changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
                                     ></Content>
                                 </div>
                             ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}

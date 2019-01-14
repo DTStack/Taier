@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Button, Select, Form, Table, message } from 'antd';
 
-import ColumnsConfig from './params/columnsConfig'
+import ColumnsConfig from './params/container'
 import ColumnsModel from '../../../model/columnsModel'
 import ApiSqlEditor from './sql'
 import { API_MODE } from '../../../consts'
@@ -27,11 +27,11 @@ class ManageParamsConfig extends Component {
         }
 
     }
-
+    columnsRef = React.createRef();
     // eslint-disable-next-line
     componentWillMount () {
         const { tableName, dataSrcId, inputParam, outputParam, resultPageChecked, resultPage, sql,
-            InputIsEdit, OutputIsEdit, dataSourceType } = this.props;
+            dataSourceType } = this.props;
         this.setState({
             InputColumns: inputParam || [],
             OutputColums: outputParam || [],
@@ -41,11 +41,21 @@ class ManageParamsConfig extends Component {
                 sql: sql,
                 sync: true
             },
-            sqlModeShow: InputIsEdit && OutputIsEdit
+            sqlModeShow: true
         });
+        /**
+         * 获取数据源类型
+         */
+        this.props.getDataSourcesType();
+        /**
+         * 获取数据源列表
+         */
         if (dataSourceType || dataSourceType == 0 || dataSrcId || dataSrcId == 0) {
             this.getDataSource(dataSourceType);
         }
+        /**
+         * 获取表列表
+         */
         if (dataSrcId || dataSrcId == 0) {
             this.props.tablelist(dataSrcId)
                 .then(
@@ -58,6 +68,9 @@ class ManageParamsConfig extends Component {
                     }
                 );
         }
+        /**
+         * 获取表的字段名
+         */
         if (tableName) {
             this.props.tablecolumn(dataSrcId, tableName)
                 .then(
@@ -70,8 +83,6 @@ class ManageParamsConfig extends Component {
                     }
                 )
         }
-        // this.getDataSource();
-        this.props.getDataSourcesType();
     }
     sqlOnChange (value, doc) {
         this.setState({
@@ -81,7 +92,6 @@ class ManageParamsConfig extends Component {
                 sync: false
             }
         })
-        this.props.changeColumnsEditStatus(true, true)
     }
     resultPageCheckedChange (evt) {
         this.setState({
@@ -92,9 +102,6 @@ class ManageParamsConfig extends Component {
         this.setState({
             resultPage: value
         })
-    }
-    changeColumnsEditStatus (input, output) {
-        this.props.changeColumnsEditStatus(input, output)
     }
     updateColumns (columns, type) {
         switch (type) {
@@ -292,24 +299,20 @@ class ManageParamsConfig extends Component {
         const { cancelAndSave } = this.props;
         cancelAndSave(this.getSaveData());
     }
-    pass () {
-        const { InputIsEdit, OutputIsEdit, mode } = this.props;
-        const isEdit = InputIsEdit || OutputIsEdit;
+    async pass () {
+        const { mode } = this.props;
         const { InputColumns, OutputColums, editor } = this.state;
         if (!editor.sql && mode == API_MODE.SQL) {
             message.warning('sql不能为空')
             return
         }
-        if (isEdit) {
-            message.warning('请先完成参数编辑', 2)
-            if (mode == API_MODE.SQL) {
-                this.sqlModeShowChange(true);
-            }
-            return;
-        }
         if (!OutputColums || OutputColums.length == 0) {
             message.error('输出参数不能为空')
             return;
+        }
+        let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
+        if (!isPass) {
+            return false;
         }
         if (!this.checkRepeat(InputColumns)) {
             message.error('输入参数不能相同')
@@ -322,12 +325,6 @@ class ManageParamsConfig extends Component {
         this.props.dataChange(this.getSaveData())
     }
     prev () {
-        const { mode, InputIsEdit, OutputIsEdit } = this.props;
-        const isEdit = InputIsEdit || OutputIsEdit;
-        if (isEdit && API_MODE.GUIDE == mode) {
-            message.warning('请先完成参数编辑', 2)
-            return;
-        }
         this.props.saveData(this.getSaveData());
         this.props.prev();
     }
@@ -383,6 +380,11 @@ class ManageParamsConfig extends Component {
                 }
             )
     }
+    /**
+     * 将服务端的数据和本地已有数据merge
+     * @param {arr} columns 服务端的columns
+     * @param {string} type 输入还是输出类型
+     */
     exchangeServerParams (columns, type) {
         const { InputColumns, OutputColums } = this.state;
         let nowColumns = type == 'in' ? InputColumns : OutputColums;
@@ -430,29 +432,55 @@ class ManageParamsConfig extends Component {
     }
     render () {
         const columns = this.initColumns();
-        const { mode, InputIsEdit, OutputIsEdit, dataSource, apiEdit, disAbleTipChange, apiManage } = this.props;
-        const { tableData, dataSourceList, tableList, InputColumns, OutputColums, selectedRows, resultPageChecked, resultPage, sqlModeShow, editor, loading } = this.state;
+        const {
+            mode,
+            dataSource,
+            apiEdit,
+            disAbleTipChange,
+            apiManage
+        } = this.props;
+        const {
+            tableData,
+            dataSourceList,
+            tableList,
+            InputColumns,
+            OutputColums,
+            selectedRows,
+            resultPageChecked,
+            resultPage,
+            sqlModeShow,
+            editor,
+            loading
+        } = this.state;
         const { getFieldDecorator } = this.props.form;
         const dataSourceType = dataSource.sourceType || [];
-
-        const dataSourceOptions = dataSourceList.map(
-            (data) => {
-                return <Option key={data.id} value={data.id}>{data.name}</Option>
-            }
-        )
-        const tableOptions = tableList.map(
-            (data) => {
-                return <Option key={data} value={data}>{data}</Option>
-            }
-        )
+        /**
+         * 数据源类型列表
+         */
         const dataSourceTypeOption = dataSourceType.map(
             (data) => {
                 return <Option key={data.value} value={data.value}>{data.name}</Option>
             }
         )
-        const modeType = mode == API_MODE.SQL;
-        const dataFieldsClass = modeType ? 'middle-title' : 'required-tip middle-title';
-        const paramsConfigClass = modeType ? 'paramsSql_arrow' : 'paramsConfig_arrow';
+        /**
+         * 数据源列表
+         */
+        const dataSourceOptions = dataSourceList.map(
+            (data) => {
+                return <Option key={data.id} value={data.id}>{data.name}</Option>
+            }
+        )
+        /**
+         * 表列表
+         */
+        const tableOptions = tableList.map(
+            (data) => {
+                return <Option key={data} value={data}>{data}</Option>
+            }
+        )
+        const isSqlMode = mode == API_MODE.SQL;
+        const dataFieldsClass = isSqlMode ? 'middle-title' : 'required-tip middle-title';
+        const paramsConfigClass = isSqlMode ? 'paramsSql_arrow' : 'paramsConfig_arrow';
         return (
             <div>
                 <div className="steps-content">
@@ -533,10 +561,10 @@ class ManageParamsConfig extends Component {
                                 />
                                 : (
                                     <ColumnsConfig
+                                        ref={this.columnsRef}
                                         addColumns={this.addColumns.bind(this)}
                                         removeColumns={this.removeColumns.bind(this)}
                                         updateColumns={this.updateColumns.bind(this)}
-                                        changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
                                         checkRepeat={this.checkRepeat.bind(this)}
                                         resultPageChange={this.resultPageChange.bind(this)}
                                         resultPageCheckedChange={this.resultPageCheckedChange.bind(this)}
@@ -547,8 +575,6 @@ class ManageParamsConfig extends Component {
                                         resultPageChecked={resultPageChecked}
                                         resultPage={resultPage}
                                         mode={mode}
-                                        InputIsEdit={InputIsEdit}
-                                        OutputIsEdit={OutputIsEdit}
                                     />
                                 )}
                         </div>
