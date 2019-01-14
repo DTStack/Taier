@@ -322,7 +322,7 @@ const targetMap = (state = {}, action) => {
          */
         case targetMapAction.DATA_TARGETMAP_CHANGE: {
             const {
-                sourceId, src, rowkey, havePartition, partition
+                sourceId, src, rowkey, havePartition
             } = action.payload;
             const clone = cloneDeep(state);
 
