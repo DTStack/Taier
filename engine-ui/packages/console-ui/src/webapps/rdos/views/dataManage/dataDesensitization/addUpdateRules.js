@@ -251,7 +251,7 @@ class AddUpdateRules extends Component {
                                 required: true,
                                 message: '所属项目不可为空！'
                             }],
-                            initialValue: dataSource.projectAlias ? dataSource.projectAlias : ''
+                            initialValue: (dataSource.projectId && `${dataSource.projectId}`) || ''
                         })(
                             <Select
                                 allowClear
@@ -260,6 +260,7 @@ class AddUpdateRules extends Component {
                                 filterOption={(inputVal, option) => {
                                     return option.props.children.toLowerCase().indexOf(inputVal.toLowerCase()) >= 0
                                 }}
+                                disabled={isEdit}
                             >
                                 {projectsOptions}
                             </Select>
