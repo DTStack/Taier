@@ -241,6 +241,7 @@ export function getVertxtStyle (type) {
         case TASK_STATUS.WAIT_RUN:
             return 'whiteSpace=wrap;fillColor=#FFFBE6;strokeColor=#FFE58F;';
         case TASK_STATUS.RUN_FAILED:
+        case TASK_STATUS.PARENT_FAILD:
         case TASK_STATUS.SUBMIT_FAILED:
             return 'whiteSpace=wrap;fillColor=#FFF1F0;strokeColor=#FFA39E;';
         case TASK_STATUS.FROZEN:

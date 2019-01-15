@@ -2,5 +2,7 @@
  * 应用全局配置文件
  */
 window.APP_CONF = {
-    name:"数据API"
+    name: 'API', // 应用名字
+    loadingTitle: '数据API', // loading的应用名字
+    titleName: '数据API' // 网页title
 }
