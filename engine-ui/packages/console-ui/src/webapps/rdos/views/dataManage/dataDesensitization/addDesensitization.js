@@ -23,14 +23,14 @@ class AddDesensitization extends Component {
             selectRule: [] // 选中的脱敏规则
         }
     }
-    componentDidMount () {
-        this.getdesRulesList();
-    }
     /**
      * 获取脱敏规则列表
      */
-    getdesRulesList = () => {
-        ajax.getdesRulesList().then(res => {
+    getDesRulesList = (params) => {
+        this.setState({
+            rulesList: []
+        })
+        ajax.getDesRulesList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     rulesList: res.data
@@ -230,6 +230,7 @@ class AddDesensitization extends Component {
             columnsList: []
         })
         this.getTableList({ projectId: value })
+        this.getDesRulesList({ projectId: value })
     }
     /**
      * 选择表
