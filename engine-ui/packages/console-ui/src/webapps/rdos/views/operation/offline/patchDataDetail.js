@@ -473,7 +473,9 @@ class PatchDataDetail extends Component {
         for (let i = 0; i < selectedRows.length; i++) {
             let row = selectedRows[i];
             switch (row.status) {
-                case TASK_STATUS.RUN_FAILED: {
+                case TASK_STATUS.RUN_FAILED:
+                case TASK_STATUS.PARENT_FAILD:
+                case TASK_STATUS.SUBMIT_FAILED: {
                     haveFail = true;
                     break;
                 }
