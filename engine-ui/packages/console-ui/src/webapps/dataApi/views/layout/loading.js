@@ -5,7 +5,7 @@ export default class GlobalLoading extends Component {
         return (
             <div className="laoding-wrapper" style={{ zIndex: 2005, position: 'fixed' }}>
                 <div className="loading-center">
-                    <h1 className="loading-title">{window.APP_CONF.prefix + ' ' + window.APP_CONF.titleName}</h1>
+                    <h1 className="loading-title">{window.APP_CONF.prefix + ' ' + window.APP_CONF.loadingTitle}</h1>
                     <div className="bouncywrap">
                         <div className="dotcon dc1">
                             <div className="dot"></div>
