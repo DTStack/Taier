@@ -11,6 +11,7 @@ import { getGeoByRelativeNode, getNodeWidth, getNodeHeight, getNodeLevelAndCount
 import Api from '../../../api'
 import MyIcon from '../../../components/icon'
 import { taskTypeText } from '../../../components/display'
+import OperaRecordModal from './operaRecordModal';
 import { TASK_TYPE, SCHEDULE_STATUS } from '../../../comm/const'
 
 const Mx = require('public/rdos/mxgraph')({
@@ -81,7 +82,9 @@ export default class TaskView extends Component {
         loading: 'success',
         lastVertex: '',
         sort: 'children',
-        visible: false
+        visible: false,
+        recordModalVisible: false,
+        currentNodeData: {}
     }
 
     _view = null; // 存储view信息
@@ -479,11 +482,23 @@ export default class TaskView extends Component {
             }
         })
     }
-
+    /**
+     * 操作记录
+     */
+    clickOperaRecord = (currentNode) => {
+        this.setState({
+            recordModalVisible: true,
+            currentNodeData: currentNode
+        })
+    }
+    closeOperaRecordModal = () => {
+        this.setState({
+            recordModalVisible: false
+        })
+    }
     initContextMenu = (graph) => {
         const ctx = this
         const { goToTaskDev, clickPatchData } = this.props
-
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
@@ -516,8 +531,8 @@ export default class TaskView extends Component {
             menu.addItem('补数据', null, function () {
                 clickPatchData(currentNode)
             })
-            menu.addItem('查看代码', null, function () {
-                goToTaskDev(currentNode.id)
+            menu.addItem('操作记录', null, function () {
+                ctx.clickOperaRecord(currentNode)
             })
             menu.addItem('冻结', null, function () {
                 ctx.forzenTasks([currentNode.id], SCHEDULE_STATUS.STOPPED)
@@ -530,7 +545,9 @@ export default class TaskView extends Component {
             }, null, null,
             currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED && !disableRunCtrl
             ) // 冻结状态
-
+            menu.addItem('查看代码', null, function () {
+                goToTaskDev(currentNode.id)
+            })
             if (!isWorkflowNode) {
                 menu.addItem('查看实例', null, function () {
                     hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
@@ -605,7 +622,7 @@ export default class TaskView extends Component {
     render () {
         const task = this.state.selectedTask
         const { goToTaskDev } = this.props
-
+        const { recordModalVisible, currentNodeData } = this.state;
         return (
             <div className="graph-editor"
                 style={{
@@ -638,6 +655,11 @@ export default class TaskView extends Component {
                     <span>{utils.formatDateTime(task.gmtModified)}</span>&nbsp;
                     <a onClick={() => { goToTaskDev(task.id) }}>查看代码</a>
                 </div>
+                <OperaRecordModal
+                    visible={recordModalVisible}
+                    onCancel={this.closeOperaRecordModal}
+                    currentNodeData={currentNodeData}
+                />
             </div>
         )
     }

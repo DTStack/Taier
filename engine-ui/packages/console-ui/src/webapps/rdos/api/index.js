@@ -401,6 +401,9 @@ export default {
     patchTaskData(params) { // 补数据
         return http.post(offlineReq.PATCH_TASK_DATA, params)
     },
+    operaRecordData(params) { // 操作记录
+        return http.post(offlineReq.OPERA_RECORD_DATA, params)
+    },
     getTaskChildren(params) { // 获取任务子节点
         return http.post(offlineReq.GET_TASK_CHILDREN, params)
     },

@@ -46,6 +46,7 @@ export default {
     GET_JOB_TOP_TIME: `${RDOS_BASE_URL}/batch/batchJob/runTimeTopOrder`, // 离线任务运行时长top排序
     GET_JOB_TOP_ERROR: `${RDOS_BASE_URL}/batch/batchJob/errorTopOrder`, // 离线任务错误top排序
     PATCH_TASK_DATA: `${RDOS_BASE_URL}/batch/batchJob/fillTaskData`, // 补数据
+    OPERA_RECORD_DATA: `${RDOS_BASE_URL}/batch/batchTaskRecord/queryRecords`, // 操作记录
     QUERY_PATCH_TASK_DATA: `${RDOS_BASE_URL}/batch/batchJob/queryBugJobs`, // 补数据搜索
     START_JOB: `${RDOS_BASE_URL}/batch/batchJob/loadDataJob`, // 启动任务
     STOP_JOB: `${RDOS_BASE_URL}/batch/batchJob/stopJob`, // 停止任务
