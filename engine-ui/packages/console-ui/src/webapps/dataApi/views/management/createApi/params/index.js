@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import { Button, Select, Form, Table, message } from 'antd';
 
-import ColumnsConfig from './params/container'
-import ColumnsModel from '../../../model/columnsModel'
+import ColumnsConfig from './container'
+import ColumnsModel from '../../../../model/columnsModel'
 import ApiSqlEditor from './sql'
-import { API_MODE } from '../../../consts'
+import { API_MODE } from '../../../../consts'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -20,6 +20,7 @@ class ManageParamsConfig extends Component {
         resultPageChecked: false,
         resultPage: undefined,
         sqlModeShow: true,
+        passLoading: false,
         editor: {
             sql: '',
             cursor: undefined,
@@ -299,27 +300,43 @@ class ManageParamsConfig extends Component {
         const { cancelAndSave } = this.props;
         cancelAndSave(this.getSaveData());
     }
+    setPassLoading (isLoading) {
+        this.setState({
+            passLoading: isLoading
+        })
+    }
     async pass () {
         const { mode } = this.props;
         const { InputColumns, OutputColums, editor } = this.state;
-        if (!editor.sql && mode == API_MODE.SQL) {
-            message.warning('sql不能为空')
-            return
+        this.setPassLoading(true)
+        if (mode == API_MODE.SQL) {
+            if (!editor.sql) {
+                message.warning('sql不能为空')
+                this.setPassLoading(false)
+                return
+            }
+            let checkSql = await this.sqlModeShowChange(true);
+            if (!checkSql) {
+                this.setPassLoading(false)
+                return;
+            }
         }
         if (!OutputColums || OutputColums.length == 0) {
-            message.error('输出参数不能为空')
+            message.warning('输出参数不能为空')
+            this.setPassLoading(false)
             return;
         }
         let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
+        this.setPassLoading(false)
         if (!isPass) {
             return false;
         }
         if (!this.checkRepeat(InputColumns)) {
-            message.error('输入参数不能相同')
+            message.warning('输入参数不能相同')
             return;
         }
         if (!this.checkRepeat(OutputColums)) {
-            message.error('输出参数不能相同')
+            message.warning('输出参数不能相同')
             return;
         }
         this.props.dataChange(this.getSaveData())
@@ -342,16 +359,23 @@ class ManageParamsConfig extends Component {
         }
         return true;
     }
-    sqlModeShowChange (isHide) {
+    async sqlModeShowChange (isHide) {
         isHide = typeof isHide == 'boolean' ? isHide : false;
+        const { sqlModeShow, editor } = this.state;
         const dataSource = this.props.form.getFieldValue('dataSource');
-        const sql = this.state.editor.sql;
-        const show = !this.state.sqlModeShow;
+        const sql = editor.sql;
+        /**
+         * 是否在参数编辑页面
+         */
+        const show = !sqlModeShow;
+        /**
+         * 在参数编辑页面，则直接切换，不用请求
+         */
         if (show) {
             this.setState({
                 sqlModeShow: !isHide
             });
-            return;
+            return true;
         }
         if (!dataSource && dataSource != 0) {
             message.warning('请选择数据源!');
@@ -364,21 +388,18 @@ class ManageParamsConfig extends Component {
         this.setState({
             loading: true
         })
-        this.props.sqlParser(sql, dataSource)
-            .then(
-                (res) => {
-                    this.setState({
-                        loading: false
-                    })
-                    if (res) {
-                        this.setState({
-                            InputColumns: this.exchangeServerParams(res.data.inputParam, 'in'),
-                            OutputColums: this.exchangeServerParams(res.data.outputParam, 'out'),
-                            sqlModeShow: !this.state.sqlModeShow
-                        })
-                    }
-                }
-            )
+        let res = await this.props.sqlParser(sql, dataSource);
+        this.setState({
+            loading: false
+        })
+        if (res.code == 1) {
+            this.setState({
+                InputColumns: this.exchangeServerParams(res.data.inputParam, 'in'),
+                OutputColums: this.exchangeServerParams(res.data.outputParam, 'out'),
+                sqlModeShow: !sqlModeShow
+            })
+            return true;
+        }
     }
     /**
      * 将服务端的数据和本地已有数据merge
@@ -450,7 +471,8 @@ class ManageParamsConfig extends Component {
             resultPage,
             sqlModeShow,
             editor,
-            loading
+            loading,
+            passLoading
         } = this.state;
         const { getFieldDecorator } = this.props.form;
         const dataSourceType = dataSource.sourceType || [];
@@ -592,7 +614,7 @@ class ManageParamsConfig extends Component {
                         <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>上一步</Button>
                     }
                     {
-                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
+                        <Button type="primary" loading={passLoading} style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
                     }
 
                 </div>

@@ -24,7 +24,6 @@ class ManageBasicProperties extends Component {
     pass () {
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                console.log('Received values of form: ', values);
                 this.props.dataChange({
                     ...values
                 })

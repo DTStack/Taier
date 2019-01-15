@@ -484,12 +484,20 @@ class APIMana extends Component {
     newApi () {
         this.props.router.push('/api/manage/newApi');
     }
+    registerApi () {
+        this.props.router.push({
+            pathname: '/api/manage/newApi',
+            query: {
+                isRegister: true
+            }
+        });
+    }
     getCardExtra () {
         return (
             <div style={{ paddingTop: '10px' }}>
-                <Button onClick={this.openApiType.bind(this)} style={{ marginRight: '8px' }} type="primary">类目管理</Button>
-                <Button type="primary" onClick={this.newApi.bind(this)}>生成API</Button>
-
+                <Button type="primary" style={{ marginRight: '8px' }} onClick={this.newApi.bind(this)}>生成API</Button>
+                <Button type="primary" style={{ marginRight: '8px' }} onClick={this.registerApi.bind(this)}>注册API</Button>
+                <Button onClick={this.openApiType.bind(this)} type="primary">类目管理</Button>
             </div>
         )
     }
