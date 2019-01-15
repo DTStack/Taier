@@ -48,5 +48,6 @@ function initTitle () {
  */
 function initLoading () {
     var dom = document.getElementById('loading-prefix');
-    dom.innerHTML = APP_CONF.prefix+' '+APP_CONF.titleName;
+    var loadingText = APP_CONF.prefix + ' ' + APP_CONF.loadingTitle;
+    dom.innerHTML = loadingText;
 }
