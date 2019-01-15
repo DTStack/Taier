@@ -252,6 +252,29 @@ export const workbenchActions = (dispatch) => {
         });
     }
 
+    /**
+     * 在 Modal 框编辑任务
+     * @param {*} task 任务对象
+     */
+    const onEditTaskByModal = (task) => {
+        ajax.getOfflineTaskByID({
+            id: task.id,
+            lockVersion: task.readWriteLockVO.version
+        }).then(res => {
+            if (res.code === 1) {
+                const data = res.data;
+                dispatch({
+                    type: modalAction.SET_MODAL_DEFAULT,
+                    payload: data
+                })
+                dispatch({
+                    type: modalAction.TOGGLE_CREATE_TASK,
+                    payload: data
+                });
+            }
+        })
+    }
+
     return {
         dispatch,
 
@@ -259,6 +282,10 @@ export const workbenchActions = (dispatch) => {
          * 重新加载任务Tab中的数据
          */
         reloadTaskTab,
+        /**
+         * 在 Modal 框编辑任务
+         */
+        onEditTaskByModal,
         /**
          * 更新目录
          */

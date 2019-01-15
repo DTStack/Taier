@@ -360,6 +360,7 @@ class WorkflowEditor extends Component {
         updateWorkflow(workflow);
     }
 
+
     appendWorkflowNode = (newNode) => {
         const { data, saveTask, loadTreeNode } = this.props;
         this.updateCellData(this._currentNewVertex, newNode);
@@ -611,7 +612,7 @@ class WorkflowEditor extends Component {
         const ctx = this;
         const graph = this.graph;
 
-        const { openTaskInDev, data, project, user } = this.props;
+        const { openTaskInDev, data, project, user, onEditTaskByModal, updateWorkflow } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
@@ -636,7 +637,15 @@ class WorkflowEditor extends Component {
                 menu.addItem('编辑名称', null, function () {
                     ctx.initEditTaskCell(cell, currentNode);
                 }, null, null, true) // 正常状态
-
+                menu.addItem('编辑节点属性', null, function () {
+                    onEditTaskByModal(currentNode);
+                    updateWorkflow({
+                        workflowId: data.id,
+                        data: data,
+                        taskType: currentNode.taskType,
+                        status: 'create'
+                    });
+                }, null, null, true) // 正常状态
                 menu.addItem('查看节点内容', null, function () {
                     openTaskInDev(currentNode.id);
                 }, null, null, true) // 正常状态
