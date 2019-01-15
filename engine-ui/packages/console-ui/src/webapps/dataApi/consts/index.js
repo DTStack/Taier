@@ -25,8 +25,10 @@ export const API_MODE = {
     SQL: 1
 }
 export const API_METHOD = {
+    GET: 0,
     POST: 1,
-    GET: 0
+    PUT: 2,
+    DELETE: 3
 }
 export const API_METHOD_KEY = {
     1: 'POST',

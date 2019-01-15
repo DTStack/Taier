@@ -214,9 +214,14 @@ class ManageBasicProperties extends Component {
         }
     }
     renderMethod () {
+        const { isRegister } = this.props;
+        const whiteList = [API_METHOD.POST, API_METHOD.GET];
         let arr = [];
         for (let key in API_METHOD) {
             let value = API_METHOD[key];
+            if (!isRegister && !whiteList.includes(value)) {
+                continue;
+            }
             arr.push(<Option value={value}>{key}</Option>)
         }
         return arr;
@@ -310,6 +315,40 @@ class ManageBasicProperties extends Component {
                             })(
                                 <TextArea autosize={{ minRows: 3, maxRows: 5 }} style={{ width: '85%' }} />
                             )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="后端 Host"
+                        >
+                            {getFieldDecorator('host', {
+                                rules: [
+                                    { required: true, message: '请输入后端 Host' },
+                                    { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
+                                initialValue: this.props.host
+                            })(
+                                <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
+                            )}
+                            <span style={{ marginLeft: '5px' }}>
+                                <HelpDoc doc="registerApiHost" />
+                            </span>
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="后端服务 Path"
+                        >
+                            {getFieldDecorator('path', {
+                                rules: [
+                                    { required: true, message: '请输入后端 Path' },
+                                    { max: 200, message: '最大字符不能超过200' },
+                                    { min: 2, message: '最小字符不能小于2' },
+                                    { pattern: new RegExp(/^(\/[-|\w|[|\]]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
+                                initialValue: this.props.path
+                            })(
+                                <Input style={{ width: '85%' }} />
+                            )}
+                            <span style={{ marginLeft: '5px' }}>
+                                <HelpDoc doc="registerApiPath" />
+                            </span>
                         </FormItem>
                         <FormItem
                             {...formItemLayout}

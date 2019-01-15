@@ -450,6 +450,7 @@ class NewApi extends Component {
                                         <Step title="完成" />
                                     </Steps>
                                     <Content
+                                        isRegister={utils.getParameterByName('isRegister')}
                                         apiEdit={apiEdit}
                                         dataSourceId={this.state.basicProperties.dataSource}
                                         tableId={this.state.basicProperties.table}
