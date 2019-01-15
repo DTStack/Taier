@@ -62,7 +62,7 @@ class Header extends Component {
                 src={getHeaderLogo(app.id)}
             />
             <span className='c-header__title c-header__title--label'>
-                {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}Tag
+                {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
             </span>
         </span>
         return <Navigator
