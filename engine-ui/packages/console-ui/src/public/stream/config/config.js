@@ -3,5 +3,6 @@
  */
 window.APP_CONF = {
     name: 'Stream', // 应用名字
+    loadingTitle: '流计算', // loading的应用名字
     titleName: '流计算' // 网页title
 }
