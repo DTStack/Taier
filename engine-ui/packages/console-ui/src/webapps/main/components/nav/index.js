@@ -101,7 +101,7 @@ export function MenuRight (props) {
     return (
         <div className="menu right">
             <menu className="menu-right">
-                {showHelpSite ? (
+                {showHelpSite&&!window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
                             <Icon type="question-circle-o" />
