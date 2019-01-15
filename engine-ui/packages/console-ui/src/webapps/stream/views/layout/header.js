@@ -257,7 +257,7 @@ class Header extends Component {
                         src={getHeaderLogo(app.id)}
                     />
                     <span className='c-header__title c-header__title--stream'>
-                        {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}Stream
+                        {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
                     </span>
                 </div>
                 <div className="menu left" style={{ position: 'relative' }}>

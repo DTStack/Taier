@@ -40,7 +40,7 @@ function mergeConfig () {
  * 设置title
  */
 function initTitle () {
-    var name = APP_CONF.name ? ('-' + APP_CONF.name) : '';
+    var name = APP_CONF.titleName ? ('-' + APP_CONF.titleName) : '';
     document.title = APP_CONF.prefix + name;
 }
 /**
@@ -48,5 +48,6 @@ function initTitle () {
  */
 function initLoading () {
     var dom = document.getElementById('loading-prefix');
-    dom.innerHTML = APP_CONF.prefix;
+    var loadingText = APP_CONF.prefix + ' ' + APP_CONF.loadingTitle;
+    dom.innerHTML = loadingText;
 }
