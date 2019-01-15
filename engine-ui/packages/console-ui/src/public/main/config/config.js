@@ -2,7 +2,8 @@
  * 应用全局配置文件
  */
 window.APP_CONF = {
-    name: '数栈',
+    name: '数栈', // 应用名字
+    titleName: '数栈', // 网页title
     indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
     indexDesc: '企业级一站式数据中台-让数据产生价值', // 大标题下的简介
     showCopyright: true, // 是否显示版权信息
