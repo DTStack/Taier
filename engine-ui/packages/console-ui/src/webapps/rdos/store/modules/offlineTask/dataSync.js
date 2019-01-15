@@ -317,6 +317,9 @@ const targetMap = (state = {}, action) => {
             return clone;
         }
 
+        /**
+         * TODO 该方法现在的扩展性极差，传入的字段需要额外的转换，需要重构
+         */
         case targetMapAction.DATA_TARGETMAP_CHANGE: {
             const {
                 sourceId, src, rowkey, havePartition
@@ -325,7 +328,8 @@ const targetMap = (state = {}, action) => {
 
             if (sourceId) clone.sourceId = sourceId;
             if (rowkey) clone.type.rowkey = rowkey;
-            if (havePartition) clone.type.havePartition = havePartition;
+            if (havePartition !== undefined) clone.type.havePartition = havePartition;
+
             if (src) {
                 const { type } = src;
                 clone.name = src.dataName;

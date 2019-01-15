@@ -250,13 +250,15 @@ class SourceForm extends React.Component {
 
     getHivePartions = (tableName) => {
         const {
-            sourceMap
+            sourceMap,
+            form
         } = this.props;
 
         if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE) {
             return;
         }
-
+        // Reset partition
+        form.setFieldsValue({ partition: '' });
         ajax.getHivePartitions({
             sourceId: sourceMap.sourceId,
             tableName
