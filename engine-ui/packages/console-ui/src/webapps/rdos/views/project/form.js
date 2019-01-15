@@ -6,16 +6,27 @@ import { formItemLayout } from '../../comm/const'
 const FormItem = Form.Item
 
 class ProjectForm extends Component {
+    state = {
+        loading: false
+    }
     submit = (e) => {
         e.preventDefault()
         const { onOk, form } = this.props
         const project = form.getFieldsValue()
-        form.validateFields((err) => {
+        form.validateFields(async (err) => {
             if (!err) {
-                setTimeout(() => { form.resetFields() }, 200)
+                this.setState({
+                    loading: true
+                })
                 project.scheduleStatus = project.scheduleStatus ? 0 : 1;
                 project.isAllowDownload = project.isAllowDownload ? 1 : 0;
-                onOk(project)
+                let isSuccess = await onOk(project);
+                this.setState({
+                    loading: false
+                })
+                if (isSuccess) {
+                    form.resetFields()
+                }
             }
         });
     }
@@ -29,11 +40,13 @@ class ProjectForm extends Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { title, visible } = this.props
+        const { loading } = this.state;
         return (
             <Modal
                 title={title}
                 wrapClassName="vertical-center-modal"
                 visible={visible}
+                confirmLoading={loading}
                 onOk={this.submit}
                 onCancel={this.cancle}
             >
