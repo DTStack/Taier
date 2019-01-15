@@ -333,7 +333,7 @@ class TableRelation extends Component {
                         <Option value="按字段名">按字段名</Option>
                     </Select>
                     <Search
-                        placeholder="按表名、字段名搜索"
+                        placeholder="输入搜素内容"
                         style={{ width: '200px' }}
                         value={searchType == '按表名' ? queryParams.tableName : queryParams.columnName}
                         onChange={this.changeName}
