@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, Radio, InputNumber, Button, message } from 'antd';
+import { connect } from 'react-redux';
+import { Modal, Form, Input, Radio, InputNumber, Button, message, Select } from 'antd';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const Option = Select.Option;
+@connect(state => {
+    return {
+        projects: state.projects,
+        user: state.user
+    }
+}, null)
 class AddUpdateRules extends Component {
     state = {
         // 部分脱敏参数
@@ -198,9 +206,19 @@ class AddUpdateRules extends Component {
     }
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
-        const { status, dataSource } = this.props;
+        const { status, dataSource, projects } = this.props;
         const isEdit = status === 'edit';
         const { newReplaceData } = this.state;
+        const projectsOptions = projects.map(item => {
+            return <Option
+                title={item.projectAlias}
+                key={item.id}
+                name={item.projectAlias}
+                value={`${item.id}`}
+            >
+                {item.projectAlias}
+            </Option>
+        })
         return (
             <Modal
                 visible={this.props.visible}
@@ -222,6 +240,29 @@ class AddUpdateRules extends Component {
                             initialValue: dataSource.name ? dataSource.name : ''
                         })(
                             <Input />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="所属项目"
+                    >
+                        {getFieldDecorator('projectId', {
+                            rules: [{
+                                required: true,
+                                message: '所属项目不可为空！'
+                            }],
+                            initialValue: dataSource.projectAlias ? dataSource.projectAlias : ''
+                        })(
+                            <Select
+                                allowClear
+                                showSearch
+                                optionFilterProp='children'
+                                filterOption={(inputVal, option) => {
+                                    return option.props.children.toLowerCase().indexOf(inputVal.toLowerCase()) >= 0
+                                }}
+                            >
+                                {projectsOptions}
+                            </Select>
                         )}
                     </FormItem>
                     <FormItem
