@@ -45,7 +45,6 @@ class AddUpdateRules extends Component {
     }
     changeRadio = (e) => {
         const { status, dataSource } = this.props;
-        // const isInlay = dataSource.tenantId === -1; // 内置规则
         if ((status === 'edit') && e.target.value === 1 && dataSource.beginPos === 0 && dataSource.endPos === 0) {
             this.setState({
                 beginPos: 1,
@@ -202,7 +201,6 @@ class AddUpdateRules extends Component {
         const { status, dataSource } = this.props;
         const isEdit = status === 'edit';
         const { newReplaceData } = this.state;
-        const isInlay = dataSource.tenantId === -1; // 内置规则
         return (
             <Modal
                 visible={this.props.visible}
@@ -210,13 +208,6 @@ class AddUpdateRules extends Component {
                 title={isEdit ? '编辑规则' : '创建规则'}
                 onCancel={this.cancel}
                 onOk={this.submit}
-                footer={
-                    isEdit && isInlay ? <Button type="primary" size="large" onClick={this.cancel}>关闭</Button>
-                        : [
-                            <Button key="cancel" size="large" onClick={this.cancel}>取消</Button>,
-                            <Button key="submit" type="primary" size="large" onClick={this.submit}>确定</Button>
-                        ]
-                }
             >
                 <Form>
                     <FormItem
@@ -230,7 +221,7 @@ class AddUpdateRules extends Component {
                             }],
                             initialValue: dataSource.name ? dataSource.name : ''
                         })(
-                            <Input disabled={isInlay} />
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -244,7 +235,7 @@ class AddUpdateRules extends Component {
                             }],
                             initialValue: dataSource.example ? dataSource.example : ''
                         })(
-                            <Input type="textarea" rows={4} disabled={isInlay} />
+                            <Input type="textarea" rows={4} />
                         )}
                     </FormItem>
                     <FormItem
@@ -255,7 +246,7 @@ class AddUpdateRules extends Component {
                         {getFieldDecorator('id', {
                             initialValue: dataSource.id ? dataSource.id : ''
                         })(
-                            <Input disabled={isInlay} />
+                            <Input />
                         )}
                     </FormItem>
                     <FormItem
@@ -269,7 +260,7 @@ class AddUpdateRules extends Component {
                             }],
                             initialValue: (dataSource && dataSource.maskType) || 0
                         })(
-                            <RadioGroup onChange={this.changeRadio} disabled={isInlay}>
+                            <RadioGroup onChange={this.changeRadio}>
                                 <Radio value={0}>全部脱敏</Radio>
                                 <Radio value={1}>部分脱敏</Radio>
                             </RadioGroup>
@@ -279,19 +270,16 @@ class AddUpdateRules extends Component {
                         <div style={{ margin: '-10 0 0 150' }}>
                             将从
                             <InputNumber
-                                disabled={isInlay}
                                 style={{ width: '70px' }}
                                 min={1}
                                 value={this.state.beginPos}
                                 onChange={this.changeBeginPos}
                             />位至第<InputNumber
-                                disabled={isInlay}
                                 style={{ width: '70px' }}
                                 min={1}
                                 value={this.state.endPos}
                                 onChange={this.changeEndPos}
                             />位替换为:<Input
-                                disabled={isInlay}
                                 style={{ width: '50px' }}
                                 value={this.state.replaceStr}
                                 onChange={this.changeReplaceStr}
