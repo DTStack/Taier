@@ -248,7 +248,6 @@ class AddDesensitization extends Component {
         const desensitizationData = this.props.form.getFieldsValue();
         this.props.form.validateFields((err) => {
             if (!err) {
-                this.props.form.resetFields()
                 onOk(desensitizationData)
             }
         });
