@@ -10,16 +10,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 * **style:** fix title ([9ed0bf9](http://git.dtstack.cn/ziv/data-stack-web/commits/9ed0bf9))
 * **version:** fix version ([724df97](http://git.dtstack.cn/ziv/data-stack-web/commits/724df97))
-
-
-
-<a name="3.4.0"></a>
-# [3.4.0](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.2...3.4.0) (2019-01-16)
-
-
-### Bug Fixes
-
-* **style:** fix title ([9ed0bf9](http://git.dtstack.cn/ziv/data-stack-web/commits/9ed0bf9))
+* **version:** remove 3.4 ([a660973](http://git.dtstack.cn/ziv/data-stack-web/commits/a660973))
 
 
 
