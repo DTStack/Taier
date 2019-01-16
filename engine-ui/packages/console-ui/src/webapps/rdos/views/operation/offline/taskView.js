@@ -493,7 +493,8 @@ export default class TaskView extends Component {
     }
     closeOperaRecordModal = () => {
         this.setState({
-            recordModalVisible: false
+            recordModalVisible: false,
+            currentNodeData: {}
         })
     }
     initContextMenu = (graph) => {

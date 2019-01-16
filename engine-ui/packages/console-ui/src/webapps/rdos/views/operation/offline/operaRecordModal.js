@@ -17,7 +17,7 @@ class OperaRecordModal extends Component {
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
         const { currentNodeData } = nextProps;
-        if (this.props.currentNodeData && this.props.currentNodeData.id != currentNodeData.id) {
+        if (this.props.currentNodeData && currentNodeData.id && this.props.currentNodeData.id != currentNodeData.id) {
             this.setState({
                 queryParams: Object.assign(this.state.queryParams, {
                     taskId: currentNodeData.id

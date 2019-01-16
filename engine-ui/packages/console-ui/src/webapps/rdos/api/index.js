@@ -335,6 +335,9 @@ export default {
     getOfflineTaskLog(params) {// 获取离线任务日志
         return http.post(offlineReq.GET_TASK_LOG, params)
     },
+    getOfflineTaskPeriods(params) {// 转到前后周期
+        return http.post(offlineReq.GET_TASK_PERIODS, params)
+    },
     searchOfflineTask(params) {
         return http.post(offlineReq.GLOBAL_SEARCH_TASK, params)
     },
