@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
 import ajax from '../../../api/dataManage';
-import { Input, Spin, Table, Button, Card, Popconfirm, message } from 'antd';
+import { connect } from 'react-redux';
+import { Input, Spin, Table, Button, Card, Popconfirm, message, Select } from 'antd';
 import moment from 'moment';
 import AddUpdateRules from './addUpdateRules';
 const Search = Input.Search;
+const Option = Select.Option;
+
+@connect(state => {
+    return {
+        projects: state.projects
+    }
+}, null)
 
 class RuleManage extends Component {
     state = {
@@ -13,7 +21,8 @@ class RuleManage extends Component {
         queryParams: {
             currentPage: 1,
             pageSize: 20,
-            name: undefined
+            name: undefined,
+            pjId: undefined
         },
         total: 0,
         editModalKey: null,
@@ -87,7 +96,8 @@ class RuleManage extends Component {
      */
     delete = (record) => {
         ajax.delRule({
-            id: record.id
+            id: record.id,
+            projectId: record.projectId
         }).then(res => {
             if (res.code === 1) {
                 message.success('删除成功!');
@@ -99,9 +109,12 @@ class RuleManage extends Component {
      * 编辑规则
      */
     editRule = (record) => {
-        ajax.voidCheckPermission().then(res => {
+        ajax.voidCheckPermission({ projectId: record.projectId }).then(res => {
             if (res.code === 1) {
-                ajax.editRule({ id: record.id }).then(res => {
+                ajax.editRule({
+                    id: record.id,
+                    projectId: record.projectId
+                }).then(res => {
                     if (res.code === 1) {
                         this.setState({
                             source: res.data
@@ -124,6 +137,14 @@ class RuleManage extends Component {
             })
         })
     }
+    changeProject = (value) => {
+        this.setState({
+            queryParams: Object.assign(this.state.queryParams, {
+                pjId: value,
+                currentPage: 1
+            })
+        }, this.search)
+    }
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, { currentPage: pagination.current })
         this.setState({
@@ -136,6 +157,16 @@ class RuleManage extends Component {
                 title: '规则名称',
                 width: 140,
                 dataIndex: 'name'
+            },
+            {
+                title: '项目名称',
+                width: 140,
+                dataIndex: 'projectName'
+            },
+            {
+                title: '项目显示名称',
+                width: 140,
+                dataIndex: 'projectAlia'
             },
             {
                 title: '最近修改人',
@@ -155,23 +186,18 @@ class RuleManage extends Component {
                 width: 140,
                 dataIndex: 'opera',
                 render: (text, record) => {
-                    const isInlay = record.tenantId === -1; // 是否内置规则
                     return (
                         <span>
                             <a onClick={() => { this.editRule(record) }}>编辑</a>
                             <span className="ant-divider"></span>
-                            {
-                                isInlay ? <span style={{ color: '#ccc' }}>删除</span> : (
-                                    <Popconfirm
-                                        title="确定删除此条规则吗?"
-                                        okText="是"
-                                        cancelText="否"
-                                        onConfirm={() => { this.delete(record) }}
-                                    >
-                                        <a>删除</a>
-                                    </Popconfirm>
-                                )
-                            }
+                            <Popconfirm
+                                title="确定删除此条规则吗?"
+                                okText="是"
+                                cancelText="否"
+                                onConfirm={() => { this.delete(record) }}
+                            >
+                                <a>删除</a>
+                            </Popconfirm>
                         </span>
                     )
                 }
@@ -181,11 +207,22 @@ class RuleManage extends Component {
     render () {
         const columns = this.initialColumns();
         const { table, cardLoading, addVisible, status, source, editModalKey, queryParams, total } = this.state;
+        const { projects } = this.props;
         const pagination = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
             total
         }
+        const projectsOptions = projects.map(item => {
+            return <Option
+                title={item.projectAlias}
+                key={item.id}
+                name={item.projectAlias}
+                value={`${item.id}`}
+            >
+                {item.projectAlias}
+            </Option>
+        })
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -193,12 +230,28 @@ class RuleManage extends Component {
                     bordered={false}
                     loading={false}
                     title={
-                        <Search
-                            placeholder='按规则名称搜索'
-                            style={{ width: '200px', marginTop: '10px' }}
-                            onChange={this.changeName}
-                            onSearch={this.search}
-                        />
+                        <div>
+                            所属项目：
+                            <Select
+                                allowClear
+                                showSearch
+                                style={{ width: '150px', marginRight: '10px' }}
+                                placeholder='请选择所属项目'
+                                optionFilterProp='children'
+                                filterOption={(inputVal, option) => {
+                                    return option.props.children.toLowerCase().indexOf(inputVal.toLowerCase()) >= 0
+                                }}
+                                onChange={this.changeProject}
+                            >
+                                {projectsOptions}
+                            </Select>
+                            <Search
+                                placeholder='按规则名称搜索'
+                                style={{ width: '200px', marginTop: '10px' }}
+                                onChange={this.changeName}
+                                onSearch={this.search}
+                            />
+                        </div>
                     }
                     extra={
                         <Button

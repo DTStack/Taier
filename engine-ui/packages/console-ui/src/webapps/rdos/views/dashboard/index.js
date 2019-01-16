@@ -115,16 +115,16 @@ class Index extends Component {
         }, this.getProjectListInfo.bind(this));
     }
 
-    createProject = (project) => {
+    createProject = async (project) => {
         const { dispatch } = this.props;
-        Api.createProject(project).then((res) => {
-            if (res.code === 1) {
-                this.setState({ visible: false });
-                this.getProjectListInfo();
-                dispatch(ProjectAction.getProjects());
-                message.success('创建项目成功！');
-            }
-        })
+        let res = await Api.createProject(project);
+        if (res.code === 1) {
+            this.setState({ visible: false });
+            this.getProjectListInfo();
+            dispatch(ProjectAction.getProjects());
+            message.success('创建项目成功！');
+            return true;
+        }
     }
 
     changePage = (page) => {

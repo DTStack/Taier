@@ -111,7 +111,7 @@ class Console extends Component {
         defaultEditorOptions.lineNumbers = false;
 
         return (
-            <div className="ide-console" style={{ zIndex: 999 }}>
+            <div className="ide-console" style={{ zIndex: 10 }}>
                 <Tabs
                     hideAdd
                     type="editable-card"
