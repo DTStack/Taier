@@ -34,7 +34,39 @@ export const API_METHOD_KEY = {
     1: 'POST',
     0: 'GET'
 }
-
+/**
+ * 参数位置
+ */
+export const PARAMS_POSITION = {
+    QUERY: '0',
+    PATH: '1',
+    BODY: '2',
+    HEAD: '3'
+}
+/**
+ * 参数位置显示名
+ */
+export const PARAMS_POSITION_TEXT = {
+    [PARAMS_POSITION.QUERY]: 'query',
+    [PARAMS_POSITION.PATH]: 'path',
+    [PARAMS_POSITION.BODY]: 'body',
+    [PARAMS_POSITION.HEAD]: 'head'
+}
+/**
+ * 参数类型
+ */
+export const FIELD_TYPE_LIST = [
+    'string',
+    'int',
+    'long',
+    'float',
+    'double',
+    'boolean'
+]
+/**
+ * textarea 默认大小
+ */
+export const defaultAutoSize = { minRows: 2, maxRows: 4 }
 export const API_STATUS = {
     '-1': 'NO_APPLY',
     '0': 'IN_HAND',

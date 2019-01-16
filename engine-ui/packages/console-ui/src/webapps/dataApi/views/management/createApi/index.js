@@ -77,7 +77,7 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class NewApi extends Component {
     state = {
-        current: 0,
+        current: 1,
         basicProperties: {},
         paramsConfig: {},
         registerParams: {},
@@ -228,11 +228,15 @@ class NewApi extends Component {
             current: 2
         })
     }
-    registerParams (data) {
-        this.setState({
-            registerParams: data || {},
-            current: 2
-        })
+    registerParams (data, isStay) {
+        isStay = typeof isStay == 'boolean' ? isStay : false;
+        let newState = {
+            registerParams: data || {}
+        }
+        if (!isStay) {
+            newState.current = 2;
+        }
+        this.setState(newState)
     }
     complete (data) {
         this.setState({
@@ -429,7 +433,7 @@ class NewApi extends Component {
             }
         ]
         const { key, content: Content } = steps[this.state.current];
-
+        const isRegister = utils.getParameterByName('isRegister');
         return (
             <div className="m-card g-datamanage">
                 <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
@@ -442,7 +446,7 @@ class NewApi extends Component {
                         noHovering
                     >
                         {
-                            (mode || mode == 0) ? (
+                            (mode || mode == 0 || isRegister) ? (
                                 <div>
                                     <Steps current={this.state.current}>
                                         <Step title="基本属性" />
@@ -450,7 +454,7 @@ class NewApi extends Component {
                                         <Step title="完成" />
                                     </Steps>
                                     <Content
-                                        isRegister={utils.getParameterByName('isRegister')}
+                                        isRegister={isRegister}
                                         apiEdit={apiEdit}
                                         dataSourceId={this.state.basicProperties.dataSource}
                                         tableId={this.state.basicProperties.table}

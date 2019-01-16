@@ -255,6 +255,7 @@ class ManageBasicProperties extends Component {
         }
     }
     render () {
+        const { isRegister } = this.props;
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
         const { newGroupModalShow } = this.state;
@@ -316,40 +317,44 @@ class ManageBasicProperties extends Component {
                                 <TextArea autosize={{ minRows: 3, maxRows: 5 }} style={{ width: '85%' }} />
                             )}
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="后端 Host"
-                        >
-                            {getFieldDecorator('host', {
-                                rules: [
-                                    { required: true, message: '请输入后端 Host' },
-                                    { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
-                                initialValue: this.props.host
-                            })(
-                                <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
-                            )}
-                            <span style={{ marginLeft: '5px' }}>
-                                <HelpDoc doc="registerApiHost" />
-                            </span>
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="后端服务 Path"
-                        >
-                            {getFieldDecorator('path', {
-                                rules: [
-                                    { required: true, message: '请输入后端 Path' },
-                                    { max: 200, message: '最大字符不能超过200' },
-                                    { min: 2, message: '最小字符不能小于2' },
-                                    { pattern: new RegExp(/^(\/[-|\w|[|\]]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
-                                initialValue: this.props.path
-                            })(
-                                <Input style={{ width: '85%' }} />
-                            )}
-                            <span style={{ marginLeft: '5px' }}>
-                                <HelpDoc doc="registerApiPath" />
-                            </span>
-                        </FormItem>
+                        {isRegister && (
+                            <React.Fragment>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="后端 Host"
+                                >
+                                    {getFieldDecorator('host', {
+                                        rules: [
+                                            { required: true, message: '请输入后端 Host' },
+                                            { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
+                                        initialValue: this.props.host
+                                    })(
+                                        <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
+                                    )}
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpDoc doc="registerApiHost" />
+                                    </span>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="后端服务 Path"
+                                >
+                                    {getFieldDecorator('path', {
+                                        rules: [
+                                            { required: true, message: '请输入后端 Path' },
+                                            { max: 200, message: '最大字符不能超过200' },
+                                            { min: 2, message: '最小字符不能小于2' },
+                                            { pattern: new RegExp(/^(\/[-|\w|[|\]]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
+                                        initialValue: this.props.path
+                                    })(
+                                        <Input style={{ width: '85%' }} />
+                                    )}
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpDoc doc="registerApiPath" />
+                                    </span>
+                                </FormItem>
+                            </React.Fragment>
+                        )}
                         <FormItem
                             {...formItemLayout}
                             label="API path"
@@ -358,14 +363,14 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { max: 200, message: '最大字符不能超过200' },
                                     { min: 2, message: '最小字符不能小于2' },
-                                    { pattern: new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
-                                    { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
+                                    { pattern: isRegister ? new RegExp(/^(\/[-|\w|[|\]]+)+$/) : new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
+                                    isRegister ? {} : { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
                                 initialValue: this.props.APIPath
                             })(
                                 <Input style={{ width: '85%' }} />
                             )}
                             <span style={{ marginLeft: '5px' }}>
-                                <HelpDoc doc="apiPathInfo" />
+                                <HelpDoc doc={isRegister ? 'registerApiPathInfo' : 'apiPathInfo'} />
                             </span>
                         </FormItem>
                         <Row style={{ marginTop: '40px' }}>
@@ -399,20 +404,22 @@ class ManageBasicProperties extends Component {
                                 </Select>
                             )}
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="返回类型"
-                        >
-                            {getFieldDecorator('responseType', {
-                                rules: [{ required: true, message: '请选择返回类型' }],
-                                initialValue: 'JSON'
-                            })(
-                                <Select style={{ width: '85%' }}>
-                                    <Option value="JSON">JSON</Option>
-                                </Select>
-                                // <Input disabled  style={{ width: '85%' }} />
-                            )}
-                        </FormItem>
+                        {!isRegister && (
+                            <FormItem
+                                {...formItemLayout}
+                                label="返回类型"
+                            >
+                                {getFieldDecorator('responseType', {
+                                    rules: [{ required: true, message: '请选择返回类型' }],
+                                    initialValue: 'JSON'
+                                })(
+                                    <Select style={{ width: '85%' }}>
+                                        <Option value="JSON">JSON</Option>
+                                    </Select>
+                                    // <Input disabled  style={{ width: '85%' }} />
+                                )}
+                            </FormItem>
+                        )}
                         <Row style={{ marginTop: '40px' }}>
                             <Col className="form-title-line" {...formItemLayout.labelCol}>
                                 <span className='form-title title-border-l-blue'>安全与限制策略</span>
