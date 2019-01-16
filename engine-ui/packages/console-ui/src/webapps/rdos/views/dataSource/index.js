@@ -46,7 +46,7 @@ class DataSourceMana extends Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj.id !== 0 && project && oldProj.id !== project.id) {
@@ -96,7 +96,19 @@ class DataSourceMana extends Component {
             }
         })
     }
-
+    // 点击新增数据源
+    openAddDatasource = () => {
+        Api.checkIsPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    source: {},
+                    status: 'add',
+                    title: '添加数据源'
+                })
+            }
+        })
+    }
     remove = (source) => {
         const ctx = this
         if (source.active === 1) {
@@ -132,11 +144,15 @@ class DataSourceMana extends Component {
     }
 
     initEdit = (source) => {
-        this.setState({
-            visible: true,
-            title: '编辑数据源',
-            status: 'edit',
-            source: cloneDeep(source)
+        Api.checkIsPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    title: '编辑数据源',
+                    status: 'edit',
+                    source: cloneDeep(source)
+                })
+            }
         })
     }
     getTypeName (type) {
@@ -233,15 +249,13 @@ class DataSourceMana extends Component {
                 const splitView = (<span className="ant-divider" />);
                 const deleteView = isActive ? (
                     <span style={{ color: '#ccc' }}>删除</span>
-                ) : (
-                    <Popconfirm
-                        title="确定删除此数据源？"
-                        okText="确定" cancelText="取消"
-                        onConfirm={() => { this.remove(record) }}
-                    >
-                        <a>删除</a>
-                    </Popconfirm>
-                );
+                ) : (<Popconfirm
+                    title="确定删除此数据源？"
+                    okText="确定" cancelText="取消"
+                    onConfirm={() => { this.remove(record) }}
+                >
+                    <a>删除</a>
+                </Popconfirm>);
                 const editView = (<a onClick={() => { this.initEdit(record) }}>编辑</a>);
                 const linkView = (<a onClick={() => { this.setState({ linkModalVisible: true, source: record }) }} >映射配置</a>);
 
@@ -328,10 +342,14 @@ class DataSourceMana extends Component {
     }
 
     openSyncModal = (record) => {
-        this.setState({
-            syncModalVisible: true,
-            source: record
-        });
+        Api.checkSyncPermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    syncModalVisible: true,
+                    source: record
+                });
+            }
+        })
     }
 
     closeSyncModal = () => {
@@ -364,14 +382,7 @@ class DataSourceMana extends Component {
                 type="primary"
                 style={{ marginTop: 10 }}
                 className="right"
-                onClick={() => {
-                    this.setState({
-                        visible: true,
-                        source: {},
-                        status: 'add',
-                        title: '添加数据源'
-                    })
-                }}
+                onClick={this.openAddDatasource}
             >新增数据源</Button>
         )
 
@@ -426,6 +437,14 @@ class DataSourceMana extends Component {
         )
     }
 }
+class WrapDataSourceMana extends React.Component {
+    render () {
+        const { project } = this.props;
+        return (
+            <DataSourceMana key={project.id} {...this.props} />
+        )
+    }
+}
 export default connect((state) => {
     console.log('connect', state);
 
@@ -439,4 +458,4 @@ export default connect((state) => {
             dispatch(getSourceTypes())
         }
     }
-})(DataSourceMana)
+})(WrapDataSourceMana)

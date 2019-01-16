@@ -64,35 +64,37 @@ class RealTimeTabPane extends Component {
         expandedKeys: [],
         expandedKeys2: []
     }
-
-    componentDidMount () {
-        const { dispatch, realtimeTree } = this.props
-        if (!realtimeTree || !realtimeTree.length) {
-            dispatch(TreeAction.getRealtimeTree(rootNode)).then((data) => {
-                /**
-                 * 默认展开第一个
-                 */
-                const arrData = data.children;
-                const expandedKeys = [];
-                const expandTypeList = [
-                    MENU_TYPE.TASK,
-                    MENU_TYPE.RESOURCE
-                ]
-                for (let i = 0; i < arrData.length; i++) {
-                    const rootTree = arrData[i];
-                    if (!expandTypeList.includes(rootTree.catalogueType)) {
-                        continue;
-                    }
-                    if (rootTree.children && rootTree.children[0]) {
-                        dispatch(TreeAction.getRealtimeTree(rootTree.children[0]))
-                        expandedKeys.push(rootTree.children[0].id + ':' + rootTree.children[0].type)
-                    }
+    initRealtimeTree (props) {
+        const { dispatch, currentPage } = props;
+        dispatch(TreeAction.getRealtimeTree(rootNode)).then((data) => {
+            /**
+             * 默认展开第一个
+             */
+            const arrData = data.children;
+            const expandedKeys = [];
+            const expandTypeList = [
+                MENU_TYPE.TASK,
+                MENU_TYPE.RESOURCE
+            ]
+            for (let i = 0; i < arrData.length; i++) {
+                const rootTree = arrData[i];
+                if (!expandTypeList.includes(rootTree.catalogueType)) {
+                    continue;
                 }
-                this.setState({
-                    expandedKeys
-                })
-            })
-        }
+                if (rootTree.children && rootTree.children[0]) {
+                    dispatch(TreeAction.getRealtimeTree(rootTree.children[0]))
+                    expandedKeys.push(rootTree.children[0].id + ':' + rootTree.children[0].type)
+                }
+            }
+            this.setState({
+                expandedKeys
+            });
+            this.locateFilePos(currentPage.id, MENU_TYPE.TASK_DEV)
+        })
+    }
+    componentDidMount () {
+        const { dispatch } = this.props
+        this.initRealtimeTree(this.props);
         dispatch(ResAction.getResources())
         this.loadTaskTypes();
     }
@@ -103,7 +105,7 @@ class RealTimeTabPane extends Component {
         const newData = nextProps.project
         if (newData && old.id !== 0 && old.id !== newData.id) {
             const { dispatch } = this.props
-            dispatch(TreeAction.getRealtimeTree(rootNode))
+            this.initRealtimeTree(nextProps);
             dispatch(ResAction.getResources());
             this.setState({
                 expandedKeys: [],

@@ -3,7 +3,7 @@
 数栈 Web 前端。
 
 # 开发
-基于webpack的开发配置环境，可以使用npm管理项目
+基于 webpack 的开发配置环境，可以使用 npm 管理项目
 
 ```bash
 $ npm i
@@ -12,7 +12,7 @@ $ npm start 或者 npm run dev
 $ # 生产构建
 $ npm run build
 ```
-推荐使用yarn管理依赖
+推荐使用 yarn 管理依赖
 
 ```bash
 $ yarn
@@ -25,7 +25,7 @@ $ yarn add package.name
 $ git cz
 ```
 
-## 合并并Push dev
+## 合并并 Push dev
 
 ```bash
 # 该命令会先切换到 开发分支（dev), pull 远程的dev 分支后，会合并当前的工作分支, 然后
@@ -67,11 +67,11 @@ $ npm run changelog
 
 # 其他文档
 - [部署文档](./docs/Deploy.md)
-- [Git协作工作流](http://git.dtstack.cn/ziv/data-stack-web/wikis/gitflow)
+- [Git 协作工作流](http://git.dtstack.cn/dtstack/data-stack-web/wikis/gitflow)
 - [项目技术和架构设计说明
-](http://git.dtstack.cn/ziv/data-stack-web/wikis/Development)
-- [Redmine Issue追踪](http://redmine.prod.dtstack.cn/projects/dtinsight200)
+](http://git.dtstack.cn/dtstack/data-stack-web/wikis/Development)
+- [Redmine Issue 追踪](http://redmine.prod.dtstack.cn/projects/dtinsight200)
 - [Confluence 文档](http://confluence.dev.dtstack.cn/display/RDOS/RD-OS)
-- [RDOS API 接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
+- [RDOS API 接口文档](http://git.dtstack.cn/dtstack/rdos-docs)
 
 

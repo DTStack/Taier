@@ -6,6 +6,7 @@ import NotFund from 'widgets/notFund'
 
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
+import { initNotification } from 'funcs';
 import http from '../api';
 
 const propType = {
@@ -15,6 +16,7 @@ const defaultPro = {
     children: []
 }
 
+initNotification();
 @connect(state => {
     return {
         user: state.user
@@ -30,7 +32,7 @@ class Main extends Component {
     }
     /* eslint-disable */
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { user } = nextProps;
 
         if (this.props.user.dtuicUserId != user.dtuicUserId && user.dtuicUserId) {

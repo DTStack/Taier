@@ -19,7 +19,35 @@ $fontColor1: #2491F7;
     .mask-lock-layer {
         opacity: 0;
     }
-
+    // handsontable
+    .handsontable{
+        &.htRowHeaders thead tr th:nth-child(2){
+            border-color: $borderColor1;
+        }
+        .htCore{
+            thead{
+                tr th{
+                    background: #666666;
+                    color: $fontColor;
+                    border-color: $borderColor1;
+                }
+            }
+            tbody{
+                tr {
+                    th{
+                        background: #666666;
+                        color: $fontColor;
+                        border-color: $borderColor1;
+                    }
+                    td{
+                        background: $color2;
+                        border-color: $borderColor1;
+                        color: $fontColor;
+                    }
+                } 
+            }
+        }
+    }
     .btn-upload {
         border: 1px solid $borderColor1 !important;
     }

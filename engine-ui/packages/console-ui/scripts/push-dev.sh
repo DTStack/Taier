@@ -22,7 +22,7 @@ git checkout $dev_branch;
 
 git pull origin $dev_branch;
 
-git merge $work_branch;
+git merge $work_branch --no-ff;
 
 git push origin $dev_branch;
 

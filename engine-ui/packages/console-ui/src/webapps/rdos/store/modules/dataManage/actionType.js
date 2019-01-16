@@ -19,3 +19,7 @@ export const logAction = mc([
 export const cataloguesAction = mc([
     'DATA_CATALOGUES'
 ], { prefix: 'datamanage/catalogues/' });
+
+export const desensitizationAction = mc([
+    'GET_DESENSITIZATION_RULES'
+], { prefix: 'datamanage/desensitization/' });

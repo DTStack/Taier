@@ -203,7 +203,8 @@ class CommonEditorContainer extends Component {
         const consoleOpts = {
             data: data,
             onConsoleClose: this.closeConsole,
-            onRemoveTab: this.removeConsoleTab
+            onRemoveTab: this.removeConsoleTab,
+            isDisEabledDownload: project.isAllowDownload == 0
         }
 
         return (

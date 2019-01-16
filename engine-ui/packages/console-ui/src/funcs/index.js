@@ -1,5 +1,6 @@
 import { debounce, endsWith } from 'lodash';
-import { notification } from 'antd'
+import { notification, Modal } from 'antd'
+import React from 'react';
 
 /**
  * 存放一些零碎的公共方法
@@ -241,8 +242,10 @@ export function splitSql (sqlText) {
             }
         }
     }
+    // 清空
+    results.push(sqlText.substring(index, sqlText.length));
 
-    return results;
+    return results.filter(Boolean);
 }
 
 export function getRandomInt (min, max) {
@@ -276,23 +279,98 @@ export function timeout (promise, ms) {
         promise.then(resolve, reject);
     })
 }
+/**
+ * 初始化notification
+ */
+export function initNotification () {
+    notification.config({
+        duration: 5
+    })
+    const changeArr = ['error', 'success']
+    const iconMap = {
+        'error': <img src='public/main/img/icon/notification-error.svg' />,
+        'success': <img src='public/main/img/icon/notification-success.svg' />
+    }
+    changeArr.forEach((key) => {
+        const oldFunc = notification[key];
+        notification[key] = function (config = {}) {
+            const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
+            config = {
+                ...config,
+                icon: iconMap[key],
+                className: 'dt-notification',
+                message: <span>
+                    {config.message}
+                    {notifyMsgs.length ? null : (
+                        <a onClick={() => {
+                            notification.destroy();
+                        }} className='dt-notification__close-btn'>全部关闭</a>
+                    )}
+                </span>
+            }
+            oldFunc.apply(notification, [config]);
+        }
+    })
+}
 
 /**
  * 全局唯一的notification实例
+ * 规则：在固定时间段内，相连并且相同的错误信息只会弹出一个。
  * @param {*} title
  * @param {*} message
  */
 export function singletonNotification (title, message, type, style) {
-    const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
-    if (notifyMsgs.length === 0) {
-        notification[type || 'error']({
-            message: title,
-            description: message,
+    const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
+
+    /**
+    * 1.当前无实例
+    * 2.当前存在实例，但是当前实例的最后一个信息和调用的信息不相等
+    * 3.存在实例，并且相等，但是已经超出了限定的时间
+    */
+    if (!notifyMsgs.length ||
+        notifyMsgs[notifyMsgs.length - 1].innerHTML != message ||
+        checkIsTimeout()
+    ) {
+        dtNotification(title, message, type, {
             style
-        });
+        })
     }
 }
+let _singletonNotificationCursorTime = 0;
+/**
+ * 校验是否处在单实例的时间段
+ */
+function checkIsTimeout () {
+    const offset = 1000;
+    const now = new Date().getTime();
+    const old = _singletonNotificationCursorTime;
 
+    _singletonNotificationCursorTime = new Date().getTime();
+    if (now - offset > old) {
+        return true
+    }
+    return false;
+}
+/**
+ * 包装一下
+ */
+export function dtNotification (title, message, type, config) {
+    const showType = type || 'error';
+    const showMessage = message.length > 100 ? (<span>
+        {message.substring(0, 100)}... <a onClick={() => {
+            Modal[showType]({
+                title: title,
+                content: message,
+                width: 520
+            })
+        }}>查看详情</a>
+    </span>) : message;
+    notification[showType]({
+        ...config,
+        message: title,
+        description: showMessage
+    });
+}
 export function getContainer (id) {
     const container = document.createElement('div');
     document.getElementById(id).appendChild(container);
@@ -325,4 +403,11 @@ export function initConfig () {
         ...commonConf,
         ...appConf
     }
+}
+
+/**
+ * 不区分大小写的过滤 value Option
+ */
+export const filterValueOption = (input, option) => {
+    return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 }

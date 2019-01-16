@@ -5,61 +5,60 @@ import { singletonNotification } from 'funcs'
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 
 class Http {
-/* eslint-disable */
-    get(url, params) { // GET请求
+    get (url, params) { // GET请求
         const newUrl = params ? this.build(url, params) : url
         return this.request(newUrl, {
-            method: 'GET',
+            method: 'GET'
         })
     }
 
-    post(url, body) { // POST请求
+    post (url, body) { // POST请求
         let options = { method: 'POST' }
         if (body) options.body = JSON.stringify(body)
         return this.request(url, options)
     }
 
-    postAsFormData(url, params) {
+    postAsFormData (url, params) {
         let options = { method: 'POST' }
         if (params) options.body = this.buildFormData(params)
         return this.request(url, options)
     }
 
-    postForm(url, form) {
+    postForm (url, form) {
         let options = { method: 'POST' }
         if (form) options.body = new FormData(form)
         return this.request(url, options)
     }
 
-    request(url, options) {
+    request (url, options) {
         ProgressBar.show()
         options.credentials = 'same-origin'
         return fetch(url, options)
-        .then(authBeforeFormate)
-        .then(response => {
-            setTimeout(() => { 
-                ProgressBar.hide() 
-            }, 300)
-            return response.json()
-        })
-        .then(authAfterFormated)
-        .catch( err => { 
-            ProgressBar.hide() 
-            console.error(url + ":" + err)
-            singletonNotification('请求异常', '服务器可能出了点问题, 请稍后再试！');
-            return err //错误信息返回
-        })
+            .then(authBeforeFormate)
+            .then(response => {
+                setTimeout(() => {
+                    ProgressBar.hide()
+                }, 300)
+                return response.json()
+            })
+            .then(authAfterFormated)
+            .catch(err => {
+                ProgressBar.hide()
+                console.error(url + ':' + err)
+                singletonNotification('请求异常', '服务器可能出了点问题, 请稍后再试！');
+                return err // 错误信息返回
+            })
     }
 
-    defaultHeader() { // 默认头
+    defaultHeader () { // 默认头
         const header = {
             'Accept': '*/*',
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         };
         return header
     }
 
-    build(url, params) { // URL构建方法
+    build (url, params) { // URL构建方法
         const ps = []
         if (params) {
             for (let p in params) {
@@ -71,7 +70,7 @@ class Http {
         return url + '?' + ps.join('&')
     }
 
-    buildFormData(params) {
+    buildFormData (params) {
         if (params) {
             const data = new FormData()
             for (let p in params) {

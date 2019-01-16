@@ -198,7 +198,7 @@ class Navigator extends Component {
         const {
             user, logo, menuItems,
             settingMenus, apps, app,
-            menuLeft, menuRight, logoWidth
+            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
@@ -223,6 +223,8 @@ class Navigator extends Component {
                         apps={apps}
                         onClick={this.clickUserMenu}
                         settingMenus={settingMenus}
+                        showHelpSite={showHelpSite}
+                        helpUrl={helpUrl}
                     />
                 }
             </header>

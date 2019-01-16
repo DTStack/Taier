@@ -4,9 +4,9 @@ import {
     Input, Button, Popconfirm,
     Table, message, Card, Icon, Tooltip
 } from 'antd';
-import moment from 'moment';
 
 import { Circle } from 'widgets/circle';
+import { ExtTableCell } from '../../components/extDataSourceMsg';
 import DataSourceForm from './editModal';
 import { dataSourceActions } from '../../actions/dataSource';
 import Api from '../../api/dataSource';
@@ -77,7 +77,19 @@ class DataSource extends Component {
             });
         }
     }
-
+    // 点击新增数据源
+    openAddDatasource = () => {
+        Api.checkDataSourcePermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    source: {},
+                    status: 'add',
+                    title: '添加数据源'
+                })
+            }
+        })
+    }
     remove = (record) => {
         if (record.active === 1) {
             message.info('此数据源已在任务中被引用，无法删除!')
@@ -118,11 +130,15 @@ class DataSource extends Component {
     }
 
     initEdit = (source) => {
-        this.setState({
-            visible: true,
-            title: '编辑数据源',
-            status: 'edit',
-            source
+        Api.checkDataSourcePermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    title: '编辑数据源',
+                    status: 'edit',
+                    source
+                })
+            }
         })
     }
     exchangeSourceType () {
@@ -148,12 +164,14 @@ class DataSource extends Component {
         return [{
             title: '数据源名称',
             dataIndex: 'dataName',
-            key: 'dataName'
+            key: 'dataName',
+            width: '180px'
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
             filters: typeList,
+            width: '100px',
             filterMultiple: false,
             render: (text) => typeDic[text]
         },
@@ -161,16 +179,14 @@ class DataSource extends Component {
             title: '描述信息',
             dataIndex: 'dataDesc',
             key: 'dataDesc',
-            width: 300
+            width: 250
         }, {
-            title: '最近修改人',
-            dataIndex: 'modifyUserName',
-            key: 'modifyUserName'
-        }, {
-            title: '最近修改时间',
-            dataIndex: 'gmtModified',
-            key: 'gmtModified',
-            render: text => moment(text).format('YYYY-MM-DD HH:mm:ss')
+            title: '连接信息',
+            dataIndex: 'ext',
+            key: 'ext',
+            render: (empty, record) => {
+                return <ExtTableCell key={record.id} sourceData={record} />
+            }
         }, {
             title: '应用状态',
             dataIndex: 'active',
@@ -183,6 +199,7 @@ class DataSource extends Component {
                 value: 1
             }],
             filterMultiple: false,
+            width: 90,
             render: (active) => {
                 return active === 1 ? '使用中' : '未启用'
             }
@@ -195,7 +212,7 @@ class DataSource extends Component {
             </Tooltip>,
             dataIndex: 'linkState',
             key: 'linkState',
-            width: '10%',
+            width: '100px',
             render: (linkState) => {
                 return linkState === 1 ? <span><Circle style={{ background: '#00A755' }} /> 正常</span>
                     : <span><Circle style={{ background: '#EF5350' }} /> 连接失败</span>
@@ -203,7 +220,7 @@ class DataSource extends Component {
         },
         {
             title: '操作',
-            width: '10%',
+            width: '120px',
             key: 'operation',
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
@@ -247,14 +264,7 @@ class DataSource extends Component {
                 type="primary"
                 style={{ margin: '10px 0' }}
                 className="right"
-                onClick={() => {
-                    this.setState({
-                        visible: true,
-                        source: {},
-                        status: 'add',
-                        title: '添加数据源'
-                    })
-                }}
+                onClick={this.openAddDatasource}
             >
                 新增数据源
             </Button>

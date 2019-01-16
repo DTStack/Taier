@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import {
     Input, Button,
-    Table, message, Card, Icon, Tooltip
+    Table, message, Card, Icon, Tooltip, Popconfirm
 } from 'antd';
 
 import { Circle } from 'widgets/circle';
@@ -96,7 +96,18 @@ class DataSourceManaStream extends Component {
             }
         })
     }
-
+    openDataSourceModal = () => {
+        Api.checkDataSourcePermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    source: {},
+                    status: 'add',
+                    title: '添加数据源'
+                })
+            }
+        })
+    }
     remove = (source) => {
         const ctx = this
         if (source.active === 1) {
@@ -132,11 +143,15 @@ class DataSourceManaStream extends Component {
     }
 
     initEdit = (source) => {
-        this.setState({
-            visible: true,
-            title: '编辑数据源',
-            status: 'edit',
-            source: cloneDeep(source)
+        Api.checkDataSourcePermission().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    title: '编辑数据源',
+                    status: 'edit',
+                    source: cloneDeep(source)
+                })
+            }
         })
     }
     getSourceType (type) {
@@ -248,7 +263,15 @@ class DataSourceManaStream extends Component {
                         {
                             record.active === 1
                                 ? <span style={{ color: '#ccc' }}>删除</span>
-                                : <a onClick={() => { this.remove(record) }}>删除</a>
+                                : (
+                                    <Popconfirm
+                                        title="确定删除此数据源？"
+                                        okText="确定" cancelText="取消"
+                                        onConfirm={() => { this.remove(record) }}
+                                    >
+                                        <a>删除</a>
+                                    </Popconfirm>
+                                )
                         }
                     </span>
                 )
@@ -290,14 +313,7 @@ class DataSourceManaStream extends Component {
                 type="primary"
                 style={{ marginTop: 10 }}
                 className="right"
-                onClick={() => {
-                    this.setState({
-                        visible: true,
-                        source: {},
-                        status: 'add',
-                        title: '添加数据源'
-                    })
-                }}
+                onClick={this.openDataSourceModal}
             >新增数据源</Button>
         )
 
@@ -338,9 +354,17 @@ class DataSourceManaStream extends Component {
         )
     }
 }
+class WrapDataSourceMana extends React.Component {
+    render () {
+        const { project } = this.props;
+        return (
+            <DataSourceManaStream key={project.id} {...this.props} />
+        )
+    }
+}
 export default connect((state) => {
     return {
         project: state.project,
         sourceTypes: state.dataSource.sourceTypes
     }
-})(DataSourceManaStream)
+})(WrapDataSourceMana)

@@ -187,5 +187,68 @@ export default {
     },
     getProjectDataOverview (params) {
         return http.post(dataManageReq.PROJECT_DATA_OVERVIEW, params)
+    },
+    // =========== 数据脱敏 ==================//
+    // 脱敏管理
+    searchDesensitization (params) {
+        return http.post(dataManageReq.GET_DESENSITIZATION_LIST, params)
+    },
+    // 检查新增脱敏是否有权限
+    voidCheckPermission (params) {
+        return http.post(dataManageReq.CHECK_PERMISSION, params)
+    },
+    addDesensitization (params) {
+        return http.post(dataManageReq.ADD_DESENSITIZATION, params)
+    },
+    delDesensitization (params) {
+        return http.post(dataManageReq.DEL_DESENSITIZATION, params)
+    },
+    getTableList (params) {
+        return http.post(dataManageReq.GET_TABLE_LIST, params)
+    },
+    getColumnsList (params) {
+        return http.post(dataManageReq.GET_COLUMNS_LIST, params)
+    },
+    //  添加脱敏时获取脱敏列表
+    getdesRulesList (params) {
+        return http.post(dataManageReq.GET_DESRULES_LIST, params)
+    },
+    viewTableRelation (params) {
+        return http.post(dataManageReq.VIEW_TABLE_RELATION, params)
+    },
+    getRelatedPorjects (params) {
+        return http.post(dataManageReq.GET_RELATED_PROJECTS, params)
+    },
+    updateOpenStatus (params) {
+        return http.post(dataManageReq.UPDATE_OPEN_STATUS, params)
+    },
+    // 血缘
+    getTree (params) {
+        return http.post(dataManageReq.GET_TREE, params)
+    },
+    getChildColumns (params) {
+        return http.post(dataManageReq.GET_DOWNCOLUMNS, params)
+    },
+    getParentColumns (params) {
+        return http.post(dataManageReq.GET_UPCOLUMNS, params)
+    },
+    updateLineageStatus (params) {
+        return http.post(dataManageReq.UPDATA_LINEAGE_STATUS, params) // 链路启用/禁用
+    },
+    // 规则管理
+    searchRule (params) {
+        return http.post(dataManageReq.GET_RULE_LIST, params)
+    },
+    addRule (params) {
+        return http.post(dataManageReq.ADD_RULE, params)
+    },
+    editRule (params) {
+        return http.post(dataManageReq.EDIT_RULE, params)
+    },
+    updateRule (params) {
+        return http.post(dataManageReq.UPDATE_RULE, params)
+    },
+    delRule (params) {
+        return http.post(dataManageReq.DEL_RULE, params)
     }
 }

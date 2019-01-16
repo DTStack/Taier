@@ -3,7 +3,7 @@ import {
     Row, Col, Icon, Tooltip, Input, Select,
     Collapse, Button, Radio, Popover, Form, InputNumber
 } from 'antd';
-import { debounce } from 'lodash';
+import { debounce, cloneDeep } from 'lodash';
 
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
@@ -186,7 +186,7 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label={<span>
                             <span style={{ paddingRight: '5px' }}>Offset</span>
-                            <Tooltip title={<div>
+                            <Tooltip overlayClassName="big-tooltip" title={<div>
                                 <p>latest：从Kafka Topic内最新的数据开始消费</p>
                                 <p>earliest：从Kafka Topic内最老的数据开始消费</p>
                             </div>}>
@@ -205,7 +205,7 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label={<span>
                             <span style={{ paddingRight: '5px' }}>时间特征</span>
-                            <Tooltip title={<div>
+                            <Tooltip overlayClassName="big-tooltip" title={<div>
                                 <p>ProcTime：按照Flink的处理时间处理</p>
                                 <p>EventTime：按照流式数据本身包含的业务时间戳处理</p>
                             </div>}>
@@ -571,23 +571,13 @@ export default class InputPanel extends Component {
     }
 
     handleInputChange = (type, index, value) => { // 监听数据改变
-        const { panelColumn, timeColumoption, originOptionType, topicOptionType } = this.state;
-        // if(type === 'columns'){
-        //     panelColumn[index][type].push(value);
-        // }else if(type === "deleteColumn"){
-        //     panelColumn[index]["columns"].splice(value,1);
-        // }else if(type ==="subColumn"){
-        //     panelColumn[index]["columns"][value].column = subValue;
-        // }else if(type === "subType"){
-        //     panelColumn[index]["columns"][value].type = subValue;
-        // }else{
-        //     panelColumn[index][type] = value;
-        // }
+        let { panelColumn, timeColumoption, originOptionType, topicOptionType } = this.state;
         let shouldUpdateEditor = true;
         const allParamsType = ['type', 'sourceId', 'topic', 'table', 'columns', 'timeType', 'timeColumn', 'offset', 'offsetReset', 'columnsText', 'parallelism']
         if (type === 'columnsText') {
             this.parseColumnsText(index, value, 'changeText')
         }
+        panelColumn = cloneDeep(panelColumn);
         panelColumn[index][type] = value;
         if (type === 'type') {
             // this.clearCurrentInfo(type,index)

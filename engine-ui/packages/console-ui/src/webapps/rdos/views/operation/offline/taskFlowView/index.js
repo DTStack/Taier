@@ -42,6 +42,7 @@ const {
     mxGraphView,
     mxGraphHandler,
     mxRectangle,
+    mxCellHighlight,
     mxText
 } = Mx
 
@@ -74,6 +75,14 @@ const replacTreeNodeField = (treeNode, sourceField, targetField, arrField) => {
     }
 }
 
+const applyCellStyle = (cellState, style) => {
+    if (cellState) {
+        cellState.style = Object.assign(cellState.style, style);
+        cellState.shape.apply(cellState);
+        cellState.shape.redraw();
+    }
+}
+
 /**
  * 合并Tree数据
  * @param {*} origin
@@ -87,6 +96,7 @@ const mergeTreeNodes = (treeNodeData, mergeSource) => {
             } else if (mergeSource.parentNodes) {
                 treeNodeData.parentNodes = cloneDeep(mergeSource.parentNodes);
             }
+            treeNodeData.subNodes = cloneDeep(mergeSource.subNodes);
             return;
         }
 
@@ -168,17 +178,12 @@ class TaskFlowView extends Component {
                 ctx.setState({ data, selectedJob: data })
                 // 替换 jobVos 字段为 parentNodes
                 replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
-                ctx.doInsertVertex(res.data)
-
-                // const result = Object.assign({}, require('./mockJson.json'));
-                // ctx.setState({ data: result.data, selectedJob: result.data })
-                // // 替换 jobVos 字段为 parentNodes
-                // replacTreeNodeField(result.data, 'jobVOS', 'parentNodes', 'parentNodes')
-                // ctx.doInsertVertex(result.data)
+                ctx.doInsertVertex(res.data);
             }
             ctx.setState({ loading: 'success' })
         })
     }
+
     /* eslint-disable */
     loadEditor = (container) => {
         mxGraphView.prototype.optimizeVmlReflows = false;
@@ -190,23 +195,23 @@ class TaskFlowView extends Component {
         graph.setPanning(true);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
-        graph.setConnectable(true)
-        graph.setTooltips(true)
-        graph.view.setScale(1)
+        graph.setConnectable(true);
+        graph.setTooltips(true);
+        graph.view.setScale(1);
         // Enables HTML labels
         graph.setHtmlLabels(true);
 
-        graph.setAllowDanglingEdges(false)
+        graph.setAllowDanglingEdges(false);
         // 禁止连接
-        graph.setConnectable(false)
+        graph.setConnectable(false);
         // 禁止Edge对象移动
         graph.isCellsMovable = function (cell) {
             var cell = graph.getSelectionCell()
-            return !(cell && cell.edge)
+            return !(cell && cell.edge);
         }
         // 禁止cell编辑
         graph.isCellEditable = function () {
-            return false
+            return false;
         }
 
         /**
@@ -224,7 +229,7 @@ class TaskFlowView extends Component {
         // Redirects selection to parent
         graph.selectCellForEvent = function (cell) {
             if (cell.isPart) {
-                cell = graph.getModel().getParent(cell)
+                cell = graph.getModel().getParent(cell);
                 return cell;
             }
             mxGraph.prototype.selectCellForEvent.apply(this, arguments);
@@ -279,9 +284,10 @@ class TaskFlowView extends Component {
             const task = cell.value.batchTask || {};
             const taskType = taskTypeText(task.taskType);
             const taskStatus = taskStatusText(cell.value.status);
+            const isDelete = task.isDeleted === 1 ? '（已删除）' : ''; // 已删除
 
             if (task) {
-                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}</span>
+                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}${isDelete}</span>
                 <span class="vertex-desc">${taskType}(${taskStatus})</span>
                 </div>`
             }
@@ -334,7 +340,6 @@ class TaskFlowView extends Component {
                 treeNodeData._geometry = currentNodeGeo;
                 console.log('geo:', treeNodeData.batchTask.name, treeNodeData._geometry);
 
-
                 relationTree.push({
                     parent: parent,
                     source: treeNodeData
@@ -368,9 +373,7 @@ class TaskFlowView extends Component {
                             target: treeNodeData
                         });
 
-                        if (nodeData.parentNodes) {
-                            loop(nodeData, parent, level - 1, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, level - 1, currentNodeGeo)
                     }
                 }
 
@@ -403,9 +406,7 @@ class TaskFlowView extends Component {
                             target: nodeData
                         });
 
-                        if (nodeData.jobVOS) {
-                            loop(nodeData, parent, ++level, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, ++level, currentNodeGeo)
                     }
                 }
             }
@@ -501,22 +502,6 @@ class TaskFlowView extends Component {
         }
     }
 
-    // hierarchyLayout = (arr) => {
-    //     if (arr) {
-    //         for (let i = 0; i < arr.length; i++) {
-    //             const { source, target } = arr[i];
-    //             if (target) {
-    //                 const countInfo = getRowCountOfSameLevel(arr, target);
-    //                 source._geometry.count = countInfo.count;
-    //                 target._geometry.index = countInfo.index;
-    //                 target._geometry.count = countInfo.count;
-    //                 target._geometry = getGeoByRelativeNode(source._geometry, target._geometry);
-    //             }
-    //             console.log('hierarchyLayout:', arr[i]);
-    //         }
-    //     }
-    // }
-
     doInsertVertex = (data) => {
         const graph = this.graph;
 
@@ -551,11 +536,14 @@ class TaskFlowView extends Component {
         };
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-            if (!cell) return
+            if (!cell) return;
+
             const currentNode = cell.data;
 
             const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId && currentNode.batchTask.flowId !== 0;
             const taskId = currentNode.batchTask && currentNode.batchTask.id;
+            const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
+            if (isDelete) return;
 
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {
@@ -639,6 +627,9 @@ class TaskFlowView extends Component {
     initGraphEvent = () => {
         const ctx = this;
         const graph = this.graph;
+        let highlightEdges = [];
+        let selectedCell = null;
+
         if (graph) {
             graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 const cell = evt.getProperty('cell')
@@ -649,12 +640,55 @@ class TaskFlowView extends Component {
             })
 
             graph.addListener(mxEvent.CLICK, function (sender, evt) {
-                const cell = evt.getProperty('cell')
+                const cell = evt.getProperty('cell');
+
+                const activeElement = document.activeElement;
+                // 当从编辑对象触发点击事件时，清除activeElement的焦点
+                if (
+                    activeElement && activeElement.className.indexOf('vertex-input') > -1) {
+                    activeElement.blur();
+                }
                 if (cell && cell.vertex) {
                     const currentNode = cell.data;
-                    ctx.setState({ selectedJob: currentNode })
+                    ctx.setState({ selectedJob: currentNode });
+
+                    graph.clearSelection();
+                    const cellState = graph.view.getState(cell);
+                    const style = {}
+                    style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
+                    style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
+                    applyCellStyle(cellState, style);
+    
+                    const outEdges = graph.getOutgoingEdges(cell);
+                    const inEdges = graph.getIncomingEdges(cell);
+                    const edges = outEdges.concat(inEdges);
+                    for (let i = 0; i < edges.length; i++) {
+                        const highlight = new mxCellHighlight(graph, '#2491F7', 2);
+                        const state = graph.view.getState(edges[i]);
+                        highlight.highlight(state);
+                        highlightEdges.push(highlight);
+                    }
+                    selectedCell = cell;
+                } else if (cell === undefined) {
+                    const cells = graph.getSelectionCells();
+                    graph.removeSelectionCells(cells);
                 }
             })
+
+            graph.clearSelection = function (evt) {
+                if (selectedCell) {
+                    const cellState = graph.view.getState(selectedCell);
+                    const style = {}
+                    style[mxConstants.STYLE_FILLCOLOR] = '#F5F5F5';
+                    style[mxConstants.STYLE_STROKECOLOR] = '#C5C5C5';
+                    applyCellStyle(cellState, style);
+    
+                    for (let i = 0; i < highlightEdges.length; i++) {
+                        highlightEdges[i].hide();
+                    }
+                    selectedCell = null;
+                }
+            };
         }
     }
 

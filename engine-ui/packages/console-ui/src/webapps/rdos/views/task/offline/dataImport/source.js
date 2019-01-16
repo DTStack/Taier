@@ -97,7 +97,7 @@ export default class ImportSource extends Component {
                             {...formItemLayout}
                             label="已选文件"
                         >
-                            <span style={{ fontSize: '14px' }}>{file.name || ''}</span>
+                            <span style={{ fontSize: '14px', wordBreak: 'break-all' }}>{file.name || ''}</span>
                             &nbsp;&nbsp;
                             <span style={{ color: '#f60' }}>
                                 只支持.txt、.csv和.log文件类型

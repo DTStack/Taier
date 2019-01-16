@@ -15,21 +15,22 @@ export function authBeforeFormate(response) {
         case 500:
         case 502:
         case 504:
-            notification['error']({
-                message: title,
-                description: '服务器出现了点问题',
-            });
+            singletonNotification(
+                '服务器异常',
+                '服务器出现了点问题',
+                'error'
+            );
         case 402:
         case 200:
             return response;
         case 302:
             message.info('登录超时, 请重新登录！')
         case 413:
-            notification['error']({
-                message: '异常',
-                description: "请求内容过大！",
-                style: maxHeightStyle
-            });
+            singletonNotification(
+                '异常',
+                '请求内容过大！',
+                'error'
+            );
         default:
             if (process.env.NODE_ENV !== 'production') {
                 console.error('Request error: ', response.code, response.message)
@@ -56,7 +57,7 @@ export function authAfterFormated(response) {
                     style: maxHeightStyle
                 });
             }
-            return Promise.reject(response);
+            return response;
         }
         case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
             hashHistory.push('/');

@@ -15,17 +15,17 @@ export function commonFileEditDelegator (editor, customKeys = {}) {
 
     return function (key) {
         switch (key) {
-        case keys.find: {
-            editor.trigger('anyString', commonEvent.OPEN_FIND_TOOL)
-            return;
-        }
-        case keys.replace: {
-            editor.trigger('anyString', commonEvent.OPEN_REPLACE_TOOL)
-            return;
-        }
-        case keys.commandPane: {
-            editor.trigger('anyString', commonEvent.OPEN_COMMAND_LINE)
-        }
+            case keys.find: {
+                editor.trigger('anyString', commonEvent.OPEN_FIND_TOOL)
+                return;
+            }
+            case keys.replace: {
+                editor.trigger('anyString', commonEvent.OPEN_REPLACE_TOOL)
+                return;
+            }
+            case keys.commandPane: {
+                editor.trigger('anyString', commonEvent.OPEN_COMMAND_LINE)
+            }
         }
     }
 }
@@ -40,4 +40,39 @@ export function jsonEqual (newJson, oldJson) {
         return true;
     }
     return false;
+}
+/**
+* 该函数delaytime时间内顶多执行一次func（最后一次），如果freshTime时间内没有执行，则强制执行一次。
+* @param {function} func
+*/
+export function delayFunctionWrap (func) {
+    /**
+     * 最小执行间隔，每隔一段时间强制执行一次函数
+     * 这里不能太小，因为太小会导致大的解析任务没执行完阻塞。
+     */
+    let freshTime = 3000;
+    /**
+     * 函数延迟时间
+     */
+    let delayTime = 500;
+
+    let outTime;
+    let _timeClock;
+    return function () {
+        const arg = arguments;
+        _timeClock && clearTimeout(_timeClock);
+        // 这边设置在一定时间内，必须执行一次函数
+        if (outTime) {
+            let now = new Date();
+            if (now - outTime > freshTime) {
+                func(...arg);
+            }
+        } else {
+            outTime = new Date();
+        }
+        _timeClock = setTimeout(() => {
+            outTime = null;
+            func(...arg);
+        }, delayTime)
+    }
 }

@@ -589,7 +589,7 @@ class Keymap extends React.Component {
                             top: padding + (h * (sourceCol.length + 1)),
                             width: w,
                             height: h,
-                            zIndex: 100
+                            zIndex: 2
                         }}
                     >
                         { footerContent }
@@ -748,7 +748,7 @@ class Keymap extends React.Component {
                     left: W - (padding + w),
                     width: w,
                     height: h,
-                    zIndex: 100
+                    zIndex: 2
                 }}>
                     {footerContent}
                 </div> : ''

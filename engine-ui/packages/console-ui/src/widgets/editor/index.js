@@ -1,16 +1,5 @@
 import React from 'react';
-
-// import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';
-// import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
-// import 'monaco-editor/esm/vs/editor/contrib/folding/folding.js';
-// import 'monaco-editor/esm/vs/editor/contrib/contextmenu/contextmenu.js';
-// import 'monaco-editor/esm/vs/editor/contrib/smartSelect/smartSelect.js';
-
-// import 'monaco-editor/esm/vs/editor/editor.all.js';
-// import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
-// import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
-// import "monaco-editor/esm/vs/basic-languages/python/python.contribution.js";
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import './languages/shell/shell.contribution.js';
@@ -21,8 +10,14 @@ import './languages/dtlog/dtlog.contribution.js'
 import './style.scss';
 import whiteTheme from './theme/whiteTheme';
 import { defaultOptions } from './config';
-import { jsonEqual } from './utils';
+import { jsonEqual, delayFunctionWrap } from './utils';
 
+/**
+ * 要注册的语言补全功能所需要实现的接口
+ * register 注册补全
+ * dispose 取消注册
+ * onChange value改变事件
+ */
 const provideCompletionItemsMap = {
     dtsql: {
         /**
@@ -39,46 +34,20 @@ const provideCompletionItemsMap = {
         onChange: dtsql.onChange
     }
 }
-/**
- * 该函数delaytime时间内顶多执行一次func（最后一次），如果freshTime时间内没有执行，则强制执行一次。
- * @param {function} func
- */
-function delayFunctionWrap (func) {
-    /**
-     * 最小执行间隔，每隔一段时间强制执行一次函数
-     * 这里不能太小，因为太小会导致大的解析任务没执行完阻塞。
-     */
-    let freshTime = 3000;
-    /**
-     * 函数延迟时间
-     */
-    let delayTime = 500;
-
-    let outTime;
-    let _timeClock;
-    return function () {
-        const arg = arguments;
-        _timeClock && clearTimeout(_timeClock);
-        // 这边设置在一定时间内，必须执行一次函数
-        if (outTime) {
-            let now = new Date();
-            if (now - outTime > freshTime) {
-                func(...arg);
-            }
-        } else {
-            outTime = new Date();
-        }
-        _timeClock = setTimeout(() => {
-            outTime = null;
-            func(...arg);
-        }, delayTime)
-    }
-}
 class Editor extends React.Component {
     constructor (props) {
         super(props);
+        /**
+         * monaco需要的渲染节点
+         */
         this.monacoDom = null;
+        /**
+         * monaco实例
+         */
         this.monacoInstance = null;
+        /**
+         * monaco渲染外部链接对象的销毁用ID
+         */
         this._linkId = null;
     }
 
@@ -107,7 +76,7 @@ class Editor extends React.Component {
 
     initProviderProxy () {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
-        for (let [type, language] of keyAndValues) {
+        for (let [, language] of keyAndValues) {
             /**
              * 每个函数的补全函数都由该组件统一代理
              */
@@ -116,12 +85,13 @@ class Editor extends React.Component {
     }
     disposeProviderProxy () {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
-        for (let [type, language] of keyAndValues) {
+        for (let [, language] of keyAndValues) {
             language.dispose(this.monacoInstance);
         }
     }
-    componentWillReceiveProps (nextProps) {
-        const { sync, value, theme, languageConfig, language, download } = nextProps;
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
+        const { sync, value, theme, languageConfig, language } = nextProps;
         if (this.props.value !== value && sync) {
             /**
              * value更新， 并且含有sync同步标记，则更新编辑器值
@@ -255,7 +225,7 @@ class Editor extends React.Component {
         this.languageValueOnChange(this.props.onSyntaxChange);
         this.monacoInstance.onDidChangeModelContent(event => {
             this.log('编辑器事件');
-            const { onChange, value, onSyntaxChange } = this.props;
+            const { onChange, onSyntaxChange } = this.props;
             const newValue = this.monacoInstance.getValue();
             // 考虑到语法解析比较耗时，所以把它放到一个带有调用延迟的函数中，并且提供一个可供订阅的onSyntaxChange函数
             this.delayLanguageValueOnChange(onSyntaxChange);
@@ -296,10 +266,31 @@ class Editor extends React.Component {
                 onCursorSelection(selectionContent);
             }
         });
+        /**
+         * 改变contextMenu的定位为fixed，避免容器内overflow:hidden属性截断contextMenu
+         */
+        this.monacoInstance.onContextMenu((e) => {
+            this.log('编辑器事件 onContextMenu');
+            const contextMenuElement = this.monacoInstance.getDomNode().querySelector('.monaco-menu-container');
+
+            if (contextMenuElement) {
+                const posY = (e.event.posy + contextMenuElement.clientHeight) > window.innerHeight
+                    ? e.event.posy - contextMenuElement.clientHeight
+                    : e.event.posy;
+
+                const posX = (e.event.posx + contextMenuElement.clientWidth) > window.innerWidth
+                    ? e.event.posx - contextMenuElement.clientWidth
+                    : e.event.posx;
+
+                contextMenuElement.style.position = 'fixed';
+                contextMenuElement.style.top = Math.max(0, Math.floor(posY)) + 'px';
+                contextMenuElement.style.left = Math.max(0, Math.floor(posX)) + 'px';
+            }
+        });
     }
 
     render () {
-        const { className, style, editorInstance } = this.props;
+        const { className, style } = this.props;
 
         let renderClass = 'code-editor';
         renderClass = className ? `${renderClass} ${className}` : renderClass;

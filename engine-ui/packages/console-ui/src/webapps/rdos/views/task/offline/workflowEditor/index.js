@@ -90,6 +90,7 @@ const getTaskBaseData = (task) => {
         computeType: task.computeType
     }
 }
+
 /* eslint-disable */
 @connect(state => {
     const { offlineTask, project, user, editor } = state;
@@ -340,10 +341,10 @@ class WorkflowEditor extends Component {
     onkeyDown = (evt) => {
         const keyCode = evt.keyCode;
         switch (keyCode) {
-        case KEY_CODE.BACKUP: {
-            break;
-        }
-        default:
+            case KEY_CODE.BACKUP: {
+                break;
+            }
+            default:
         }
     }
 
@@ -358,6 +359,7 @@ class WorkflowEditor extends Component {
         toggleCreateTask();
         updateWorkflow(workflow);
     }
+
 
     appendWorkflowNode = (newNode) => {
         const { data, saveTask, loadTreeNode } = this.props;
@@ -443,7 +445,7 @@ class WorkflowEditor extends Component {
         });
     }
 
-    getDataSyncData(data) {
+    getDataSyncData (data) {
         const { keymap, sourceMap, targetMap } = data;
         let { source = [], target = [] } = keymap;
         let serverSource = []; let serverTarget = [];
@@ -582,19 +584,19 @@ class WorkflowEditor extends Component {
 
     initGraphLayout = () => {
         const graph = this.graph;
-        // const edgeStyle = this.getDefaultEdgeStyle();
+        const edgeStyle = this.getDefaultEdgeStyle();
         const model = graph.getModel();
-        const layout = new mxHierarchicalLayout(graph, 'north');
-        layout.disableEdgeStyle = false;
-        layout.interRankCellSpacing = 40;
-        layout.intraCellSpacing = 20;
-        layout.edgeStyle = 'default'; //mxEdgeStyle.TopToBottom;
 
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
             model.beginUpdate();
             try {
-                console.log('layout:', layout);
+                const layout = new mxHierarchicalLayout(graph, 'north');
+                layout.disableEdgeStyle = false;
+                layout.interRankCellSpacing = 40;
+                layout.intraCellSpacing = 20;
+                layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
+                console.log('layout:', layout, edgeStyle);
                 if (change != null) { change(); }
                 layout.execute(parent);
             } catch (e) {
@@ -610,7 +612,7 @@ class WorkflowEditor extends Component {
         const ctx = this;
         const graph = this.graph;
 
-        const { openTaskInDev, data, project, user } = this.props;
+        const { openTaskInDev, data, project, user, onEditTaskByModal, updateWorkflow } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
@@ -635,7 +637,15 @@ class WorkflowEditor extends Component {
                 menu.addItem('编辑名称', null, function () {
                     ctx.initEditTaskCell(cell, currentNode);
                 }, null, null, true) // 正常状态
-
+                menu.addItem('编辑节点属性', null, function () {
+                    onEditTaskByModal(currentNode);
+                    updateWorkflow({
+                        workflowId: data.id,
+                        data: data,
+                        taskType: currentNode.taskType,
+                        status: 'create'
+                    });
+                }, null, null, true) // 正常状态
                 menu.addItem('查看节点内容', null, function () {
                     openTaskInDev(currentNode.id);
                 }, null, null, true) // 正常状态
@@ -818,8 +828,8 @@ class WorkflowEditor extends Component {
 
     listenGraphUpdate = () => {
         const graph = this.graph;
-        graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData)
-        graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData)
+        graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData);
+        graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData);
         graph.addListener(mxEvent.CELL_CONNECTED, this.updateGraphData)
     }
 
@@ -939,16 +949,16 @@ class WorkflowEditor extends Component {
 
         const showTitle = (type, title) => {
             switch (type) {
-            case TASK_TYPE.SQL:
-                return '以Spark作为计算引擎，兼容HiveSQL语法';
-            case TASK_TYPE.MR:
-                return '基于Java、Scala的Spark节点任务';
-            case TASK_TYPE.ML:
-                return '基于Spark MLLib的机器学习节点任务';
-            case TASK_TYPE.DEEP_LEARNING:
-                return '基于TensorFlow、MXNet的深度学习节点任务';
-            default:
-                return title;
+                case TASK_TYPE.SQL:
+                    return '以Spark作为计算引擎，兼容HiveSQL语法';
+                case TASK_TYPE.MR:
+                    return '基于Java、Scala的Spark节点任务';
+                case TASK_TYPE.ML:
+                    return '基于Spark MLLib的机器学习节点任务';
+                case TASK_TYPE.DEEP_LEARNING:
+                    return '基于TensorFlow、MXNet的深度学习节点任务';
+                default:
+                    return title;
             }
         }
         const widgets = taskTypes.map(item => {
@@ -1142,8 +1152,7 @@ class WorkflowEditor extends Component {
         return style
     }
 
-    /* eslint-disable */
-    initEditor() {
+    initEditor () {
         // Overridden to define per-shape connection points
         mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
             if (terminal != null && terminal.shape != null) {
@@ -1151,8 +1160,7 @@ class WorkflowEditor extends Component {
                     if (terminal.shape.stencil != null) {
                         return terminal.shape.stencil.constraints;
                     }
-                }
-                else if (terminal.shape.constraints != null) {
+                } else if (terminal.shape.constraints != null) {
                     return terminal.shape.constraints;
                 }
             }
@@ -1164,7 +1172,7 @@ class WorkflowEditor extends Component {
             new mxConnectionConstraint(new mxPoint(0.5, 0), true),
             new mxConnectionConstraint(new mxPoint(0, 0.5), true),
             new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-            new mxConnectionConstraint(new mxPoint(0.5, 1), true),
+            new mxConnectionConstraint(new mxPoint(0.5, 1), true)
         ];
         // // Edges have no connection points
         mxPolyline.prototype.constraints = null;
@@ -1172,4 +1180,3 @@ class WorkflowEditor extends Component {
 }
 
 export default WorkflowEditor;
-/* eslint-disable */

@@ -15,7 +15,7 @@ import moment from 'moment';
 
 import ToolTipCopy from '../../../components/tooltipCopy';
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import { rowFormItemLayout, DATA_SOURCE } from '../../../consts';
+import { rowFormItemLayout, DATA_SOURCE, HELP_DOC_URL } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
 
 const Option = Select.Option;
@@ -431,7 +431,7 @@ class RemoteTriggerPane extends Component {
                 </p>
                 <p>
                     2、在您自建的大数据平台上，新建一个脚本任务，并编写调用的代码，详细的使用教程请参考
-                    <a>《帮助文档》</a>；
+                    <a href={HELP_DOC_URL.REMOTE} target="blank">《帮助文档》</a>；
                 </p>
                 <p>
                     3、在您自建的大数据平台上，将数据处理任务作为脚本任务的下游任务；

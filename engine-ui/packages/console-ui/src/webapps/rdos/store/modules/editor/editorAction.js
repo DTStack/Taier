@@ -2,7 +2,7 @@ import moment from 'moment'
 import utils from 'utils'
 
 import API from '../../../api';
-import { taskStatus, offlineTaskStatusFilter, TASK_TYPE } from '../../../comm/const'
+import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS } from '../../../comm/const'
 import { editorAction } from './actionTypes';
 import { createLinkMark, createLog, createTitle } from 'widgets/code-editor/utils'
 
@@ -43,6 +43,10 @@ function getDataOver (dispatch, currentTab, res, jobId) {
  */
 function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
     function outputStatus (status, extText) {
+        // 当为数据同步日志时，运行日志就不显示了
+        if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
+            return;
+        }
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value == status) {
                 dispatch(output(currentTab, createLog(`${offlineTaskStatusFilter[i].text}${extText || ''}`, 'info')))
@@ -119,7 +123,7 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
     dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
-    dispatch(output(currentTab, `${createTitle('任务信息')}\n${params.sql}\n${createTitle('')}`))
+    // dispatch(output(currentTab, `${createTitle('任务信息')}\n${params.sql}\n${createTitle('')}`))
     function execContinue () {
         if (stopSign[currentTab]) {
             console.log('find stop sign in exec')
@@ -143,7 +147,8 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
         }
         if (res && res.code === 1) {
             if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
-
+            // 在立即执行sql成功后，显示转化之后的任务信息(sqlText)
+            if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
 

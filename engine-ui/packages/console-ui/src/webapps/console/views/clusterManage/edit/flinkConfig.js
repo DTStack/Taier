@@ -68,6 +68,14 @@ export default class FlinkConfig extends React.Component {
                         <Input disabled={isView} placeholder="Flink在Zookeeper的namespace，例如：/flink140" />
                     )}
                 </FormItem>
+                <FormItem
+                    label="flinkClusterId"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.flinkClusterId', {})(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
 
                 <div className="checkboxStyle">
                     <Checkbox

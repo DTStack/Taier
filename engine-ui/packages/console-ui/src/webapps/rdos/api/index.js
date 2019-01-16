@@ -113,6 +113,9 @@ export default {
     updateProjectSchedule(params) {
         return http.post(req.UPDATE_PROJECT_SCHEDULE, params)
     },
+    updateProjectAllowDownLoad(params) {
+        return http.post(req.UPDATE_PROJECT_ALLOW_DOWNLOAD, params)
+    },
     bindProductionProject(params) {
         return http.post(req.BIND_PRODUCTION_PROJECT, params)
     },
@@ -299,6 +302,10 @@ export default {
         return http.post(offlineReq.SAVE_TASK, task)
     },
 
+    convertDataSyncToScriptMode(params) {
+        return http.post(offlineReq.CONVERT_SYNC_T0_SCRIPT_MODE, params)
+    },
+
     renameTask(task) {
         return http.post(offlineReq.RENAME_TASK, task)
     },
@@ -450,6 +457,9 @@ export default {
     },
     checkSyncMode(params) { // 检测是否满足增量数据同步
         return http.post(offlineReq.CHECK_SYNC_MODE, params)
+    },
+    getHivePartitions(params) { // 获取Hive分区
+        return http.post(offlineReq.CHECK_HIVE_PARTITIONS, params)
     },
     /**
      * - 查询数据同步任务，SQL 执行结果
@@ -626,6 +636,9 @@ export default {
     getDataSourceTypes(params) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
+    checkIsPermission(params) {
+        return http.post(offlineReq.CHECK_IS_PERMISSION, params)
+    },
 
     // ============== dataSource 整库同步 ==================
     saveSyncConfig(params) {
@@ -645,6 +658,9 @@ export default {
     },
     getTaskOfOfflineSource(params) {
         return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
+    },
+    checkSyncPermission(params) {
+        return http.post(offlineReq.CHECK_SYNC_PERMISSION, params)
     },
 
     // ============== dataManage 数据管理 ==================

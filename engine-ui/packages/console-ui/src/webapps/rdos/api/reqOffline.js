@@ -28,7 +28,7 @@ export default {
     FROZEN_TASK: `${RDOS_BASE_URL}/batch/batchTask/frozenTask`, // 冻结/解冻任务
     TASK_VERSION_SCHEDULE_CONF: `${RDOS_BASE_URL}/batch/batchTask/taskVersionScheduleConf `,
     UPDATE_TASK_OWNER: `${RDOS_BASE_URL}/batch/batchTask/setOwnerUser `,
-
+    CONVERT_SYNC_T0_SCRIPT_MODE: `${RDOS_BASE_URL}/batch/batchTask/guideToTemplate `, // 转换数据同步从向导到脚本模式
     // ===== 脚本管理 ===== //
     SAVE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/addOrUpdateScript`, // 保存脚本
     FORCE_UPDATE_SCRIPT: `${RDOS_BASE_URL}/batch/batchScript/forceUpdate`, // 强制更新
@@ -74,6 +74,7 @@ export default {
     SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
     GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/getIncreColumn`, // 获取增量字段
     CHECK_SYNC_MODE: `${RDOS_BASE_URL}/batch/batchDataSource/canSetIncreConf`, // 检测是否满足增量
+    CHECK_HIVE_PARTITIONS: `${RDOS_BASE_URL}/batch/batchDataSource/getHivePartitions`, // 获取hive表分区值
 
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
@@ -125,6 +126,7 @@ export default {
     GET_DATA_SOURCE_TYPES: `${RDOS_BASE_URL}/batch/batchDataSource/getTypes`, // 获取数据源类型列表
     GET_HBASE_COLUMN_FAMILY: `${RDOS_BASE_URL}/batch/batchDataSource/columnfamily`, // 获取Hbase数据表列族
     GET_TASK_LIST_OF_OFFLINE_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/getSourceTaskRef`, // 获取离线数据源的任务
+    CHECK_IS_PERMISSION: `${RDOS_BASE_URL}/batch/batchDataSource/checkPermission`, // 检查是否有权限
 
     GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
     ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
@@ -138,6 +140,7 @@ export default {
     GET_SYNC_DETAIL: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/getDetail`, // 获取整库同步详情
     PUBLISH_SYNC_TASK: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/task`, // 发布单表
     CHECK_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkTransformConfig`, // 检查高级配置
+    CHECK_SYNC_PERMISSION: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/checkPermission`, // 检查同步历史是否有权限
 
     // ===== 项目统计 ===== //
     PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/hiveTableCount/tableCount`, // 表总量

@@ -193,8 +193,7 @@ class PatchDataDetail extends Component {
             warning({
                 title: '提示',
                 content: `
-                    除去“失败”、“停止”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
-                    请您重新选择!
+                    “失败”、“取消”、“成功”状态和“已删除”的任务，不能被杀死 !
                 `
             })
         }
@@ -263,6 +262,8 @@ class PatchDataDetail extends Component {
                 const res = tasks.find(task => task.id === id)
                 if (res && (
                     res.status === TASK_STATUS.SUBMIT_FAILED ||
+                    res.status === TASK_STATUS.RUN_FAILED ||
+                    res.status === TASK_STATUS.PARENT_FAILD ||
                     res.status === TASK_STATUS.STOPED ||
                     res.status === TASK_STATUS.FINISHED ||
                     res.batchTask.isDeleted === 1
@@ -372,6 +373,8 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
+            width: '200px',
+            fixed: 'left',
             render: (text, record) => {
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)`
@@ -382,6 +385,7 @@ class PatchDataDetail extends Component {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
+            fixed: 'left',
             render: (text, record) => {
                 return <span>
                     <TaskStatus value={text} />
@@ -401,6 +405,7 @@ class PatchDataDetail extends Component {
             title: '任务类型',
             dataIndex: 'taskType',
             key: 'taskType',
+            width: '100px',
             render: (text, record) => {
                 return <TaskType value={text} />
             },
@@ -424,6 +429,7 @@ class PatchDataDetail extends Component {
             title: '运行时长',
             dataIndex: 'exeTime',
             key: 'exeTime',
+            width: '100px',
             sorter: true
         }, {
             title: '责任人',
@@ -467,7 +473,9 @@ class PatchDataDetail extends Component {
         for (let i = 0; i < selectedRows.length; i++) {
             let row = selectedRows[i];
             switch (row.status) {
-                case TASK_STATUS.RUN_FAILED: {
+                case TASK_STATUS.RUN_FAILED:
+                case TASK_STATUS.PARENT_FAILD:
+                case TASK_STATUS.SUBMIT_FAILED: {
                     haveFail = true;
                     break;
                 }
@@ -557,7 +565,15 @@ class PatchDataDetail extends Component {
                             </span>&nbsp;
                             <span className="status_overview_fail_font">
                                 <Circle className="status_overview_fail" />&nbsp;
-                            失败: &nbsp;{statistics.FAILED || 0}
+                            提交失败: &nbsp;{statistics.SUBMITFAILD || 0}
+                            </span>&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            运行失败: &nbsp;{statistics.FAILED || 0}
+                            </span>&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            上游失败: &nbsp;{statistics.PARENTFAILED || 0}
                             </span>&nbsp;
                             <span className="status_overview_frozen_font">
                                 <Circle className="status_overview_frozen" />&nbsp;
@@ -665,6 +681,7 @@ class PatchDataDetail extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
+                            scroll={{ x: '1200px' }}
                             className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}

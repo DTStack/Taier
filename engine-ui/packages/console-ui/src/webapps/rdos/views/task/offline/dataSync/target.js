@@ -5,7 +5,7 @@ import { isEmpty, debounce } from 'lodash';
 import assign from 'object-assign';
 
 import utils from 'utils';
-import { singletonNotification } from 'funcs';
+import { singletonNotification, filterValueOption } from 'funcs';
 import Editor from 'widgets/editor';
 
 import ajax from '../../../../api';
@@ -37,6 +37,7 @@ class TargetForm extends React.Component {
             tableList: [],
             visible: false,
             modalLoading: false,
+            tablePartitionList: [], // 表分区列表
             loading: false // 请求
         };
     }
@@ -166,9 +167,35 @@ class TargetForm extends React.Component {
         })
     }
 
+    getHivePartions = (tableName) => {
+        const {
+            targetMap, handleTargetMapChange, form
+        } = this.props;
+        // Reset partition
+        form.setFieldsValue({ partition: '' });
+        const { isNativeHive, sourceId, type } = targetMap;
+        if (type && (
+            type.type === DATA_SOURCE.HIVE ||
+            type.type === DATA_SOURCE.MAXCOMPUTE ||
+            (isNativeHive && type.type !== DATA_SOURCE.CARBONDATA)
+        )) {
+            ajax.getHivePartitions({
+                sourceId: sourceId,
+                tableName
+            }).then(res => {
+                this.setState({
+                    tablePartitionList: res.data || []
+                });
+                const havePartition = res.data && res.data.length > 0;
+                handleTargetMapChange({ havePartition });
+            });
+        }
+    }
+
     changeTable (value) {
         if (value) {
             this.getTableColumn(value);
+            this.getHivePartions(value);
         }
         this.submitForm();
     }
@@ -387,6 +414,9 @@ class TargetForm extends React.Component {
         const { targetMap, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
         const { isNativeHive } = targetMap;
+        // 是否拥有分区
+        const havePartition = targetMap.type && targetMap.type.havePartition;
+        console.log('havePartition:', havePartition);
         let formItem;
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
@@ -423,6 +453,7 @@ class TargetForm extends React.Component {
                                 mode="combobox"
                                 // disabled={ !isCurrentTabNew }
                                 optionFilterProp="value"
+                                filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
                             >
                                 {this.state.tableList.map(table => {
@@ -508,6 +539,7 @@ class TargetForm extends React.Component {
                                 showSearch
                                 mode="combobox"
                                 optionFilterProp="value"
+                                filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
                             >
                                 {this.state.tableList.map(table => {
@@ -520,20 +552,39 @@ class TargetForm extends React.Component {
                             </Select>
                         )}
                     </FormItem>,
-                    isNativeHive ? <FormItem
+                    isNativeHive && havePartition ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
-                            <Input
+                            <Select
+                                mode="combobox"
+                                showSearch
+                                showArrow={true}
+                                optionFilterProp="value"
+                                placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
-                                /* eslint-disable-next-line */
-                                placeholder="pt=${bdp.system.bizdate}"
-                            ></Input>
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map(pt => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </Option>
+                                        );
+                                    })}
+                            </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
                     </FormItem> : null,
@@ -581,6 +632,7 @@ class TargetForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 mode="combobox"
+                                filterOption={filterValueOption}
                                 onChange={this.debounceTableSearch.bind(this)}
                                 optionFilterProp="value"
                             >
@@ -599,24 +651,42 @@ class TargetForm extends React.Component {
                             onClick={this.showCreateModal.bind(this)}
                             className="help-doc" >一键生成目标表</a>)}
                     </FormItem>,
-                    <FormItem
+                    havePartition ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
                         })(
-                            <Input
+                            <Select
+                                mode="combobox"
+                                showSearch
+                                showArrow={true}
+                                optionFilterProp="value"
+                                placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
-                                /* eslint-disable */
-                                placeholder="pt=${bdp.system.bizdate}"
-                            /* eslint-disable */
-                            ></Input>
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map(pt => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </Option>
+                                        );
+                                    })}
+                            </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
-                    </FormItem>,
+                    </FormItem> : '',
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
@@ -632,10 +702,10 @@ class TargetForm extends React.Component {
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
-                            </Radio>
+                                </Radio>
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
-                            </Radio>
+                                </Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
@@ -773,6 +843,7 @@ class TargetForm extends React.Component {
                                 onChange={this.debounceTableSearch.bind(this)}
                                 // disabled={!isCurrentTabNew}
                                 optionFilterProp="value"
+                                filterOption={filterValueOption}
                             >
                                 {this.state.tableList.map(table => {
                                     return <Option key={`hbase-target-${table}`} value={table}>

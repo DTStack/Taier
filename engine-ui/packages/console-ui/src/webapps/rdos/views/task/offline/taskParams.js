@@ -4,6 +4,7 @@ import {
     Collapse,
     Input
 } from 'antd';
+import { debounce } from 'lodash'
 
 import HelpDoc from '../../helpDoc';
 
@@ -35,6 +36,8 @@ class TaskParams extends React.Component {
         }
     }
 
+    debounceChange = debounce(this.onChange, 300, { 'maxWait': 2000 })
+
     removeParams = (index) => {
         const { tabData, onChange } = this.props;
         const taskVariables = [...tabData.taskVariables];
@@ -45,8 +48,8 @@ class TaskParams extends React.Component {
     getFormItems = () => {
         const { getFieldDecorator } = this.props.form;
         const { taskVariables } = this.props.tabData;
-        const sysArr = []; const customArr = [];
-
+        const sysArr = [];
+        const customArr = [];
         const getFormItem = (index, param) => (
             <FormItem
                 key={param.paramName}
@@ -64,12 +67,9 @@ class TaskParams extends React.Component {
                 })(
                     <Input
                         disabled={param.type === 0}
-                        onChange={(e) => { this.onChange(index, e.target.value) }}
+                        onChange={(e) => { this.debounceChange(index, e.target.value) }}
                     />
                 )}
-                {/* <Tooltip placement="top" title="移除变量">
-                    <Icon type="minus-circle-o" style={removeIcon} onClick={() => this.removeParams(index)}/>
-                </Tooltip> */}
             </FormItem>
         )
         if (taskVariables) {

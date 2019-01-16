@@ -17,7 +17,7 @@ import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
 
 import utils from 'utils';
-import { singletonNotification, debounceEventHander } from 'funcs';
+import { singletonNotification, debounceEventHander, filterValueOption } from 'funcs';
 import ajax from '../../../../api';
 import {
     sourceMapAction,
@@ -49,6 +49,7 @@ class SourceForm extends React.Component {
             showPreview: false,
             dataSource: [],
             columns: [],
+            tablePartitionList: [], // 表分区列表
             loading: false // 请求
         };
     }
@@ -238,12 +239,36 @@ class SourceForm extends React.Component {
                 loading: true
             });
             this.getTableColumn(value, type);
+            // 如果源为hive, 则加载分区字段
+            this.getHivePartions(value);
         }
         this.submitForm();
         this.setState({
             showPreview: false
         });
     }
+
+    getHivePartions = (tableName) => {
+        const {
+            sourceMap,
+            form
+        } = this.props;
+
+        if (sourceMap.type && sourceMap.type.type !== DATA_SOURCE.HIVE) {
+            return;
+        }
+        // Reset partition
+        form.setFieldsValue({ partition: '' });
+        ajax.getHivePartitions({
+            sourceId: sourceMap.sourceId,
+            tableName
+        }).then(res => {
+            this.setState({
+                tablePartitionList: res.data || []
+            });
+        });
+    }
+
     changeExtTable (key, value) {
         this.submitForm(null, key);
     }
@@ -676,6 +701,7 @@ class SourceForm extends React.Component {
                                             source.key
                                         )}
                                         optionFilterProp="value"
+                                        filterOption={filterValueOption}
                                     >
                                         {(
                                             this.state.tableListMap[source.sourceId] || []
@@ -756,6 +782,7 @@ class SourceForm extends React.Component {
                                         sourceMap.type.type
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []
@@ -892,6 +919,7 @@ class SourceForm extends React.Component {
                                         sourceMap.type.type
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []
@@ -972,6 +1000,7 @@ class SourceForm extends React.Component {
                                         null
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []
@@ -991,21 +1020,32 @@ class SourceForm extends React.Component {
                     ),
                     <FormItem {...formItemLayout} label="分区" key="partition">
                         {getFieldDecorator('partition', {
-                            rules: [
-                                // {
-                                //     validator: this.checkSpaceCharacter
-                                // }
-                            ],
+                            rules: [],
                             initialValue: isEmpty(sourceMap)
                                 ? ''
                                 : sourceMap.type.partition
                         })(
-                            <Input
-                                placeholder="请填写分区"
-                                /* eslint-disable */
-                                placeholder="pt=${bdp.system.bizdate}"
+                            <Select
+                                mode="combobox"
+                                showSearch
+                                showArrow={true}
+                                optionFilterProp="value"
+                                placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
-                            />
+                                filterOption={filterValueOption}
+                            >
+                                {
+                                    (this.state.tablePartitionList || []).map(pt => {
+                                        return (
+                                            <Option
+                                                key={`rdb-${pt}`}
+                                                value={pt}
+                                            >
+                                                {pt}
+                                            </Option>
+                                        );
+                                    })}
+                            </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
                     </FormItem>
@@ -1150,6 +1190,7 @@ class SourceForm extends React.Component {
                                         null
                                     )}
                                     optionFilterProp="value"
+                                    filterOption={filterValueOption}
                                 >
                                     {(
                                         this.state.tableListMap[sourceMap.sourceId] || []

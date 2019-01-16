@@ -23,20 +23,9 @@ class GoOnTask extends Component {
         externalPath: '',
         rangeValue: []
     }
-
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps, nextState) {
-        const taskId = nextProps.taskId
-        const visible = nextProps.visible;
-        const oldVisible = this.props.visible;
-
-        if (visible && oldVisible !== visible) {
-            this.setState({
-                checkPoints: [],
-                dateRange: null,
-                externalPath: '',
-                rangeValue: []
-            })
+    componentDidMount () {
+        const taskId = this.props.taskId;
+        if (taskId) {
             this.getCheckPointRange({
                 taskId
             })
@@ -125,7 +114,7 @@ class GoOnTask extends Component {
             const max = moment(dateRange.right)
 
             min.set({ hour: 0, minute: 0, second: 0, millisecond: 0 })
-            max.set({ hour: 24, minute: 59, second: 59, millisecond: 0 })
+            max.set({ hour: 23, minute: 59, second: 59, millisecond: 0 })
 
             return current.valueOf() < min.valueOf() || current.valueOf() > max.valueOf()
         }
@@ -163,7 +152,8 @@ class GoOnTask extends Component {
                 <div>
                     <span style={{ marginRight: '5px' }}>
                         <RangePicker
-                            format="YYYY-MM-DD HH:mm:ss"
+                            style={{ width: '300px' }}
+                            format="YYYY-MM-DD"
                             disabledDate={this.disabledDate}
                             onChange={this.taskReadRangeChange}
                             value={rangeValue}
@@ -181,7 +171,7 @@ class GoOnTask extends Component {
                             disabled={!dateRange}
                             value={externalPath}
                         >
-                            { options }
+                            {options}
                         </Select>
                     </span>
                 </div>

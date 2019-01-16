@@ -10,7 +10,7 @@ export const DATA_SOURCE = {
     FTP: 9,
     MAXCOMPUTE: 10,
     ADS: 11,
-    POSTAGERSQL: 15,
+    AnalyticDB: 15,
     RDS: 16,
     DB2: 17
 }
@@ -86,7 +86,7 @@ export const EXCHANGE_ADMIN_API_STATUS = {
 
 export const dataSourceTypes = [ // 数据源类型
     '未知类型',
-    'MySql',
+    'MySQL',
     'Oracle',
     'SQLServer',
     'PostgreSQL',

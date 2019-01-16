@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import SplitPane from 'react-split-pane';
 import './ide.scss';
+import 'handsontable/dist/handsontable.full.css';
 
 import Editor from 'widgets/editor';
 import ToolBar from './toolbar';
@@ -39,7 +40,7 @@ class IDEEditor extends Component {
     renderEditorPane () {
         const { editor, editorInstanceRef, extraPane } = this.props;
         const { editorSize } = this.state;
-        const editorView = <Editor editorInstanceRef={editorInstanceRef} {...editor} />;
+        const editorView = <Editor style={{ minHeight: '100px' }} editorInstanceRef={editorInstanceRef} {...editor} />;
         const extraView = extraPane;
         if (extraPane) {
             return <SplitPane

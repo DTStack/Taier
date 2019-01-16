@@ -351,6 +351,9 @@ export default {
     getStreamTableColumn(params) {
         return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
     },
+    checkDataSourcePermission(params) {
+        return http.post(stremReq.CHECK_IS_PERMISSION, params)
+    },
     //================ 实时离线合并接口 ===============/
     linkSource(params,type="offline") {
         if(type=="offline"){

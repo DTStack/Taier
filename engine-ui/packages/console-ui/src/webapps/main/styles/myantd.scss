@@ -250,6 +250,12 @@
         tr>th:first-child {
             padding-left: 20px;
         }
+        .ant-table-fixed-right{
+            tr>td:first-child,
+            tr>th:first-child {
+            padding-left: 8px;
+            }
+        }
     }
 }
 
@@ -409,5 +415,39 @@
         width: 100%;
         overflow-y: auto;
         overflow-x: hidden;
+    }
+}
+.dt-notification{
+    .ant-notification-notice-with-icon{
+        .ant-notification-notice-description,
+        .ant-notification-notice-message{
+            margin-left: 32px;
+        }
+        .ant-notification-notice-message{
+            color: #262626;
+            line-height: 24px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .ant-notification-notice-description{
+            color: #595959;
+            line-height: 20px;
+        }
+    }
+    .ant-notification-notice-close-x::after{
+        font-size: 14px;
+    }
+    .dt-notification__close-btn{
+        position: absolute;
+        color:#666666;
+        right:46px;
+        top: 14px;
+        line-height: 17px;
+        font-size: 12px;
+        font-weight: normal;
+        user-select: none;
+        &:hover{
+            color:rgb(39, 39, 39);
+        }
     }
 }
