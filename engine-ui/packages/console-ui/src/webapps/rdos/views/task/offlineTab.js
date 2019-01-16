@@ -112,10 +112,13 @@ class OfflineTabPane extends Component {
         })
     }
 
+    /**
+     * 用于刷新整个菜单
+     */
     reloadTreeNodes = (id, type) => {
         this.props.loadTreeNode(id, type);
         this.setState({
-            expandedKeys: [`${type}-${id}`]
+            expandedKeys: [`${type}-folder-${id}`]
         })
     }
 
@@ -159,7 +162,13 @@ class OfflineTabPane extends Component {
 
         const getExpandedKey = (path) => {
             const arr = path && path.split('-');
-            return arr && arr.map(p => `${type}-${p}`);
+            return arr && arr.map(p => {
+                const arr = p.split(':');
+                const id = arr[0];
+                const fileType = arr[1];
+                // Key 的格式与 fodlerTree 中 Node的 key 生成规则对应
+                return `${type}-${fileType}-${id}`;
+            });
         }
 
         const scroll = () => {
@@ -172,7 +181,7 @@ class OfflineTabPane extends Component {
 
         const hasPath = (data, id, path) => {
             if (!data) return false;
-            path = `${path ? path + '-' : path}${data.id}`
+            path = `${path ? path + '-' : path}${data.id}:${data.type}`
             if (data && data.id === id) {
                 checkedPath = path;
                 return true;
@@ -240,7 +249,7 @@ class OfflineTabPane extends Component {
                                     taskType: menuItem.children[0].taskType,
                                     parentId: menuItem.children[0].parentId
                                 })
-                            expandedKeys.push(`${MENU_TYPE.TASK_DEV}-${menuItem.children[0].id}`)
+                            expandedKeys.push(`${MENU_TYPE.TASK_DEV}-${menuItem.children[0].type}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.SCRIPT: {
@@ -254,7 +263,7 @@ class OfflineTabPane extends Component {
                                     taskType: menuItem.children[0].taskType,
                                     parentId: menuItem.children[0].parentId
                                 })
-                            expandedKeys.push(`${MENU_TYPE.SCRIPT}-${menuItem.children[0].id}`)
+                            expandedKeys.push(`${MENU_TYPE.SCRIPT}-${menuItem.children[0].type}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.RESOURCE: {
@@ -268,7 +277,7 @@ class OfflineTabPane extends Component {
                                     taskType: menuItem.children[0].taskType,
                                     parentId: menuItem.children[0].parentId
                                 })
-                            expandedKeys.push(`${MENU_TYPE.RESOURCE}-${menuItem.children[0].id}`)
+                            expandedKeys.push(`${MENU_TYPE.RESOURCE}-${menuItem.children[0].type}-${menuItem.children[0].id}`)
                             break;
                         }
                         case MENU_TYPE.FUNCTION: {
