@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Select, Alert, message } from 'antd';
+import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
 const FormItem = Form.Item;
@@ -346,8 +346,8 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ marginLeft: '106px', marginTop: '-14px' }} className='desenAlert'>
-                        <Alert className='dt-ant-alert__desc--fontColor' style={{ color: '#666666' }} message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
+                    <div style={{ margin: '-6 0 10 120' }}>
+                        <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
                     </div>
                     <FormItem
                         {...formItemLayout}

@@ -482,7 +482,7 @@ export default class TableRelation extends React.Component {
         } else {
             const data = cell.getAttribute('data');
             const obj = data ? JSON.parse(data) : '';
-            return obj ? obj.tableName : ''
+            return obj ? `${obj.dataSource}.${obj.tableName}` : ''
         }
     }
 
