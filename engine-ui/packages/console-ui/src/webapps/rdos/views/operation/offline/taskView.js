@@ -217,11 +217,9 @@ export default class TaskView extends Component {
                         node.count = parentNodes.length;
                         nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
-                        if (parentNodes[i].taskVOS) {
-                            loop(nodeData, parent, level - 1, currentNodeGeo)
-                        }
-
+                        loop(nodeData, parent, level - 1, currentNodeGeo);
                         relationTree.push({
+
                             parent: parent,
                             source: nodeData,
                             target: currentNodeData
@@ -241,9 +239,7 @@ export default class TaskView extends Component {
 
                         nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
-                        if (childNodes[j].subTaskVOS) {
-                            loop(nodeData, parent, ++level, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, ++level, currentNodeGeo);
 
                         const treeItem = {
                             parent: parent,

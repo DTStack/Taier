@@ -21,7 +21,7 @@ import {
     getGeoByRelativeNode, getNodeWidth,
     getNodeHeight, getNodeLevelAndCount
 } from 'utils/layout';
-// getRowCountOfSameLevel
+
 const Mx = require('public/rdos/mxgraph')({
     mxBasePath: 'public/rdos/mxgraph',
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -163,6 +163,10 @@ class TaskFlowView extends Component {
         }
     }
 
+    componentWillUnmount() {
+        
+    }
+
     loadTaskChidren = (params) => {
         const ctx = this
         this.setState({ loading: 'loading' })
@@ -190,6 +194,7 @@ class TaskFlowView extends Component {
             ctx.setState({ loading: 'success' })
         })
     }
+
     /**
      * 加载前后周期数据
      */
@@ -205,7 +210,28 @@ class TaskFlowView extends Component {
             }
         })
     }
-    /* eslint-disable */
+
+    loadWorkflowNodes = async (workflow, collapsed) => {
+        const ctx = this;
+        this.setState({ loading: 'loading' })
+
+        // 如果折叠状态，加载
+        if (!collapsed) {
+            const res = await Api.getWorkflowNodes({ jobId: workflow.id });
+            if (res.code === 1) {
+                if (res.data) {
+                    ctx.doInsertVertex(res.data);
+                } else {
+                    message.warning('当前工作流没有子节点！');
+                }
+            }
+        } else {
+            const data = Object.assign({}, workflow, { subNodes : null });
+            ctx.doInsertVertex(data);
+        }
+        ctx.setState({ loading: 'success' });
+    }
+
     loadEditor = (container) => {
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
@@ -263,7 +289,7 @@ class TaskFlowView extends Component {
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip
         // 转换value显示的内容
-        graph.convertValueToString = this.corvertValueToString
+        // graph.convertValueToString = this.corvertValueToString
 
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
@@ -278,7 +304,7 @@ class TaskFlowView extends Component {
         // Init container scroll
         this.initContainerScroll(graph);
         // enables rubberband
-        new mxRubberband(graph)
+        new mxRubberband(graph);
 
         this.graph = graph;
         this.initContextMenu(graph);
@@ -292,6 +318,10 @@ class TaskFlowView extends Component {
         }
     }
 
+    /**
+     * 该方法渲染cell内容为纯字符串，
+     * 而非HTML渲染，可以提高绘制效率
+     */
     getShowStr = (data) => {
         const task = data.batchTask;
         if (!task) return '';
@@ -340,28 +370,26 @@ class TaskFlowView extends Component {
                 if (treeNodeData.batchTask.taskType === TASK_TYPE.WORKFLOW) {
                     const workflowData = treeNodeData.subNodes;
 
-                    let newLevel = 0;
-
-                    // 如果是工作流，需要重新计算工作流节点的高和宽
-                    const nodeCount = getNodeLevelAndCount(workflowData, 'jobVOS');
-                    const tempNode = Object.assign({}, defaultGeo);
-                    tempNode.count = nodeCount.count;
-                    tempNode.level = nodeCount.level;
-                    currentNodeGeo.width = getNodeWidth(tempNode);
-                    currentNodeGeo.height = getNodeHeight(tempNode);
-
-                    const workflowDefaultRoot = Object.assign({}, defaultGeo);
-                    workflowDefaultRoot.x = Math.round((currentNodeGeo.width - VertexSize.width) / 2);
-                    workflowDefaultRoot.y = workflowDefaultRoot.height + 25;
-
                     if (workflowData) {
+                        let newLevel = 0;
+    
+                        // 如果是工作流，需要重新计算工作流节点的高和宽
+                        const nodeCount = getNodeLevelAndCount(workflowData, 'jobVOS');
+                        const tempNode = Object.assign({}, defaultGeo);
+                        tempNode.count = nodeCount.count;
+                        tempNode.level = nodeCount.level;
+                        currentNodeGeo.width = getNodeWidth(tempNode);
+                        currentNodeGeo.height = getNodeHeight(tempNode);
+    
+                        const workflowDefaultRoot = Object.assign({}, defaultGeo);
+                        workflowDefaultRoot.x = Math.round((currentNodeGeo.width - VertexSize.width) / 2);
+                        workflowDefaultRoot.y = workflowDefaultRoot.height + 25;
                         loop(workflowData, treeNodeData, newLevel, workflowDefaultRoot);
                     }
                 }
 
                 currentNodeGeo = getGeoByRelativeNode(parentNode, currentNodeGeo);
                 treeNodeData._geometry = currentNodeGeo;
-                console.log('geo:', treeNodeData.batchTask.name, treeNodeData._geometry);
 
                 relationTree.push({
                     parent: parent,
@@ -449,10 +477,11 @@ class TaskFlowView extends Component {
             if (!data) return null;
 
             let style = getVertxtStyle(data.status);
+            const showText = this.getShowStr(data);
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.batchTask.flowId && data.batchTask.flowId;
-
+            const noWorkflowSubNodes = !data.subNodes || data.subNodes.lenght === 0;
             if (isWorkflow) {
                 style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;color:#333333;';
             }
@@ -471,17 +500,28 @@ class TaskFlowView extends Component {
             const cell = graph.insertVertex(
                 isWorkflow ? null : parentCell,
                 data.id,
-                data,
+                showText,
                 geo.x, geo.y,
                 geo.width, geo.height,
                 style
             )
-
             if (isWorkflow) {
+                if (noWorkflowSubNodes) {
+                    cell.collapsed = true;
+                    // temp node
+                    graph.insertVertex(
+                        cell,
+                        null,
+                        '',
+                        0, 50,
+                        VertexSize.width, VertexSize.height, // geo.width, geo.height,
+                        style
+                    )
+                }
                 cell.geometry.alternateBounds = new mxRectangle(10, 10, VertexSize.width, VertexSize.height);
             }
 
-            cell.data = data;
+            cell.data = data; // 添加 data 属性，便于节点操作的时候使用
             cell.isPart = isWorkflowNode;
 
             return cell
@@ -673,6 +713,8 @@ class TaskFlowView extends Component {
         let selectedCell = null;
 
         if (graph) {
+
+            // Double event
             graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
                 const cell = evt.getProperty('cell')
                 if (cell && cell.vertex) {
@@ -681,6 +723,17 @@ class TaskFlowView extends Component {
                 }
             })
 
+            graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
+                const cells = evt.getProperty('cells');
+                const cell = cells && cells[0];
+                const collapse = evt.getProperty('collapse');
+
+                if (cell) {
+                    ctx.loadWorkflowNodes(cell.data, collapse);
+                }
+            })
+
+            // Click event
             graph.addListener(mxEvent.CLICK, function (sender, evt) {
                 const cell = evt.getProperty('cell');
 
@@ -764,17 +817,19 @@ class TaskFlowView extends Component {
             const dy = view.translate.y;
             graph.view.setScale(scale);
             graph.view.setTranslate(dx, dy);
+            // graph.container.scrollTop = dy;
+            // graph.container.scrollLeft = dx;
         } else {
             graph.center();
         }
         // Sets initial scrollbar positions
-        window.setTimeout(function() {
-            var bounds = graph.getGraphBounds();
-            var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
-            var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
-            graph.container.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 4)));
-            graph.container.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)));
-        }, 0);
+        // window.setTimeout(function() {
+        //     var bounds = graph.getGraphBounds();
+        //     var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
+        //     var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
+        //     graph.container.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 4)));
+        //     graph.container.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)));
+        // }, 0);
     }
 
     showJobLog = (jobId) => {
@@ -1061,7 +1116,7 @@ class TaskFlowView extends Component {
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
         style[mxConstants.STYLE_FONTSIZE] = '12';
-        style[mxConstants.STYLE_FONTSTYLE] = 1;
+        style[mxConstants.STYLE_FONTFAMILY] = 'PingFangSC-Regular';
         style[mxConstants.FONT_BOLD] = 'normal';
         style[mxConstants.STYLE_OVERFLOW] = 'hidden';
 

@@ -446,6 +446,9 @@ export default {
     getJobParents(params) { // 获取任务父Job
         return http.post(offlineReq.GET_JOB_PARENT, params)
     },
+    getWorkflowNodes(params) { // 获取工作流节点
+        return http.post(offlineReq.GET_WORKFLOW_NODES, params)
+    },
     execSQLImmediately(params) { // 立即执行SQL
         return http.post(offlineReq.EXEC_SQL_IMMEDIATELY, params)
     },

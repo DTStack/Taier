@@ -59,6 +59,7 @@ export default {
     GET_JOB_CHILDREN: `${RDOS_BASE_URL}/batch/batchJobJob/displayOffSpring`, // 获取子job
     GET_TASK_PERIODS: `${RDOS_BASE_URL}/batch/batchJob/displayPeriods`, // 转到前后周期实例
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batch/batchJobJob/displayForefathers`, // 获取父节点
+    GET_WORKFLOW_NODES: `${RDOS_BASE_URL}/batch/batchJobJob/displayOffSpringWorkFlow`, // 获取工作流节点
     CHECK_IS_LOOP: `${RDOS_BASE_URL}/batch/batchTask/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${RDOS_BASE_URL}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
