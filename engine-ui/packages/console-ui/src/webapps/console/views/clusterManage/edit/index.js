@@ -89,6 +89,10 @@ class EditCluster extends React.Component {
                             const flinkData = clusterConf.flinkConf;
                             const extParams = this.exchangeServerParams(clusterConf)
                             const flinkConf = clusterConf.flinkConf;
+                            const keyMap = {
+                                'spark.yarn.appMasterEnv.PYSPARK_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_PYTHON',
+                                'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON'
+                            }
                             this.myUpperCase(flinkConf);
                             this.setState({
                                 // checked: true,
@@ -118,7 +122,7 @@ class EditCluster extends React.Component {
                                 clusterName: cluster.clusterName,
                                 hiveConf: clusterConf.hiveConf,
                                 carbonConf: clusterConf.carbonConf,
-                                sparkConf: clusterConf.sparkConf,
+                                sparkConf: this.toChsKeys(clusterConf.sparkConf, keyMap),
                                 flinkConf: clusterConf.flinkConf,
                                 learningConf: this.myUpperCase(clusterConf.learningConf),
                                 dtyarnshellConf: this.myUpperCase(clusterConf.dtyarnshellConf)
@@ -155,7 +159,8 @@ class EditCluster extends React.Component {
         ];
         let notExtKeys_spark = [
             'typeName', 'sparkYarnArchive',
-            'sparkSqlProxyPath', 'sparkPythonExtLibPath'
+            'sparkSqlProxyPath', 'sparkPythonExtLibPath', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+            'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
         ];
         // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path",
         // "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
@@ -265,6 +270,19 @@ class EditCluster extends React.Component {
         return after;
     }
 
+    /**
+     * PYspark两字段需转化(spark.yarn.appMasterEnv.PYSPARK_PYTHON,
+     * spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON)
+     * @param obj 传入对象
+     * @param keyMap key映射关系
+     */
+    toChsKeys (obj, keyMap) {
+        return Object.keys(obj).reduce((newObj, key) => {
+            let newKey = keyMap[key] || key;
+            newObj[newKey] = obj[key];
+            return newObj
+        }, {})
+    }
     getUserOptions () {
         const { consoleUser } = this.props;
         const { selectUserMap } = this.state;
@@ -575,12 +593,16 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
+        const keyMap = {
+            'sparkYarnAppMasterEnvPYSPARK_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+            'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
+        }
         clusterConf['hadoopConf'] = zipConfig.hadoopConf;
         clusterConf['yarnConf'] = zipConfig.yarnConf;
         clusterConf['hiveMeta'] = zipConfig.hiveMeta;
         clusterConf['hiveConf'] = formValues.hiveConf;
         clusterConf['carbonConf'] = formValues.carbonConf;
-        clusterConf['sparkConf'] = { ...formValues.sparkConf, ...sparkExtParams };
+        clusterConf['sparkConf'] = { ...this.toChsKeys(formValues.sparkConf, keyMap), ...sparkExtParams };
         clusterConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
         clusterConf['learningConf'] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
         clusterConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };

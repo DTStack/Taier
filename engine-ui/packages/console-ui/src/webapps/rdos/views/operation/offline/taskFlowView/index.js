@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { cloneDeep } from 'lodash'
-
+import moment from 'moment';
 import {
     Tooltip, Spin,
     Modal, message, Icon
@@ -22,7 +22,6 @@ import {
     getNodeHeight, getNodeLevelAndCount
 } from 'utils/layout';
 // getRowCountOfSameLevel
-
 const Mx = require('public/rdos/mxgraph')({
     mxBasePath: 'public/rdos/mxgraph',
     mxImageBasePath: 'public/rdos/mxgraph/images',
@@ -131,7 +130,9 @@ class TaskFlowView extends Component {
         taskLog: {},
         logVisible: false,
         visible: false,
-        visibleRestart: false
+        visibleRestart: false,
+        frontPeriodsList: [], // 前周期返回数据
+        nextPeriodsList: []
     }
 
     _view = null; // 存储view信息
@@ -155,6 +156,8 @@ class TaskFlowView extends Component {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
+            this.loadPeriodsData({ jobId: taskJob.id, isAfter: false, limit: 6 })
+            this.loadPeriodsData({ jobId: taskJob.id, isAfter: true, limit: 6 })
             this.initGraph(taskJob.id);
             this._view = null;
         }
@@ -187,7 +190,22 @@ class TaskFlowView extends Component {
             ctx.setState({ loading: 'success' })
         })
     }
-
+    /**
+     * 加载前后周期数据
+     */
+    loadPeriodsData = (params) => {
+        const isNext = params.isAfter;
+        Api.getOfflineTaskPeriods(params).then(res => {
+            if (res.code === 1) {
+                !isNext ? this.setState({
+                    frontPeriodsList: res.data
+                }) : this.setState({
+                    nextPeriodsList: res.data
+                })
+            }
+        })
+    }
+    /* eslint-disable */
     loadEditor = (container) => {
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
@@ -549,7 +567,6 @@ class TaskFlowView extends Component {
             const taskId = currentNode.batchTask && currentNode.batchTask.id;
             const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
             if (isDelete) return;
-
             if (!isWorkflowNode) {
                 menu.addItem('展开上游（6层）', null, function () {
                     ctx.loadTaskParent({
@@ -567,11 +584,31 @@ class TaskFlowView extends Component {
             menu.addItem('查看任务日志', null, function () {
                 ctx.showJobLog(currentNode.jobId)
             })
-            menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                ctx.props.goToTaskDev(taskId)
-            })
             menu.addItem('查看任务属性', null, function () {
                 ctx.setState({ visible: true })
+            })
+            const frontPeriods = menu.addItem('转到前一周期实例', null, null);
+            ctx.state.frontPeriodsList.map(item => {
+                const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
+                const statusText = taskStatusText(item.status);
+                return (
+                    menu.addItem(`${times} (${statusText})`, null, function () {
+                        ctx.loadTaskChidren({ jobId: item.jobId })
+                    }, frontPeriods)
+                )
+            })
+            const nextPeriods = menu.addItem('转到下一周期实例', null, null);
+            ctx.state.nextPeriodsList.map(item => {
+                const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
+                const statusText = taskStatusText(item.status);
+                return (
+                    menu.addItem(`${times} (${statusText})`, null, function () {
+                        ctx.loadTaskChidren({ jobId: item.jobId })
+                    }, nextPeriods)
+                )
+            })
+            menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                ctx.props.goToTaskDev(taskId)
             })
             menu.addItem('终止', null, function () {
                 ctx.stopTask({
@@ -780,7 +817,6 @@ class TaskFlowView extends Component {
     render () {
         const { selectedJob, taskLog } = this.state;
         const { goToTaskDev, project, taskJob, isPro } = this.props;
-
         return (
             <div className="graph-editor"
                 style={{
@@ -826,6 +862,7 @@ class TaskFlowView extends Component {
                     <span style={{ marginLeft: '15px' }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
                     {isPro ? '发布' : '提交'}于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;
+                    <a title="双击任务可快速查看日志" onClick={() => { this.showJobLog(taskJob && taskJob.batchEngineJob.jobId) }} style={{ marginRight: '8' }}>查看日志</a>
                     <a onClick={() => { goToTaskDev(taskJob && taskJob.batchTask.id) }}>查看代码</a>
                 </div>
                 <Modal

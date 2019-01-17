@@ -483,7 +483,6 @@ class OfflineTaskList extends Component {
             selectedTask: null
         })
     }
-
     disabledDate = (current) => {
         return current && current.valueOf() > moment().subtract(1, 'days').valueOf();
     }
@@ -662,9 +661,15 @@ class OfflineTaskList extends Component {
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 200 }}
-                                        format="YYYY-MM-DD"
+                                        style={{ width: 270 }}
+                                        showTime
+                                        format="YYYY/MM/DD HH:mm:ss"
                                         disabledDate={this.disabledDate}
+                                        ranges={{
+                                            '昨天': [moment().subtract(2, 'days'), yesterDay],
+                                            '最近7天': [moment().subtract(8, 'days'), yesterDay],
+                                            '最近30天': [moment().subtract(31, 'days'), yesterDay]
+                                        }}
                                         value={bussinessDate || null}
                                         onChange={this.changeBussinessDate}
                                     />
@@ -674,8 +679,14 @@ class OfflineTaskList extends Component {
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 200 }}
-                                        format="YYYY-MM-DD"
+                                        style={{ width: 270 }}
+                                        showTime
+                                        format="YYYY/MM/DD HH:mm:ss"
+                                        ranges={{
+                                            '今天': [moment(), moment()],
+                                            '最近7天': [moment().subtract(7, 'days'), moment()],
+                                            '最近30天': [moment().subtract(30, 'days'), moment()]
+                                        }}
                                         value={cycDate || null}
                                         onChange={this.changecycDate}
                                     />

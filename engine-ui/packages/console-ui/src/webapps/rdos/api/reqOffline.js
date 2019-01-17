@@ -46,6 +46,7 @@ export default {
     GET_JOB_TOP_TIME: `${RDOS_BASE_URL}/batch/batchJob/runTimeTopOrder`, // 离线任务运行时长top排序
     GET_JOB_TOP_ERROR: `${RDOS_BASE_URL}/batch/batchJob/errorTopOrder`, // 离线任务错误top排序
     PATCH_TASK_DATA: `${RDOS_BASE_URL}/batch/batchJob/fillTaskData`, // 补数据
+    OPERA_RECORD_DATA: `${RDOS_BASE_URL}/batch/batchTaskRecord/queryRecords`, // 操作记录
     QUERY_PATCH_TASK_DATA: `${RDOS_BASE_URL}/batch/batchJob/queryBugJobs`, // 补数据搜索
     START_JOB: `${RDOS_BASE_URL}/batch/batchJob/loadDataJob`, // 启动任务
     STOP_JOB: `${RDOS_BASE_URL}/batch/batchJob/stopJob`, // 停止任务
@@ -56,6 +57,7 @@ export default {
     GET_FILL_DATE: `${RDOS_BASE_URL}/batch/batchJob/getFillDataBizDay`, // 补数据指定名称下的日期列表
     GET_FILL_DATA_DETAIL: `${RDOS_BASE_URL}/batch/batchJob/getFillDataDetailInfo`, // 获取补数据详情
     GET_JOB_CHILDREN: `${RDOS_BASE_URL}/batch/batchJobJob/displayOffSpring`, // 获取子job
+    GET_TASK_PERIODS: `${RDOS_BASE_URL}/batch/batchJob/displayPeriods`, // 转到前后周期实例
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batch/batchJobJob/displayForefathers`, // 获取父节点
     CHECK_IS_LOOP: `${RDOS_BASE_URL}/batch/batchTask/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batch/batchJob/jobDetail`, // 获取任务调度详情

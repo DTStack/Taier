@@ -335,6 +335,9 @@ export default {
     getOfflineTaskLog(params) {// 获取离线任务日志
         return http.post(offlineReq.GET_TASK_LOG, params)
     },
+    getOfflineTaskPeriods(params) {// 转到前后周期
+        return http.post(offlineReq.GET_TASK_PERIODS, params)
+    },
     searchOfflineTask(params) {
         return http.post(offlineReq.GLOBAL_SEARCH_TASK, params)
     },
@@ -400,6 +403,9 @@ export default {
     },
     patchTaskData(params) { // 补数据
         return http.post(offlineReq.PATCH_TASK_DATA, params)
+    },
+    operaRecordData(params) { // 操作记录
+        return http.post(offlineReq.OPERA_RECORD_DATA, params)
     },
     getTaskChildren(params) { // 获取任务子节点
         return http.post(offlineReq.GET_TASK_CHILDREN, params)
