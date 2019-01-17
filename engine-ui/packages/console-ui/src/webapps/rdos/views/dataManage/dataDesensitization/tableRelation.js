@@ -262,8 +262,8 @@ class TableRelation extends Component {
     }
     tableFooter = (currentPageData) => {
         return (
-            <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 27px', display: 'inline-block' }}>
+            <div>
+                <div style={{ padding: '25px 10px 10px 27px', display: 'inline-block' }}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
@@ -446,8 +446,8 @@ class TableRelation extends Component {
                     title={this.getCardTitle()}
                 >
                     <Table
-                        className="m-table-fix m-table m-table-desen"
-                        // bordered
+                        className="m-table m-table-desen"
+                        bordered
                         style={{marginLeft: '20px'}}
                         rowKey="id"
                         loading={loading}
