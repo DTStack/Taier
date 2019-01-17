@@ -390,10 +390,6 @@ class DiffParams extends React.Component {
             contrastResults, historyParse, currentParse,
             historyvalue, tabKey
         } = this.state;
-        console.log('---------------------')
-        console.log(currentParse)
-        console.log(contrastResults)
-        console.log(historyvalue)
         return <div className="m-taksdetail diff-params-modal" style={{ marginTop: '5px' }}>
             <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
                 {
