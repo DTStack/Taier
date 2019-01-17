@@ -3,7 +3,7 @@ import React from 'react';
 import { Button, Tooltip, Icon } from 'antd';
 import ConstColumnModel from '../../../../../model/constColumnModel';
 import InputColumnModel from '../../../../../model/inputColumnModel';
-import { resolveFormItemKey } from './helper';
+import { resolveFormItemKey } from '../helper';
 import Card from '../card';
 import ConstTable from './const';
 import InputTable from './input';
@@ -37,6 +37,28 @@ class RegisterParams extends React.Component {
             constColumn
         });
     }
+    deleteColumn (type, id) {
+        let { data = {} } = this.props;
+        let { inputColumn = [], constColumn = [] } = data;
+        let newColumns;
+        if (type == 'in') {
+            inputColumn = [...inputColumn];// shadow copy
+            newColumns = inputColumn;
+        } else if (type == 'const') {
+            constColumn = [...constColumn];// shadow copy
+            newColumns = constColumn;
+        }
+        const targetIndex = newColumns.findIndex((column) => {
+            return column.id == id;
+        })
+        if (targetIndex > -1) {
+            newColumns.splice(targetIndex, 1);
+        }
+        this.props.updateData({
+            inputColumn,
+            constColumn
+        })
+    }
     updateColumnData (type, values) {
         const keyAndValue = Object.entries(values);
         let { data = {} } = this.props;
@@ -48,6 +70,7 @@ class RegisterParams extends React.Component {
             columns = inputColumn;
             UpdateColumnClass = InputColumnModel;
         } else if (type == 'const') {
+            constColumn = [...constColumn];// shadow copy
             columns = constColumn;
             UpdateColumnClass = ConstColumnModel;
         }
@@ -68,6 +91,25 @@ class RegisterParams extends React.Component {
             constColumn
         });
     }
+    inputRef = React.createRef()
+    constRef = React.createRef()
+    validate = () => {
+        return new Promise((resolve, reject) => {
+            this.inputRef.current.validateFieldsAndScroll({}, (err, values) => {
+                if (!err) {
+                    this.constRef.current.validateFieldsAndScroll({}, (err, values) => {
+                        if (!err) {
+                            resolve(true)
+                        } else {
+                            resolve(false);
+                        }
+                    })
+                } else {
+                    resolve(false);
+                }
+            })
+        })
+    }
     render () {
         let { data = {} } = this.props;
         let { inputColumn = [], constColumn = [] } = data;
@@ -79,7 +121,12 @@ class RegisterParams extends React.Component {
                         <Button type='primary' onClick={this.newColumn.bind(this, 'in')}>新增参数</Button>
                     )}
                 >
-                    <InputTable updateColumnData={this.updateColumnData.bind(this, 'in')} data={inputColumn} />
+                    <InputTable
+                        ref={this.inputRef}
+                        updateColumnData={this.updateColumnData.bind(this, 'in')}
+                        deleteColumn={this.deleteColumn.bind(this, 'in')}
+                        data={inputColumn}
+                    />
                 </Card>
                 <Card
                     style={{ marginTop: '40px' }}
@@ -93,7 +140,12 @@ class RegisterParams extends React.Component {
                         <Button type='primary' onClick={this.newColumn.bind(this, 'const')}>新增参数</Button>
                     )}
                 >
-                    <ConstTable updateColumnData={this.updateColumnData.bind(this, 'const')} data={constColumn} />
+                    <ConstTable
+                        ref={this.constRef}
+                        deleteColumn={this.deleteColumn.bind(this, 'const')}
+                        updateColumnData={this.updateColumnData.bind(this, 'const')}
+                        data={constColumn}
+                    />
                 </Card>
             </React.Fragment>
         )

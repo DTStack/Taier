@@ -18,6 +18,6 @@ export default class ConstColumnModel extends BaseModel {
         if (!(constColumnsKeys.TYPE in initData)) {
             this[constColumnsKeys.TYPE] = FIELD_TYPE_LIST[0];
         }
-        this.id = this.id || new Date().getTime() + '_' + ~~(Math.random() * 10000);
+        this.isRequired = true;
     }
 }

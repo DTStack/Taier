@@ -3,7 +3,15 @@ import React from 'react';
 import { Table, Input, Form, Checkbox } from 'antd';
 import { inputColumnsKeys } from '../../../../../model/inputColumnModel';
 import { PARAMS_POSITION, PARAMS_POSITION_TEXT, defaultAutoSize } from '../../../../../consts';
-import { getTypeSelect, getPositionSelect, generateFormItemKey, mapPropsToFields, onValuesChange } from './helper';
+import {
+    getTypeSelect,
+    getCommonDelete,
+    getPositionSelect,
+    formItemParamOption,
+    generateFormItemKey,
+    mapPropsToFields,
+    onValuesChange
+} from '../helper';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -23,11 +31,11 @@ class RegisterParamsInput extends React.Component {
         switch (type) {
             case columnsKeys.NAME: {
                 if (position == PARAMS_POSITION.PATH) {
-                    return value
+                    return value;
                 } else {
                     return (
                         <FormItem>
-                            {getFieldDecorator(formKey, {})(
+                            {getFieldDecorator(formKey, formItemParamOption)(
                                 <Input />
                             )}
                         </FormItem>
@@ -48,13 +56,17 @@ class RegisterParamsInput extends React.Component {
                 }
             }
             case columnsKeys.TYPE: {
-                return (
-                    <FormItem>
-                        {getFieldDecorator(formKey, {})(
-                            getTypeSelect()
-                        )}
-                    </FormItem>
-                )
+                if (position == PARAMS_POSITION.PATH) {
+                    return value;
+                } else {
+                    return (
+                        <FormItem>
+                            {getFieldDecorator(formKey, {})(
+                                getTypeSelect()
+                            )}
+                        </FormItem>
+                    )
+                }
             }
             case columnsKeys.ISREQUIRED: {
                 if (position == PARAMS_POSITION.PATH) {
@@ -62,7 +74,9 @@ class RegisterParamsInput extends React.Component {
                 } else {
                     return (
                         <FormItem>
-                            {getFieldDecorator(formKey, {})(
+                            {getFieldDecorator(formKey, {
+                                valuePropName: 'checked'
+                            })(
                                 <Checkbox />
                             )}
                         </FormItem>
@@ -78,6 +92,13 @@ class RegisterParamsInput extends React.Component {
                     </FormItem>
                 )
             }
+            case 'deal': {
+                if (position == PARAMS_POSITION.PATH) {
+                    return null
+                } else {
+                    return getCommonDelete(this.props, record);
+                }
+            }
             default: {
                 return value;
             }
@@ -87,6 +108,7 @@ class RegisterParamsInput extends React.Component {
         return [{
             dataIndex: columnsKeys.NAME,
             title: '参数名称',
+            width: '200px',
             render: (text, record) => {
                 return this.renderCell(columnsKeys.NAME, text, record)
             }
@@ -107,6 +129,7 @@ class RegisterParamsInput extends React.Component {
         }, {
             dataIndex: columnsKeys.ISREQUIRED,
             title: '是否必填',
+            width: '100px',
             render: (text, record) => {
                 return this.renderCell(columnsKeys.ISREQUIRED, text, record)
             }
@@ -121,7 +144,7 @@ class RegisterParamsInput extends React.Component {
             title: '操作',
             width: '60px',
             render: (text, record) => {
-                return <a>删除</a>
+                return this.renderCell('deal', text, record)
             }
         }]
     }
@@ -135,7 +158,7 @@ class RegisterParamsInput extends React.Component {
                     columns={this.initColumns()}
                     dataSource={data}
                     pagination={false}
-                    scroll={{ y: 500 }}
+                    scroll={{ y: 300 }}
                 />
             </Form>
         )

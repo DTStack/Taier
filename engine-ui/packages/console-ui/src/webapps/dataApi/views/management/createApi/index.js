@@ -77,7 +77,7 @@ const mapDispatchToProps = dispatch => ({
 @connect(mapStateToProps, mapDispatchToProps)
 class NewApi extends Component {
     state = {
-        current: 1,
+        current: 0,
         basicProperties: {},
         paramsConfig: {},
         registerParams: {},
@@ -385,7 +385,9 @@ class NewApi extends Component {
         data = data || {};
         this.setState({
             [type]: data
-        }, callback)
+        }, () => {
+            callback && callback();
+        })
     }
     getParamsView () {
         const isRegister = utils.getParameterByName('isRegister');
@@ -434,9 +436,10 @@ class NewApi extends Component {
         ]
         const { key, content: Content } = steps[this.state.current];
         const isRegister = utils.getParameterByName('isRegister');
+        const title = isRegister ? '注册API' : '新建API';
         return (
             <div className="m-card g-datamanage">
-                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
+                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : title}</h1>
                 {loading ? <div style={{ textAlign: 'center', marginTop: '400px' }}>
                     <Spin size="large" />
                 </div>
@@ -472,6 +475,7 @@ class NewApi extends Component {
                                         apiTest={this.apiTest.bind(this)}
                                         dataChange={this[key].bind(this)}
                                         saveResult={this.saveResult.bind(this)}
+                                        changeRegisterParams={this.registerParams.bind(this)}
                                     ></Content>
                                 </div>
                             ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}

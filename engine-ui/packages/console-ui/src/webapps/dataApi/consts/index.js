@@ -63,6 +63,14 @@ export const FIELD_TYPE_LIST = [
     'double',
     'boolean'
 ]
+export const FIELD_TYPE = {
+    STRING: 'string',
+    INT: 'int',
+    LONG: 'long',
+    FLOAT: 'float',
+    DOUBLE: 'double',
+    BOOLEAN: 'boolean'
+}
 /**
  * textarea 默认大小
  */

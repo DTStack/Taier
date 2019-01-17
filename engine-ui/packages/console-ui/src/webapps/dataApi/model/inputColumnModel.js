@@ -21,6 +21,5 @@ export default class InputColumnModel extends BaseModel {
         if (!(inputColumnsKeys.ISREQUIRED in initData)) {
             this[inputColumnsKeys.ISREQUIRED] = true;
         }
-        this.id = this.id || new Date().getTime() + '_' + ~~(Math.random() * 10000);
     }
 }

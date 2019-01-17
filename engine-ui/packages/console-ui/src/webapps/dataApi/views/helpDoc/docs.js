@@ -20,7 +20,7 @@ export const apiPathInfo = (
 export const registerApiPathInfo = (
     <div>
         <p>支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user。</p>
-        <p>若API path中包含请求参数中的入参，放在[]中，如/user/[userid]。</p>
+        <p>若API path中包含请求参数中的入参，放在{'{}'}中，如/user/{'{'}userid{'}'}。</p>
     </div>
 )
 export const registerApiHost = (
@@ -31,6 +31,6 @@ export const registerApiHost = (
 export const registerApiPath = (
     <div>
         <p>填写后端服务路径，支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头。</p>
-        <p>若后端服务path中包含请求参数中的入参，放在[]中，如/user/[userid]。</p>
+        <p>若后端服务path中包含请求参数中的入参，放在{'{}'}中，如/user/{'{'}userid{'}'}。</p>
     </div>
 )

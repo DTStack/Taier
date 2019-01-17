@@ -1,9 +1,17 @@
 import React from 'react';
 
 import { Table, Input, Form } from 'antd';
-import { PARAMS_POSITION, PARAMS_POSITION_TEXT, defaultAutoSize } from '../../../../../consts';
+import { PARAMS_POSITION, defaultAutoSize } from '../../../../../consts';
 import { constColumnsKeys } from '../../../../../model/constColumnModel';
-import { getTypeSelect, getPositionSelect, generateFormItemKey, mapPropsToFields, onValuesChange } from './helper';
+import {
+    getTypeSelect,
+    getCommonDelete,
+    getPositionSelect,
+    formItemParamOption,
+    generateFormItemKey,
+    mapPropsToFields,
+    onValuesChange
+} from '../helper';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -18,30 +26,22 @@ class RegisterParamsConst extends React.Component {
         const formKey = generateFormItemKey(type, id);
         switch (type) {
             case columnsKeys.NAME: {
-                if (position == PARAMS_POSITION.PATH) {
-                    return value
-                } else {
-                    return (
-                        <FormItem>
-                            {getFieldDecorator(formKey, {})(
-                                <Input />
-                            )}
-                        </FormItem>
-                    )
-                }
+                return (
+                    <FormItem>
+                        {getFieldDecorator(formKey, formItemParamOption)(
+                            <Input />
+                        )}
+                    </FormItem>
+                )
             }
             case columnsKeys.POSITION: {
-                if (position == PARAMS_POSITION.PATH) {
-                    return PARAMS_POSITION_TEXT[value]
-                } else {
-                    return (
-                        <FormItem>
-                            {getFieldDecorator(formKey, {})(
-                                getPositionSelect()
-                            )}
-                        </FormItem>
-                    )
-                }
+                return (
+                    <FormItem>
+                        {getFieldDecorator(formKey, {})(
+                            getPositionSelect(true)
+                        )}
+                    </FormItem>
+                )
             }
             case columnsKeys.TYPE: {
                 return (
@@ -55,7 +55,14 @@ class RegisterParamsConst extends React.Component {
             case columnsKeys.VALUE: {
                 return (
                     <FormItem>
-                        {getFieldDecorator(formKey, {})(
+                        {getFieldDecorator(formKey, {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '请输入参数值'
+                                }
+                            ]
+                        })(
                             <Input />
                         )}
                     </FormItem>
@@ -70,6 +77,13 @@ class RegisterParamsConst extends React.Component {
                     </FormItem>
                 )
             }
+            case 'deal': {
+                if (position == PARAMS_POSITION.PATH) {
+                    return null
+                } else {
+                    return getCommonDelete(this.props, record);
+                }
+            }
             default: {
                 return value;
             }
@@ -79,6 +93,7 @@ class RegisterParamsConst extends React.Component {
         return [{
             dataIndex: columnsKeys.NAME,
             title: '参数名称',
+            width: '200px',
             render: (text, record) => {
                 return this.renderCell(columnsKeys.NAME, text, record)
             }
@@ -99,6 +114,7 @@ class RegisterParamsConst extends React.Component {
         }, {
             dataIndex: columnsKeys.VALUE,
             title: '参数值',
+            width: '200px',
             render: (text, record) => {
                 return this.renderCell(columnsKeys.VALUE, text, record)
             }
@@ -113,7 +129,7 @@ class RegisterParamsConst extends React.Component {
             title: '操作',
             width: '60px',
             render: (text, record) => {
-                return <a>删除</a>
+                return this.renderCell('deal', text, record)
             }
         }]
     }
@@ -127,7 +143,7 @@ class RegisterParamsConst extends React.Component {
                     columns={this.initColumns()}
                     dataSource={data}
                     pagination={false}
-                    scroll={{ y: 500 }}
+                    scroll={{ y: 300 }}
                 />
             </Form>
         )

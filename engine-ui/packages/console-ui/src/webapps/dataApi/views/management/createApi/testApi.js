@@ -3,6 +3,8 @@ import { Table, Input, Button, Checkbox, Form, InputNumber } from 'antd'
 
 import { API_METHOD_KEY } from '../../../consts';
 import ColumnsModel from '../../../model/columnsModel'
+import { inputColumnsKeys } from '../../../model/inputColumnModel';
+import ConstColumnModel, { constColumnsKeys } from '../../../model/constColumnModel';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
@@ -29,28 +31,64 @@ class TestApi extends React.Component {
     prev () {
         this.props.prev();
     }
-
-    initColumns () {
+    getValueCell (record) {
+        const { inFields, isRegister } = this.props;
         const { getFieldDecorator } = this.props.form;
-        return [
+        /**
+         * 假如是常量类型，直接显示值
+         */
+        if (isRegister && record instanceof ConstColumnModel) {
+            return record[constColumnsKeys.VALUE];
+        }
+        let data = inFields && inFields.inFields;
+        let initialValue;
+        if (record.paramsName == 'pageNo' || record.paramsName == 'pageSize') {
+            initialValue = inFields && inFields[record.paramsName];
+            return <FormItem
+                style={{ marginBottom: '0px' }}
+            >
+                {getFieldDecorator(record.paramsName, {
+                    rules: [{
+                        required: record.required,
+                        message: '该参数为必填项'
+                    }, {
+                        pattern: /^\d*$/,
+                        message: '请输入数字'
+                    }],
+                    initialValue: initialValue
+                })(<InputNumber min={1} style={{ width: '100%' }} />)}
+            </FormItem>
+        } else {
+            initialValue = data && data[record.paramsName];
+            return (<FormItem
+                style={{ marginBottom: '0px' }}
+            >
+                {getFieldDecorator(isRegister ? record[inputColumnsKeys.NAME] : record.paramsName, {
+                    rules: [{
+                        required: isRegister ? [inputColumnsKeys.ISREQUIRED] : record.required,
+                        message: '该参数为必填项'
+                    }],
+                    initialValue: initialValue
+                })(<Input />)}
+            </FormItem>)
+        }
+    }
+    initColumns () {
+        const { isRegister } = this.props;
+        let columns = [
             {
                 title: '参数名称',
-                dataIndex: 'paramsName',
+                dataIndex: isRegister ? inputColumnsKeys.NAME : 'paramsName',
                 width: '150px'
             },
             {
                 title: '字段类型',
-                dataIndex: 'type',
+                dataIndex: isRegister ? inputColumnsKeys.TYPE : 'type',
                 width: '80px'
             },
             {
-                title: '操作符',
-                dataIndex: 'operator',
-                width: '55px'
-            },
-            {
                 title: '必填',
-                dataIndex: 'required',
+                dataIndex: isRegister ? inputColumnsKeys.ISREQUIRED : 'required',
                 render: (text, record) => {
                     return text ? '是' : '否'
                 },
@@ -58,43 +96,20 @@ class TestApi extends React.Component {
             },
             {
                 title: '值',
+                dataIndex: 'value',
                 render: (text, record) => {
-                    const { inFields } = this.props;
-                    let data = inFields && inFields.inFields;
-                    let initialValue;
-                    if (record.paramsName == 'pageNo' || record.paramsName == 'pageSize') {
-                        initialValue = inFields && inFields[record.paramsName];
-                        return <FormItem
-                            style={{ marginBottom: '0px' }}
-                        >
-                            {getFieldDecorator(record.paramsName, {
-                                rules: [{
-                                    required: record.required,
-                                    message: '该参数为必填项'
-                                }, {
-                                    pattern: /^\d*$/,
-                                    message: '请输入数字'
-                                }],
-                                initialValue: initialValue
-                            })(<InputNumber min={1} style={{ width: '100%' }} />)}
-                        </FormItem>
-                    } else {
-                        initialValue = data && data[record.paramsName];
-                        return (<FormItem
-                            style={{ marginBottom: '0px' }}
-                        >
-                            {getFieldDecorator(record.paramsName, {
-                                rules: [{
-                                    required: record.required,
-                                    message: '该参数为必填项'
-                                }],
-                                initialValue: initialValue
-                            })(<Input />)}
-                        </FormItem>)
-                    }
+                    return this.getValueCell(record);
                 }
             }
         ]
+        if (!isRegister) {
+            columns.splice(1, 0, {
+                title: '操作符',
+                dataIndex: 'operator',
+                width: '55px'
+            })
+        }
+        return columns;
     }
     testApi () {
         const { validateFieldsAndScroll } = this.props.form;
@@ -148,19 +163,24 @@ class TestApi extends React.Component {
         }
     }
     wrapInputParams () {
+        const { isRegister } = this.props;
         const { inputParam, resultPageChecked } = this.props.paramsConfig;
-
-        if (resultPageChecked) {
-            return [...pageInput, ...inputParam];
+        const { inputColumn, constColumn } = this.props.registerParams;
+        if (!isRegister) {
+            if (resultPageChecked) {
+                return [...pageInput, ...inputParam];
+            }
+            return inputParam || [];
+        } else {
+            return [].concat(inputColumn || []).concat(constColumn || []);
         }
-        return inputParam;
     }
     pass () {
         this.props.dataChange();
     }
     render () {
         const { loading } = this.state;
-        const { basicProperties, respJson: testResult } = this.props;
+        const { basicProperties, respJson: testResult, isRegister } = this.props;
         const wrapInputParams = this.wrapInputParams();
         const inputTableColumns = this.initColumns();
         const { outputResultColumns, x } = this.initOutColumns();
@@ -173,7 +193,9 @@ class TestApi extends React.Component {
                             <div>
                                 <p style={{ fontSize: '18px', marginTop: '2px' }}>
                                     <span className="shadowtext">请求方式：{API_METHOD_KEY[basicProperties.method]}</span>
-                                    <span className="shadowtext" style={{ marginLeft: '8px' }}>返回类型：JSON</span>
+                                    {!isRegister && (
+                                        <span className="shadowtext" style={{ marginLeft: '8px' }}>返回类型：JSON</span>
+                                    )}
                                 </p>
                                 <p style={{ marginTop: '10px', marginBottom: '6px' }} className="middle-title">输入参数：</p>
                                 <Table

@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
-import { Form, Input, Button, Select, Card, Cascader, message, Row, Col } from 'antd';
+import { Form, Input, Button, Select, Card, Cascader, message, Row, Col, notification } from 'antd';
 
 import DataSourceTable from './dataSourceTable'
 import HelpDoc from '../../helpDoc';
-import { formItemLayout, API_METHOD, SECURITY_TYPE } from '../../../consts'
+import { formItemLayout, API_METHOD, SECURITY_TYPE, PARAMS_POSITION, FIELD_TYPE } from '../../../consts'
 import NewGroupModal from '../../../components/newGroupModal';
 import api from '../../../api/apiManage'
 
+import InputColumnModel, { inputColumnsKeys } from '../../../model/inputColumnModel';
 import utils from 'utils';
+import { parseParamsPath } from './helper';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -21,9 +23,90 @@ class ManageBasicProperties extends Component {
     componentDidMount () {
         this.getDataSource();
     }
+    /**
+     * 校验后端path的参数和api path的参数是否一致
+     * @param {*} values fields
+     */
+    checkParamsPath (values) {
+        const { APIPath, originPath } = values;
+        let pathParams = parseParamsPath(APIPath);
+        let originPathParams = parseParamsPath(originPath);
+        let tmpMap = {};
+        originPathParams.forEach((param) => {
+            tmpMap[param] = 1;
+        });
+        let isPass = pathParams.every((param) => {
+            if (tmpMap[param]) {
+                delete tmpMap[param];
+                return true
+            }
+            return false;
+        })
+        if (isPass && !Object.keys(tmpMap).length) {
+            return true;
+        } else {
+            notification.error({
+                description: 'API path与后端 Path 的参数不一致！',
+                message: '配置错误'
+            });
+            return false
+        }
+    }
+    /**
+     * 根据path更新一下参数
+     */
+    updateRegisterColumns (path) {
+        const { registerParams } = this.props;
+        let { inputColumn = [] } = registerParams;
+        let params = parseParamsPath(path);
+        let existNames = inputColumn.map((column) => {
+            return column[inputColumnsKeys.NAME];
+        })
+        /**
+         * 去除源数据中不存在的path参数
+         */
+        inputColumn = inputColumn.map((column) => {
+            let name = column[inputColumnsKeys.NAME];
+            let position = column[inputColumnsKeys.POSITION];
+            if (position == PARAMS_POSITION.PATH) {
+                if (!params.includes(name)) {
+                    return null;
+                }
+            }
+            return column;
+        }).filter(Boolean)
+        /**
+         * 向源数据添加不存在的path param
+         */
+        params = params.map((param) => {
+            if (!existNames.includes(param)) {
+                return new InputColumnModel({
+                    [inputColumnsKeys.NAME]: param,
+                    [inputColumnsKeys.POSITION]: PARAMS_POSITION.PATH,
+                    [inputColumnsKeys.TYPE]: FIELD_TYPE.STRING
+                });
+            } else {
+                return null;
+            }
+        }).filter(Boolean);
+        this.props.changeRegisterParams({
+            ...registerParams,
+            inputColumn: [
+                ...params,
+                ...inputColumn
+            ]
+        }, true);
+    }
     pass () {
+        const { isRegister } = this.props;
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                if (isRegister) {
+                    if (values.APIPath && !this.checkParamsPath(values)) {
+                        return false;
+                    }
+                    this.updateRegisterColumns(values.originPath)
+                }
                 this.props.dataChange({
                     ...values
                 })
@@ -215,6 +298,9 @@ class ManageBasicProperties extends Component {
     }
     renderMethod () {
         const { isRegister } = this.props;
+        /**
+         * 生成API的列表，去除put和delete
+         */
         const whiteList = [API_METHOD.POST, API_METHOD.GET];
         let arr = [];
         for (let key in API_METHOD) {
@@ -323,11 +409,11 @@ class ManageBasicProperties extends Component {
                                     {...formItemLayout}
                                     label="后端 Host"
                                 >
-                                    {getFieldDecorator('host', {
+                                    {getFieldDecorator('originHost', {
                                         rules: [
                                             { required: true, message: '请输入后端 Host' },
-                                            { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
-                                        initialValue: this.props.host
+                                            { pattern: new RegExp(/^(http|https):\/\/[\w|.|:]+$/), message: '请填写正确的host' }],
+                                        initialValue: this.props.originHost
                                     })(
                                         <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
                                     )}
@@ -339,13 +425,13 @@ class ManageBasicProperties extends Component {
                                     {...formItemLayout}
                                     label="后端服务 Path"
                                 >
-                                    {getFieldDecorator('path', {
+                                    {getFieldDecorator('originPath', {
                                         rules: [
                                             { required: true, message: '请输入后端 Path' },
                                             { max: 200, message: '最大字符不能超过200' },
                                             { min: 2, message: '最小字符不能小于2' },
-                                            { pattern: new RegExp(/^(\/[-|\w|[|\]]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
-                                        initialValue: this.props.path
+                                            { pattern: isRegister ? new RegExp(/^(\/(\{[-\w]+\}|[-\w]+))*(\/)?$/) : new RegExp(/^(\/[-|\w|{|}]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
+                                        initialValue: this.props.originPath
                                     })(
                                         <Input style={{ width: '85%' }} />
                                     )}
@@ -363,7 +449,7 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { max: 200, message: '最大字符不能超过200' },
                                     { min: 2, message: '最小字符不能小于2' },
-                                    { pattern: isRegister ? new RegExp(/^(\/[-|\w|[|\]]+)+$/) : new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
+                                    { pattern: isRegister ? new RegExp(/^(\/(\{[-\w]+\}|[-\w]+))*(\/)?$/) : new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
                                     isRegister ? {} : { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
                                 initialValue: this.props.APIPath
                             })(
