@@ -27,25 +27,31 @@ class ManageBasicProperties extends Component {
      * 校验后端path的参数和api path的参数是否一致
      * @param {*} values fields
      */
-    checkParamsPath (values) {
+    checkParamsPath (values, isSilent) {
         const { APIPath, originPath } = values;
         let pathParams = parseParamsPath(APIPath);
         let originPathParams = parseParamsPath(originPath);
         let tmpMap = {};
+        /**
+         * 校验两边的参数是否一致
+         */
         originPathParams.forEach((param) => {
-            tmpMap[param] = 1;
+            tmpMap[param] = tmpMap[param] ? ++tmpMap[param] : 1;
         });
         let isPass = pathParams.every((param) => {
             if (tmpMap[param]) {
-                delete tmpMap[param];
-                return true
+                tmpMap[param] = --tmpMap[param];
+                if (tmpMap[param] == 0) {
+                    delete tmpMap[param];
+                }
+                return true;
             }
             return false;
         })
         if (isPass && !Object.keys(tmpMap).length) {
             return true;
         } else {
-            notification.error({
+            !isSilent && notification.error({
                 description: 'API path与后端 Path 的参数不一致！',
                 message: '配置错误'
             });
@@ -59,34 +65,39 @@ class ManageBasicProperties extends Component {
         const { registerParams } = this.props;
         let { inputColumn = [] } = registerParams;
         let params = parseParamsPath(path);
-        let existNames = inputColumn.map((column) => {
-            return column[inputColumnsKeys.NAME];
-        })
+        params = [...new Set(params)];
         /**
-         * 去除源数据中不存在的path参数
-         */
+        * 删除源数据已不存在的path参数
+        */
         inputColumn = inputColumn.map((column) => {
             let name = column[inputColumnsKeys.NAME];
             let position = column[inputColumnsKeys.POSITION];
-            if (position == PARAMS_POSITION.PATH) {
-                if (!params.includes(name)) {
-                    return null;
-                }
+
+            if (!params.includes(name) && position == PARAMS_POSITION.PATH) {
+                return null;
             }
             return column;
         }).filter(Boolean)
         /**
+         * 获取现存的参数
+         */
+        let existNames = inputColumn.map((column) => {
+            return column[inputColumnsKeys.NAME];
+        })
+        /**
          * 向源数据添加不存在的path param
          */
         params = params.map((param) => {
-            if (!existNames.includes(param)) {
+            let targetIndex = existNames.indexOf(param);
+            if (targetIndex == -1 || inputColumn[targetIndex][inputColumnsKeys.POSITION] != PARAMS_POSITION.PATH) {
+                /**
+                 * 假如path中的参数不存在于源数据中，或者存在，但是不是path类型
+                 */
                 return new InputColumnModel({
                     [inputColumnsKeys.NAME]: param,
                     [inputColumnsKeys.POSITION]: PARAMS_POSITION.PATH,
                     [inputColumnsKeys.TYPE]: FIELD_TYPE.STRING
                 });
-            } else {
-                return null;
             }
         }).filter(Boolean);
         this.props.changeRegisterParams({
@@ -114,10 +125,16 @@ class ManageBasicProperties extends Component {
         });
     }
     cancelAndSave () {
+        const { isRegister } = this.props;
         const { validateFields, getFieldsValue } = this.props.form;
         const params = getFieldsValue();
         validateFields(['APIName'], {}, (error, values) => {
             if (!error) {
+                if (isRegister) {
+                    if (params.APIPath && this.checkParamsPath(params, true)) {
+                        this.updateRegisterColumns(params.originPath)
+                    }
+                }
                 this.props.cancelAndSave({ ...params });
             }
         })
