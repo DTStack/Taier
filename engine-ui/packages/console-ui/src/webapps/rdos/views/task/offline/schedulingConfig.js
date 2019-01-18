@@ -735,8 +735,7 @@ class SchedulingConfig extends React.Component {
             periodType: type,
             beginDate: this.form.getFieldValue('beginDate'),
             endDate: this.form.getFieldValue('endDate'),
-            selfReliance: this.form.getFieldValue('selfReliance'),
-            isFailRetry: this.form.getFieldValue('isFailRetry')
+            selfReliance: this.form.getFieldValue('selfReliance')
         });
         this.props.changeScheduleConf(values);
     }
