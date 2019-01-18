@@ -142,9 +142,11 @@ class Header extends Component {
     initUserDropMenu = () => {
         return (
             <Menu onClick={this.clickUserMenu}>
-                <Menu.Item key="ucenter">
-                    <a href={UIC_URL_TARGET}>用户中心</a>
-                </Menu.Item>
+                {!window.APP_CONF.hideUserCenter && (
+                    <Menu.Item key="ucenter">
+                        <a href={UIC_URL_TARGET}>用户中心</a>
+                    </Menu.Item>
+                )}
                 <Menu.Item key="logout">退出登录</Menu.Item>
             </Menu>
         );

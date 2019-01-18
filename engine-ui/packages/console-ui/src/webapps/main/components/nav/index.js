@@ -71,9 +71,11 @@ export function MenuRight (props) {
 
     const userMenu = (
         <Menu onClick={onClick}>
-            <Menu.Item key="ucenter">
-                <a href={UIC_URL_TARGET}>用户中心</a>
-            </Menu.Item>
+            {!window.APP_CONF.hideUserCenter && (
+                <Menu.Item key="ucenter">
+                    <a href={UIC_URL_TARGET}>用户中心</a>
+                </Menu.Item>
+            )}
             <Menu.Item key="logout">
                 退出登录
             </Menu.Item>
@@ -101,7 +103,7 @@ export function MenuRight (props) {
     return (
         <div className="menu right">
             <menu className="menu-right">
-                {showHelpSite&&!window.APP_CONF.disableHelp ? (
+                {showHelpSite && !window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
                             <Icon type="question-circle-o" />
@@ -142,7 +144,7 @@ export function MenuRight (props) {
 
 @pureRender
 class Navigator extends Component {
-    constructor (props) {
+    constructor(props) {
         super(props)
         this.state = {
             current: ''
@@ -154,7 +156,7 @@ class Navigator extends Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.routing) {
             if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();
@@ -203,7 +205,7 @@ class Navigator extends Component {
         const { current } = this.state
         const theme = window.APP_CONF.theme;
         return (
-            <header className={`header ${theme||'default'}`}>
+            <header className={`header ${theme || 'default'}`}>
                 <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>
