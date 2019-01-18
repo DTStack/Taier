@@ -648,9 +648,8 @@ class PatchDataDetail extends Component {
                                         <RangePicker
                                             disabledDate={this.disabledDate}
                                             size="default"
-                                            style={{ width: 270 }}
-                                            showTime
-                                            format="YYYY/MM/DD HH:mm:ss"
+                                            style={{ width: 200 }}
+                                            format="YYYY-MM-DD"
                                             ranges={{
                                                 '昨天': [moment().subtract(2, 'days'), yesterDay],
                                                 '最近7天': [moment().subtract(8, 'days'), yesterDay],
