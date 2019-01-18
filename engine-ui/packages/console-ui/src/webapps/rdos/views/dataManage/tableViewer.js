@@ -207,7 +207,11 @@ export default class TableViewer extends React.Component {
         }, {
             title: '字段名称',
             dataIndex: 'columnName',
-            key: 'columnName'
+            key: 'columnName',
+            render (text, record) {
+                const isDesen = record.needMask === 0 // 是否脱敏
+                return isDesen ? `${text}(脱敏)` : text
+            }
         }, {
             title: '类型',
             dataIndex: 'columnType',

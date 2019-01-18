@@ -20,7 +20,9 @@ class AddDesensitization extends Component {
             columnsList: [],
             rulesList: [], // 脱敏规则列表
             newReplaceData: '',
-            selectRule: [] // 选中的脱敏规则
+            selectRule: [], // 选中的脱敏规则
+            selectTableName: undefined,
+            upwardColumnsInfo: [] // 上游字段信息
         }
     }
     /**
@@ -30,6 +32,7 @@ class AddDesensitization extends Component {
         this.setState({
             rulesList: []
         })
+        this.props.form.resetFields(['ruleId'])
         ajax.getDesRulesList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -83,6 +86,21 @@ class AddDesensitization extends Component {
                 }
             })
         }
+    }
+    getUpColumnInfo = (value) => {
+        const { getFieldValue } = this.props.form;
+        const projectId = getFieldValue('projectId');
+        ajax.checkUpwardColumns({
+            tableName: this.state.selectTableName,
+            belongProjectId: projectId,
+            column: value
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    upwardColumnsInfo: res.data
+                })
+            }
+        })
     }
     columnsOption () {
         const { columnsList } = this.state;
@@ -228,16 +246,27 @@ class AddDesensitization extends Component {
         this.setState({
             tableList: [],
             columnsList: []
+        }, () => {
+            this.getTableList({ projectId: value })
+            this.getDesRulesList({ projectId: value })
         })
-        this.getTableList({ projectId: value })
-        this.getDesRulesList({ projectId: value })
     }
     /**
      * 选择表
      */
     changeTable (value) {
         this.props.form.resetFields(['columnName']);
+        const { tableList } = this.state;
+        const selectTableName = tableList.filter((item, index) => {
+            return `${item.id}` === value
+        })
+        this.setState({
+            selectTableName: selectTableName[0].tableName
+        })
         this.getColumnsList(value)
+    }
+    changeColumnName (value) {
+        this.getUpColumnInfo(value)
     }
     cancel = () => {
         const { onCancel } = this.props;
@@ -255,7 +284,7 @@ class AddDesensitization extends Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { projects } = this.props;
-        const { newReplaceData } = this.state;
+        const { newReplaceData, upwardColumnsInfo } = this.state;
         const projectsOptions = projects.map(item => {
             return <Option
                 title={item.projectAlias}
@@ -272,6 +301,7 @@ class AddDesensitization extends Component {
                 title='添加脱敏'
                 onCancel={this.cancel}
                 onOk={this.submit}
+                maskClosable={false}
             >
                 <Form>
                     <FormItem
@@ -341,13 +371,22 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择字段'
+                                onChange={this.changeColumnName.bind(this)}
                             >
                                 {this.columnsOption()}
                             </Select>
                         )}
                     </FormItem>
                     <div style={{ margin: '-6 0 10 120' }}>
-                        <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
+                        <div>
+                            <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
+                        </div>
+                        {
+                            upwardColumnsInfo && upwardColumnsInfo.length > 0 ? <div style={{ width: '287' }}>
+                                <Icon type="info-circle-o" style={{ fontSize: 14, margin: '10 5 0 0', color: '#999999' }}/>
+                                {`您选择的表至少存在1个上游表(${upwardColumnsInfo[0].tableName}.${upwardColumnsInfo[0].columnName})，建议将脱敏规则配置在根节点表`}
+                            </div> : ''
+                        }
                     </div>
                     <FormItem
                         {...formItemLayout}
