@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.4"></a>
+## [3.3.4](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.3...3.3.4) (2019-01-18)
+
+
+### Features
+
+* **config:** add config for  user center display ([2ee2aad](http://git.dtstack.cn/ziv/data-stack-web/commits/2ee2aad))
+
+
+
 <a name="3.3.3"></a>
 ## [3.3.3](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.2...3.3.3) (2019-01-16)
 
