@@ -5,6 +5,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.base.util.YarnConfTool;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.directory.api.util.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
@@ -122,6 +123,16 @@ public class HadoopConf {
         //非必须:如果多个hadoopclient之间不互相影响需要取消cache
         String disableCache = HadoopConfTool.getFsHdfsImplDisableCache(conf);
         configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
+
+        if(Strings.isNotEmpty(HadoopConfTool.getAuthType(conf))){
+            configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
+        }
+
+        for (Map.Entry<String, Object> keyVal : conf.entrySet()) {
+            if(keyVal.getKey().contains(".principal") && keyVal.getValue() != null){
+                configuration.set(keyVal.getKey(), keyVal.getValue().toString());
+            }
+        }
     }
 
     public void initYarnConf(Map<String, Object> conf){
