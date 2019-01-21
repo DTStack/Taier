@@ -10,6 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>spark-sql-proxy</artifactId>
+    <properties>
+        <carbondata.version>1.5.0-SNAPSHOT</carbondata.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -33,6 +36,12 @@
                     <artifactId>hive-exec</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.carbondata</groupId>
+            <artifactId>carbondata-spark2</artifactId>
+            <version>${carbondata.version}</version>
         </dependency>
     </dependencies>
 
