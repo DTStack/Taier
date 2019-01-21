@@ -243,7 +243,7 @@ class InputOrigin extends Component {
                                         style={{ minHeight: 202 }}
                                         className="bd"
                                         sync={sync}
-                                        placeholder="字段 类型, 比如 id int 一行一个字段"
+                                        placeholder="分区 偏移量，比如pt 2 一行一对值"
                                         value={panelColumn[index].offsetValue}
                                         onChange={this.debounceEditorChange.bind(this, 'offsetValue')}
                                     />
