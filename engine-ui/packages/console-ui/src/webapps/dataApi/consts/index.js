@@ -31,8 +31,10 @@ export const API_METHOD = {
     DELETE: 3
 }
 export const API_METHOD_KEY = {
-    1: 'POST',
-    0: 'GET'
+    [API_METHOD.POST]: 'POST',
+    [API_METHOD.GET]: 'GET',
+    [API_METHOD.PUT]: 'PUT',
+    [API_METHOD.DELET]: 'DELETE'
 }
 /**
  * 参数位置

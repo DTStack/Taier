@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
-import { Row, Col, Table } from 'antd'
 import moment from 'moment';
 
+import './style.scss';
 import SecurityDetailModal from '../../components/securityDetailModal';
+import RegisterSection from './register';
+import CreateSection from './create';
 
-import { API_METHOD, API_METHOD_KEY, API_MODE, dataSourceTypes } from '../../consts';
+import { API_METHOD, API_METHOD_KEY } from '../../consts';
 import { getApiMarketValue } from '../../utils';
 
 class Content extends Component {
@@ -12,88 +14,30 @@ class Content extends Component {
         securityModalVisible: false,
         securityData: {}
     }
-
+    /**
+     * 请求参数
+     */
     getRequestDataSource () {
         return this.getValue('reqParam') || [];
     }
-    getRequestColumns () {
-        return [{
-            title: '参数名',
-            dataIndex: 'paramName',
-            key: 'paramName',
-            width: 120
-        }, {
-            title: '数据类型',
-            dataIndex: 'paramType',
-            key: 'paramType',
-            width: 100
-        }, {
-            title: '必填',
-            dataIndex: 'required',
-            key: 'required',
-            width: 60,
-            render (text) {
-                if (text) {
-                    return '是'
-                }
-                return '否'
-            }
-        }, {
-            title: '说明',
-            dataIndex: 'desc',
-            key: 'desc',
-            render (text) {
-                if (text && text.length > 10) {
-                    return <span title={text}>text</span>
-                } else {
-                    return text
-                }
-            }
-        }];
-    }
+    /**
+     * 返回参数
+     */
     getResponseDataSource () {
         return this.getValue('respParam') || [];
     }
-    getResponseColumns () {
-        return [{
-            title: '参数名',
-            dataIndex: 'paramName',
-            key: 'paramName',
-            width: 120
-        }, {
-            title: '数据类型',
-            dataIndex: 'paramType',
-            key: 'paramType',
-            width: 100
-        }, {
-            title: '必填',
-            dataIndex: 'required',
-            key: 'required',
-            width: 60,
-            render (text) {
-                if (text) {
-                    return '是'
-                }
-                return '否'
-            }
-        }, {
-            title: '说明',
-            dataIndex: 'desc',
-            key: 'desc',
-            render (text) {
-                if (text && text.length > 10) {
-                    return <span title={text}>text</span>
-                } else {
-                    return text
-                }
-            }
-
-        }];
-    }
+    /**
+     * api详细信息
+     * @param {*} key 属性名
+     */
     getValue (key) {
         const { apiMarket, apiId } = this.props;
         return getApiMarketValue(key, apiMarket, apiId)
     }
+    /**
+     * api额外信息，例如当前市场订购信息
+     * @param {*} key 属性名
+     */
     getValueCallInfo (key) {
         const { apiMarket, apiId } = this.props;
         const api = apiMarket && apiMarket.api && apiMarket.apiCallInfo[apiId];
@@ -122,14 +66,24 @@ class Content extends Component {
         }, [])
     }
     render () {
-        const { callUrl, callLimit,
-            beginTime, endTime,
-            mode, showRecord,
-            showMarketInfo, showUserInfo, showSecurity,
-            securityList, showApiConfig, apiConfig = {}
+        const {
+            callUrl,
+            callLimit,
+            beginTime,
+            endTime,
+            mode, // 管理模式/用户模式
+            isRegister,
+            showRecord,
+            showMarketInfo, // 是否显示订购情况
+            showUserInfo, // 是否显示用户个人的调用信息
+            showSecurity, // 是否显示安全组
+            securityList,
+            showApiConfig, // 是否显示api的配置信息
+            apiConfig = {} // api配置信息
         } = this.props;
         const { securityData, securityModalVisible } = this.state;
-        const showExt = mode == 'manage';
+        const isManage = mode == 'manage';
+        const showExt = isManage;
         const isGET = this.getValue('reqMethod') == API_METHOD.GET
         let reqJson = this.getValue('reqJson');
 
@@ -140,15 +94,21 @@ class Content extends Component {
                 }
             ).join('&')
             reqJson = reqJson ? ('?' + reqJson) : '无'
-        } else {
-            reqJson = JSON.stringify(reqJson, null, '    \r')
         }
         return (
             <div style={{ paddingBottom: '20px' }}>
                 <section>
                     <h1 className="title-border-l-blue">基本信息</h1>
                     <div style={{ marginTop: 10 }}>
-                        <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
+                        {!isRegister && (
+                            <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
+                        )}
+                        {isRegister && isManage && (
+                            <React.Fragment>
+                                <span data-title="后端Host：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
+                                <span data-title="后端Path：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
+                            </React.Fragment>
+                        )}
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
                         <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_KEY[this.getValue('reqMethod')]}</span>
                         <p data-title="API path：" className="pseudo-title p-line">{this.getValue('apiPath')}</p>
@@ -175,82 +135,21 @@ class Content extends Component {
                         )}
                     </div>
                 </section>
-                {showApiConfig && (
-                    <section style={{ marginTop: 19.3 }}>
-                        <h1 className="title-border-l-blue">配置信息</h1>
-                        <div style={{ marginTop: 10 }}>
-                            <p data-title="数据源类型：" className="pseudo-title p-line">{dataSourceTypes[apiConfig.dataSrcType]}</p>
-                            <p data-title="数据源名称：" className="pseudo-title p-line">{apiConfig.dataSrcName}</p>
-                            {API_MODE.GUIDE == apiConfig.paramCfgType ? (
-                                <p data-title="数据表名称：" className="pseudo-title p-line">{apiConfig.dataSrcTable}</p>
-                            ) : null}
-                            {API_MODE.SQL == apiConfig.paramCfgType ? (
-                                <p data-title="SQL配置信息：" className="pseudo-title p-line">
-                                    <pre style={{ maxHeight: '100px', overflow: 'auto', verticalAlign: 'top', display: 'inline-block' }}>
-                                        {apiConfig.dataSrcSQL}
-                                    </pre>
-                                </p>
-                            ) : null}
-                        </div>
-                    </section>
-                )}
-                {showMarketInfo && <section style={{ marginTop: 19.3 }}>
-                    <h1 className="title-border-l-blue">调用订购情况</h1>
-                    <div style={{ marginTop: 10 }}>
-                        <span data-title="累计调用次数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('apiCallNum')}</span>
-                        <span data-title="订购人数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('applyNum')}</span>
-                    </div>
-                </section>}
-                <Row gutter={30} style={{ marginTop: 19.3 }}>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">请求参数</h1>
-                            <Table
-                                rowKey="paramName"
-                                style={{ marginTop: 18 }}
-                                className="m-table border-table"
-                                pagination={false}
-                                dataSource={this.getRequestDataSource()}
-                                scroll={{ y: 160 }}
-                                columns={this.getRequestColumns()} />
-                        </section>
-                    </Col>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">返回参数</h1>
-                            <Table
-                                rowKey="paramName"
-                                style={{ marginTop: 18 }}
-                                className="m-table border-table"
-                                pagination={false}
-                                dataSource={this.getResponseDataSource()}
-                                scroll={{ y: 160 }}
-                                columns={this.getResponseColumns()} />
-                        </section>
-                    </Col>
-                </Row>
-                <Row gutter={30} style={{ marginTop: 19.3 }}>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">请求{isGET ? 'URL' : 'JSON'}样例</h1>
-                            <div style={{ marginTop: 18 }}>
-                                <pre style={{ maxHeight: '150px', overflow: 'auto' }}>
-                                    {reqJson}
-                                </pre>
-                            </div>
-                        </section>
-                    </Col>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">返回JSON样例</h1>
-                            <div style={{ marginTop: 18 }}>
-                                <pre style={{ maxHeight: '150px', overflow: 'auto' }}>
-                                    {this.getValue('respJson') ? JSON.stringify(this.getValue('respJson'), null, '    \r') : '暂无返回样例'}
-                                </pre>
-                            </div>
-                        </section>
-                    </Col>
-                </Row>
+                {isRegister ? (
+                    <RegisterSection
+                        isManage={isManage}
+                    />
+                ) : (<CreateSection
+                    showApiConfig={showApiConfig}
+                    showMarketInfo={showMarketInfo}
+                    apiConfig={apiConfig}
+                    reqJson={reqJson}
+                    isGET={isGET}
+                    getValue={this.getValue.bind(this)}
+                    getValueCallInfo={this.getValueCallInfo.bind(this)}
+                    getRequestDataSource={this.getRequestDataSource.bind(this)}
+                    getResponseDataSource={this.getResponseDataSource.bind(this)}
+                />)}
                 <SecurityDetailModal
                     data={securityData}
                     visible={securityModalVisible}

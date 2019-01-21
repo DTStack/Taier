@@ -2,10 +2,10 @@
 import { PARAMS_POSITION, FIELD_TYPE_LIST } from '../consts';
 import BaseModel from './baseModel';
 export const constColumnsKeys = {
-    NAME: 'name',
-    POSITION: 'paramsPlace',
-    TYPE: 'type',
-    VALUE: 'value',
+    NAME: 'paramName',
+    POSITION: 'paramLocation',
+    TYPE: 'paramType',
+    VALUE: 'defaultValue',
     DESC: 'desc'
 }
 

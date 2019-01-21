@@ -507,7 +507,11 @@ class APIMana extends Component {
         return (
             <div className="api-management">
                 <div style={{ margin: '0px' }} className="m-card box-2">
-                    <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
+                    <ApiSlidePane
+                        showRecord={showRecord}
+                        slidePaneShow={slidePaneShow}
+                        closeSlidePane={this.closeSlidePane.bind(this)}
+                    />
                     <Card
                         style={{ minHeight: 'calc(100% - 40px)' }}
                         noHovering
