@@ -681,89 +681,97 @@ export default class InputPanel extends Component {
         } else {
             panelColumn[index][type] = value;
         }
-        if (type === 'type') {
-            // this.clearCurrentInfo(type,index)
-            timeColumoption[index] = [];
-            originOptionType[index] = [];
-            topicOptionType[index] = [];
-            allParamsType.map(v => {
-                if (v != 'type') {
-                    if (v == 'columns' || v == 'topic') {
-                        panelColumn[index][v] = [];
-                    } else if (v == 'timeType') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'parallelism') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'offsetReset') {
-                        panelColumn[index][v] = 'latest'
-                    } else if (v == 'topicIsPattern') {
-                        panelColumn[index][v] = TOPIC_TYPE.NORMAL
-                    } else {
-                        panelColumn[index][v] = undefined
+        switch (type) {
+            case 'type': {
+                timeColumoption[index] = [];
+                originOptionType[index] = [];
+                topicOptionType[index] = [];
+                allParamsType.map(v => {
+                    if (v != 'type') {
+                        if (v == 'columns' || v == 'topic') {
+                            panelColumn[index][v] = [];
+                        } else if (v == 'timeType') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'parallelism') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'offsetReset') {
+                            panelColumn[index][v] = 'latest'
+                        } else if (v == 'topicIsPattern') {
+                            panelColumn[index][v] = TOPIC_TYPE.NORMAL
+                        } else {
+                            panelColumn[index][v] = undefined
+                        }
                     }
-                }
-            })
-            this.getTypeOriginData(index, value);
-        } else if (type === 'sourceId') {
-            // this.clearCurrentInfo(type,index)
-            timeColumoption[index] = [];
-            topicOptionType[index] = []; // 清空topic列表
-            allParamsType.map(v => {
-                if (v != 'type' && v != 'sourceId') {
-                    if (v == 'columns' || v == 'topic') {
-                        panelColumn[index][v] = [];
-                    } else if (v == 'timeType') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'parallelism') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'offsetReset') {
-                        panelColumn[index][v] = 'latest'
-                    } else if (v == 'topicIsPattern') {
-                        panelColumn[index][v] = TOPIC_TYPE.NORMAL
-                    } else {
-                        panelColumn[index][v] = undefined
+                })
+                this.getTypeOriginData(index, value);
+                break;
+            }
+            case 'sourceId': {
+                timeColumoption[index] = [];
+                topicOptionType[index] = []; // 清空topic列表
+                allParamsType.map(v => {
+                    if (v != 'type' && v != 'sourceId') {
+                        if (v == 'columns' || v == 'topic') {
+                            panelColumn[index][v] = [];
+                        } else if (v == 'timeType') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'parallelism') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'offsetReset') {
+                            panelColumn[index][v] = 'latest'
+                        } else if (v == 'topicIsPattern') {
+                            panelColumn[index][v] = TOPIC_TYPE.NORMAL
+                        } else {
+                            panelColumn[index][v] = undefined
+                        }
                     }
-                }
-            })
-            this.getTopicType(index, value);
-        } else if (type === 'topic') {
-            timeColumoption[index] = [];
-            allParamsType.map(v => {
-                if (v != 'type' && v != 'sourceId' && v != 'topic' && v != 'topicIsPattern') {
-                    if (v == 'columns') {
-                        panelColumn[index][v] = [];
-                    } else if (v == 'timeType') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'parallelism') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'offsetReset') {
-                        panelColumn[index][v] = 'latest'
-                    } else {
-                        panelColumn[index][v] = undefined
+                })
+                this.getTopicType(index, value);
+                break;
+            }
+            case 'topic': {
+                timeColumoption[index] = [];
+                allParamsType.map(v => {
+                    if (v != 'type' && v != 'sourceId' && v != 'topic' && v != 'topicIsPattern') {
+                        if (v == 'columns') {
+                            panelColumn[index][v] = [];
+                        } else if (v == 'timeType') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'parallelism') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'offsetReset') {
+                            panelColumn[index][v] = 'latest'
+                        } else {
+                            panelColumn[index][v] = undefined
+                        }
                     }
-                }
-            })
-        } else if (type == 'topicIsPattern') {
-            timeColumoption[index] = [];
-            allParamsType.map(v => {
-                if (v != 'type' && v != 'sourceId' && v != 'topicIsPattern') {
-                    if (v == 'columns') {
-                        panelColumn[index][v] = [];
-                    } else if (v == 'timeType') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'parallelism') {
-                        panelColumn[index][v] = 1
-                    } else if (v == 'offsetReset') {
-                        panelColumn[index][v] = 'latest'
-                    } else if (v == 'topic') {
-                        panelColumn[index][v] = [];
-                    } else {
-                        panelColumn[index][v] = undefined
+                })
+                break;
+            }
+            case 'topicIsPattern': {
+                timeColumoption[index] = [];
+                allParamsType.map(v => {
+                    if (v != 'type' && v != 'sourceId' && v != 'topicIsPattern') {
+                        if (v == 'columns') {
+                            panelColumn[index][v] = [];
+                        } else if (v == 'timeType') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'parallelism') {
+                            panelColumn[index][v] = 1
+                        } else if (v == 'offsetReset') {
+                            panelColumn[index][v] = 'latest'
+                        } else if (v == 'topic') {
+                            panelColumn[index][v] = [];
+                        } else {
+                            panelColumn[index][v] = undefined
+                        }
                     }
-                }
-            })
-        } else {
-            shouldUpdateEditor = false;
+                })
+                break;
+            }
+            default: {
+                shouldUpdateEditor = false;
+            }
         }
         this.props.tableParamsChange()// 添加数据改变标记
         this.setCurrentSource({ panelColumn })
