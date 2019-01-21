@@ -248,7 +248,7 @@ public class FlinkClientBuilder {
             flinkConfiguration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
         }
 
-        AbstractYarnClusterDescriptor clusterDescriptor = new LegacyYarnClusterDescriptor(flinkConfiguration, yarnConf,".",
+        AbstractYarnClusterDescriptor clusterDescriptor = new YarnClusterDescriptor(flinkConfiguration, yarnConf,".",
                 yarnClient, false);
 
         try {

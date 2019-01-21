@@ -46,33 +46,32 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     @Override
     public boolean judgeSlots(JobClient jobClient) {
         //FIXME 暂时跳过资源检查
-        if (jobClient!=null){
-            return true;
-        }
+         return true;
 
-        FlinkConfig flinkConfig = getJobFlinkConf(jobClient.getPluginInfo());
-        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
-        String queue = DEFAULT_QUEUE;
-        if(flinkConfig != null){
-            queue = flinkConfig.getQueue();
-        }
 
-        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.isPerJob(taskRunMode)){
-            return judgePerjobResource(jobClient, queue);
-        }
-
-        int sqlEnvParallel = 1;
-        int mrParallel = 1;
-
-        if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
-            sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
-        }
-
-        if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
-            mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
-        }
-
-        return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
+//        FlinkConfig flinkConfig = getJobFlinkConf(jobClient.getPluginInfo());
+//        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+//        String queue = DEFAULT_QUEUE;
+//        if(flinkConfig != null){
+//            queue = flinkConfig.getQueue();
+//        }
+//
+//        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.isPerJob(taskRunMode)){
+//            return judgePerjobResource(jobClient, queue);
+//        }
+//
+//        int sqlEnvParallel = 1;
+//        int mrParallel = 1;
+//
+//        if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
+//            sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
+//        }
+//
+//        if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
+//            mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
+//        }
+//
+//        return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
     private boolean judgePerjobResource(JobClient jobClient, String queue) {
