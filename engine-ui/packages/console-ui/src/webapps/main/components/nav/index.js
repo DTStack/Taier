@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Menu, Dropdown, Icon } from 'antd'
 import { Link } from 'react-router'
 import styled from 'styled-components'
-
+import { cloneDeep } from 'lodash';
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
 import './style.scss'
@@ -28,6 +28,26 @@ function renderMenuItems (menuItems) {
     ) : []
 }
 
+// 控制apps与licenseApps应用是否显示
+function compareEnable (apps, licenseApps) {
+    const newApps = cloneDeep(apps);
+    if (licenseApps) {
+        newApps.map(item => {
+            for (var key in item) {
+                licenseApps.map(itemLicen => {
+                    for ( var key in itemLicen) {
+                        if (item.id == itemLicen.id) {
+                            item.enable = itemLicen.is_Show
+                            item.name = itemLicen.name
+                        }
+                    }
+                })
+            }
+        })
+    }
+    return newApps
+}
+
 function renderATagMenuItems (menuItems, isRoot) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
@@ -45,7 +65,7 @@ export function Logo (props) {
 }
 
 export function MenuLeft (props) {
-    const { activeKey, onClick, menuItems, user } = props;
+    const { activeKey, onClick, menuItems, user, licenseApps } = props;
     return (
         <div className="menu left">
             <Menu
@@ -54,7 +74,7 @@ export function MenuLeft (props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems(menuItems, user.isRoot)}
+                {renderATagMenuItems(compareEnable(menuItems, licenseApps) || menuItems, user.isRoot)}
             </Menu>
         </div>
     )
@@ -62,13 +82,12 @@ export function MenuLeft (props) {
 
 export function MenuRight (props) {
     const {
-        onClick, settingMenus, user,
+        onClick, settingMenus, user, licenseApps,
         apps, app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage
     const extraParms = app ? `?app=${app && app.id}` : '';
-
     const userMenu = (
         <Menu onClick={onClick}>
             {!window.APP_CONF.hideUserCenter && (
@@ -93,10 +112,10 @@ export function MenuRight (props) {
             {renderMenuItems(settingMenus)}
         </Menu>
     )
-
+    // 右下拉菜单
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(apps, user.isRoot)}
+            {renderATagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot)}
         </Menu>
     )
 
@@ -199,7 +218,7 @@ class Navigator extends Component {
     render () {
         const {
             user, logo, menuItems,
-            settingMenus, apps, app,
+            settingMenus, apps, app, licenseApps,
             menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
         } = this.props;
         const { current } = this.state
@@ -214,6 +233,7 @@ class Navigator extends Component {
                         user={user}
                         activeKey={current}
                         menuItems={menuItems}
+                        licenseApps={licenseApps}
                         onClick={this.handleClick}
                     />
                 }
@@ -223,6 +243,7 @@ class Navigator extends Component {
                         user={user}
                         app={app}
                         apps={apps}
+                        licenseApps={licenseApps}
                         onClick={this.clickUserMenu}
                         settingMenus={settingMenus}
                         showHelpSite={showHelpSite}

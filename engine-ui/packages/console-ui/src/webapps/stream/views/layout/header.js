@@ -19,7 +19,8 @@ const confirm = Modal.confirm;
     const { pages } = state.realtimeTask;
 
     return {
-        realTimeTabs: pages
+        realTimeTabs: pages,
+        licenseApps: state.licenseApps
     }
 })
 class Header extends Component {
@@ -115,6 +116,27 @@ class Header extends Component {
             });
         }
         return [];
+    }
+
+    fixArrayIndex = (arr) => {
+        let fixArrChildrenApps = [];
+        arr.map(item => {
+            switch (item.name) {
+                case '数据源':
+                    fixArrChildrenApps[0] = item;
+                    break;
+                case '数据开发':
+                    fixArrChildrenApps[1] = item;
+                    break;
+                case '运维中心':
+                    fixArrChildrenApps[2] = item;
+                    break;
+                case '项目管理':
+                    fixArrChildrenApps[3] = item;
+                    break;
+            }
+        })
+        return fixArrChildrenApps
     }
 
     updateSelected () {
@@ -237,7 +259,7 @@ class Header extends Component {
         }
     }
     render () {
-        const { user, project, apps, app, router } = this.props;
+        const { user, project, apps, app, licenseApps, router } = this.props;
         const { current, devPath } = this.state;
         let pathname = router.location.pathname;
 
@@ -246,6 +268,8 @@ class Header extends Component {
         const pid = project && project.id ? project.id : '';
 
         const basePath = app.link;
+        console.log(licenseApps[1].children)
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1].children);
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
@@ -270,37 +294,45 @@ class Header extends Component {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="database"
-                            style={{ display }}
+                        {fixArrChildrenApps[0].is_Show ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="database"
+                                style={{ display }}
 
-                        >
-                            <a href={`${basePath}/database`}>数据源</a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="realtime"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}${devPath}`}>数据开发</a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="operation"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}/operation`}>任务运维</a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="project"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}/project/${pid}/config`}>
-                                项目管理
-                            </a>
-                        </Menu.Item>
+                            >
+                                <a href={`${basePath}/database`}>数据源</a>
+                            </Menu.Item>
+                        ) : null }
+                        {fixArrChildrenApps[1].is_Show ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="realtime"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}${devPath}`}>数据开发</a>
+                            </Menu.Item>
+                        ) : null }
+                        {fixArrChildrenApps[2].is_Show ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="operation"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}/operation`}>任务运维</a>
+                            </Menu.Item>
+                        ) : null }
+                        {fixArrChildrenApps[3].is_Show ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="project"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}/project/${pid}/config`}>
+                                    项目管理
+                                </a>
+                            </Menu.Item>
+                        ) : null }
                     </Menu>
                 </div>
 
@@ -308,6 +340,7 @@ class Header extends Component {
                     user={user}
                     app={app}
                     apps={apps}
+                    licenseApps={licenseApps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
                     helpUrl="/public/helpSite/dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html"

@@ -8,12 +8,18 @@ import DqApi from 'dataQuality/api'
 import { MY_APPS } from '../consts';
 import req from '../consts/reqUrls';
 import rdosUrls from '../consts/rdosUrls';
+import {
+    UIC_BASE_URL
+} from 'config/base';
 // 分析引擎
 import analyEngineUrls from '../consts/analyEngineUrls';
 
 export default {
     checkRoot (params) {
         return http.post(req.CHECKISROOT, params, { isSilent: true });
+    },
+    getLicenseApp (params) {
+        return http.get(`${UIC_BASE_URL}/v2/license/menu/RDOS`)
     },
     // ================== 公共模块 ==================//
     getProjects (app, params) {

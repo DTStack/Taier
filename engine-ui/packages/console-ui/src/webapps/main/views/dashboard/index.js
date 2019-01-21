@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-
+import { cloneDeep } from 'lodash';
 import utils from 'utils'
 
 import Header from '../layout/header'
@@ -12,6 +12,7 @@ import '../../styles/views/portal.scss';
 
 @connect(state => {
     return {
+        licenseApps: state.licenseApps,
         apps: state.apps,
         user: state.user
     }
@@ -34,10 +35,29 @@ class Dashboard extends Component {
             }
         }, 1000);
     }
-
+    /* eslint-disable */
+    // 控制apps与licenseApps应用是否显示
+    compareEnable = (apps, licenseApps) => {
+        const newApps = cloneDeep(apps);
+        if (licenseApps) {
+            newApps.map(item => {
+                for (var key in item) {
+                    licenseApps.map(itemLicen => {
+                        for ( var key in itemLicen) {
+                            if (item.id == itemLicen.id) {
+                                item.enable = itemLicen.is_Show
+                                item.name = itemLicen.name
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        return newApps
+    }
     renderApps = () => {
-        const { apps, user } = this.props;
-        const sections = apps.map(app => {
+        const { apps, licenseApps, user } = this.props;
+        const sections = this.compareEnable(apps, licenseApps).map(app => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
             return isShow && app.id !== MY_APPS.MAIN && (

@@ -10,7 +10,8 @@ import { getHeaderLogo } from 'main/consts';
         apps: state.apps,
         routing: state.routing,
         common: state.common,
-        app: state.app
+        app: state.app,
+        licenseApps: state.licenseApps
     }
 })
 class Header extends Component {
@@ -19,68 +20,98 @@ class Header extends Component {
         this.state = {}
     }
 
+    fixArrayIndex = (arr) => {
+        let fixArrChildrenApps = [];
+        arr.map(item => {
+            switch (item.name) {
+                case '概览':
+                    fixArrChildrenApps[0] = item;
+                    break;
+                case 'API市场':
+                    fixArrChildrenApps[1] = item;
+                    break;
+                case '我是API':
+                    fixArrChildrenApps[2] = item;
+                    break;
+                case 'API管理':
+                    fixArrChildrenApps[3] = item;
+                    break;
+                case '授权与安全':
+                    fixArrChildrenApps[4] = item;
+                    break;
+                case '数据源管理':
+                    fixArrChildrenApps[5] = item;
+                    break;
+            }
+        })
+        return fixArrChildrenApps
+    }
+
     render () {
         const baseUrl = '/dataApi.html#/api'
-        const { app } = this.props;
-        let showList = {
-            overview: false,
-            market: false,
-            mine: false,
-            manage: false,
-            approval: false,
-            dataSource: false
+        const { app, licenseApps } = this.props;
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[4].children);
+        console.log('----------------')
+        console.log(fixArrChildrenApps);
+        // let showList = {
+        //     overview: false,
+        //     market: false,
+        //     mine: false,
+        //     manage: false,
+        //     approval: false,
+        //     dataSource: false
 
-        }
-        const menuList = this.props.common.menuList;
-        if (menuList) {
-            for (let i in menuList) {
-                let item = menuList[i];
-                if (item.indexOf('overview') > -1) {
-                    showList.overview = true;
-                } else if (item.indexOf('market') > -1) {
-                    showList.market = true
-                } else if (item.indexOf('myapi') > -1) {
-                    showList.mine = true
-                } else if (item.indexOf('manager') > -1) {
-                    showList.manage = true
-                } else if (item.indexOf('authorized') > -1) {
-                    showList.approval = true
-                } else if (item.indexOf('datasource') > -1) {
-                    showList.dataSource = true
-                }
-            }
-        }
+        // }
+        // const menuList = this.props.common.menuList;
+        // if (menuList) {
+        //     for (let i in menuList) {
+        //         let item = menuList[i];
+        //         if (item.indexOf('overview') > -1) {
+        //             showList.overview = true;
+        //         } else if (item.indexOf('market') > -1) {
+        //             showList.market = true
+        //         } else if (item.indexOf('myapi') > -1) {
+        //             showList.mine = true
+        //         } else if (item.indexOf('manager') > -1) {
+        //             showList.manage = true
+        //         } else if (item.indexOf('authorized') > -1) {
+        //             showList.approval = true
+        //         } else if (item.indexOf('datasource') > -1) {
+        //             showList.dataSource = true
+        //         }
+        //     }
+        // }
 
         const menuItems = [{
             id: 'overview',
             name: '概览',
             link: `${baseUrl}/overview`,
-            enable: showList.overview
+            enable: fixArrChildrenApps[0].is_Show
         }, {
             id: 'market',
             name: 'API市场',
             link: `${baseUrl}/market`,
-            enable: showList.market
+            enable: fixArrChildrenApps[1].is_Show
         }, {
             id: 'mine',
             name: '我的API',
             link: `${baseUrl}/mine`,
-            enable: showList.mine
+            enable: fixArrChildrenApps[2].is_Show
         }, {
             id: 'manage',
             name: 'API管理',
             link: `${baseUrl}/manage`,
-            enable: showList.manage
+            enable: fixArrChildrenApps[3].is_Show
         }, {
             id: 'approvalAndsecurity',
             name: '授权与安全',
             link: `${baseUrl}/approvalAndsecurity`,
-            enable: showList.approval
+            enable: fixArrChildrenApps[4].is_Show
         }, {
             id: 'dataSource',
             name: '数据源管理',
             link: `${baseUrl}/dataSource`,
-            enable: showList.dataSource
+            enable: fixArrChildrenApps[5].is_Show
         }];
 
         const logo = <span>
@@ -96,6 +127,7 @@ class Header extends Component {
         return <Navigator
             logo={logo}
             menuItems={menuItems}
+            licenseApps={licenseApps}
             {...this.props}
         />
     }
