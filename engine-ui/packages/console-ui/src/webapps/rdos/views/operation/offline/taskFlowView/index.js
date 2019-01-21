@@ -6,6 +6,8 @@ import {
     Modal, message, Icon
 } from 'antd'
 
+/* eslint-disable */
+
 import utils from 'utils'
 
 import { TaskInfo } from './taskInfo'
@@ -97,6 +99,7 @@ const mergeTreeNodes = (treeNodeData, mergeSource) => {
             } else if (mergeSource.parentNodes) {
                 treeNodeData.parentNodes = cloneDeep(mergeSource.parentNodes);
             }
+            treeNodeData._geometry = mergeSource._geometry;
             treeNodeData.subNodes = cloneDeep(mergeSource.subNodes);
             return;
         }
@@ -164,35 +167,50 @@ class TaskFlowView extends Component {
     }
 
     componentWillUnmount() {
-        
     }
 
     loadTaskChidren = (params) => {
         const ctx = this
         this.setState({ loading: 'loading' })
-        Api.getJobChildren(params).then(res => {
-            if (res.code === 1) {
-                const data = res.data
-                ctx.setState({ selectedJob: data, data })
-                ctx.doInsertVertex(res.data)
-            }
-            ctx.setState({ loading: 'success' })
-        })
+
+        const res = require('./mockData_1.json');
+        const data = res.data;
+        ctx.setState({ selectedJob: data, data })
+        ctx.doInsertVertex(res.data)
+        ctx.setState({ loading: 'success' })
+
+        // Api.getJobChildren(params).then(res => {
+        //     if (res.code === 1) {
+        //         const data = res.data
+        //         ctx.setState({ selectedJob: data, data })
+        //         ctx.doInsertVertex(res.data)
+        //     }
+        //     ctx.setState({ loading: 'success' })
+        // })
     }
 
     loadTaskParent = (params) => {
         const ctx = this
-        this.setState({ loading: 'loading' })
-        Api.getJobParents(params).then(res => {
-            if (res.code === 1) {
-                const data = res.data
-                ctx.setState({ data, selectedJob: data })
-                // 替换 jobVos 字段为 parentNodes
-                replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
-                ctx.doInsertVertex(res.data);
-            }
-            ctx.setState({ loading: 'success' })
-        })
+        this.setState({ loading: 'loading' });
+
+        const res = require('./mockData_2.json');
+        const data = res.data;
+        ctx.setState({ data, selectedJob: data });
+        // 替换 jobVos 字段为 parentNodes
+        // replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes');
+        ctx.doInsertVertex(res.data);
+        ctx.setState({ loading: 'success' })
+
+        // Api.getJobParents(params).then(res => {
+        //     if (res.code === 1) {
+        //         const data = res.data
+        //         ctx.setState({ data, selectedJob: data })
+        //         // 替换 jobVos 字段为 parentNodes
+        //         replacTreeNodeField(res.data, 'jobVOS', 'parentNodes', 'parentNodes')
+        //         ctx.doInsertVertex(res.data);
+        //     }
+        //     ctx.setState({ loading: 'success' })
+        // })
     }
 
     /**

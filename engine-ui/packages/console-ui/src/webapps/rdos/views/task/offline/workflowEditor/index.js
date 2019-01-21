@@ -638,6 +638,7 @@ class WorkflowEditor extends Component {
                     ctx.initEditTaskCell(cell, currentNode);
                 }, null, null, true) // 正常状态
                 menu.addItem('编辑节点属性', null, function () {
+                    currentNode.readWriteLockVO = data.readWriteLockVO;
                     onEditTaskByModal(currentNode);
                     updateWorkflow({
                         workflowId: data.id,
