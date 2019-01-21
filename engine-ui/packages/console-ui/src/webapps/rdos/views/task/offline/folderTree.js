@@ -475,6 +475,8 @@ class FolderTree extends React.Component {
             }
 
             let claName = type === 'file' ? 'file-item' : 'folder-item';
+            // ! Key 用于左侧任务位置定位
+            const key = `${treeType}-${type}-${id}`;
 
             return <TreeNode
                 title={
@@ -509,8 +511,7 @@ class FolderTree extends React.Component {
                 treeType={treeType}
                 className={taskTypeIcon(taskType, data) || resourceTypeIcon(resourceType)}
                 isLeaf={type === 'file'}
-                // ! treeType-id 的作为 Key 用于左侧任务位置定位
-                key={`${treeType}-${id}`}
+                key={key}
             >
                 {data.children && data.children.map(o => loop(o))}
             </TreeNode>
@@ -525,7 +526,6 @@ class FolderTree extends React.Component {
             type, placeholder, currentTab, multiple, key,
             onExpand, expandedKeys, onChange, couldEdit
         } = this.props;
-
         return (
             <div>
                 {this.props.ispicker
@@ -555,7 +555,7 @@ class FolderTree extends React.Component {
                         onRightClick={this.onRightClick}
                         showIcon={true}
                         placeholder={placeholder}
-                        selectedKeys={[`${type}-${currentTab}`]}
+                        selectedKeys={[`${type}-file-${currentTab}`]}
                         loadData={this.onLoadData.bind(this, type)}
                         expandedKeys={expandedKeys}
                         onExpand={onExpand}

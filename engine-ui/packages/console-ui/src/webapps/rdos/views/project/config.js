@@ -105,7 +105,7 @@ class ProjectConfig extends Component {
                     })
                     if (res.code == 1) {
                         message.success('周期调度状态切换成功！')
-                        const newProject = cloneDeep(Object.assign(project, { scheduleStatus: checked ? 0 : 1 }))
+                        const newProject = Object.assign({}, project, { scheduleStatus: checked ? 0 : 1 });
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
                     }
@@ -128,7 +128,7 @@ class ProjectConfig extends Component {
                     })
                     if (res.code == 1) {
                         message.success('切换成功！')
-                        const newProject = cloneDeep(Object.assign(project, { isAllowDownloadLoading: checked }))
+                        const newProject = Object.assign({}, project, { isAllowDownload: checked });
                         dispatch(ProjectAction.setProject(newProject))
                         dispatch(ProjectAction.getProjects())
                     }

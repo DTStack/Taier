@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Select, Alert, message } from 'antd';
+import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
 const FormItem = Form.Item;
@@ -23,14 +23,14 @@ class AddDesensitization extends Component {
             selectRule: [] // 选中的脱敏规则
         }
     }
-    componentDidMount () {
-        this.getdesRulesList();
-    }
     /**
      * 获取脱敏规则列表
      */
-    getdesRulesList = () => {
-        ajax.getdesRulesList().then(res => {
+    getDesRulesList = (params) => {
+        this.setState({
+            rulesList: []
+        })
+        ajax.getDesRulesList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     rulesList: res.data
@@ -230,6 +230,7 @@ class AddDesensitization extends Component {
             columnsList: []
         })
         this.getTableList({ projectId: value })
+        this.getDesRulesList({ projectId: value })
     }
     /**
      * 选择表
@@ -247,7 +248,6 @@ class AddDesensitization extends Component {
         const desensitizationData = this.props.form.getFieldsValue();
         this.props.form.validateFields((err) => {
             if (!err) {
-                this.props.form.resetFields()
                 onOk(desensitizationData)
             }
         });
@@ -346,8 +346,8 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ marginLeft: '106px', marginTop: '-14px' }} className='desenAlert'>
-                        <Alert className='dt-ant-alert__desc--fontColor' style={{ color: '#666666' }} message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
+                    <div style={{ margin: '-6 0 10 120' }}>
+                        <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
                     </div>
                     <FormItem
                         {...formItemLayout}

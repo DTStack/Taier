@@ -53,6 +53,12 @@ class TaskInfo extends React.Component {
                              </Col>
                          </Row>
                          <Row>
+                             <Col span="6" className="txt-left">出错重试 : </Col>
+                             <Col span="18" className="txt-left">
+                                 {taskInfo.isFailRetry}
+                             </Col>
+                         </Row>
+                         <Row>
                              <Col span="6" className="txt-left">生效日期 : </Col>
                              <Col span="18" className="txt-left">
                                  {taskInfo.effectiveDate}
@@ -247,6 +253,11 @@ class DiffParams extends React.Component {
             parseScheduleConf.scheduleStatus = ''
         }
 
+        if (scheduleConf.isFailRetry) {
+            parseScheduleConf.isFailRetry = '是'
+        } else {
+            parseScheduleConf.isFailRetry = '否'
+        }
         const effectiveDate = scheduleConf.beginDate && scheduleConf.endDate ? `${scheduleConf.beginDate} ~ ${scheduleConf.endDate}` : '';
         parseScheduleConf.effectiveDate = effectiveDate;
 
@@ -379,7 +390,6 @@ class DiffParams extends React.Component {
             contrastResults, historyParse, currentParse,
             historyvalue, tabKey
         } = this.state;
-
         return <div className="m-taksdetail diff-params-modal" style={{ marginTop: '5px' }}>
             <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
                 {

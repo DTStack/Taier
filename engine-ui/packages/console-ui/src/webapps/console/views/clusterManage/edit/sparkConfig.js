@@ -1,8 +1,7 @@
 import React from 'react';
-import { Input, Select, Form } from 'antd';
+import { Input, Select, Form, Tooltip } from 'antd';
 
 import { formItemLayout } from '../../../consts'
-
 const Option = Select.Option;
 const FormItem = Form.Item;
 
@@ -65,6 +64,34 @@ export default class SparkConfig extends React.Component {
                             message: '请输入sparkPythonExtLibPath'
                         }],
                         initialValue: '/pythons/pyspark.zip,hdfs://ns1/pythons/py4j-0.10.4-src.zip'
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+                <FormItem
+                    label={<Tooltip title="spark.yarn.appMasterEnv.PYSPARK_PYTHON">spark.yarn.appMasterEnv.PYSPARK_PYTHON</Tooltip>}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_PYTHON', {
+                        rules: [{
+                            required: true,
+                            message: '请输入spark.yarn.appMasterEnv.PYSPARK_PYTHON'
+                        }],
+                        initialValue: '/opt/dtstack/miniconda2/bin/python'
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+                <FormItem
+                    label={<Tooltip title="spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON">spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON</Tooltip>}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON', {
+                        rules: [{
+                            required: true,
+                            message: '请输入spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
+                        }],
+                        initialValue: '/opt/dtstack/miniconda2/bin/python'
                     })(
                         <Input disabled={isView} />
                     )}

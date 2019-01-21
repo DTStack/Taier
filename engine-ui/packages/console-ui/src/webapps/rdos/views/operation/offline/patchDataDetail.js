@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-
+import moment from 'moment'
 import {
     Table, message, Modal,
     Card, Input, Button, Select,
@@ -34,7 +34,7 @@ const warning = Modal.warning
 const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
-
+const yesterDay = moment().subtract(1, 'days');
 class PatchDataDetail extends Component {
     state = {
         loading: false,
@@ -650,6 +650,11 @@ class PatchDataDetail extends Component {
                                             size="default"
                                             style={{ width: 200 }}
                                             format="YYYY-MM-DD"
+                                            ranges={{
+                                                '昨天': [moment().subtract(2, 'days'), yesterDay],
+                                                '最近7天': [moment().subtract(8, 'days'), yesterDay],
+                                                '最近30天': [moment().subtract(31, 'days'), yesterDay]
+                                            }}
                                             value={bizDay}
                                             onChange={this.changeBussinessDate}
                                         />

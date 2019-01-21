@@ -37,7 +37,7 @@ class Header extends Component {
 
     // 控制项目下拉菜单的显示
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps() {
+    UNSAFE_componentWillReceiveProps () {
         this.updateSelected();
     }
 
@@ -150,9 +150,11 @@ class Header extends Component {
     initUserDropMenu = () => {
         return (
             <Menu onClick={this.clickUserMenu}>
-                <Menu.Item key="ucenter">
-                    <a href={UIC_URL_TARGET}>用户中心</a>
-                </Menu.Item>
+                {!window.APP_CONF.hideUserCenter && (
+                    <Menu.Item key="ucenter">
+                        <a href={UIC_URL_TARGET}>用户中心</a>
+                    </Menu.Item>
+                )}
                 <Menu.Item key="logout">退出登录</Menu.Item>
             </Menu>
         );
