@@ -35,7 +35,7 @@ public class ClientExt extends DtClient {
 
     private static String tmpHadoopFilePath = userDir + "/tmpHadoopConf";
 
-    private static String XML_SUFFIX = ".xml";
+    public static String XML_SUFFIX = ".xml";
 
     private SparkConf sparkConf;
 
@@ -69,7 +69,7 @@ public class ClientExt extends DtClient {
      * 将hdfs上的配置文件下载到临时目录下
      * @param hadoopConfFiles
      */
-    private void loadHadoopConfFromHdfs(scala.collection.mutable.HashMap hadoopConfFiles){
+    public void loadHadoopConfFromHdfs(scala.collection.mutable.HashMap hadoopConfFiles){
         String confDirName = getConfDirName();
         File confDir = new File(confDirName);
         File[] files = confDir.listFiles((dir, name) -> name.endsWith(XML_SUFFIX));
@@ -115,7 +115,7 @@ public class ClientExt extends DtClient {
             } catch (Exception e1) {
                 LOG.error("", e1);
             }
-            throw new RuntimeException("----从hdfs下载文件异常---");
+            throw new RuntimeException("----download file from hdfs exception---");
         }
 
         return confFileDirName;

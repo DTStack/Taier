@@ -17,6 +17,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.sparkext.ClientExt;
+import com.dtstack.rdos.engine.execution.sparkext.ClientExtFactory;
 import com.dtstack.rdos.engine.execution.sparkyarn.parser.AddJarOperator;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.HadoopConf;
 import com.dtstack.rdos.engine.execution.sparkyarn.util.KerberosUtils;
@@ -65,6 +66,8 @@ public class SparkYarnClient extends AbsClient {
     private static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
 
     private static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
+
+    private static final String IS_CARBON_SPARK_KEY = "isCarbondata";
 
     private static final String HDFS_PREFIX = "hdfs://";
 
@@ -167,11 +170,13 @@ public class SparkYarnClient extends AbsClient {
             throw new RdosException("spark jar must set app name!");
         }
 
-
         String[] appArgs = new String[]{};
         if(org.apache.commons.lang3.StringUtils.isNotBlank(exeArgsStr)){
             appArgs = exeArgsStr.split("\\s+");
         }
+
+        Properties confProp = jobClient.getConfProperties();
+        Boolean isCarbonSpark = (Boolean) confProp.getOrDefault(IS_CARBON_SPARK_KEY, false);
 
         List<String> argList = new ArrayList<>();
         argList.add("--jar");
@@ -192,7 +197,7 @@ public class SparkYarnClient extends AbsClient {
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             appId = clientExt.submitApplication(jobClient.getJobPriority());
             return JobResult.createSuccessResult(appId.toString());
@@ -301,23 +306,30 @@ public class SparkYarnClient extends AbsClient {
             throw new RdosException("get unexpected exception:" + e.getMessage());
         }
 
+        Properties confProp = jobClient.getConfProperties();
+        Boolean isCarbonSpark = (Boolean) confProp.getOrDefault(IS_CARBON_SPARK_KEY, false);
+        String sqlProxyClass = sparkYarnConfig.getSparkSqlProxyMainClass();
+        if(isCarbonSpark){
+            sqlProxyClass = SparkYarnConfig.DEFAULT_CARBON_SQL_PROXY_MAINCLASS;
+        }
+
         List<String> argList = new ArrayList<>();
         argList.add("--jar");
         argList.add(sparkYarnConfig.getSparkSqlProxyPath());
         argList.add("--class");
-        argList.add(sparkYarnConfig.getSparkSqlProxyMainClass());
+        argList.add(sqlProxyClass);
         argList.add("--arg");
         argList.add(sqlExeJson);
 
         ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
         SparkConf sparkConf = buildBasicSparkConf();
         sparkConf.setAppName(jobClient.getJobName());
-        fillExtSparkConf(sparkConf, jobClient.getConfProperties());
+        fillExtSparkConf(sparkConf, confProp);
 
         ApplicationId appId = null;
 
         try {
-            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            ClientExt clientExt = ClientExtFactory.getClientExt(clientArguments, yarnConf, sparkConf, isCarbonSpark);
             clientExt.setSparkYarnConfig(sparkYarnConfig);
             appId = clientExt.submitApplication(jobClient.getJobPriority());
             return JobResult.createSuccessResult(appId.toString());

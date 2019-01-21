@@ -20,6 +20,8 @@ public class SparkYarnConfig {
 
     private static final String DEFAULT_SPARK_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.SqlProxy";
 
+    public static final String DEFAULT_CARBON_SQL_PROXY_MAINCLASS = "com.dtstack.sql.main.CarbondataSqlProxy";
+
     private static final String HDFS_FLAG = "hdfs";
 
     private String typeName;
