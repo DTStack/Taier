@@ -9,17 +9,21 @@ import { connect } from 'react-redux';
 class Default extends Component {
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        arr.map(item => {
-            switch (item.name) {
-                case '数据库管理':
-                    fixArrChildrenApps[0] = item;
-                    break;
-                case '表管理':
-                    fixArrChildrenApps[1] = item;
-                    break;
-            }
-        })
-        return fixArrChildrenApps
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据库管理':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '表管理':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
     }
     render () {
         const {
@@ -29,8 +33,8 @@ class Default extends Component {
         } = this.props;
 
         const iconBaseUrl = '/public/analyticsEngine/img';
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[2].children);
-        const isShowCreateTable = fixArrChildrenApps[1].Show;
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[2] && licenseApps[2].children);
+        const isShowCreateTable = fixArrChildrenApps[1] && fixArrChildrenApps[1].isShow;
         return (
             <Row
                 className="box-card txt-left"

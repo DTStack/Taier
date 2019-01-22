@@ -11,6 +11,7 @@ import Navigator, { Title, MyIcon } from '../../components/nav'
     return {
         user: state.user,
         apps: state.apps,
+        licenseApps: state.licenseApps,
         routing: state.routing
     }
 })
@@ -18,7 +19,7 @@ class SysAdmin extends Component {
     componentDidMount () {}
 
     render () {
-        const { apps, children } = this.props;
+        const { apps, children, licenseApps } = this.props;
         const logo = (<Link to="/admin/user">
             <MyIcon>
                 <Icon type="setting" />
@@ -46,6 +47,7 @@ class SysAdmin extends Component {
             <div className="message">
                 <Navigator
                     logo={logo}
+                    licenseApps={licenseApps}
                     menuItems={menuItems}
                     {...this.props}
                 />

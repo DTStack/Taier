@@ -59,31 +59,31 @@ class Header extends Component {
                 id: 'dq/overview',
                 name: '概览',
                 link: `${baseUrl}/dq/overview`,
-                enable: overviewNav && overviewNav.is_Show
+                enable: overviewNav && overviewNav.isShow
             },
             {
                 id: 'dq/taskQuery',
                 name: '任务查询',
                 link: `${baseUrl}/dq/taskQuery`,
-                enable: taskQueryNav && taskQueryNav.is_Show
+                enable: taskQueryNav && taskQueryNav.isShow
             },
             {
                 id: 'dq/rule',
                 name: '规则配置',
                 link: `${baseUrl}/dq/rule`,
-                enable: ruleNav && ruleNav.is_Show
+                enable: ruleNav && ruleNav.isShow
             },
             {
                 id: 'dq/dataCheck',
                 name: '逐行校验',
                 link: `${baseUrl}/dq/dataCheck`,
-                enable: dataCheckNav && dataCheckNav.is_Show
+                enable: dataCheckNav && dataCheckNav.isShow
             },
             {
                 id: 'dq/dataSource',
                 name: '数据源管理',
                 link: `${baseUrl}/dq/dataSource`,
-                enable: dataSourceNav && dataSourceNav.is_Show
+                enable: dataSourceNav && dataSourceNav.isShow
             }
         ];
 

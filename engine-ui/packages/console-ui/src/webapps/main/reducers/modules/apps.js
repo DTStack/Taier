@@ -12,7 +12,8 @@ export function licenseApps (state = [{}], action) {
         case appActions.GET_LICENSE_APP: {
             if (action.data != null) {
                 action.data.splice(0, 1);
-                return assign({}, state, action.data)
+                // return assign({}, state, action.data)
+                return action.data
             }
             return state;
         }

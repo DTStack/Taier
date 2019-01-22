@@ -31,7 +31,7 @@ class Header extends Component {
                     case 'API市场':
                         fixArrChildrenApps[1] = item;
                         break;
-                    case '我是API':
+                    case '我的API':
                         fixArrChildrenApps[2] = item;
                         break;
                     case 'API管理':
@@ -65,32 +65,32 @@ class Header extends Component {
             id: 'overview',
             name: '概览',
             link: `${baseUrl}/overview`,
-            enable: overviewNav && overviewNav.is_Show
+            enable: overviewNav && overviewNav.isShow
         }, {
             id: 'market',
             name: 'API市场',
             link: `${baseUrl}/market`,
-            enable: marketNav && marketNav.is_Show
+            enable: marketNav && marketNav.isShow
         }, {
             id: 'mine',
             name: '我的API',
             link: `${baseUrl}/mine`,
-            enable: mineNav && mineNav.is_Show
+            enable: mineNav && mineNav.isShow
         }, {
             id: 'manage',
             name: 'API管理',
             link: `${baseUrl}/manage`,
-            enable: manaNav && manaNav.is_Show
+            enable: manaNav && manaNav.isShow
         }, {
             id: 'approvalAndsecurity',
             name: '授权与安全',
             link: `${baseUrl}/approvalAndsecurity`,
-            enable: approvalNav && approvalNav.is_Show
+            enable: approvalNav && approvalNav.isShow
         }, {
             id: 'dataSource',
             name: '数据源管理',
             link: `${baseUrl}/dataSource`,
-            enable: dataSourceNav && dataSourceNav.is_Show
+            enable: dataSourceNav && dataSourceNav.isShow
         }];
 
         const logo = <span>

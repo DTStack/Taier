@@ -344,7 +344,7 @@ class Index extends Component {
                                                     <Col span="24" className="card-task-padding">
                                                         <Row>
                                                             {
-                                                                v.status != PROJECT_STATUS.NORMAL || (taskNav && !taskNav.is_Show) ? '' : (
+                                                                v.status != PROJECT_STATUS.NORMAL || (taskNav && !taskNav.isShow) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
                                                                             style={{ marginRight: '10' }}
@@ -362,7 +362,7 @@ class Index extends Component {
                                                                 )
                                                             }
                                                             {
-                                                                v.status != PROJECT_STATUS.NORMAL || (operaNav && !operaNav.is_Show) ? '' : (
+                                                                v.status != PROJECT_STATUS.NORMAL || (operaNav && !operaNav.isShow) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
                                                                             onClick={() => { this.setRouter('operation', v) }}

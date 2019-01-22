@@ -37,7 +37,7 @@ function compareEnable (apps, licenseApps) {
                 licenseApps.map(itemLicen => {
                     for ( var key in itemLicen) {
                         if (item.id == itemLicen.id) {
-                            item.enable = itemLicen.is_Show
+                            item.enable = itemLicen.isShow
                             item.name = itemLicen.name
                         }
                     }
@@ -100,7 +100,6 @@ export function MenuRight (props) {
             </Menu.Item>
         </Menu>
     )
-
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">

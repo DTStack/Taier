@@ -51,40 +51,40 @@ class Main extends Component {
         if (licenseApps.length > 1) {
             // rdosAPP
             const rdosApp = licenseApps[0];
-            const isRdosShow = rdosApp.is_Show;
-            const isRdosTask = rdosApp.children[0].is_Show;
-            const isRdosOpera = rdosApp.children[1].is_Show;
-            const isRdosDataSource = rdosApp.children[2].is_Show;
-            const isRdosPro = rdosApp.children[3].is_Show;
-            const isRdosMap = rdosApp.children[4].is_Show;
-            const isRdosModal = rdosApp.children[5].is_Show;
+            const isRdosShow = rdosApp.isShow;
+            const isRdosTask = rdosApp.children[0].isShow;
+            const isRdosOpera = rdosApp.children[1].isShow;
+            const isRdosDataSource = rdosApp.children[2].isShow;
+            const isRdosPro = rdosApp.children[3].isShow;
+            const isRdosMap = rdosApp.children[4].isShow;
+            const isRdosModal = rdosApp.children[5].isShow;
             // streamAPP
             const streamApp = licenseApps[1];
-            const isStream = streamApp.is_Show;
-            const isStreamDataSource = streamApp.children[0].is_Show;
-            const isStreamTask = streamApp.children[1].is_Show;
-            const isStreamPro = streamApp.children[2].is_Show;
-            const isStreamOpera = streamApp.children[3].is_Show;
+            const isStream = streamApp.isShow;
+            const isStreamDataSource = streamApp.children[0].isShow;
+            const isStreamTask = streamApp.children[1].isShow;
+            const isStreamPro = streamApp.children[2].isShow;
+            const isStreamOpera = streamApp.children[3].isShow;
             // analyticsEngine
             const analyApp = licenseApps[2];
-            const isAna = analyApp.is_Show;
+            const isAna = analyApp.isShow;
             // dataQuality
             const qualityApp = licenseApps[3];
-            const isQuali = qualityApp.is_Show;
-            const isQualiOver = qualityApp.children[0].is_Show;
-            const isQualiTaskSearch = qualityApp.children[1].is_Show;
-            const isQualiRule = qualityApp.children[2].is_Show;
-            const isQualiVali = qualityApp.children[3].is_Show;
-            const isQualiDataSource = qualityApp.children[4].is_Show;
+            const isQuali = qualityApp.isShow;
+            const isQualiOver = qualityApp.children[0].isShow;
+            const isQualiTaskSearch = qualityApp.children[1].isShow;
+            const isQualiRule = qualityApp.children[2].isShow;
+            const isQualiVali = qualityApp.children[3].isShow;
+            const isQualiDataSource = qualityApp.children[4].isShow;
             // dataApi
             const apiApp = licenseApps[4];
-            const isDataApi = apiApp.is_Show;
-            const isApiover = apiApp.children[0].is_Show;
-            const isApiMarket = apiApp.children[1].is_Show;
-            const isApiMine = apiApp.children[2].is_Show;
-            const isApiMana = apiApp.children[3].is_Show;
-            const isApiSafe = apiApp.children[4].is_Show;
-            const isApiDataSource = apiApp.children[5].is_Show;
+            const isDataApi = apiApp.isShow;
+            const isApiover = apiApp.children[0].isShow;
+            const isApiMarket = apiApp.children[1].isShow;
+            const isApiMine = apiApp.children[2].isShow;
+            const isApiMana = apiApp.children[3].isShow;
+            const isApiSafe = apiApp.children[4].isShow;
+            const isApiDataSource = apiApp.children[5].isShow;
 
             if (!isRdosShow || !isRdosTask || !isRdosOpera || !isRdosDataSource ||
                 !isRdosPro || !isRdosMap || !isRdosModal || !isStream || !isStreamDataSource ||

@@ -21,7 +21,7 @@ import '../../styles/views/portal.scss';
 })
 class Dashboard extends Component {
     state = {
-        alertShow: true,
+        alertShow: false,
         alertMessage: ''
     }
     componentDidMount () {
@@ -52,7 +52,7 @@ class Dashboard extends Component {
                     licenseApps.map(itemLicen => {
                         for ( var key in itemLicen) {
                             if (item.id == itemLicen.id) {
-                                item.enable = itemLicen.is_Show
+                                item.enable = itemLicen.isShow
                                 item.name = itemLicen.name
                             }
                         }
@@ -65,10 +65,10 @@ class Dashboard extends Component {
     // 检查是否过期
     checkIsOverdue = () => {
         Api.checkisOverdue().then(res => {
-            if (res.code === 1) {
+            if (res.data.code === 1) {
                 this.setState({
                     alertShow: true,
-                    alertMessage: res.message
+                    alertMessage: res.data.message
                 })
             }
         })
@@ -108,7 +108,7 @@ class Dashboard extends Component {
                         <Alert
                             className='ant-alert_height'
                             message="请注意"
-                            description={<span>{this.state.alertMessage},点击<Link to="http://dtuic.dtstack.net/#/licensemanage" >立即申请</Link> </span>}
+                            description={<span>{this.state.alertMessage}, 点击<Link to="http://dtuic.dtstack.net/#/licensemanage" >立即申请</Link> </span>}
                             type="warning"
                             showIcon
                             closable

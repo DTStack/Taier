@@ -29,8 +29,8 @@ class Toolbar extends Component {
     render () {
         const { onCreateDB, onRefresh, onSQLQuery, onCreateTable, licenseApps } = this.props;
         const fixArrChildrenApps = this.fixArrayIndex(licenseApps[2] && licenseApps[2].children);
-        const isShowCreateDB = fixArrChildrenApps[0] && fixArrChildrenApps[0].is_Show;
-        const isShowCreateTable = fixArrChildrenApps[1] && fixArrChildrenApps[1].is_Show;
+        const isShowCreateDB = fixArrChildrenApps[0] && fixArrChildrenApps[0].isShow;
+        const isShowCreateTable = fixArrChildrenApps[1] && fixArrChildrenApps[1].isShow;
         return (
             <div className="toolbar txt-right">
                 { isShowCreateTable ? (

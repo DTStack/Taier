@@ -357,7 +357,7 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null}
-                        {dataSourceNav && dataSourceNav.is_Show ? (
+                        {dataSourceNav && dataSourceNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="database"
@@ -366,7 +366,7 @@ class Header extends Component {
                                 <a href={`${basePath}/database`} >数据源</a>
                             </Menu.Item>
                         ) : null }
-                        {taskNav && taskNav.is_Show ? (
+                        {taskNav && taskNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="realtime"
@@ -375,7 +375,7 @@ class Header extends Component {
                                 <a href={`${basePath}${devPath}`}>数据开发</a>
                             </Menu.Item>
                         ) : null }
-                        {operaNav && operaNav.is_Show ? (
+                        {operaNav && operaNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="operation"
@@ -384,7 +384,7 @@ class Header extends Component {
                                 <a href={`${basePath}/operation`}>运维中心</a>
                             </Menu.Item>
                         ) : null }
-                        {dataMapNav && dataMapNav.is_Show ? (
+                        {dataMapNav && dataMapNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="data-manage"
@@ -394,7 +394,7 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null }
-                        {dataModalNav && dataModalNav.is_Show ? (
+                        {dataModalNav && dataModalNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item menu_large"
                                 key="data-model"
@@ -405,7 +405,7 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null }
-                        {projectNav && projectNav.is_Show ? (
+                        {projectNav && projectNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item menu_large"
                                 key="project"
@@ -435,7 +435,7 @@ class Header extends Component {
                                 <Icon type="caret-down" />
                             </span>)}
                         >
-                            {dataModalNav && dataModalNav.is_Show ? (
+                            {dataModalNav && dataModalNav.isShow ? (
                                 <Menu.Item
                                     className="my-menu-item no-border"
                                     key="data-model"
@@ -445,7 +445,7 @@ class Header extends Component {
                                     </a>
                                 </Menu.Item>
                             ) : null }
-                            {projectNav && projectNav.is_Show ? (
+                            {projectNav && projectNav.isShow ? (
                                 <Menu.Item
                                     className="my-menu-item"
                                     key="project"
