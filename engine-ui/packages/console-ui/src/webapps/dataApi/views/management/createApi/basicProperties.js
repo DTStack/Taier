@@ -426,11 +426,11 @@ class ManageBasicProperties extends Component {
                                     {...formItemLayout}
                                     label="后端 Host"
                                 >
-                                    {getFieldDecorator('originHost', {
+                                    {getFieldDecorator('originalHost', {
                                         rules: [
                                             { required: true, message: '请输入后端 Host' },
                                             { pattern: new RegExp(/^(http|https):\/\/[\w|.|:]+$/), message: '请填写正确的host' }],
-                                        initialValue: this.props.originHost
+                                        initialValue: this.props.originalHost
                                     })(
                                         <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
                                     )}
@@ -442,13 +442,13 @@ class ManageBasicProperties extends Component {
                                     {...formItemLayout}
                                     label="后端服务 Path"
                                 >
-                                    {getFieldDecorator('originPath', {
+                                    {getFieldDecorator('originalPath', {
                                         rules: [
                                             { required: true, message: '请输入后端 Path' },
                                             { max: 200, message: '最大字符不能超过200' },
                                             { min: 2, message: '最小字符不能小于2' },
                                             { pattern: isRegister ? new RegExp(/^(\/(\{[-\w]+\}|[-\w]+))*(\/)?$/) : new RegExp(/^(\/[-|\w|{|}]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
-                                        initialValue: this.props.originPath
+                                        initialValue: this.props.originalPath
                                     })(
                                         <Input style={{ width: '85%' }} />
                                     )}

@@ -30,6 +30,10 @@ export const API_METHOD = {
     PUT: 2,
     DELETE: 3
 }
+export const API_TYPE = {
+    NORMAL: 0,
+    REGISTER: 1
+}
 export const API_METHOD_KEY = {
     [API_METHOD.POST]: 'POST',
     [API_METHOD.GET]: 'GET',
@@ -40,10 +44,10 @@ export const API_METHOD_KEY = {
  * 参数位置
  */
 export const PARAMS_POSITION = {
-    QUERY: '0',
-    PATH: '1',
-    BODY: '2',
-    HEAD: '3'
+    QUERY: 1,
+    PATH: 4,
+    BODY: 3,
+    HEAD: 2
 }
 /**
  * 参数位置显示名

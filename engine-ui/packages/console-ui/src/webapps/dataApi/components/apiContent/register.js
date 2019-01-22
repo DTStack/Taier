@@ -7,22 +7,26 @@ import { constColumnsKeys } from '../../model/constColumnModel';
 import ErrorColumnModel from '../../model/errroColumnModel';
 
 import JsonContent from './jsonContent';
+import { generateUrlQuery, generateHeader, generateBody } from './helper';
 import { PARAMS_POSITION_TEXT } from '../../consts'
 
 class RegisterContentSection extends React.Component {
     initInputColumns () {
         return [{
             dataIndex: inputColumnsKeys.NAME,
-            title: '参数名称'
+            title: '参数名称',
+            width: '200px'
         }, {
             dataIndex: inputColumnsKeys.POSITION,
             title: '参数位置',
             render (text) {
                 return PARAMS_POSITION_TEXT[text];
-            }
+            },
+            width: '150px'
         }, {
             dataIndex: inputColumnsKeys.TYPE,
-            title: '数据类型'
+            title: '数据类型',
+            width: '150px'
         }, {
             dataIndex: inputColumnsKeys.ISREQUIRED,
             title: '必填',
@@ -39,17 +43,20 @@ class RegisterContentSection extends React.Component {
     initConstColumns () {
         return [{
             dataIndex: constColumnsKeys.NAME,
-            title: '参数名称'
+            title: '参数名称',
+            width: '200px'
         }, {
             dataIndex: constColumnsKeys.POSITION,
-            title: '参数位置'
+            title: '参数位置',
+            width: '150px'
         }, {
             dataIndex: constColumnsKeys.TYPE,
-            title: '数据类型'
+            title: '数据类型',
+            width: '150px'
         }, {
             dataIndex: constColumnsKeys.VALUE,
             title: '参数值',
-            width: '150px'
+            width: '200px'
         }, {
             dataIndex: constColumnsKeys.DESC,
             title: '说明',
@@ -72,7 +79,15 @@ class RegisterContentSection extends React.Component {
         }]
     }
     render () {
-        const { isManage } = this.props;
+        const { isManage, getValue, registerInfo = {} } = this.props;
+        let inputParam = isManage ? registerInfo.inputParam : getValue('reqParam');
+        let inputColumn = inputParam || [];
+        let constColumn = inputColumn.filter((column) => {
+            return column.constant
+        })
+        inputColumn = inputColumn.filter((column) => {
+            return !column.constant
+        })
         return (
             <div>
                 <section className='c-content-register__section'>
@@ -86,7 +101,7 @@ class RegisterContentSection extends React.Component {
                                 }}
                                 className="m-table border-table"
                                 pagination={false}
-                                dataSource={[]}
+                                dataSource={inputColumn}
                                 scroll={{ y: 160 }}
                                 columns={this.initInputColumns()} />
                         </div>
@@ -99,7 +114,7 @@ class RegisterContentSection extends React.Component {
                                     rowKey="paramName"
                                     className="m-table border-table"
                                     pagination={false}
-                                    dataSource={[]}
+                                    dataSource={constColumn}
                                     scroll={{ y: 160 }}
                                     columns={this.initConstColumns()} />
                             </div>
@@ -111,19 +126,19 @@ class RegisterContentSection extends React.Component {
                     <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
                         <div className='c-content-register__section__card__title c__section__card__title--bold'>Reuest URL</div>
                         <div className='c-content-register__section__card__content'>
-                            111
+                            {generateUrlQuery(inputColumn)}
                         </div>
                     </div>
                     <div className='c-content-register__section__card'>
                         <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
                         <div className='c-content-register__section__card__content'>
-                            111
+                            {generateHeader(inputColumn)}
                         </div>
                     </div>
                     <div className='c-content-register__section__card'>
                         <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
                         <div className='c-content-register__section__card__content'>
-                            111
+                            {generateBody(inputColumn)}
                         </div>
                     </div>
                 </section>
@@ -134,7 +149,7 @@ class RegisterContentSection extends React.Component {
                         <div className='c-content-register__section__card__content'>
                             <JsonContent
                                 style={{ width: '470px' }}
-                                json={{}}
+                                json={getValue('respJson')}
                             />
                         </div>
                     </div>
@@ -143,7 +158,7 @@ class RegisterContentSection extends React.Component {
                         <div className='c-content-register__section__card__content'>
                             <JsonContent
                                 style={{ width: '470px' }}
-                                json={{}}
+                                json={getValue('errorRespJson')}
                             />
                         </div>
                     </div>
@@ -155,7 +170,7 @@ class RegisterContentSection extends React.Component {
                         className="m-table border-table"
                         style={{ marginTop: '12px' }}
                         pagination={false}
-                        dataSource={[]}
+                        dataSource={getValue('errorCodeList') || []}
                         scroll={{ y: 160 }}
                         columns={this.initErrorColumns()} />
                 </section>

@@ -41,8 +41,8 @@ module.exports = {
                 secure: false,
             },
             "/api/da": { // da地址
-                // target: "http://172.16.1.104:8087",
-                target: "http://172.16.8.107:8087",//开发环境
+                target: "http://172.16.0.206:8087",
+                // target: "http://172.16.8.107:8087",//开发环境
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,

@@ -70,6 +70,7 @@ class Content extends Component {
             callUrl,
             callLimit,
             beginTime,
+            token,
             endTime,
             mode, // 管理模式/用户模式
             isRegister,
@@ -78,6 +79,7 @@ class Content extends Component {
             showUserInfo, // 是否显示用户个人的调用信息
             showSecurity, // 是否显示安全组
             securityList,
+            registerInfo,
             showApiConfig, // 是否显示api的配置信息
             apiConfig = {} // api配置信息
         } = this.props;
@@ -105,8 +107,8 @@ class Content extends Component {
                         )}
                         {isRegister && isManage && (
                             <React.Fragment>
-                                <span data-title="后端Host：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
-                                <span data-title="后端Path：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
+                                <span data-title="后端Host：" className="pseudo-title p-line api_item-margin">{registerInfo.originalHost}</span>
+                                <span data-title="后端Path：" className="pseudo-title p-line api_item-margin">{registerInfo.originalPath}</span>
                             </React.Fragment>
                         )}
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
@@ -120,6 +122,7 @@ class Content extends Component {
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
+                            <p data-title="调用Token：" className="pseudo-title p-line">{token}</p>
                             <p data-title="申请调用次数：" className="pseudo-title p-line">{callLimit == -1 ? '无限制' : callLimit}</p>
                             <p data-title="申请调用周期：" className="pseudo-title p-line">{beginTime ? `${moment(beginTime).format('YYYY-MM-DD')} ~ ${moment(endTime).format('YYYY-MM-DD')}` : '无限制'}</p>
                         </div>
@@ -138,6 +141,8 @@ class Content extends Component {
                 {isRegister ? (
                     <RegisterSection
                         isManage={isManage}
+                        getValue={this.getValue.bind(this)}
+                        registerInfo={registerInfo}
                     />
                 ) : (<CreateSection
                     showApiConfig={showApiConfig}

@@ -17,36 +17,36 @@ class RegisterParams extends React.Component {
     }
     newColumn (type) {
         let { data = {} } = this.props;
-        let { inputColumn = [], constColumn = [] } = data;
+        let { inputParam = [], constParam = [] } = data;
         let newColumn;
         if (type == 'in') {
             newColumn = new InputColumnModel();
-            inputColumn = [
-                ...inputColumn,
+            inputParam = [
+                ...inputParam,
                 newColumn
             ]
         } else if (type == 'const') {
             newColumn = new ConstColumnModel();
-            constColumn = [
-                ...constColumn,
+            constParam = [
+                ...constParam,
                 newColumn
             ]
         }
         newColumn && this.props.updateData({
-            inputColumn,
-            constColumn
+            inputParam,
+            constParam
         });
     }
     deleteColumn (type, id) {
         let { data = {} } = this.props;
-        let { inputColumn = [], constColumn = [] } = data;
+        let { inputParam = [], constParam = [] } = data;
         let newColumns;
         if (type == 'in') {
-            inputColumn = [...inputColumn];// shadow copy
-            newColumns = inputColumn;
+            inputParam = [...inputParam];// shadow copy
+            newColumns = inputParam;
         } else if (type == 'const') {
-            constColumn = [...constColumn];// shadow copy
-            newColumns = constColumn;
+            constParam = [...constParam];// shadow copy
+            newColumns = constParam;
         }
         const targetIndex = newColumns.findIndex((column) => {
             return column.id == id;
@@ -55,23 +55,23 @@ class RegisterParams extends React.Component {
             newColumns.splice(targetIndex, 1);
         }
         this.props.updateData({
-            inputColumn,
-            constColumn
+            inputParam,
+            constParam
         })
     }
     updateColumnData (type, values) {
         const keyAndValue = Object.entries(values);
         let { data = {} } = this.props;
-        let { inputColumn = [], constColumn = [] } = data;
+        let { inputParam = [], constParam = [] } = data;
         let columns;
         let UpdateColumnClass;
         if (type == 'in') {
-            inputColumn = [...inputColumn];// shadow copy
-            columns = inputColumn;
+            inputParam = [...inputParam];// shadow copy
+            columns = inputParam;
             UpdateColumnClass = InputColumnModel;
         } else if (type == 'const') {
-            constColumn = [...constColumn];// shadow copy
-            columns = constColumn;
+            constParam = [...constParam];// shadow copy
+            columns = constParam;
             UpdateColumnClass = ConstColumnModel;
         }
         keyAndValue.forEach(([key, value]) => {
@@ -87,8 +87,8 @@ class RegisterParams extends React.Component {
             }
         });
         this.props.updateData({
-            inputColumn,
-            constColumn
+            inputParam,
+            constParam
         });
     }
     inputRef = React.createRef()
@@ -112,7 +112,7 @@ class RegisterParams extends React.Component {
     }
     render () {
         let { data = {} } = this.props;
-        let { inputColumn = [], constColumn = [] } = data;
+        let { inputParam = [], constParam = [] } = data;
         return (
             <React.Fragment>
                 <Card
@@ -125,7 +125,7 @@ class RegisterParams extends React.Component {
                         ref={this.inputRef}
                         updateColumnData={this.updateColumnData.bind(this, 'in')}
                         deleteColumn={this.deleteColumn.bind(this, 'in')}
-                        data={inputColumn}
+                        data={inputParam}
                     />
                 </Card>
                 <Card
@@ -144,7 +144,7 @@ class RegisterParams extends React.Component {
                         ref={this.constRef}
                         deleteColumn={this.deleteColumn.bind(this, 'const')}
                         updateColumnData={this.updateColumnData.bind(this, 'const')}
-                        data={constColumn}
+                        data={constParam}
                     />
                 </Card>
             </React.Fragment>

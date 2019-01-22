@@ -65,7 +65,7 @@ class TestApi extends React.Component {
             >
                 {getFieldDecorator(isRegister ? record[inputColumnsKeys.NAME] : record.paramsName, {
                     rules: [{
-                        required: isRegister ? [inputColumnsKeys.ISREQUIRED] : record.required,
+                        required: isRegister ? record[[inputColumnsKeys.ISREQUIRED]] : record.required,
                         message: '该参数为必填项'
                     }],
                     initialValue: initialValue
@@ -165,14 +165,14 @@ class TestApi extends React.Component {
     wrapInputParams () {
         const { isRegister } = this.props;
         const { inputParam, resultPageChecked } = this.props.paramsConfig;
-        const { inputColumn, constColumn } = this.props.registerParams;
+        const { inputParam: registerInputParams, constParam } = this.props.registerParams;
         if (!isRegister) {
             if (resultPageChecked) {
                 return [...pageInput, ...inputParam];
             }
             return inputParam || [];
         } else {
-            return [].concat(inputColumn || []).concat(constColumn || []);
+            return [].concat(registerInputParams || []).concat(constParam || []);
         }
     }
     pass () {
@@ -214,20 +214,24 @@ class TestApi extends React.Component {
                             <p style={{ color: '#151515' }} className="middle-title">测试结果：</p>
                             <div style={{ marginTop: '5px' }}>
                                 <p className="small-title small-title-box">返回结果</p>
-                                <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: 8, maxRows: 20 }} />
-                                <p style={{ marginTop: '20px' }} className="small-title small-title-box">输出结果</p>
-                                <Table
-                                    className="m-table table-border-without-top"
-                                    style={{ background: '#fff' }}
-                                    rowKey={(record, index) => {
-                                        return index;
-                                    }}
-                                    columns={outputResultColumns}
-                                    dataSource={testResult && testResult.data}
-                                    pagination={false}
-                                    scroll={{ y: 300, x: x }}
-                                />
-                                {this.getSaveMsg()}
+                                <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
+                                {!isRegister && (
+                                    <React.Fragment>
+                                        <p style={{ marginTop: '20px' }} className="small-title small-title-box">输出结果</p>
+                                        <Table
+                                            className="m-table table-border-without-top"
+                                            style={{ background: '#fff' }}
+                                            rowKey={(record, index) => {
+                                                return index;
+                                            }}
+                                            columns={outputResultColumns}
+                                            dataSource={testResult && testResult.data}
+                                            pagination={false}
+                                            scroll={{ y: 300, x: x }}
+                                        />
+                                        {this.getSaveMsg()}
+                                    </React.Fragment>
+                                )}
                             </div>
                         </div>
                     </div>

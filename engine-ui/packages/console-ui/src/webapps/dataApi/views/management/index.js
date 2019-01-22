@@ -6,7 +6,7 @@ import ApiSlidePane from './apiDetail/apiSlide';
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
-import { EXCHANGE_ADMIN_API_STATUS, API_SYSTEM_STATUS } from '../../consts'
+import { EXCHANGE_ADMIN_API_STATUS, API_SYSTEM_STATUS, API_TYPE } from '../../consts'
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -205,6 +205,21 @@ class APIMana extends Component {
             }]
         },
         {
+            title: 'API类型',
+            dataIndex: 'apiType',
+            key: 'apiType',
+            render: (text, record) => {
+                return <span>{text == API_TYPE.NORMAL ? '生成API' : '注册API'}</span>
+            },
+            filters: [{
+                text: '生成API',
+                value: API_TYPE.NORMAL
+            }, {
+                text: '注册API',
+                value: API_TYPE.REGISTER
+            }]
+        },
+        {
             title: '数据源',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
@@ -244,7 +259,7 @@ class APIMana extends Component {
                     <div>
                         <a onClick={this.openApi.bind(this, record.id)}>发布</a>
                         <span className="ant-divider" ></span>
-                        <a onClick={this.editApi.bind(this, record.id)}>编辑</a>
+                        <a onClick={this.editApi.bind(this, record.id, record.apiType)}>编辑</a>
                         <span className="ant-divider"></span>
                         <a onClick={this.deleteApi.bind(this, record.id)}>删除</a>
                     </div>
@@ -255,8 +270,14 @@ class APIMana extends Component {
     getSource () {
         return this.props.apiManage.apiList;
     }
-    editApi (id) {
-        this.props.router.push('/api/manage/newApi?apiId=' + id);
+    editApi (id, apiType) {
+        this.props.router.push({
+            pathname: '/api/manage/newApi',
+            query: {
+                apiId: id,
+                isRegister: API_TYPE.REGISTER == apiType
+            }
+        })
     }
     openApi (apiId) {
         confirm({

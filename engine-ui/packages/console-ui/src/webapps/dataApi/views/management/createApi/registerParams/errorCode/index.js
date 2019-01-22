@@ -11,48 +11,48 @@ import { resolveFormItemKey } from '../helper';
 class RegisterErrorCode extends React.Component {
     newColumn () {
         let { data = {} } = this.props;
-        let { errorList = [] } = data;
+        let { errorCodeList = [] } = data;
 
         this.props.updateData({
-            errorList: [
-                ...errorList,
+            errorCodeList: [
+                ...errorCodeList,
                 new ErrorColumnModel()
             ]
         });
     }
     deleteColumn (id) {
         let { data = {} } = this.props;
-        let { errorList = [] } = data;
-        const targetIndex = errorList.findIndex((column) => {
+        let { errorCodeList = [] } = data;
+        const targetIndex = errorCodeList.findIndex((column) => {
             return column.id == id;
         })
         if (targetIndex > -1) {
-            errorList.splice(targetIndex, 1);
+            errorCodeList.splice(targetIndex, 1);
         }
         this.props.updateData({
-            errorList
+            errorCodeList
         })
     }
     updateColumnData (values) {
         const keyAndValue = Object.entries(values);
         let { data = {} } = this.props;
-        let { errorList = [] } = data;
-        errorList = [...errorList];
+        let { errorCodeList = [] } = data;
+        errorCodeList = [...errorCodeList];
 
         keyAndValue.forEach(([key, value]) => {
             const { id, name } = resolveFormItemKey(key);
-            let targetIndex = errorList.findIndex((column) => {
+            let targetIndex = errorCodeList.findIndex((column) => {
                 return column.id == id;
             })
             if (targetIndex > -1) {
-                errorList[targetIndex] = new ErrorColumnModel({
-                    ...errorList[targetIndex],
+                errorCodeList[targetIndex] = new ErrorColumnModel({
+                    ...errorCodeList[targetIndex],
                     [name]: value
                 })
             }
         });
         this.props.updateData({
-            errorList
+            errorCodeList
         });
     }
     errroRef = React.createRef()
@@ -69,7 +69,7 @@ class RegisterErrorCode extends React.Component {
     }
     render () {
         const { data } = this.props;
-        const { errorList = [] } = data;
+        const { errorCodeList = [] } = data;
         return (
             <div>
                 <React.Fragment>
@@ -81,7 +81,7 @@ class RegisterErrorCode extends React.Component {
                     >
                         <ErrorForm
                             ref={this.errroRef}
-                            data={errorList}
+                            data={errorCodeList}
                             newColumn={this.newColumn.bind(this)}
                             deleteColumn={this.deleteColumn.bind(this)}
                             updateColumnData={this.updateColumnData.bind(this)}

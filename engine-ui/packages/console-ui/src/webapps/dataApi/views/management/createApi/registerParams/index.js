@@ -37,8 +37,8 @@ class RegisterParams extends React.Component {
         this.props.prev();
     }
     cancelAndSave () {
-        const { cancelAndSave } = this.props;
-        cancelAndSave({});
+        const { cancelAndSave, registerParams } = this.props;
+        cancelAndSave(registerParams);
     }
     /**
      * tab更新数据

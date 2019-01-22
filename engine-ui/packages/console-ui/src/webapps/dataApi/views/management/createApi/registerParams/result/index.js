@@ -15,7 +15,7 @@ class RegisterResult extends React.Component {
     editorChange (type, value) {
         if (type == 'normal') {
             this.props.updateData({
-                normalValue: value
+                successValue: value
             })
         } else if (type == 'error') {
             this.props.updateData({
@@ -29,7 +29,7 @@ class RegisterResult extends React.Component {
     render () {
         const { sync } = this.state;
         const { data } = this.props;
-        const { normalValue, errorValue } = data;
+        const { successValue, errorValue } = data;
         return (
             <React.Fragment>
                 <Card
@@ -41,7 +41,7 @@ class RegisterResult extends React.Component {
                         language='json'
                         style={editorStyle}
                         options={{ minimap: { enabled: false } }}
-                        value={normalValue}
+                        value={successValue}
                     />
                 </Card>
                 <Card
