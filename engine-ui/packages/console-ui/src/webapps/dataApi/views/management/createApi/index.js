@@ -226,7 +226,7 @@ class NewApi extends Component {
                 return !item.constant;
             })
             newState.registerParams.successValue = data.successRespJson;
-            newState.registerParams.errroValue = data.errorRespJson;
+            newState.registerParams.errorValue = data.errorRespJson;
             newState.registerParams.inputParam = inputParam.map((item) => {
                 return new InputColumnModel(item);
             })
@@ -323,7 +323,6 @@ class NewApi extends Component {
     }
     createParamsConfig () {
         const { paramsConfig } = this.state;
-        const isRegister = utils.getParameterByName('isRegister');
         let result = {
             dataSrcId: paramsConfig.dataSrcId,
             tableName: paramsConfig.tableName,
@@ -334,37 +333,25 @@ class NewApi extends Component {
             inputParam: [],
             outputParam: []
         }
-        if (isRegister) {
-            result.respJson = paramsConfig.successValue;
-            result.errorRespJson = paramsConfig.errorValue;
-            result.errorCodeList = paramsConfig.errorCodeList;
-            result.inputParam = (paramsConfig.inputParam || []).concat((paramsConfig.constParam || []).map((item) => {
-                return {
-                    ...item,
-                    constant: true
-                }
-            }));
-        } else {
-            for (let i in paramsConfig.inputParam) {
-                let item = paramsConfig.inputParam[i];
-                result.inputParam.push({
-                    fieldName: item.columnName,
-                    paramName: item.paramsName,
-                    paramType: item.type,
-                    operator: item.operator,
-                    required: item.required,
-                    desc: item.desc
-                })
-            }
-            for (let i in paramsConfig.outputParam) {
-                let item = paramsConfig.outputParam[i];
-                result.outputParam.push({
-                    fieldName: item.columnName,
-                    paramName: item.paramsName,
-                    paramType: item.type,
-                    desc: item.desc
-                })
-            }
+        for (let i in paramsConfig.inputParam) {
+            let item = paramsConfig.inputParam[i];
+            result.inputParam.push({
+                fieldName: item.columnName,
+                paramName: item.paramsName,
+                paramType: item.type,
+                operator: item.operator,
+                required: item.required,
+                desc: item.desc
+            })
+        }
+        for (let i in paramsConfig.outputParam) {
+            let item = paramsConfig.outputParam[i];
+            result.outputParam.push({
+                fieldName: item.columnName,
+                paramName: item.paramsName,
+                paramType: item.type,
+                desc: item.desc
+            })
         }
         return result;
     }
