@@ -134,7 +134,7 @@ class RegisterParams extends React.Component {
                     title={<span>
                         常量参数
                         <Tooltip title="常量参数对用户不可见，用户调用API时无需传入，但后端服务始终接收列表中的常量参数及参数值。">
-                            <Icon type="question-circle-o" />
+                            <Icon style={{ marginLeft: '5px' }} type="question-circle-o" />
                         </Tooltip>
                     </span>}
                     extra={(

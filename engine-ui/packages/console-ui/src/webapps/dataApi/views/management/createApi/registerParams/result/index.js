@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Tooltip, Icon } from 'antd';
+
 import Card from '../card';
 import Editor from 'widgets/editor';
 
@@ -33,7 +35,12 @@ class RegisterResult extends React.Component {
         return (
             <React.Fragment>
                 <Card
-                    title='正常返回示例'
+                    title={<span>
+                        正常返回示例
+                        <Tooltip title="若定义正常返回示例，用户申请API被授权后，可在API详情中查看，帮助用户更好的完成API调用。">
+                            <Icon style={{ marginLeft: '5px' }} type="question-circle-o" />
+                        </Tooltip>
+                    </span>}
                 >
                     <Editor
                         sync={sync}
@@ -45,7 +52,12 @@ class RegisterResult extends React.Component {
                     />
                 </Card>
                 <Card
-                    title='错误返回示例'
+                    title={<span>
+                        错误返回示例
+                        <Tooltip title="若定义错误返回示例，用户申请API被授权后，可在API详情中查看，帮助用户更好的完成API调用。">
+                            <Icon style={{ marginLeft: '5px' }} type="question-circle-o" />
+                        </Tooltip>
+                    </span>}
                     style={{ marginTop: '32px' }}
                 >
                     <Editor

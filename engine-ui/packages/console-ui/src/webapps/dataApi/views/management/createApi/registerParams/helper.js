@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Select } from 'antd';
+import { Select, Popconfirm } from 'antd';
 
 import { PARAMS_POSITION, PARAMS_POSITION_TEXT, FIELD_TYPE_LIST } from '../../../../consts';
 
@@ -33,9 +33,15 @@ export function getPositionSelect (hideBody) {
     )
 }
 export function getCommonDelete (props, record) {
-    return <a onClick={() => {
-        props.deleteColumn(record.id);
-    }}>删除</a>
+    return <Popconfirm
+        title="确认删除吗？"
+        onConfirm={() => {
+            props.deleteColumn(record.id);
+        }}
+        okText="删除"
+        cancelText="取消">
+        <a>删除</a>
+    </Popconfirm>
 }
 const DELIMITER = '~'
 /**
