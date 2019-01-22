@@ -40,8 +40,8 @@ function mergeConfig () {
  * 设置title
  */
 function initTitle () {
-    var name = APP_CONF.titleName ? ('-' + APP_CONF.titleName) : '';
-    document.title = APP_CONF.prefix + name;
+    var name = APP_CONF.titleName || '';
+    document.title = APP_CONF.prefix + (APP_CONF.prefix && name ? '-' : '') + name;
 }
 /**
  * 设置loading
