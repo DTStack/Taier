@@ -83,7 +83,10 @@ class DesensitizationMange extends Component {
         }, this.search)
     }
     showaddModal = () => {
-        ajax.voidCheckPermission().then(res => {
+        const { pjId } = this.state.queryParams;
+        ajax.voidCheckPermission({
+            projectId: pjId
+        }).then(res => {
             if (res.code === 1) {
                 this.setState({
                     addVisible: true,

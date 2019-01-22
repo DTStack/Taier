@@ -85,7 +85,7 @@ class OfflineCount extends Component {
                             <Col span={4}>
                                 <section className="m-count-section">
                                     <span className="m-count-title">失败</span>
-                                    <a onClick={this.jumpToOfflineList.bind(this, [taskStatus.FAILED])} className="m-count-content font-red">{data.FAILED || 0}</a>
+                                    <a onClick={this.jumpToOfflineList.bind(this, [taskStatus.FAILED, taskStatus.SUBMITFAILD, taskStatus.PARENTFAILED])} className="m-count-content font-red">{data.FAILED || 0}</a>
                                 </section>
                             </Col>
                             <Col span={colSpan}>
