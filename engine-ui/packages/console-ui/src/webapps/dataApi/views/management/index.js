@@ -104,18 +104,31 @@ class APIMana extends Component {
             'ascend': 'asc',
             'descend': 'desc'
         }
+        const {
+            searchName,
+            type1,
+            type2,
+            filter,
+            dataSource,
+            dataSourceType,
+            changeMan,
+            sortedInfo,
+            pageIndex,
+            pageSize
+        } = this.state;
         let params = {};
-        params.apiName = this.state.searchName;// 查询名
-        params.pid = this.state.type1;// 一级目录
-        params.cid = this.state.type2;// 二级目录
-        params.status = this.state.filter.status;
-        params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);// 数据源类型
-        params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);// 数据源
-        params.modifyUserId = this.state.changeMan;// 修改人id
-        params.orderBy = sortType[this.state.sortedInfo.columnKey];
-        params.sort = orderType[this.state.sortedInfo.order];
-        params.currentPage = this.state.pageIndex;
-        params.pageSize = this.state.pageSize;
+        params.apiName = searchName;// 查询名
+        params.pid = type1;// 一级目录
+        params.cid = type2;// 二级目录
+        params.status = filter.status;
+        params.apiType = filter.apiType && filter.apiType[0];
+        params.dataSourceType = dataSourceType && parseInt(dataSourceType);// 数据源类型
+        params.dataSourceId = dataSource && parseInt(dataSource);// 数据源
+        params.modifyUserId = changeMan;// 修改人id
+        params.orderBy = sortType[sortedInfo.columnKey];
+        params.sort = orderType[sortedInfo.order];
+        params.currentPage = pageIndex;
+        params.pageSize = pageSize;
         this.setState({
             loading: true
         })
@@ -217,7 +230,8 @@ class APIMana extends Component {
             }, {
                 text: '注册API',
                 value: API_TYPE.REGISTER
-            }]
+            }],
+            filterMultiple: false
         },
         {
             title: '数据源',
@@ -275,7 +289,7 @@ class APIMana extends Component {
             pathname: '/api/manage/newApi',
             query: {
                 apiId: id,
-                isRegister: API_TYPE.REGISTER == apiType
+                isRegister: API_TYPE.REGISTER == apiType ? true : undefined
             }
         })
     }

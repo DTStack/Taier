@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Table, Input, Form, Checkbox } from 'antd';
 import { inputColumnsKeys } from '../../../../../model/inputColumnModel';
-import { PARAMS_POSITION, PARAMS_POSITION_TEXT, defaultAutoSize } from '../../../../../consts';
+import { PARAMS_POSITION, PARAMS_POSITION_TEXT, defaultAutoSize, API_METHOD } from '../../../../../consts';
 import {
     getTypeSelect,
     getCommonDelete,
@@ -23,7 +23,7 @@ const columnsKeys = inputColumnsKeys;
 
 class RegisterParamsInput extends React.Component {
     renderCell (type, value, record) {
-        const { form } = this.props;
+        const { form, method } = this.props;
         const { getFieldDecorator } = form;
         const { [columnsKeys.POSITION]: position, id } = record;
         const formKey = generateFormItemKey(type, id);
@@ -49,7 +49,7 @@ class RegisterParamsInput extends React.Component {
                     return (
                         <FormItem>
                             {getFieldDecorator(formKey, {})(
-                                getPositionSelect()
+                                getPositionSelect(method == API_METHOD.GET || method == API_METHOD.DELETE)
                             )}
                         </FormItem>
                     )

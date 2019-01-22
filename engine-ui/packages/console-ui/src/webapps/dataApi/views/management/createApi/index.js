@@ -225,8 +225,7 @@ class NewApi extends Component {
             inputParam = inputParam.filter((item) => {
                 return !item.constant;
             })
-            newState.testApi.respJson = null;
-            newState.registerParams.successValue = data.respJson;
+            newState.registerParams.successValue = data.successRespJson;
             newState.registerParams.errroValue = data.errorRespJson;
             newState.registerParams.inputParam = inputParam.map((item) => {
                 return new InputColumnModel(item);
@@ -391,7 +390,7 @@ class NewApi extends Component {
             inputParam: [],
             constParam: []
         }
-        result.respJson = registerParams.successValue;
+        result.successRespJson = registerParams.successValue;
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item) => {

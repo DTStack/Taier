@@ -111,7 +111,7 @@ class RegisterParams extends React.Component {
         })
     }
     render () {
-        let { data = {} } = this.props;
+        let { data = {}, method } = this.props;
         let { inputParam = [], constParam = [] } = data;
         return (
             <React.Fragment>
@@ -123,6 +123,7 @@ class RegisterParams extends React.Component {
                 >
                     <InputTable
                         ref={this.inputRef}
+                        method={method}
                         updateColumnData={this.updateColumnData.bind(this, 'in')}
                         deleteColumn={this.deleteColumn.bind(this, 'in')}
                         data={inputParam}

@@ -21,11 +21,11 @@ export function getTypeSelect () {
 /**
  * 获取参数位置的select组件
  */
-export function getPositionSelect (isConst) {
+export function getPositionSelect (hideBody) {
     return (
         <Select style={{ width: '100%' }}>
             <Option key={PARAMS_POSITION.QUERY} value={PARAMS_POSITION.QUERY}>{PARAMS_POSITION_TEXT[PARAMS_POSITION.QUERY]}</Option>
-            {!isConst && (
+            {!hideBody && (
                 <Option key={PARAMS_POSITION.BODY} value={PARAMS_POSITION.BODY}>{PARAMS_POSITION_TEXT[PARAMS_POSITION.BODY]}</Option>
             )}
             <Option key={PARAMS_POSITION.HEAD} value={PARAMS_POSITION.HEAD}>{PARAMS_POSITION_TEXT[PARAMS_POSITION.HEAD]}</Option>

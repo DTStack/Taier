@@ -64,7 +64,8 @@ class RegisterParams extends React.Component {
     }
     render () {
         const { menuSelect } = this.state;
-        const { registerParams } = this.props;
+        const { registerParams, basicProperties } = this.props;
+        const { method } = basicProperties;
         const Content = ContentMap[menuSelect];
         return (
             <div>
@@ -80,6 +81,7 @@ class RegisterParams extends React.Component {
                             <Content
                                 ref={this.contentRef}
                                 data={registerParams}
+                                method={method}
                                 updateData={this.updateData.bind(this)}
                             />
                         </div>

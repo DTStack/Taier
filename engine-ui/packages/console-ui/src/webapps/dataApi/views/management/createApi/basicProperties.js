@@ -28,9 +28,9 @@ class ManageBasicProperties extends Component {
      * @param {*} values fields
      */
     checkParamsPath (values, isSilent) {
-        const { APIPath, originPath } = values;
+        const { APIPath, originalPath } = values;
         let pathParams = parseParamsPath(APIPath);
-        let originPathParams = parseParamsPath(originPath);
+        let originPathParams = parseParamsPath(originalPath);
         let tmpMap = {};
         /**
          * 校验两边的参数是否一致
@@ -63,13 +63,13 @@ class ManageBasicProperties extends Component {
      */
     updateRegisterColumns (path) {
         const { registerParams } = this.props;
-        let { inputColumn = [] } = registerParams;
+        let { inputParam = [] } = registerParams;
         let params = parseParamsPath(path);
         params = [...new Set(params)];
         /**
         * 删除源数据已不存在的path参数
         */
-        inputColumn = inputColumn.map((column) => {
+        inputParam = inputParam.map((column) => {
             let name = column[inputColumnsKeys.NAME];
             let position = column[inputColumnsKeys.POSITION];
 
@@ -81,7 +81,7 @@ class ManageBasicProperties extends Component {
         /**
          * 获取现存的参数
          */
-        let existNames = inputColumn.map((column) => {
+        let existNames = inputParam.map((column) => {
             return column[inputColumnsKeys.NAME];
         })
         /**
@@ -89,7 +89,7 @@ class ManageBasicProperties extends Component {
          */
         params = params.map((param) => {
             let targetIndex = existNames.indexOf(param);
-            if (targetIndex == -1 || inputColumn[targetIndex][inputColumnsKeys.POSITION] != PARAMS_POSITION.PATH) {
+            if (targetIndex == -1 || inputParam[targetIndex][inputColumnsKeys.POSITION] != PARAMS_POSITION.PATH) {
                 /**
                  * 假如path中的参数不存在于源数据中，或者存在，但是不是path类型
                  */
@@ -102,9 +102,9 @@ class ManageBasicProperties extends Component {
         }).filter(Boolean);
         this.props.changeRegisterParams({
             ...registerParams,
-            inputColumn: [
+            inputParam: [
                 ...params,
-                ...inputColumn
+                ...inputParam
             ]
         }, true);
     }
@@ -116,7 +116,7 @@ class ManageBasicProperties extends Component {
                     if (values.APIPath && !this.checkParamsPath(values)) {
                         return false;
                     }
-                    this.updateRegisterColumns(values.originPath)
+                    this.updateRegisterColumns(values.originalPath)
                 }
                 this.props.dataChange({
                     ...values
@@ -132,7 +132,7 @@ class ManageBasicProperties extends Component {
             if (!error) {
                 if (isRegister) {
                     if (params.APIPath && this.checkParamsPath(params, true)) {
-                        this.updateRegisterColumns(params.originPath)
+                        this.updateRegisterColumns(params.originalPath)
                     }
                 }
                 this.props.cancelAndSave({ ...params });

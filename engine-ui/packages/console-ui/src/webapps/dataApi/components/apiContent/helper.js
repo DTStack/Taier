@@ -1,6 +1,6 @@
 import React from 'react';
 import { inputColumnsKeys } from '../../model/inputColumnModel';
-import { PARAMS_POSITION } from '../../consts';
+import { PARAMS_POSITION, API_METHOD } from '../../consts';
 export function generateUrlQuery (params = []) {
     let query = params.map((param) => {
         if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.QUERY) {
@@ -23,7 +23,10 @@ export function generateHeader (params) {
     base = base + headers.join('\n');
     return <pre>{base}</pre>;
 }
-export function generateBody (params) {
+export function generateBody (params, method) {
+    if (method == API_METHOD.GET || method == API_METHOD.DELETE) {
+        return '无'
+    }
     let base = { inFields: {} };
     params.map((param) => {
         if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.BODY) {
