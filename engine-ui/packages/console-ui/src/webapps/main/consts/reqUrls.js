@@ -11,6 +11,7 @@ import {
 export default {
     // ===== license APP ===== //
     getLicenseApp: `${UIC_BASE_URL}/v2/license/menu`, // 获取具有license权限App // 暂缺
+    CHECK_IS_OVERDUE: `${UIC_BASE_URL}/v2/license/verify`, // 检查是否过期 // 暂缺
     // ===== 用户模块 ===== //
     LOGOUT: `${UIC_BASE_URL}/v2/logout`,
     CHECKISROOT: `${CONSOLE_BASE_URL}/status/status`, // 验证是否为租户root管理员

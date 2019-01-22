@@ -256,34 +256,40 @@ class Index extends Component {
 
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        arr.map(item => {
-            switch (item.name) {
-                case '数据源':
-                    fixArrChildrenApps[0] = item;
-                    break;
-                case '数据开发':
-                    fixArrChildrenApps[1] = item;
-                    break;
-                case '运维中心':
-                    fixArrChildrenApps[2] = item;
-                    break;
-                case '数据地图':
-                    fixArrChildrenApps[3] = item;
-                    break;
-                case '数据模型':
-                    fixArrChildrenApps[4] = item;
-                    break;
-                case '项目管理':
-                    fixArrChildrenApps[5] = item;
-                    break;
-            }
-        })
-        return fixArrChildrenApps
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '数据地图':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                    case '数据模型':
+                        fixArrChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
     }
     render () {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
         const { licenseApps } = this.props;
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children)
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
@@ -370,7 +376,7 @@ class Index extends Component {
                                                     <Col span="24" className="card-task-padding">
                                                         <Row>
                                                             {
-                                                                v.status != 1 || !fixArrChildrenApps[1].is_Show ? '' : (
+                                                                v.status != 1 || (taskNav && !taskNav.is_Show) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
                                                                             onClick={() => { this.setRouter('offline', v) }}
@@ -387,7 +393,7 @@ class Index extends Component {
                                                                 )
                                                             }
                                                             {
-                                                                v.status != 1 || !fixArrChildrenApps[2].is_Show ? '' : (
+                                                                v.status != 1 || (operaNav && !operaNav.is_Show) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task" style={{ padding: '1.5 0' }}
                                                                             onClick={() => { this.setRouter('operation', v) }}

@@ -47,44 +47,52 @@ class Main extends Component {
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
         const { licenseApps } = this.props;
-        // rdos
-        const isRdosShow = licenseApps[0].is_Show;
-        const isRdosTask = licenseApps[0].children[0].is_Show;
-        const isRdosOpera = licenseApps[0].children[1].is_Show;
-        const isRdosDataSource = licenseApps[0].children[2].is_Show;
-        const isRdosPro = licenseApps[0].children[3].is_Show;
-        const isRdosMap = licenseApps[0].children[4].is_Show;
-        const isRdosModal = licenseApps[0].children[5].is_Show;
-        // stream
-        const isStream = licenseApps[1].is_Show;
-        const isStreamDataSource = licenseApps[1].children[0].is_Show;
-        const isStreamTask = licenseApps[1].children[1].is_Show;
-        const isStreamPro = licenseApps[1].children[2].is_Show;
-        const isStreamOpera = licenseApps[1].children[3].is_Show;
-        // analyticsEngine
-        const isAna = licenseApps[2].is_Show;
-        // dataQuality
-        const isQuali = licenseApps[3].is_Show;
-        const isQualiOver = licenseApps[3].children[0].is_Show;
-        const isQualiTaskSearch = licenseApps[3].children[1].is_Show;
-        const isQualiRule = licenseApps[3].children[2].is_Show;
-        const isQualiVali = licenseApps[3].children[3].is_Show;
-        const isQualiDataSource = licenseApps[3].children[4].is_Show;
-        // dataApi
-        const isDataApi = licenseApps[4].is_Show;
-        const isApiover = licenseApps[4].children[0].is_Show;
-        const isApiMarket = licenseApps[4].children[1].is_Show;
-        const isApiMine = licenseApps[4].children[2].is_Show;
-        const isApiMana = licenseApps[4].children[3].is_Show;
-        const isApiSafe = licenseApps[4].children[4].is_Show;
-        const isApiDataSource = licenseApps[4].children[5].is_Show;
+        console.log(licenseApps)
+        if (licenseApps.length > 1) {
+            // rdosAPP
+            const rdosApp = licenseApps[0];
+            const isRdosShow = rdosApp.is_Show;
+            const isRdosTask = rdosApp.children[0].is_Show;
+            const isRdosOpera = rdosApp.children[1].is_Show;
+            const isRdosDataSource = rdosApp.children[2].is_Show;
+            const isRdosPro = rdosApp.children[3].is_Show;
+            const isRdosMap = rdosApp.children[4].is_Show;
+            const isRdosModal = rdosApp.children[5].is_Show;
+            // streamAPP
+            const streamApp = licenseApps[1];
+            const isStream = streamApp.is_Show;
+            const isStreamDataSource = streamApp.children[0].is_Show;
+            const isStreamTask = streamApp.children[1].is_Show;
+            const isStreamPro = streamApp.children[2].is_Show;
+            const isStreamOpera = streamApp.children[3].is_Show;
+            // analyticsEngine
+            const analyApp = licenseApps[2];
+            const isAna = analyApp.is_Show;
+            // dataQuality
+            const qualityApp = licenseApps[3];
+            const isQuali = qualityApp.is_Show;
+            const isQualiOver = qualityApp.children[0].is_Show;
+            const isQualiTaskSearch = qualityApp.children[1].is_Show;
+            const isQualiRule = qualityApp.children[2].is_Show;
+            const isQualiVali = qualityApp.children[3].is_Show;
+            const isQualiDataSource = qualityApp.children[4].is_Show;
+            // dataApi
+            const apiApp = licenseApps[4];
+            const isDataApi = apiApp.is_Show;
+            const isApiover = apiApp.children[0].is_Show;
+            const isApiMarket = apiApp.children[1].is_Show;
+            const isApiMine = apiApp.children[2].is_Show;
+            const isApiMana = apiApp.children[3].is_Show;
+            const isApiSafe = apiApp.children[4].is_Show;
+            const isApiDataSource = apiApp.children[5].is_Show;
 
-        if (!isRdosShow || !isRdosTask || !isRdosOpera || !isRdosDataSource ||
-            !isRdosPro || !isRdosMap || !isRdosModal || !isStream || !isStreamDataSource ||
-            !isStreamTask || !isStreamPro || !isStreamOpera || !isAna || !isQuali ||
-            !isQualiOver || !isQualiTaskSearch || !isQualiRule || !isQualiVali || !isQualiDataSource || !isDataApi ||
-            !isApiover || !isApiMarket || !isApiMine || !isApiMana || !isApiSafe || !isApiDataSource) {
-                hashHistory.push('/');
+            if (!isRdosShow || !isRdosTask || !isRdosOpera || !isRdosDataSource ||
+                !isRdosPro || !isRdosMap || !isRdosModal || !isStream || !isStreamDataSource ||
+                !isStreamTask || !isStreamPro || !isStreamOpera || !isAna || !isQuali ||
+                !isQualiOver || !isQualiTaskSearch || !isQualiRule || !isQualiVali || !isQualiDataSource || !isDataApi ||
+                !isApiover || !isApiMarket || !isApiMine || !isApiMana || !isApiSafe || !isApiDataSource) {
+                    hashHistory.push('/');
+            }
         }
     }
 

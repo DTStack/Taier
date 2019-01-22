@@ -272,36 +272,46 @@ class Header extends Component {
     // 固定数组Index, 控制显示子应用
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        arr.map(item => {
-            switch (item.name) {
-                case '数据源':
-                    fixArrChildrenApps[0] = item;
-                    break;
-                case '数据开发':
-                    fixArrChildrenApps[1] = item;
-                    break;
-                case '运维中心':
-                    fixArrChildrenApps[2] = item;
-                    break;
-                case '数据地图':
-                    fixArrChildrenApps[3] = item;
-                    break;
-                case '数据模型':
-                    fixArrChildrenApps[4] = item;
-                    break;
-                case '项目管理':
-                    fixArrChildrenApps[5] = item;
-                    break;
-            }
-        })
-        return fixArrChildrenApps
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '数据地图':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                    case '数据模型':
+                        fixArrChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
     }
     render () {
         const { user, project, apps, app, licenseApps } = this.props;
         const { devPath } = this.state;
         const isIndex = this.isIndex();
         const display = !isIndex ? 'inline-block' : 'none';
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children)
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const dataSourceNav = fixArrChildrenApps[0];
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
+        const dataMapNav = fixArrChildrenApps[3];
+        const dataModalNav = fixArrChildrenApps[4];
+        const projectNav = fixArrChildrenApps[5];
         const pid = project && project.id ? project.id : '';
 
         const basePath = app.link;
@@ -347,7 +357,7 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null}
-                        {fixArrChildrenApps[0].is_Show ? (
+                        {dataSourceNav && dataSourceNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="database"
@@ -356,7 +366,7 @@ class Header extends Component {
                                 <a href={`${basePath}/database`} >数据源</a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[1].is_Show ? (
+                        {taskNav && taskNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="realtime"
@@ -365,7 +375,7 @@ class Header extends Component {
                                 <a href={`${basePath}${devPath}`}>数据开发</a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[2].is_Show ? (
+                        {operaNav && operaNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="operation"
@@ -374,7 +384,7 @@ class Header extends Component {
                                 <a href={`${basePath}/operation`}>运维中心</a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[3].is_Show ? (
+                        {dataMapNav && dataMapNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="data-manage"
@@ -384,7 +394,7 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[4].is_Show ? (
+                        {dataModalNav && dataModalNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item menu_large"
                                 key="data-model"
@@ -395,7 +405,7 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[5].is_Show ? (
+                        {projectNav && projectNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item menu_large"
                                 key="project"
@@ -425,7 +435,7 @@ class Header extends Component {
                                 <Icon type="caret-down" />
                             </span>)}
                         >
-                            {fixArrChildrenApps[4].is_Show ? (
+                            {dataModalNav && dataModalNav.is_Show ? (
                                 <Menu.Item
                                     className="my-menu-item no-border"
                                     key="data-model"
@@ -435,7 +445,7 @@ class Header extends Component {
                                     </a>
                                 </Menu.Item>
                             ) : null }
-                            {fixArrChildrenApps[5].is_Show ? (
+                            {projectNav && projectNav.is_Show ? (
                                 <Menu.Item
                                     className="my-menu-item"
                                     key="project"

@@ -18,8 +18,13 @@ export default {
     checkRoot (params) {
         return http.post(req.CHECKISROOT, params, { isSilent: true });
     },
+    // 查看license目录
     getLicenseApp (params) {
         return http.get(`${UIC_BASE_URL}/v2/license/menu/RDOS`)
+    },
+    // 检查是否过期
+    checkisOverdue (params) {
+        return http.get(req.CHECK_IS_OVERDUE, params);
     },
     // ================== 公共模块 ==================//
     getProjects (app, params) {

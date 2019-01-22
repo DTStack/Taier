@@ -10,23 +10,27 @@ import MyIcon from '../../../components/icon';
 class Toolbar extends Component {
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        arr.map(item => {
-            switch (item.name) {
-                case '数据库管理':
-                    fixArrChildrenApps[0] = item;
-                    break;
-                case '表管理':
-                    fixArrChildrenApps[1] = item;
-                    break;
-            }
-        })
-        return fixArrChildrenApps
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据库管理':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '表管理':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
     }
     render () {
         const { onCreateDB, onRefresh, onSQLQuery, onCreateTable, licenseApps } = this.props;
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[2].children);
-        const isShowCreateDB = fixArrChildrenApps[0].is_Show;
-        const isShowCreateTable = fixArrChildrenApps[1].is_Show;
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[2] && licenseApps[2].children);
+        const isShowCreateDB = fixArrChildrenApps[0] && fixArrChildrenApps[0].is_Show;
+        const isShowCreateTable = fixArrChildrenApps[1] && fixArrChildrenApps[1].is_Show;
         return (
             <div className="toolbar txt-right">
                 { isShowCreateTable ? (

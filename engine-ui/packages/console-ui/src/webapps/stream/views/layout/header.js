@@ -120,23 +120,27 @@ class Header extends Component {
 
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        arr.map(item => {
-            switch (item.name) {
-                case '数据源':
-                    fixArrChildrenApps[0] = item;
-                    break;
-                case '数据开发':
-                    fixArrChildrenApps[1] = item;
-                    break;
-                case '运维中心':
-                    fixArrChildrenApps[2] = item;
-                    break;
-                case '项目管理':
-                    fixArrChildrenApps[3] = item;
-                    break;
-            }
-        })
-        return fixArrChildrenApps
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
     }
 
     updateSelected () {
@@ -268,9 +272,11 @@ class Header extends Component {
         const pid = project && project.id ? project.id : '';
 
         const basePath = app.link;
-        console.log(licenseApps[1].children)
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1].children);
-
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
+        const dataSourceNav = fixArrChildrenApps[0];
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
+        const projectNav = fixArrChildrenApps[3];
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect =
             !(pathname.indexOf('/data-manage') > -1 || pathname === '/');
@@ -294,7 +300,7 @@ class Header extends Component {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        {fixArrChildrenApps[0].is_Show ? (
+                        {dataSourceNav && dataSourceNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="database"
@@ -304,7 +310,7 @@ class Header extends Component {
                                 <a href={`${basePath}/database`}>数据源</a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[1].is_Show ? (
+                        {taskNav && taskNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="realtime"
@@ -313,7 +319,7 @@ class Header extends Component {
                                 <a href={`${basePath}${devPath}`}>数据开发</a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[2].is_Show ? (
+                        {operaNav && operaNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="operation"
@@ -322,7 +328,7 @@ class Header extends Component {
                                 <a href={`${basePath}/operation`}>任务运维</a>
                             </Menu.Item>
                         ) : null }
-                        {fixArrChildrenApps[3].is_Show ? (
+                        {projectNav && projectNav.is_Show ? (
                             <Menu.Item
                                 className="my-menu-item"
                                 key="project"

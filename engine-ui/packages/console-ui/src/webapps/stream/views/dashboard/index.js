@@ -139,23 +139,27 @@ class Index extends Component {
 
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        arr.map(item => {
-            switch (item.name) {
-                case '数据源':
-                    fixArrChildrenApps[0] = item;
-                    break;
-                case '数据开发':
-                    fixArrChildrenApps[1] = item;
-                    break;
-                case '运维中心':
-                    fixArrChildrenApps[2] = item;
-                    break;
-                case '项目管理':
-                    fixArrChildrenApps[3] = item;
-                    break;
-            }
-        })
-        return fixArrChildrenApps
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
     }
 
     generalTitle = (data) => {
@@ -273,7 +277,9 @@ class Index extends Component {
     render () {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
         const { licenseApps } = this.props;
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1].children);
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[1] && licenseApps[1].children);
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
@@ -338,7 +344,7 @@ class Index extends Component {
                                                     <Col span="24" className="card-task-padding">
                                                         <Row>
                                                             {
-                                                                v.status != PROJECT_STATUS.NORMAL || !fixArrChildrenApps[1].is_Show ? '' : (
+                                                                v.status != PROJECT_STATUS.NORMAL || (taskNav && !taskNav.is_Show) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
                                                                             style={{ marginRight: '10' }}
@@ -356,7 +362,7 @@ class Index extends Component {
                                                                 )
                                                             }
                                                             {
-                                                                v.status != PROJECT_STATUS.NORMAL || !fixArrChildrenApps[2].is_Show ? '' : (
+                                                                v.status != PROJECT_STATUS.NORMAL || (operaNav && !operaNav.is_Show) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
                                                                             onClick={() => { this.setRouter('operation', v) }}
