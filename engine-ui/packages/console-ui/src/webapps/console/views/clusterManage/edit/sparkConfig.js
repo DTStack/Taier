@@ -72,13 +72,7 @@ export default class SparkConfig extends React.Component {
                     label={<Tooltip title="spark.yarn.appMasterEnv.PYSPARK_PYTHON">spark.yarn.appMasterEnv.PYSPARK_PYTHON</Tooltip>}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_PYTHON', {
-                        rules: [{
-                            required: true,
-                            message: '请输入spark.yarn.appMasterEnv.PYSPARK_PYTHON'
-                        }],
-                        initialValue: '/opt/dtstack/miniconda2/bin/python'
-                    })(
+                    {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_PYTHON', {})(
                         <Input disabled={isView} />
                     )}
                 </FormItem>
@@ -86,13 +80,7 @@ export default class SparkConfig extends React.Component {
                     label={<Tooltip title="spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON">spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON</Tooltip>}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON', {
-                        rules: [{
-                            required: true,
-                            message: '请输入spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
-                        }],
-                        initialValue: '/opt/dtstack/miniconda2/bin/python'
-                    })(
+                    {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON', {})(
                         <Input disabled={isView} />
                     )}
                 </FormItem>
