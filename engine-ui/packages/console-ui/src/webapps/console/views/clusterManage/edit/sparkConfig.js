@@ -7,7 +7,7 @@ const FormItem = Form.Item;
 
 export default class SparkConfig extends React.Component {
     render () {
-        const { customView, isView, getFieldDecorator } = this.props;
+        const { customView, isView, getFieldDecorator, securityStatus } = this.props;
         return (
             <div className="config-content" style={{ width: '680px' }}>
                 <FormItem
@@ -84,6 +84,88 @@ export default class SparkConfig extends React.Component {
                         <Input disabled={isView} />
                     )}
                 </FormItem>
+                {
+                    securityStatus ? <div>
+                        <FormItem
+                            label="sparkPrincipal"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('sparkConf.sparkPrincipal', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入sparkPrincipal'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="sparkKeytabPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('sparkConf.sparkKeytabPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入sparkKeytabPath'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="sparkKrb5ConfPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('sparkConf.sparkKrb5ConfPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入sparkKrb5ConfPath'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="zkPrincipal"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('sparkConf.zkPrincipal', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入zkPrincipal'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="zkKeytabPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('sparkConf.zkKeytabPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入zkKeytabPath'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="zkLoginName"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('sparkConf.zkLoginName', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入zkLoginName'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                    </div> : null
+                }
                 {customView}
             </div>
         )
