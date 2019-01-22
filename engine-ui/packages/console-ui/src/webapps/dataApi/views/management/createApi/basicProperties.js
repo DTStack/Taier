@@ -1,13 +1,15 @@
 import React, { Component } from 'react'
-import { Form, Input, Button, Select, Card, Cascader, message, Row, Col } from 'antd';
+import { Form, Input, Button, Select, Card, Cascader, message, Row, Col, notification } from 'antd';
 
 import DataSourceTable from './dataSourceTable'
 import HelpDoc from '../../helpDoc';
-import { formItemLayout, API_METHOD, SECURITY_TYPE } from '../../../consts'
+import { formItemLayout, API_METHOD, SECURITY_TYPE, PARAMS_POSITION, FIELD_TYPE } from '../../../consts'
 import NewGroupModal from '../../../components/newGroupModal';
 import api from '../../../api/apiManage'
 
+import InputColumnModel, { inputColumnsKeys } from '../../../model/inputColumnModel';
 import utils from 'utils';
+import { parseParamsPath } from './helper';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
@@ -21,10 +23,101 @@ class ManageBasicProperties extends Component {
     componentDidMount () {
         this.getDataSource();
     }
+    /**
+     * 校验后端path的参数和api path的参数是否一致
+     * @param {*} values fields
+     */
+    checkParamsPath (values, isSilent) {
+        const { APIPath, originalPath } = values;
+        let pathParams = parseParamsPath(APIPath);
+        let originPathParams = parseParamsPath(originalPath);
+        let tmpMap = {};
+        /**
+         * 校验两边的参数是否一致
+         */
+        originPathParams.forEach((param) => {
+            tmpMap[param] = tmpMap[param] ? ++tmpMap[param] : 1;
+        });
+        let isPass = pathParams.every((param) => {
+            if (tmpMap[param]) {
+                tmpMap[param] = --tmpMap[param];
+                if (tmpMap[param] == 0) {
+                    delete tmpMap[param];
+                }
+                return true;
+            }
+            return false;
+        })
+        if (isPass && !Object.keys(tmpMap).length) {
+            return true;
+        } else {
+            !isSilent && notification.error({
+                description: 'API path与后端 Path 的参数不一致！',
+                message: '配置错误'
+            });
+            return false
+        }
+    }
+    /**
+     * 根据path更新一下参数
+     */
+    updateRegisterColumns (path) {
+        const { registerParams } = this.props;
+        let { inputParam = [] } = registerParams;
+        let params = parseParamsPath(path);
+        params = [...new Set(params)];
+        /**
+        * 删除源数据已不存在的path参数
+        */
+        inputParam = inputParam.map((column) => {
+            let name = column[inputColumnsKeys.NAME];
+            let position = column[inputColumnsKeys.POSITION];
+
+            if (!params.includes(name) && position == PARAMS_POSITION.PATH) {
+                return null;
+            }
+            return column;
+        }).filter(Boolean)
+        /**
+         * 获取现存的参数
+         */
+        let existNames = inputParam.map((column) => {
+            return column[inputColumnsKeys.NAME];
+        })
+        /**
+         * 向源数据添加不存在的path param
+         */
+        params = params.map((param) => {
+            let targetIndex = existNames.indexOf(param);
+            if (targetIndex == -1 || inputParam[targetIndex][inputColumnsKeys.POSITION] != PARAMS_POSITION.PATH) {
+                /**
+                 * 假如path中的参数不存在于源数据中，或者存在，但是不是path类型
+                 */
+                return new InputColumnModel({
+                    [inputColumnsKeys.NAME]: param,
+                    [inputColumnsKeys.POSITION]: PARAMS_POSITION.PATH,
+                    [inputColumnsKeys.TYPE]: FIELD_TYPE.STRING
+                });
+            }
+        }).filter(Boolean);
+        this.props.changeRegisterParams({
+            ...registerParams,
+            inputParam: [
+                ...params,
+                ...inputParam
+            ]
+        }, true);
+    }
     pass () {
+        const { isRegister } = this.props;
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                console.log('Received values of form: ', values);
+                if (isRegister) {
+                    if (values.APIPath && !this.checkParamsPath(values)) {
+                        return false;
+                    }
+                    this.updateRegisterColumns(values.originalPath)
+                }
                 this.props.dataChange({
                     ...values
                 })
@@ -32,10 +125,16 @@ class ManageBasicProperties extends Component {
         });
     }
     cancelAndSave () {
+        const { isRegister } = this.props;
         const { validateFields, getFieldsValue } = this.props.form;
         const params = getFieldsValue();
         validateFields(['APIName'], {}, (error, values) => {
             if (!error) {
+                if (isRegister) {
+                    if (params.APIPath && this.checkParamsPath(params, true)) {
+                        this.updateRegisterColumns(params.originalPath)
+                    }
+                }
                 this.props.cancelAndSave({ ...params });
             }
         })
@@ -215,9 +314,17 @@ class ManageBasicProperties extends Component {
         }
     }
     renderMethod () {
+        const { isRegister } = this.props;
+        /**
+         * 生成API的列表，去除put和delete
+         */
+        const whiteList = [API_METHOD.POST, API_METHOD.GET];
         let arr = [];
         for (let key in API_METHOD) {
             let value = API_METHOD[key];
+            if (!isRegister && !whiteList.includes(value)) {
+                continue;
+            }
             arr.push(<Option value={value}>{key}</Option>)
         }
         return arr;
@@ -251,6 +358,7 @@ class ManageBasicProperties extends Component {
         }
     }
     render () {
+        const { isRegister } = this.props;
         const { getFieldDecorator } = this.props.form
         const options = this.getCatagoryOption();
         const { newGroupModalShow } = this.state;
@@ -312,6 +420,44 @@ class ManageBasicProperties extends Component {
                                 <TextArea autosize={{ minRows: 3, maxRows: 5 }} style={{ width: '85%' }} />
                             )}
                         </FormItem>
+                        {isRegister && (
+                            <React.Fragment>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="后端 Host"
+                                >
+                                    {getFieldDecorator('originalHost', {
+                                        rules: [
+                                            { required: true, message: '请输入后端 Host' },
+                                            { pattern: new RegExp(/^(http|https):\/\/[\w|.|:]+$/), message: '请填写正确的host' }],
+                                        initialValue: this.props.originalHost
+                                    })(
+                                        <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
+                                    )}
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpDoc doc="registerApiHost" />
+                                    </span>
+                                </FormItem>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="后端服务 Path"
+                                >
+                                    {getFieldDecorator('originalPath', {
+                                        rules: [
+                                            { required: true, message: '请输入后端 Path' },
+                                            { max: 200, message: '最大字符不能超过200' },
+                                            { min: 2, message: '最小字符不能小于2' },
+                                            { pattern: isRegister ? new RegExp(/^(\/(\{[-\w]+\}|[-\w]+))*(\/)?$/) : new RegExp(/^(\/[-|\w|{|}]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
+                                        initialValue: this.props.originalPath
+                                    })(
+                                        <Input style={{ width: '85%' }} />
+                                    )}
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpDoc doc="registerApiPath" />
+                                    </span>
+                                </FormItem>
+                            </React.Fragment>
+                        )}
                         <FormItem
                             {...formItemLayout}
                             label="API path"
@@ -320,14 +466,14 @@ class ManageBasicProperties extends Component {
                                 rules: [
                                     { max: 200, message: '最大字符不能超过200' },
                                     { min: 2, message: '最小字符不能小于2' },
-                                    { pattern: new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
-                                    { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
+                                    { pattern: isRegister ? new RegExp(/^(\/(\{[-\w]+\}|[-\w]+))*(\/)?$/) : new RegExp(/^(\/[-|\w]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user' },
+                                    isRegister ? {} : { pattern: new RegExp(/^(([^/]*\/[^/]*){1,2}|[^/]*)$/), message: '最多支持两层路径' }],
                                 initialValue: this.props.APIPath
                             })(
                                 <Input style={{ width: '85%' }} />
                             )}
                             <span style={{ marginLeft: '5px' }}>
-                                <HelpDoc doc="apiPathInfo" />
+                                <HelpDoc doc={isRegister ? 'registerApiPathInfo' : 'apiPathInfo'} />
                             </span>
                         </FormItem>
                         <Row style={{ marginTop: '40px' }}>
@@ -361,20 +507,22 @@ class ManageBasicProperties extends Component {
                                 </Select>
                             )}
                         </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="返回类型"
-                        >
-                            {getFieldDecorator('responseType', {
-                                rules: [{ required: true, message: '请选择返回类型' }],
-                                initialValue: 'JSON'
-                            })(
-                                <Select style={{ width: '85%' }}>
-                                    <Option value="JSON">JSON</Option>
-                                </Select>
-                                // <Input disabled  style={{ width: '85%' }} />
-                            )}
-                        </FormItem>
+                        {!isRegister && (
+                            <FormItem
+                                {...formItemLayout}
+                                label="返回类型"
+                            >
+                                {getFieldDecorator('responseType', {
+                                    rules: [{ required: true, message: '请选择返回类型' }],
+                                    initialValue: 'JSON'
+                                })(
+                                    <Select style={{ width: '85%' }}>
+                                        <Option value="JSON">JSON</Option>
+                                    </Select>
+                                    // <Input disabled  style={{ width: '85%' }} />
+                                )}
+                            </FormItem>
+                        )}
                         <Row style={{ marginTop: '40px' }}>
                             <Col className="form-title-line" {...formItemLayout.labelCol}>
                                 <span className='form-title title-border-l-blue'>安全与限制策略</span>
