@@ -124,7 +124,7 @@ class RegisterContentSection extends React.Component {
                 <section className='c-content-register__section'>
                     <h1 className="title-border-l-blue">请求示例</h1>
                     <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Reuest URL</div>
+                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
                         <div className='c-content-register__section__card__content'>
                             {generateUrlQuery(inputColumn)}
                         </div>

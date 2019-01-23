@@ -95,7 +95,7 @@ class Content extends Component {
                     return `${key}=${value}`
                 }
             ).join('&')
-            reqJson = reqJson ? ('?' + reqJson) : '无'
+            reqJson = 'http(s)://调用URL' + (reqJson ? ('?' + reqJson) : '')
         }
         return (
             <div style={{ paddingBottom: '20px' }}>
