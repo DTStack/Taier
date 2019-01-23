@@ -48,7 +48,7 @@ class Main extends Component {
     isEnableLicenseApp () {
         const { licenseApps } = this.props;
         console.log(licenseApps)
-        if (licenseApps.length > 1) {
+        if (licenseApps && licenseApps.length > 1) {
             // rdosAPP
             const rdosApp = licenseApps[0];
             const isRdosShow = rdosApp.isShow;
