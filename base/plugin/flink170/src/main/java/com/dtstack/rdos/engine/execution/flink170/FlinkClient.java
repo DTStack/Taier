@@ -748,7 +748,7 @@ public class FlinkClient extends AbsClient {
         }
 
         String slotInfo = getMessageByHttp(FlinkRestParseUtil.SLOTS_INFO);
-        FlinkResourceInfo resourceInfo = FlinkRestParseUtil.getAvailSlots(slotInfo, yarnClient);
+        FlinkResourceInfo resourceInfo = FlinkRestParseUtil.getAvailSlots(slotInfo, yarnClient,flinkConfig.getFlinkSessionSlotCount());
         if(resourceInfo == null){
             logger.error("---flink cluster maybe down.----");
             resourceInfo = new FlinkResourceInfo();

@@ -77,6 +77,8 @@ public class FlinkConfig {
 
     private String zkLoginName;
 
+    private int flinkSessionSlotCount;
+
     public String getZkLoginName() {
         return zkLoginName;
     }
@@ -319,5 +321,13 @@ public class FlinkConfig {
 
     public void setFlinkKrb5ConfPath(String flinkKrb5ConfPath) {
         this.flinkKrb5ConfPath = flinkKrb5ConfPath;
+    }
+
+    public int getFlinkSessionSlotCount() {
+        return flinkSessionSlotCount;
+    }
+
+    public void setFlinkSessionSlotCount(int flinkSessionSlotCount) {
+        this.flinkSessionSlotCount = flinkSessionSlotCount;
     }
 }

@@ -71,7 +71,7 @@ public class FlinkRestParseUtil {
      * @param message
      * @return
      */
-    public static FlinkResourceInfo getAvailSlots(String message, YarnClient yarnClient){
+    public static FlinkResourceInfo getAvailSlots(String message, YarnClient yarnClient,int flinkSessionSlotCount){
 
         if(Strings.isNullOrEmpty(message)){
             return null;
@@ -84,11 +84,17 @@ public class FlinkRestParseUtil {
             Map<String, Object> taskManagerInfo = objMapper.readValue(message, Map.class);
             if(taskManagerInfo.containsKey("taskmanagers")){
                 List<Map<String, Object>> taskManagerList = (List<Map<String, Object>>) taskManagerInfo.get("taskmanagers");
-                for(Map<String, Object> tmp : taskManagerList){
-                    int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
-                    int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
-                    resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail((String)tmp.get("id"),freeSlots,slotsNumber));
+                if (taskManagerList.size()==0){
+                    //FIXME 外部传入
+                    resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail("1",flinkSessionSlotCount,flinkSessionSlotCount));
+                }else {
+                    for(Map<String, Object> tmp : taskManagerList){
+                        int freeSlots = MapUtils.getIntValue(tmp,"freeSlots");
+                        int slotsNumber = MapUtils.getIntValue(tmp, "slotsNumber");
+                        resourceInfo.addNodeResource(new EngineResourceInfo.NodeResourceDetail((String)tmp.get("id"),freeSlots,slotsNumber));
+                    }
                 }
+
             }
         }catch (Exception e){
             logger.error("", e);

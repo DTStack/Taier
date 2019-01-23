@@ -45,9 +45,18 @@ public class FlinkResourceInfo extends EngineResourceInfo {
 
     @Override
     public boolean judgeSlots(JobClient jobClient) {
-        //FIXME 暂时跳过资源检查
-         return true;
+        FlinkConfig flinkConfig = getJobFlinkConf(jobClient.getPluginInfo());
+        FlinkYarnMode taskRunMode = FlinkUtil.getTaskRunMode(jobClient.getConfProperties(),jobClient.getComputeType());
+        String queue = DEFAULT_QUEUE;
+        if(flinkConfig != null){
+            queue = flinkConfig.getQueue();
+        }
 
+        if (FlinkYarnMode.isPerJob(taskRunMode)){
+            return judgePerjobResource(jobClient, queue);
+        }
+
+        return super.judgeSessionResource();
     }
 
     private boolean judgePerjobResource(JobClient jobClient, String queue) {

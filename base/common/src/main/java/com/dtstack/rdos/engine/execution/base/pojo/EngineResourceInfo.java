@@ -48,6 +48,23 @@ public abstract class EngineResourceInfo {
         return availableSlots >= maxParallel;
     }
 
+    /**
+     *  离线任务yarnsession模式运行，资源判断
+     * @return
+     */
+    public boolean judgeSessionResource() {
+        int availableSlots = 0;
+        for (NodeResourceDetail resourceDetail : nodeResources) {
+            availableSlots += resourceDetail.freeSlots;
+        }
+        //没有资源直接返回false
+        if (availableSlots == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
             throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务资源配置错误，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
