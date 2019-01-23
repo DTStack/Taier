@@ -169,15 +169,15 @@ export default class MainBench extends React.Component {
         if (utils.checkExist(tabData && tabData.taskType)) {
             switch (tabData.taskType) {
                 case TASK_TYPE.MR:
-                case TASK_TYPE.PYTHON:
                 case TASK_TYPE.VIRTUAL_NODE:
                 case TASK_TYPE.ML:
-                case TASK_TYPE.HAHDOOPMR:
+                case TASK_TYPE.HAHDOOPMR: {
                     return <NormalTaskForm
                         isWorkflowNode={isWorkflowNode}
                         key={tabData.id}
                         {...tabData}
                     />
+                }
                 case TASK_TYPE.SYNC: // 数据同步
                     if (tabData.createModel && tabData.createModel == DATA_SYNC_TYPE.SCRIPT) {
                         return <DataSyncScript
@@ -205,6 +205,7 @@ export default class MainBench extends React.Component {
                         currentTab={tabData.id}
                         currentTabData={tabData} />;
                 case TASK_TYPE.DEEP_LEARNING:
+                case TASK_TYPE.PYTHON:
                 case TASK_TYPE.PYTHON_23:
                     if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
                         return <CommonEditor

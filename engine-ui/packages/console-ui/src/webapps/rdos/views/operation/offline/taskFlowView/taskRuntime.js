@@ -5,8 +5,8 @@ import { cloneDeep } from 'lodash'
 
 import Resize from 'widgets/resize'
 
-import Api from '../../../api'
-import { lineAreaChartOptions } from '../../../comm/const'
+import Api from '../../../../api'
+import { lineAreaChartOptions } from '../../../../comm/const'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
