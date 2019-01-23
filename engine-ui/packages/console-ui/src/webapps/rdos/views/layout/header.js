@@ -19,7 +19,8 @@ const confirm = Modal.confirm;
     const { workbench } = state.offlineTask;
 
     return {
-        offlineTabs: workbench.tabs
+        offlineTabs: workbench.tabs,
+        licenseApps: state.licenseApps
     }
 })
 class Header extends Component {
@@ -268,14 +269,49 @@ class Header extends Component {
         const isIndex = current == 'overview' || current == 'data-manage' || current == 'metaDataImport';
         return isIndex;
     }
-
+    // 固定数组Index, 控制显示子应用
+    fixArrayIndex = (arr) => {
+        let fixArrChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '数据地图':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                    case '数据模型':
+                        fixArrChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
+    }
     render () {
-        const { user, project, apps, app } = this.props;
+        const { user, project, apps, app, licenseApps } = this.props;
         const { devPath } = this.state;
-
         const isIndex = this.isIndex();
         const display = !isIndex ? 'inline-block' : 'none';
-
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const dataSourceNav = fixArrChildrenApps[0];
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
+        const dataMapNav = fixArrChildrenApps[3];
+        const dataModalNav = fixArrChildrenApps[4];
+        const projectNav = fixArrChildrenApps[5];
         const pid = project && project.id ? project.id : '';
 
         const basePath = app.link;
@@ -321,53 +357,65 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null}
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="database"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}/database`} >数据源</a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="realtime"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}${devPath}`}>数据开发</a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="operation"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}/operation`}>运维中心</a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item"
-                            key="data-manage"
-                        >
-                            <a href={`${basePath}/data-manage/assets`} target={isIndex ? '_self' : '_blank'}>
-                                数据地图
-                            </a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item menu_large"
-                            key="data-model"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}/data-model/overview`}>
-                                数据模型
-                            </a>
-                        </Menu.Item>
-                        <Menu.Item
-                            className="my-menu-item menu_large"
-                            key="project"
-                            style={{ display }}
-                        >
-                            <a href={`${basePath}/project/${pid}/config`}>
-                                项目管理
-                            </a>
-                        </Menu.Item>
+                        {dataSourceNav && dataSourceNav.isShow ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="database"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}/database`} >数据源</a>
+                            </Menu.Item>
+                        ) : null }
+                        {taskNav && taskNav.isShow ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="realtime"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}${devPath}`}>数据开发</a>
+                            </Menu.Item>
+                        ) : null }
+                        {operaNav && operaNav.isShow ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="operation"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}/operation`}>运维中心</a>
+                            </Menu.Item>
+                        ) : null }
+                        {dataMapNav && dataMapNav.isShow ? (
+                            <Menu.Item
+                                className="my-menu-item"
+                                key="data-manage"
+                            >
+                                <a href={`${basePath}/data-manage/assets`} target={isIndex ? '_self' : '_blank'}>
+                                    数据地图
+                                </a>
+                            </Menu.Item>
+                        ) : null }
+                        {dataModalNav && dataModalNav.isShow ? (
+                            <Menu.Item
+                                className="my-menu-item menu_large"
+                                key="data-model"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}/data-model/overview`}>
+                                    数据模型
+                                </a>
+                            </Menu.Item>
+                        ) : null }
+                        {projectNav && projectNav.isShow ? (
+                            <Menu.Item
+                                className="my-menu-item menu_large"
+                                key="project"
+                                style={{ display }}
+                            >
+                                <a href={`${basePath}/project/${pid}/config`}>
+                                    项目管理
+                                </a>
+                            </Menu.Item>
+                        ) : null }
                         <SubMenu
                             className="my-menu-item menu_mini"
                             style={{ display }}
@@ -387,22 +435,26 @@ class Header extends Component {
                                 <Icon type="caret-down" />
                             </span>)}
                         >
-                            <Menu.Item
-                                className="my-menu-item no-border"
-                                key="data-model"
-                            >
-                                <a href={`${basePath}/data-model/overview`}>
-                                    数据模型
-                                </a>
-                            </Menu.Item>
-                            <Menu.Item
-                                className="my-menu-item"
-                                key="project"
-                            >
-                                <a href={`${basePath}/project/${pid}/config`}>
-                                    项目管理
-                                </a>
-                            </Menu.Item>
+                            {dataModalNav && dataModalNav.isShow ? (
+                                <Menu.Item
+                                    className="my-menu-item no-border"
+                                    key="data-model"
+                                >
+                                    <a href={`${basePath}/data-model/overview`}>
+                                        数据模型
+                                    </a>
+                                </Menu.Item>
+                            ) : null }
+                            {projectNav && projectNav.isShow ? (
+                                <Menu.Item
+                                    className="my-menu-item"
+                                    key="project"
+                                >
+                                    <a href={`${basePath}/project/${pid}/config`}>
+                                        项目管理
+                                    </a>
+                                </Menu.Item>
+                            ) : null }
                         </SubMenu>
                     </Menu>
                 </div>
@@ -411,6 +463,7 @@ class Header extends Component {
                     user={user}
                     app={app}
                     apps={apps}
+                    licenseApps={licenseApps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
                     helpUrl="/public/helpSite/dtinsight-batch/v3.0/Summary.html"

@@ -8,7 +8,8 @@ import { getHeaderLogo } from 'main/consts';
         user: state.user,
         apps: state.apps,
         routing: state.routing,
-        app: state.app
+        app: state.app,
+        licenseApps: state.licenseApps
     }
 })
 class Header extends Component {
@@ -19,7 +20,7 @@ class Header extends Component {
 
     render () {
         const menuItems = [];
-        const { app } = this.props;
+        const { app, licenseApps } = this.props;
         const logo = <span>
             <img
                 className='c-header__logo c-header__logo--analytics'
@@ -33,6 +34,7 @@ class Header extends Component {
         return <Navigator
             logo={logo}
             menuItems={menuItems}
+            licenseApps={licenseApps}
             {...this.props}
         />
     }

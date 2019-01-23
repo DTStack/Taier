@@ -1,15 +1,40 @@
 import React, { Component } from 'react';
 import { Row, Col } from 'antd';
-
+import { connect } from 'react-redux';
+@connect(state => {
+    return {
+        licenseApps: state.licenseApps
+    }
+})
 class Default extends Component {
+    fixArrayIndex = (arr) => {
+        let fixArrChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据库管理':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '表管理':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
+    }
     render () {
         const {
             onSQLQuery,
-            onCreateTable
+            onCreateTable,
+            licenseApps
         } = this.props;
 
         const iconBaseUrl = '/public/analyticsEngine/img';
-
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[2] && licenseApps[2].children);
+        const isShowCreateTable = fixArrChildrenApps[1] && fixArrChildrenApps[1].isShow;
         return (
             <Row
                 className="box-card txt-left"
@@ -29,20 +54,22 @@ class Default extends Component {
                         </p>
                     </div>
                 </Col>
-                <Col className="operation-card">
-                    <div
-                        onClick={onCreateTable}
-                        className="operation-content"
-                    >
-                        <img
-                            src={`${iconBaseUrl}/add_table.png`}
-                            className="anticon"
-                        />
-                        <p className="txt-center operation-title">
-                            新建表
-                        </p>
-                    </div>
-                </Col>
+                { isShowCreateTable ? (
+                    <Col className="operation-card">
+                        <div
+                            onClick={onCreateTable}
+                            className="operation-content"
+                        >
+                            <img
+                                src={`${iconBaseUrl}/add_table.png`}
+                                className="anticon"
+                            />
+                            <p className="txt-center operation-title">
+                                新建表
+                            </p>
+                        </div>
+                    </Col>
+                ) : null }
             </Row>
         );
     }

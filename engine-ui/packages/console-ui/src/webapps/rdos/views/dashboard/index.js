@@ -278,8 +278,42 @@ class Index extends Component {
         }
     }
 
+    fixArrayIndex = (arr) => {
+        let fixArrChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '数据地图':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                    case '数据模型':
+                        fixArrChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
+    }
     render () {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
+        const { licenseApps } = this.props;
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
@@ -364,36 +398,37 @@ class Index extends Component {
                                                         )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
-                                                        {
-                                                            v.status != 1 ? '' : <Row >
-                                                                <Col span="12">
-                                                                    <Card className="card-task"
-                                                                        onClick={() => { this.setRouter('offline', v) }}
-                                                                        onMouseOver={(e) => { this.handleMouseOver('develop', e) }}
-                                                                        onMouseOut={(e) => { this.handleMouseOut('develop', e) }}
-                                                                        noHovering
-                                                                    >
-                                                                        <span className="img-container">
-                                                                            <img className="task-img" src="/public/rdos/img/icon/index_develop.svg" />
-                                                                        </span>
-                                                                        数据开发
-                                                                    </Card>
-                                                                </Col>
-                                                                <Col span="12">
-                                                                    <Card className="card-task" style={{ padding: '1.5 0' }}
-                                                                        onClick={() => { this.setRouter('operation', v) }}
-                                                                        onMouseOver={(e) => { this.handleMouseOver('operation', e) }}
-                                                                        onMouseOut={(e) => { this.handleMouseOut('operation', e) }}
-                                                                        noHovering
-                                                                    >
-                                                                        <span className="img-container">
-                                                                            <img className="task-img" src="/public/rdos/img/icon/operation.svg" />
-                                                                        </span>
-                                                                        运维中心
-                                                                    </Card>
-                                                                </Col>
-                                                            </Row>
-                                                        }
+                                                        <Row>
+                                                            {
+                                                                v.status != 1 || (taskNav && !taskNav.isShow) ? '' : (
+                                                                    <Col span="12">
+                                                                        <Card className="card-task"
+                                                                            onClick={() => { this.setRouter('offline', v) }}
+                                                                            onMouseOver={(e) => { this.handleMouseOver(e) }}
+                                                                            onMouseOut={(e) => { this.handleMouseOut(e) }}
+                                                                            noHovering
+                                                                        >
+                                                                            <span className="img-container">
+                                                                                <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
+                                                                            </span>
+                                                                            数据开发
+                                                                        </Card>
+                                                                    </Col>
+                                                                )
+                                                            }
+                                                            {
+                                                                v.status != 1 || (operaNav && !operaNav.isShow) ? '' : (
+                                                                    <Col span="12">
+                                                                        <Card className="card-task" style={{ padding: '1.5 0' }}
+                                                                            onClick={() => { this.setRouter('operation', v) }}
+                                                                            noHovering
+                                                                        >
+                                                                            运维中心
+                                                                        </Card>
+                                                                    </Col>
+                                                                )
+                                                            }
+                                                        </Row>
                                                     </Col>
                                                 </Row>
                                                 {
@@ -434,6 +469,7 @@ class Index extends Component {
 export default connect((state) => {
     return {
         user: state.user,
-        projects: state.projects
+        projects: state.projects,
+        licenseApps: state.licenseApps
     }
 })(Index)
