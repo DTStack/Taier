@@ -740,7 +740,7 @@ public class FlinkClient extends AbsClient {
 
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-            String except = getMessageByHttp(exceptPath, reqURL);
+            String except = getExceptionInfo(exceptPath, reqURL);
             String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
             String jobInfo = getMessageByHttp(jobPath, reqURL);
             String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
@@ -753,6 +753,30 @@ public class FlinkClient extends AbsClient {
             logger.error("", e);
             return ExceptionUtil.getTaskLogError();
         }
+    }
+
+    /**
+     *  perjob模式下任务完成后进入jobHistory会有一定的时间
+     */
+    private String getExceptionInfo(String exceptPath,String reqURL){
+        String exceptionInfo = "";
+        int i = 0;
+        while (i < 10){
+            try {
+                Thread.sleep(500);
+                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+                return exceptionInfo;
+            } catch (RdosException e){
+                if (e.getErrorMessage().contains("404")){
+                    continue;
+                } else {
+                    throw e;
+                }
+            } catch (Exception ignore){}
+            i++;
+        }
+
+        return exceptionInfo;
     }
 
     @Override
