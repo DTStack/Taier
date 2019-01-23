@@ -207,7 +207,7 @@ class TaskFlowView extends Component {
                         const statusText = taskStatusText(item.status);
                         return (
                             menu.addItem(`${times} (${statusText})`, null, function () {
-                                ctx.loadTaskChidren({ jobId: item.jobId })
+                                ctx.initGraph(item.jobId);
                             }, periodsType)
                         )
                     })
@@ -220,7 +220,7 @@ class TaskFlowView extends Component {
                         const statusText = taskStatusText(item.status);
                         return (
                             menu.addItem(`${times} (${statusText})`, null, function () {
-                                ctx.loadTaskChidren({ jobId: item.jobId })
+                                ctx.initGraph(item.jobId);
                             }, periodsType)
                         )
                     })
