@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.http.PoolHttpClient;
 import com.dtstack.rdos.common.util.DtStringUtil;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
@@ -176,7 +177,7 @@ public class SparkYarnClient extends AbsClient {
         }
 
         Properties confProp = jobClient.getConfProperties();
-        Boolean isCarbonSpark = (Boolean) confProp.getOrDefault(IS_CARBON_SPARK_KEY, false);
+        Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
 
         List<String> argList = new ArrayList<>();
         argList.add("--jar");
@@ -307,7 +308,7 @@ public class SparkYarnClient extends AbsClient {
         }
 
         Properties confProp = jobClient.getConfProperties();
-        Boolean isCarbonSpark = (Boolean) confProp.getOrDefault(IS_CARBON_SPARK_KEY, false);
+        Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
         String sqlProxyClass = sparkYarnConfig.getSparkSqlProxyMainClass();
         if(isCarbonSpark){
             sqlProxyClass = SparkYarnConfig.DEFAULT_CARBON_SQL_PROXY_MAINCLASS;

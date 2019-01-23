@@ -14,7 +14,7 @@ public class SparkYarnConfig {
 
     private static final String DEFAULT_SPARK_YARN_ARCHIVE = "%s/sparkjars/jars";
 
-    private static final String DEFAULT_SPARK_SQL_PROXY_JAR_PATH = "%s/user/spark/spark-0.0.1-SNAPSHOT.jar";
+    private static final String DEFAULT_SPARK_SQL_PROXY_JAR_PATH = "%s/user/spark/spark-sql-proxy.jar";
 
     private static final String DEFAULT_SPARK_PYTHON_EXTLIBPATH = "%s/pythons/pyspark.zip,/pythons/py4j-0.10.4-src.zip";
 
