@@ -469,8 +469,8 @@ class TaskForm extends React.Component {
                                 defaultNode={isCreateNormal
                                     ? this.props.treeData.name
                                     : isCreateFromMenu
-                                        ? this.getFolderName(defaultData.parentId)
-                                        : this.getFolderName(defaultData.nodePid)
+                                        ? this.getFolderName(defaultData.parentId, defaultData.type)
+                                        : this.getFolderName(defaultData.nodePid, defaultData.type)
                                 }
                             />
                         )}
@@ -537,13 +537,13 @@ class TaskForm extends React.Component {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName (id) {
+    getFolderName (id, type) {
         const { treeData } = this.props;
         let name;
 
         const loop = (arr) => {
             arr.forEach((node, i) => {
-                if (node.id === id) {
+                if (node.id === id && node.type === type) {
                     name = node.name;
                 } else {
                     loop(node.children || []);
@@ -552,7 +552,6 @@ class TaskForm extends React.Component {
         };
 
         loop([treeData]);
-
         return name;
     }
 }

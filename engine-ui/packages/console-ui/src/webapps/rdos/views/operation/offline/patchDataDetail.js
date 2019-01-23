@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import { cloneDeep } from 'lodash';
+
 import {
     Table, message, Modal,
     Card, Input, Button, Select,
@@ -15,7 +17,7 @@ import { replaceObjectArrayFiledName } from 'funcs';
 import Api from '../../../api'
 import {
     offlineTaskStatusFilter,
-    TASK_STATUS
+    TASK_STATUS, TASK_TYPE
 } from '../../../comm/const'
 
 import {
@@ -26,7 +28,7 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
 
-import TaskFlowView from './taskFlowView/index'
+import TaskJobFlowView from './taskJobFlowView'
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -40,6 +42,7 @@ class PatchDataDetail extends Component {
         loading: false,
         current: 1,
         selectedRowKeys: [],
+        expandedRowKeys: [],
         selectedRows: [],
         checkAll: false,
 
@@ -84,7 +87,7 @@ class PatchDataDetail extends Component {
         }
         this._timeClock = setTimeout(() => {
             this.search(true);
-        }, 5000);
+        }, 6000);
     }
     search = (isSilent) => {
         const {
@@ -133,8 +136,16 @@ class PatchDataDetail extends Component {
         Api.getFillDataDetail(params).then((res) => {
             if (res.code === 1) {
                 this.debounceSearch();
-                replaceObjectArrayFiledName(res.data.data.recordList, 'relatedRecords', 'children');
-                ctx.setState({ table: res.data })
+                const recordList = res.data.data.recordList;
+                replaceObjectArrayFiledName(recordList, 'relatedRecords', 'children');
+                // TODO 这个遍历处理我还有点不太清楚，copy 实例列表过来的
+                for (let i = 0; i < recordList.length; i++) {
+                    let job = recordList[i];
+                    if (job.taskType === TASK_TYPE.WORKFLOW && !job.children) {
+                        job.children = [];
+                    }
+                }
+                ctx.setState({ table: res.data, expandedRowKeys: [] })
             }
             this.setState({ loading: false })
         })
@@ -497,6 +508,44 @@ class PatchDataDetail extends Component {
             haveFail, haveNotRun, haveSuccess, haveRunning
         }
     }
+
+    onExpandRows = (expandedRows) => {
+        this.setState({ expandedRowKeys: expandedRows })
+    }
+
+    onExpand = (expanded, record) => {
+        if (expanded) {
+            if (record.children && record.children.length) {
+                return;
+            }
+            const { table } = this.state;
+            let newTableData = cloneDeep(table);
+            const { jobId } = record;
+            Api.getFillDataRelatedJobs({
+                jobId
+            }).then((res) => {
+                if (res.code == 1) {
+                    const recordList = newTableData.data.recordList;
+                    const index = recordList.findIndex((task) => {
+                        return task.jobId == jobId
+                    });
+                    if (index || index == 0) {
+                        recordList[index] = {
+                            ...res.data,
+                            children: res.data.relatedRecords,
+                            relatedRecords: undefined
+                        };
+                    }
+                    this.setState({
+                        table: newTableData
+                    })
+                }
+            })
+        } else {
+            console.log('record')
+        }
+    }
+
     render () {
         const {
             table, selectedRowKeys, fillJobName,
@@ -685,6 +734,8 @@ class PatchDataDetail extends Component {
                                     }
                                 }
                             }
+                            expandedRowKeys={this.state.expandedRowKeys}
+                            defaultExpandAllRows={true}
                             style={{ marginTop: '1px' }}
                             scroll={{ x: '1200px' }}
                             className="m-table full-screen-table-120"
@@ -694,6 +745,8 @@ class PatchDataDetail extends Component {
                             columns={this.initTaskColumns()}
                             dataSource={(table.data && table.data.recordList) || []}
                             onChange={this.handleTableChange}
+                            onExpand={this.onExpand}
+                            onExpandedRowsChange={this.onExpandRows}
                             footer={this.tableFooter}
                         />
                         <SlidePane
@@ -702,7 +755,7 @@ class PatchDataDetail extends Component {
                             visible={visibleSlidePane}
                             style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px', position: 'fixed', paddingTop: '50px' }}
                         >
-                            <TaskFlowView
+                            <TaskJobFlowView
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={goToTaskDev}
                                 taskJob={selectedTask}

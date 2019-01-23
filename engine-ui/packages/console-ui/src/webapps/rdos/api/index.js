@@ -350,8 +350,14 @@ export default {
     getCreateTargetTable(params) {
         return http.post(req.GET_CREATE_TARGET_TABLE, params)
     },
+    getRelatedTasks(params) {
+        return http.post(offlineReq.GET_WORKFLOW_RELATED_TASKS, params)
+    },
     getRelatedJobs(params) {
         return http.post(offlineReq.GET_WORKFLOW_RELATED_JOBS, params)
+    },
+    getFillDataRelatedJobs(params) {
+        return http.post(offlineReq.GET_WORKFLOW_FILLDATA_RELATED_JOBS, params)
     },
     // =========== 脚本模块 ==================//
     saveScript(params) {
@@ -446,8 +452,17 @@ export default {
     getJobParents(params) { // 获取任务父Job
         return http.post(offlineReq.GET_JOB_PARENT, params)
     },
-    getWorkflowNodes(params) { // 获取工作流节点
-        return http.post(offlineReq.GET_WORKFLOW_NODES, params)
+    /**
+     * 获取工作流任务的子节点
+     */
+    getTaskWorkflowNodes(params) {
+        return http.post(offlineReq.GET_TASK_WORKFLOW_NODES, params)
+    },
+    /**
+     * 获取工作流任务节点实例的子节点
+     */
+    getTaskJobWorkflowNodes(params) {
+        return http.post(offlineReq.GET_TASK_JOB_WORKFLOW_NODES, params)
     },
     execSQLImmediately(params) { // 立即执行SQL
         return http.post(offlineReq.EXEC_SQL_IMMEDIATELY, params)

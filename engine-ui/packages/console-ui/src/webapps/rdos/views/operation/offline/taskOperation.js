@@ -32,7 +32,7 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
 
-import TaskFlowView from './taskFlowView'
+import TaskJobFlowView from './taskJobFlowView'
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -55,7 +55,6 @@ class OfflineTaskList extends Component {
         taskStatus: isEmpty(utils.getParameterByName('status')) ? [] : utils.getParameterByName('status').split(','),
         bussinessDate: [moment(yesterDay).subtract(utils.getParameterByName('date') || 0, 'days'), yesterDay],
         cycDate: undefined,
-        selectedRowKeys: [],
         checkAll: false,
         execTime: '', // 执行时间
         jobType: '', // 调度类型
@@ -68,7 +67,9 @@ class OfflineTaskList extends Component {
         bussinessDateSort: '',
         cycSort: '',
         visibleSlidePane: false,
-        selectedTask: ''
+        selectedTask: '',
+        selectedRowKeys: [],
+        expandedRowKeys: []
     }
 
     componentDidMount () {
@@ -151,7 +152,7 @@ class OfflineTaskList extends Component {
                         job.children = [];
                     }
                 }
-                ctx.setState({ tasks: res.data })
+                ctx.setState({ tasks: res.data, expandedRowKeys: [] })
             }
             ctx.setState({
                 loading: false
@@ -502,6 +503,10 @@ class OfflineTaskList extends Component {
         )
     }
 
+    onExpandRows = (expandedRows) => {
+        this.setState({ expandedRowKeys: expandedRows })
+    }
+
     onExpand = (expanded, record) => {
         if (expanded) {
             if (record.children && record.children.length) {
@@ -715,6 +720,8 @@ class OfflineTaskList extends Component {
                             }
                             style={{ marginTop: '1px' }}
                             className="m-table full-screen-table-120"
+                            defaultExpandAllRows={true}
+                            expandedRowKeys={this.state.expandedRowKeys}
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}
@@ -723,6 +730,7 @@ class OfflineTaskList extends Component {
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}
                             onExpand={this.onExpand}
+                            onExpandedRowsChange={this.onExpandRows}
                             scroll={{ x: '1400px' }}
                         />
                         <SlidePane
@@ -731,7 +739,7 @@ class OfflineTaskList extends Component {
                             visible={visibleSlidePane}
                             style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px', position: 'fixed', paddingTop: '50px' }}
                         >
-                            <TaskFlowView
+                            <TaskJobFlowView
                                 isPro={isPro}
                                 visibleSlidePane={visibleSlidePane}
                                 goToTaskDev={this.props.goToTaskDev}

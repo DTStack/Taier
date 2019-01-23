@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 import { Modal, Table, Button } from 'antd'
-import Api from '../../../api'
+import Api from '../../../../api'
 import moment from 'moment';
 class OperaRecordModal extends Component {
     state = {

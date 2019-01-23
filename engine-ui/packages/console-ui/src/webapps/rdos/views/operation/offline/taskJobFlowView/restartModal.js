@@ -55,7 +55,7 @@ class RestartModal extends Component {
 
         Api.restartAndResume(reqParams).then((res) => {
             if (res.code === 1) {
-                message.success('重跑成功!')
+                message.success('已经成功开始重跑!')
                 this.cancleModal();
             }
         })
@@ -138,6 +138,7 @@ class RestartModal extends Component {
                 status === TASK_STATUS.RUN_FAILED || // 运行失败
                 status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
                 status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
+                status === TASK_STATUS.PARENT_FAILD || // 上游失败
                 status === TASK_STATUS.STOPED; // 已停止
 
                 const content = <Row>
@@ -182,6 +183,7 @@ class RestartModal extends Component {
                 visible={visible}
                 onOk={this.restartChildNodes}
                 onCancel={onCancel}
+                maskClosable={true}
             >
                 <Row>
                     <Col span="12">请选择要重跑的任务:</Col>
