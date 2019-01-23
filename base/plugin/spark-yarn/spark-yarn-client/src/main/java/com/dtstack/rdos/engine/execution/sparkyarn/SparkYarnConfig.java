@@ -69,6 +69,8 @@ public class SparkYarnConfig {
 
     private String zkLoginName;
 
+    private String carbonStorePath;
+
     public boolean isSecurity() {
         return isSecurity;
     }
@@ -275,5 +277,13 @@ public class SparkYarnConfig {
 
     public void setYarnAccepterTaskNumber(String yarnAccepterTaskNumber) {
         this.yarnAccepterTaskNumber = yarnAccepterTaskNumber;
+    }
+
+    public String getCarbonStorePath() {
+        return carbonStorePath;
+    }
+
+    public void setCarbonStorePath(String carbonStorePath) {
+        this.carbonStorePath = carbonStorePath;
     }
 }

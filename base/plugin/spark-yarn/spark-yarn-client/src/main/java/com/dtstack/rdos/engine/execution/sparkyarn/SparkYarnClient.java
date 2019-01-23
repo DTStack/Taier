@@ -290,13 +290,20 @@ public class SparkYarnClient extends AbsClient {
      * @return
      */
     private JobResult submitSparkSqlJobForBatch(JobClient jobClient){
-        setHadoopUserName(sparkYarnConfig);
 
+        Properties confProp = jobClient.getConfProperties();
+        Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
+
+        setHadoopUserName(sparkYarnConfig);
         Map<String, Object> paramsMap = new HashMap<>();
 
         String zipSql = DtStringUtil.zip(jobClient.getSql());
         paramsMap.put("sql", zipSql);
         paramsMap.put("appName", jobClient.getJobName());
+
+        if(isCarbonSpark){
+            paramsMap.put("storePath", sparkYarnConfig.getCarbonStorePath());
+        }
 
         String sqlExeJson = null;
         try{
@@ -307,8 +314,6 @@ public class SparkYarnClient extends AbsClient {
             throw new RdosException("get unexpected exception:" + e.getMessage());
         }
 
-        Properties confProp = jobClient.getConfProperties();
-        Boolean isCarbonSpark = MathUtil.getBoolean(confProp.get(IS_CARBON_SPARK_KEY), false);
         String sqlProxyClass = sparkYarnConfig.getSparkSqlProxyMainClass();
         if(isCarbonSpark){
             sqlProxyClass = SparkYarnConfig.DEFAULT_CARBON_SQL_PROXY_MAINCLASS;
