@@ -55,7 +55,7 @@ class RestartModal extends Component {
 
         Api.restartAndResume(reqParams).then((res) => {
             if (res.code === 1) {
-                message.success('重跑成功!')
+                message.success('已经成功开始重跑!')
                 this.cancleModal();
             }
         })
