@@ -105,14 +105,14 @@ class Content extends Component {
                         {!isRegister && (
                             <span data-title="支持格式：" className="pseudo-title p-line api_item-margin">{this.getValue('supportType')}</span>
                         )}
-                        {isRegister && isManage && (
-                            <React.Fragment>
-                                <span data-title="后端Host：" className="pseudo-title p-line api_item-margin">{registerInfo.originalHost}</span>
-                                <span data-title="后端Path：" className="pseudo-title p-line api_item-margin">{registerInfo.originalPath}</span>
-                            </React.Fragment>
-                        )}
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
                         <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_KEY[this.getValue('reqMethod')]}</span>
+                        {isRegister && isManage && (
+                            <React.Fragment>
+                                <p data-title="后端Host：" className="pseudo-title p-line">{registerInfo.originalHost}</p>
+                                <p data-title="后端Path：" className="pseudo-title p-line">{registerInfo.originalPath}</p>
+                            </React.Fragment>
+                        )}
                         <p data-title="API path：" className="pseudo-title p-line">{this.getValue('apiPath')}</p>
                         {!showExt && (
                             <p data-title="调用次数限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
