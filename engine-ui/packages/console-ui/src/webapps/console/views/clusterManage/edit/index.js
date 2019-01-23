@@ -184,7 +184,7 @@ class EditCluster extends React.Component {
         let notExtKeys_dtyarnshell = [
             'typeName', 'jlogstash.root',
             'java.home', 'hadoop.home.dir', 'python2.path',
-            'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPat'
+            'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath'
         ]
 
         let sparkConfig = config.sparkConf || {};
@@ -1073,13 +1073,13 @@ class EditCluster extends React.Component {
                                     )}
                                 </FormItem>
                                 <FormItem
-                                    label="hdfsKrb5ConfPat"
+                                    label="hdfsKrb5ConfPath"
                                     {...formItemLayout}
                                 >
-                                    {getFieldDecorator('dtyarnshellConf.hdfsKrb5ConfPat', {
+                                    {getFieldDecorator('dtyarnshellConf.hdfsKrb5ConfPath', {
                                         rules: [{
                                             required: true,
-                                            message: '请输入hdfsKrb5ConfPat'
+                                            message: '请输入hdfsKrb5ConfPath'
                                         }]
                                     })(
                                         <Input disabled={isView} />
