@@ -51,8 +51,6 @@ class TaskJobFlowView extends Component {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
-            this.loadPeriodsData({ jobId: taskJob.id, isAfter: false, limit: 6 })
-            this.loadPeriodsData({ jobId: taskJob.id, isAfter: true, limit: 6 })
             this._originData = null; // 清空缓存数据
             this.setState({
                 graphData: null
@@ -113,15 +111,39 @@ class TaskJobFlowView extends Component {
 
     /**
      * 加载前后周期数据
+     * @param menu 子菜单
+     * @param params 请求参数
+     * @param periodsType 前后周期类型
      */
-    loadPeriodsData = (params) => {
+    loadPeriodsData = (menu, params, periodsType) => {
+        const ctx = this;
         const isNext = params.isAfter;
         Api.getOfflineTaskPeriods(params).then(res => {
             if (res.code === 1) {
-                !isNext ? this.setState({
+                !isNext ? ctx.setState({
                     frontPeriodsList: res.data
-                }) : this.setState({
+                }, () => {
+                    ctx.state.frontPeriodsList.map(item => {
+                        const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
+                        const statusText = taskStatusText(item.status);
+                        return (
+                            menu.addItem(`${times} (${statusText})`, null, function () {
+                                ctx.loadTaskChidren({ jobId: item.jobId });
+                            }, periodsType)
+                        )
+                    })
+                }) : ctx.setState({
                     nextPeriodsList: res.data
+                }, () => {
+                    ctx.state.nextPeriodsList.map(item => {
+                        const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
+                        const statusText = taskStatusText(item.status);
+                        return (
+                            menu.addItem(`${times} (${statusText})`, null, function () {
+                                ctx.loadTaskChidren({ jobId: item.jobId });
+                            }, periodsType)
+                        )
+                    })
                 })
             }
         })
@@ -209,25 +231,19 @@ class TaskJobFlowView extends Component {
                     ctx.setState({ visible: true })
                 })
                 const frontPeriods = menu.addItem('转到前一周期实例', null, null);
-                ctx.state.frontPeriodsList.map(item => {
-                    const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
-                    const statusText = taskStatusText(item.status);
-                    return (
-                        menu.addItem(`${times} (${statusText})`, null, function () {
-                            ctx.loadTaskChidren({ jobId: item.jobId })
-                        }, frontPeriods)
-                    )
-                })
+                const frontParams = {
+                    jobId: currentNode.id,
+                    isAfter: false,
+                    limit: 6
+                }
+                ctx.loadPeriodsData(menu, frontParams, frontPeriods)
                 const nextPeriods = menu.addItem('转到下一周期实例', null, null);
-                ctx.state.nextPeriodsList.map(item => {
-                    const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
-                    const statusText = taskStatusText(item.status);
-                    return (
-                        menu.addItem(`${times} (${statusText})`, null, function () {
-                            ctx.loadTaskChidren({ jobId: item.jobId })
-                        }, nextPeriods)
-                    )
-                })
+                const nextParams = {
+                    jobId: currentNode.id,
+                    isAfter: true,
+                    limit: 6
+                }
+                ctx.loadPeriodsData(menu, nextParams, nextPeriods)
                 menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                     ctx.props.goToTaskDev(taskId)
                 })
