@@ -9,10 +9,10 @@ export function generateUrlQuery (params = []) {
         let name = param[inputColumnsKeys.NAME];
         return name + `={${name}}`;
     }).filter(Boolean).join('&');
-    return <pre>{'http(s)://{apiurl}' + (query ? ('?' + query) : '')}</pre>
+    return <pre>{'http(s)://调用URL' + (query ? ('?' + query) : '')}</pre>
 }
 export function generateHeader (params) {
-    let base = 'token: {token}\n';
+    let base = 'API_TOKEN: {API_TOKEN}\n';
     let headers = params.map((param) => {
         if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.HEAD) {
             return null;
