@@ -97,7 +97,6 @@ class FolderForm extends React.Component {
     getFolderName (data) {
         const { treeData } = this.props;
         let name;
-
         let loop = (arr) => {
             arr.forEach((node, i) => {
                 if (node.id === data.parentId && node.type === data.type) {
