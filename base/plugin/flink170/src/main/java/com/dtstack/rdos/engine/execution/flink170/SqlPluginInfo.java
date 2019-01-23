@@ -4,7 +4,6 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.flink170.FlinkConfig;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -98,6 +97,10 @@ public class SqlPluginInfo {
 
     public List<String> buildExeArgs(JobClient jobClient) throws IOException {
         List<String> args = Lists.newArrayList();
+
+        args.add("-mode");
+        args.add("yarnPer");
+
         args.add("-sql");
         args.add(URLEncoder.encode(jobClient.getSql(), Charsets.UTF_8.name()));
 

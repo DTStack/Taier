@@ -130,7 +130,7 @@ public class HadoopConf {
         configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
 
         if(Strings.isNotEmpty(HadoopConfTool.getAuthType(conf))){
-            configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
+           configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
         }
 
         for (Map.Entry<String, Object> keyVal : conf.entrySet()) {
