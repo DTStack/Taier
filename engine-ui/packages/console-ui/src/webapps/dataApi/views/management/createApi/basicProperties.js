@@ -447,7 +447,7 @@ class ManageBasicProperties extends Component {
                                             { required: true, message: '请输入后端 Path' },
                                             { max: 200, message: '最大字符不能超过200' },
                                             { min: 2, message: '最小字符不能小于2' },
-                                            { pattern: isRegister ? new RegExp(/^(\/(\{[-\w]+\}|[-\w]+))*(\/)?$/) : new RegExp(/^(\/[-|\w|{|}]+)+$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
+                                            { pattern: new RegExp(/^(\/(\{[-\w]+\}|[.-\w]+))*(\/)?$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
                                         initialValue: this.props.originalPath
                                     })(
                                         <Input style={{ width: '85%' }} />
