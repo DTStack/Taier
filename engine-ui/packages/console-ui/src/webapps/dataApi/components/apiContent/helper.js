@@ -12,7 +12,7 @@ export function generateUrlQuery (params = []) {
     return <pre>{'http(s)://调用URL' + (query ? ('?' + query) : '')}</pre>
 }
 export function generateHeader (params) {
-    let base = 'API_TOKEN: {API_TOKEN}\n';
+    let base = 'API-TOKEN: {API-TOKEN}\n';
     let headers = params.map((param) => {
         if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.HEAD) {
             return null;
