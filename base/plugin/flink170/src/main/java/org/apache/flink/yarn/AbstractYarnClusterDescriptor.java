@@ -21,6 +21,7 @@ package org.apache.flink.yarn;
 import avro.shaded.com.google.common.collect.Sets;
 import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.cache.DistributedCache;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
@@ -577,7 +578,18 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
         jobGraph.setAllowQueuedScheduling(true);
         fillJobGraphClassPath(jobGraph);
+        fillStreamJobGraphClassPath(jobGraph);
         clusterSpecification.setJobGraph(jobGraph);
+        return jobGraph;
+    }
+
+    private  JobGraph fillStreamJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
+        Map<String, DistributedCache.DistributedCacheEntry> jobCacheFileConfig = jobGraph.getUserArtifacts();
+        for(Map.Entry<String,  DistributedCache.DistributedCacheEntry> tmp : jobCacheFileConfig.entrySet()){
+            if(tmp.getKey().startsWith("class_path")){
+                jobGraph.getClasspaths().add(new URL("file:" + tmp.getValue().filePath));
+            }
+        }
         return jobGraph;
     }
 
