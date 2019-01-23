@@ -16,6 +16,7 @@ import '../../styles/views/message.scss';
     return {
         user: state.user,
         apps: state.apps,
+        licenseApps: state.licenseApps,
         routing: state.routing,
         msgList: state.msgList
     }
@@ -24,7 +25,7 @@ class MessageCenter extends Component {
     componentDidMount () {}
 
     render () {
-        const { apps, children, msgList, updateMsg } = this.props;
+        const { apps, children, msgList, updateMsg, licenseApps } = this.props;
         const logo = (<Link to="/message">
             <MyIcon>
                 <Icon type="message" />
@@ -43,6 +44,7 @@ class MessageCenter extends Component {
                 <Navigator
                     logo={logo}
                     menuItems={[]}
+                    licenseApps={licenseApps}
                     {...this.props}
                 />
                 <div className="container">

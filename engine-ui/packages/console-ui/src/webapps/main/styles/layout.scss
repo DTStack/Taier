@@ -16,7 +16,16 @@
         background: $bgColor;
     }
 }
-
+.ant-alert_height {
+    height: 70px;
+}
+.ant-alert_height .ant-alert-with-description {
+    padding: 16px 16px 16px 60px;
+    position: relative;
+    border-radius: 2px;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 1.5;
+}
 .header {
     min-width: $minWidth;
 }

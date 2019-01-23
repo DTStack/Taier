@@ -11,4 +11,21 @@ export default class ColumnsModel {
     resetDataFromService (column) {
 
     }
+    static exchangeServerParams (columns) {
+        if (!columns) {
+            return [];
+        }
+        return columns.map(
+            (column) => {
+                return new ColumnsModel({
+                    key: column.fieldName,
+                    type: column.paramType,
+                    paramsName: column.paramName,
+                    operator: column.operator,
+                    desc: column.desc,
+                    required: column.required
+                })
+            }
+        );
+    }
 }

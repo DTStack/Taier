@@ -156,8 +156,6 @@ class TaskFlowView extends Component {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
-            this.loadPeriodsData({ jobId: taskJob.id, isAfter: false, limit: 6 })
-            this.loadPeriodsData({ jobId: taskJob.id, isAfter: true, limit: 6 })
             this.initGraph(taskJob.id);
             this._view = null;
         }
@@ -197,15 +195,40 @@ class TaskFlowView extends Component {
 
     /**
      * 加载前后周期数据
+     * @param menu 子菜单
+     * @param params 请求参数
+     * @param periodsType 前后周期类型
      */
-    loadPeriodsData = (params) => {
+    loadPeriodsData = (menu, params, periodsType) => {
+        const ctx = this;
         const isNext = params.isAfter;
         Api.getOfflineTaskPeriods(params).then(res => {
             if (res.code === 1) {
-                !isNext ? this.setState({
+                !isNext ? ctx.setState({
                     frontPeriodsList: res.data
-                }) : this.setState({
+                }, () => {
+                    ctx.state.frontPeriodsList.map(item => {
+                        const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
+                        const statusText = taskStatusText(item.status);
+                        return (
+                            menu.addItem(`${times} (${statusText})`, null, function () {
+                                ctx.loadTaskChidren({ jobId: item.jobId })
+                            }, periodsType)
+                        )
+                    })
+                }) :
+                ctx.setState({
                     nextPeriodsList: res.data
+                }, () => {
+                    ctx.state.nextPeriodsList.map(item => {
+                        const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
+                        const statusText = taskStatusText(item.status);
+                        return (
+                            menu.addItem(`${times} (${statusText})`, null, function () {
+                                ctx.loadTaskChidren({ jobId: item.jobId })
+                            }, periodsType)
+                        )
+                    })
                 })
             }
         })
@@ -602,7 +625,7 @@ class TaskFlowView extends Component {
             if (!cell) return;
 
             const currentNode = cell.data;
-
+            console.log(currentNode)
             const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId && currentNode.batchTask.flowId !== 0;
             const taskId = currentNode.batchTask && currentNode.batchTask.id;
             const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
@@ -628,25 +651,19 @@ class TaskFlowView extends Component {
                 ctx.setState({ visible: true })
             })
             const frontPeriods = menu.addItem('转到前一周期实例', null, null);
-            ctx.state.frontPeriodsList.map(item => {
-                const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
-                const statusText = taskStatusText(item.status);
-                return (
-                    menu.addItem(`${times} (${statusText})`, null, function () {
-                        ctx.loadTaskChidren({ jobId: item.jobId })
-                    }, frontPeriods)
-                )
-            })
+            const frontParams = {
+                jobId: currentNode.id,
+                isAfter: false,
+                limit: 6
+            }
+            ctx.loadPeriodsData(menu, frontParams, frontPeriods)
             const nextPeriods = menu.addItem('转到下一周期实例', null, null);
-            ctx.state.nextPeriodsList.map(item => {
-                const times = moment(item.cycTime).format('YYYY-MM-DD HH:mm:ss');
-                const statusText = taskStatusText(item.status);
-                return (
-                    menu.addItem(`${times} (${statusText})`, null, function () {
-                        ctx.loadTaskChidren({ jobId: item.jobId })
-                    }, nextPeriods)
-                )
-            })
+            const nextParams = {
+                jobId: currentNode.id,
+                isAfter: true,
+                limit: 6
+            }
+            ctx.loadPeriodsData(menu, nextParams, nextPeriods)
             menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                 ctx.props.goToTaskDev(taskId)
             })
@@ -722,18 +739,6 @@ class TaskFlowView extends Component {
                     ctx.showJobLog(currentNode.jobId)
                 }
             })
-
-            graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
-                const cells = evt.getProperty('cells');
-                const cell = cells && cells[0];
-                const collapse = evt.getProperty('collapse');
-
-                if (cell) {
-                    ctx.loadWorkflowNodes(cell.data, collapse);
-                }
-            })
-
-            // Click event
             graph.addListener(mxEvent.CLICK, function (sender, evt) {
                 const cell = evt.getProperty('cell');
 
@@ -917,7 +922,7 @@ class TaskFlowView extends Component {
                     <span style={{ marginLeft: '15px' }}>{(taskJob && taskJob.batchTask && taskJob.batchTask.createUser && taskJob.batchTask.createUser.userName) || '-'}</span>&nbsp;
                     {isPro ? '发布' : '提交'}于&nbsp;
                     <span>{taskJob && taskJob.batchTask && utils.formatDateTime(taskJob.batchTask.gmtModified)}</span>&nbsp;
-                    <a title="双击任务可快速查看日志" onClick={() => { this.showJobLog(taskJob && taskJob.batchEngineJob.jobId) }} style={{ marginRight: '8' }}>查看日志</a>
+                    <a title="双击任务可快速查看日志" onClick={() => { this.showJobLog(taskJob && taskJob.jobId) }} style={{ marginRight: '8' }}>查看日志</a>
                     <a onClick={() => { goToTaskDev(taskJob && taskJob.batchTask.id) }}>查看代码</a>
                 </div>
                 <Modal

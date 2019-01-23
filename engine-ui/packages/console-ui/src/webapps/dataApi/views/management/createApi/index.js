@@ -5,7 +5,8 @@ import { connect } from 'react-redux'
 import GoBack from 'main/components/go-back'
 
 import BasicProperties from './basicProperties'
-import ParamsConfig from './paramsConfig'
+import ParamsConfig from './params'
+import RegisterParams from './registerParams';
 import Complete from './complete'
 import ModeChoose from './modeChoose'
 import TestApi from './testApi'
@@ -15,6 +16,11 @@ import { dataSourceActions } from '../../../actions/dataSource';
 import { apiManageActionType } from '../../../consts/apiManageActionType';
 import utils from '../../../../../utils';
 import ColumnsModel from '../../../model/columnsModel';
+import InputColumnModel from '../../../model/inputColumnModel';
+import ErrorColumnModel from '../../../model/errroColumnModel';
+import ConstColumnModel from '../../../model/constColumnModel';
+
+import { API_TYPE } from '../../../consts';
 
 const Step = Steps.Step;
 
@@ -63,6 +69,9 @@ const mapDispatchToProps = dispatch => ({
     getDataSourcesType () {
         return dispatch(dataSourceActions.getDataSourcesType());
     },
+    /**
+     * 关闭api编辑的提示
+     */
     disAbleTipChange () {
         return dispatch({
             type: apiManageActionType.CHANGE_DISABLE_TIP
@@ -76,14 +85,13 @@ class NewApi extends Component {
         current: 0,
         basicProperties: {},
         paramsConfig: {},
+        registerParams: {},
         complete: {},
         testApi: {},
         mode: undefined,
         loading: false,
-        apiEdit: false,
-        isSaveResult: false,
-        InputIsEdit: true,
-        OutputIsEdit: true
+        apiEdit: false, // 编辑还是新建
+        isSaveResult: false
 
     }
     // eslint-disable-next-line
@@ -118,12 +126,6 @@ class NewApi extends Component {
                     }
                 }
             );
-    }
-    changeColumnsEditStatus (input, output) {
-        this.setState({
-            InputIsEdit: input,
-            OutputIsEdit: output
-        })
     }
     saveResult (e) {
         this.setState({
@@ -161,6 +163,10 @@ class NewApi extends Component {
         }
         return null;
     }
+    /**
+     * 将服务端columns转换为本地需要的格式
+     * @param {arr} columns 要转换的columns
+     */
     exchangeServerParams (columns) {
         if (!columns) {
             return [];
@@ -179,7 +185,8 @@ class NewApi extends Component {
         );
     }
     setDefault (data) {
-        this.setState({
+        const isRegister = utils.getParameterByName('isRegister');
+        let newState = {
             loading: false,
             mode: data.paramCfgType,
             basicProperties: {
@@ -187,6 +194,8 @@ class NewApi extends Component {
                 APIName: data.name,
                 APIPath: data.apiPath,
                 APIdescription: data.apiDesc,
+                originalPath: data.originalPath,
+                originalHost: data.originalHost,
                 callLimit: data.reqLimit,
                 method: data.reqType,
                 protocol: data.protocol,
@@ -200,15 +209,46 @@ class NewApi extends Component {
                 tableName: data.tableName,
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
-                sql: data.sql,
-                inputParam: this.exchangeServerParams(data.inputParam),
-                outputParam: this.exchangeServerParams(data.outputParam)
+                sql: data.sql
             },
+            registerParams: {},
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
                 respJson: data.respJson
             }
-        })
+        };
+        if (isRegister) {
+            let inputParam = data.inputParam || [];
+            let constParam = inputParam.filter((item) => {
+                return item.constant
+            })
+            inputParam = inputParam.filter((item) => {
+                return !item.constant;
+            })
+            newState.registerParams.successValue = data.successRespJson;
+            newState.registerParams.errorValue = data.errorRespJson;
+            newState.registerParams.inputParam = inputParam.map((item) => {
+                return new InputColumnModel(item);
+            })
+            newState.registerParams.constParam = constParam.map((item) => {
+                return new ConstColumnModel(item);
+            })
+            newState.registerParams.errorCodeList = (data.errorCodeList || []).map((item) => {
+                return new ErrorColumnModel(item);
+            })
+        } else {
+            newState.paramsConfig = {
+                dataSourceType: data.dataSourceType,
+                dataSrcId: data.dataSrcId,
+                tableName: data.tableName,
+                resultPage: data.respPageSize,
+                resultPageChecked: data.allowPaging,
+                sql: data.sql,
+                inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
+                outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
+            }
+        }
+        this.setState(newState)
     }
     basicProperties (data) {
         this.setState({
@@ -226,6 +266,16 @@ class NewApi extends Component {
             paramsConfig: data || {},
             current: 2
         })
+    }
+    registerParams (data, isStay) {
+        isStay = typeof isStay == 'boolean' ? isStay : false;
+        let newState = {
+            registerParams: data || {}
+        }
+        if (!isStay) {
+            newState.current = 2;
+        }
+        this.setState(newState)
     }
     complete (data) {
         this.setState({
@@ -271,37 +321,21 @@ class NewApi extends Component {
                 }
             )
     }
-    createApiServerParams () {
-        const { isSaveResult } = this.state;
-        const params = {}
-        params.id = utils.getParameterByName('apiId')
-        params.paramCfgType = this.state.mode;// 模式
-        params.name = this.state.basicProperties.APIName;// api名字
-        params.catalogueId = this.state.basicProperties.APIGroup && this.state.basicProperties.APIGroup[this.state.basicProperties.APIGroup.length - 1];// 分组
-        params.apiDesc = this.state.basicProperties.APIdescription;// 描述
-        params.dataSrcId = this.state.paramsConfig.dataSrcId;// 数据源
-        params.tableName = this.state.paramsConfig.tableName;// 数据表
-        params.dataSourceType = this.state.paramsConfig.dataSourceType;// 数据源类型
-        params.reqLimit = this.state.basicProperties.callLimit;// 调用限制
-        params.securityGroupIds = this.state.basicProperties.securityGroupIds;// 安全组
-        params.apiPath = this.state.basicProperties.APIPath;// api路径
-        params.reqType = this.state.basicProperties.method;// http method
-        params.protocol = this.state.basicProperties.protocol;// 协议
-        params.responseType = this.state.basicProperties.responseType;// 返回类型
-        params.respPageSize = this.state.paramsConfig.resultPage;// 分页条数
-        params.allowPaging = this.state.paramsConfig.resultPageChecked ? 1 : 0;// 是否分页
-        params.inputParam = [];
-        params.outputParam = [];
-        params.sql = this.state.paramsConfig.sql;// sql
-        if (isSaveResult) {
-            params.inFields = this.state.testApi.inFields;
-            params.respJson = this.state.testApi.respJson;
+    createParamsConfig () {
+        const { paramsConfig } = this.state;
+        let result = {
+            dataSrcId: paramsConfig.dataSrcId,
+            tableName: paramsConfig.tableName,
+            dataSourceType: paramsConfig.dataSourceType,
+            respPageSize: paramsConfig.respPageSize,
+            allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
+            sql: paramsConfig.sql,
+            inputParam: [],
+            outputParam: []
         }
-        const data = this.state.paramsConfig;
-        for (let i in data.inputParam) {
-            let item = data.inputParam[i];
-
-            params.inputParam.push({
+        for (let i in paramsConfig.inputParam) {
+            let item = paramsConfig.inputParam[i];
+            result.inputParam.push({
                 fieldName: item.columnName,
                 paramName: item.paramsName,
                 paramType: item.type,
@@ -310,15 +344,72 @@ class NewApi extends Component {
                 desc: item.desc
             })
         }
-        for (let i in data.outputParam) {
-            let item = data.outputParam[i];
-            params.outputParam.push({
+        for (let i in paramsConfig.outputParam) {
+            let item = paramsConfig.outputParam[i];
+            result.outputParam.push({
                 fieldName: item.columnName,
                 paramName: item.paramsName,
                 paramType: item.type,
                 desc: item.desc
             })
         }
+        return result;
+    }
+    createBasicProperties () {
+        const { basicProperties } = this.state;
+        let result = {};
+        result.name = basicProperties.APIName;// api名字
+        result.catalogueId = basicProperties.APIGroup && basicProperties.APIGroup[basicProperties.APIGroup.length - 1];// 分组
+        result.apiDesc = basicProperties.APIdescription;// 描述
+        result.reqLimit = basicProperties.callLimit;// 调用限制
+        result.securityGroupIds = basicProperties.securityGroupIds;// 安全组
+        result.apiPath = basicProperties.APIPath;// api路径
+        result.originalHost = basicProperties.originalHost;// 后端host
+        result.originalPath = basicProperties.originalPath;// 后端path
+        result.reqType = basicProperties.method;// http method
+        result.protocol = basicProperties.protocol;// 协议
+        result.responseType = basicProperties.responseType;// 返回类型
+        return result;
+    }
+    createRegisterParams () {
+        const { registerParams } = this.state;
+        let result = {
+            inputParam: [],
+            constParam: []
+        }
+        result.successRespJson = registerParams.successValue;
+        result.errorRespJson = registerParams.errorValue;
+        result.errorCodeList = registerParams.errorCodeList;
+        result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item) => {
+            return {
+                ...item,
+                constant: true
+            }
+        }));
+        return result;
+    }
+    createApiServerParams () {
+        const { isSaveResult, mode, testApi } = this.state;
+        const params = {}
+        const isRegister = utils.getParameterByName('isRegister');
+        params.id = utils.getParameterByName('apiId')
+        params.paramCfgType = mode;// 模式
+
+        let basicPropertiesParams = this.createBasicProperties();
+        Object.assign(params, basicPropertiesParams);
+        if (isRegister) {
+            let paramsConfigParams = this.createRegisterParams();
+            Object.assign(params, paramsConfigParams);
+        } else {
+            let paramsConfigParams = this.createParamsConfig();
+            Object.assign(params, paramsConfigParams);
+        }
+
+        if (isSaveResult && !isRegister) {
+            params.inFields = testApi.inFields;
+            params.respJson = testApi.respJson;
+        }
+        params.apiType = isRegister ? API_TYPE.REGISTER : API_TYPE.NORMAL;
         return params;
     }
     apiTest (values) {
@@ -352,51 +443,45 @@ class NewApi extends Component {
             )
     }
     cancelAndSave (type, data) {
-        switch (type) {
-            case 'basicProperties': {
-                this.setState({
-                    basicProperties: data || {}
-                }, () => {
-                    this.save(true)
-                })
-                return;
-            }
-            case 'paramsConfig': {
-                this.setState({
-                    paramsConfig: data || {}
-                }, () => {
-                    this.save(true)
-                })
-                break;
-            }
-            case 'complete': {
-
-            }
-        }
-
+        this.saveData(type, data, () => {
+            this.save(true)
+        });
         // this.props.router.goBack();
     }
-    saveData (type, data) {
-        switch (type) {
-            case 'basicProperties': {
-                this.setState({
-                    basicProperties: data || {}
-                })
-                break;
+    saveData (type, data, callback) {
+        data = data || {};
+        this.setState({
+            [type]: data
+        }, () => {
+            callback && callback();
+        })
+    }
+    getParamsView () {
+        const isRegister = utils.getParameterByName('isRegister');
+        if (isRegister) {
+            return {
+                key: 'registerParams',
+                title: '参数配置',
+                content: RegisterParams
             }
-            case 'paramsConfig': {
-                this.setState({
-                    paramsConfig: data || {}
-                })
-                break;
-            }
-            case 'complete': {
-
+        } else {
+            return {
+                key: 'paramsConfig',
+                title: '参数配置',
+                content: ParamsConfig
             }
         }
     }
     render () {
-        const { mode, paramsConfig, basicProperties, apiEdit, loading, isSaveResult, InputIsEdit, OutputIsEdit } = this.state;
+        const {
+            mode,
+            paramsConfig,
+            basicProperties,
+            registerParams,
+            apiEdit,
+            loading,
+            isSaveResult
+        } = this.state;
 
         const steps = [
             {
@@ -404,11 +489,7 @@ class NewApi extends Component {
                 title: '基本属性',
                 content: BasicProperties
             },
-            {
-                key: 'paramsConfig',
-                title: '参数配置',
-                content: ParamsConfig
-            },
+            this.getParamsView(),
             {
                 key: 'testApi',
                 title: '测试生成',
@@ -421,10 +502,11 @@ class NewApi extends Component {
             }
         ]
         const { key, content: Content } = steps[this.state.current];
-
+        const isRegister = utils.getParameterByName('isRegister');
+        const title = isRegister ? '注册API' : '新建API';
         return (
             <div className="m-card g-datamanage">
-                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : '新建API'}</h1>
+                <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : title}</h1>
                 {loading ? <div style={{ textAlign: 'center', marginTop: '400px' }}>
                     <Spin size="large" />
                 </div>
@@ -434,7 +516,7 @@ class NewApi extends Component {
                         noHovering
                     >
                         {
-                            (mode || mode == 0) ? (
+                            (mode || mode == 0 || isRegister) ? (
                                 <div>
                                     <Steps current={this.state.current}>
                                         <Step title="基本属性" />
@@ -442,27 +524,25 @@ class NewApi extends Component {
                                         <Step title="完成" />
                                     </Steps>
                                     <Content
-                                        apiManage={this.props.apiManage}
-                                        disAbleTipChange={this.props.disAbleTipChange}
+                                        isRegister={isRegister}
                                         apiEdit={apiEdit}
                                         dataSourceId={this.state.basicProperties.dataSource}
                                         tableId={this.state.basicProperties.table}
                                         {...this.props}
                                         {...this.state[key]}
+                                        registerParams={registerParams}
                                         paramsConfig={paramsConfig}
                                         basicProperties={basicProperties}
                                         reDo={this.reDo.bind(this)}
                                         prev={this.prev.bind(this)}
                                         mode={mode}
                                         isSaveResult={isSaveResult}
-                                        InputIsEdit={InputIsEdit}
-                                        OutputIsEdit={OutputIsEdit}
                                         saveData={this.saveData.bind(this, key)}
                                         cancelAndSave={this.cancelAndSave.bind(this, key)}
                                         apiTest={this.apiTest.bind(this)}
                                         dataChange={this[key].bind(this)}
                                         saveResult={this.saveResult.bind(this)}
-                                        changeColumnsEditStatus={this.changeColumnsEditStatus.bind(this)}
+                                        changeRegisterParams={this.registerParams.bind(this)}
                                     ></Content>
                                 </div>
                             ) : <ModeChoose chooseMode={this.chooseMode.bind(this)} />}

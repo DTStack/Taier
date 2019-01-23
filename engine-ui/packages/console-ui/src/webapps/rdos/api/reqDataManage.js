@@ -82,6 +82,7 @@ export default {
     GET_TABLE_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableListByProjectId`, // 获取表列表
     GET_COLUMNS_LIST: `${RDOS_BASE_URL}/batch/dataMaskConfig/getTableColumns`, // 获取表字段
     GET_DESRULES_LIST: `${RDOS_BASE_URL}/batch/dataMaskRule/getRulesByTenantId`, // 获取脱敏规则列表
+    CHECK_UPWARD_COLUMNS: `${RDOS_BASE_URL}/batch/dataMaskConfig/checkUpwardColumns`, // 检查是否上游字段
     VIEW_TABLE_RELATION: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedTables`, // 根据脱敏名称查看关系明细
     GET_RELATED_PROJECTS: `${RDOS_BASE_URL}/batch/dataMaskConfig/getRelatedPorjects`, // 获取关联项目
     UPDATE_OPEN_STATUS: `${RDOS_BASE_URL}/batch/dataMaskConfig/enable`, // 切换开关状态

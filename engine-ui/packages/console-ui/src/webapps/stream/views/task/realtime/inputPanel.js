@@ -518,7 +518,7 @@ export default class InputPanel extends Component {
             tabTemplate.push('InputForm');
             panelColumn.push(inputData);
             this.getTypeOriginData('add', inputData.type);
-            this.getTopicType('add', inputData.topic)
+            this.getTopicType('add', inputData.sourceId)
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         } else {

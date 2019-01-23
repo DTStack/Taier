@@ -28,7 +28,7 @@ export function authAfterFormated(response,extOptions={}) {
     case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
         // window.location.href = "/"
     default:
-        if (response.message&&!extOptions.isSilent) {
+        if (response.message&&!extOptions.isSilent&&!response.success) {
             message.error(response.message, 3) // 异常消息默认显示5s
         }
         return response

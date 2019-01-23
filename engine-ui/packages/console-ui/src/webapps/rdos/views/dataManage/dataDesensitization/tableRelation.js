@@ -263,15 +263,15 @@ class TableRelation extends Component {
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
-                <div style={{ padding: '15px 10px 10px 27px', display: 'inline-block' }}>
+                <div style={{ display: 'inline-block', margin: '30px 0 0 27px'}}>
                     <Checkbox
                         checked={this.state.checkAll}
                         onChange={this.onCheckAllChange}
                     >
                     </Checkbox>
                 </div>
-                <div style={{ display: 'inline-block', marginLeft: '15px' }}>
-                    <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 0, 'batch')}>批量开启</Button>&nbsp;
+                <div style={{ display: 'inline-block', marginLeft: '10px' }}>
+                    <Button type="primary" size="small" style={{ marginRight: '4px' }} onClick={this.batchOpera.bind(this, 0, 'batch')}>批量开启</Button>&nbsp;
                     <Button type="primary" size="small" onClick={this.batchOpera.bind(this, 1, 'batch')}>批量关闭</Button>&nbsp;
                 </div>
             </div>
@@ -446,8 +446,8 @@ class TableRelation extends Component {
                     title={this.getCardTitle()}
                 >
                     <Table
-                        className="m-table-fix m-table m-table-desen"
-                        // bordered
+                        className="m-table m-table-desen"
+                        bordered
                         style={{marginLeft: '20px'}}
                         rowKey="id"
                         loading={loading}

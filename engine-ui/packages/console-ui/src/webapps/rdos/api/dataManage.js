@@ -213,6 +213,9 @@ export default {
     getDesRulesList (params) {
         return http.post(dataManageReq.GET_DESRULES_LIST, params)
     },
+    checkUpwardColumns (params) {
+        return http.post(dataManageReq.CHECK_UPWARD_COLUMNS, params)
+    },
     viewTableRelation (params) {
         return http.post(dataManageReq.VIEW_TABLE_RELATION, params)
     },

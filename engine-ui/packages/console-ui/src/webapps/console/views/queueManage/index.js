@@ -224,7 +224,9 @@ class QueueManage extends Component {
                 tab: 'detail',
                 clusterName: record.clusterName,
                 engineType: record.engineType,
-                groupName: record.groupName
+                groupName: record.groupName,
+                node: this.state.node
+
             }
         });
         this.setState({
@@ -253,7 +255,7 @@ class QueueManage extends Component {
     render () {
         const columns = this.initTableColumns();
         const { dataSource, table, clusterList } = this.state;
-        const { nodeList, node } = this.state;
+        const { nodeList } = this.state;
         const { loading } = table;
         const { nowView } = this.state;
         const query = this.props.router.location.query;
@@ -333,7 +335,6 @@ class QueueManage extends Component {
                                 clusterList={clusterList}
                                 nodeList={nodeList}
                                 query={query}
-                                node={node}
                             >
                             </TaskDetail>
                         </Tabs.TabPane>
