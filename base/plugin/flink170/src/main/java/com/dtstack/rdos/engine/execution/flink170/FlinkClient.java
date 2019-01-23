@@ -599,30 +599,44 @@ public class FlinkClient extends AbsClient {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
             return "${monitor}";
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
-            return getNewReqUrl();
+            return getReqUrl(flinkClient);
         } else {
-            return getLegacyReqUrl();
+            return getLegacyReqUrl(yarnClient, flinkClient.getClusterId().toString());
         }
     }
 
     public String getReqUrl(ClusterClient clusterClient){
-        return clusterClient.getWebInterfaceURL();
-    }
 
-    private String getNewReqUrl(){
-        return flinkClient.getWebInterfaceURL();
+        boolean isYarnClusterClient = clusterClient instanceof YarnClusterClient;
+        if(!isYarnClusterClient){
+            return clusterClient.getWebInterfaceURL();
+        }
+
+        try{
+            YarnClusterClient yarnClusterClient = (YarnClusterClient) clusterClient;
+            Field clusterDescField = YarnClusterClient.class.getDeclaredField("clusterDescriptor");
+            clusterDescField.setAccessible(true);
+            AbstractYarnClusterDescriptor clusterDesc = (AbstractYarnClusterDescriptor) clusterDescField.get(yarnClusterClient);
+            YarnClient currYarnClient = clusterDesc.getYarnClient();
+            clusterDescField.setAccessible(false);
+
+            return getLegacyReqUrl(currYarnClient, clusterClient.getClusterId().toString());
+        }catch (Exception e){
+            logger.error("", e);
+            return clusterClient.getWebInterfaceURL();
+        }
     }
 
     /**
      * 获取jobMgr-web地址
      * @return
      */
-    private String getLegacyReqUrl(){
+    private String getLegacyReqUrl(YarnClient currYarnClient, String appId){
         String url = "";
         try{
-            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+            Field rmClientField = currYarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
-            Object rmClient = rmClientField.get(yarnClient);
+            Object rmClient = rmClientField.get(currYarnClient);
 
             Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
             hField.setAccessible(true);
@@ -644,11 +658,9 @@ public class FlinkClient extends AbsClient {
                 addr = yarnConf.get("yarn.resourcemanager.webapp.address");
             }
 
-            String appId = flinkClient.getClusterId().toString();
             YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport((ApplicationId) flinkClient.getClusterId()).getYarnApplicationState();
             if (YarnApplicationState.RUNNING != yarnApplicationState){
-                this.initClient();
-                appId = flinkClient.getClusterId().toString();
+                logger.error("curr flink application {} state is not running!", appId);
             }
 
             url = String.format(FLINK_URL_FORMAT, addr, appId);
