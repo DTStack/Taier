@@ -59,9 +59,10 @@ export function LogInfo (props) {
     });
 
     const errors = log['all-exceptions'] || ''
+    const engineLogErr = log['engineLogErr'];
     let flinkLog = errors;
 
-    const appLogs = getLogsInfo('appLogs', log.appLog)
+    const appLogs = engineLogErr ? `${wrappTitle('appLogs')}\n${engineLogErr}\n` : getLogsInfo('appLogs', log.appLog)
     const driverLog = getLogsInfo('driverLog', log.driverLog)
     let logText = ''
     if (props.downloadLog) {
