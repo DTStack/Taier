@@ -7,6 +7,7 @@ import utils from 'utils';
 import SlidePane from 'widgets/slidePane';
 import ApplyBox from '../../components/applyBox'
 import Content from '../../components/apiContent'
+import { API_TYPE } from '../../consts';
 
 const Search = Input.Search;
 let modal;
@@ -304,7 +305,8 @@ class APIMarket extends Component {
                 callCount: apiList[i].invokeTotal,
                 updateTime: apiList[i].gmtModified,
                 deal: errorDic[apiList[i].applyStatus],
-                cId: apiList[i].cId
+                cId: apiList[i].cId,
+                apiType: apiList[i].apiType
             })
         }
         return arr;
@@ -409,6 +411,8 @@ class APIMarket extends Component {
                                         apiMarket={apiMarket}
                                         apiId={detailRecord.key}
                                         showMarketInfo={true}
+                                        showRecord={detailRecord}
+                                        isRegister={detailRecord.apiType == API_TYPE.REGISTER}
                                     />
                                 </div>
                             </Tabs.TabPane>

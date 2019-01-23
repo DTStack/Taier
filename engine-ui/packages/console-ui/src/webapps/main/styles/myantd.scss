@@ -451,3 +451,11 @@
         }
     }
 }
+.l-form__inline-item--stretch.ant-form-inline{
+     .ant-form-item{
+        width:100%;
+        > div{
+            width:100%
+        }
+    }
+}

@@ -12,6 +12,7 @@ export default class FlinkConfig extends React.Component {
         const {
             customView,
             isView,
+            securityStatus,
             getFieldDecorator,
             checked,
             changeCheckbox,
@@ -175,6 +176,182 @@ export default class FlinkConfig extends React.Component {
                         )}
                     </FormItem>
                 </div>) : null
+                }
+                <FormItem
+                    label="版本选择"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.typeName', {
+                        rules: [{
+                            required: true,
+                            message: '请选择flink版本'
+                        }],
+                        initialValue: 'flink140'
+                    })(
+                        <Select disabled={isView} style={{ width: '100px' }}>
+                            <Option value="flink140">1.4</Option>
+                            <Option value="flink150">1.5</Option>
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    label="clusterMode"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.clusterMode', {
+                        rules: [{
+                            required: true,
+                            message: '请选择clusterMode'
+                        }],
+                        initialValue: 'yarn'
+                    })(
+                        <Select disabled={isView} style={{ width: '100px' }}>
+                            <Option value="standalone">standalone</Option>
+                            <Option value="yarn">yarn</Option>
+                        </Select>
+                    )}
+                </FormItem>
+                <FormItem
+                    label="jarTmpDir"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.jarTmpDir', {
+                        initialValue: '../tmp140'
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+                <FormItem
+                    label="flinkPluginRoot"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.flinkPluginRoot', {
+                        initialValue: '/opt/dtstack/flinkplugin'
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+                <FormItem
+                    label="remotePluginRootDir"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.remotePluginRootDir', {
+                        initialValue: '/opt/dtstack/flinkplugin'
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+
+                <FormItem
+                    label="flinkJarPath"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.flinkJarPath', {
+                        rules: [{
+                            required: true,
+                            message: '请输入flinkJarPath'
+                        }]
+                        // initialValue: "/opt/dtstack/flinkplugin"
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+
+                <FormItem
+                    label="flinkJobHistory"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('flinkConf.flinkJobHistory', {
+                        rules: [{
+                            required: true,
+                            message: '请输入flinkJobHistory'
+                        }]
+                        // initialValue: "/opt/dtstack/flinkplugin"
+                    })(
+                        <Input disabled={isView} />
+                    )}
+                </FormItem>
+                {
+                    securityStatus ? <div>
+                        <FormItem
+                            label="flinkPrincipal"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkPrincipal', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入flinkPrincipal'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="flinkKeytabPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkKeytabPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入flinkKeytabPath'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="flinkKrb5ConfPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.flinkKrb5ConfPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入flinkKrb5ConfPath'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="zkPrincipal"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.zkPrincipal', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入zkPrincipal'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="zkKeytabPath"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.zkKeytabPath', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入zkKeytabPath'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            label="zkLoginName"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('flinkConf.zkLoginName', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入zkLoginName'
+                                }]
+                            })(
+                                <Input disabled={isView} />
+                            )}
+                        </FormItem>
+                    </div> : null
                 }
                 {customView}
 

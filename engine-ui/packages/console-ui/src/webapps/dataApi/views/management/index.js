@@ -6,7 +6,7 @@ import ApiSlidePane from './apiDetail/apiSlide';
 import { apiMarketActions } from '../../actions/apiMarket';
 import { apiManageActions } from '../../actions/apiManage';
 import { dataSourceActions } from '../../actions/dataSource';
-import { EXCHANGE_ADMIN_API_STATUS, API_SYSTEM_STATUS } from '../../consts'
+import { EXCHANGE_ADMIN_API_STATUS, API_SYSTEM_STATUS, API_TYPE } from '../../consts'
 
 const Search = Input.Search;
 const Option = Select.Option;
@@ -104,18 +104,31 @@ class APIMana extends Component {
             'ascend': 'asc',
             'descend': 'desc'
         }
+        const {
+            searchName,
+            type1,
+            type2,
+            filter,
+            dataSource,
+            dataSourceType,
+            changeMan,
+            sortedInfo,
+            pageIndex,
+            pageSize
+        } = this.state;
         let params = {};
-        params.apiName = this.state.searchName;// 查询名
-        params.pid = this.state.type1;// 一级目录
-        params.cid = this.state.type2;// 二级目录
-        params.status = this.state.filter.status;
-        params.dataSourceType = this.state.dataSourceType && parseInt(this.state.dataSourceType);// 数据源类型
-        params.dataSourceId = this.state.dataSource && parseInt(this.state.dataSource);// 数据源
-        params.modifyUserId = this.state.changeMan;// 修改人id
-        params.orderBy = sortType[this.state.sortedInfo.columnKey];
-        params.sort = orderType[this.state.sortedInfo.order];
-        params.currentPage = this.state.pageIndex;
-        params.pageSize = this.state.pageSize;
+        params.apiName = searchName;// 查询名
+        params.pid = type1;// 一级目录
+        params.cid = type2;// 二级目录
+        params.status = filter.status;
+        params.apiType = filter.apiType && filter.apiType[0];
+        params.dataSourceType = dataSourceType && parseInt(dataSourceType);// 数据源类型
+        params.dataSourceId = dataSource && parseInt(dataSource);// 数据源
+        params.modifyUserId = changeMan;// 修改人id
+        params.orderBy = sortType[sortedInfo.columnKey];
+        params.sort = orderType[sortedInfo.order];
+        params.currentPage = pageIndex;
+        params.pageSize = pageSize;
         this.setState({
             loading: true
         })
@@ -205,6 +218,22 @@ class APIMana extends Component {
             }]
         },
         {
+            title: 'API类型',
+            dataIndex: 'apiType',
+            key: 'apiType',
+            render: (text, record) => {
+                return <span>{text == API_TYPE.NORMAL ? '生成API' : '注册API'}</span>
+            },
+            filters: [{
+                text: '生成API',
+                value: API_TYPE.NORMAL
+            }, {
+                text: '注册API',
+                value: API_TYPE.REGISTER
+            }],
+            filterMultiple: false
+        },
+        {
             title: '数据源',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
@@ -244,7 +273,7 @@ class APIMana extends Component {
                     <div>
                         <a onClick={this.openApi.bind(this, record.id)}>发布</a>
                         <span className="ant-divider" ></span>
-                        <a onClick={this.editApi.bind(this, record.id)}>编辑</a>
+                        <a onClick={this.editApi.bind(this, record.id, record.apiType)}>编辑</a>
                         <span className="ant-divider"></span>
                         <a onClick={this.deleteApi.bind(this, record.id)}>删除</a>
                     </div>
@@ -255,8 +284,14 @@ class APIMana extends Component {
     getSource () {
         return this.props.apiManage.apiList;
     }
-    editApi (id) {
-        this.props.router.push('/api/manage/newApi?apiId=' + id);
+    editApi (id, apiType) {
+        this.props.router.push({
+            pathname: '/api/manage/newApi',
+            query: {
+                apiId: id,
+                isRegister: API_TYPE.REGISTER == apiType ? true : undefined
+            }
+        })
     }
     openApi (apiId) {
         confirm({
@@ -484,12 +519,20 @@ class APIMana extends Component {
     newApi () {
         this.props.router.push('/api/manage/newApi');
     }
+    registerApi () {
+        this.props.router.push({
+            pathname: '/api/manage/newApi',
+            query: {
+                isRegister: true
+            }
+        });
+    }
     getCardExtra () {
         return (
             <div style={{ paddingTop: '10px' }}>
-                <Button onClick={this.openApiType.bind(this)} style={{ marginRight: '8px' }} type="primary">类目管理</Button>
-                <Button type="primary" onClick={this.newApi.bind(this)}>生成API</Button>
-
+                <Button type="primary" style={{ marginRight: '8px' }} onClick={this.newApi.bind(this)}>生成API</Button>
+                <Button type="primary" style={{ marginRight: '8px' }} onClick={this.registerApi.bind(this)}>注册API</Button>
+                <Button onClick={this.openApiType.bind(this)} type="primary">类目管理</Button>
             </div>
         )
     }
@@ -499,7 +542,11 @@ class APIMana extends Component {
         return (
             <div className="api-management">
                 <div style={{ margin: '0px' }} className="m-card box-2">
-                    <ApiSlidePane showRecord={showRecord} slidePaneShow={slidePaneShow} closeSlidePane={this.closeSlidePane.bind(this)} />
+                    <ApiSlidePane
+                        showRecord={showRecord}
+                        slidePaneShow={slidePaneShow}
+                        closeSlidePane={this.closeSlidePane.bind(this)}
+                    />
                     <Card
                         style={{ minHeight: 'calc(100% - 40px)' }}
                         noHovering
