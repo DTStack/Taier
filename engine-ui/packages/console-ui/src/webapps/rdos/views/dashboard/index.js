@@ -246,12 +246,36 @@ class Index extends Component {
         }
     }
 
-    handleMouseOver = (e) => {
-        e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/offline3.svg'
+    handleMouseOver = (type, e) => {
+        switch (type) {
+            case 'operation': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/operation_select.svg';
+                break;
+            }
+            case 'develop': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/index_develop_select.svg';
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
-    handleMouseOut = (e) => {
-        e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/offline2.svg'
+    handleMouseOut = (type, e) => {
+        switch (type) {
+            case 'operation': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/operation.svg';
+                break;
+            }
+            case 'develop': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/index_develop.svg';
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
     fixArrayIndex = (arr) => {
@@ -338,7 +362,7 @@ class Index extends Component {
                             </div>
                         </Col>
                     </Row>
-                    <Row gutter={10}>
+                    <Row style={{ marginTop: '10px' }} gutter={10}>
                         <Col span="24" >
                             <Row gutter={10} style={{ margin: 0 }}>
                                 {
@@ -374,6 +398,7 @@ class Index extends Component {
                                                         )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
+<<<<<<< HEAD
                                                         <Row>
                                                             {
                                                                 v.status != 1 || (taskNav && !taskNav.isShow) ? '' : (
@@ -405,6 +430,38 @@ class Index extends Component {
                                                                 )
                                                             }
                                                         </Row>
+=======
+                                                        {
+                                                            v.status != 1 ? '' : <Row >
+                                                                <Col span="12">
+                                                                    <Card className="card-task"
+                                                                        onClick={() => { this.setRouter('offline', v) }}
+                                                                        onMouseOver={(e) => { this.handleMouseOver('develop', e) }}
+                                                                        onMouseOut={(e) => { this.handleMouseOut('develop', e) }}
+                                                                        noHovering
+                                                                    >
+                                                                        <span className="img-container">
+                                                                            <img className="task-img" src="/public/rdos/img/icon/index_develop.svg" />
+                                                                        </span>
+                                                                        数据开发
+                                                                    </Card>
+                                                                </Col>
+                                                                <Col span="12">
+                                                                    <Card className="card-task" style={{ padding: '1.5 0' }}
+                                                                        onClick={() => { this.setRouter('operation', v) }}
+                                                                        onMouseOver={(e) => { this.handleMouseOver('operation', e) }}
+                                                                        onMouseOut={(e) => { this.handleMouseOut('operation', e) }}
+                                                                        noHovering
+                                                                    >
+                                                                        <span className="img-container">
+                                                                            <img className="task-img" src="/public/rdos/img/icon/operation.svg" />
+                                                                        </span>
+                                                                        运维中心
+                                                                    </Card>
+                                                                </Col>
+                                                            </Row>
+                                                        }
+>>>>>>> 98521b6fc7530c4bd7308fcdb4408c6788ace1f6
                                                     </Col>
                                                 </Row>
                                                 {

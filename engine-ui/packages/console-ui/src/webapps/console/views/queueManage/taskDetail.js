@@ -41,6 +41,7 @@ class TaskDetail extends Component {
         // moreTaskNum: undefined,
         // 剩余资源
         isShowResource: false,
+        editModalKey: null,
         // 查看详情
         isShowViewDetail: false,
         resource: {},
@@ -71,7 +72,7 @@ class TaskDetail extends Component {
         this.setState({
             engineType: query.engineType,
             groupName: query.groupName,
-            node: this.props.node
+            node: query.node
         }, this.getDetailTaskList.bind(this))
         this.searchTaskList();
     }
@@ -609,7 +610,8 @@ class TaskDetail extends Component {
     // 剩余资源
     handleClickResource () {
         this.setState({
-            isShowResource: true
+            isShowResource: true,
+            editModalKey: Math.random()
         })
     }
     handleCloseResource () {
@@ -714,7 +716,7 @@ class TaskDetail extends Component {
         })
     }
     render () {
-        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder } = this.state;
+        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey } = this.state;
         const columns = this.initTableColumns();
         const { dataSource, table } = this.state;
         const { loading } = table;
@@ -847,6 +849,7 @@ class TaskDetail extends Component {
                     }}
                 />
                 <Resource
+                    key={editModalKey}
                     visible={isShowResource}
                     onCancel={this.handleCloseResource.bind(this)}
                     clusterList={clusterList}

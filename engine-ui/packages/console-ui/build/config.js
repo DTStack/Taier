@@ -43,8 +43,8 @@ module.exports = {
                 secure: false,
             },
             "/api/da": { // da地址
-                // target: "http://172.16.1.104:8087",
-                target: "http://172.16.8.107:8087",//开发环境
+                target: "http://172.16.0.206:8087",
+                // target: "http://172.16.8.107:8087",//开发环境
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
@@ -57,8 +57,8 @@ module.exports = {
                 secure: false,
             },
             "/api/console": { // 控制台
-                // target: "http://172.16.8.107:8084",//开发环境
-                target: "http://172.16.10.34:8084",   // test
+                target: "http://172.16.8.107:8084",//开发环境
+                // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false,
