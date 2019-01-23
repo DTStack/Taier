@@ -111,6 +111,25 @@ class TestApi extends React.Component {
         }
         return columns;
     }
+    initConstColumns () {
+        return [
+            {
+                title: '参数名称',
+                dataIndex: constColumnsKeys.NAME,
+                width: '150px'
+            },
+            {
+                title: '字段类型',
+                dataIndex: constColumnsKeys.TYPE,
+                width: '110px'
+            },
+            {
+                title: '值',
+                dataIndex: constColumnsKeys.VALUE,
+                width: '150px'
+            }
+        ]
+    }
     testApi () {
         const { validateFieldsAndScroll } = this.props.form;
         validateFieldsAndScroll({}, (err, values) => {
@@ -165,15 +184,19 @@ class TestApi extends React.Component {
     wrapInputParams () {
         const { isRegister } = this.props;
         const { inputParam, resultPageChecked } = this.props.paramsConfig;
-        const { inputParam: registerInputParams, constParam } = this.props.registerParams;
+        const { inputParam: registerInputParams } = this.props.registerParams;
         if (!isRegister) {
             if (resultPageChecked) {
                 return [...pageInput, ...inputParam];
             }
             return inputParam || [];
         } else {
-            return [].concat(registerInputParams || []).concat(constParam || []);
+            return [].concat(registerInputParams || []);
         }
+    }
+    getConstColumnData () {
+        const { constParam } = this.props.registerParams;
+        return constParam;
     }
     pass () {
         this.props.dataChange();
@@ -207,6 +230,20 @@ class TestApi extends React.Component {
                                     pagination={false}
                                     scroll={{ y: 286 }}
                                 />
+                                {isRegister && (
+                                    <React.Fragment>
+                                        <p style={{ marginTop: '10px', marginBottom: '6px' }} className="middle-title">常量参数：</p>
+                                        <Table
+                                            className="m-table shadow"
+                                            style={{ background: '#fff' }}
+                                            rowKey="id"
+                                            columns={this.initConstColumns()}
+                                            dataSource={this.getConstColumnData()}
+                                            pagination={false}
+                                            scroll={{ y: 286 }}
+                                        />
+                                    </React.Fragment>
+                                )}
                                 <Button loading={loading} style={{ marginTop: 12, float: 'right' }} onClick={() => this.testApi()}>开始测试</Button>
                             </div>
                         </div>
