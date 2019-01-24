@@ -87,6 +87,7 @@
     | - public
         | - common # 公共目录
             | - config # 公共配置文件
+			| - ...
         | - main # 首页入口应用
             | - config
                 | - config.js
@@ -116,7 +117,7 @@
 
 由于数栈 Web 有依赖 `UIC` 等相关服务，所以在生成打包文件后，需要根据实际情况进行配置。目前数栈产品是多个项目的集合，所以每个项目都保有独立的自定义配置`（config)`文件。
 
-以上 common 目录下的 config 配置为应用`全局配置`文件，服务所有应用的功能配置（UIC, 默认配置）项。其他的的每个应用的`config`文件主要包含应用本身自定义的内容。比较特别的是`dataQuality` 项目中则需要单独配置远程触发功能的 `API Server` 地址，该功能主要用来给第三方 提供 API 调用服务。配置方法请看下面：
+以上 common 目录下的 config 配置为应用`公有配置`文件，服务所有应用的功能配置（UIC, 默认配置）项，每个应用配置都会从公有配置中继承。其他的的每个应用的`config`文件主要包含应用本身自定义的内容。比较特别的是`dataQuality` 项目中则需要单独配置远程触发功能的 `API Server` 地址，该功能主要用来给第三方 提供 API 调用服务。配置方法请看下面：
 
 
 #### 生产环境必配 <color style="color:red;">`必配项`</color>
@@ -124,7 +125,7 @@
 
 - 数栈 UIC
 
-    配置地址在 `common/config.js` 中，修改参数为`UIC_URL`, `UIC_DOMAIN`两项
+    一般配置地址在 `common/config.js` 中，修改参数为`UIC_URL`, `UIC_DOMAIN`两项（应用也可以单独在应用内单独配置）
 - 数据质量远程调用
 
     配置地址在 `dataQuality/config/config.js` 中，修改参数为`API_SERVER`
@@ -132,20 +133,45 @@
 #### 数栈应用的`自定义`
 数据目前支持修改应用 Logo, Loading 动画中的应用名称（name)、
 
+- 全局配置
+
+	配置地址在`common/config.js` 中。
+	> 这里存放应用全局的配置信息，你可以在这边配置`主题`，`应用前缀`等信息
+	
+	```json
+	UIC_URL: 'http://dtuic.dtstack.net', // UIC中心地址
+    UIC_DOMAIN: '.dtstack.net', // UIC域名
+    prefix: 'DTinsight', // 应用前缀
+    name: '数栈', // 应用名字
+    titleName: '数栈', // 网页title
+    loadingTitle: '数栈', // loading的应用名字
+    theme: 'default', // 主题
+    hideUserCenter: false, // 隐藏用户中心按钮
+    disableHelp: true // 禁用帮助文档
+	```
+	
 - 门户页面自定义
 
-    配置地址在`common/config.js` 中，具体如下：
+    配置地址在`mian/config/config.js` 中，具体如下：
 
 ``` json
-    prefix: 'DTinsight', // 应用前缀
-    indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
-    showCopyright: true, // 是否显示版权信息
-    name: '数栈' // 网页的title
+   titleName: '数栈', // 网页title应用名
+   loadingTitle: '数栈', // loading的应用名字
+   indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
+   indexDesc: '企业级一站式数据中台-让数据产生价值', // 大标题下的简介
+   showCopyright: true, // 是否显示版权信息
+   showSummary: true, // 是否显示首页的功能简介
+   summary: { // summary内容
+        title: '功能模块',
+        content: '数据资源平台将数据转化成产业发展的基础资源，为ET大脑提供全量、标准、干净、智能的数据资源'
+    }
 ```
 
 - 应用 Logo 名称, Loading、title 配置
 
-    配置地址在各应用自身的`config.js` 中，修改参数为`name`
+    配置地址在各应用自身的`config.js` 中
+
+如果需要查看配置的具体说明，可以翻阅 [配置具体说明](./Config.md)。
 
 
 ##  四、版本验证与更新日志
