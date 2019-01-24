@@ -286,10 +286,11 @@ class TaskGraphView extends Component {
 
     initRender = (data) => {
         const graph = this.graph;
+        const model = graph.getModel();
+        const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
         this._cacheLevel = {};
-        graph.getModel().clear();
-        const cells = graph.getChildCells(graph.getDefaultParent());
+        model.clear();
         graph.removeCells(cells);
         // Init container scroll
         this.initContainerScroll(graph);
