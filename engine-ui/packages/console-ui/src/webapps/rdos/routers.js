@@ -40,7 +40,7 @@ import OpeAlarm from './views/operation/alarm/list'
 import OpeAlarmConfig from './views/operation/alarm/config'
 import OpeOfflineList from './views/operation/offline/taskOperation'
 import OpeOfflineTaskMana from './views/operation/offline/taskMana'
-import OpeOfflineTaskRunTime from './views/operation/offline/taskRuntime'
+import OpeOfflineTaskRunTime from './views/operation/offline/taskFlowView/taskRuntime'
 import OperationPatchData from './views/operation/offline/patchDataList'
 import OperationPatchDataDetail from './views/operation/offline/patchDataDetail'
 import DirtyData from './views/operation/dirtyData/index';

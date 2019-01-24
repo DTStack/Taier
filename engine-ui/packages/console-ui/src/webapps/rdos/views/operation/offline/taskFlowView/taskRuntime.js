@@ -5,8 +5,8 @@ import { cloneDeep } from 'lodash'
 
 import Resize from 'widgets/resize'
 
-import Api from '../../../api'
-import { lineAreaChartOptions } from '../../../comm/const'
+import Api from '../../../../api'
+import { lineAreaChartOptions } from '../../../../comm/const'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -35,7 +35,7 @@ export default class TaskLog extends Component {
         }
     }
     /* eslint-disable-next-line */
-    componentWillReceiveProps (nextProps) {
+    UNSAVE_componentWillReceiveProps (nextProps) {
         const currentTask = this.props.tabData
         const { tabData, visibleSlidePane } = nextProps
         if (tabData && currentTask && visibleSlidePane && tabData.id !== currentTask.id) {

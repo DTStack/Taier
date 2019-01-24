@@ -59,6 +59,8 @@ export default {
     GET_JOB_CHILDREN: `${RDOS_BASE_URL}/batch/batchJobJob/displayOffSpring`, // 获取子job
     GET_TASK_PERIODS: `${RDOS_BASE_URL}/batch/batchJob/displayPeriods`, // 转到前后周期实例
     GET_JOB_PARENT: `${RDOS_BASE_URL}/batch/batchJobJob/displayForefathers`, // 获取父节点
+    GET_TASK_WORKFLOW_NODES: `${RDOS_BASE_URL}/batch/batchTaskTaskShade/getAllFlowSubTasks`, // 获取工作流节点
+    GET_TASK_JOB_WORKFLOW_NODES: `${RDOS_BASE_URL}/batch/batchJobJob/displayOffSpringWorkFlow`, // 获取工作流节点
     CHECK_IS_LOOP: `${RDOS_BASE_URL}/batch/batchTask/checkIsLoop`,
     GET_JOB_RUNTIME_INFO: `${RDOS_BASE_URL}/batch/batchJob/jobDetail`, // 获取任务调度详情
     QUERY_JOB_STATISTICS: `${RDOS_BASE_URL}/batch/batchJob/queryJobsStatusStatistics`, // 查询Job统计
@@ -96,7 +98,9 @@ export default {
     SAVE_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`,
     ADD_OFFLINE_FUNCTION: `${RDOS_BASE_URL}/batch/batchFunction/addFunction`,
     LINK_SOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/linkDataSource`, // 关联映射数据源
-    GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`, // 获取工作流的任务
+    GET_WORKFLOW_RELATED_TASKS: `${RDOS_BASE_URL}/batch/batchTask/dealFlowWorkTask`, // 获取工作流的子任务
+    GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`, // 获取工作流实例的子任务
+    GET_WORKFLOW_FILLDATA_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobsForFillData`, // 补数据工作流子节点
     IS_NATIVE_HIVE: `${RDOS_BASE_URL}/batch/batchDataSource/isNativeHive`, // 校验是不是标准分区
 
     // 离线文件操作

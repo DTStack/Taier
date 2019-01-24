@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import { cloneDeep } from 'lodash'
+
 import {
     Table, message,
     Row, Col, Card, Input,
@@ -16,14 +18,15 @@ import Api from '../../../api'
 import {
     offlineTaskPeriodFilter,
     SCHEDULE_STATUS,
-    PROJECT_TYPE
+    PROJECT_TYPE,
+    TASK_TYPE
 } from '../../../comm/const'
 
 import { TaskTimeType, TaskType } from '../../../components/status'
 
 import PatchDataModal from './patchDataModal'
-import TaskView from './taskView'
-import TaskRuntime from './taskRuntime'
+import TaskFlowView from './taskFlowView'
+import TaskRuntime from './taskFlowView/taskRuntime'
 import { Circle } from 'widgets/circle'
 
 import {
@@ -56,7 +59,8 @@ class OfflineTaskMana extends Component {
         taskPeriodId: '',
         scheduleStatus: '',
         checkVals: [],
-        selectedRowKeys: []
+        selectedRowKeys: [],
+        expandedRowKeys: []
     }
 
     componentDidMount () {
@@ -117,7 +121,14 @@ class OfflineTaskMana extends Component {
         }, params)
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
-                replaceObjectArrayFiledName(res.data.data, 'relatedTasks', 'children');
+                const tableData = res.data.data;
+                replaceObjectArrayFiledName(tableData, 'relatedTasks', 'children');
+                for (let i = 0; i < tableData.length; i++) {
+                    let task = tableData[i];
+                    if (task && task.taskType === TASK_TYPE.WORKFLOW && !task.children) {
+                        task.children = [];
+                    }
+                }
                 ctx.setState({ tasks: res.data });
             }
             this.setState({ loading: false })
@@ -328,6 +339,41 @@ class OfflineTaskMana extends Component {
         }]
     }
 
+    onExpandRows = (expandedRows) => {
+        this.setState({ expandedRowKeys: expandedRows })
+    }
+
+    onExpand = (expanded, record) => {
+        if (expanded) {
+            if (record.children && record.children.length) {
+                return;
+            }
+            const { tasks } = this.state;
+            let newTasks = cloneDeep(tasks);
+            Api.getRelatedTasks({
+                taskId: record.id
+            }).then((res) => {
+                if (res.code == 1) {
+                    const index = newTasks.data.findIndex((task) => {
+                        return task.id === record.id
+                    });
+                    if (index || index == 0) {
+                        newTasks.data[index] = {
+                            ...res.data,
+                            children: res.data.relatedTasks,
+                            relatedTasks: undefined
+                        };
+                    }
+                    this.setState({
+                        tasks: newTasks
+                    })
+                }
+            })
+        } else {
+            console.log('record')
+        }
+    }
+
     tableFooter = (currentPageData) => {
         return (
             <Row>
@@ -361,7 +407,7 @@ class OfflineTaskMana extends Component {
         const { projectUsers, project } = this.props
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask,
-            current, taskName, visibleSlidePane, selectedRowKeys, tabKey
+            current, taskName, visibleSlidePane, selectedRowKeys
         } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
@@ -387,6 +433,7 @@ class OfflineTaskMana extends Component {
             selectedRowKeys: selectedRowKeys
         };
 
+        console.log('aaa:', this.state.tasks);
         return (
             <div>
                 {isTest && (
@@ -465,12 +512,15 @@ class OfflineTaskMana extends Component {
                             }
                             style={{ marginTop: '1px' }}
                             className={`m-table ${isPro ? 'full-screen-table-90' : 'full-screen-table-120'}`}
+                            expandedRowKeys={this.state.expandedRowKeys}
                             pagination={pagination}
                             rowSelection={rowSelection}
                             loading={this.state.loading}
                             columns={this.initTaskColumns()}
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
+                            onExpand={this.onExpand}
+                            onExpandedRowsChange={this.onExpandRows}
                             footer={this.tableFooter}
                         />
                         <SlidePane
@@ -479,11 +529,11 @@ class OfflineTaskMana extends Component {
                             visible={visibleSlidePane}
                             style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
                         >
-                            <Tabs animated={false} onChange={this.onTabChange}>
+                            <Tabs animated={false} onChange={this.onTabChange} tabBarStyle={{ zIndex: 3 }}>
                                 <TabPane tab="依赖视图" key="taskFlow">
-                                    <TaskView
+                                    <TaskFlowView
                                         reload={this.search}
-                                        tabKey={tabKey}
+                                        key={`taskGraph-${selectedTask && selectedTask.id}`}
                                         visibleSlidePane={visibleSlidePane}
                                         goToTaskDev={this.props.goToTaskDev}
                                         clickPatchData={this.clickPatchData}

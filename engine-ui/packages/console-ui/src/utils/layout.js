@@ -42,20 +42,29 @@ export function getGeoByRelativeNode (relativeNode, node) {
 }
 
 export function getGeoByStartPoint (origin, node) {
-    const { startX, startY } = origin;
+    const { x: startX, y: startY } = origin;
 
     node.x = startX;
     node.y = startY;
 
     // 计算 坐标 X
+    const isEven = node.count % 2 === 0;
+    const halfNode = Math.round(node.width / 2) + Math.round(node.margin / 2);
     const middle = Math.round(node.count / 2);
-    const index = node.index - middle;
-    const i = Math.abs(index);
-    const disstance = startX + (i * node.width + i * node.margin);
+    const index = Math.round(node.index - middle);
+    let i = Math.abs(index);
+
+    let distance = (i * node.width + i * node.margin);
     if (index > 0) {
-        node.x = startX + disstance;
-    } else if (index < 0) {
-        node.x = startX - disstance;
+        if (isEven) {
+            distance = distance - halfNode;
+        }
+        node.x = startX + distance;
+    } else if (index <= 0) {
+        if (isEven) {
+            distance = distance + halfNode;
+        }
+        node.x = startX - distance;
     }
 
     // 计算坐标 Y
@@ -66,15 +75,12 @@ export function getGeoByStartPoint (origin, node) {
     } else if (node.level < 0) {
         node.y = startY - distanceY;
     }
-
-    console.log('getGeoByStartPoint:', node.name, node)
     return node;
 }
 
 export const getNodeHeight = (node) => {
     const l = Math.abs(node.level);
     const rowHeight = (l + 1) * node.height + l * node.margin;
-    console.log('getNodeHeight', node, rowHeight);
     return rowHeight;
 }
 
@@ -108,8 +114,8 @@ export const getNodeLevelAndCount = (node, childrenField) => {
 
     const getReturn = function () {
         return {
-            count,
-            level: maxLevel
+            maxCount: count,
+            maxLevel: maxLevel
         }
     };
 
@@ -200,3 +206,7 @@ export const getNodeIndexAndCount = (node, currentNode, childrenField) => {
         index
     };
 }
+
+// 先计算 level。 maxLevel , maxCount
+// 计算 index, count
+// 根据 maxLevel， maxCount 计算宽高，根据 level, index , relativeNode计算 x, y;

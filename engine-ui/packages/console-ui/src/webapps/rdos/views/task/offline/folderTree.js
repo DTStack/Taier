@@ -136,6 +136,7 @@ class FolderTree extends React.Component {
                         }])
                     }
                 } else {
+                    data.type = type;
                     operations = arr.concat([{
                         txt: '新建任务',
                         cb: this.createTask.bind(this, data)
@@ -309,14 +310,15 @@ class FolderTree extends React.Component {
         ajax.getOfflineTaskByID({
             id: data.id,
             lockVersion: data.readWriteLockVO.version
+        }).then(res => {
+            if (res.code === 1) {
+                // 给待编辑的数据做特殊处理
+                res.data.parentId = res.data.nodePid;
+                res.data.type = 'folder';
+                this.props.setModalDefault(res.data);
+                this.props.toggleCreateTask();
+            }
         })
-            .then(res => {
-                if (res.code === 1) {
-                    this.props.setModalDefault(res.data);
-                    this.props.toggleCreateTask();
-                }
-            })
-        console.log(data)
     }
 
     // 克隆任务
@@ -357,7 +359,8 @@ class FolderTree extends React.Component {
 
     createTask (data) {
         this.props.setModalDefault({
-            parentId: data.id
+            parentId: data.id,
+            type: data.type
         });
         this.props.toggleCreateTask();
     }
