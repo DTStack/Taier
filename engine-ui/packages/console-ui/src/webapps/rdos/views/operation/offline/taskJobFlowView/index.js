@@ -51,11 +51,7 @@ class TaskJobFlowView extends Component {
         const currentJob = this.props.taskJob
         const { taskJob, visibleSlidePane } = nextProps
         if (taskJob && visibleSlidePane && (!currentJob || taskJob.id !== currentJob.id)) {
-            this._originData = null; // 清空缓存数据
-            this.setState({
-                graphData: null
-            })
-            this.loadTaskChidren({ jobId: taskJob.id });
+            this.loadByJobId(taskJob.id);
         }
     }
 
@@ -73,12 +69,21 @@ class TaskJobFlowView extends Component {
         })
     }
 
-    refresh = () => {
+    resetData = () => {
         this._originData = null; // 清空缓存数据
         this.setState({
             graphData: null
         })
+    }
+
+    refresh = () => {
+        this.resetData();
         this.loadTaskChidren({ jobId: this.props.taskJob.id });
+    }
+
+    loadByJobId = (jobId) => {
+        this.resetData();
+        this.loadTaskChidren({ jobId: jobId });
     }
 
     loadTaskChidren = (params) => {
@@ -128,7 +133,7 @@ class TaskJobFlowView extends Component {
                         const statusText = taskStatusText(item.status);
                         return (
                             menu.addItem(`${times} (${statusText})`, null, function () {
-                                ctx.loadTaskChidren({ jobId: item.jobId });
+                                ctx.loadByJobId(item.jobId);
                             }, periodsType)
                         )
                     })
@@ -140,7 +145,7 @@ class TaskJobFlowView extends Component {
                         const statusText = taskStatusText(item.status);
                         return (
                             menu.addItem(`${times} (${statusText})`, null, function () {
-                                ctx.loadTaskChidren({ jobId: item.jobId });
+                                ctx.loadByJobId(item.jobId);
                             }, periodsType)
                         )
                     })
