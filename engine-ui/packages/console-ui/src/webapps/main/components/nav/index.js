@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { cloneDeep } from 'lodash';
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
+import { MY_APPS } from '../../consts';
 import './style.scss'
 
 /* eslint-disable */
@@ -46,8 +47,9 @@ function compareEnable (apps, licenseApps) {
         })
         return newApps
     } else {
+        console.log(MY_APPS.MAIN)
         const mainApp = apps.find(item => {
-            return item.id == 'main'
+            return item.id == MY_APPS.MAIN
         })
         return [mainApp]
     }
