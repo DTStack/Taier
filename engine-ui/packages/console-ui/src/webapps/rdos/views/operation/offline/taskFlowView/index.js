@@ -22,6 +22,7 @@ const Mx = require('public/rdos/mxgraph')({
 
 const {
     mxEvent,
+    mxCellHighlight,
     mxPopupMenu
 } = Mx
 
@@ -210,6 +211,9 @@ export default class TaskFlowView extends Component {
 
     initGraphEvent = (graph) => {
         const ctx = this;
+        let highlightEdges = [];
+        let selectedCell = null;
+
         graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
             const cells = evt.getProperty('cells');
             const cell = cells && cells[0];
@@ -233,12 +237,35 @@ export default class TaskFlowView extends Component {
                 } else {
                     ctx.setState({ selectedTask: data })
                 }
+                const outEdges = graph.getOutgoingEdges(cell);
+                const inEdges = graph.getIncomingEdges(cell);
+                const edges = outEdges.concat(inEdges);
+                for (let i = 0; i < edges.length; i++) {
+                    /* eslint-disable-next-line */
+                    const highlight = new mxCellHighlight(graph, '#2491F7', 2);
+                    const state = graph.view.getState(edges[i]);
+                    highlight.highlight(state);
+                    highlightEdges.push(highlight);
+                }
+                selectedCell = cell;
+            } else {
+                const cells = graph.getSelectionCells();
+                graph.removeSelectionCells(cells);
             }
         });
+
+        graph.clearSelection = function (evt) {
+            if (selectedCell) {
+                for (let i = 0; i < highlightEdges.length; i++) {
+                    highlightEdges[i].hide();
+                }
+                selectedCell = null;
+            }
+        };
     }
 
     onCloseWorkflow = () => {
-        this.setState({ visibleWorkflow: false, selectedTask: this.props.tabData });
+        this.setState({ visibleWorkflow: false, workflowData: null, selectedTask: this.props.tabData });
     }
 
     render () {

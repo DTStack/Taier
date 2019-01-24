@@ -407,7 +407,7 @@ class TaskJobFlowView extends Component {
     }
 
     onCloseWorkflow = () => {
-        this.setState({ visibleWorkflow: false });
+        this.setState({ visibleWorkflow: false, workflowData: null });
     }
 
     render () {

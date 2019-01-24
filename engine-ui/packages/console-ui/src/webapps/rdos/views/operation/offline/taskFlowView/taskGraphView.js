@@ -108,13 +108,12 @@ class TaskGraphView extends Component {
         this.initGraph(graphData);
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
-        const oldGraphData = this.props.graphData
-        const { graphData } = nextProps
-        if (graphData && oldGraphData !== graphData) {
+    componentDidUpdate (prevProps) {
+        const nextGraphData = this.props.graphData
+        const { graphData } = prevProps
+        if (nextGraphData && nextGraphData !== graphData) {
             this.initGraph(graphData);
         }
-        return true;
     }
 
     initGraph = (graphData) => {
@@ -153,6 +152,9 @@ class TaskGraphView extends Component {
         }
         // 禁止cell编辑
         graph.isCellEditable = function () {
+            return false;
+        }
+        graph.isCellResizable = function (cell) {
             return false;
         }
 
@@ -309,7 +311,6 @@ class TaskGraphView extends Component {
         const defaultParent = graph.getDefaultParent();
         const cacheLevel = this._cacheLevel; // 缓存 Level 信息
         const dataArr = this.preHandGraphTree(originData);
-        console.log('renderData:', dataArr);
 
         const getVertex = (parentCell, data) => {
             if (!data) return null;
@@ -326,13 +327,6 @@ class TaskGraphView extends Component {
             const levelKey = cacheLevel[getLevelKey(data)];
             if (levelKey !== undefined) {
                 nodeGeo.count = levelKey;
-            }
-
-            if (isWorkflow) {
-                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;color:#333333;';
-                if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
-                    style += 'swimlaneFillColor=#EFFFFE;fillColor=#cbf8f4;strokeColor=#26DAD1;';
-                }
             }
 
             if (isWorkflowNode) {
