@@ -108,7 +108,6 @@ class Resource extends Component {
         const usedMemoryTotal = getUsedMemory(usedMemory);
         const coresCompar = (virtualCoresTotal - data.length) <= usedVirtualCoresTotal;
         const memoryCompar = memoryTotal - (data.length) * 512 <= usedMemoryTotal;
-        console.log(virtualCoresTotal, usedVirtualCoresTotal, memoryTotal, usedMemoryTotal, coresCompar, memoryCompar)
         if ((coresCompar || memoryCompar) && data.length > 0) {
             return <p style={{ marginLeft: '40px', color: '#db5a5aed' }}>Yarn 集群计算资源不足（每个节点保留1vcore 512M）</p>
         } else {

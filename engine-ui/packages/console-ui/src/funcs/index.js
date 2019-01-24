@@ -284,7 +284,7 @@ export function timeout (promise, ms) {
  */
 export function initNotification () {
     notification.config({
-        duration: null
+        duration: 5
     })
     const changeArr = ['error', 'success']
     const iconMap = {
@@ -360,7 +360,8 @@ export function dtNotification (title, message, type, config) {
         {message.substring(0, 100)}... <a onClick={() => {
             Modal[showType]({
                 title: title,
-                content: message
+                content: message,
+                width: 520
             })
         }}>查看详情</a>
     </span>) : message;

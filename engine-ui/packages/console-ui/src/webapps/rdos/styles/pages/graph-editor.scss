@@ -256,11 +256,12 @@ table.mxPopupMenu tr {
 }
 
 .table-vertex {
-
+    width: 160px;
     .table-vertex-content {
         height: 30px;
         line-height: 20px;
         left: 0;
+        margin-left: -80px;
         text-indent: 2px;
         top: 0;
         padding: 7px 5px;
@@ -271,7 +272,7 @@ table.mxPopupMenu tr {
 
         .table-vertex-title {
             margin-left: 5px;
-            width: 60px;
+            width: 170px;
             display: inline-block;
             text-overflow: ellipsis;
             overflow: hidden;

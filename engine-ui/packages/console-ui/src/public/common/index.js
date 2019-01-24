@@ -40,12 +40,14 @@ function mergeConfig () {
  * 设置title
  */
 function initTitle () {
-    document.title = APP_CONF.prefix + '-' + APP_CONF.name;
+    var name = APP_CONF.titleName || '';
+    document.title = APP_CONF.prefix + (APP_CONF.prefix && name ? '-' : '') + name;
 }
 /**
  * 设置loading
  */
 function initLoading () {
     var dom = document.getElementById('loading-prefix');
-    dom.innerHTML = APP_CONF.prefix;
+    var loadingText = APP_CONF.prefix + ' ' + APP_CONF.loadingTitle;
+    dom.innerHTML = loadingText;
 }

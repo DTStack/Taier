@@ -25,14 +25,62 @@ export const API_MODE = {
     SQL: 1
 }
 export const API_METHOD = {
+    GET: 0,
     POST: 1,
-    GET: 0
+    PUT: 2,
+    DELETE: 3
+}
+export const API_TYPE = {
+    NORMAL: 0,
+    REGISTER: 1
 }
 export const API_METHOD_KEY = {
-    1: 'POST',
-    0: 'GET'
+    [API_METHOD.POST]: 'POST',
+    [API_METHOD.GET]: 'GET',
+    [API_METHOD.PUT]: 'PUT',
+    [API_METHOD.DELET]: 'DELETE'
 }
-
+/**
+ * 参数位置
+ */
+export const PARAMS_POSITION = {
+    QUERY: 1,
+    PATH: 4,
+    BODY: 3,
+    HEAD: 2
+}
+/**
+ * 参数位置显示名
+ */
+export const PARAMS_POSITION_TEXT = {
+    [PARAMS_POSITION.QUERY]: 'query',
+    [PARAMS_POSITION.PATH]: 'path',
+    [PARAMS_POSITION.BODY]: 'body',
+    [PARAMS_POSITION.HEAD]: 'head'
+}
+/**
+ * 参数类型
+ */
+export const FIELD_TYPE_LIST = [
+    'string',
+    'int',
+    'long',
+    'float',
+    'double',
+    'boolean'
+]
+export const FIELD_TYPE = {
+    STRING: 'string',
+    INT: 'int',
+    LONG: 'long',
+    FLOAT: 'float',
+    DOUBLE: 'double',
+    BOOLEAN: 'boolean'
+}
+/**
+ * textarea 默认大小
+ */
+export const defaultAutoSize = { minRows: 2, maxRows: 4 }
 export const API_STATUS = {
     '-1': 'NO_APPLY',
     '0': 'IN_HAND',

@@ -78,11 +78,12 @@ class TableTipExtraPane extends React.Component {
             </div>
             <div style={{ display: this.isShow(tableName) ? 'block' : 'none' }} className="c-tablePane__table__columns">
                 {columns.map((column) => {
+                    const isDesen = column.needMask === 0 // 是否脱敏
                     return <div key={column.columnName} className="c-tablePane__table__column">
                         <TextMark
                             className="c-table__column__name"
                             title={column.columnName}
-                            text={column.columnName + (column.isPartition ? '（分区）' : '')}
+                            text={column.columnName + (isDesen ? '(脱敏)' : column.isPartition ? '(分区)' : '')}
                             markText={searchValue}
                         />
                         <span

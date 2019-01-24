@@ -144,12 +144,14 @@ class DataSourceManaStream extends Component {
 
     initEdit = (source) => {
         Api.checkDataSourcePermission().then(res => {
-            this.setState({
-                visible: true,
-                title: '编辑数据源',
-                status: 'edit',
-                source: cloneDeep(source)
-            })
+            if (res.code === 1) {
+                this.setState({
+                    visible: true,
+                    title: '编辑数据源',
+                    status: 'edit',
+                    source: cloneDeep(source)
+                })
+            }
         })
     }
     getSourceType (type) {

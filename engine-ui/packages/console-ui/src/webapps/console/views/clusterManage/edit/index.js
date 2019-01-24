@@ -43,6 +43,7 @@ class EditCluster extends React.Component {
         selectUser: '', // select输入value
         file: '', // 上传的文件
         zipConfig: '', // 解析的配置文件信息
+        securityStatus: false, // 根据配置文件是否显示spark， flink等其他参数
         uploadLoading: false, // 上传loading
         testLoading: false,
         testStatus: TEST_STATUS.NOTHING,
@@ -89,6 +90,17 @@ class EditCluster extends React.Component {
                             const flinkData = clusterConf.flinkConf;
                             const extParams = this.exchangeServerParams(clusterConf)
                             const flinkConf = clusterConf.flinkConf;
+                            const keyMap = {
+                                'spark.yarn.appMasterEnv.PYSPARK_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_PYTHON',
+                                'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON'
+                            }
+                            const yarnShellkeyMap = {
+                                'jlogstash.root': 'jlogstashRoot',
+                                'java.home': 'javaHome',
+                                'hadoop.home.dir': 'hadoopHomeDir',
+                                'python2.path': 'python2Path',
+                                'python3.path': 'python3Path'
+                            }
                             this.myUpperCase(flinkConf);
                             this.setState({
                                 // checked: true,
@@ -118,10 +130,10 @@ class EditCluster extends React.Component {
                                 clusterName: cluster.clusterName,
                                 hiveConf: clusterConf.hiveConf,
                                 carbonConf: clusterConf.carbonConf,
-                                sparkConf: clusterConf.sparkConf,
+                                sparkConf: this.toChsKeys(clusterConf.sparkConf, keyMap),
                                 flinkConf: clusterConf.flinkConf,
                                 learningConf: this.myUpperCase(clusterConf.learningConf),
-                                dtyarnshellConf: this.myUpperCase(clusterConf.dtyarnshellConf)
+                                dtyarnshellConf: this.toChsKeys(clusterConf.dtyarnshellConf, yarnShellkeyMap)
                             })
                         }
                     }
@@ -144,18 +156,20 @@ class EditCluster extends React.Component {
         let notExtKeys_flink = [
             'typeName', 'flinkZkAddress',
             'flinkHighAvailabilityStorageDir',
-            'flinkZkNamespace',
-            'flinkYarnMode', 'reporterClass',
+            'flinkZkNamespace', 'reporterClass',
             'gatewayHost', 'gatewayPort',
             'gatewayJobName', 'deleteOnShutdown',
             'randomJobNameSuffix', 'jarTmpDir',
             'flinkPluginRoot', 'remotePluginRootDir',
             'clusterMode', 'flinkJarPath',
-            'flinkJobHistory'
+            'flinkJobHistory', 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
+            'zkPrincipal', 'zkKeytabPath', 'zkLoginName'
         ];
         let notExtKeys_spark = [
             'typeName', 'sparkYarnArchive',
-            'sparkSqlProxyPath', 'sparkPythonExtLibPath'
+            'sparkSqlProxyPath', 'sparkPythonExtLibPath', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+            'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'sparkPrincipal', 'sparkKeytabPath',
+            'sparkKrb5ConfPath', 'zkPrincipal', 'zkKeytabPath', 'zkLoginName'
         ];
         // let notExtKeys_learning = ["learningPython3Path", "learningPython2Path",
         // "learningHistoryAddress", "learningHistoryWebappAddress", "learningHistoryWebappHttpsAddress"];
@@ -170,7 +184,7 @@ class EditCluster extends React.Component {
         let notExtKeys_dtyarnshell = [
             'typeName', 'jlogstash.root',
             'java.home', 'hadoop.home.dir', 'python2.path',
-            'python3.path'
+            'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath'
         ]
 
         let sparkConfig = config.sparkConf || {};
@@ -265,6 +279,19 @@ class EditCluster extends React.Component {
         return after;
     }
 
+    /**
+     * PYspark两字段需转化(spark.yarn.appMasterEnv.PYSPARK_PYTHON,
+     * spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON)
+     * @param obj 传入对象
+     * @param keyMap key映射关系
+     */
+    toChsKeys (obj, keyMap) {
+        return Object.keys(obj).reduce((newObj, key) => {
+            let newKey = keyMap[key] || key;
+            newObj[newKey] = obj[key];
+            return newObj
+        }, {})
+    }
     getUserOptions () {
         const { consoleUser } = this.props;
         const { selectUserMap } = this.state;
@@ -349,7 +376,8 @@ class EditCluster extends React.Component {
                         this.setState({
                             uploadLoading: false,
                             file: file,
-                            zipConfig: res.data
+                            securityStatus: res.data.security,
+                            zipConfig: res.data.config
                         })
                     } else {
                         this.props.form.setFieldsValue({
@@ -575,15 +603,26 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
+        const keyMap = {
+            'sparkYarnAppMasterEnvPYSPARK_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+            'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
+        }
+        const yarnShellkeyMap = {
+            'jlogstashRoot': 'jlogstash.root',
+            'javaHome': 'java.home',
+            'hadoopHomeDir': 'hadoop.home.dir',
+            'python2Path': 'python2.path',
+            'python3Path': 'python3.path'
+        }
         clusterConf['hadoopConf'] = zipConfig.hadoopConf;
         clusterConf['yarnConf'] = zipConfig.yarnConf;
         clusterConf['hiveMeta'] = zipConfig.hiveMeta;
         clusterConf['hiveConf'] = formValues.hiveConf;
         clusterConf['carbonConf'] = formValues.carbonConf;
-        clusterConf['sparkConf'] = { ...formValues.sparkConf, ...sparkExtParams };
+        clusterConf['sparkConf'] = { ...this.toChsKeys(formValues.sparkConf, keyMap), ...sparkExtParams };
         clusterConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
         clusterConf['learningConf'] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
-        clusterConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...this.myLowerCase(formValues.dtyarnshellConf), ...dtyarnshellExtParams };
+        clusterConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...this.toChsKeys(formValues.dtyarnshellConf, yarnShellkeyMap), ...dtyarnshellExtParams };
         // 服务端兼容，不允许null
         clusterConf['hiveConf'].username = clusterConf['hiveConf'].username || '';
         clusterConf['hiveConf'].password = clusterConf['hiveConf'].password || '';
@@ -639,20 +678,20 @@ class EditCluster extends React.Component {
         })
     }
 
-    flinkYarnModes (flinkVersion) {
-        const flinkYarnMode14 = ['PER_JOB', 'LEGACY'];
-        const flinkYarnMode15 = ['PER_JOB', 'LEGACY', 'NEW'];
-        console.log(flinkVersion) // finlk140
-        if (flinkVersion == 'flink140') {
-            return flinkYarnMode14.map((item, index) => {
-                return <Option key={item} value={item}>{item}</Option>
-            })
-        } else if (flinkVersion == 'flink150') {
-            return flinkYarnMode15.map((item, index) => {
-                return <Option key={item} value={item}>{item}</Option>
-            })
-        }
-    }
+    // flinkYarnModes (flinkVersion) {
+    //     const flinkYarnMode14 = ['PER_JOB', 'LEGACY'];
+    //     const flinkYarnMode15 = ['PER_JOB', 'LEGACY', 'NEW'];
+    //     console.log(flinkVersion) // finlk140
+    //     if (flinkVersion == 'flink140') {
+    //         return flinkYarnMode14.map((item, index) => {
+    //             return <Option key={item} value={item}>{item}</Option>
+    //         })
+    //     } else if (flinkVersion == 'flink150') {
+    //         return flinkYarnMode15.map((item, index) => {
+    //             return <Option key={item} value={item}>{item}</Option>
+    //         })
+    //     }
+    // }
 
     // 获取每项Input的值
     getGatewayHostValue (e) {
@@ -682,18 +721,13 @@ class EditCluster extends React.Component {
     }
 
     render () {
-        const { file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked } = this.state;
+        const { file, zipConfig, uploadLoading, core, nodeNumber, memory, testLoading, fileHaveChange, checked, securityStatus } = this.state;
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
         const isNew = !(mode == 'view' || mode == 'edit');
         const columns = this.initColumns();
-        // 获取flink版本
-        const flinkVersion = getFieldValue('flinkConf.typeName') || 'flink140';
         const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
-        // 获取flinkYarnMode
-        const flinkYarnMode = getFieldValue('flinkConf.flinkYarnMode') || 'PER_JOB'
-        // const havedata = this.getFieldValue()
         return (
             <div className="contentBox">
                 <p className="box-title" style={{ height: 'auto', marginTop: '10px', paddingLeft: '20px' }}><GoBack size="default" type="textButton"></GoBack></p>
@@ -813,6 +847,7 @@ class EditCluster extends React.Component {
                     <p className="config-title">Spark</p>
                     <SparkConfig
                         getFieldDecorator={getFieldDecorator}
+                        securityStatus={securityStatus}
                         isView={isView}
                         customView={(
                             <div>
@@ -833,6 +868,7 @@ class EditCluster extends React.Component {
                         <FlinkConfig
                             isView={isView}
                             getFieldDecorator={getFieldDecorator}
+                            securityStatus={securityStatus}
                             checked={checked}
                             changeCheckbox={this.changeCheckbox.bind(this)}
                             gatewayHostValue={gatewayHostValue}
@@ -859,120 +895,6 @@ class EditCluster extends React.Component {
                                 </div>
                             )}
                         />
-                    </div>
-
-                    <p className="config-title">Flink Engine</p>
-                    <div className="config-content" style={{ width: '680px' }}>
-                        <FormItem
-                            label="版本选择"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.typeName', {
-                                rules: [{
-                                    required: true,
-                                    message: '请选择flink版本'
-                                }],
-                                initialValue: 'flink140'
-                            })(
-                                <Select disabled={isView} style={{ width: '100px' }}>
-                                    <Option value="flink140">1.4</Option>
-                                    <Option value="flink150">1.5</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="clusterMode"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.clusterMode', {
-                                rules: [{
-                                    required: true,
-                                    message: '请选择clusterMode'
-                                }],
-                                initialValue: 'yarn'
-                            })(
-                                <Select disabled={isView} style={{ width: '100px' }}>
-                                    <Option value="standalone">standalone</Option>
-                                    <Option value="yarn">yarn</Option>
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="flinkYarnMode"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkYarnMode', {
-                                rules: [{
-                                    required: true,
-                                    message: 'flinkYarnMode'
-                                }],
-                                initialValue: 'PER_JOB'
-                            })(
-                                <Select disabled={isView} style={{ width: '100px' }}>
-                                    {this.flinkYarnModes(flinkVersion)}
-                                </Select>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="jarTmpDir"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.jarTmpDir', {
-                                initialValue: '../tmp140'
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="flinkPluginRoot"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkPluginRoot', {
-                                initialValue: '/opt/dtstack/flinkplugin'
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-                        <FormItem
-                            label="remotePluginRootDir"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.remotePluginRootDir', {
-                                initialValue: '/opt/dtstack/flinkplugin'
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
-
-                        {flinkYarnMode == 'PER_JOB' ? <FormItem
-                            label="flinkJarPath"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkJarPath', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入flinkJarPath'
-                                }]
-                                // initialValue: "/opt/dtstack/flinkplugin"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem> : null}
-
-                        <FormItem
-                            label="flinkJobHistory"
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator('flinkConf.flinkJobHistory', {
-                                rules: [{
-                                    required: true,
-                                    message: '请输入flinkJobHistory'
-                                }]
-                                // initialValue: "/opt/dtstack/flinkplugin"
-                            })(
-                                <Input disabled={isView} />
-                            )}
-                        </FormItem>
                     </div>
 
                     {/* Learning */}
@@ -1122,6 +1044,49 @@ class EditCluster extends React.Component {
                                 <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
                             )}
                         </FormItem>
+                        {
+                            securityStatus ? <div>
+                                 <FormItem
+                                    label="hdfsPrincipal"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('dtyarnshellConf.hdfsPrincipal', {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入hdfsPrincipal'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="hdfsKeytabPath"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('dtyarnshellConf.hdfsKeytabPath', {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入hdfsKeytabPath'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                                <FormItem
+                                    label="hdfsKrb5ConfPath"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('dtyarnshellConf.hdfsKrb5ConfPath', {
+                                        rules: [{
+                                            required: true,
+                                            message: '请输入hdfsKrb5ConfPath'
+                                        }]
+                                    })(
+                                        <Input disabled={isView} />
+                                    )}
+                                </FormItem>
+                            </div> : null
+                        }
                         {this.renderExtraParam('dtyarnshell')}
                         {isView ? null : (
                             <Row>

@@ -210,8 +210,11 @@ export default {
         return http.post(dataManageReq.GET_COLUMNS_LIST, params)
     },
     //  添加脱敏时获取脱敏列表
-    getdesRulesList (params) {
+    getDesRulesList (params) {
         return http.post(dataManageReq.GET_DESRULES_LIST, params)
+    },
+    checkUpwardColumns (params) {
+        return http.post(dataManageReq.CHECK_UPWARD_COLUMNS, params)
     },
     viewTableRelation (params) {
         return http.post(dataManageReq.VIEW_TABLE_RELATION, params)

@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Select, Alert, message } from 'antd';
+import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout } from '../../../comm/const';
 const FormItem = Form.Item;
 const Option = Select.Option;
-// mock
+
 @connect(state => {
     return {
         projects: state.projects,
@@ -20,17 +20,20 @@ class AddDesensitization extends Component {
             columnsList: [],
             rulesList: [], // 脱敏规则列表
             newReplaceData: '',
-            selectRule: [] // 选中的脱敏规则
+            selectRule: [], // 选中的脱敏规则
+            selectTableName: undefined,
+            upwardColumnsInfo: [] // 上游字段信息
         }
-    }
-    componentDidMount () {
-        this.getdesRulesList();
     }
     /**
      * 获取脱敏规则列表
      */
-    getdesRulesList = () => {
-        ajax.getdesRulesList().then(res => {
+    getDesRulesList = (params) => {
+        this.setState({
+            rulesList: []
+        })
+        this.props.form.resetFields(['ruleId'])
+        ajax.getDesRulesList(params).then(res => {
             if (res.code === 1) {
                 this.setState({
                     rulesList: res.data
@@ -83,6 +86,21 @@ class AddDesensitization extends Component {
                 }
             })
         }
+    }
+    getUpColumnInfo = (value) => {
+        const { getFieldValue } = this.props.form;
+        const projectId = getFieldValue('projectId');
+        ajax.checkUpwardColumns({
+            tableName: this.state.selectTableName,
+            belongProjectId: projectId,
+            column: value
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    upwardColumnsInfo: res.data
+                })
+            }
+        })
     }
     columnsOption () {
         const { columnsList } = this.state;
@@ -228,15 +246,27 @@ class AddDesensitization extends Component {
         this.setState({
             tableList: [],
             columnsList: []
+        }, () => {
+            this.getTableList({ projectId: value })
+            this.getDesRulesList({ projectId: value })
         })
-        this.getTableList({ projectId: value })
     }
     /**
      * 选择表
      */
     changeTable (value) {
         this.props.form.resetFields(['columnName']);
+        const { tableList } = this.state;
+        const selectTableName = tableList.filter((item, index) => {
+            return `${item.id}` === value
+        })
+        this.setState({
+            selectTableName: selectTableName[0].tableName
+        })
         this.getColumnsList(value)
+    }
+    changeColumnName (value) {
+        this.getUpColumnInfo(value)
     }
     cancel = () => {
         const { onCancel } = this.props;
@@ -247,7 +277,6 @@ class AddDesensitization extends Component {
         const desensitizationData = this.props.form.getFieldsValue();
         this.props.form.validateFields((err) => {
             if (!err) {
-                this.props.form.resetFields()
                 onOk(desensitizationData)
             }
         });
@@ -255,7 +284,7 @@ class AddDesensitization extends Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { projects } = this.props;
-        const { newReplaceData } = this.state;
+        const { newReplaceData, upwardColumnsInfo } = this.state;
         const projectsOptions = projects.map(item => {
             return <Option
                 title={item.projectAlias}
@@ -272,6 +301,7 @@ class AddDesensitization extends Component {
                 title='添加脱敏'
                 onCancel={this.cancel}
                 onOk={this.submit}
+                maskClosable={false}
             >
                 <Form>
                     <FormItem
@@ -299,6 +329,9 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择项目'
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 onChange={this.changeProject.bind(this)}
                             >
                                 {projectsOptions}
@@ -317,6 +350,9 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择表'
+                                showSearch
+                                optionFilterProp="children"
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                 onChange={this.changeTable.bind(this)}
                             >
                                 {this.tableListOption()}
@@ -335,13 +371,22 @@ class AddDesensitization extends Component {
                         })(
                             <Select
                                 placeholder='请选择字段'
+                                onChange={this.changeColumnName.bind(this)}
                             >
                                 {this.columnsOption()}
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ marginLeft: '106px', marginTop: '-14px' }} className='desenAlert'>
-                        <Alert message='上游表、下游表的相关字段会自动脱敏' type="info" showIcon />
+                    <div style={{ margin: '-6 0 10 120' }}>
+                        <div>
+                            <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
+                        </div>
+                        {
+                            upwardColumnsInfo && upwardColumnsInfo.length > 0 ? <div style={{ width: '287' }}>
+                                <Icon type="info-circle-o" style={{ fontSize: 14, margin: '10 5 0 0', color: '#999999' }}/>
+                                {`您选择的表至少存在1个上游表(${upwardColumnsInfo[0].tableName}.${upwardColumnsInfo[0].columnName})，建议将脱敏规则配置在根节点表`}
+                            </div> : ''
+                        }
                     </div>
                     <FormItem
                         {...formItemLayout}
@@ -374,7 +419,7 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-6px' }}>
+                    <div style={{ color: '#2491F7', marginLeft: '122px', marginTop: '-18px', float: 'left' }}>
                         <img src="/public/rdos/img/icon/icon-preview.svg" style={{ display: 'block', float: 'left' }} />
                         <a onClick={this.preview} style={{ marginLeft: '5px' }}>效果预览</a>
                         <div>{newReplaceData}</div>

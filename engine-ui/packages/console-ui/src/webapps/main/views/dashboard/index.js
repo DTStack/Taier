@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-
-import utils from 'utils'
-
+import { cloneDeep } from 'lodash';
+import utils from 'utils';
+import { Link } from 'react-router';
+import { Alert } from 'antd';
+import Api from '../../api';
 import Header from '../layout/header'
 import Footer from '../layout/footer';
 import { getInitUser } from '../../actions/user'
@@ -12,13 +14,19 @@ import '../../styles/views/portal.scss';
 
 @connect(state => {
     return {
+        licenseApps: state.licenseApps,
         apps: state.apps,
         user: state.user
     }
 })
 class Dashboard extends Component {
+    state = {
+        alertShow: false,
+        alertMessage: ''
+    }
     componentDidMount () {
         this._userLoaded = false;
+        this.checkIsOverdue()
         // this.listenUserStatus();
     }
 
@@ -34,10 +42,40 @@ class Dashboard extends Component {
             }
         }, 1000);
     }
-
+    /* eslint-disable */
+    // 控制apps与licenseApps应用是否显示
+    compareEnable = (apps, licenseApps) => {
+        const newApps = cloneDeep(apps);
+        if (licenseApps) {
+            newApps.map(item => {
+                for (var key in item) {
+                    licenseApps.map(itemLicen => {
+                        for ( var key in itemLicen) {
+                            if (item.id == itemLicen.id) {
+                                item.enable = itemLicen.isShow
+                                item.name = itemLicen.name
+                            }
+                        }
+                    })
+                }
+            })
+        }
+        return newApps
+    }
+    // 检查是否过期
+    checkIsOverdue = () => {
+        Api.checkisOverdue().then(res => {
+            if (res.data.code === 1) {
+                this.setState({
+                    alertShow: true,
+                    alertMessage: res.data.message
+                })
+            }
+        })
+    }
     renderApps = () => {
-        const { apps, user } = this.props;
-        const sections = apps.map(app => {
+        const { apps, licenseApps, user } = this.props;
+        const sections = this.compareEnable(apps, licenseApps).map(app => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
             return isShow && app.id !== MY_APPS.MAIN && (
@@ -66,6 +104,16 @@ class Dashboard extends Component {
             <div className="portal">
                 <Header />
                 <div className="container">
+                    {this.state.alertShow ? (
+                        <Alert
+                            className='ant-alert_height'
+                            message="请注意"
+                            description={<span>{this.state.alertMessage}, 点击<Link to="http://dtuic.dtstack.net/#/licensemanage" >立即申请</Link> </span>}
+                            type="warning"
+                            showIcon
+                            closable
+                        />
+                    ) : null }
                     <div className={`c-banner ${window.APP_CONF.theme || 'default'}`}>
                         <div className="c-banner__content l-content">
                             <div className="c-banner__content__txt">

@@ -102,6 +102,10 @@ export default class TableInfoPane extends React.Component {
             title: '字段名称',
             dataIndex: 'columnName',
             key: 'columnName',
+            render (text, record) {
+                const isDensen = record.needMask === 0; // 是否脱敏字段(0脱敏，1未脱敏)
+                return isDensen ? `${text}(脱敏)` : text
+            },
             filterIcon: <Icon type="search" />,
             filterDropdownVisible: this.state.filterDropdownVisible,
             filterDropdown: (

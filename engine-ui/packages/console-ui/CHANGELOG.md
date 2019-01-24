@@ -2,6 +2,45 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.3"></a>
+## [3.3.3](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.2...3.3.3) (2019-01-16)
+
+
+### Bug Fixes
+
+* **style:** fix title ([9ed0bf9](http://git.dtstack.cn/ziv/data-stack-web/commits/9ed0bf9))
+* **version:** fix version ([724df97](http://git.dtstack.cn/ziv/data-stack-web/commits/724df97))
+* **version:** remove 3.4 ([a660973](http://git.dtstack.cn/ziv/data-stack-web/commits/a660973))
+
+
+
+<a name="3.3.2"></a>
+## [3.3.2](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.0...3.3.2) (2019-01-15)
+
+
+### Bug Fixes
+
+* **api:** change api loading title ([7cb8595](http://git.dtstack.cn/ziv/data-stack-web/commits/7cb8595))
+
+
+### Features
+
+* **aliyun:** add aliyun style ([5b0728c](http://git.dtstack.cn/ziv/data-stack-web/commits/5b0728c))
+* **aliyun:** add configuration of the  loading text ([12e7739](http://git.dtstack.cn/ziv/data-stack-web/commits/12e7739))
+* **aliyun:** add configuration of the app name ([ebee703](http://git.dtstack.cn/ziv/data-stack-web/commits/ebee703)), closes [#13270](http://redmine.prod.dtstack.cn/issues/13270)
+
+
+
+<a name="3.3.1"></a>
+## [3.3.1](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.0...3.3.1) (2019-01-11)
+
+
+### Features
+
+* **aliyun:** add aliyun style ([5b0728c](http://git.dtstack.cn/ziv/data-stack-web/commits/5b0728c))
+
+
+
 <a name="3.3.0"></a>
 # [3.3.0](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.2.1...3.3.0) (2018-12-28)
 

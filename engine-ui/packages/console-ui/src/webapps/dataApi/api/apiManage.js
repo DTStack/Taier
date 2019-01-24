@@ -79,5 +79,8 @@ export default {
     },
     getApiConfigInfo (params) {
         return http.post(req.GET_API_CONFIG_INFO, params)
+    },
+    getRegisterInfo (params) {
+        return http.post(req.GET_REGISTER_API_INFO, params)
     }
 }

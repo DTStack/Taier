@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Menu, Dropdown, Icon } from 'antd'
 import { Link } from 'react-router'
 import styled from 'styled-components'
-
+import { cloneDeep } from 'lodash';
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
 import './style.scss'
@@ -28,6 +28,26 @@ function renderMenuItems (menuItems) {
     ) : []
 }
 
+// 控制apps与licenseApps应用是否显示
+function compareEnable (apps, licenseApps) {
+    const newApps = cloneDeep(apps);
+    if (licenseApps) {
+        newApps.map(item => {
+            for (var key in item) {
+                licenseApps.map(itemLicen => {
+                    for ( var key in itemLicen) {
+                        if (item.id == itemLicen.id) {
+                            item.enable = itemLicen.isShow
+                            item.name = itemLicen.name
+                        }
+                    }
+                })
+            }
+        })
+    }
+    return newApps
+}
+
 function renderATagMenuItems (menuItems, isRoot) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
@@ -45,7 +65,7 @@ export function Logo (props) {
 }
 
 export function MenuLeft (props) {
-    const { activeKey, onClick, menuItems, user } = props;
+    const { activeKey, onClick, menuItems, user, licenseApps } = props;
     return (
         <div className="menu left">
             <Menu
@@ -54,7 +74,7 @@ export function MenuLeft (props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems(menuItems, user.isRoot)}
+                {renderATagMenuItems(compareEnable(menuItems, licenseApps) || menuItems, user.isRoot)}
             </Menu>
         </div>
     )
@@ -62,24 +82,24 @@ export function MenuLeft (props) {
 
 export function MenuRight (props) {
     const {
-        onClick, settingMenus, user,
+        onClick, settingMenus, user, licenseApps,
         apps, app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage
     const extraParms = app ? `?app=${app && app.id}` : '';
-
     const userMenu = (
         <Menu onClick={onClick}>
-            <Menu.Item key="ucenter">
-                <a href={UIC_URL_TARGET}>用户中心</a>
-            </Menu.Item>
+            {!window.APP_CONF.hideUserCenter && (
+                <Menu.Item key="ucenter">
+                    <a href={UIC_URL_TARGET}>用户中心</a>
+                </Menu.Item>
+            )}
             <Menu.Item key="logout">
                 退出登录
             </Menu.Item>
         </Menu>
     )
-
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">
@@ -91,17 +111,17 @@ export function MenuRight (props) {
             {renderMenuItems(settingMenus)}
         </Menu>
     )
-
+    // 右下拉菜单
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(apps, user.isRoot)}
+            {renderATagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot)}
         </Menu>
     )
 
     return (
         <div className="menu right">
             <menu className="menu-right">
-                {showHelpSite ? (
+                {showHelpSite && !window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
                             <Icon type="question-circle-o" />
@@ -142,7 +162,7 @@ export function MenuRight (props) {
 
 @pureRender
 class Navigator extends Component {
-    constructor (props) {
+    constructor(props) {
         super(props)
         this.state = {
             current: ''
@@ -154,7 +174,7 @@ class Navigator extends Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.routing) {
             if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();
@@ -197,13 +217,13 @@ class Navigator extends Component {
     render () {
         const {
             user, logo, menuItems,
-            settingMenus, apps, app,
+            settingMenus, apps, app, licenseApps,
             menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
         return (
-            <header className={`header ${theme||'default'}`}>
+            <header className={`header ${theme || 'default'}`}>
                 <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>
@@ -212,6 +232,7 @@ class Navigator extends Component {
                         user={user}
                         activeKey={current}
                         menuItems={menuItems}
+                        licenseApps={licenseApps}
                         onClick={this.handleClick}
                     />
                 }
@@ -221,6 +242,7 @@ class Navigator extends Component {
                         user={user}
                         app={app}
                         apps={apps}
+                        licenseApps={licenseApps}
                         onClick={this.clickUserMenu}
                         settingMenus={settingMenus}
                         showHelpSite={showHelpSite}

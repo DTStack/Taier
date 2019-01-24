@@ -31,7 +31,7 @@
 
 目前前端代码仓库中，默认的`master`分支为最新发布的版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)或者其他稳定（stable）版本，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)来获得。有些特殊的定制化版本，我们会根据具体定制用户进行命名上的调整，例如`浙江大学`定制版，我们会是这样的命名：`v3.4.0-zju`。所有在选择`clone` 或者下载包的时候需要注意对应的 `Tag` 版本或者 `Branch`，如果不确定版本号或者更新内容，可以查看根目录下的`CHANGELOG`文件或者`package.json` 里面的 `version` 字段进行确认。
 
-接下来，说一下如何手动打包生成代码。
+接下来，说一下如何手动打包`生产环境`代码。
 
 ### 打包须知
 
@@ -120,7 +120,11 @@
 
 
 #### 生产环境必配 <color style="color:red;">`必配项`</color>
+<<<<<<< HEAD
 `注：`生产配置是部署应用后必须要更改的配置项，否则会造成应用`无法正常访问！`
+=======
+生成配置是部署应用后必须要更改的配置项，否则会造成应用<color style="color:red;">无法正常访问！</color>
+>>>>>>> 811ceb500fe79b86a671580cacdf01426c887ab5
 
 - 数栈 UIC
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import ajax from '../../../api/dataManage';
-import { Input, Spin, Table, Button, Card, Popconfirm, message, Tabs } from 'antd';
+import { Input, Spin, Table, Button, Card, Popconfirm, message, Tabs, Select } from 'antd';
 import '../../../styles/pages/dataManage.scss';
 import SlidePane from 'widgets/slidePane'
 import AddDesensitization from './addDesensitization';
@@ -10,6 +10,7 @@ import TableRelation from './tableRelation';
 import BloodRelation from './bloodRelation';
 const Search = Input.Search;
 const TabPane = Tabs.TabPane;
+const Option = Select.Option;
 @connect(state => {
     return {
         projects: state.projects,
@@ -29,7 +30,8 @@ class DesensitizationMange extends Component {
         queryParams: {
             currentPage: 1,
             pageSize: 20,
-            name: undefined
+            name: undefined,
+            pjId: undefined
         },
         total: 0,
         tableInfo: {} // 表点击查看血缘信息
@@ -65,6 +67,15 @@ class DesensitizationMange extends Component {
             })
         })
     }
+    changeProject = (value) => {
+        const { queryParams } = this.state;
+        this.setState({
+            queryParams: Object.assign(queryParams, {
+                pjId: value,
+                currentPage: 1
+            })
+        }, this.search)
+    }
     handleTableChange = (pagination, filters, sorter) => {
         const queryParams = Object.assign(this.state.queryParams, { currentPage: pagination.current })
         this.setState({
@@ -72,7 +83,10 @@ class DesensitizationMange extends Component {
         }, this.search)
     }
     showaddModal = () => {
-        ajax.voidCheckPermission().then(res => {
+        const { pjId } = this.state.queryParams;
+        ajax.voidCheckPermission({
+            projectId: pjId
+        }).then(res => {
             if (res.code === 1) {
                 this.setState({
                     addVisible: true,
@@ -97,7 +111,8 @@ class DesensitizationMange extends Component {
     }
     delete = (record) => {
         ajax.delDesensitization({
-            id: record.id
+            id: record.id,
+            projectId: record.projectId
         }).then(res => {
             if (res.code === 1) {
                 message.success('删除成功!');
@@ -115,6 +130,7 @@ class DesensitizationMange extends Component {
     closeSlidePane = () => {
         this.setState({
             visibleSlidePane: false
+            // selectedId: null
         })
     }
     /**
@@ -131,8 +147,6 @@ class DesensitizationMange extends Component {
     handleClickTable = (tableInfo) => {
         this.setState({
             tableInfo
-        }, () => {
-            console.log(tableInfo)
         })
     }
     initialColumns = () => {
@@ -146,6 +160,16 @@ class DesensitizationMange extends Component {
                         <a onClick={() => { this.showDesensitization(record) }}>{text}</a>
                     )
                 }
+            },
+            {
+                title: '项目名称',
+                width: 140,
+                dataIndex: 'projectName'
+            },
+            {
+                title: '项目显示名称',
+                width: 140,
+                dataIndex: 'projectAlia'
             },
             {
                 title: '关联表数量',
@@ -175,16 +199,15 @@ class DesensitizationMange extends Component {
                 width: 140,
                 dataIndex: 'opera',
                 render: (text, record) => {
-                    const relatedNum = record.relatedNum;
                     return (
-                        relatedNum === 0 ? <Popconfirm
+                        <Popconfirm
                             title="确定删除此条脱敏吗?"
                             okText="是"
                             cancelText="否"
                             onConfirm={() => { this.delete(record) }}
                         >
                             <a>删除</a>
-                        </Popconfirm> : <span style={{ color: '#ccc' }}>删除</span>
+                        </Popconfirm>
                     )
                 }
             }
@@ -193,11 +216,22 @@ class DesensitizationMange extends Component {
     render () {
         const columns = this.initialColumns();
         const { cardLoading, table, editModalKey, addVisible, visibleSlidePane, selectedId, nowView, tableInfo, queryParams, total } = this.state;
+        const { projects } = this.props;
         const pagination = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
             total
         }
+        const projectsOptions = projects.map(item => {
+            return <Option
+                title={item.projectAlias}
+                key={item.id}
+                name={item.projectAlias}
+                value={`${item.id}`}
+            >
+                {item.projectAlias}
+            </Option>
+        })
         return (
             <div className='box-1 m-card'>
                 <Card
@@ -205,12 +239,28 @@ class DesensitizationMange extends Component {
                     bordered={false}
                     loading={false}
                     title={
-                        <Search
-                            placeholder='按脱敏名称搜索'
-                            style={{ width: '200px', marginTop: '10px' }}
-                            onChange={this.changeName}
-                            onSearch={this.search}
-                        />
+                        <div>
+                            所属项目：
+                            <Select
+                                allowClear
+                                showSearch
+                                style={{ width: '150px', marginRight: '10px' }}
+                                placeholder='请选择所属项目'
+                                optionFilterProp='children'
+                                filterOption={(inputVal, option) => {
+                                    return option.props.children.toLowerCase().indexOf(inputVal.toLowerCase()) >= 0
+                                }}
+                                onChange={this.changeProject}
+                            >
+                                {projectsOptions}
+                            </Select>
+                            <Search
+                                placeholder='按脱敏名称搜索'
+                                style={{ width: '200px', marginTop: '10px' }}
+                                onChange={this.changeName}
+                                onSearch={this.search}
+                            />
+                        </div>
                     }
                     extra={
                         <Button
@@ -225,6 +275,15 @@ class DesensitizationMange extends Component {
                     <Spin tip="正在加载中..." spinning={cardLoading}>
                         <Table
                             className="m-table"
+                            rowClassName={
+                                (record, index) => {
+                                    if (this.state.selectedId && this.state.selectedId.id == record.id) {
+                                        return 'row-select'
+                                    } else {
+                                        return '';
+                                    }
+                                }
+                            }
                             columns={columns}
                             dataSource={table}
                             pagination={pagination}

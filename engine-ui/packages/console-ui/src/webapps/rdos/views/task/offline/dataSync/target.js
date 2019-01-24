@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Form, Input, Select, Button, Radio, Modal, Icon, message } from 'antd';
-import { isEmpty, debounce } from 'lodash';
+import { isEmpty, debounce, get } from 'lodash';
 import assign from 'object-assign';
 
 import utils from 'utils';
@@ -49,6 +49,10 @@ class TargetForm extends React.Component {
         sourceId && this.getTableList(sourceId);
         if (type) {
             this.checkIsNativeHive(type.tableName);
+            // 加载分区
+            if (type.partition) {
+                this.getHivePartions(type.table);
+            }
         }
     }
 
@@ -169,7 +173,7 @@ class TargetForm extends React.Component {
 
     getHivePartions = (tableName) => {
         const {
-            targetMap
+            targetMap, handleTargetMapChange
         } = this.props;
 
         const { isNativeHive, sourceId, type } = targetMap;
@@ -185,6 +189,8 @@ class TargetForm extends React.Component {
                 this.setState({
                     tablePartitionList: res.data || []
                 });
+                const havePartition = res.data && res.data.length > 0;
+                handleTargetMapChange({ havePartition });
             });
         }
     }
@@ -192,6 +198,8 @@ class TargetForm extends React.Component {
     changeTable (value) {
         if (value) {
             this.getTableColumn(value);
+            // Reset partition
+            this.props.form.setFieldsValue({ partition: '' });
             this.getHivePartions(value);
         }
         this.submitForm();
@@ -411,6 +419,8 @@ class TargetForm extends React.Component {
         const { targetMap, sourceMap } = this.props;
         const sourceType = sourceMap.type && sourceMap.type.type;
         const { isNativeHive } = targetMap;
+        // 是否拥有分区
+        const havePartition = targetMap.type && (!!targetMap.type.partition || targetMap.type.havePartition);
         let formItem;
         const getPopupContainer = this.props.getPopupContainer;
         const showCreateTable = (
@@ -546,14 +556,17 @@ class TargetForm extends React.Component {
                             </Select>
                         )}
                     </FormItem>,
-                    isNativeHive ? <FormItem
+                    isNativeHive && havePartition ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
+                            initialValue: get(targetMap, 'type.partition', '')
                         })(
                             <Select
                                 mode="combobox"
@@ -642,14 +655,17 @@ class TargetForm extends React.Component {
                             onClick={this.showCreateModal.bind(this)}
                             className="help-doc" >一键生成目标表</a>)}
                     </FormItem>,
-                    <FormItem
+                    havePartition ? <FormItem
                         {...formItemLayout}
                         label="分区"
                         key="partition"
                     >
                         {getFieldDecorator('partition', {
-                            rules: [],
-                            initialValue: isEmpty(targetMap) ? '' : targetMap.type.partition
+                            rules: [{
+                                required: true,
+                                message: '目标分区为必填项！'
+                            }],
+                            initialValue: get(targetMap, 'type.partition', '')
                         })(
                             <Select
                                 mode="combobox"
@@ -661,7 +677,7 @@ class TargetForm extends React.Component {
                                 filterOption={filterValueOption}
                             >
                                 {
-                                    (this.state.tablePartitionList || []).map(pt => {
+                                    this.state.tablePartitionList.map(pt => {
                                         return (
                                             <Option
                                                 key={`rdb-${pt}`}
@@ -674,7 +690,7 @@ class TargetForm extends React.Component {
                             </Select>
                         )}
                         <HelpDoc doc="partitionDesc" />
-                    </FormItem>,
+                    </FormItem> : '',
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"

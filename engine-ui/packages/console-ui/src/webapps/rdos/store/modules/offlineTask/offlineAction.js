@@ -1,11 +1,11 @@
 import React from 'react';
 import { message, Modal, Tag } from 'antd'
 import { hashHistory } from 'react-router'
-import { uniqBy, cloneDeep, isArray, get } from 'lodash'
+import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash'
 
 import utils from 'utils';
 import ajax from '../../../api'
-import { MENU_TYPE } from '../../../comm/const'
+import { MENU_TYPE, DATA_SYNC_MODE } from '../../../comm/const'
 
 import {
     stopSql,
@@ -252,6 +252,29 @@ export const workbenchActions = (dispatch) => {
         });
     }
 
+    /**
+     * 在 Modal 框编辑任务
+     * @param {*} task 任务对象
+     */
+    const onEditTaskByModal = (task) => {
+        ajax.getOfflineTaskByID({
+            id: task.id,
+            lockVersion: task.readWriteLockVO.version
+        }).then(res => {
+            if (res.code === 1) {
+                const data = res.data;
+                dispatch({
+                    type: modalAction.SET_MODAL_DEFAULT,
+                    payload: data
+                })
+                dispatch({
+                    type: modalAction.TOGGLE_CREATE_TASK,
+                    payload: data
+                });
+            }
+        })
+    }
+
     return {
         dispatch,
 
@@ -259,6 +282,10 @@ export const workbenchActions = (dispatch) => {
          * 重新加载任务Tab中的数据
          */
         reloadTaskTab,
+        /**
+         * 在 Modal 框编辑任务
+         */
+        onEditTaskByModal,
         /**
          * 更新目录
          */
@@ -1140,4 +1167,35 @@ export const getDataSyncReqParams = (dataSyncStore) => {
 
     // 数据拼装结果
     return clone;
+}
+
+/**
+ *  获取数据同步Tab保存的数据参数
+ *  ! 当保存Tab中的数据同步时使用
+ */
+export const getDataSyncSaveTabParams = (currentTabData, dataSync) => {
+    // deepClone避免直接mutate store
+    let reqBody = cloneDeep(currentTabData);
+    // 如果当前任务为数据同步任务
+    if (currentTabData.id === dataSync.tabId) {
+        const isIncrementMode = currentTabData.syncModel !== undefined && DATA_SYNC_MODE.INCREMENT === currentTabData.syncModel;
+        reqBody = assign(reqBody, getDataSyncReqParams(dataSync));
+        if (!isIncrementMode) {
+            reqBody.sourceMap.increColumn = undefined; // Delete increColumn
+        }
+    }
+    // 修改task配置时接口要求的标记位
+    reqBody.preSave = true;
+
+    // 接口要求上游任务字段名修改为dependencyTasks
+    if (reqBody.taskVOS) {
+        reqBody.dependencyTasks = reqBody.taskVOS.map(o => o);
+        reqBody.taskVOS = null;
+    }
+
+    // 删除不必要的字段
+    delete reqBody.taskVersions;
+
+    // 数据拼装结果
+    return reqBody;
 }

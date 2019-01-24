@@ -200,8 +200,7 @@ class OfflineTaskList extends Component {
             warning({
                 title: '提示',
                 content: `
-                    除去“失败”、“取消”、“完成”状态和“未删除”以外的任务才可以进行杀死操作，
-                    请您重新选择!
+                    “失败”、“取消”、“成功”状态和“已删除”的任务，不能被杀死 !
                 `
             })
         }
@@ -270,6 +269,8 @@ class OfflineTaskList extends Component {
                 const res = tasks.find(task => task.id === id)
                 if (res && (
                     res.status === TASK_STATUS.SUBMIT_FAILED ||
+                    res.status === TASK_STATUS.RUN_FAILED ||
+                    res.status === TASK_STATUS.PARENT_FAILD ||
                     res.status === TASK_STATUS.STOPED ||
                     res.status === TASK_STATUS.FINISHED ||
                     res.batchTask.isDeleted === 1
@@ -359,9 +360,7 @@ class OfflineTaskList extends Component {
     }
 
     changecycDate = (value) => {
-        this.setState({ cycDate: value, current: 1 }, () => {
-            this.search()
-        })
+        this.setState({ cycDate: value, current: 1 })
     }
 
     showTask = (task) => {
@@ -482,11 +481,9 @@ class OfflineTaskList extends Component {
             selectedTask: null
         })
     }
-
     disabledDate = (current) => {
         return current && current.valueOf() > moment().subtract(1, 'days').valueOf();
     }
-
     tableFooter = (currentPageData) => {
         return (
             <div className="ant-table-row  ant-table-row-level-0">
@@ -603,7 +600,15 @@ class OfflineTaskList extends Component {
                             </span>&nbsp;
                             <span className="status_overview_fail_font">
                                 <Circle className="status_overview_fail" />&nbsp;
-                            失败: &nbsp;{statistics.FAILED || 0}
+                            提交失败: &nbsp;{statistics.SUBMITFAILD || 0}
+                            </span>&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            运行失败: &nbsp;{statistics.FAILED || 0}
+                            </span>&nbsp;
+                            <span className="status_overview_fail_font">
+                                <Circle className="status_overview_fail" />&nbsp;
+                            上游失败: &nbsp;{statistics.PARENTFAILED || 0}
                             </span>&nbsp;
                             <span className="status_overview_frozen_font">
                                 <Circle className="status_overview_frozen" />&nbsp;
@@ -656,6 +661,11 @@ class OfflineTaskList extends Component {
                                         style={{ width: 200 }}
                                         format="YYYY-MM-DD"
                                         disabledDate={this.disabledDate}
+                                        ranges={{
+                                            '昨天': [moment().subtract(2, 'days'), yesterDay],
+                                            '最近7天': [moment().subtract(8, 'days'), yesterDay],
+                                            '最近30天': [moment().subtract(31, 'days'), yesterDay]
+                                        }}
                                         value={bussinessDate || null}
                                         onChange={this.changeBussinessDate}
                                     />
@@ -665,10 +675,17 @@ class OfflineTaskList extends Component {
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 200 }}
-                                        format="YYYY-MM-DD"
+                                        style={{ width: 270 }}
+                                        showTime
+                                        format="YYYY/MM/DD HH:mm:ss"
+                                        ranges={{
+                                            '今天': [moment(), moment()],
+                                            '最近7天': [moment().subtract(7, 'days'), moment()],
+                                            '最近30天': [moment().subtract(30, 'days'), moment()]
+                                        }}
                                         value={cycDate || null}
                                         onChange={this.changecycDate}
+                                        onOk={this.search}
                                     />
                                 </FormItem>
                             </Form>

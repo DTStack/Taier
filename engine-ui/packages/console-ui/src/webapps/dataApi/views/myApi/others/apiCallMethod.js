@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import Content from '../../../components/apiContent';
 import { apiMarketActions } from '../../../actions/apiMarket';
 import apiManage from '../../../api/apiManage'
+import { API_TYPE } from '../../../consts';
 
 const mapStateToProps = state => {
     const { user, apiMarket } = state;
@@ -33,7 +34,9 @@ class ApiCallMethod extends Component {
         beginTime: undefined,
         endTime: undefined,
         callLimit: 0,
+        token: '',
         apiConfig: {},
+        registerInfo: {},
         securityList: []
     }
 
@@ -46,7 +49,8 @@ class ApiCallMethod extends Component {
                             callUrl: res.data.url,
                             beginTime: res.data.beginTime,
                             endTime: res.data.endTime,
-                            callLimit: res.data.callLimit
+                            callLimit: res.data.callLimit,
+                            token: res.data.token
                         })
                     }
                 }
@@ -71,7 +75,7 @@ class ApiCallMethod extends Component {
 
         if (apiId != nextApiId || nextStatus != status) {
             if (slidePaneShow) {
-                this.updateData(nextApiId, nextStatus, mode);
+                this.updateData(nextApiId, nextStatus, mode, nextShowRecord);
             }
         }
     }
@@ -84,13 +88,14 @@ class ApiCallMethod extends Component {
             }
         });
     }
-    updateData (apiId, status, mode) {
+    updateData (apiId, status, mode, showRecord) {
         this.setState({
             callUrl: '',
             beginTime: undefined,
             endTime: undefined,
             callLimit: 0,
             securityList: [],
+            token: '',
             apiConfig: {}
         })
         if (!apiId) {
@@ -100,12 +105,29 @@ class ApiCallMethod extends Component {
         if (mode != 'manage') {
             this.getApiCallUrl(apiId);
             this.fetchSecurityList(apiId);
+        } else if (this.isRegister(showRecord)) {
+            /**
+             * 获取注册api配置信息
+             */
+            this.getRegisterInfo(apiId)
         } else {
+            /**
+             * 获取数据源信息
+             */
             this.fetchApiConfig(apiId);
         }
 
         this.props.getApiDetail(apiId);
         this.props.getApiExtInfo(apiId);
+    }
+    getRegisterInfo (apiId) {
+        apiManage.getRegisterInfo({ apiId }).then((res) => {
+            if (res.code == 1) {
+                this.setState({
+                    registerInfo: res.data
+                })
+            }
+        })
     }
     fetchApiConfig (apiId) {
         apiManage.getApiConfigInfo({ apiId }).then((res) => {
@@ -116,10 +138,23 @@ class ApiCallMethod extends Component {
             }
         })
     }
+    isRegister (showRecord = {}) {
+        let { apiType } = showRecord;
+        return apiType == API_TYPE.REGISTER
+    }
     render () {
-        const { callUrl, beginTime, endTime, callLimit, securityList, apiConfig } = this.state;
+        const {
+            callUrl,
+            beginTime,
+            endTime,
+            callLimit,
+            securityList,
+            apiConfig,
+            registerInfo,
+            token
+        } = this.state;
         const { showRecord = {}, apiMarket, mode, showUserInfo } = this.props;
-        let { apiId, id } = showRecord;
+        let { apiId, id, apiType } = showRecord;
         apiId = mode == 'manage' ? id : apiId;
 
         return (
@@ -130,13 +165,16 @@ class ApiCallMethod extends Component {
                         showSecurity={mode != 'manage'}
                         showApiConfig={mode == 'manage'}
                         apiConfig={apiConfig}
+                        registerInfo={registerInfo}
                         showUserInfo={showUserInfo}
                         callLimit={callLimit}
                         beginTime={beginTime}
                         endTime={endTime}
+                        isRegister={apiType == API_TYPE.REGISTER}
                         showRecord={showRecord}
                         mode={mode}
                         callUrl={callUrl}
+                        token={token}
                         apiMarket={apiMarket}
                         apiId={apiId} />
                 </div>

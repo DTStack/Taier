@@ -115,16 +115,16 @@ class Index extends Component {
         }, this.getProjectListInfo.bind(this));
     }
 
-    createProject = (project) => {
+    createProject = async (project) => {
         const { dispatch } = this.props;
-        Api.createProject(project).then((res) => {
-            if (res.code === 1) {
-                this.setState({ visible: false });
-                this.getProjectListInfo();
-                dispatch(ProjectAction.getProjects());
-                message.success('创建项目成功！');
-            }
-        })
+        let res = await Api.createProject(project);
+        if (res.code === 1) {
+            this.setState({ visible: false });
+            this.getProjectListInfo();
+            dispatch(ProjectAction.getProjects());
+            message.success('创建项目成功！');
+            return true;
+        }
     }
 
     changePage = (page) => {
@@ -246,16 +246,74 @@ class Index extends Component {
         }
     }
 
-    handleMouseOver = (e) => {
-        e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/offline3.svg'
+    handleMouseOver = (type, e) => {
+        switch (type) {
+            case 'operation': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/operation_select.svg';
+                break;
+            }
+            case 'develop': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/index_develop_select.svg';
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
-    handleMouseOut = (e) => {
-        e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/offline2.svg'
+    handleMouseOut = (type, e) => {
+        switch (type) {
+            case 'operation': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/operation.svg';
+                break;
+            }
+            case 'develop': {
+                e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/index_develop.svg';
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
+    fixArrayIndex = (arr) => {
+        let fixArrChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixArrChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixArrChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixArrChildrenApps[2] = item;
+                        break;
+                    case '数据地图':
+                        fixArrChildrenApps[3] = item;
+                        break;
+                    case '数据模型':
+                        fixArrChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixArrChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixArrChildrenApps
+        } else {
+            return []
+        }
+    }
     render () {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
+        const { licenseApps } = this.props;
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const taskNav = fixArrChildrenApps[1];
+        const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
@@ -304,7 +362,7 @@ class Index extends Component {
                             </div>
                         </Col>
                     </Row>
-                    <Row gutter={10}>
+                    <Row style={{ marginTop: '10px' }} gutter={10}>
                         <Col span="24" >
                             <Row gutter={10} style={{ margin: 0 }}>
                                 {
@@ -340,31 +398,37 @@ class Index extends Component {
                                                         )}
                                                     </Col>
                                                     <Col span="24" className="card-task-padding">
-                                                        {
-                                                            v.status != 1 ? '' : <Row >
-                                                                <Col span="12">
-                                                                    <Card className="card-task"
-                                                                        onClick={() => { this.setRouter('offline', v) }}
-                                                                        onMouseOver={(e) => { this.handleMouseOver(e) }}
-                                                                        onMouseOut={(e) => { this.handleMouseOut(e) }}
-                                                                        noHovering
-                                                                    >
-                                                                        <span className="img-container">
-                                                                            <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
-                                                                        </span>
-                                                                        数据开发
-                                                                    </Card>
-                                                                </Col>
-                                                                <Col span="12">
-                                                                    <Card className="card-task" style={{ padding: '1.5 0' }}
-                                                                        onClick={() => { this.setRouter('operation', v) }}
-                                                                        noHovering
-                                                                    >
-                                                                        运维中心
-                                                                    </Card>
-                                                                </Col>
-                                                            </Row>
-                                                        }
+                                                        <Row>
+                                                            {
+                                                                v.status != 1 || (taskNav && !taskNav.isShow) ? '' : (
+                                                                    <Col span="12">
+                                                                        <Card className="card-task"
+                                                                            onClick={() => { this.setRouter('offline', v) }}
+                                                                            onMouseOver={(e) => { this.handleMouseOver(e) }}
+                                                                            onMouseOut={(e) => { this.handleMouseOut(e) }}
+                                                                            noHovering
+                                                                        >
+                                                                            <span className="img-container">
+                                                                                <img className="task-img" src="/public/rdos/img/icon/offline2.svg" />
+                                                                            </span>
+                                                                            数据开发
+                                                                        </Card>
+                                                                    </Col>
+                                                                )
+                                                            }
+                                                            {
+                                                                v.status != 1 || (operaNav && !operaNav.isShow) ? '' : (
+                                                                    <Col span="12">
+                                                                        <Card className="card-task" style={{ padding: '1.5 0' }}
+                                                                            onClick={() => { this.setRouter('operation', v) }}
+                                                                            noHovering
+                                                                        >
+                                                                            运维中心
+                                                                        </Card>
+                                                                    </Col>
+                                                                )
+                                                            }
+                                                        </Row>
                                                     </Col>
                                                 </Row>
                                                 {
@@ -405,6 +469,7 @@ class Index extends Component {
 export default connect((state) => {
     return {
         user: state.user,
-        projects: state.projects
+        projects: state.projects,
+        licenseApps: state.licenseApps
     }
 })(Index)

@@ -1,10 +1,13 @@
 import React from 'react';
 
+import CopyUtils from 'utils/copy';
+import './style.scss';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/languages/zh-CN.js';
 
 class SpreadSheet extends React.Component {
     tableRef = React.createRef()
+    copyUtils = new CopyUtils()
     componentDidUpdate (prevProps, prevState) {
         if (prevProps != this.props) {
             if (this.tableRef) {
@@ -47,6 +50,34 @@ class SpreadSheet extends React.Component {
         }
         return null;
     }
+    afterGetRowHeader (row, th) {
+        console.log(row);
+    }
+    beforeCopy (arr, arr2) {
+        /**
+         * 去除格式化
+         */
+        const value = arr.map((row) => {
+            return row.join('\t');
+        }).join('\n');
+        this.copyUtils.copy(value);
+        return false;
+    }
+    getContextMenu () {
+        const that = this;
+        return {
+            items: {
+                copy: {
+                    name: '复制',
+                    callback: function () {
+                        let indexArr = this.getSelected();
+                        let copyDataArr = this.getData.apply(this, indexArr[0]);
+                        that.beforeCopy(copyDataArr);
+                    }
+                }
+            }
+        }
+    }
     render () {
         const { columns } = this.props;
         const showData = this.getData();
@@ -54,7 +85,7 @@ class SpreadSheet extends React.Component {
             <HotTable
                 ref={this.tableRef}
                 className='o-handsontable-no-border'
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%' }}
                 language='zh-CN'
                 colHeaders={columns}
                 data={showData}
@@ -66,9 +97,10 @@ class SpreadSheet extends React.Component {
                 manualRowResize={true}// 拉伸功能
                 manualColumnResize={true}// 拉伸功能
                 colWidths={200}
-                rowHeights={30}
+                beforeCopy={this.beforeCopy.bind(this)}
+                afterGetRowHeader={this.afterGetRowHeader}
                 columnHeaderHeight={25}
-                contextMenu={['copy']}
+                contextMenu={this.getContextMenu()}
                 stretchH='all' // 填充空白区域
             />
         )

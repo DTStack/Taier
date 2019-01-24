@@ -40,6 +40,7 @@ export default {
     CHECK_API_IS_EXIST: `${DATA_API_BASE_URL}/apis/checkNameExist`, // api名称是否存在
     GET_API_TIME_INFO_FOR_MANAGER: `${DATA_API_BASE_URL}/apis/getApiTimeInfoForManager`, // api调用延迟
     GET_API_CONFIG_INFO: `${DATA_API_BASE_URL}/apis/getDataSourceInfo`, // 获取api的配置信息
+    GET_REGISTER_API_INFO: `${DATA_API_BASE_URL}/apis/getRegistApiInfo`, // 获取注册api的信息
 
     // ===== 我的api =====//
     GET_APPLY_LIST: `${DATA_API_BASE_URL}/apply/userApplyList`, // 获取申请列表
