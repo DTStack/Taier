@@ -46,7 +46,7 @@ class Dashboard extends Component {
     // 控制apps与licenseApps应用是否显示
     compareEnable = (apps, licenseApps) => {
         const newApps = cloneDeep(apps);
-        if (licenseApps) {
+        if (licenseApps && licenseApps.length > 1) {
             newApps.map(item => {
                 for (var key in item) {
                     licenseApps.map(itemLicen => {
@@ -59,6 +59,8 @@ class Dashboard extends Component {
                     })
                 }
             })
+        } else {
+            return []
         }
         return newApps
     }

@@ -31,7 +31,7 @@ function renderMenuItems (menuItems) {
 // 控制apps与licenseApps应用是否显示
 function compareEnable (apps, licenseApps) {
     const newApps = cloneDeep(apps);
-    if (licenseApps) {
+    if (licenseApps && licenseApps.length > 1) {
         newApps.map(item => {
             for (var key in item) {
                 licenseApps.map(itemLicen => {
@@ -44,6 +44,16 @@ function compareEnable (apps, licenseApps) {
                 })
             }
         })
+    } else {
+        return [{
+            id: 'main',
+            name: '首页',
+            link: 'index.html',
+            filename: 'index.html',
+            target: '_self',
+            enable: true,
+            apiBase: '/main'
+        }]
     }
     return newApps
 }
