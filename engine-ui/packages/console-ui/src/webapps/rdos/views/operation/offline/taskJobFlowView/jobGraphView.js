@@ -154,15 +154,15 @@ class JobGraphView extends Component {
         this.initGraph(this.props.graphData);
     }
 
-    /* eslint-disable-next-line */
-    componentWillReceiveProps (nextProps) {
-        console.log('componentWillReceiveProps FlowView:', nextProps.graphData)
+    shouldComponentUpdate (nextProps, nextState) {
         const oldGraphData = this.props.graphData
         const { graphData } = nextProps
         if (graphData && oldGraphData !== graphData) {
             this.initGraph(graphData);
         }
+        return true;
     }
+
 
     initGraph = (graphData) => {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素

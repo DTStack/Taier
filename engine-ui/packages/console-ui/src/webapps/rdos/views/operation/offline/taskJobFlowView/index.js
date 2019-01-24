@@ -56,12 +56,11 @@ class TaskJobFlowView extends Component {
     }
 
     renderGraph = (data) => {
-        let originData = this._originData;
+        const originData = this._originData;
         if (originData) {
             mergeTreeNodes(originData, data);
-            this._originData = originData;
         } else {
-            this._originData = data;
+            this._originData = cloneDeep(data);
         }
         const graphData = cloneDeep(this._originData);
         this.setState({
