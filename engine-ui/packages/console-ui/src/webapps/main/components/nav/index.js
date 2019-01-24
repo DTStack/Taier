@@ -46,7 +46,10 @@ function compareEnable (apps, licenseApps) {
         })
         return newApps
     } else {
-        return [apps[0]]
+        const mainApp = apps.find(item => {
+            return item.id == 'main'
+        })
+        return [mainApp]
     }
 }
 
