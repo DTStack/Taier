@@ -311,7 +311,7 @@ class TaskForm extends React.Component {
                                 rules: [],
                                 initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
                             })(
-                                <Input placeholder="请输入任务参数" />
+                                <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入任务参数" />
                             )}
                         </FormItem>
                     </div>
@@ -397,7 +397,7 @@ class TaskForm extends React.Component {
                                 rules: [],
                                 initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
                             })(
-                                <Input placeholder="请输入任务参数" />
+                                <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入任务参数" />
                             )}
                         </FormItem>}
                     </span>
