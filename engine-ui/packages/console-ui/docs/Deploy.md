@@ -31,17 +31,20 @@
 
 目前前端代码仓库中，默认的`master`分支为最新发布的版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)或者其他稳定（stable）版本，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)来获得。有些特殊的定制化版本，我们会根据具体定制用户进行命名上的调整，例如`浙江大学`定制版，我们会是这样的命名：`v3.4.0-zju`。所有在选择`clone` 或者下载包的时候需要注意对应的 `Tag` 版本或者 `Branch`，如果不确定版本号或者更新内容，可以查看根目录下的`CHANGELOG`文件或者`package.json` 里面的 `version` 字段进行确认。
 
-获取生产环境的代码是直接把前端 gitlab 仓库项目对于的版本 `clone` 到本地，找到对应 Tag 版本或者 branch 代码 checkout，然后执行 build 相关的指令。
-
 接下来，说一下如何手动打包生成代码。
 
-### 打包之前
+### 打包须知
 
 在开始打包项目前，你需要清楚的是，DTinsight 前端是一个集合了`DTinsight.IDE、DTinsight.Valid、DTinsight.API、DTinsight.Tag、DTinsight.Console、DTinsight.Analytics`若干应用的项目。考虑到不同客户的需求情况，故设计成根据具体应用需求生成对应的发布文件的方式，也就是说假如你只需要，`DTinsight.IDE` 这一个应用，只需要配置该一个应用即可，打包后生成的代码仅此包含改项目的运行代码。该配置项的文件为：`src/config/base.js` 与`src/config/defaultApps.js`，在 `src/config` 目录下找到这 2 个配置文件，并找到对应 App 的启用`（enable）`字段，`true` 表示启用，`false`关闭。
 
-### 打包源码
+### 构建源码
 
-1. clone 项目源码
+1. 安装 Node.js
+
+    目前编译前端项目，需要依赖 `Node.js` 环境，所以如果你没有安装 `Node.js` 的情况下，建议您先安装一下 `8.0` 以上版本后的 `Node.js` 后，再继续操作。具体安装可参看[Node.js 官网](https://nodejs.org/en/download/).
+
+
+2. clone 项目源码
 
     通常推荐`ssh`的方式.
 
@@ -49,16 +52,15 @@
     $ # http
     $ git clone http://git.dtstack.cn/dtstack/data-stack-web.git
     $ # ssh
-    $ git clone ssh://git@git.dtstack.cn:10022/dtstack/data-stack-web.git // ssh
+    $ git clone ssh://git@git.dtstack.cn:10022/dtstack/data-stack-web.git
+
     ```
-
-2. 安装 Node.js
-
-    目前编译前端项目，需要依赖 `Node.js` 环境，所以如果你没有安装 `Node.js` 的情况下，建议您先安装一下 `8.0` 以上版本后的 `Node.js` 后，再继续操作。具体安装可参看[Node.js 官网](https://nodejs.org/en/download/).
 
 3. 安装依赖环境，并执行构建
 
-    ```plain
+    ```bash
+    $ # 默认 master 分支，如果需要切换到其他版本Tag， 则需要 checkout
+    $ git checkout v3.4.0
     $ npm install // 安装打包所需要的依赖文件
     $ npm run build // 执行生成环境打包
     ```
@@ -70,7 +72,7 @@
 
 ## 三、生产环境代码的相关`配置`
 
-#### 生成代码的目录结构说明
+#### 生产程序（dist 目录）结构说明
 
 ```bash
 | - dist
