@@ -48,6 +48,7 @@ class SysAdmin extends Component {
                 <Navigator
                     logo={logo}
                     licenseApps={licenseApps}
+                    isAdminAndMsg={true}
                     menuItems={menuItems}
                     {...this.props}
                 />

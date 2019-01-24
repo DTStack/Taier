@@ -2,7 +2,7 @@
  * 应用全局配置文件
  */
 window.APP_CONF = {
-    name: '数栈', // 应用名字
+    name: '', // 应用名字
     titleName: '数栈', // 网页title
     loadingTitle: '数栈', // loading的应用名字
     indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
