@@ -1,5 +1,11 @@
 # 数栈前端部署文档
 
+## 应用使用环境
+
+> 浏览器：Chrome <br>
+> 版本： 70 +
+
+在开始使用前，我们建议您检查下浏览器的版本，当前我们推荐您默认使用 `Chrome 70 `以上的版本，而保证获得良好的体验，`过低`的版本可能会导致应用`无法正常运行`。另外，为了您获得最好的使用体验，我们强烈建议你开启 Chrome 的自动更新，从而获取更多更好的新特性和优化。
 
 ## 一、 Web Server 安装配置说明
 
@@ -23,7 +29,7 @@
 
 ## 二、获取生产代码
 
-目前前端代码仓库中，默认的`master`分支为最新的稳定版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)。
+目前前端代码仓库中，默认的`master`分支为最新发布的版本，如果需要[历史版本](http://git.dtstack.cn/dtstack/data-stack-web/tags)或者其他稳定（stable）版本，则可以通过查看 commit 的 [Tags 记录](http://git.dtstack.cn/dtstack/data-stack-web/tags)来获得。有些特殊的定制化版本，我们会根据具体定制用户进行命名上的调整，例如`浙江大学`定制版，我们会是这样的命名：`v3.4.0-zju`。所有在选择`clone` 或者下载包的时候需要注意对应的 `Tag` 版本或者 `Branch`，如果不确定版本号或者更新内容，可以查看根目录下的`CHANGELOG`文件或者`package.json` 里面的 `version` 字段进行确认。
 
 获取生产环境的代码是直接把前端 gitlab 仓库项目对于的版本 `clone` 到本地，找到对应 Tag 版本或者 branch 代码 checkout，然后执行 build 相关的指令。
 
@@ -60,7 +66,9 @@
     运行`build`命令后，会在根目录下生产一份用于成产环境的代码 `dist`,
     打包完成后，可以通过`git`提交到远程仓库，或者直接 copy 代码到部署服务器.
 
-## 三、生产环境的相关`配置`
+    `注意`: 如果安装过程中出现任何 `not found package`相关的情况，可以反馈给我们。另外，你可以通过手动拷贝缺少的`package`名称，执行 `npm install packageName --save` 命令来进行安装。
+
+## 三、生产环境代码的相关`配置`
 
 #### 生成代码的目录结构说明
 
@@ -106,11 +114,11 @@
 
 由于数栈 Web 有依赖 `UIC` 等相关服务，所以在生成打包文件后，需要根据实际情况进行配置。目前数栈产品是多个项目的集合，所以每个项目都保有独立的自定义配置`（config)`文件。
 
-以上 common 目录下的 config 配置为全局配置文件，服务所有应用的功能配置（UIC, 默认配置）项。其他的的每个应用的`config`文件主要包含应用本身自定义的内容。比较特别的是`dataQuality` 项目中则需要单独配置远程触发功能的 `API Server` 地址，该功能主要用来给第三方 提供 API 调用服务。配置方法请看下面：
+以上 common 目录下的 config 配置为应用`全局配置`文件，服务所有应用的功能配置（UIC, 默认配置）项。其他的的每个应用的`config`文件主要包含应用本身自定义的内容。比较特别的是`dataQuality` 项目中则需要单独配置远程触发功能的 `API Server` 地址，该功能主要用来给第三方 提供 API 调用服务。配置方法请看下面：
 
 
-#### 生产环境必配 <color style="color:red;">必配项</color>
-生成配置是部署应用后必须要更改的配置项，否则会造成应用<color style="color:red;">无法正常访问！</color>
+#### 生产环境必配 <color style="color:red;">`必配项`</color>
+`注：`生产配置是部署应用后必须要更改的配置项，否则会造成应用`无法正常访问！`
 
 - 数栈 UIC
 
