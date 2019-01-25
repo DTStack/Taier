@@ -366,7 +366,7 @@ class TaskIndex extends Component {
 
     render () {
         const { dispatch, currentPage, editor } = this.props
-        const isModifi = currentPage.notSynced; // 是否修改
+        const isModify = currentPage.notSynced; // 是否修改
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
 
         return (
@@ -414,7 +414,7 @@ class TaskIndex extends Component {
                             >
                                 <Button
                                     onClick={
-                                        isModifi ? this.showConfirmModal : this.showPublish
+                                        isModify ? this.showConfirmModal : this.showPublish
                                     }
                                 >
                                     <Icon type="upload" /> 提交

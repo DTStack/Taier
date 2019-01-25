@@ -237,7 +237,7 @@ class Workbench extends React.Component {
 
         const disablePublish = !isTask || currentTabData.notSynced || isWorkflowNode;
         const disableSubmit = !isTask || isWorkflowNode;
-        const isModifi = currentTabData.notSynced; // 是否被修改
+        const isModify = currentTabData.notSynced; // 是否被修改
         const showPublish = isTask;
 
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
@@ -296,7 +296,7 @@ class Workbench extends React.Component {
                             <Button
                                 disabled={disableSubmit}
                                 onClick={
-                                    isModifi ? this.showConfirmModal : this.showPublish.bind(this)
+                                    isModify ? this.showConfirmModal : this.showPublish.bind(this)
                                 }
                             >
                                 <Icon type="upload" themeDark={themeDark} />提交
