@@ -141,26 +141,23 @@ class JobGraphView extends Component {
         loading: 'success',
     }
 
+    _view = null; // 存储view信息
+
     static getDerivedStateFromProps (props, state) {
         return {
             loading: props.loading
         }
     }
 
-    _view = null; // 存储view信息
-
     componentDidMount() {
-        console.log('componentDidMount FlowView:', this.props)
         this.initGraph(this.props.graphData);
     }
 
-    /* eslint-disable-next-line */
-    componentWillReceiveProps (nextProps) {
-        console.log('componentWillReceiveProps FlowView:', nextProps.graphData)
-        const oldGraphData = this.props.graphData
-        const { graphData } = nextProps
-        if (graphData && oldGraphData !== graphData) {
-            this.initGraph(graphData);
+    componentDidUpdate (prevProps) {
+        const nextGraphData = this.props.graphData
+        const { graphData } = prevProps
+        if (nextGraphData && nextGraphData !== graphData) {
+            this.initGraph(nextGraphData);
         }
     }
 
@@ -202,7 +199,9 @@ class JobGraphView extends Component {
         graph.isCellEditable = function () {
             return false;
         }
-
+        graph.isCellResizable = function (cell) {
+            return false;
+        }
         // 设置Vertex样式
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle)
@@ -361,7 +360,6 @@ class JobGraphView extends Component {
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.batchTask.flowId && data.batchTask.flowId !== 0;
-            const noWorkflowSubNodes = !data.subNodes || data.subNodes.lenght === 0;
             let nodeGeo = data._geometry;
             const startPoint = Object.assign({}, defaultGeo);
 
@@ -369,10 +367,6 @@ class JobGraphView extends Component {
             const levelKey = cacheLevel[getLevelKey(data)];
             if (levelKey !== undefined) {
                 nodeGeo.count = levelKey;
-            }
-
-            if (isWorkflow) {
-                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;color:#333333;';
             }
 
             if (isWorkflowNode) {

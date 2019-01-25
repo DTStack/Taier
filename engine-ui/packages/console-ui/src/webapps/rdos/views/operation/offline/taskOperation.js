@@ -145,14 +145,19 @@ class OfflineTaskList extends Component {
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
                 res.data.data = res.data.data || [];
+                const expandedRowKeys = [];
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
                 for (let i = 0; i < res.data.data.length; i++) {
                     let job = res.data.data[i];
-                    if (job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW && !job.children) {
-                        job.children = [];
+                    if (job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW) {
+                        if (!job.children) {
+                            job.children = [];
+                        } else {
+                            expandedRowKeys.push(job.id);
+                        }
                     }
                 }
-                ctx.setState({ tasks: res.data, expandedRowKeys: [] })
+                ctx.setState({ tasks: res.data, expandedRowKeys: expandedRowKeys })
             }
             ctx.setState({
                 loading: false
@@ -720,7 +725,6 @@ class OfflineTaskList extends Component {
                             }
                             style={{ marginTop: '1px' }}
                             className="m-table full-screen-table-120"
-                            defaultExpandAllRows={true}
                             expandedRowKeys={this.state.expandedRowKeys}
                             rowSelection={rowSelection}
                             pagination={pagination}
