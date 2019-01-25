@@ -36,8 +36,8 @@ module.exports = {
                 secure: false,
             },
             "/uic": { // UIC地址
-                target: "http://dtuic.dtstack.net",
-                // target: "http://uic.insight.com",
+                // target: "http://dtuic.dtstack.net",
+                target: "http://uic.insight.com",
                 // target: 'http://172.16.1.92:8668',
                 changeOrigin: true,
                 // pathRewrite:{"^/uic":"/"},
