@@ -34,6 +34,7 @@ const FormItem = Form.Item;
 class TaskIndex extends Component {
     state = {
         publishDesc: '',
+        confirmSaveVisible: false,
         showPublish: false
     }
 
@@ -44,7 +45,7 @@ class TaskIndex extends Component {
         }
     }
 
-    saveTask = () => {
+    saveTask = (saveMode) => {
         const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
         console.log('saveTask', this.props);
 
@@ -89,7 +90,9 @@ class TaskIndex extends Component {
         // currentPage.side = dimensionPanelColumn;
 
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
-
+        this.setState({
+            confirmSaveVisible: false
+        })
         return new Promise((resolve, reject) => {
             Api.saveTask(currentPage).then((res) => {
                 const updatePageStatus = (pageData) => {
@@ -108,6 +111,13 @@ class TaskIndex extends Component {
                         dispatch(collectionActions.getDataSource())
                     }
                     resolve(true)
+                    setTimeout(() => {
+                        saveMode ? this.setState({
+                            showPublish: true
+                        }) : this.setState({
+                            confirmSaveVisible: false
+                        })
+                    }, 500);
                 }
 
                 if (res.code === 1) {
@@ -286,7 +296,34 @@ class TaskIndex extends Component {
             publishDesc: e.target.value
         })
     }
-
+    showConfirmModal = () => {
+        this.setState({
+            confirmSaveVisible: true
+        })
+    }
+    renderConfirSave = () => {
+        return (
+            <Modal
+                title='提交'
+                visible={this.state.confirmSaveVisible}
+                onCancel={() => {
+                    this.setState({
+                        confirmSaveVisible: false
+                    })
+                }}
+                onOk={() => {
+                    this.saveTask(true)
+                }}
+            >
+                <p>文件被修改，是否需要保存?</p>
+            </Modal>
+        )
+    }
+    showPublish = () => {
+        this.setState({
+            showPublish: true
+        })
+    }
     renderPublish = () => {
         const { user } = this.props;
         const { publishDesc } = this.state
@@ -329,7 +366,7 @@ class TaskIndex extends Component {
 
     render () {
         const { dispatch, currentPage, editor } = this.props
-        const disablePublish = currentPage.notSynced;
+        const isModifi = currentPage.notSynced; // 是否修改
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
 
         return (
@@ -347,7 +384,7 @@ class TaskIndex extends Component {
                             </Button>
                             <Button
                                 disabled={currentPage.invalid}
-                                onClick={this.saveTask}
+                                onClick={this.saveTask.bind(this, false)}
                                 title="保存任务"
                             >
                                 <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
@@ -375,7 +412,11 @@ class TaskIndex extends Component {
                                 title="提交到调度系统"
                                 mouseLeaveDelay={0}
                             >
-                                <Button disabled={disablePublish} onClick={() => { this.setState({ showPublish: true }) }}>
+                                <Button
+                                    onClick={
+                                        isModifi ? this.showConfirmModal : this.showPublish
+                                    }
+                                >
                                     <Icon type="upload" /> 提交
                                 </Button>
                             </Tooltip>
@@ -394,6 +435,7 @@ class TaskIndex extends Component {
                     editorChange={this.debounceChange}
                     saveTask={this.saveTask.bind(this)}
                 />
+                {this.renderConfirSave()}
                 {this.renderPublish()}
             </Row>
         )
