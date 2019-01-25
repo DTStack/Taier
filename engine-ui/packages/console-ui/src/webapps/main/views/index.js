@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
+import GlobalLoading from './layout/loading'
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
@@ -127,7 +128,11 @@ class Main extends Component {
     }
 
     render () {
-        return this.props.children || <NotFund />
+        let { children } = this.props;
+        if (this.props.licenseApps && this.props.licenseApps.length != 0 && this.props.licenseApps.length <= 1) {
+            children = <GlobalLoading />
+        }
+        return children || <NotFund />
     }
 }
 
