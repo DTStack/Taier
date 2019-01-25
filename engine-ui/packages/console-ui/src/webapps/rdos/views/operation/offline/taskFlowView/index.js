@@ -214,54 +214,57 @@ export default class TaskFlowView extends Component {
         let highlightEdges = [];
         let selectedCell = null;
 
-        graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
-            const cells = evt.getProperty('cells');
-            const cell = cells && cells[0];
-            const collapse = evt.getProperty('collapse');
-            const isWorkflow = get(cell, 'value.taskType') === TASK_TYPE.WORKFLOW;
+        if (graph) {
+            graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
+                const cells = evt.getProperty('cells');
+                const cell = cells && cells[0];
+                const collapse = evt.getProperty('collapse');
+                const isWorkflow = get(cell, 'value.taskType') === TASK_TYPE.WORKFLOW;
 
-            if (cell && isWorkflow && !collapse) {
-                ctx.loadWorkflowNodes(cell.value);
-                // 始终保持折叠状态
-                cell.collapsed = true;
-            }
-        })
+                if (cell && isWorkflow && !collapse) {
+                    ctx.loadWorkflowNodes(cell.value);
+                    // 始终保持折叠状态
+                    cell.collapsed = true;
+                }
+            })
 
-        graph.addListener(mxEvent.onClick, function (sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell && cell.vertex) {
-                const data = cell.value;
-                const isWorkflowNode = data.flowId && data.flowId !== 0;
-                if (isWorkflowNode) {
-                    ctx.setState({ selectedWorkflowNode: data })
+            graph.addListener(mxEvent.onClick, function (sender, evt) {
+                const cell = evt.getProperty('cell')
+                if (cell && cell.vertex) {
+                    graph.clearSelection();
+                    const data = cell.value;
+                    const isWorkflowNode = data.flowId && data.flowId !== 0;
+                    if (isWorkflowNode) {
+                        ctx.setState({ selectedWorkflowNode: data })
+                    } else {
+                        ctx.setState({ selectedTask: data })
+                    }
+                    const outEdges = graph.getOutgoingEdges(cell);
+                    const inEdges = graph.getIncomingEdges(cell);
+                    const edges = outEdges.concat(inEdges);
+                    for (let i = 0; i < edges.length; i++) {
+                        /* eslint-disable-next-line */
+                        const highlight = new mxCellHighlight(graph, '#2491F7', 2);
+                        const state = graph.view.getState(edges[i]);
+                        highlight.highlight(state);
+                        highlightEdges.push(highlight);
+                    }
+                    selectedCell = cell;
                 } else {
-                    ctx.setState({ selectedTask: data })
+                    const cells = graph.getSelectionCells();
+                    graph.removeSelectionCells(cells);
                 }
-                const outEdges = graph.getOutgoingEdges(cell);
-                const inEdges = graph.getIncomingEdges(cell);
-                const edges = outEdges.concat(inEdges);
-                for (let i = 0; i < edges.length; i++) {
-                    /* eslint-disable-next-line */
-                    const highlight = new mxCellHighlight(graph, '#2491F7', 2);
-                    const state = graph.view.getState(edges[i]);
-                    highlight.highlight(state);
-                    highlightEdges.push(highlight);
-                }
-                selectedCell = cell;
-            } else {
-                const cells = graph.getSelectionCells();
-                graph.removeSelectionCells(cells);
-            }
-        });
+            });
 
-        graph.clearSelection = function (evt) {
-            if (selectedCell) {
-                for (let i = 0; i < highlightEdges.length; i++) {
-                    highlightEdges[i].hide();
+            graph.clearSelection = function (evt) {
+                if (selectedCell) {
+                    for (let i = 0; i < highlightEdges.length; i++) {
+                        highlightEdges[i].hide();
+                    }
+                    selectedCell = null;
                 }
-                selectedCell = null;
-            }
-        };
+            };
+        }
     }
 
     onCloseWorkflow = () => {

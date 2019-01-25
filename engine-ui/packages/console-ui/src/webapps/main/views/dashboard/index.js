@@ -67,7 +67,7 @@ class Dashboard extends Component {
     // 检查是否过期
     checkIsOverdue = () => {
         Api.checkisOverdue().then(res => {
-            if (res.data.code === 1) {
+            if (res.data && res.data.code === 1) {
                 this.setState({
                     alertShow: true,
                     alertMessage: res.data.message
@@ -110,7 +110,7 @@ class Dashboard extends Component {
                         <Alert
                             className='ant-alert_height'
                             message="请注意"
-                            description={<span>{this.state.alertMessage}, 点击<Link to="http://dtuic.dtstack.net/#/licensemanage" >立即申请</Link> </span>}
+                            description={<span>{this.state.alertMessage}, 点击<Link to="http://dtuic.dtstack.net/#/licenseview" >立即申请</Link> </span>}
                             type="warning"
                             showIcon
                             closable

@@ -47,7 +47,6 @@ function compareEnable (apps, licenseApps) {
         })
         return newApps
     } else {
-        console.log(MY_APPS.MAIN)
         const mainApp = apps.find(item => {
             return item.id == MY_APPS.MAIN
         })
@@ -56,6 +55,7 @@ function compareEnable (apps, licenseApps) {
 }
 
 function renderATagMenuItems (menuItems, isRoot) {
+    
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
