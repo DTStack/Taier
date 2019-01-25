@@ -690,7 +690,7 @@ class OfflineTaskList extends Component {
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 270 }}
+                                        style={{ width: 200 }}
                                         showTime
                                         format="YYYY/MM/DD HH:mm:ss"
                                         ranges={{
