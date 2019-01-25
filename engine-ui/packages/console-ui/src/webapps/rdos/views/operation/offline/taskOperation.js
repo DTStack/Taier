@@ -365,7 +365,7 @@ class OfflineTaskList extends Component {
         })
     }
 
-    changecycDate = (value) => {
+    changeCycDate = (value) => {
         this.setState({
             cycDate: value,
             current: 1
@@ -699,7 +699,7 @@ class OfflineTaskList extends Component {
                                             '最近30天': [moment().subtract(30, 'days'), moment()]
                                         }}
                                         value={cycDate || null}
-                                        onChange={this.changecycDate}
+                                        onChange={this.changeCycDate}
                                         onOk={this.search}
                                     />
                                 </FormItem>
