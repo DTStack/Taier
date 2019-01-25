@@ -767,13 +767,15 @@ public class FlinkClient extends AbsClient {
                 exceptionInfo = getMessageByHttp(exceptPath, reqURL);
                 return exceptionInfo;
             } catch (RdosException e){
-                if (e.getErrorMessage().contains("404")){
-                    continue;
-                } else {
+                if (!e.getErrorMessage().contains("404")){
                     throw e;
                 }
-            } catch (Exception ignore){}
-            i++;
+            } catch (Exception ignore){
+
+            }finally {
+                i++;
+            }
+
         }
 
         return exceptionInfo;
