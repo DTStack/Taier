@@ -2,13 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-<a name="3.3.6"></a>
-## [3.3.6](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.5...3.3.6) (2019-01-25)
-
-
-
 <a name="3.3.5"></a>
 ## [3.3.5](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.4...3.3.5) (2019-01-25)
+
+
+### Bug Fixes
+
+* reset version ([4ba08ac](http://git.dtstack.cn/ziv/data-stack-web/commits/4ba08ac))
 
 
 ### Features
@@ -16,6 +16,10 @@ All notable changes to this project will be documented in this file. See [standa
 * **scheduling:** min scheduling supports minutes setting ([ea458d5](http://git.dtstack.cn/ziv/data-stack-web/commits/ea458d5)), closes [#13858](http://redmine.prod.dtstack.cn/issues/13858)
 
 
+
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ## 3.3.4 (2019-01-25)
 
