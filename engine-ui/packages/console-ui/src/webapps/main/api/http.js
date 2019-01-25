@@ -31,7 +31,7 @@ class Http {
         return this.request(url, options)
     }
 
-    request(url, options,extOption) {
+    request(url, options,extOption = {}) {
         ProgressBar.show()
         options.credentials = 'same-origin'
         return fetch(url, options)

@@ -122,14 +122,19 @@ class OfflineTaskMana extends Component {
         Api.queryOfflineTasks(reqParams).then((res) => {
             if (res.code === 1) {
                 const tableData = res.data.data;
+                const expandedRowKeys = [];
                 replaceObjectArrayFiledName(tableData, 'relatedTasks', 'children');
                 for (let i = 0; i < tableData.length; i++) {
                     let task = tableData[i];
-                    if (task && task.taskType === TASK_TYPE.WORKFLOW && !task.children) {
-                        task.children = [];
+                    if (task && task.taskType === TASK_TYPE.WORKFLOW) {
+                        if (!task.children) {
+                            task.children = [];
+                        } else {
+                            expandedRowKeys.push(task.id);
+                        }
                     }
                 }
-                ctx.setState({ tasks: res.data });
+                ctx.setState({ tasks: res.data, expandedRowKeys: expandedRowKeys });
             }
             this.setState({ loading: false })
         })
@@ -500,6 +505,7 @@ class OfflineTaskMana extends Component {
                         }
                     >
                         <Table
+                            key={`task-list${tasks.data && tasks.data.length}`}
                             rowKey="id"
                             rowClassName={
                                 (record, index) => {

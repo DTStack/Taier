@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { cloneDeep } from 'lodash';
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
+import { MY_APPS } from '../../consts';
 import './style.scss'
 
 /* eslint-disable */
@@ -30,8 +31,8 @@ function renderMenuItems (menuItems) {
 
 // 控制apps与licenseApps应用是否显示
 function compareEnable (apps, licenseApps) {
-    const newApps = cloneDeep(apps);
-    if (licenseApps) {
+    if (licenseApps && licenseApps.length > 1) {
+        const newApps = cloneDeep(apps);
         newApps.map(item => {
             for (var key in item) {
                 licenseApps.map(itemLicen => {
@@ -44,8 +45,14 @@ function compareEnable (apps, licenseApps) {
                 })
             }
         })
+        return newApps
+    } else {
+        console.log(MY_APPS.MAIN)
+        const mainApp = apps.find(item => {
+            return item.id == MY_APPS.MAIN
+        })
+        return [mainApp]
     }
-    return newApps
 }
 
 function renderATagMenuItems (menuItems, isRoot) {
@@ -65,7 +72,7 @@ export function Logo (props) {
 }
 
 export function MenuLeft (props) {
-    const { activeKey, onClick, menuItems, user, licenseApps } = props;
+    const { activeKey, onClick, menuItems, user, licenseApps, isAdminAndMsg } = props;
     return (
         <div className="menu left">
             <Menu
@@ -74,7 +81,7 @@ export function MenuLeft (props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems(compareEnable(menuItems, licenseApps) || menuItems, user.isRoot)}
+                {renderATagMenuItems((isAdminAndMsg ? menuItems : compareEnable(menuItems, licenseApps)), user.isRoot)}
             </Menu>
         </div>
     )
@@ -216,7 +223,7 @@ class Navigator extends Component {
 
     render () {
         const {
-            user, logo, menuItems,
+            user, logo, menuItems, isAdminAndMsg,
             settingMenus, apps, app, licenseApps,
             menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
         } = this.props;
@@ -232,6 +239,7 @@ class Navigator extends Component {
                         user={user}
                         activeKey={current}
                         menuItems={menuItems}
+                        isAdminAndMsg={isAdminAndMsg}
                         licenseApps={licenseApps}
                         onClick={this.handleClick}
                     />

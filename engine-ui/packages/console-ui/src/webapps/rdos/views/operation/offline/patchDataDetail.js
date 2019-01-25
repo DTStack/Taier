@@ -87,7 +87,7 @@ class PatchDataDetail extends Component {
         }
         this._timeClock = setTimeout(() => {
             this.search(true);
-        }, 6000);
+        }, 36000);
     }
     search = (isSilent) => {
         const {
@@ -137,15 +137,19 @@ class PatchDataDetail extends Component {
             if (res.code === 1) {
                 this.debounceSearch();
                 const recordList = res.data.data.recordList;
+                const expandedRowKeys = [];
                 replaceObjectArrayFiledName(recordList, 'relatedRecords', 'children');
-                // TODO 这个遍历处理我还有点不太清楚，copy 实例列表过来的
                 for (let i = 0; i < recordList.length; i++) {
                     let job = recordList[i];
-                    if (job.taskType === TASK_TYPE.WORKFLOW && !job.children) {
-                        job.children = [];
+                    if (job.taskType === TASK_TYPE.WORKFLOW) {
+                        if (!job.children) {
+                            job.children = [];
+                        } else {
+                            expandedRowKeys.push(job.id);
+                        }
                     }
                 }
-                ctx.setState({ table: res.data, expandedRowKeys: [] })
+                ctx.setState({ table: res.data, expandedRowKeys: expandedRowKeys })
             }
             this.setState({ loading: false })
         })
