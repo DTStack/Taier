@@ -45,6 +45,7 @@ class Workbench extends React.Component {
 
     state = {
         visible: false,
+        confirmSaveVisible: false,
         showPublish: false,
         theReqIsEnd: true,
         submitLoading: false
@@ -125,7 +126,29 @@ class Workbench extends React.Component {
     searchTask = () => {
         this.props.dispatch(showSeach(true));
     }
-
+    showConfirmModal = () => {
+        this.setState({
+            confirmSaveVisible: true
+        })
+    }
+    renderConfirSave = () => {
+        return (
+            <Modal
+                title='提交'
+                visible={this.state.confirmSaveVisible}
+                onCancel={() => {
+                    this.setState({
+                        confirmSaveVisible: false
+                    })
+                }}
+                onOk={() => {
+                    this.saveTab(true, 'popOut')
+                }}
+            >
+                <p>文件被修改，是否需要保存?</p>
+            </Modal>
+        )
+    }
     renderPublish = () => {
         const { user } = this.props;
         const { publishDesc, submitLoading } = this.state;
@@ -213,6 +236,8 @@ class Workbench extends React.Component {
         const isWorkflowNode = currentTabData && currentTabData.flowId && currentTabData.flowId !== 0;
 
         const disablePublish = !isTask || currentTabData.notSynced || isWorkflowNode;
+        const disableSubmit = !isTask || isWorkflowNode;
+        const isModify = currentTabData.notSynced; // 是否被修改
         const showPublish = isTask;
 
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
@@ -231,7 +256,7 @@ class Workbench extends React.Component {
                                 </Button>
                             </Dropdown>
                             <Button
-                                onClick={this.saveTab.bind(this, true)}
+                                onClick={this.saveTab.bind(this, true, 'button')}
                                 title="保存任务"
                                 disabled={!isSaveAvaliable}
                             >
@@ -269,8 +294,10 @@ class Workbench extends React.Component {
                             mouseLeaveDelay={0}
                         >
                             <Button
-                                disabled={disablePublish}
-                                onClick={this.showPublish.bind(this)}
+                                disabled={disableSubmit}
+                                onClick={
+                                    isModify ? this.showConfirmModal : this.showPublish.bind(this)
+                                }
                             >
                                 <Icon type="upload" themeDark={themeDark} />提交
                             </Button>
@@ -347,6 +374,7 @@ class Workbench extends React.Component {
                 </div>
             </Row>
             <ImportData />
+            {this.renderConfirSave()}
             {this.renderPublish()}
         </Row>
     }
@@ -398,7 +426,8 @@ class Workbench extends React.Component {
         return []
     }
 
-    saveTab (isSave) {
+    saveTab (isSave, saveMode) {
+        const isPopOut = saveMode == 'popOut';
         this.setState({ theReqIsEnd: false })
         const { saveTab, currentTabData } = this.props;
 
@@ -423,7 +452,11 @@ class Workbench extends React.Component {
 
         saveTab(saveData, isSave, type);
         setTimeout(() => {
-            this.setState({
+            isPopOut ? this.setState({
+                theReqIsEnd: true,
+                confirmSaveVisible: false,
+                showPublish: true
+            }) : this.setState({
                 theReqIsEnd: true
             })
         }, 500);

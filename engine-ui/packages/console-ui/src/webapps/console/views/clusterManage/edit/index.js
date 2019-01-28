@@ -104,6 +104,7 @@ class EditCluster extends React.Component {
                             this.myUpperCase(flinkConf);
                             this.setState({
                                 // checked: true,
+                                securityStatus: cluster.security,
                                 core: cluster.totalCore,
                                 memory: cluster.totalMemory,
                                 nodeNumber: cluster.totalNode,
