@@ -32,7 +32,7 @@ class Main extends Component {
         this.props.dispatch(userAction);
         this.checkRoot(user);
         this.props.dispatch(getLicenseApp());
-        this.isEnableLicenseApp();
+        // this.isEnableLicenseApp();
     }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
@@ -48,7 +48,8 @@ class Main extends Component {
         }
     }
     componentDidUpdate (prevProps, prevState) {
-        if (prevProps.licenseApps != this.props.licenseApps) {
+        if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
+            console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
             this.isEnableLicenseApp();
         }
     }
@@ -257,8 +258,8 @@ class Main extends Component {
     }
 
     render () {
-        let { children } = this.props;
-        if (this.props.licenseApps && this.props.licenseApps.length != 0 && this.props.licenseApps.length <= 1) {
+        let { children, licenseApps } = this.props;
+        if (!licenseApps || licenseApps.length === 0) {
             children = <GlobalLoading />
         }
         return children || <NotFund />
