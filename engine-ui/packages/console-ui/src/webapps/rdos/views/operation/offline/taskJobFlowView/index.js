@@ -365,39 +365,6 @@ class TaskJobFlowView extends Component {
         }
     }
 
-    saveViewInfo = () => {
-        const view = this.graph.getView();
-        const translate = view.getTranslate();
-        if (translate.x > 0) {
-            this._view = {
-                translate: translate,
-                scale: view.getScale()
-            };
-        }
-    }
-
-    initView = () => {
-        const view = this._view;
-        const graph = this.graph;
-        if (view) {
-            const scale = view.scale;
-            const dx = view.translate.x;
-            const dy = view.translate.y;
-            graph.view.setScale(scale);
-            graph.view.setTranslate(dx, dy);
-            // Sets initial scrollbar positions
-            window.setTimeout(function () {
-                var bounds = graph.getGraphBounds();
-                var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
-                var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
-                graph.container.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 4)));
-                graph.container.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)));
-            }, 0);
-        } else {
-            graph.center();
-        }
-    }
-
     showJobLog = (jobId) => {
         Api.getOfflineTaskLog({ jobId: jobId }).then((res) => {
             if (res.code === 1) {
@@ -433,7 +400,7 @@ class TaskJobFlowView extends Component {
                     registerContextMenu={this.initContextMenu}
                 />
                 <Modal
-                    width={800}
+                    width={900}
                     height={600}
                     footer={null}
                     maskClosable={true}
