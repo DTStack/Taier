@@ -297,6 +297,7 @@ export default class TaskFlowView extends Component {
                     registerContextMenu={this.initContextMenu}
                 />
                 <Modal
+                    zIndex={999}
                     width={800}
                     height={600}
                     footer={null}

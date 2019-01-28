@@ -305,7 +305,7 @@ class Header extends Component {
         const { devPath } = this.state;
         const isIndex = this.isIndex();
         const display = !isIndex ? 'inline-block' : 'none';
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0] && licenseApps[0].children);
         const dataSourceNav = fixArrChildrenApps[0];
         const taskNav = fixArrChildrenApps[1];
         const operaNav = fixArrChildrenApps[2];

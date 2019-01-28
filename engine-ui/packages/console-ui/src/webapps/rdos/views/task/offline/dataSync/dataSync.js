@@ -1,7 +1,7 @@
 import React from 'react';
 import { Steps, message } from 'antd';
 import { connect } from 'react-redux';
-import { isEqual } from 'lodash';
+import { isEqual, get } from 'lodash';
 
 import DataSyncSource from './source';
 import DataSyncTarget from './target';
@@ -62,34 +62,53 @@ class DataSync extends React.Component {
         const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
         const { sourceMap, targetMap } = nextProps;
 
-        if (oldSource.sourceId !== sourceMap.sourceId || oldTarget.sourceId !== targetMap.sourceId) { return false };
+        if ((oldSource.sourceId !== sourceMap.sourceId || oldTarget.sourceId !== targetMap.sourceId)) { return false };
 
         const oldSQL = oldTarget && oldTarget.type && oldTarget.type.preSql;
         const newSQL = targetMap && targetMap.type && targetMap.type.preSql;
 
-        const oldPostSQL = oldTarget && oldTarget.type && oldTarget.type.postSql;
-        const newPostSQL = targetMap && targetMap.type && targetMap.type.postSql;
+        const oldPostSQL = get(oldTarget, 'type.postSql');
+        const newPostSQL = get(targetMap, 'type.postSql');
+        const oldWhere = get(oldSource, 'type.where');
+        const newWhere = get(sourceMap, 'type.where');
 
-        const isWhereChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.where !== undefined && oldSource.type.where !== undefined && oldSource.type.where !== sourceMap.type.where;
-        const isSourceParitionChange = oldSource && oldSource.type && sourceMap.type && (oldSource.type.partition !== undefined || sourceMap.type.partition !== undefined) && oldSource.type.partition !== sourceMap.type.partition;
-        const isTargetPartitionChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.partition !== undefined || targetMap.type.partition !== undefined) && oldTarget.type.partition !== targetMap.type.partition;
+        const oldSourceTable = get(oldSource, 'type.table');
+        const newSourceTable = get(sourceMap, 'type.table');
+        const oldTargetTable = get(oldTarget, 'type.table');
+        const newTargetTable = get(targetMap, 'type.table');
+
+        const oldSourcePartition = get(oldSource, 'type.partition');
+        const newSourcePartition = get(sourceMap, 'type.partition');
+        const oldTargetPartition = get(oldTarget, 'type.partition');
+        const newTargetPartition = get(targetMap, 'type.partition');
+
+        const oldSourcePath = get(oldSource, 'type.path');
+        const newSourcePath = get(sourceMap, 'type.path');
+        const oldTargetPath = get(oldTarget, 'type.path');
+        const newTargetPath = get(targetMap, 'type.path');
+
+        const oldTargetFileName = get(oldTarget, 'type.fileName');
+        const newTargetFileName = get(targetMap, 'type.fileName');
+
+        const isWhereChange = (oldSourceTable === newSourceTable) && oldWhere !== undefined && newWhere !== undefined && oldWhere !== newWhere;
+        const isSourceParitionChange = oldSourceTable === newSourceTable && (oldSourcePartition !== undefined || newSourcePartition) && oldSourcePartition !== newSourcePartition;
+        const isTargetPartitionChange = oldTargetTable === newTargetTable && (oldTargetPartition !== undefined || newTargetPartition !== undefined) && oldTargetPartition !== newTargetPartition;
         const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
         const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
         const isSourceColumnChange = sourceMap && !isEqual(oldSource.column, sourceMap.column) && this.state.currentStep === 2;
-        const isSourcePathChange = oldSource && oldSource.type && sourceMap.type && sourceMap.type.path !== undefined && oldSource.type.path !== undefined && oldSource.type.path !== sourceMap.type.path;
-        const isTargetPathChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.path !== undefined || targetMap.type.path !== undefined) && oldTarget.type.path !== targetMap.type.path;
-        const isTargetFileNameChange = oldTarget && oldTarget.type && targetMap.type && (oldTarget.type.fileName !== undefined || targetMap.type.fileName !== undefined) && oldTarget.type.fileName !== targetMap.type.fileName;
+        const isSourcePathChange = oldSourcePath !== undefined && newSourcePath !== undefined && oldSourcePath !== newSourcePath;
+        const isTargetPathChange = (oldTargetPath !== undefined || newTargetPath !== undefined) && oldTargetPath !== newTargetPath;
+        const isTargetFileNameChange = (oldTargetFileName !== undefined || newTargetFileName !== undefined) && oldTargetFileName !== newTargetFileName;
 
         // Output test conditions
-        console.log('dataSync', oldProps.dataSync, nextProps.dataSync)
-        console.log('old', oldSource, oldTarget);
-        console.log('new', sourceMap, targetMap);
-        console.log('isWhereChange', isWhereChange);
-        console.log('isSourceParitionChange', isSourceParitionChange);
-        console.log('isTargetPartitionChange', isTargetPartitionChange);
-        console.log('isSQLChange', isSQLChange);
-        console.log('isSourceColumnChange', isSourceColumnChange);
-        console.log('isTargetFileNameChange', isTargetFileNameChange);
+        // console.log('old', oldDataSync);
+        // console.log('new', dataSync);
+        // console.log('isWhereChange', isWhereChange);
+        // console.log('isSourceParitionChange', isSourceParitionChange);
+        // console.log('isTargetPartitionChange', isTargetPartitionChange);
+        // console.log('isSQLChange', isSQLChange);
+        // console.log('isSourceColumnChange', isSourceColumnChange);
+        // console.log('isTargetFileNameChange', isTargetFileNameChange);
 
         return isWhereChange || // source type update
         isSourceParitionChange || // source type update

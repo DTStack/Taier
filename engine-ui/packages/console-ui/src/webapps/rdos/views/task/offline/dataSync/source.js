@@ -41,9 +41,10 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class SourceForm extends React.Component {
+    _isMounted = false;
+
     constructor (props) {
         super(props);
-
         this.state = {
             tableListMap: {},
             showPreview: false,
@@ -55,6 +56,7 @@ class SourceForm extends React.Component {
     }
 
     componentDidMount () {
+        this._isMounted = true;
         const { sourceMap } = this.props;
         const { sourceList } = sourceMap;
         let tableName = '';
@@ -81,6 +83,7 @@ class SourceForm extends React.Component {
     }
 
     componentWillUnmount () {
+        this._isMounted = false;
         clearInterval(this.timerID);
     }
 
@@ -105,12 +108,14 @@ class SourceForm extends React.Component {
                     isSys: false
                 }).then(res => {
                     if (res.code === 1) {
-                        ctx.setState({
-                            tableListMap: {
-                                ...this.state.tableListMap,
-                                [sourceId]: res.data || []
-                            }
-                        });
+                        if (ctx._isMounted) {
+                            ctx.setState({
+                                tableListMap: {
+                                    ...this.state.tableListMap,
+                                    [sourceId]: res.data || []
+                                }
+                            });
+                        }
                     }
                 });
             }
