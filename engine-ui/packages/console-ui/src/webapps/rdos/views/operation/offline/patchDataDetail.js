@@ -94,11 +94,12 @@ class PatchDataDetail extends Component {
             fillJobName, dutyUserId, jobStatuses,
             bizDay, current, taskName, taskType,
             execTimeSort, execStartSort, cycSort,
-            businessDateSort
+            businessDateSort, expandedRowKeys
         } = this.state;
         const reqParams = {
             currentPage: current,
-            pageSize: 20
+            pageSize: 20,
+            flowJobIdList: expandedRowKeys.map(jobId => `${jobId}`)
         }
         if (fillJobName) {
             reqParams.fillJobName = fillJobName
@@ -145,7 +146,7 @@ class PatchDataDetail extends Component {
                         if (!job.children) {
                             job.children = [];
                         } else {
-                            expandedRowKeys.push(job.id);
+                            expandedRowKeys.push(job.jobId);
                         }
                     }
                 }
@@ -728,7 +729,7 @@ class PatchDataDetail extends Component {
                         }
                     >
                         <Table
-                            rowKey="id"
+                            rowKey="jobId"
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.selectedTask && this.state.selectedTask.id == record.id) {
