@@ -357,6 +357,21 @@ class ManageBasicProperties extends Component {
             callback()
         }
     }
+    changeMethod (value) {
+        const oldValue = this.props.form.getFieldValue('method');
+        const { registerParams, isRegister } = this.props;
+        // 当从有body参数切换到无body参数的时候，清除body参数
+        if (isRegister && (value == API_METHOD.GET || value == API_METHOD.DELETE) && (oldValue == API_METHOD.POST || oldValue == API_METHOD.PUT)) {
+            let inputParam = registerParams.inputParam || [];
+            inputParam = inputParam.filter((param) => {
+                return param[inputColumnsKeys.POSITION] != PARAMS_POSITION.BODY
+            });
+            this.props.changeRegisterParams({
+                ...registerParams,
+                inputParam: inputParam
+            }, true)
+        }
+    }
     render () {
         const { isRegister } = this.props;
         const { getFieldDecorator } = this.props.form
@@ -500,9 +515,9 @@ class ManageBasicProperties extends Component {
                         >
                             {getFieldDecorator('method', {
                                 rules: [{ required: true, message: '请选择请求方式' }],
-                                initialValue: (this.props.reqType || this.props.reqType == 0) ? this.props.reqType : API_METHOD.POST
+                                initialValue: (this.props.method || this.props.method == 0) ? this.props.method : API_METHOD.POST
                             })(
-                                <Select style={{ width: '85%' }}>
+                                <Select onChange={this.changeMethod.bind(this)} style={{ width: '85%' }}>
                                     {this.renderMethod()}
                                 </Select>
                             )}
