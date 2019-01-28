@@ -98,7 +98,7 @@ export const formItemParamOption = {
             message: '请输入参数名称'
         },
         {
-            pattern: /[-\w]*/,
+            pattern: /^[-\w]*$/,
             message: '参数名称只能由字母，数字和下划线组成'
         }
     ]
