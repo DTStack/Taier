@@ -298,7 +298,7 @@ export default class TaskFlowView extends Component {
                 />
                 <Modal
                     zIndex={999}
-                    width={800}
+                    width={900}
                     height={600}
                     footer={null}
                     maskClosable={true}
