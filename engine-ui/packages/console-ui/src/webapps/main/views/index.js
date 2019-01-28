@@ -8,7 +8,7 @@ import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
 import http from '../api';
-
+import { cloneDeep } from 'lodash';
 const propType = {
     children: PropTypes.node
 }
@@ -63,14 +63,156 @@ class Main extends Component {
             }
         })
     }
+
+    // rdos
+    fixRdosChildrenApps = (arr) => {
+        let fixRdosChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixRdosChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixRdosChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixRdosChildrenApps[2] = item;
+                        break;
+                    case '数据地图':
+                        fixRdosChildrenApps[3] = item;
+                        break;
+                    case '数据模型':
+                        fixRdosChildrenApps[4] = item;
+                        break;
+                    case '项目管理':
+                        fixRdosChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixRdosChildrenApps
+        } else {
+            return arr
+        }
+    }
+    // stream
+    fixStreamChildrenApps = (arr) => {
+        let fixStreamChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据源':
+                        fixStreamChildrenApps[0] = item;
+                        break;
+                    case '数据开发':
+                        fixStreamChildrenApps[1] = item;
+                        break;
+                    case '运维中心':
+                        fixStreamChildrenApps[2] = item;
+                        break;
+                    case '项目管理':
+                        fixStreamChildrenApps[3] = item;
+                        break;
+                }
+            })
+            return fixStreamChildrenApps
+        } else {
+            return arr
+        }
+    }
+    // analyticsEngine
+    fixAnalyChildrenApps = (arr) => {
+        let fixAnalyChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '数据库管理':
+                        fixAnalyChildrenApps[0] = item;
+                        break;
+                    case '表管理':
+                        fixAnalyChildrenApps[1] = item;
+                        break;
+                }
+            })
+            return fixAnalyChildrenApps
+        } else {
+            return arr
+        }
+    }
+    // dataQuality
+    fixQualityChildrenApps = (arr) => {
+        let fixQualityChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '概览':
+                        fixQualityChildrenApps[0] = item;
+                        break;
+                    case '任务查询':
+                        fixQualityChildrenApps[1] = item;
+                        break;
+                    case '规则配置':
+                        fixQualityChildrenApps[2] = item;
+                        break;
+                    case '逐行校验':
+                        fixQualityChildrenApps[3] = item;
+                        break;
+                    case '数据源管理':
+                        fixQualityChildrenApps[4] = item;
+                        break;
+                }
+            })
+            return fixQualityChildrenApps
+        } else {
+            return arr
+        }
+    }
+    // Api
+    fixApiChildrenApps = (arr) => {
+        let fixApiChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '概览':
+                        fixApiChildrenApps[0] = item;
+                        break;
+                    case 'API市场':
+                        fixApiChildrenApps[1] = item;
+                        break;
+                    case '我的API':
+                        fixApiChildrenApps[2] = item;
+                        break;
+                    case 'API管理':
+                        fixApiChildrenApps[3] = item;
+                        break;
+                    case '授权与安全':
+                        fixApiChildrenApps[4] = item;
+                        break;
+                    case '数据源管理':
+                        fixApiChildrenApps[5] = item;
+                        break;
+                }
+            })
+            return fixApiChildrenApps
+        } else {
+            return arr;
+        }
+    }
+
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
-        const { licenseApps } = this.props;
+        let { licenseApps } = this.props;
         const pathAddress = this.getCurrentPath();
         // 成功返回数据
         if (licenseApps && licenseApps.length > 1) {
+            let fixLicenseApps = cloneDeep(licenseApps)
+            fixLicenseApps[0].children = this.fixRdosChildrenApps(fixLicenseApps[0].children)
+            fixLicenseApps[1].children = this.fixStreamChildrenApps(fixLicenseApps[1].children)
+            fixLicenseApps[2].children = this.fixAnalyChildrenApps(fixLicenseApps[2].children)
+            fixLicenseApps[3].children = this.fixQualityChildrenApps(fixLicenseApps[3].children)
+            fixLicenseApps[4].children = this.fixApiChildrenApps(fixLicenseApps[4].children)
             // rdosAPP
-            const rdosApp = licenseApps[0];
+            const rdosApp = fixLicenseApps[0];
             const isRdosShow = rdosApp.isShow;
             const isRdosTask = rdosApp.children[0].isShow;
             const isRdosOpera = rdosApp.children[1].isShow;
@@ -79,17 +221,17 @@ class Main extends Component {
             const isRdosMap = rdosApp.children[4].isShow;
             const isRdosModal = rdosApp.children[5].isShow;
             // streamAPP
-            const streamApp = licenseApps[1];
+            const streamApp = fixLicenseApps[1];
             const isStream = streamApp.isShow;
             const isStreamDataSource = streamApp.children[0].isShow;
             const isStreamTask = streamApp.children[1].isShow;
             const isStreamPro = streamApp.children[2].isShow;
             const isStreamOpera = streamApp.children[3].isShow;
             // analyticsEngine
-            const analyApp = licenseApps[2];
+            const analyApp = fixLicenseApps[2];
             const isAna = analyApp.isShow;
             // dataQuality
-            const qualityApp = licenseApps[3];
+            const qualityApp = fixLicenseApps[3];
             const isQuali = qualityApp.isShow;
             const isQualiOver = qualityApp.children[0].isShow;
             const isQualiTaskSearch = qualityApp.children[1].isShow;
@@ -97,7 +239,7 @@ class Main extends Component {
             const isQualiVali = qualityApp.children[3].isShow;
             const isQualiDataSource = qualityApp.children[4].isShow;
             // dataApi
-            const apiApp = licenseApps[4];
+            const apiApp = fixLicenseApps[4];
             const isDataApi = apiApp.isShow;
             const isApiover = apiApp.children[0].isShow;
             const isApiMarket = apiApp.children[1].isShow;
