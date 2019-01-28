@@ -258,8 +258,8 @@ class Main extends Component {
     }
 
     render () {
-        let { children } = this.props;
-        if (this.props.licenseApps && this.props.licenseApps.length != 0 && this.props.licenseApps.length <= 1) {
+        let { children, licenseApps } = this.props;
+        if (!licenseApps || licenseApps.length === 0) {
             children = <GlobalLoading />
         }
         return children || <NotFund />
