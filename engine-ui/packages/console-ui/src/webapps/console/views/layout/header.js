@@ -10,7 +10,8 @@ import { getHeaderLogo } from 'main/consts';
         apps: state.apps,
         routing: state.routing,
         common: state.common,
-        app: state.app
+        app: state.app,
+        licenseApps: state.licenseApps
     }
 })
 class Header extends Component {
@@ -21,7 +22,7 @@ class Header extends Component {
 
     render () {
         const baseUrl = '/console.html#/console'
-        const { app } = this.props;
+        const { app, licenseApps } = this.props;
 
         const menuItems = [{
             id: 'queueManage',
@@ -52,7 +53,9 @@ class Header extends Component {
         </span>;
         return <Navigator
             logo={logo}
+            isAdminAndMsg={true}
             menuItems={menuItems}
+            licenseApps={licenseApps}
             {...this.props}
         />
     }

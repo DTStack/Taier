@@ -311,7 +311,7 @@ class Index extends Component {
     render () {
         const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
         const { licenseApps } = this.props;
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0] && licenseApps[0].children);
         const taskNav = fixArrChildrenApps[1];
         const operaNav = fixArrChildrenApps[2];
         return (

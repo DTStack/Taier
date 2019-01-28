@@ -145,14 +145,19 @@ class OfflineTaskList extends Component {
         Api.queryJobs(reqParams).then((res) => {
             if (res.code === 1) {
                 res.data.data = res.data.data || [];
+                const expandedRowKeys = [];
                 replaceObjectArrayFiledName(res.data.data, 'relatedJobs', 'children');
                 for (let i = 0; i < res.data.data.length; i++) {
                     let job = res.data.data[i];
-                    if (job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW && !job.children) {
-                        job.children = [];
+                    if (job.batchTask && job.batchTask.taskType == TASK_TYPE.WORKFLOW) {
+                        if (!job.children) {
+                            job.children = [];
+                        } else {
+                            expandedRowKeys.push(job.id);
+                        }
                     }
                 }
-                ctx.setState({ tasks: res.data, expandedRowKeys: [] })
+                ctx.setState({ tasks: res.data, expandedRowKeys: expandedRowKeys })
             }
             ctx.setState({
                 loading: false
@@ -360,8 +365,13 @@ class OfflineTaskList extends Component {
         })
     }
 
-    changecycDate = (value) => {
-        this.setState({ cycDate: value, current: 1 })
+    changeCycDate = (value) => {
+        this.setState({
+            cycDate: value,
+            current: 1
+        }, () => {
+            this.search()
+        })
     }
 
     showTask = (task) => {
@@ -676,11 +686,11 @@ class OfflineTaskList extends Component {
                                     />
                                 </FormItem>
                                 <FormItem
-                                    label="计划日期"
+                                    label="计划时间"
                                 >
                                     <RangePicker
                                         size="default"
-                                        style={{ width: 270 }}
+                                        style={{ width: 200 }}
                                         showTime
                                         format="YYYY/MM/DD HH:mm:ss"
                                         ranges={{
@@ -689,7 +699,7 @@ class OfflineTaskList extends Component {
                                             '最近30天': [moment().subtract(30, 'days'), moment()]
                                         }}
                                         value={cycDate || null}
-                                        onChange={this.changecycDate}
+                                        onChange={this.changeCycDate}
                                         onOk={this.search}
                                     />
                                 </FormItem>
@@ -720,7 +730,6 @@ class OfflineTaskList extends Component {
                             }
                             style={{ marginTop: '1px' }}
                             className="m-table full-screen-table-120"
-                            defaultExpandAllRows={true}
                             expandedRowKeys={this.state.expandedRowKeys}
                             rowSelection={rowSelection}
                             pagination={pagination}

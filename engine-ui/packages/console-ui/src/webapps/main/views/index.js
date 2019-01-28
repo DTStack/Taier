@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { hashHistory } from 'react-router'
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
+import GlobalLoading from './layout/loading'
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
@@ -20,7 +20,8 @@ initNotification();
 @connect(state => {
     return {
         user: state.user,
-        licenseApps: state.licenseApps
+        licenseApps: state.licenseApps,
+        routing: state.routing
     }
 })
 
@@ -31,9 +32,8 @@ class Main extends Component {
         this.props.dispatch(userAction);
         this.checkRoot(user);
         this.props.dispatch(getLicenseApp());
-        this.isEnableLicenseApp();
+        // this.isEnableLicenseApp();
     }
-    /* eslint-disable */
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { user } = nextProps;
@@ -41,13 +41,33 @@ class Main extends Component {
         if (this.props.user.dtuicUserId != user.dtuicUserId && user.dtuicUserId) {
             this.checkRoot(user);
         }
+        if (this.props.routing) {
+            if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
+                this.isEnableLicenseApp();
+            }
+        }
     }
-    /* eslint-disable */
-
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
+            console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
+            this.isEnableLicenseApp();
+        }
+    }
+    getCurrentPath () {
+        return document.location.pathname + document.location.hash;
+    }
+    loopIsIntercept (pathAddress, arr) {
+        arr.map(item => {
+            if (pathAddress.indexOf(item.url) > -1 && item.isShow) {
+                window.location.href = '/'
+            }
+        })
+    }
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
         const { licenseApps } = this.props;
-        console.log(licenseApps)
+        const pathAddress = this.getCurrentPath();
+        // 成功返回数据
         if (licenseApps && licenseApps.length > 1) {
             // rdosAPP
             const rdosApp = licenseApps[0];
@@ -85,17 +105,128 @@ class Main extends Component {
             const isApiMana = apiApp.children[3].isShow;
             const isApiSafe = apiApp.children[4].isShow;
             const isApiDataSource = apiApp.children[5].isShow;
-
-            if (!isRdosShow || !isRdosTask || !isRdosOpera || !isRdosDataSource ||
-                !isRdosPro || !isRdosMap || !isRdosModal || !isStream || !isStreamDataSource ||
-                !isStreamTask || !isStreamPro || !isStreamOpera || !isAna || !isQuali ||
-                !isQualiOver || !isQualiTaskSearch || !isQualiRule || !isQualiVali || !isQualiDataSource || !isDataApi ||
-                !isApiover || !isApiMarket || !isApiMine || !isApiMana || !isApiSafe || !isApiDataSource) {
-                    hashHistory.push('/');
+            // 判断条件存入数组
+            const arr = [
+                // rdos
+                {
+                    url: 'batch.html',
+                    isShow: !isRdosShow
+                },
+                {
+                    url: 'batch.html#/offline/task',
+                    isShow: !isRdosTask
+                },
+                {
+                    url: 'batch.html#/operation',
+                    isShow: !isRdosOpera
+                },
+                {
+                    url: 'batch.html#/database',
+                    isShow: !isRdosDataSource
+                },
+                {
+                    url: 'batch.html#/project',
+                    isShow: !isRdosPro
+                },
+                {
+                    url: 'batch.html#/data-manage',
+                    isShow: !isRdosMap
+                },
+                {
+                    url: 'batch.html#/data-model',
+                    isShow: !isRdosModal
+                },
+                // stream
+                {
+                    url: 'stream.html',
+                    isShow: !isStream
+                },
+                {
+                    url: 'stream.html#/database',
+                    isShow: !isStreamDataSource
+                },
+                {
+                    url: 'stream.html#/realtime',
+                    isShow: !isStreamTask
+                },
+                {
+                    url: 'stream.html#/project',
+                    isShow: !isStreamPro
+                },
+                {
+                    url: 'stream.html#/operation',
+                    isShow: !isStreamOpera
+                },
+                // analyticsEngine
+                {
+                    url: 'analytics.html',
+                    isShow: !isAna
+                },
+                // dataQuality
+                {
+                    url: 'dataQuality.html',
+                    isShow: !isQuali
+                },
+                {
+                    url: 'dataQuality.html#/dq/overview',
+                    isShow: !isQualiOver
+                },
+                {
+                    url: 'dataQuality.html#/dq/taskQuery',
+                    isShow: !isQualiTaskSearch
+                },
+                {
+                    url: 'dataQuality.html#/dq/rule',
+                    isShow: !isQualiRule
+                },
+                {
+                    url: 'dataQuality.html#/dq/dataCheck',
+                    isShow: !isQualiVali
+                },
+                {
+                    url: 'dataQuality.html#/dq/dataSource',
+                    isShow: !isQualiDataSource
+                },
+                // dataApi
+                {
+                    url: 'dataApi.html',
+                    isShow: !isDataApi
+                },
+                {
+                    url: 'dataApi.html#/api',
+                    isShow: !isApiover
+                },
+                {
+                    url: 'dataApi.html#/api/market',
+                    isShow: !isApiMarket
+                },
+                {
+                    url: 'dataApi.html#/api/mine',
+                    isShow: !isApiMine
+                },
+                {
+                    url: 'dataApi.html#/api/manage',
+                    isShow: !isApiMana
+                },
+                {
+                    url: 'dataApi.html#/api/approvalAndsecurity',
+                    isShow: !isApiSafe
+                },
+                {
+                    url: 'dataApi.html#/api/dataSource',
+                    isShow: !isApiDataSource
+                }
+            ];
+            this.loopIsIntercept(pathAddress, arr);
+        }
+        // 用户未上传license,返回空数组情况
+        if (licenseApps && licenseApps.length == 0) {
+            if (pathAddress.indexOf('index.html') == -1) {
+                window.location.href = '/'
             }
         }
+        console.log('enter')
     }
-
     checkRoot (user) {
         if (user && user.dtuicUserId) {
             http.checkRoot({ userId: user.dtuicUserId })
@@ -127,7 +258,11 @@ class Main extends Component {
     }
 
     render () {
-        return this.props.children || <NotFund />
+        let { children, licenseApps } = this.props;
+        if (!licenseApps || licenseApps.length === 0) {
+            children = <GlobalLoading />
+        }
+        return children || <NotFund />
     }
 }
 

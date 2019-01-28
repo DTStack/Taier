@@ -305,7 +305,7 @@ class Header extends Component {
         const { devPath } = this.state;
         const isIndex = this.isIndex();
         const display = !isIndex ? 'inline-block' : 'none';
-        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0].children);
+        const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0] && licenseApps[0].children);
         const dataSourceNav = fixArrChildrenApps[0];
         const taskNav = fixArrChildrenApps[1];
         const operaNav = fixArrChildrenApps[2];
@@ -416,46 +416,48 @@ class Header extends Component {
                                 </a>
                             </Menu.Item>
                         ) : null }
-                        <SubMenu
-                            className="my-menu-item menu_mini"
-                            style={{ display }}
-                            title={(<span
-                                style={{
-                                    display,
-                                    height: '47px'
-                                }}
-                                className="my-menu-item"
-                            >
-                                <span
-                                    className="menu-text-ellipsis"
-                                >
-                                    其他
-                                </span>
-                                &nbsp;
-                                <Icon type="caret-down" />
-                            </span>)}
-                        >
-                            {dataModalNav && dataModalNav.isShow ? (
-                                <Menu.Item
-                                    className="my-menu-item no-border"
-                                    key="data-model"
-                                >
-                                    <a href={`${basePath}/data-model/overview`}>
-                                        数据模型
-                                    </a>
-                                </Menu.Item>
-                            ) : null }
-                            {projectNav && projectNav.isShow ? (
-                                <Menu.Item
+                        {(dataModalNav && dataModalNav.isShow) || (projectNav && projectNav.isShow) ? (
+                            <SubMenu
+                                className="my-menu-item menu_mini"
+                                style={{ display }}
+                                title={(<span
+                                    style={{
+                                        display,
+                                        height: '47px'
+                                    }}
                                     className="my-menu-item"
-                                    key="project"
                                 >
-                                    <a href={`${basePath}/project/${pid}/config`}>
-                                        项目管理
-                                    </a>
-                                </Menu.Item>
-                            ) : null }
-                        </SubMenu>
+                                    <span
+                                        className="menu-text-ellipsis"
+                                    >
+                                        其他
+                                    </span>
+                                    &nbsp;
+                                    <Icon type="caret-down" />
+                                </span>)}
+                            >
+                                {dataModalNav && dataModalNav.isShow ? (
+                                    <Menu.Item
+                                        className="my-menu-item no-border"
+                                        key="data-model"
+                                    >
+                                        <a href={`${basePath}/data-model/overview`}>
+                                            数据模型
+                                        </a>
+                                    </Menu.Item>
+                                ) : null }
+                                {projectNav && projectNav.isShow ? (
+                                    <Menu.Item
+                                        className="my-menu-item"
+                                        key="project"
+                                    >
+                                        <a href={`${basePath}/project/${pid}/config`}>
+                                            项目管理
+                                        </a>
+                                    </Menu.Item>
+                                ) : null }
+                            </SubMenu>
+                        ) : null }
                     </Menu>
                 </div>
 

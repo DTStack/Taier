@@ -99,7 +99,7 @@ class Keymap extends React.Component {
         let w = 450;
         const canvas = document.querySelector('.steps-content')
         if (canvas) {
-            const newW = canvas.getBoundingClientRect().width / 6 * 5;
+            const newW = canvas.getBoundingClientRect().width / 6 * 4;
             if (newW > w) w = newW;
         }
         return w;
@@ -926,17 +926,18 @@ class Keymap extends React.Component {
 
         return <Resize onResize={this.resize}>
             <div style={{ margin: '0 20' }}>
-                <p style={{ fontSize: 12, color: '#ccc', marginTop: -20 }}>
+                <p style={{ fontSize: 12, color: '#ccc', marginTop: -20, textAlign: 'center' }}>
                     您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
                     &nbsp;{ noKeyMapping ? <a onClick={this.keymapHelpModal}>如何快速配置字段映射？</a> : '' }
                 </p>
                 <Row>
-                    <Col span="21">
+                    <Col span="21" style={{ textAlign: 'center' }}>
                         <div className="m-keymapbox"
                             ref={ el => this.container = el }
                             style={{
                                 width: W,
-                                minHeight: H + 20
+                                minHeight: H + 20,
+                                display: 'inline-block'
                             }}
                         >
                             { this.renderSource() }

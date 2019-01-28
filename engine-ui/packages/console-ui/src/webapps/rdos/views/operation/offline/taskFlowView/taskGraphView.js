@@ -108,13 +108,12 @@ class TaskGraphView extends Component {
         this.initGraph(graphData);
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
-        const oldGraphData = this.props.graphData
-        const { graphData } = nextProps
-        if (graphData && oldGraphData !== graphData) {
+    componentDidUpdate (prevProps) {
+        const nextGraphData = this.props.graphData
+        const { graphData } = prevProps
+        if (nextGraphData && nextGraphData !== graphData) {
             this.initGraph(graphData);
         }
-        return true;
     }
 
     initGraph = (graphData) => {
@@ -153,6 +152,9 @@ class TaskGraphView extends Component {
         }
         // 禁止cell编辑
         graph.isCellEditable = function () {
+            return false;
+        }
+        graph.isCellResizable = function (cell) {
             return false;
         }
 
@@ -284,11 +286,13 @@ class TaskGraphView extends Component {
 
     initRender = (data) => {
         const graph = this.graph;
+        const model = graph.getModel();
+        const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
         this._cacheLevel = {};
-        graph.getModel().clear();
-        const cells = graph.getChildCells(graph.getDefaultParent());
+        model.clear();
         graph.removeCells(cells);
+
         // Init container scroll
         this.initContainerScroll(graph);
         this.initContextMenu(graph);
@@ -309,7 +313,6 @@ class TaskGraphView extends Component {
         const defaultParent = graph.getDefaultParent();
         const cacheLevel = this._cacheLevel; // 缓存 Level 信息
         const dataArr = this.preHandGraphTree(originData);
-        console.log('renderData:', dataArr);
 
         const getVertex = (parentCell, data) => {
             if (!data) return null;
@@ -326,13 +329,6 @@ class TaskGraphView extends Component {
             const levelKey = cacheLevel[getLevelKey(data)];
             if (levelKey !== undefined) {
                 nodeGeo.count = levelKey;
-            }
-
-            if (isWorkflow) {
-                style += 'shape=swimlane;swimlaneFillColor=#F7FBFF;fillColor=#D0E8FF;strokeColor=#92C2EF;dashed=1;color:#333333;';
-                if (data.scheduleStatus === SCHEDULE_STATUS.STOPPED) {
-                    style += 'swimlaneFillColor=#EFFFFE;fillColor=#cbf8f4;strokeColor=#26DAD1;';
-                }
             }
 
             if (isWorkflowNode) {
@@ -443,17 +439,15 @@ class TaskGraphView extends Component {
             const dy = view.translate.y;
             graph.view.setScale(scale);
             graph.view.setTranslate(dx, dy);
-            // Sets initial scrollbar positions
-            window.setTimeout(function () {
-                var bounds = graph.getGraphBounds();
-                var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
-                var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
-                graph.container.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 4)));
-                graph.container.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)));
-            }, 0);
-        } else {
-            graph.center();
         }
+        // Sets initial scrollbar positions
+        window.setTimeout(function () {
+            const bounds = graph.getGraphBounds();
+            const width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
+            const height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
+            graph.container.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 2)));
+            graph.container.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)));
+        }, 0);
     }
 
     graphEnable () {
@@ -548,7 +542,7 @@ class TaskGraphView extends Component {
          * translation, which depends on this value, and small enough to give
          * a small empty buffer around the graph. Default is 400x400.
          */
-        graph.scrollTileSize = new mxRectangle(0, 0, 400, 400);
+        graph.scrollTileSize = new mxRectangle(0, 0, 200, 200);
 
         /**
          * Returns the padding for pages in page view with scrollbars.

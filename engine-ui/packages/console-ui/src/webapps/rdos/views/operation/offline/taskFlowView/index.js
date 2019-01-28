@@ -22,6 +22,7 @@ const Mx = require('public/rdos/mxgraph')({
 
 const {
     mxEvent,
+    mxCellHighlight,
     mxPopupMenu
 } = Mx
 
@@ -210,35 +211,64 @@ export default class TaskFlowView extends Component {
 
     initGraphEvent = (graph) => {
         const ctx = this;
-        graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
-            const cells = evt.getProperty('cells');
-            const cell = cells && cells[0];
-            const collapse = evt.getProperty('collapse');
-            const isWorkflow = get(cell, 'value.taskType') === TASK_TYPE.WORKFLOW;
+        let highlightEdges = [];
+        let selectedCell = null;
 
-            if (cell && isWorkflow && !collapse) {
-                ctx.loadWorkflowNodes(cell.value);
-                // 始终保持折叠状态
-                cell.collapsed = true;
-            }
-        })
+        if (graph) {
+            graph.addListener(mxEvent.CELLS_FOLDED, function (sender, evt) {
+                const cells = evt.getProperty('cells');
+                const cell = cells && cells[0];
+                const collapse = evt.getProperty('collapse');
+                const isWorkflow = get(cell, 'value.taskType') === TASK_TYPE.WORKFLOW;
 
-        graph.addListener(mxEvent.onClick, function (sender, evt) {
-            const cell = evt.getProperty('cell')
-            if (cell && cell.vertex) {
-                const data = cell.value;
-                const isWorkflowNode = data.flowId && data.flowId !== 0;
-                if (isWorkflowNode) {
-                    ctx.setState({ selectedWorkflowNode: data })
-                } else {
-                    ctx.setState({ selectedTask: data })
+                if (cell && isWorkflow && !collapse) {
+                    ctx.loadWorkflowNodes(cell.value);
+                    // 始终保持折叠状态
+                    cell.collapsed = true;
                 }
-            }
-        });
+            })
+
+            graph.addListener(mxEvent.onClick, function (sender, evt) {
+                const cell = evt.getProperty('cell')
+                if (cell && cell.vertex) {
+                    graph.clearSelection();
+                    const data = cell.value;
+                    const isWorkflowNode = data.flowId && data.flowId !== 0;
+                    if (isWorkflowNode) {
+                        ctx.setState({ selectedWorkflowNode: data })
+                    } else {
+                        ctx.setState({ selectedTask: data })
+                    }
+                    const outEdges = graph.getOutgoingEdges(cell);
+                    const inEdges = graph.getIncomingEdges(cell);
+                    const edges = outEdges.concat(inEdges);
+                    for (let i = 0; i < edges.length; i++) {
+                        /* eslint-disable-next-line */
+                        const highlight = new mxCellHighlight(graph, '#2491F7', 2);
+                        const state = graph.view.getState(edges[i]);
+                        highlight.highlight(state);
+                        highlightEdges.push(highlight);
+                    }
+                    selectedCell = cell;
+                } else {
+                    const cells = graph.getSelectionCells();
+                    graph.removeSelectionCells(cells);
+                }
+            });
+
+            graph.clearSelection = function (evt) {
+                if (selectedCell) {
+                    for (let i = 0; i < highlightEdges.length; i++) {
+                        highlightEdges[i].hide();
+                    }
+                    selectedCell = null;
+                }
+            };
+        }
     }
 
     onCloseWorkflow = () => {
-        this.setState({ visibleWorkflow: false, selectedTask: this.props.tabData });
+        this.setState({ visibleWorkflow: false, workflowData: null, selectedTask: this.props.tabData });
     }
 
     render () {
@@ -267,7 +297,8 @@ export default class TaskFlowView extends Component {
                     registerContextMenu={this.initContextMenu}
                 />
                 <Modal
-                    width={800}
+                    zIndex={999}
+                    width={900}
                     height={600}
                     footer={null}
                     maskClosable={true}
