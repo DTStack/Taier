@@ -444,7 +444,7 @@ class PatchDataDetail extends Component {
             title: '运行时长',
             dataIndex: 'exeTime',
             key: 'exeTime',
-            width: '100px',
+            width: '150px',
             sorter: true
         }, {
             title: '责任人',
