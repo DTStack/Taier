@@ -59,7 +59,7 @@ class OperaRecordModal extends Component {
                 width: 140,
                 dataIndex: 'operateTime',
                 render (text) {
-                    return moment(text).format('YY-MM-DD HH:mm:ss')
+                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
             },
             {

@@ -208,7 +208,7 @@ class ScheduleForm extends React.Component {
                                         rules: [{
                                             required: true
                                         }, {
-                                            validator: ctx.checkTimeS.bind(ctx)
+                                            validator: ctx.checkTimeS1.bind(ctx)
                                         }
                                         ],
                                         initialValue: `${scheduleConf.beginHour}`
@@ -223,12 +223,12 @@ class ScheduleForm extends React.Component {
                                     {getFieldDecorator('beginMin', {
                                         rules: [{
                                             required: true
+                                        }, {
+                                            validator: ctx.checkTimeS1.bind(ctx)
                                         }],
-                                        initialValue: '0'
+                                        initialValue: `${scheduleConf.beginMin || '0'}`
                                     })(
-                                        <Select disabled>
-                                            <Option value="0">0</Option>
-                                        </Select>
+                                        generateMins()
                                     )}
                                 </Col>
 
@@ -269,7 +269,7 @@ class ScheduleForm extends React.Component {
                                         rules: [{
                                             required: true
                                         }, {
-                                            validator: ctx.checkTimeE.bind(ctx)
+                                            validator: ctx.checkTimeE1.bind(ctx)
                                         }],
                                         initialValue: `${scheduleConf.endHour}`
                                     })(
@@ -279,13 +279,15 @@ class ScheduleForm extends React.Component {
                                 </Col>
                                 <span className="split-text">时</span>
                                 <Col span="6">
-
                                     {getFieldDecorator('endMin', {
-                                        initialValue: '59'
+                                        rules: [{
+                                            required: true
+                                        }, {
+                                            validator: ctx.checkTimeE1.bind(ctx)
+                                        }],
+                                        initialValue: `${scheduleConf.endMin || '59'}`
                                     })(
-                                        <Select disabled>
-                                            <Option value="59">59</Option>
-                                        </Select>
+                                        generateMins()
                                     )}
                                 </Col>
                                 <span className="split-text">分</span>
@@ -743,17 +745,19 @@ class SchedulingConfig extends React.Component {
     getDefaultScheduleConf (value) {
         const scheduleConf = {
             0: {
+                beginMin: 0,
+                endMin: 59,
                 beginHour: 0,
-                gapMin: 5,
                 endHour: 23,
+                gapMin: 5,
                 periodType: 0,
                 beginDate: '2001-01-01',
                 endDate: '2021-01-01'
             },
             1: {
                 beginHour: 0,
-                beginMin: 0,
                 endHour: 23,
+                beginMin: 0,
                 gapHour: 5,
                 periodType: 1
             },
