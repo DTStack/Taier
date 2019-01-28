@@ -59,8 +59,8 @@ class DataSync extends React.Component {
     }
 
     onVariablesChange = (oldProps, nextProps) => {
-        const { sourceMap: oldSource, targetMap: oldTarget, dataSync: oldDataSync } = oldProps;
-        const { sourceMap, targetMap, dataSync } = nextProps;
+        const { sourceMap: oldSource, targetMap: oldTarget } = oldProps;
+        const { sourceMap, targetMap } = nextProps;
 
         if ((oldSource.sourceId !== sourceMap.sourceId || oldTarget.sourceId !== targetMap.sourceId)) { return false };
 
