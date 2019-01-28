@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, IndexRoute } from 'react-router'
+import { Route, IndexRoute, IndexRedirect } from 'react-router'
 
 // import asyncComponent from 'utils/asyncLoad'
 // import { openNewWindow } from 'funcs'
@@ -35,7 +35,8 @@ import DataSourceIndex from './views/dataSource'
 
 export default (
     <Route path="/" component={ Main }>
-        <IndexRoute component={ Container } />
+        <IndexRedirect to="/dq" />
+        {/* <IndexRoute component={ Container } /> */}
         <Route path="/message" component={ MsgCenter }>
             <IndexRoute component={ MsgList } />
             <Route path="list" component={ MsgList } />
