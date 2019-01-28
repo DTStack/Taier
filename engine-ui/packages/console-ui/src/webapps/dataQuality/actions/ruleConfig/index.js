@@ -1,4 +1,5 @@
 import { ruleConfigActionType } from '../../consts/ruleConfigActionType';
+import { hashHistory } from 'react-router';
 import { message } from 'antd';
 import API from '../../api/ruleConfig';
 
@@ -51,6 +52,9 @@ export const ruleConfigActions = {
             API.addMonitor(params).then((res) => {
                 if (res.code === 1) {
                     message.success('添加成功！');
+                    setTimeout(() => {
+                        hashHistory.push('/dq/rule');
+                    }, 1000);
                 }
             });
         }
