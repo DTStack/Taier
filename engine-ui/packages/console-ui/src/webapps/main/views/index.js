@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { browserHistory } from 'react-router'
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
 import GlobalLoading from './layout/loading'
@@ -54,11 +53,19 @@ class Main extends Component {
         }
     }
     getCurrentPath () {
-        return browserHistory.getCurrentLocation().pathname + browserHistory.getCurrentLocation().hash
+        return document.location.pathname + document.location.hash;
+    }
+    loopIsIntercept (pathAddress, arr) {
+        arr.map(item => {
+            if (pathAddress.indexOf(item.url) > -1 && item.isShow) {
+                window.location.href = '/'
+            }
+        })
     }
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
         const { licenseApps } = this.props;
+        const pathAddress = this.getCurrentPath();
         // 成功返回数据
         if (licenseApps && licenseApps.length > 1) {
             // rdosAPP
@@ -97,105 +104,123 @@ class Main extends Component {
             const isApiMana = apiApp.children[3].isShow;
             const isApiSafe = apiApp.children[4].isShow;
             const isApiDataSource = apiApp.children[5].isShow;
-            // rdos url
-            if (this.getCurrentPath().indexOf('batch.html') > -1 && !isRdosShow) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html#/offline/task') > -1 && !isRdosTask) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html#/operation') > -1 && !isRdosOpera) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html#/database') > -1 && !isRdosDataSource) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html#/project') > -1 && !isRdosPro) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html#/data-manage') > -1 && !isRdosMap) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html#/data-model') > -1 && !isRdosModal) {
-                window.location.href = '/'
-            }
-            // stream url
-            if (this.getCurrentPath().indexOf('stream.html') > -1 && !isStream) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('stream.html#/database') > -1 && !isStreamDataSource) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('stream.html#/realtime') > -1 && !isStreamTask) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('stream.html#/project') > -1 && !isStreamPro) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('stream.html#/operation') > -1 && !isStreamOpera) {
-                window.location.href = '/'
-            }
-            // analyticsEngine url
-            if (this.getCurrentPath().indexOf('analytics.html') > -1 && !isAna) {
-                window.location.href = '/'
-            }
-            // dataQuality url
-            if (this.getCurrentPath().indexOf('dataQuality.html') > -1 && !isQuali) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataQuality.html#/dq/overview') > -1 && !isQualiOver) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataQuality.html#/dq/taskQuery') > -1 && !isQualiTaskSearch) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataQuality.html#/dq/rule') > -1 && !isQualiRule) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataQuality.html#/dq/dataCheck') > -1 && !isQualiVali) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataQuality.html#/dq/dataSource') > -1 && !isQualiDataSource) {
-                window.location.href = '/'
-            }
-            // dataApi url
-            if (this.getCurrentPath().indexOf('dataApi.html') > -1 && !isDataApi) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html#/api') > -1 && !isApiover) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html#/api/market') > -1 && !isApiMarket) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html#/api/mine') > -1 && !isApiMine) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html#/api/manage') > -1 && !isApiMana) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html#/api/manage') > -1 && !isApiSafe) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html#/api/dataSource') > -1 && !isApiDataSource) {
-                window.location.href = '/'
-            }
+            // 判断条件存入数组
+            const arr = [
+                // rdos
+                {
+                    url: 'batch.html',
+                    isShow: !isRdosShow
+                },
+                {
+                    url: 'batch.html#/offline/task',
+                    isShow: !isRdosTask
+                },
+                {
+                    url: 'batch.html#/operation',
+                    isShow: !isRdosOpera
+                },
+                {
+                    url: 'batch.html#/database',
+                    isShow: !isRdosDataSource
+                },
+                {
+                    url: 'batch.html#/project',
+                    isShow: !isRdosPro
+                },
+                {
+                    url: 'batch.html#/data-manage',
+                    isShow: !isRdosMap
+                },
+                {
+                    url: 'batch.html#/data-model',
+                    isShow: !isRdosModal
+                },
+                // stream
+                {
+                    url: 'stream.html',
+                    isShow: !isStream
+                },
+                {
+                    url: 'stream.html#/database',
+                    isShow: !isStreamDataSource
+                },
+                {
+                    url: 'stream.html#/realtime',
+                    isShow: !isStreamTask
+                },
+                {
+                    url: 'stream.html#/project',
+                    isShow: !isStreamPro
+                },
+                {
+                    url: 'stream.html#/operation',
+                    isShow: !isStreamOpera
+                },
+                // analyticsEngine
+                {
+                    url: 'analytics.html',
+                    isShow: !isAna
+                },
+                // dataQuality
+                {
+                    url: 'dataQuality.html',
+                    isShow: !isQuali
+                },
+                {
+                    url: 'dataQuality.html#/dq/overview',
+                    isShow: !isQualiOver
+                },
+                {
+                    url: 'dataQuality.html#/dq/taskQuery',
+                    isShow: !isQualiTaskSearch
+                },
+                {
+                    url: 'dataQuality.html#/dq/rule',
+                    isShow: !isQualiRule
+                },
+                {
+                    url: 'dataQuality.html#/dq/dataCheck',
+                    isShow: !isQualiVali
+                },
+                {
+                    url: 'dataQuality.html#/dq/dataSource',
+                    isShow: !isQualiDataSource
+                },
+                // dataApi
+                {
+                    url: 'dataApi.html',
+                    isShow: !isDataApi
+                },
+                {
+                    url: 'dataApi.html#/api',
+                    isShow: !isApiover
+                },
+                {
+                    url: 'dataApi.html#/api/market',
+                    isShow: !isApiMarket
+                },
+                {
+                    url: 'dataApi.html#/api/mine',
+                    isShow: !isApiMine
+                },
+                {
+                    url: 'dataApi.html#/api/manage',
+                    isShow: !isApiMana
+                },
+                {
+                    url: 'dataApi.html#/api/approvalAndsecurity',
+                    isShow: !isApiSafe
+                },
+                {
+                    url: 'dataApi.html#/api/dataSource',
+                    isShow: !isApiDataSource
+                }
+            ];
+            this.loopIsIntercept(pathAddress, arr);
         }
-        // 用户未上传license
+        // 用户未上传license,返回空数组情况
         if (licenseApps && licenseApps.length == 0) {
-            if (this.getCurrentPath().indexOf('batch.html') > -1) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('batch.html') > -1) {
-                window.location.href = '/stream.html'
-            }
-            if (this.getCurrentPath().indexOf('analytics.html') > -1) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataQuality.html') > -1) {
-                window.location.href = '/'
-            }
-            if (this.getCurrentPath().indexOf('dataApi.html') > -1) {
+            if (pathAddress.indexOf('index.html') == -1) {
                 window.location.href = '/'
             }
         }
