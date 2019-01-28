@@ -3,7 +3,7 @@ import { Form, Input, Radio, message } from 'antd';
 import { connect } from 'react-redux';
 
 import { matchTaskParams, isProjectCouldEdit, checkNotDir } from '../../../comm'
-import { formItemLayout, TASK_TYPE, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const';
+import { formItemLayout, TASK_TYPE, MENU_TYPE } from '../../../comm/const';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 
 import FolderPicker from './folderTree';
@@ -61,16 +61,10 @@ class NormalTaskForm extends React.Component {
         const taskType = taskData.taskType;
         const { taskTypes, isWorkflowNode, user, project } = this.props;
 
-        const isMrTask = taskType === TASK_TYPE.MR;
         const isPyTask = taskType === TASK_TYPE.PYTHON;
         const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
         const isDeepLearning = taskType == TASK_TYPE.DEEP_LEARNING;
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
-        const isMl = taskType == TASK_TYPE.ML;
-        const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
-
-        const acceptType = (isMl || isHadoopMR || isMrTask) ? RESOURCE_TYPE.JAR : (isPyTask || isPython23 || isDeepLearning) ? RESOURCE_TYPE.PY : '';
-
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
@@ -127,7 +121,6 @@ class NormalTaskForm extends React.Component {
                         couldEdit={couldEdit}
                         ispicker
                         isFilepicker
-                        acceptRes={acceptType}
                         type={MENU_TYPE.RESOURCE}
                         treeData={this.props.resTreeData}
                         onChange={this.handleResChange.bind(this)}
