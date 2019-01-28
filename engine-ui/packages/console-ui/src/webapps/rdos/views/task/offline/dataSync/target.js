@@ -207,7 +207,7 @@ class TargetForm extends React.Component {
 
     submitForm = () => {
         const {
-            form, handleTargetMapChange
+            form, updateTabAsUnSave, handleTargetMapChange
         } = this.props;
 
         setTimeout(() => {
@@ -231,6 +231,7 @@ class TargetForm extends React.Component {
 
             // 处理数据同步变量
             handleTargetMapChange(srcmap);
+            updateTabAsUnSave();
         }, 0);
     }
 
@@ -1058,11 +1059,12 @@ const mapDispatch = (dispatch, ownProps) => {
                 type: targetMapAction.DATA_TARGETMAP_CHANGE,
                 payload: srcmap
             });
+        },
+        updateTabAsUnSave () {
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY
             });
         },
-
         handleTableColumnChange: (colData) => {
             dispatch({
                 type: targetMapAction.TARGET_TABLE_COLUMN_CHANGE,
