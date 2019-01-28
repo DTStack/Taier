@@ -148,7 +148,7 @@ All notable changes to this project will be documented in this file. See [standa
 * update catalogue file status ([a83e895](http://git.dtstack.cn/ziv/data-stack-web/commits/a83e895)), closes [#12287](http://redmine.prod.dtstack.cn/issues/12287)
 * **workflow:** add media query for widgets height ([78a8077](http://git.dtstack.cn/ziv/data-stack-web/commits/78a8077)), closes [#12009](http://redmine.prod.dtstack.cn/issues/12009)
 * **workflow:** fix task type text display error ([d4bffbe](http://git.dtstack.cn/ziv/data-stack-web/commits/d4bffbe)), closes [#12636](http://redmine.prod.dtstack.cn/issues/12636)
-* **创建告警:** 修复超时未完成uncompleteTime参数传入有误的问题 ([8c4e025](http://git.dtstack.cn/ziv/data-stack-web/commits/8c4e025)), closes [#12282](http://redmine.prod.dtstack.cn/issues/12282)
+* **创建告警:** 修复超时未完成 uncompleteTime 参数传入有误的问题 ([8c4e025](http://git.dtstack.cn/ziv/data-stack-web/commits/8c4e025)), closes [#12282](http://redmine.prod.dtstack.cn/issues/12282)
 * **数据同步:** 完善批量添加字段的描述文案 ([efd347f](http://git.dtstack.cn/ziv/data-stack-web/commits/efd347f)), closes [#11559](http://redmine.prod.dtstack.cn/issues/11559)
 * **数据同步-字段映射:** 修复修改字段后映射关系被重置的问题 ([41d83b2](http://git.dtstack.cn/ziv/data-stack-web/commits/41d83b2)), closes [#12148](http://redmine.prod.dtstack.cn/issues/12148)
 * **补数据实例:** 修复补数据实例展开子节点的问题 ([a87cefb](http://git.dtstack.cn/ziv/data-stack-web/commits/a87cefb)), closes [#12206](http://redmine.prod.dtstack.cn/issues/12206)
