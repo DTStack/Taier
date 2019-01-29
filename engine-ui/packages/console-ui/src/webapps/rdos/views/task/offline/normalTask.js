@@ -16,12 +16,14 @@ const RadioGroup = Radio.Group;
  */
 class NormalTaskForm extends React.Component {
     checkReource () {
-        const { resTreeData, form } = this.props;
+        const { resTreeData, form, taskType } = this.props;
         const formData = form.getFieldsValue();
+        const isPyTask = taskType === TASK_TYPE.PYTHON;
+        const resourceLable = !isPyTask ? '资源' : '入口资源';
         let invalid = false;
         if (!formData.resourceIdList || formData.resourceIdList.length === 0) {
             invalid = true;
-            message.error('资源不可为空！')
+            message.error(`${resourceLable}不可为空！`)
         } else if (formData.resourceIdList && formData.resourceIdList.length > 0 && checkNotDir(formData.resourceIdList[0], resTreeData)) {
             if (formData.refResourceIdList && formData.refResourceIdList.length > 0 && !checkNotDir(formData.refResourceIdList[0], resTreeData)) {
                 invalid = true;
@@ -145,6 +147,7 @@ class NormalTaskForm extends React.Component {
                         ispicker
                         isFilepicker
                         key="refResourceIdList"
+                        allowClear={true}
                         treeData={this.props.resTreeData}
                         onChange={this.handleRefResChange.bind(this)}
                         defaultNode={taskData.refResourceList && taskData.refResourceList.length > 0 ? taskData.refResourceList.map(res => res.resourceName) : []}

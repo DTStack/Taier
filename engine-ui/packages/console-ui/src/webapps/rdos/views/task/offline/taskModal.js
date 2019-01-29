@@ -363,6 +363,7 @@ class TaskForm extends React.Component {
                                     ispicker
                                     placeholder="请选择关联资源"
                                     isFilepicker
+                                    allowClear={true}
                                     treeData={this.props.resTreeData}
                                     onChange={this.handleRefResSelectTreeChange.bind(this)}
                                     defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 && defaultData.refResourceList.map(res => res.resourceName)}
