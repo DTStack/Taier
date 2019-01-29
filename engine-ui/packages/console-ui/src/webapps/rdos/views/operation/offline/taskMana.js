@@ -550,7 +550,7 @@ class OfflineTaskMana extends Component {
                                     <TaskRuntime
                                         visibleSlidePane={visibleSlidePane}
                                         tabData={selectedTask}
-                                        key={`taskRunTime-${selectedTask.id}-${tabKey}`}
+                                        key={`taskRunTime-${selectedTask && selectedTask.id}-${tabKey}`}
                                     />
                                 </TabPane>
                             </Tabs>
