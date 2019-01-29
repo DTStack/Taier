@@ -20,7 +20,7 @@ class QueueManage extends Component {
         table: {
             pageIndex: 1,
             total: 0,
-            loading: true
+            loading: false
         },
         nowView: utils.getParameterByName('tab') || 'overview',
         clusterList: [],
