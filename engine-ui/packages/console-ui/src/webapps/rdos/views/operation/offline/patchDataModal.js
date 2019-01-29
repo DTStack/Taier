@@ -209,23 +209,28 @@ class PatchData extends Component {
 
     asyncTree = (treeNode) => {
         const ctx = this
-        const node = treeNode.props.data
         return new Promise((resolve) => {
-            Api.getTaskChildren({
-                taskId: node.id,
-                level: 2,
-                directType: 2 // 获取下游
-            }).then(res => {
-                if (res.code === 1) {
-                    const updated = ctx.state.treeData[0]
-                    replaceTreeNode(updated, res.data, node.key)
-                    const arr = [updated]
-                    ctx.wrapTableTree(arr)
-                    ctx.setState({ treeData: arr })
-                }
-            })
-
-            resolve();
+            const node = treeNode.props.data;
+            const isWorkflowNode = node.flowId && node.flowId !== 0;
+            if (isWorkflowNode) {
+                resolve();
+                return true;
+            } else {
+                Api.getTaskChildren({
+                    taskId: node.id,
+                    level: 2,
+                    directType: 2 // 获取下游
+                }).then(res => {
+                    if (res.code === 1) {
+                        const updated = ctx.state.treeData[0]
+                        replaceTreeNode(updated, res.data, node.key)
+                        const arr = [updated]
+                        ctx.wrapTableTree(arr)
+                        ctx.setState({ treeData: arr })
+                    }
+                })
+                resolve();
+            }
         })
     }
 
