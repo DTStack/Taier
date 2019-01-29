@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { hashHistory } from 'react-router';
 import moment from 'moment';
 import {
     Button,
@@ -575,9 +574,6 @@ class StepThree extends Component {
                     editParams.partition = undefined;
                 }
                 this.props.addMonitor({ ...editParams });
-                setTimeout(() => {
-                    hashHistory.push('/dq/rule');
-                }, 1000);
             }
         });
     };

@@ -259,7 +259,7 @@ class Main extends Component {
 
     render () {
         let { children, licenseApps } = this.props;
-        if (!licenseApps || licenseApps.length === 0) {
+        if (!licenseApps) {
             children = <GlobalLoading />
         }
         return children || <NotFund />

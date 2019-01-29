@@ -315,16 +315,6 @@ export function handleSave () {
                 type: workbenchAction.NEW_TABLE_SAVED,
                 payload: data
             })
-        } else {
-            // params.partitions = {
-            //     partConfig: params.partConfig,
-            //     partitionType: params.partitionType,
-            //     columns: params.partitions
-            // }
-            notification.error({
-                message: '提示',
-                description: res.message
-            });
         }
     }
 };
