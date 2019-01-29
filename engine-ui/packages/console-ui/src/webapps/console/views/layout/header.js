@@ -53,7 +53,6 @@ class Header extends Component {
         </span>;
         return <Navigator
             logo={logo}
-            isAdminAndMsg={true}
             menuItems={menuItems}
             licenseApps={licenseApps}
             {...this.props}

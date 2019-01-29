@@ -29,24 +29,20 @@ function renderMenuItems (menuItems) {
     ) : []
 }
 
-// 控制apps与licenseApps应用是否显示
+// 比较apps和licenseApps,控制显示主页菜单以及右下拉菜单
 export function compareEnable (apps, licenseApps) {
-    if (licenseApps && licenseApps.length > 1) {
+    if (licenseApps && licenseApps.length > 0) {
         const newApps = cloneDeep(apps);
-        newApps.map(item => {
-            for (var key in item) {
-                licenseApps.map(itemLicen => {
-                    for ( var key in itemLicen) {
-                        if (item.id == itemLicen.id) {
-                            item.enable = itemLicen.isShow
-                            item.name = itemLicen.name
-                        }
-                    }
-                })
-            }
+        newApps.map(item =>{
+            licenseApps.map(itemLicen => {
+                if (item.id == itemLicen.id) {
+                    item.enable = itemLicen.isShow
+                    item.name = itemLicen.name
+                }
+            })
         })
         return newApps
-    } else {
+    }else { // 空数组只显示首页菜单栏
         const mainApp = apps.find(item => {
             return item.id == MY_APPS.MAIN
         })
@@ -222,7 +218,7 @@ class Navigator extends Component {
 
     render () {
         const {
-            user, logo, menuItems, isAdminAndMsg,
+            user, logo, menuItems,
             settingMenus, apps, app, licenseApps,
             menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
         } = this.props;
@@ -238,7 +234,6 @@ class Navigator extends Component {
                         user={user}
                         activeKey={current}
                         menuItems={menuItems}
-                        isAdminAndMsg={isAdminAndMsg}
                         licenseApps={licenseApps}
                         onClick={this.handleClick}
                     />
