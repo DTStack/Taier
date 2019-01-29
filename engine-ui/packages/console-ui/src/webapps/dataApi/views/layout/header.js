@@ -22,33 +22,59 @@ class Header extends Component {
 
     fixArrayIndex = (arr) => {
         let fixArrChildrenApps = [];
-        if (arr && arr.length > 1) {
+        let showList = {
+            overview: false,
+            market: false,
+            mine: false,
+            manage: false,
+            approval: false,
+            dataSource: false
+
+        }
+        const menuList = this.props.common.menuList;
+        if (menuList) {
+            for (let i in menuList) {
+                let item = menuList[i];
+                if (item.indexOf('overview') > -1) {
+                    showList.overview = true;
+                } else if (item.indexOf('market') > -1) {
+                    showList.market = true
+                } else if (item.indexOf('myapi') > -1) {
+                    showList.mine = true
+                } else if (item.indexOf('manager') > -1) {
+                    showList.manage = true
+                } else if (item.indexOf('authorized') > -1) {
+                    showList.approval = true
+                } else if (item.indexOf('datasource') > -1) {
+                    showList.dataSource = true
+                }
+            }
+        }
+        if (arr && arr.length) {
             arr.map(item => {
                 switch (item.name) {
                     case '概览':
-                        fixArrChildrenApps[0] = item;
+                        fixArrChildrenApps[0] = showList.overview ? item : null;
                         break;
                     case 'API市场':
-                        fixArrChildrenApps[1] = item;
+                        fixArrChildrenApps[1] = showList.market ? item : null;
                         break;
                     case '我的API':
-                        fixArrChildrenApps[2] = item;
+                        fixArrChildrenApps[2] = showList.mine ? item : null;
                         break;
                     case 'API管理':
-                        fixArrChildrenApps[3] = item;
+                        fixArrChildrenApps[3] = showList.manage ? item : null;
                         break;
                     case '授权与安全':
-                        fixArrChildrenApps[4] = item;
+                        fixArrChildrenApps[4] = showList.approval ? item : null;
                         break;
                     case '数据源管理':
-                        fixArrChildrenApps[5] = item;
+                        fixArrChildrenApps[5] = showList.dataSource ? item : null;
                         break;
                 }
             })
-            return fixArrChildrenApps
-        } else {
-            return [];
         }
+        return fixArrChildrenApps;
     }
 
     render () {
