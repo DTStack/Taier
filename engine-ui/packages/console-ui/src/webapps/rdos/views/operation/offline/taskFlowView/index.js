@@ -278,6 +278,7 @@ export default class TaskFlowView extends Component {
             recordModalVisible, currentNodeData,
             workflowData, graphData, selectedWorkflowNode
         } = this.state;
+
         return (
             <div
                 style={{
