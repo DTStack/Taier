@@ -412,7 +412,7 @@ class OfflineTaskMana extends Component {
         const { projectUsers, project } = this.props
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask,
-            current, taskName, visibleSlidePane, selectedRowKeys
+            current, taskName, visibleSlidePane, selectedRowKeys, tabKey
         } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
@@ -539,7 +539,7 @@ class OfflineTaskMana extends Component {
                                 <TabPane tab="依赖视图" key="taskFlow">
                                     <TaskFlowView
                                         reload={this.search}
-                                        key={`taskGraph-${selectedTask && selectedTask.id}`}
+                                        key={`taskGraph-${selectedTask && selectedTask.id}-${tabKey}`}
                                         visibleSlidePane={visibleSlidePane}
                                         goToTaskDev={this.props.goToTaskDev}
                                         clickPatchData={this.clickPatchData}
@@ -550,6 +550,7 @@ class OfflineTaskMana extends Component {
                                     <TaskRuntime
                                         visibleSlidePane={visibleSlidePane}
                                         tabData={selectedTask}
+                                        key={`taskRunTime-${selectedTask.id}-${tabKey}`}
                                     />
                                 </TabPane>
                             </Tabs>

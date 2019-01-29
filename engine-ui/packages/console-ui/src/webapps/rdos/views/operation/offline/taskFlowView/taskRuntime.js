@@ -34,17 +34,6 @@ export default class TaskLog extends Component {
             })
         }
     }
-    /* eslint-disable-next-line */
-    UNSAVE_componentWillReceiveProps (nextProps) {
-        const currentTask = this.props.tabData
-        const { tabData, visibleSlidePane } = nextProps
-        if (tabData && currentTask && visibleSlidePane && tabData.id !== currentTask.id) {
-            this.loadRuntimeInfo({
-                taskId: tabData.id,
-                count: 30
-            })
-        }
-    }
 
     loadRuntimeInfo = (params) => {
         const ctx = this
