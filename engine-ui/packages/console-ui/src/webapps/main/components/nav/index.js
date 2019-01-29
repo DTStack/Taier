@@ -31,7 +31,7 @@ function renderMenuItems (menuItems) {
 
 // 比较apps和licenseApps,控制显示主页菜单以及右下拉菜单
 export function compareEnable (apps, licenseApps) {
-    if (licenseApps && licenseApps.length > 0) {
+    if (licenseApps && licenseApps.length) {
         const newApps = cloneDeep(apps);
         newApps.map(item =>{
             licenseApps.map(itemLicen => {

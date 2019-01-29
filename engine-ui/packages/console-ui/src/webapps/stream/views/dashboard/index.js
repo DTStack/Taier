@@ -148,7 +148,7 @@ class Index extends Component {
                     case '数据开发':
                         fixArrChildrenApps[1] = item;
                         break;
-                    case '运维中心':
+                    case '任务运维':
                         fixArrChildrenApps[2] = item;
                         break;
                     case '项目管理':
