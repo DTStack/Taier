@@ -59,7 +59,8 @@ class Main extends Component {
     loopIsIntercept (pathAddress, arr) {
         for (let i = 0; i < arr.length; i++) {
             if (pathAddress.indexOf(arr[i].url) > -1 && arr[i].isShow) {
-                window.location.href = '/'
+                window.location.href = '/';
+                return;
             }
         }
     }

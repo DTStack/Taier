@@ -33,14 +33,13 @@ function renderMenuItems (menuItems) {
 export function compareEnable (apps, licenseApps) {
     if (licenseApps && licenseApps.length) {
         const newApps = cloneDeep(apps);
-        newApps.map(item =>{
-            licenseApps.map(itemLicen => {
-                if (item.id == itemLicen.id) {
-                    item.enable = itemLicen.isShow
-                    item.name = itemLicen.name
+        for (let i = 0; i < newApps.length; i++) {
+            for (let j = 0; j < licenseApps.length; j++) {
+                if (newApps[i].id == licenseApps[j].id) {
+                    newApps[i].enable = licenseApps[j].isShow
                 }
-            })
-        })
+            }
+        }
         return newApps
     }else { // 空数组只显示首页菜单栏
         const mainApp = apps.find(item => {

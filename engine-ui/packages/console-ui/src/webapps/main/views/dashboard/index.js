@@ -45,20 +45,15 @@ class Dashboard extends Component {
     /* eslint-disable */
     // 控制apps与licenseApps应用是否显示
     compareEnable = (apps, licenseApps) => {
-        if (licenseApps && licenseApps.length > 1) {
+        if (licenseApps && licenseApps.length) {
             const newApps = cloneDeep(apps);
-            newApps.map(item => {
-                for (var key in item) {
-                    licenseApps.map(itemLicen => {
-                        for ( var key in itemLicen) {
-                            if (item.id == itemLicen.id) {
-                                item.enable = itemLicen.isShow
-                                item.name = itemLicen.name
-                            }
-                        }
-                    })
+            for (let i = 0; i < newApps.length; i++) {
+                for (let j = 0; j < licenseApps.length; j++) {
+                    if (newApps[i].id == licenseApps[j].id) {
+                        newApps[i].enable = licenseApps[j].isShow
+                    }
                 }
-            })
+            }
             return newApps
         } else {
             return []
