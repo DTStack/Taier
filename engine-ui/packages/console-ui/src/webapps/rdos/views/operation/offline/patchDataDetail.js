@@ -94,12 +94,22 @@ class PatchDataDetail extends Component {
             fillJobName, dutyUserId, jobStatuses,
             bizDay, current, taskName, taskType,
             execTimeSort, execStartSort, cycSort,
-            businessDateSort, expandedRowKeys
+            businessDateSort, expandedRowKeys, table
         } = this.state;
         const reqParams = {
             currentPage: current,
-            pageSize: 20,
-            flowJobIdList: expandedRowKeys.map(jobId => `${jobId}`)
+            pageSize: 20
+        }
+        if (expandedRowKeys.length > 0) {
+            const flowJobIdList = [];
+            const arr = table.data.recordList;
+            expandedRowKeys.forEach(id => {
+                const matched = arr.find((item) => item.id === id);
+                if (matched) flowJobIdList.push(`${matched.jobId}`);
+            })
+            // TODO 这里expandedRowKeys默认取的是 id 字段， flowJobIdList参数需要的是jobId,
+            // TODO 后端按理最好要统一
+            reqParams.flowJobIdList = flowJobIdList;
         }
         if (fillJobName) {
             reqParams.fillJobName = fillJobName
@@ -146,7 +156,7 @@ class PatchDataDetail extends Component {
                         if (!job.children) {
                             job.children = [];
                         } else {
-                            expandedRowKeys.push(job.jobId);
+                            expandedRowKeys.push(job.id);
                         }
                     }
                 }
@@ -729,7 +739,7 @@ class PatchDataDetail extends Component {
                         }
                     >
                         <Table
-                            rowKey="jobId"
+                            rowKey="id"
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.selectedTask && this.state.selectedTask.id == record.id) {

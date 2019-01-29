@@ -112,7 +112,7 @@ class TaskGraphView extends Component {
         const nextGraphData = this.props.graphData
         const { graphData } = prevProps
         if (nextGraphData && nextGraphData !== graphData) {
-            this.initGraph(graphData);
+            this.initGraph(nextGraphData);
         }
     }
 
@@ -120,7 +120,7 @@ class TaskGraphView extends Component {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = '';
         const editor = this.Container;
-        this.loadEditor(editor)
+        this.loadEditor(editor);
         this.initRender(graphData);
         this.hideMenu();
     }
@@ -285,12 +285,12 @@ class TaskGraphView extends Component {
     }
 
     initRender = (data) => {
+        if (!data) return;
         const graph = this.graph;
-        const model = graph.getModel();
+        this._cacheLevel = {};
+        graph.getModel().clear();
         const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
-        this._cacheLevel = {};
-        model.clear();
         graph.removeCells(cells);
 
         // Init container scroll
