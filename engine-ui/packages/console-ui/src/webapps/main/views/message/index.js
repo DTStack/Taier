@@ -44,7 +44,6 @@ class MessageCenter extends Component {
                 <Navigator
                     logo={logo}
                     menuItems={[]}
-                    isAdminAndMsg={true}
                     licenseApps={licenseApps}
                     {...this.props}
                 />
