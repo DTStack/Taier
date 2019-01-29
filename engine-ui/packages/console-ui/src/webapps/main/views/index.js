@@ -215,39 +215,39 @@ class Main extends Component {
             // rdosAPP
             const rdosApp = fixLicenseApps[0];
             const isRdosShow = rdosApp.isShow;
-            const isRdosDataSource = rdosApp.children[0].isShow;
-            const isRdosTask = rdosApp.children[1].isShow;
-            const isRdosOpera = rdosApp.children[2].isShow;
-            const isRdosMap = rdosApp.children[3].isShow;
-            const isRdosModal = rdosApp.children[4].isShow;
-            const isRdosPro = rdosApp.children[5].isShow;
+            const isRdosDataSource = rdosApp.children[0] && rdosApp.children[0].isShow;
+            const isRdosTask = rdosApp.children[1] && rdosApp.children[1].isShow;
+            const isRdosOpera = rdosApp.children[2] && rdosApp.children[2].isShow;
+            const isRdosMap = rdosApp.children[3] && rdosApp.children[3].isShow;
+            const isRdosModal = rdosApp.children[4] && rdosApp.children[4].isShow;
+            const isRdosPro = rdosApp.children[5] && rdosApp.children[5].isShow;
             // streamAPP
             const streamApp = fixLicenseApps[1];
             const isStream = streamApp.isShow;
-            const isStreamDataSource = streamApp.children[0].isShow;
-            const isStreamTask = streamApp.children[1].isShow;
-            const isStreamOpera = streamApp.children[2].isShow;
-            const isStreamPro = streamApp.children[3].isShow;
+            const isStreamDataSource = streamApp.children[0] && streamApp.children[0].isShow;
+            const isStreamTask = streamApp.children[1] && streamApp.children[1].isShow;
+            const isStreamOpera = streamApp.children[2] && streamApp.children[2].isShow;
+            const isStreamPro = streamApp.children[3] && streamApp.children[3].isShow;
             // analyticsEngine
             const analyApp = fixLicenseApps[2];
             const isAna = analyApp.isShow;
             // dataQuality
             const qualityApp = fixLicenseApps[3];
             const isQuali = qualityApp.isShow;
-            const isQualiOver = qualityApp.children[0].isShow;
-            const isQualiTaskSearch = qualityApp.children[1].isShow;
-            const isQualiRule = qualityApp.children[2].isShow;
-            const isQualiVali = qualityApp.children[3].isShow;
-            const isQualiDataSource = qualityApp.children[4].isShow;
+            const isQualiOver = qualityApp.children[0] && qualityApp.children[0].isShow;
+            const isQualiTaskSearch = qualityApp.children[1] && qualityApp.children[1].isShow;
+            const isQualiRule = qualityApp.children[2] && qualityApp.children[2].isShow;
+            const isQualiVali = qualityApp.children[3] && qualityApp.children[3].isShow;
+            const isQualiDataSource = qualityApp.children[4] && qualityApp.children[4].isShow;
             // dataApi
             const apiApp = fixLicenseApps[4];
             const isDataApi = apiApp.isShow;
-            const isApiover = apiApp.children[0].isShow;
-            const isApiMarket = apiApp.children[1].isShow;
-            const isApiMine = apiApp.children[2].isShow;
-            const isApiMana = apiApp.children[3].isShow;
-            const isApiSafe = apiApp.children[4].isShow;
-            const isApiDataSource = apiApp.children[5].isShow;
+            const isApiover = apiApp.children[0] && apiApp.children[0].isShow;
+            const isApiMarket = apiApp.children[1] && apiApp.children[1].isShow;
+            const isApiMine = apiApp.children[2] && apiApp.children[2].isShow;
+            const isApiMana = apiApp.children[3] && apiApp.children[3].isShow;
+            const isApiSafe = apiApp.children[4] && apiApp.children[4].isShow;
+            const isApiDataSource = apiApp.children[5] && apiApp.children[5].isShow;
             // 判断条件存入数组
             const arr = [
                 // rdos
