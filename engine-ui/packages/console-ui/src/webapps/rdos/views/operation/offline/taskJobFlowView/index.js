@@ -234,20 +234,20 @@ class TaskJobFlowView extends Component {
                 menu.addItem('查看任务属性', null, function () {
                     ctx.setState({ visible: true })
                 })
-                const frontPeriods = menu.addItem('转到前一周期实例', null, null);
-                const frontParams = {
-                    jobId: currentNode.id,
-                    isAfter: false,
-                    limit: 6
-                }
-                ctx.loadPeriodsData(menu, frontParams, frontPeriods)
-                const nextPeriods = menu.addItem('转到下一周期实例', null, null);
-                const nextParams = {
-                    jobId: currentNode.id,
-                    isAfter: true,
-                    limit: 6
-                }
-                ctx.loadPeriodsData(menu, nextParams, nextPeriods)
+                // const frontPeriods = menu.addItem('转到前一周期实例', null, null);
+                // const frontParams = {
+                //     jobId: currentNode.id,
+                //     isAfter: false,
+                //     limit: 6
+                // }
+                // ctx.loadPeriodsData(menu, frontParams, frontPeriods)
+                // const nextPeriods = menu.addItem('转到下一周期实例', null, null);
+                // const nextParams = {
+                //     jobId: currentNode.id,
+                //     isAfter: true,
+                //     limit: 6
+                // }
+                // ctx.loadPeriodsData(menu, nextParams, nextPeriods)
                 menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
                     ctx.props.goToTaskDev(taskId)
                 })
