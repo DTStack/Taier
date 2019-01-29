@@ -30,7 +30,7 @@ function renderMenuItems (menuItems) {
 }
 
 // 控制apps与licenseApps应用是否显示
-function compareEnable (apps, licenseApps) {
+export function compareEnable (apps, licenseApps) {
     if (licenseApps && licenseApps.length > 1) {
         const newApps = cloneDeep(apps);
         newApps.map(item => {
@@ -71,7 +71,7 @@ export function Logo (props) {
 }
 
 export function MenuLeft (props) {
-    const { activeKey, onClick, menuItems, user, licenseApps, isAdminAndMsg } = props;
+    const { activeKey, onClick, menuItems, user, licenseApps } = props;
     return (
         <div className="menu left">
             <Menu
@@ -80,7 +80,7 @@ export function MenuLeft (props) {
                 selectedKeys={[activeKey]}
                 mode="horizontal"
             >
-                {renderATagMenuItems((isAdminAndMsg ? menuItems : compareEnable(menuItems, licenseApps)), user.isRoot)}
+                {renderATagMenuItems(menuItems, user.isRoot)}
             </Menu>
         </div>
     )

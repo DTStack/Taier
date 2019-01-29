@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 
-import Navigator from '../../components/nav';
+import Navigator, { compareEnable } from '../../components/nav';
 import { getHeaderLogo } from '../../consts'
 
 @connect(state => {
@@ -33,7 +33,7 @@ class Header extends Component {
 
         return <Navigator
             logo={logo}
-            menuItems={apps}
+            menuItems={compareEnable(apps, licenseApps)}
             licenseApps={licenseApps}
             {...this.props}
         />
