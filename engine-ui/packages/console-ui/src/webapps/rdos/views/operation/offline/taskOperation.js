@@ -404,11 +404,12 @@ class OfflineTaskList extends Component {
             width: '350px',
             render: (text, record) => {
                 let name = record.batchTask && record.batchTask.name
+                let originText = name;
                 name = utils.textOverflowExchange(name, 45);
                 const showName = record.batchTask.isDeleted === 1
                     ? `${name} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{name}</a>;
-                return <span title={name}>{showName}</span>;
+                return <span title={originText}>{showName}</span>;
             },
             fixed: 'left'
         }, {

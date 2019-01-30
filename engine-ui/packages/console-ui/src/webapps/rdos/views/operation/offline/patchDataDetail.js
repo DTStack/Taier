@@ -403,11 +403,12 @@ class PatchDataDetail extends Component {
             width: '350px',
             fixed: 'left',
             render: (text, record) => {
+                let originText = text;
                 text = utils.textOverflowExchange(text, 45);
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{text}</a>;
-                return <span title={text}>{showName}</span>;
+                return <span title={originText}>{showName}</span>;
             }
         }, {
             title: '状态',
