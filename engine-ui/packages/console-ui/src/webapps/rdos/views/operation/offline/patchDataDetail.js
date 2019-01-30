@@ -29,6 +29,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import TaskJobFlowView from './taskJobFlowView'
+import utils from 'utils';
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -399,9 +400,10 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
-            width: '200px',
+            width: '350px',
             fixed: 'left',
             render: (text, record) => {
+                text = utils.textOverflowExchange(text, 45);
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{text}</a>;
@@ -752,7 +754,7 @@ class PatchDataDetail extends Component {
                             expandedRowKeys={this.state.expandedRowKeys}
                             defaultExpandAllRows={true}
                             style={{ marginTop: '1px' }}
-                            scroll={{ x: '1200px' }}
+                            scroll={{ x: '1350px' }}
                             className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}

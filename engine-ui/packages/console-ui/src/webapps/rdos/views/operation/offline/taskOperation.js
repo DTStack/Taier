@@ -23,7 +23,6 @@ import {
     TASK_STATUS,
     TASK_TYPE
 } from '../../../comm/const'
-
 import {
     TaskStatus, TaskTimeType, TaskType
 } from '../../../components/status'
@@ -402,9 +401,10 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: '200px',
+            width: '350px',
             render: (text, record) => {
-                const name = record.batchTask && record.batchTask.name
+                let name = record.batchTask && record.batchTask.name
+                name = utils.textOverflowExchange(name, 45);
                 const showName = record.batchTask.isDeleted === 1
                     ? `${name} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{name}</a>;
@@ -740,7 +740,7 @@ class OfflineTaskList extends Component {
                             footer={this.tableFooter}
                             onExpand={this.onExpand}
                             onExpandedRowsChange={this.onExpandRows}
-                            scroll={{ x: '1400px' }}
+                            scroll={{ x: '1550px' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"
