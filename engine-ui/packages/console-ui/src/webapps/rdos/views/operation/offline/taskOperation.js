@@ -408,7 +408,7 @@ class OfflineTaskList extends Component {
                 const showName = record.batchTask.isDeleted === 1
                     ? `${name} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{name}</a>;
-                return showName;
+                return <span title={name}>{showName}</span>;
             },
             fixed: 'left'
         }, {

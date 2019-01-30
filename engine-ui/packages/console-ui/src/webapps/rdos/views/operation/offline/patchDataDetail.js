@@ -407,7 +407,7 @@ class PatchDataDetail extends Component {
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{text}</a>;
-                return showName
+                return <span title={text}>{showName}</span>;
             }
         }, {
             title: '状态',
