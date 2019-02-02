@@ -26,9 +26,14 @@ public class HadoopConfTool {
     public static final String FS_HDFS_IMPL_DISABLE_CACHE = "fs.hdfs.impl.disable.cache";
     public static final String FS_HDFS_IMPL = "fs.hdfs.impl";
     public static final String HADOOP_AUTH_TYPE = "hadoop.security.authentication";
+    public static final String IS_HADOOP_AUTHORIZATION = "hadoop.security.authorization";
 
     private static final String DEFAULT_DFS_CLIENT_FAILOVER_PROXY_PROVIDER = "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider";
     private static final String DEFAULT_FS_HDFS_IMPL = "org.apache.hadoop.hdfs.DistributedFileSystem";
+    public static final String DFS_HTTP_POLICY = "dfs.http.policy";
+    public static final String DFS_DATA_TRANSFER_PROTECTION = "dfs.data.transfer.protection";
+    public static final String HADOOP_PROXYUSER_ADMIN_HOSTS = "hadoop.proxyuser.admin.hosts";
+    public static final String HADOOP_PROXYUSER_ADMIN_GROUPS = "hadoop.proxyuser.admin.groups";
 
     public static String getAuthType(Map<String, Object> conf){
         return MathUtil.getString(conf.get(HADOOP_AUTH_TYPE));

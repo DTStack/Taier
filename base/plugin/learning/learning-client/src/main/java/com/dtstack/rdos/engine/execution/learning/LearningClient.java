@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -82,7 +83,7 @@ public class LearningClient extends AbsClient {
             } else if(value instanceof Map) {
                 Map<String,String> map = (Map<String, String>) value;
                 for(Map.Entry<String,String> entry : map.entrySet()) {
-                    conf.set(entry.getKey(), entry.getValue());
+                    conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
                 }
             } else {
                 conf.set(key, value.toString());

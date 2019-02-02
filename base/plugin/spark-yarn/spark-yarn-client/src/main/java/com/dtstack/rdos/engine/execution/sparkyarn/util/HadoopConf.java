@@ -4,10 +4,13 @@ package com.dtstack.rdos.engine.execution.sparkyarn.util;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.base.util.YarnConfTool;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.authentication.util.KerberosUtil;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 
 /**
  *
@@ -124,6 +128,25 @@ public class HadoopConf {
         String disableCache = HadoopConfTool.getFsHdfsImplDisableCache(conf);
         configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
 
+        if(MapUtils.getString(conf, HadoopConfTool.DFS_HTTP_POLICY) != null){
+            configuration.set(HadoopConfTool.DFS_HTTP_POLICY, MapUtils.getString(conf, HadoopConfTool.DFS_HTTP_POLICY));
+        }
+
+        if(MapUtils.getString(conf, HadoopConfTool.DFS_DATA_TRANSFER_PROTECTION) != null){
+            configuration.set(HadoopConfTool.DFS_DATA_TRANSFER_PROTECTION, MapUtils.getString(conf, HadoopConfTool.DFS_DATA_TRANSFER_PROTECTION));
+        }
+
+        if(MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_HOSTS) != null){
+            configuration.set(HadoopConfTool.HADOOP_PROXYUSER_ADMIN_HOSTS, MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_HOSTS));
+        }
+
+        if(MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_GROUPS) != null){
+            configuration.set(HadoopConfTool.HADOOP_PROXYUSER_ADMIN_GROUPS, MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_GROUPS));
+        }
+
+        Boolean isAuth = MapUtils.getBoolean(conf, HadoopConfTool.IS_HADOOP_AUTHORIZATION, false);
+        configuration.set(HadoopConfTool.IS_HADOOP_AUTHORIZATION, isAuth.toString());
+
         if(Strings.isNotEmpty(HadoopConfTool.getAuthType(conf))){
             configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));
         }
@@ -183,7 +206,6 @@ public class HadoopConf {
                 throw new RdosException("init hive security conf failed!, type of value is not supported");
             }
         });
-
     }
 
     public static Configuration getDefaultConfiguration() {
