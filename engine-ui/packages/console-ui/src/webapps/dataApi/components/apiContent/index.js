@@ -88,6 +88,7 @@ class Content extends Component {
         const showExt = isManage;
         const isGET = this.getValue('reqMethod') == API_METHOD.GET
         let reqJson = this.getValue('reqJson');
+        const apiPath = this.getValue('apiPath');
 
         if (isGET) {
             reqJson = Object.entries(reqJson).map(
@@ -113,7 +114,9 @@ class Content extends Component {
                                 <p data-title="后端Path：" className="pseudo-title p-line">{registerInfo.originalPath}</p>
                             </React.Fragment>
                         )}
-                        <p data-title="API path：" className="pseudo-title p-line">{this.getValue('apiPath')}</p>
+                        {apiPath && (
+                            <p data-title="API path：" className="pseudo-title p-line">{apiPath}</p>
+                        )}
                         {!showExt && (
                             <p data-title="调用次数限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         )}
@@ -138,6 +141,13 @@ class Content extends Component {
                         )}
                     </div>
                 </section>
+                {showMarketInfo && <section style={{ marginTop: 19.3 }}>
+                    <h1 className="title-border-l-blue">调用订购情况</h1>
+                    <div style={{ marginTop: 10 }}>
+                        <span data-title="累计调用次数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('apiCallNum')}</span>
+                        <span data-title="订购人数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('applyNum')}</span>
+                    </div>
+                </section>}
                 {isRegister ? (
                     <RegisterSection
                         isManage={isManage}
@@ -146,12 +156,10 @@ class Content extends Component {
                     />
                 ) : (<CreateSection
                     showApiConfig={showApiConfig}
-                    showMarketInfo={showMarketInfo}
                     apiConfig={apiConfig}
                     reqJson={reqJson}
                     isGET={isGET}
                     getValue={this.getValue.bind(this)}
-                    getValueCallInfo={this.getValueCallInfo.bind(this)}
                     getRequestDataSource={this.getRequestDataSource.bind(this)}
                     getResponseDataSource={this.getResponseDataSource.bind(this)}
                 />)}
