@@ -15,12 +15,13 @@ public class DefaultRestartStrategy extends IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String jobId,String engineJobId, IClient client) {
+    public boolean checkCanRestart(String jobId,String engineJobId, IClient client,
+                                   Integer alreadyRetryNum, Integer maxRetryNum) {
         return false;
     }
 
     @Override
-    public boolean checkCanRestart(String jobId, String msg) {
+    public boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum) {
         return false;
     }
 

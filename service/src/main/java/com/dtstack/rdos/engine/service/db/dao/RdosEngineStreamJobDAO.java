@@ -200,4 +200,17 @@ public class RdosEngineStreamJobDAO {
 
 		});
 	}
+
+	public void updateRetryNum(String jobId, Integer retryNum){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public List<Object> execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.updateRetryNum(jobId, retryNum);
+				return null;
+			}
+
+		});
+	}
 }

@@ -33,13 +33,14 @@ public class SparkRestartStrategy extends IRestartStrategy {
     }
 
     @Override
-    public boolean checkCanRestart(String jobId, String engineJobId, IClient client) {
+    public boolean checkCanRestart(String jobId, String engineJobId, IClient client,
+                                   Integer alreadyRetryNum, Integer maxRetryNum) {
         String msg = client.getJobLog(JobIdentifier.createInstance(engineJobId, null, null));
-        return checkCanRestart(jobId, msg);
+        return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
     }
 
     @Override
-    public boolean checkCanRestart(String jobId, String msg) {
+    public boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum) {
         boolean restart = true;
         if(StringUtils.isNotBlank(msg)){
             for(String emsg : unrestartExceptionList){
@@ -51,7 +52,7 @@ public class SparkRestartStrategy extends IRestartStrategy {
         }
 
         if(restart){
-            return retry(jobId,null);
+            return retry(jobId, alreadyRetryNum, maxRetryNum);
         }else {
             return false;
         }
