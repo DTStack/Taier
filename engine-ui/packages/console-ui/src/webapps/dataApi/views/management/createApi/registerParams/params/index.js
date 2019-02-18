@@ -4,16 +4,29 @@ import { Button, Tooltip, Icon } from 'antd';
 import ConstColumnModel from '../../../../../model/constColumnModel';
 import InputColumnModel from '../../../../../model/inputColumnModel';
 import { resolveFormItemKey } from '../helper';
+import { API_METHOD } from '../../../../../consts';
 import Card from '../card';
 import ConstTable from './const';
 import InputTable from './input';
+import Editor from 'widgets/editor';
 
 class RegisterParams extends React.Component {
+    state = {
+        sync: true
+    }
     initColumns () {
         return [{
             dataIndex: 'name',
             title: '参数名称'
         }]
+    }
+    editorChange (value) {
+        this.setState({
+            sync: false
+        })
+        this.props.updateData({
+            bodyDesc: value
+        });
     }
     newColumn (type) {
         let { data = {} } = this.props;
@@ -111,8 +124,10 @@ class RegisterParams extends React.Component {
         })
     }
     render () {
+        const { sync } = this.state;
         let { data = {}, method } = this.props;
-        let { inputParam = [], constParam = [] } = data;
+        let { inputParam = [], constParam = [], bodyDesc } = data;
+        const haveBody = method == API_METHOD.POST || method == API_METHOD.PUT;
         return (
             <React.Fragment>
                 <Card
@@ -148,6 +163,30 @@ class RegisterParams extends React.Component {
                         data={constParam}
                     />
                 </Card>
+                {haveBody && (
+                    <Card
+                        style={{ marginTop: '40px' }}
+                        title={<span>
+                            请求Body描述
+                            <Tooltip title="用户可自定义请求body，若定义了请求Body，此处body体将作为API调用者的请求样例，请求参数中位于body位置的参数将无效">
+                                <Icon style={{ marginLeft: '5px' }} type="question-circle-o" />
+                            </Tooltip>
+                        </span>}
+                    >
+                        <Editor
+                            sync={sync}
+                            onChange={this.editorChange.bind(this)}
+                            language='plaintext'
+                            style={{
+                                height: '218px',
+                                minHeight: '218px',
+                                border: '1px solid #DDDDDD'
+                            }}
+                            options={{ minimap: { enabled: false } }}
+                            value={bodyDesc}
+                        />
+                    </Card>
+                )}
             </React.Fragment>
         )
     }

@@ -368,6 +368,7 @@ class ManageBasicProperties extends Component {
             });
             this.props.changeRegisterParams({
                 ...registerParams,
+                bodyDesc: null,
                 inputParam: inputParam
             }, true)
         }
