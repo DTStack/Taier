@@ -553,6 +553,7 @@ class Workbench extends React.Component {
 
         // 删除不必要的字段
         delete reqBody.taskVersions;
+        delete reqBody.dataSyncSaved;
 
         // 数据拼装结果
         return reqBody;
