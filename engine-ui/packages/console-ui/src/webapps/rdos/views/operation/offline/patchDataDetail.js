@@ -274,6 +274,7 @@ class PatchDataDetail extends Component {
                     task.status !== TASK_STATUS.RUN_FAILED &&
                     task.status !== TASK_STATUS.SUBMIT_FAILED &&
                     task.status !== TASK_STATUS.STOPED &&
+                    task.status !== TASK_STATUS.KILLED &&
                     task.status !== TASK_STATUS.PARENT_FAILD
                 ) return false
             }
