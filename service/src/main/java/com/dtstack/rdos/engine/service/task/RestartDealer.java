@@ -188,9 +188,6 @@ public class RestartDealer {
                 LOG.error("batch job {} can't find.", jobId);
                 return false;
             }
-            if(engineBatchJob.getSourceType() != null && SourceType.TEMP_QUERY.getType().equals(engineBatchJob.getSourceType())){
-                return false;
-            }
         }
 
         IClient client = clientCache.getClient(engineType, pluginInfo);
