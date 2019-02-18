@@ -270,18 +270,12 @@ class NormalTaskForm extends React.Component {
     }
 }
 
-function validValus (values, props) {
+function validValues (values, props) {
     // invalid为一个验证标记，
     // 次标记为上方任务保存按钮是否有效提供依据
     if (values.mainClass === '') { // mainClass不可为空
         return true;
     }
-
-    // 资源列表不可为空
-    if (!values.resourceIdList || values.resourceIdList.length === 0) {
-        return true;
-    }
-
     return false;
 }
 
@@ -293,7 +287,7 @@ const NormalTaskFormWrapper = Form.create({
         if (values.exeArgs !== '') {
             values.taskVariables = matchTaskParams(taskCustomParams, values.exeArgs)
         }
-        values.invalid = validValus(values, props);
+        values.invalid = validValues(values, props);
         setFieldsValue(values);
     }
 })(NormalTaskForm);
