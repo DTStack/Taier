@@ -89,7 +89,7 @@ class TaskJobFlowView extends Component {
         const ctx = this;
         this.setState({ loading: 'loading' });
         Api.getJobChildren(params).then(res => {
-            if (res.code === 1) {
+            if (res.code === 1 && res.data) {
                 const data = res.data
                 ctx.setState({ selectedJob: data, data })
                 ctx.renderGraph(res.data)
@@ -102,7 +102,7 @@ class TaskJobFlowView extends Component {
         const ctx = this
         this.setState({ loading: 'loading' });
         Api.getJobParents(params).then(res => {
-            if (res.code === 1) {
+            if (res.code === 1 && res.data) {
                 const data = res.data
                 ctx.setState({ data, selectedJob: data })
                 // 替换 jobVos 字段为 parentNodes
@@ -214,20 +214,19 @@ class TaskJobFlowView extends Component {
                 const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
                 if (isDelete) return;
-                if (!isWorkflowNode) {
-                    menu.addItem('展开上游（6层）', null, function () {
-                        ctx.loadTaskParent({
-                            jobId: currentNode.id,
-                            level: 6
-                        })
+                menu.addItem('展开上游（6层）', null, function () {
+                    ctx.loadTaskParent({
+                        jobId: currentNode.id,
+                        level: 6
                     })
-                    menu.addItem('展开下游（6层）', null, function () {
-                        ctx.loadTaskChidren({
-                            jobId: currentNode.id,
-                            level: 6
-                        })
+                })
+                menu.addItem('展开下游（6层）', null, function () {
+                    ctx.loadTaskChidren({
+                        jobId: currentNode.id,
+                        level: 6
                     })
-                }
+                })
+
                 menu.addItem('查看任务日志', null, function () {
                     ctx.showJobLog(currentNode.jobId)
                 })
