@@ -259,6 +259,7 @@ class OfflineTaskList extends Component {
                     res.status !== TASK_STATUS.RUN_FAILED &&
                     res.status !== TASK_STATUS.SUBMIT_FAILED &&
                     res.status !== TASK_STATUS.STOPED &&
+                    res.status !== TASK_STATUS.KILLED &&
                     res.status !== TASK_STATUS.PARENT_FAILD
                 ) return false
             }
