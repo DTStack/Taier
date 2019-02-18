@@ -871,6 +871,7 @@ class SourceForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 showArrow={true}
+                                allowClear={true}
                                 onChange={this.submitForm.bind(this)}
                             >
                                 {(
