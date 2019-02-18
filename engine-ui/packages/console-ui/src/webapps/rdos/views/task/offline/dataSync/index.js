@@ -145,7 +145,7 @@ class DataSyncWorkbench extends Component {
             enable: true,
             enableRun: true,
             disableEdit: true,
-            disableRun: unSave || unConfigured,
+            disableRun: isLocked || unSave || unConfigured,
             isRunning: editor.running.indexOf(currentTab) > -1,
             onRun: this.onRun,
             onStop: this.onStop,
