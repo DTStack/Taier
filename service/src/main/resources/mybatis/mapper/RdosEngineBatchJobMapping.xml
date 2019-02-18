@@ -19,6 +19,7 @@
         <result column="log_info" property="logInfo" jdbcType="VARCHAR"/>
         <result column="source_type" property="sourceType" jdbcType="INTEGER" />
         <result column="application_id" property="applicationId" jdbcType="VARCHAR"/>
+        <result column="retry_num" property="retryNum" jdbcType="INTEGER" />
     </resultMap>
 	
    <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob">
@@ -62,7 +63,7 @@
    </select>
 
     <select id="getRdosJobByJobIds" parameterType="java.util.HashMap" resultMap="rdosEngineTaskResult">
-        select job_id, engine_job_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,gmt_create,gmt_modified,is_deleted,source_type from rdos_engine_batch_job
+        select job_id, engine_job_id,plugin_info_id,status,engine_log,log_info,exec_start_time,exec_end_time,exec_time,retry_num, gmt_create,gmt_modified,is_deleted,source_type from rdos_engine_batch_job
         where job_id IN
         <foreach item="jobId" index="index" collection="jobIds" open="(" separator="," close=")">
             #{jobId}
@@ -85,4 +86,8 @@
     <select id="listNames" parameterType="java.lang.String" resultType="java.lang.String">
         select job_name from rdos_engine_batch_job where job_name LIKE '%${jobName}%' and is_deleted=0;
     </select>
+
+    <update id="updateRetryNum" parameterType="java.util.HashMap">
+	   update rdos_engine_batch_job set retry_num=#{retryNum} where job_id=#{jobId};
+   </update>
 </mapper>

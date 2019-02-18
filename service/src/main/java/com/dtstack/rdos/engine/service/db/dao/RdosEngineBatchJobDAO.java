@@ -196,4 +196,16 @@ public class RdosEngineBatchJobDAO {
 			}
 		});
     }
+
+	public void updateRetryNum(final String jobId, final Integer retryNum){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				mapper.updateRetryNum(jobId, retryNum);
+				return null;
+			}
+		});
+	}
 }

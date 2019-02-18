@@ -18,8 +18,6 @@ public abstract class IRestartStrategy {
 
     private static Logger logger = LoggerFactory.getLogger(IRestartStrategy.class);
 
-    protected Cache<String, Integer> retryJobCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
-
     private final static Integer RETRY_LIMIT = 3;
 
     /**判断引擎是不是挂了*/
@@ -27,27 +25,25 @@ public abstract class IRestartStrategy {
 
     public abstract boolean checkNOResource(String msg);
 
-    public abstract boolean checkCanRestart(String jobId,String engineJobId, IClient client);
+    public abstract boolean checkCanRestart(String jobId, String engineJobId, IClient client,
+                                            Integer alreadyRetryNum, Integer maxRetryNum);
 
-    public abstract boolean checkCanRestart(String jobId, String msg);
+    public abstract boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum);
 
-    public boolean retrySubmitFail(String jobId, String msg, Integer retryNum){
+    public boolean retrySubmitFail(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum){
         if(checkFailureForEngineDown(msg)){
             return true;
         }
 
-        return checkCanRestart(jobId, msg);
+        return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
     }
 
-    public boolean retry(String jobId,Integer retryNum){
+    public boolean retry(String jobId, Integer alreadyRetryNum, Integer maxRetryNum){
         try {
-            Integer retry_limit_real = retryNum != null ? retryNum : RETRY_LIMIT;
-            Integer rms = retryJobCache.get(jobId, ()-> 1);
-            if(rms >= retry_limit_real){
-                retryJobCache.asMap().remove(jobId);
+            Integer retry_limit_real = maxRetryNum != null ? maxRetryNum : RETRY_LIMIT;
+            if(alreadyRetryNum >= retry_limit_real){
                 return false;
             }
-            retryJobCache.put(jobId,++rms);
         }catch (Throwable e) {
             logger.error("retry again:", e);
             return false;

@@ -43,4 +43,6 @@ public interface RdosEngineStreamJobMapper {
     List<String> listNames(@Param("taskName") String taskName);
 
 	List<String> getTaskIdsByStatus(@Param("status") Integer status);
+
+	void updateRetryNum(@Param("taskId")String taskId, @Param("retryNum")Integer retryNum);
 }

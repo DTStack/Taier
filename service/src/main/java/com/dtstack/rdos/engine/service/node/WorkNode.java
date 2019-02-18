@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.service.node;
 
-import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
@@ -29,7 +28,6 @@ import com.google.common.collect.Maps;
 import com.netflix.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

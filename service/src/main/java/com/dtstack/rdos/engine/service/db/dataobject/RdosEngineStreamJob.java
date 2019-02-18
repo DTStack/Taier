@@ -43,6 +43,8 @@ public class RdosEngineStreamJob extends DataObject{
 
     private Long pluginInfoId;
 
+    private Integer retryNum;
+
 	public String getTaskId() {
 		return taskId;
 	}
@@ -129,5 +131,13 @@ public class RdosEngineStreamJob extends DataObject{
 
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
+	}
+
+	public Integer getRetryNum() {
+		return retryNum;
+	}
+
+	public void setRetryNum(Integer retryNum) {
+		this.retryNum = retryNum;
 	}
 }
