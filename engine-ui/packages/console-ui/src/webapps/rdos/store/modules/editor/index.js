@@ -140,9 +140,23 @@ export const options = (state = initialEditorOptions(), action) => {
     }
 }
 
+/**
+ * 是否展示左侧面板
+*/
+export const showRightExtraPane = (state = '', action) => {
+    switch (action.type) {
+        case editorAction.SHOW_RIGHT_PANE: {
+            return action.data;
+        }
+        default:
+            return state
+    }
+}
+
 export const editor = combineReducers({
     console,
     selection,
     running,
-    options
+    options,
+    showRightExtraPane
 })

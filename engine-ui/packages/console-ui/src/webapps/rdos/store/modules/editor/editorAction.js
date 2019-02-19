@@ -390,6 +390,31 @@ export function updateEditorOptions (data) {
     }
 }
 
+/**
+ * 更新右侧面板行为
+ * @param {String} showAction 展示行为
+ */
+export function showRightTablePane () {
+    return {
+        type: editorAction.SHOW_RIGHT_PANE,
+        data: editorAction.SHOW_TABLE_TIP_PANE
+    }
+}
+
+export function showRightSyntaxPane () {
+    return {
+        type: editorAction.SHOW_RIGHT_PANE,
+        data: editorAction.SHOW_SYNTAX_HELP_PANE
+    }
+}
+
+export function hideRightPane () {
+    return {
+        type: editorAction.SHOW_RIGHT_PANE,
+        data: ''
+    }
+}
+
 export function getEditorThemeClassName (editorTheme) {
     // 如果是dark类的编辑器，则切换ide的theme为dark风格
     return editorTheme === 'vs-dark' || editorTheme === 'hc-black'
