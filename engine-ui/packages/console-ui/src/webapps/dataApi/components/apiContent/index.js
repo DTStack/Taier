@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import moment from 'moment';
 
 import './style.scss';
-import SecurityDetailModal from '../../components/securityDetailModal';
 import RegisterSection from './register';
 import CreateSection from './create';
 
@@ -48,23 +47,6 @@ class Content extends Component {
             return null;
         }
     }
-    showSecurityDetail (security) {
-        this.setState({
-            securityModalVisible: true,
-            securityData: security
-        })
-    }
-    renderSecurityListView (securityList) {
-        return securityList.map((security) => {
-            return <a onClick={this.showSecurityDetail.bind(this, security)} key={security.id}>{security.name}</a>
-        }).reduce((arrs, currentArr) => {
-            if (arrs.length) {
-                return arrs.concat(['，', currentArr])
-            } else {
-                return arrs.concat(currentArr)
-            }
-        }, [])
-    }
     render () {
         const {
             callUrl,
@@ -77,13 +59,11 @@ class Content extends Component {
             showRecord,
             showMarketInfo, // 是否显示订购情况
             showUserInfo, // 是否显示用户个人的调用信息
-            showSecurity, // 是否显示安全组
-            securityList,
+            showReqLimit, // 是否显示调用限制
             registerInfo,
             showApiConfig, // 是否显示api的配置信息
             apiConfig = {} // api配置信息
         } = this.props;
-        const { securityData, securityModalVisible } = this.state;
         const isManage = mode == 'manage';
         const showExt = isManage;
         const isGET = this.getValue('reqMethod') == API_METHOD.GET
@@ -117,11 +97,8 @@ class Content extends Component {
                         {apiPath && (
                             <p data-title="API path：" className="pseudo-title p-line">{apiPath}</p>
                         )}
-                        {!showExt && (
+                        {showReqLimit && (
                             <p data-title="调用次数限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
-                        )}
-                        {showSecurity && (
-                            <p data-title="安全组：" className="pseudo-title p-line">{this.renderSecurityListView(securityList)}</p>
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
@@ -163,15 +140,6 @@ class Content extends Component {
                     getRequestDataSource={this.getRequestDataSource.bind(this)}
                     getResponseDataSource={this.getResponseDataSource.bind(this)}
                 />)}
-                <SecurityDetailModal
-                    data={securityData}
-                    visible={securityModalVisible}
-                    closeModal={() => {
-                        this.setState({
-                            securityModalVisible: false
-                        })
-                    }}
-                />
             </div>
         )
     }
