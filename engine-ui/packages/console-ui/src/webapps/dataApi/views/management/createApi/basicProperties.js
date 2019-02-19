@@ -413,7 +413,7 @@ class ManageBasicProperties extends Component {
                                     { required: true, message: '请输入API名称' },
                                     { min: 2, message: '最小字数不能少于2' },
                                     { max: 64, message: '最大字数不能超过64' },
-                                    { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' },
+                                    { pattern: new RegExp(/^(\w*)$/), message: 'API名字只能以字母，数字，下划线组成' },
                                     {
                                         validator: this.checkNameExist.bind(this)
                                     }],
