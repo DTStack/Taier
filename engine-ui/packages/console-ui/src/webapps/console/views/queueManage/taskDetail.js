@@ -438,17 +438,16 @@ class TaskDetail extends Component {
     getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
-            currentPage: pageIndex,
+            current: pageIndex,
             pageSize: PAGE_SIZE,
             total: total
         }
     }
     // 表格换页
-    onTableChange = (page, sorter) => {
+    onTableChange = (pagination, filters, sorter) => {
+        const table = Object.assign(this.state.table, { pageIndex: pagination.current })
         this.setState({
-            table: {
-                pageIndex: page.current
-            }
+            table
         },
         () => {
             this.getDetailTaskList();
