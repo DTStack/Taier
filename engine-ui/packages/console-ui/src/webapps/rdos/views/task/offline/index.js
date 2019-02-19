@@ -11,10 +11,12 @@ import ResViewModal from './resViewModal';
 import ScriptModal from './scriptModal';
 
 import CloneTaskModal from './cloneTaskModal';
+import CloneToWorkflowModal from './cloneToWorkflow'
 export default class Offline extends React.Component {
     render () {
         return <div>
             <CloneTaskModal></CloneTaskModal>
+            <CloneToWorkflowModal></CloneToWorkflowModal>
             <FolderModal />
             <TaskModal />
             <UploadModal />

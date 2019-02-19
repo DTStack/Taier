@@ -969,7 +969,13 @@ export const workbenchActions = (dispatch) => {
                 payload: data
             });
         },
-
+        // 克隆至工作流
+        toggleCloneToWorkflow: function (data) {
+            dispatch({
+                type: modalAction.TOGGLE_CLONE_TO_WORKFLOW,
+                payload: data
+            });
+        },
         toggleCreateScript: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_SCRIPT

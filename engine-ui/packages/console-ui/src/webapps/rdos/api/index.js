@@ -182,6 +182,12 @@ export default {
     cloneTask(params) {
         return http.post(req.CLONE_TASK, params)
     },
+    cloneTaskToWorkflow(params) {
+        return http.post(req.CLONE_TASK_TO_WORKFLOW, params)
+    },
+    getWorkflowLists(params) {
+        return http.post(req.GET_WORKFLOW_LISTS, params)
+    },
     taskStatistics() {
         return http.post(req.TASK_STATISTICS)
     },
