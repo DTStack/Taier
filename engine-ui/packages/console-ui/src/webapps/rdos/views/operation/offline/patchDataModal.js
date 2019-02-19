@@ -60,11 +60,11 @@ class PatchData extends Component {
         const taskJson = this.getSelectedTasks()
         const reqParams = form.getFieldsValue()
         reqParams.taskJson = taskJson.length > 0 ? JSON.stringify(taskJson[0]) : ''
-        this.setState({
-            confirmLoading: true
-        })
         this.props.form.validateFields((err) => {
             if (!err) {
+                this.setState({
+                    confirmLoading: true
+                })
                 reqParams.fromDay = reqParams.rangeDate[0].set({
                     'hour': 0,
                     'minute': 0,
@@ -356,7 +356,7 @@ class PatchData extends Component {
                                 message: '补数据名称不得超过64个字符！'
                             }]
                         })(
-                            <Input placeholder="请输入补数据名"/>
+                            <Input placeholder="请输入补数据名" />
                         )}
                     </FormItem>
                 </Row>

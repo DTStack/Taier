@@ -29,7 +29,7 @@ class TaskParams extends React.Component {
         /* eslint-disable-next-line */
         const reg = /(^\$\[(\S+\(\S*\)|[a-z0-9\+\-\:\s\/\\\*]{2,})\]$)|(^(?!\$)\S+$)/i;
 
-        if (reg.test(value)) {
+        if (!value || reg.test(value)) {
             const taskVariables = [...tabData.taskVariables];
             taskVariables[index].paramCommand = value;
             onChange({ taskVariables })
