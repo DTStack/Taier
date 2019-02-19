@@ -110,9 +110,13 @@ class ManageBasicProperties extends Component {
     }
     pass () {
         const { isRegister } = this.props;
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async (err, values) => {
             if (!err) {
                 if (isRegister) {
+                    const isHostVaild = await this.checkHostVaild();
+                    if (!isHostVaild) {
+                        return false;
+                    }
                     if (values.APIPath && !this.checkParamsPath(values)) {
                         return false;
                     }
@@ -356,6 +360,22 @@ class ManageBasicProperties extends Component {
         } else {
             callback()
         }
+    }
+    checkHostVaild () {
+        const form = this.props.form;
+        const host = form.getFieldValue('originalHost');
+        const path = form.getFieldValue('APIPath');
+        return api.checkHostVaild({
+            host,
+            path,
+            apiId: utils.getParameterByName('apiId')
+        }).then((res) => {
+            if (res.code == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        })
     }
     changeMethod (value) {
         const oldValue = this.props.form.getFieldValue('method');

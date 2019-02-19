@@ -38,6 +38,7 @@ export default {
     PARSER_SQL: `${DATA_API_BASE_URL}/apis/sqlParser`, // sql解析
     TEST_API: `${DATA_API_BASE_URL}/apis/apiTest`, // api测试
     CHECK_API_IS_EXIST: `${DATA_API_BASE_URL}/apis/checkNameExist`, // api名称是否存在
+    CHECK_HOST_PATH_IS_EXIST: `${DATA_API_BASE_URL}/apis/checkHostValid`, // 校验host是否合法
     GET_API_TIME_INFO_FOR_MANAGER: `${DATA_API_BASE_URL}/apis/getApiTimeInfoForManager`, // api调用延迟
     GET_API_CONFIG_INFO: `${DATA_API_BASE_URL}/apis/getDataSourceInfo`, // 获取api的配置信息
     GET_REGISTER_API_INFO: `${DATA_API_BASE_URL}/apis/getRegistApiInfo`, // 获取注册api的信息
