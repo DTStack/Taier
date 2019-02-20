@@ -4,8 +4,8 @@ import React from 'react'
 export const dataMapTypeSummary = () => {
     return (<div>
         <p>
-            可针对主表的不同特性建立不同的DataMap类型。
-            Preaggregate针对预聚合表，Timeseries针对时间序列表，BloomFilter适合在高基数列（如名称/ID）上进行精确匹配的查询，详情请参考帮助文档；
+            可针对主表的不同特性建立不同的DataMap类型：
+            Preaggregate适用于预聚合场景，Timeseries适用于时间序列场景，BloomFilter适用于高基数列（如名称/ID）上进行精确匹配的查询，Lucene适用于字符串类型，带有Like的检索场景，详情请参考帮助文档
         </p>
     </div>)
 }

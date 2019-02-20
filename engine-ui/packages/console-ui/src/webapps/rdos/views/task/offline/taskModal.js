@@ -91,7 +91,7 @@ class TaskForm extends React.Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const {
-            defaultData, taskTypes, createOrigin,
+            defaultData, taskTypes, createOrigin, analyDataSourceLists,
             labelPrefix, createFromGraph
         } = this.props;
         const { operateModel } = this.state;
@@ -118,7 +118,10 @@ class TaskForm extends React.Component {
         const taskOptions = taskTypes.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>
         )
-
+        const dataSourceOptions = analyDataSourceLists && analyDataSourceLists.map(item => {
+            return <Option key={item.key} value={item.key}>{item.value}</Option>
+        })
+        const isCarbonSql = value === TASK_TYPE.CARBONSQL
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
         const isSyncTask = value == TASK_TYPE.SYNC
@@ -477,6 +480,26 @@ class TaskForm extends React.Component {
                         )}
                     </FormItem>
                 }
+                {
+                    isCarbonSql && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="数据源"
+                        >
+                            {getFieldDecorator('dataSourceName', {
+                                rules: [{
+                                    required: true, message: '请选择数据源'
+                                }],
+                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.dataSourceName
+                            })(
+                                <Select
+                                >
+                                    {dataSourceOptions}
+                                </Select>
+                            )}
+                        </FormItem>
+                    )
+                }
                 <FormItem
                     {...formItemLayout}
                     label="描述"
@@ -653,7 +676,7 @@ class TaskModal extends React.Component {
 
     render () {
         const {
-            isModalShow, taskTreeData, resourceTreeData,
+            isModalShow, taskTreeData, resourceTreeData, analyDataSourceLists,
             defaultData, taskTypes, workflow } = this.props;
         const { loading } = this.state;
 
@@ -695,6 +718,7 @@ class TaskModal extends React.Component {
                         defaultData={defaultData}
                         createOrigin={workflow}
                         taskTypes={taskTypes}
+                        analyDataSourceLists={analyDataSourceLists}
                         labelPrefix={labelPrefix}
                         createFromGraph={createFromGraph}
                     />
@@ -712,7 +736,8 @@ export default connect((state) => {
         currentTab: state.offlineTask.workbench.currentTab,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
         resourceTreeData: state.offlineTask.resourceTree,
-        taskTypes: state.offlineTask.comm.taskTypes
+        taskTypes: state.offlineTask.comm.taskTypes,
+        analyDataSourceLists: state.offlineTask.comm.analyDataSourceLists
     }
 },
 dispatch => {

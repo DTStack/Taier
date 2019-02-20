@@ -209,6 +209,11 @@
                 }
             }
         }
+        .s-carbonsql {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/workflow.svg) // carbonsql图标暂缺
+            }
+        }
         .s-table {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/table.svg)

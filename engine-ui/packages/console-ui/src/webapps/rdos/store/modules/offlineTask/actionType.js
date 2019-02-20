@@ -3,7 +3,8 @@ import mc from 'mirror-creator';
 export const commAction = mc([
     'GET_TASK_TYPES',
     'GET_TASK_TYPE_FILTER',
-    'SET_TABLE_LIST'
+    'SET_TABLE_LIST',
+    'GET_ANALY_DATASOURCE_LISTS'
 ], { prefix: 'offline/comm/' });
 
 export const modalAction = mc([

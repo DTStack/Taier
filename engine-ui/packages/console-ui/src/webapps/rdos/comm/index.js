@@ -90,6 +90,9 @@ export function taskTypeIcon (type, task = {}) {
             case TASK_TYPE.ML: {
                 return 's-mlicon';
             }
+            case TASK_TYPE.CARBONSQL: {
+                return 's-carbonsql';
+            }
             default:
                 return '';
         }
