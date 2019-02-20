@@ -782,11 +782,11 @@ class Keymap extends React.Component {
                 <div>
                     <img style={{
                         width: '100%',
-                        height: 200
+                        height: 400
                     }} src="/public/rdos/img/keymap_help.jpg" />
                 </div>
             ),
-            width: 500,
+            width: 850,
             okText: '了解'
         });
     }

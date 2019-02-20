@@ -1160,6 +1160,8 @@ export const getDataSyncReqParams = (dataSyncStore) => {
     delete clone.keymap;
     delete clone.setting;
     delete clone.dataSourceList;
+    delete clone.dataSyncSaved;
+
     const paths = get(clone, 'sourceMap.path');
     if (paths && isArray(paths)) {
         clone.sourceMap.path = paths.filter(o => o !== '');
@@ -1195,6 +1197,7 @@ export const getDataSyncSaveTabParams = (currentTabData, dataSync) => {
 
     // 删除不必要的字段
     delete reqBody.taskVersions;
+    delete reqBody.dataSyncSaved;
 
     // 数据拼装结果
     return reqBody;
