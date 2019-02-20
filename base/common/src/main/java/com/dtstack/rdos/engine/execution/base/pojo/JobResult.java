@@ -7,6 +7,9 @@ import org.apache.sling.commons.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Reason:
  * Date: 2017/2/20
@@ -17,7 +20,9 @@ import org.slf4j.LoggerFactory;
 public class JobResult {
 
     private static final Logger logger = LoggerFactory.getLogger(JobResult.class);
-    
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private boolean isErr;
 
     public static final String JOB_ID_KEY = "jobid";
@@ -37,20 +42,20 @@ public class JobResult {
     public static JobResult createErrorResult(Throwable e){
         JobResult jobResult = JobResult.newInstance(true);
         String errMsg = ExceptionUtil.getErrorMessage(e);
-        jobResult.setData(MSG_INFO, errMsg);
+        jobResult.setData(MSG_INFO, addTimeForMsg(errMsg));
         return jobResult;
     }
 
     public static JobResult createErrorResult(String errMsg){
         JobResult jobResult = JobResult.newInstance(true);
-        jobResult.setData(MSG_INFO, errMsg);
+        jobResult.setData(MSG_INFO, addTimeForMsg(errMsg));
         return jobResult;
     }
 
     public static JobResult createSuccessResult(String taskId){
         JobResult jobResult = JobResult.newInstance(false);
         jobResult.setData(JOB_ID_KEY, taskId);
-        jobResult.setData(MSG_INFO, "submit job is success");
+        jobResult.setData(MSG_INFO, addTimeForMsg("submit job is success"));
         return jobResult;
     }
 
@@ -93,6 +98,10 @@ public class JobResult {
             logger.error("", e);
             return null;
         }
+    }
+
+    public static String addTimeForMsg(String msg){
+        return sdf.format(new Date())+":"+msg;
     }
 
     public JSONObject getJson() {
