@@ -90,7 +90,11 @@ public class WorkNode {
     }
 
     public GroupPriorityQueue getEngineTypeQueue(String engineType) {
-        return priorityQueueMap.computeIfAbsent(engineType, k->new GroupPriorityQueue());
+        return priorityQueueMap.computeIfAbsent(engineType, k -> new GroupPriorityQueue(engineType,
+                (groupPriorityQueue, startId) -> {
+                    return this.emitJob2GQ(engineType, groupPriorityQueue, startId);
+                })
+        );
     }
 
     /**
@@ -161,7 +165,11 @@ public class WorkNode {
 
     public void redirectSubmitJob(JobClient jobClient){
         try{
-            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k->new GroupPriorityQueue());
+            GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k -> new GroupPriorityQueue(jobClient.getEngineType(),
+                    (groupPriorityQueue, startId) -> {
+                        return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId);
+                    })
+            );
             groupQueue.add(jobClient);
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
@@ -343,7 +351,7 @@ public class WorkNode {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
             long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, null);
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
@@ -372,6 +380,33 @@ public class WorkNode {
         } finally {
             zkDistributed.releaseLock(locks);
         }
+    }
+
+    private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, Long startId){
+        String localAddress = zkDistributed.getLocalAddress();
+        try {
+            while (true) {
+                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+                if (CollectionUtils.isEmpty(jobCaches)) {
+                    break;
+                }
+                for(RdosEngineJobCache jobCache : jobCaches){
+                    try {
+                        ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                        JobClient jobClient = new JobClient(paramAction);
+                        groupPriorityQueue.add(jobClient);
+                        startId = jobCache.getId();
+                    } catch (Exception e) {
+                        //数据转换异常--打日志
+                        LOG.error("", e);
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOG.error("emitJob2GQ error:{}", localAddress, e);
+        }
+        return startId;
     }
 
 }

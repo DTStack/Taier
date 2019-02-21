@@ -74,13 +74,13 @@ public class RdosEngineJobCacheDAO {
      * @param stage
      * @return
      */
-    public List<RdosEngineJobCache> getJobForPriorityQueue(Long id, String nodeAddress, Integer stage){
+    public List<RdosEngineJobCache> getJobForPriorityQueue(Long id, String nodeAddress, Integer stage, String engineType){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobCache>>(){
 
             @Override
             public List<RdosEngineJobCache> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                return mapper.listByStage(id,nodeAddress, stage);
+                return mapper.listByStage(id,nodeAddress, stage, engineType);
             }
         });
     }

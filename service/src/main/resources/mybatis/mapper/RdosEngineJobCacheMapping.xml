@@ -39,6 +39,9 @@
         <if test="stage != null">
             and stage = #{stage}
         </if>
+        <if test="engineType != null">
+            and engine_type = #{engineType}
+        </if>
         and is_deleted=0 order by id asc limit 500;
     </select>
 
