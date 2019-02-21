@@ -4,11 +4,13 @@ import { connect } from 'react-redux'
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
 import GlobalLoading from './layout/loading'
+import LowVersion from 'widgets/lowVersion';
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
 import http from '../api';
 import { cloneDeep } from 'lodash';
+import Header from './layout/header';
 const propType = {
     children: PropTypes.node
 }
@@ -52,6 +54,15 @@ class Main extends Component {
             console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
             this.isEnableLicenseApp();
         }
+    }
+    getBrowserInfo () {
+        let Sys = {};
+        let ua = navigator.userAgent.toLowerCase();
+        let re = /(msie|firefox|chrome|opera|version).*?([\d.]+)/;
+        let m = ua.match(re);
+        Sys.browser = m && m[1].replace(/version/, "'safari");
+        Sys.ver = m && m[2];
+        return Sys;
     }
     getCurrentPath () {
         return document.location.pathname + document.location.hash;
@@ -402,8 +413,15 @@ class Main extends Component {
 
     render () {
         let { children, licenseApps } = this.props;
+        let browserVersion = this.getBrowserInfo();
         if (!licenseApps) {
             children = <GlobalLoading />
+        }
+        if (browserVersion.browser == 'chrome' && !(parseInt(browserVersion.ver.split('.')[0]) < 66)) {
+            children = <div>
+                <Header />
+                <LowVersion />
+            </div>
         }
         return children || <NotFund />
     }
