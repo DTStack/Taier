@@ -11,6 +11,18 @@ $fontColor1: #2491F7;
     background: $color1 !important;
     color: $fontColor;
 
+    .markdown-render-body  {
+        color: $fontColor;
+
+        h1, h2, h3, h4, h5, h6 {
+            color: $fontColor;
+        }
+
+        code, pre {
+            border: none;
+        }
+    }
+
     .container .ant-layout {
         background: $color1 !important;
     }
@@ -128,6 +140,7 @@ $fontColor1: #2491F7;
     .header .my-menu .ant-menu-sub .ant-menu-item,
     .browser-content .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab .anticon-close,
     .ant-select-dropdown-menu-item,
+    .ant-select-dropdown-menu-item-group-title,
     .ant-select-tree li .ant-select-tree-node-content-wrapper,
     .ant-select-arrow {
         color: $fontColor;

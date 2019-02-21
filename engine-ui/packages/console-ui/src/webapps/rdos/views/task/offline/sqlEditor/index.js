@@ -15,8 +15,10 @@ import pureRender from 'utils/pureRender';
 import reqOfflineUrl from '../../../../api/reqOffline';
 import API from '../../../../api';
 import IDEEditor from 'main/components/ide';
-import RightButton from './extraPane/rightButton';
-import ExtraPane from './extraPane'
+import TableTipPane from './tableTipPane';
+import SyntaxHelpPane from './syntaxTipPane';
+import RightTableButton from './tableTipPane/rightButton';
+import RightSyntaxButton from './syntaxTipPane/rightButton';
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
 
@@ -27,6 +29,8 @@ import {
 import { updateUser } from '../../../../store/modules/user';
 
 import * as editorActions from '../../../../store/modules/editor/editorAction';
+import { editorAction } from '../../../../store/modules/editor/actionTypes';
+
 import { getTableList } from '../../../../store/modules/offlineTask/comm';
 
 @pureRender
@@ -257,6 +261,7 @@ class EditorContainer extends Component {
         const projectId = project.id;
         return tables[projectId];
     }
+
     completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
         const { autoComplete = {}, context = {} } = status;
         const { funcCompleteItems } = this.state;
@@ -428,12 +433,61 @@ class EditorContainer extends Component {
             )
     }
 
+    /**
+     * 渲染右侧面板
+     */
+    renderExtraPane = () => {
+        const { editor, currentTabData, updateSyntaxPane } = this.props;
+        const { columns, partition, extraPaneLoading } = this.state;
+
+        if (editor.showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE) {
+            return <TableTipPane
+                data={columns}
+                partition={partition}
+                loading={extraPaneLoading}
+                tabId={currentTabData.id}
+            />;
+        } else if (editor.showRightExtraPane === editorAction.SHOW_SYNTAX_HELP_PANE) {
+            return <SyntaxHelpPane
+                loading={extraPaneLoading}
+                tabId={currentTabData.id}
+                theme={editor.options.theme}
+                updateSyntaxPane={updateSyntaxPane}
+                syntaxPane={editor.syntaxPane}
+            />;
+        } else return null;
+    }
+
+    renderRightButton = () => {
+        const {
+            hideRightPane, editor,
+            showRightTablePane, showRightSyntaxPane
+        } = this.props;
+        const { options, showRightExtraPane } = editor;
+        return (
+            <div>
+                <RightTableButton
+                    theme={options.theme}
+                    hideRightPane={hideRightPane}
+                    showRightTablePane={showRightTablePane}
+                    showTableTooltip={showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE}
+                />
+                <RightSyntaxButton
+                    theme={options.theme}
+                    showRightSyntaxPane={showRightSyntaxPane}
+                    hideRightPane={hideRightPane}
+                    showSyntaxPane={showRightExtraPane === editorAction.SHOW_SYNTAX_HELP_PANE}
+                />
+            </div>
+        )
+    }
+
     debounceChange = debounce(this.handleEditorTxtChange, 300, { 'maxWait': 2000 })
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, { 'maxWait': 2000 })
     debounceSyntaxChange = debounce(this.onSyntaxChange.bind(this), 200, { 'maxWait': 2000 })
 
     render () {
-        const { editor, currentTabData, value, project, user, showTableTooltip } = this.props;
+        const { editor, currentTabData, value, project, user } = this.props;
 
         const currentTab = currentTabData.id;
 
@@ -442,7 +496,7 @@ class EditorContainer extends Component {
         const data = consoleData && consoleData[currentTab]
             ? consoleData[currentTab] : { results: [] }
 
-        const { execConfirmVisible, confirmCode, funcList, columns, partition, extraPaneLoading } = this.state;
+        const { execConfirmVisible, confirmCode, funcList } = this.state;
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
@@ -484,7 +538,7 @@ class EditorContainer extends Component {
             onThemeChange: (key) => {
                 this.props.updateEditorOptions({ theme: key })
             },
-            rightCustomButton: <RightButton />
+            rightCustomButton: this.renderRightButton()
         }
 
         const consoleOpts = {
@@ -502,15 +556,7 @@ class EditorContainer extends Component {
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
-                    extraPane={showTableTooltip
-                        ? <ExtraPane
-                            data={columns}
-                            partition={partition}
-                            loading={extraPaneLoading}
-                            tabId={currentTabData.id}
-                        />
-                        : null
-                    }
+                    extraPane={this.renderExtraPane()}
                 />
                 <div id="JS_ddl_confirm_modal">
                     <Modal

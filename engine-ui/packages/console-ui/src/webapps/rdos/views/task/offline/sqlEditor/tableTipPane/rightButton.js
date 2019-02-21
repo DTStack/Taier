@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tooltip } from 'antd';
 
 class TableTipButton extends React.Component {
     changeTableTipVisible () {
@@ -12,9 +13,9 @@ class TableTipButton extends React.Component {
     render () {
         const { theme, showTableTooltip } = this.props;
         const src = {
-            open: '/public/rdos/img/tip-active.svg',
-            close: '/public/rdos/img/tip.svg',
-            dark_close: '/public/rdos/img/theme-dark/tip.svg'
+            open: '/public/rdos/img/tip-table-active.svg',
+            close: '/public/rdos/img/tip-table.svg',
+            dark_close: '/public/rdos/img/theme-dark/tip-table.svg'
         }
         let url = src.close;
 
@@ -25,12 +26,14 @@ class TableTipButton extends React.Component {
             url = src.open;
         }
         return (
-            <img
-                onClick={this.changeTableTipVisible.bind(this)}
-                className="pointer"
-                style={{ marginTop: '4px', height: '20px' }}
-                src={url}
-            />
+            <Tooltip title="表信息帮助面板">
+                <img
+                    onClick={this.changeTableTipVisible.bind(this)}
+                    className="pointer"
+                    style={{ marginTop: '4px', height: '16px' }}
+                    src={url}
+                />
+            </Tooltip>
         )
     }
 }

@@ -153,10 +153,34 @@ export const showRightExtraPane = (state = '', action) => {
     }
 }
 
+/**
+ * 语法面板数据
+ * @param {*} state
+ * @param {*} action
+ */
+const SYNTAX_PANE = 'syntax_pane_state';
+const initialSyntaxPaneState = function () {
+    const defaultState = localDb.get(SYNTAX_PANE);
+    return defaultState || { selected: undefined, html: '' };
+}
+export const syntaxPane = (state = initialSyntaxPaneState(), action) => {
+    const { type, data } = action;
+    let nextState = state;
+    switch (type) {
+        case editorAction.UPDATE_SYNTAX_PANE: {
+            nextState = Object.assign({}, state, data)
+            localDb.set(SYNTAX_PANE, nextState);
+            break;
+        }
+    }
+    return nextState;
+}
+
 export const editor = combineReducers({
     console,
     selection,
     running,
     options,
-    showRightExtraPane
+    showRightExtraPane,
+    syntaxPane
 })
