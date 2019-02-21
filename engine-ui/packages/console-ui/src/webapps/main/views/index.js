@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
 import GlobalLoading from './layout/loading'
-import LowVersion from 'widgets/lowVersion';
+import ChromeDownload from 'widgets/chromeDownload';
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
@@ -55,14 +55,14 @@ class Main extends Component {
             this.isEnableLicenseApp();
         }
     }
-    getBrowserInfo () {
+    isLowVersionChrome () {
         let Sys = {};
         let ua = navigator.userAgent.toLowerCase();
         let re = /(msie|firefox|chrome|opera|version).*?([\d.]+)/;
         let m = ua.match(re);
         Sys.browser = m && m[1].replace(/version/, "'safari");
         Sys.ver = m && m[2];
-        return Sys;
+        return Sys.browser == 'chrome' && (parseInt(Sys.ver.split('.')[0]) < 66)
     }
     getCurrentPath () {
         return document.location.pathname + document.location.hash;
@@ -413,14 +413,14 @@ class Main extends Component {
 
     render () {
         let { children, licenseApps } = this.props;
-        let browserVersion = this.getBrowserInfo();
+        let lowVersionChrome = this.isLowVersionChrome();
         if (!licenseApps) {
             children = <GlobalLoading />
         }
-        if (browserVersion.browser == 'chrome' && !(parseInt(browserVersion.ver.split('.')[0]) < 66)) {
+        if (lowVersionChrome) {
             children = <div>
                 <Header />
-                <LowVersion />
+                <ChromeDownload />
             </div>
         }
         return children || <NotFund />
