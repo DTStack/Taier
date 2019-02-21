@@ -23,7 +23,6 @@ import {
     TASK_STATUS,
     TASK_TYPE
 } from '../../../comm/const'
-
 import {
     TaskStatus, TaskTimeType, TaskType
 } from '../../../components/status'
@@ -260,6 +259,7 @@ class OfflineTaskList extends Component {
                     res.status !== TASK_STATUS.RUN_FAILED &&
                     res.status !== TASK_STATUS.SUBMIT_FAILED &&
                     res.status !== TASK_STATUS.STOPED &&
+                    res.status !== TASK_STATUS.KILLED &&
                     res.status !== TASK_STATUS.PARENT_FAILD
                 ) return false
             }
@@ -402,13 +402,15 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: '200px',
+            width: '350px',
             render: (text, record) => {
-                const name = record.batchTask && record.batchTask.name
+                let name = record.batchTask && record.batchTask.name
+                let originText = name;
+                name = utils.textOverflowExchange(name, 45);
                 const showName = record.batchTask.isDeleted === 1
                     ? `${name} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{name}</a>;
-                return showName;
+                return <span title={originText}>{showName}</span>;
             },
             fixed: 'left'
         }, {
@@ -740,7 +742,7 @@ class OfflineTaskList extends Component {
                             footer={this.tableFooter}
                             onExpand={this.onExpand}
                             onExpandedRowsChange={this.onExpandRows}
-                            scroll={{ x: '1400px' }}
+                            scroll={{ x: '1550px' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"

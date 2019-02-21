@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.4.1"></a>
+## [3.4.1](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.4.0...3.4.1) (2019-01-30)
+
+
+### Bug Fixes
+
+* **rdos:** add hover title ([a6b9b4f](http://git.dtstack.cn/ziv/data-stack-web/commits/a6b9b4f))
+* **rdos:** fix loading ([83eee2f](http://git.dtstack.cn/ziv/data-stack-web/commits/83eee2f))
+* **rdos:** fix table width ([51e55a0](http://git.dtstack.cn/ziv/data-stack-web/commits/51e55a0))
+* **rdos:** table width ([cfd5135](http://git.dtstack.cn/ziv/data-stack-web/commits/cfd5135))
+* **rdos:** table width ([58b21ba](http://git.dtstack.cn/ziv/data-stack-web/commits/58b21ba))
+
+
+
 <a name="3.4.0"></a>
 # [3.4.0](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.5...3.4.0) (2019-01-29)
 

@@ -51,6 +51,7 @@ class SourceForm extends React.Component {
             dataSource: [],
             columns: [],
             tablePartitionList: [], // 表分区列表
+            incrementColumns: [], // 增量字段
             loading: false // 请求
         };
     }
@@ -79,12 +80,32 @@ class SourceForm extends React.Component {
             RDB_TYPE_ARRAY.indexOf(sourceMap.type.type) > -1
         ) {
             this.getCopate(sourceId, tableName);
+            this.loadIncrementColumn(tableName);
         }
     }
 
     componentWillUnmount () {
         this._isMounted = false;
         clearInterval(this.timerID);
+    }
+
+    loadIncrementColumn = async (tableName) => {
+        const { sourceMap } = this.props;
+        const res = await ajax.getIncrementColumns({
+            sourceId: sourceMap.sourceId,
+            tableName: tableName
+        });
+
+        if (res.code === 1) {
+            this.setState({
+                incrementColumns: res.data || []
+            })
+        }
+    }
+
+    onIncrementColumnChange = (value) => {
+        const { assignSourceMap } = this.props;
+        assignSourceMap({ increColumn: value });
     }
 
     getTableList = sourceId => {
@@ -246,6 +267,11 @@ class SourceForm extends React.Component {
             this.getTableColumn(value, type);
             // 如果源为hive, 则加载分区字段
             this.getHivePartions(value);
+
+            // 加载增量模式字段
+            if (this.props.isIncrementMode) {
+                this.loadIncrementColumn(value);
+            }
         }
         this.submitForm();
         this.setState({
@@ -735,6 +761,37 @@ class SourceForm extends React.Component {
             });
     };
 
+    renderIncrementColumns = () => {
+        const { sourceMap, isIncrementMode } = this.props;
+        const { incrementColumns } = this.state;
+        const { getFieldDecorator } = this.props.form;
+        console.log('renderIncrementColumns:', isIncrementMode, incrementColumns);
+        const columnsOpts = incrementColumns.map(o => <Option key={o.key}>{o.key}（{o.type}）</Option>);
+        return isIncrementMode
+            ? <FormItem
+                {...formItemLayout}
+                label="增量标识字段"
+                style={{ height: '32px' }}
+            >
+                {getFieldDecorator('syncModel', {
+                    rules: [{
+                        required: true,
+                        message: '必须选择增量标识字段！'
+                    }],
+                    initialValue: sourceMap.increColumn || undefined
+                })(
+                    <Select
+                        placeholder="请选择增量标识字段"
+                        onChange={this.onIncrementColumnChange}
+                    >
+                        { columnsOpts }
+                    </Select>
+                )}
+                <HelpDoc doc="incrementColumnHelp"/>
+            </FormItem>
+            : '';
+    }
+
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
         const { selectHack } = this.state;
@@ -827,6 +884,7 @@ class SourceForm extends React.Component {
                             </Col>
                         </Row>
                     ),
+                    this.renderIncrementColumns(),
                     <FormItem {...formItemLayout} label="数据过滤" key="where">
                         {getFieldDecorator('where', {
                             rules: [
@@ -871,6 +929,7 @@ class SourceForm extends React.Component {
                                 getPopupContainer={getPopupContainer}
                                 showSearch
                                 showArrow={true}
+                                allowClear={true}
                                 onChange={this.submitForm.bind(this)}
                             >
                                 {(
@@ -1556,7 +1615,15 @@ const mapDispatch = (dispatch, ownProps) => {
                 payload: copateData
             });
         },
-
+        assignSourceMap: (src) => {
+            dispatch({
+                type: sourceMapAction.DATA_SOURCEMAP_UPDATE,
+                payload: src
+            });
+            dispatch({
+                type: workbenchAction.MAKE_TAB_DIRTY
+            });
+        },
         updateTaskFields (params) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,

@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import {
     Form, InputNumber, Input,
     Select, Button, AutoComplete,
@@ -9,13 +8,11 @@ import {
 
 import {
     settingAction,
-    workbenchAction,
-    sourceMapAction
+    workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
 import LifeCycle from '../../../dataManage/lifeCycle';
-import API from '../../../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -31,14 +28,7 @@ const formItemLayout = {
 
 class ChannelForm extends React.Component {
     state = {
-        isRecord: false,
-        incrementColumns: []
-    }
-
-    componentDidMount () {
-        if (this.props.isIncrementMode) {
-            this.loadIncrementColumn();
-        }
+        isRecord: false
     }
 
     constructor (props) {
@@ -49,55 +39,6 @@ class ChannelForm extends React.Component {
         this.props.changeChannelSetting({
             lifeDay: val
         })
-    }
-
-    loadIncrementColumn = async () => {
-        const { sourceMap } = this.props;
-        const res = await API.getIncrementColumns({
-            sourceId: sourceMap.sourceId,
-            tableName: get(sourceMap, 'type.table')
-        });
-
-        if (res.code === 1) {
-            this.setState({
-                incrementColumns: res.data || []
-            })
-        }
-    }
-
-    onIncrementColumnChange = (value) => {
-        const { handleSourceChange } = this.props;
-        handleSourceChange({ increColumn: value });
-    }
-
-    renderIncrementColumns = () => {
-        const { sourceMap, isIncrementMode } = this.props;
-        const { incrementColumns } = this.state;
-        const { getFieldDecorator } = this.props.form;
-        const columnsOpts = incrementColumns.map(o => <Option key={o.key}>{o.key}（{o.type}）</Option>);
-        return isIncrementMode
-            ? <FormItem
-                {...formItemLayout}
-                label="增量标识字段"
-                style={{ height: '32px' }}
-            >
-                {getFieldDecorator('syncModel', {
-                    rules: [{
-                        required: true,
-                        message: '必须选择增量标识字段！'
-                    }],
-                    initialValue: sourceMap.increColumn || undefined
-                })(
-                    <Select
-                        placeholder="请选择增量标识字段"
-                        onChange={this.onIncrementColumnChange}
-                    >
-                        { columnsOpts }
-                    </Select>
-                )}
-                <HelpDoc doc="incrementColumnHelp"/>
-            </FormItem>
-            : '';
     }
 
     render () {
@@ -116,7 +57,6 @@ class ChannelForm extends React.Component {
 
         return <div className="g-step4">
             <Form>
-                {this.renderIncrementColumns()}
                 <FormItem
                     {...formItemLayout}
                     label="作业速率上限"
@@ -302,15 +242,6 @@ const mapDispatch = dispatch => {
             dispatch({
                 type: settingAction.CHANGE_CHANNEL_FIELDS,
                 payload: params
-            });
-            dispatch({
-                type: workbenchAction.MAKE_TAB_DIRTY
-            });
-        },
-        handleSourceChange: (src, key) => {
-            dispatch({
-                type: sourceMapAction.DATA_SOURCEMAP_UPDATE,
-                payload: src
             });
             dispatch({
                 type: workbenchAction.MAKE_TAB_DIRTY

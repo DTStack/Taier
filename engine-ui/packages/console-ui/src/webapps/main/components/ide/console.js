@@ -29,7 +29,7 @@ class Console extends Component {
             this.setState({ activeKey: `${newConsole.results.length - 1}` });
             this.props.onConsoleTabChange(0);
         } else if (newConsole.results.length === 0) {
-            this.setState({ activeKey: defaultConsoleTab }, this.focusEditor);
+            this.setState({ activeKey: defaultConsoleTab });
         }
     }
     /* eslint-disable */

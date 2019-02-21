@@ -213,8 +213,8 @@ class Workbench extends React.Component {
         const isTest = project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
-
         if (!isEmpty(sourceMap) && !isEmpty(targetMap)) isSaveAvaliable = true;
+
         // 不属于数据同步或者属于数据同步的脚本模式都可以保存
         if (
             currentTabData &&
@@ -553,6 +553,7 @@ class Workbench extends React.Component {
 
         // 删除不必要的字段
         delete reqBody.taskVersions;
+        delete reqBody.dataSyncSaved;
 
         // 数据拼装结果
         return reqBody;

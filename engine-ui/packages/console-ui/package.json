@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.4.0",
+  "version": "3.4.1",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
