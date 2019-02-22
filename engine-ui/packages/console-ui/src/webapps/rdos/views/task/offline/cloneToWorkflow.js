@@ -14,7 +14,7 @@ import { workbenchActions } from '../../../store/modules/offlineTask/offlineActi
 import {
     formItemLayout, MENU_TYPE, TASK_TYPE
 } from '../../../comm/const'
-
+import { getRandomInt } from '../../../../../funcs';
 // import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
@@ -121,15 +121,6 @@ class CloneToWorkflowModal extends React.Component {
             </Option>
         })
     }
-    /**
-     * 生成[min,max]随机整数
-     * x [10, 850]
-     * y [-360, 50]
-     */
-    random = (min, max) => {
-        const random = max - min + 1;
-        return Math.floor(Math.random() * random + min)
-    }
     handleSubmit () {
         const {
             defaultData, confirmCloneToWorkflow, tabs
@@ -138,8 +129,8 @@ class CloneToWorkflowModal extends React.Component {
         const coordsExtra = {
             'vertex': true,
             'edge': false,
-            'x': this.random(10, 850),
-            'y': this.random(-360, 50),
+            'x': getRandomInt(10, 850),
+            'y': getRandomInt(-360, 50),
             'value': null
         }
         // 获取克隆位置的工作流id
@@ -152,10 +143,6 @@ class CloneToWorkflowModal extends React.Component {
         // 选中工作流子节点
         const selectFlowNodes = tabs && tabs.filter(item => {
             return item.flowId === selectWorkFlowId
-        })
-        const notSyncedFlow = selectFlow[0] && selectFlow[0].notSynced;
-        const notSyncedFlowNodes = selectFlowNodes && selectFlowNodes.some(item => {
-            return item.notSynced == true
         })
         validateFields((err, values) => {
             if (!err) {
@@ -176,6 +163,10 @@ class CloneToWorkflowModal extends React.Component {
                 if (selectFlow.length === 0) { // 选中工作流与tabs数据无关
                     confirmCloneToWorkflow(values, defaultData, coordsExtra).then(handRes);
                 } else {
+                    const notSyncedFlow = selectFlow[0] && selectFlow[0].notSynced;
+                    const notSyncedFlowNodes = selectFlowNodes && selectFlowNodes.some(item => {
+                        return item.notSynced == true
+                    })
                     if (notSyncedFlow || notSyncedFlowNodes) {
                         message.warning('工作流任务未保存，请先保存工作流任务!')
                         this.setState({
