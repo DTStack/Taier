@@ -29,6 +29,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import TaskJobFlowView from './taskJobFlowView'
+import utils from 'utils';
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -273,6 +274,7 @@ class PatchDataDetail extends Component {
                     task.status !== TASK_STATUS.RUN_FAILED &&
                     task.status !== TASK_STATUS.SUBMIT_FAILED &&
                     task.status !== TASK_STATUS.STOPED &&
+                    task.status !== TASK_STATUS.KILLED &&
                     task.status !== TASK_STATUS.PARENT_FAILD
                 ) return false
             }
@@ -399,13 +401,15 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
-            width: '200px',
+            width: '350px',
             fixed: 'left',
             render: (text, record) => {
+                let originText = text;
+                text = utils.textOverflowExchange(text, 45);
                 const showName = record.batchTask.isDeleted === 1
                     ? `${text} (已删除)`
                     : <a onClick={() => { this.showTask(record) }}>{text}</a>;
-                return showName
+                return <span title={originText}>{showName}</span>;
             }
         }, {
             title: '状态',
@@ -505,7 +509,9 @@ class PatchDataDetail extends Component {
                     haveFail = true;
                     break;
                 }
-                case TASK_STATUS.RUNNING: {
+                case TASK_STATUS.RUNNING:
+                case TASK_STATUS.WAIT_SUBMIT:
+                case TASK_STATUS.WAIT_RUN: {
                     haveRunning = true;
                     break;
                 }
@@ -752,7 +758,7 @@ class PatchDataDetail extends Component {
                             expandedRowKeys={this.state.expandedRowKeys}
                             defaultExpandAllRows={true}
                             style={{ marginTop: '1px' }}
-                            scroll={{ x: '1200px' }}
+                            scroll={{ x: '1350px' }}
                             className="m-table full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
