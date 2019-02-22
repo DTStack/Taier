@@ -118,7 +118,12 @@ class FolderTree extends React.Component {
                 const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
                 const isLocked = data && data.readWriteLockVO && !data.readWriteLockVO.getLock; // 任务是否上锁
 
-                if (isWorkflowNode) return [];
+                if (isWorkflowNode) {
+                    return [{
+                        txt: '克隆至工作流',
+                        cb: this.cloneToWorkflow.bind(this, data)
+                    }];
+                }
 
                 if ((type === 'file' || isWorkflow)) {
                     if (isWorkflow) {

@@ -12,7 +12,7 @@ import {
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import {
-    formItemLayout, MENU_TYPE
+    formItemLayout, MENU_TYPE, TASK_TYPE
 } from '../../../comm/const'
 
 // import FolderPicker from './folderTree';
@@ -27,7 +27,8 @@ const Option = Select.Option;
         currentTab: state.offlineTask.workbench.currentTab,
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
         resourceTreeData: state.offlineTask.resourceTree,
-        taskTypes: state.offlineTask.comm.taskTypes
+        taskTypes: state.offlineTask.comm.taskTypes,
+        tabs: state.offlineTask.workbench.tabs
     }
 }, dispatch => {
     const benchActions = workbenchActions(dispatch)
@@ -44,14 +45,18 @@ const Option = Select.Option;
         createWorkflowTask: function (data) {
             return benchActions.createWorkflowTask(data)
         },
+
         /**
          * @description 新建或编辑
          * @param {any} params 表单参数
          * @param {boolean} isEditExist 是否编辑
          * @param {any} 修改前的数据
         */
-        confirmCloneToWorkflow: function (params, defaultData) {
-            return ajax.cloneTaskToWorkflow(params)
+        confirmCloneToWorkflow: function (params, defaultData, coordsExtra) {
+            return ajax.cloneTaskToWorkflow({
+                ...params,
+                coordsExtra
+            })
                 .then(res => {
                     if (res.code === 1) {
                         ajax.getOfflineTaskDetail({
@@ -68,6 +73,18 @@ const Option = Select.Option;
                                 });
                             }
                         });
+                        // 重新刷新克隆之后的工作流
+                        // ajax.getOfflineTaskDetail({
+                        //     id: res.data.flowId
+                        // }).then(res => {
+                        //     if (res.code === 1) {
+                        //         dispatch({
+                        //             type: workbenchAction.LOAD_TASK_DETAIL,
+                        //             payload: res.data
+                        //         });
+                        //     }
+                        // })
+                        benchActions.reloadTaskTab(res.data.flowId)
                         benchActions.loadTreeNode(defaultData.nodePid, MENU_TYPE.TASK_DEV)
                         return true;
                     }
@@ -85,64 +102,17 @@ class CloneToWorkflowModal extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            loading: false,
-            workFlowLists: [], // 工作流列表
-            workFlowNodes: []
+            loading: false
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
 
         this.dtcount = 0;
     }
-    componentDidMount () {
-        // this.getWorkflowLists();
-    }
-    // 获取工作流
-    getWorkflowLists = () => {
-        ajax.getWorkflowLists().then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    workFlowLists: res.data
-                })
-            }
-        })
-    }
     workFlowListsOption () {
-        const { workFlowLists } = this.state;
-        return workFlowLists.map(item => {
-            return <Option
-                key={item.id}
-                value={item.id}
-            >
-                {item.name}
-            </Option>
-        })
-    }
-    // 选择工作流
-    selectWorkflow (value) {
-        this.setState({
-            workFlowNodes: []
-        }, () => {
-            this.getTaskWorkflowNodes({
-                workFlowId: value
-            })
-        })
-    }
-    /**
-     * 获取工作流下节点
-     */
-    getTaskWorkflowNodes = (params) => {
-        ajax.getTaskWorkflowNodes(params).then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    workFlowNodes: res.data
-                })
-            }
-        })
-    }
-    workflowNodesOption () {
-        const { workFlowNodes } = this.state;
-        return workFlowNodes.map(item => {
+        const { taskTreeData } = this.props;
+        const workFlowTreeData = taskTreeData && taskTreeData.children && taskTreeData.children.filter(item => item.taskType === TASK_TYPE.WORKFLOW);
+        return workFlowTreeData && workFlowTreeData.map(item => {
             return <Option
                 key={item.id}
                 value={item.id}
@@ -153,9 +123,31 @@ class CloneToWorkflowModal extends React.Component {
     }
     handleSubmit () {
         const {
-            defaultData, confirmCloneToWorkflow
+            defaultData, confirmCloneToWorkflow, tabs
         } = this.props;
         const { validateFields, resetFields } = this.props.form;
+        const coordsExtra = {
+            'vertex': true,
+            'edge': false,
+            'x': 10,
+            'y': 10,
+            'value': null
+        }
+        // 获取克隆位置的工作流id
+        const { getFieldValue } = this.props.form;
+        const selectWorkFlowId = getFieldValue('flowId');
+        // 选中工作流节点
+        const selectFlow = tabs && tabs.filter(item => {
+            return item.id === selectWorkFlowId
+        })
+        // 选中工作流子节点
+        const selectFlowNodes = tabs && tabs.filter(item => {
+            return item.flowId === selectWorkFlowId
+        })
+        const notSyncedFlow = selectFlow[0] && selectFlow[0].notSynced;
+        const notSyncedFlowNodes = selectFlowNodes && selectFlowNodes.some(item => {
+            return item.notSynced == true
+        })
         validateFields((err, values) => {
             if (!err) {
                 this.setState({
@@ -172,7 +164,18 @@ class CloneToWorkflowModal extends React.Component {
                         this.closeModal();
                     }
                 }
-                confirmCloneToWorkflow(values, defaultData).then(handRes);
+                if (selectFlow.length === 0) { // 选中工作流与tabs数据无关
+                    confirmCloneToWorkflow(values, defaultData, coordsExtra).then(handRes);
+                } else {
+                    if (notSyncedFlow || notSyncedFlowNodes) {
+                        message.warning('工作流任务未保存，请先保存工作流任务!')
+                        this.setState({
+                            loading: false
+                        })
+                    } else {
+                        confirmCloneToWorkflow(values, defaultData, coordsExtra).then(handRes);
+                    }
+                }
             }
         })
     }
@@ -220,9 +223,7 @@ class CloneToWorkflowModal extends React.Component {
         const { isModalShow, defaultData } = this.props;
         const { loading } = this.state;
         const { getFieldDecorator } = this.props.form;
-        console.log(defaultData)
-        // const cloneName = defaultData.name;
-
+        const cloneName = defaultData && defaultData.name;
         return (
             <div id="JS_task_modal">
                 <Modal
@@ -258,7 +259,7 @@ class CloneToWorkflowModal extends React.Component {
                             label="克隆至"
                             hasFeedback
                         >
-                            {getFieldDecorator('workFlowId', {
+                            {getFieldDecorator('flowId', {
                                 rules: [{
                                     required: true,
                                     message: '工作流名称不可为空！'
@@ -269,7 +270,6 @@ class CloneToWorkflowModal extends React.Component {
                                     showSearch
                                     optionFilterProp="children"
                                     filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                                    onChange={this.selectWorkflow.bind(this)}
                                 >
                                     {this.workFlowListsOption()}
                                 </Select>
@@ -280,18 +280,19 @@ class CloneToWorkflowModal extends React.Component {
                             label="节点名称"
                             hasFeedback
                         >
-                            {getFieldDecorator('nodesName', {
+                            {getFieldDecorator('taskName', {
                                 rules: [{
-                                    required: true,
-                                    message: '节点名称不可为空！'
-                                }]
+                                    required: true, message: '节点名称不可为空！'
+                                }, {
+                                    max: 64,
+                                    message: '节点名称不得超过64个字符！'
+                                }, {
+                                    pattern: /^[A-Za-z0-9_]+$/,
+                                    message: '节点名称只能由字母、数字、下划线组成!'
+                                }],
+                                initialValue: `${cloneName}_copy`
                             })(
-                                <Select
-                                    placeholder="请选择节点名称"
-                                    showSearch
-                                >
-                                    {this.workflowNodesOption()}
-                                </Select>
+                                <Input placeholder="请输入节点名称" autoComplete="off"/>
                             )}
                         </FormItem>
                         {/* <FormItem
