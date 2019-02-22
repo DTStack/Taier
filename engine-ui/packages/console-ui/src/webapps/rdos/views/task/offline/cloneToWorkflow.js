@@ -121,6 +121,15 @@ class CloneToWorkflowModal extends React.Component {
             </Option>
         })
     }
+    /**
+     * 生成[min,max]随机整数
+     * x [10, 850]
+     * y [-360, 50]
+     */
+    random = (min, max) => {
+        const random = max - min + 1;
+        return Math.floor(Math.random() * random + min)
+    }
     handleSubmit () {
         const {
             defaultData, confirmCloneToWorkflow, tabs
@@ -129,8 +138,8 @@ class CloneToWorkflowModal extends React.Component {
         const coordsExtra = {
             'vertex': true,
             'edge': false,
-            'x': 10,
-            'y': 10,
+            'x': this.random(10, 850),
+            'y': this.random(-360, 50),
             'value': null
         }
         // 获取克隆位置的工作流id
