@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import utils from 'utils/index';
 import './style.scss'
 export default class Index extends Component {
     renderDivide (name) {
@@ -10,15 +11,13 @@ export default class Index extends Component {
         </div>
     }
     detectOS () {
-        let isWin = (navigator.platform == 'Win32') || (navigator.platform == 'Windows');
-        let isMac = (navigator.platform == 'Mac68K') || (navigator.platform == 'MacPPC') || (navigator.platform == 'Macintosh') || (navigator.platform == 'MacIntel');
-        if (isMac) return 'mac';
-        if (isWin) return 'windows';
+        if (utils.isMacOs()) return 'macChrome';
+        if (utils.isWindows()) return 'windowsChrome';
         return 'others';
     }
     downloadChrome () {
         let os = this.detectOS();
-        window.open(window.COMMON_CONF[`${os}Chrome`], '_blank');
+        window.open(window.COMMON_CONF[os], '_blank');
     }
     render () {
         return (

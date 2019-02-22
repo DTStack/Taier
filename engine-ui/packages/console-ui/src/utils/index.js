@@ -40,7 +40,19 @@ const utils = {
     isWindows: function() {
         return navigator.userAgent.indexOf("Windows") > -1;
     },
-
+    /**
+     * @description 是否为低版本的chrome浏览器
+     * 
+     */
+    isLowVersionChrome () {
+        let Sys = {};
+        let ua = navigator.userAgent.toLowerCase();
+        let re = /(msie|firefox|chrome|opera|version).*?([\d.]+)/;
+        let m = ua.match(re);
+        Sys.browser = m && m[1].replace(/version/, "'safari");
+        Sys.ver = m && m[2];
+        return Sys.browser == 'chrome' && !(parseInt(Sys.ver.split('.')[0]) < 66)
+    },
     /**
      * 根据参数名获取URL数据
      * @param  {[type]} name [description]

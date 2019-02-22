@@ -11,6 +11,7 @@ import { initNotification } from 'funcs';
 import http from '../api';
 import { cloneDeep } from 'lodash';
 import Header from './layout/header';
+import utils from 'utils/index';
 const propType = {
     children: PropTypes.node
 }
@@ -54,15 +55,6 @@ class Main extends Component {
             console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
             this.isEnableLicenseApp();
         }
-    }
-    isLowVersionChrome () {
-        let Sys = {};
-        let ua = navigator.userAgent.toLowerCase();
-        let re = /(msie|firefox|chrome|opera|version).*?([\d.]+)/;
-        let m = ua.match(re);
-        Sys.browser = m && m[1].replace(/version/, "'safari");
-        Sys.ver = m && m[2];
-        return Sys.browser == 'chrome' && (parseInt(Sys.ver.split('.')[0]) < 66)
     }
     getCurrentPath () {
         return document.location.pathname + document.location.hash;
@@ -413,7 +405,7 @@ class Main extends Component {
 
     render () {
         let { children, licenseApps } = this.props;
-        let lowVersionChrome = this.isLowVersionChrome();
+        let lowVersionChrome = utils.isLowVersionChrome();
         if (!licenseApps) {
             children = <GlobalLoading />
         }
