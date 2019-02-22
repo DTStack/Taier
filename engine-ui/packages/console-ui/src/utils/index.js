@@ -51,7 +51,7 @@ const utils = {
         let m = ua.match(re);
         Sys.browser = m && m[1].replace(/version/, "'safari");
         Sys.ver = m && m[2];
-        return Sys.browser == 'chrome' && !(parseInt(Sys.ver.split('.')[0]) < 66)
+        return Sys.browser == 'chrome' && (parseInt(Sys.ver.split('.')[0]) < 66)
     },
     /**
      * 根据参数名获取URL数据
