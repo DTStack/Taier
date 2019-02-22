@@ -3,13 +3,13 @@ import React, { Component } from 'react'
 import { hashHistory } from 'react-router'
 
 import {
-    Input, Modal, Row, Form, DatePicker, TimePicker, Col, Tree, Tooltip, Icon
+    Input, Modal, Row, Form, DatePicker, TimePicker, Col, Tree, Checkbox
 } from 'antd'
 
 import Api from '../../../api'
 import { formItemLayout } from '../../../comm/const'
 import { TaskType } from '../../../components/status'
-
+import HelpDoc from '../../helpDoc';
 const confirm = Modal.confirm
 const TreeNode = Tree.TreeNode
 const FormItem = Form.Item
@@ -35,7 +35,8 @@ class PatchData extends Component {
         checkedKeys: ['0'],
         confirmLoading: false,
         startTime: '00:00', // 限制时间范围
-        endTime: '23:59'
+        endTime: '23:59',
+        checked: false
     }
     /* eslint-disable-next-line */
     componentWillReceiveProps (nextProps) {
@@ -76,8 +77,8 @@ class PatchData extends Component {
                     'second': 59
                 }).unix()
                 delete reqParams.rangeDate;
-                reqParams.concreteStartTime = reqParams.concreteStartTime.format('HH:mm')
-                reqParams.concreteEndTime = reqParams.concreteEndTime.format('HH:mm')
+                reqParams.concreteStartTime = reqParams.concreteStartTime && reqParams.concreteStartTime.format('HH:mm')
+                reqParams.concreteEndTime = reqParams.concreteEndTime && reqParams.concreteEndTime.format('HH:mm')
                 Api.patchTaskData(reqParams).then((res) => {
                     this.setState({
                         confirmLoading: false
@@ -155,9 +156,7 @@ class PatchData extends Component {
 
     cancleModal = () => {
         this.setState({
-            selected: [],
-            startTime: '00:00',
-            endTime: '23:59'
+            selected: []
         })
         this.props.form.resetFields()
         this.props.handCancel()
@@ -324,14 +323,26 @@ class PatchData extends Component {
             return [];
         }
     }
+    changeCheckbox = (e) => {
+        this.setState({
+            checked: e.target.checked,
+            startTime: '00:00',
+            endTime: '23:59'
+        })
+    }
     render () {
         const { visible, task } = this.props;
         const { getFieldDecorator } = this.props.form;
-        const { treeData, confirmLoading } = this.state;
+        const { treeData, confirmLoading, checked } = this.state;
         const treeNodes = this.getTreeNodes(treeData);
         // const randomNumber = Math.floor(Math.random() * (100 - 1) + 1);
         const pacthName = `P_${task && task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
         const format = 'HH:mm';
+        const style = {
+            position: 'absolute',
+            right: 85,
+            top: -8
+        }
         return (
             <Modal
                 title="补数据"
@@ -379,66 +390,71 @@ class PatchData extends Component {
                     </FormItem>
                 </Row>
                 <Row style={{ lineHeight: '30px' }}>
-                    <FormItem {...formItemLayout} label="具体时间">
-                        <Col span='11'>
-                            {getFieldDecorator('concreteStartTime', {
-                                initialValue: moment('00:00', format),
-                                rules: [{
-                                    required: true,
-                                    message: '请选择具体时间!'
-                                }]
-                            })(
-                                <TimePicker
-                                    format={format}
-                                    style={{ width: '100%' }}
-                                    allowEmpty={false}
-                                    disabledHours={this.disabledHours.bind(this, 'start')}
-                                    disabledMinutes={this.disabledMinutes.bind(this, 'start')}
-                                    onChange={(time, timeString) => {
-                                        this.setState({
-                                            startTime: timeString
-                                        })
-                                    }}
-                                />
-                            )}
-                        </Col>
-                        <Col span='2'>
-                            <span style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
-                                -
-                            </span>
-                        </Col>
-                        <Col span='11'>
-                            {getFieldDecorator('concreteEndTime', {
-                                initialValue: moment('23:59', format),
-                                rules: [{
-                                    required: true,
-                                    message: '请选择具体时间!'
-                                }]
-                            })(
-                                <TimePicker
-                                    format="HH:mm"
-                                    style={{ width: '100%' }}
-                                    allowEmpty={false}
-                                    disabledHours={this.disabledHours.bind(this, 'end')}
-                                    disabledMinutes={this.disabledMinutes.bind(this, 'end')}
-                                    onChange={(time, timeString) => {
-                                        this.setState({
-                                            endTime: timeString
-                                        })
-                                    }}
-                                />
-                            )}
-                            <Tooltip title="产生指定的业务日期内，指定的时间范围内计划开始运行的实例，
-                                例如：业务日期：2019-01-01~2019-01-03具体时间：01:30~03:00表示：2019-01-01~2019-01-03期间内，
-                                每天的01:30~03:00开始运行的实例，时间范围为闭区间，时间范围选择了23:59后，计划23:59开始运行的实例也会产生">
-                                <Icon
-                                    className="help-doc"
-                                    type="question-circle-o"
-                                />
-                            </Tooltip>
-                        </Col>
-                    </FormItem>
+                    <div style={{ float: 'left', margin: '-16 0 0 120' }}>
+                        <Checkbox
+                            checked={checked}
+                            onChange={this.changeCheckbox}
+                        >选择分钟粒度</Checkbox>
+                    </div>
+                    <HelpDoc style={style} doc="minuteParticleHelp" />
                 </Row>
+                {
+                    checked ? (
+                        <Row style={{ lineHeight: '30px' }}>
+                            <FormItem {...formItemLayout} label="具体时间">
+                                <Col span='11'>
+                                    {getFieldDecorator('concreteStartTime', {
+                                        initialValue: moment('00:00', format),
+                                        rules: [{
+                                            required: true,
+                                            message: '请选择具体时间!'
+                                        }]
+                                    })(
+                                        <TimePicker
+                                            format={format}
+                                            style={{ width: '100%' }}
+                                            allowEmpty={false}
+                                            disabledHours={this.disabledHours.bind(this, 'start')}
+                                            disabledMinutes={this.disabledMinutes.bind(this, 'start')}
+                                            onChange={(time, timeString) => {
+                                                this.setState({
+                                                    startTime: timeString
+                                                })
+                                            }}
+                                        />
+                                    )}
+                                </Col>
+                                <Col span='2'>
+                                    <span style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
+                                        -
+                                    </span>
+                                </Col>
+                                <Col span='11'>
+                                    {getFieldDecorator('concreteEndTime', {
+                                        initialValue: moment('23:59', format),
+                                        rules: [{
+                                            required: true,
+                                            message: '请选择具体时间!'
+                                        }]
+                                    })(
+                                        <TimePicker
+                                            format="HH:mm"
+                                            style={{ width: '100%' }}
+                                            allowEmpty={false}
+                                            disabledHours={this.disabledHours.bind(this, 'end')}
+                                            disabledMinutes={this.disabledMinutes.bind(this, 'end')}
+                                            onChange={(time, timeString) => {
+                                                this.setState({
+                                                    endTime: timeString
+                                                })
+                                            }}
+                                        />
+                                    )}
+                                </Col>
+                            </FormItem>
+                        </Row>
+                    ) : null
+                }
                 <Row className="section patch-data">
                     <Row className="patch-header">
                         <Col span="12">任务名称</Col>

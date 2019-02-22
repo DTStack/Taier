@@ -60,7 +60,8 @@ class OfflineTaskMana extends Component {
         scheduleStatus: '',
         checkVals: [],
         selectedRowKeys: [],
-        expandedRowKeys: []
+        expandedRowKeys: [],
+        editModalKey: null
     }
 
     componentDidMount () {
@@ -173,7 +174,8 @@ class OfflineTaskMana extends Component {
     clickPatchData = (task) => {
         this.setState({
             patchDataVisible: true,
-            patchTargetTask: task
+            patchTargetTask: task,
+            editModalKey: Math.random()
         })
     }
 
@@ -412,7 +414,7 @@ class OfflineTaskMana extends Component {
         const { projectUsers, project } = this.props
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask,
-            current, taskName, visibleSlidePane, selectedRowKeys, tabKey
+            current, taskName, visibleSlidePane, selectedRowKeys, tabKey, editModalKey
         } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
@@ -558,6 +560,7 @@ class OfflineTaskMana extends Component {
                     </Card>
                 </div>
                 <PatchDataModal
+                    key={editModalKey}
                     visible={patchDataVisible}
                     task={patchTargetTask}
                     handCancel={() => { this.setState({ patchDataVisible: false, patchTargetTask: '' }) }}
