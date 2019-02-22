@@ -1,4 +1,4 @@
-const docBasePath = '/public/rdos/docs/syntax';
+const docBasePath = '/public/rdos/docs/sqlSyntax';
 
 const docsMapping = [
     {
@@ -8,19 +8,19 @@ const docsMapping = [
             {
                 id: 'normal_create_table',
                 name: 'Create Table',
-                file: `${docBasePath}/createTable.md`
+                file: `${docBasePath}/DDL/CreateTable.md`
             }, {
                 id: 'normal_alter_table_partitions',
                 name: 'Alter Table Partitions',
-                file: `${docBasePath}/alterTable.md`
+                file: `${docBasePath}/DDL/AlterTablePartitions.md`
             }, {
                 id: 'normal_select',
                 name: 'Select',
-                file: `${docBasePath}/createTable.md`
+                file: `${docBasePath}/DML/Select.md`
             }, {
                 id: 'normal_insert',
                 name: 'Insert',
-                file: `${docBasePath}/createTable.md`
+                file: `${docBasePath}/DML/Insert.md`
             }
         ]
     }, {
@@ -30,16 +30,19 @@ const docsMapping = [
             {
                 id: 'ddl_create_table',
                 name: 'Create Table',
-                file: ''
+                file: `${docBasePath}/DDL/CreateTable.md`
             }, {
                 id: 'ddl_alter_table',
-                name: 'Alter Table'
+                name: 'Alter Table',
+                file: `${docBasePath}/DDL/AlterTable.md`
             }, {
-                id: 'ddl_select',
-                name: 'Select'
+                id: 'ddl_alter_table_partitions',
+                name: 'Alter Table Partitions',
+                file: `${docBasePath}/DDL/AlterTablePartitions.md`
             }, {
-                id: 'ddl_insert',
-                name: 'Insert'
+                id: 'ddl_drop_table',
+                name: 'Drop Table',
+                file: `${docBasePath}/DDL/DropTable.md`
             }
         ]
     }, {
@@ -48,11 +51,12 @@ const docsMapping = [
         children: [
             {
                 id: 'dml_select',
-                name: 'Insert',
-                file: ''
+                name: 'Select',
+                file: `${docBasePath}/DML/Select.md`
             }, {
                 id: 'dml_insert',
-                name: 'Insert'
+                name: 'Insert',
+                file: `${docBasePath}/DML/Insert.md`
             }
         ]
     }, {
@@ -60,18 +64,21 @@ const docsMapping = [
         name: 'SHOW',
         children: [
             {
-                id: 'show_create_table',
+                id: 'show_tables',
                 name: 'Show Tables',
-                file: ''
+                file: `${docBasePath}/SHOW/ShowTables.md`
             }, {
-                id: 'show_alter_table',
-                name: 'Show Columns'
+                id: 'show_columns',
+                name: 'Show Columns',
+                file: `${docBasePath}/SHOW/ShowColumns.md`
             }, {
-                id: 'show_select',
-                name: 'Show Partitions'
+                id: 'show_partitions',
+                name: 'Show Partitions',
+                file: `${docBasePath}/SHOW/ShowPartitions.md`
             }, {
-                id: 'show_insert',
-                name: 'Show Create Table'
+                id: 'show_create_table',
+                name: 'Show Create Table',
+                file: `${docBasePath}/SHOW/ShowCreateTables.md`
             }
         ]
     }, {
@@ -81,13 +88,15 @@ const docsMapping = [
             {
                 id: 'others_desc_table',
                 name: 'Describe Table',
-                file: ''
+                file: `${docBasePath}/Others/DescribeTable.md`
             }, {
                 id: 'others_explain',
-                name: 'Explain'
+                name: 'Explain',
+                file: `${docBasePath}/Others/Explain.md`
             }, {
                 id: 'others_select',
-                name: 'Set'
+                name: 'Set',
+                file: `${docBasePath}/Others/Set.md`
             }
         ]
     }
