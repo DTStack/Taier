@@ -91,8 +91,8 @@ public class WorkNode {
 
     public GroupPriorityQueue getEngineTypeQueue(String engineType) {
         return priorityQueueMap.computeIfAbsent(engineType, k -> new GroupPriorityQueue(engineType,
-                (groupPriorityQueue, startId) -> {
-                    return this.emitJob2GQ(engineType, groupPriorityQueue, startId);
+                (groupPriorityQueue, startId, limited) -> {
+                    return this.emitJob2GQ(engineType, groupPriorityQueue, startId, limited);
                 })
         );
     }
@@ -166,8 +166,8 @@ public class WorkNode {
     public void redirectSubmitJob(JobClient jobClient){
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k -> new GroupPriorityQueue(jobClient.getEngineType(),
-                    (groupPriorityQueue, startId) -> {
-                        return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId);
+                    (groupPriorityQueue, startId, limited) -> {
+                        return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
             );
             groupQueue.add(jobClient);
@@ -382,9 +382,11 @@ public class WorkNode {
         }
     }
 
-    private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, Long startId){
+    private Long emitJob2GQ(String engineType, GroupPriorityQueue groupPriorityQueue, long startId, int limited){
         String localAddress = zkDistributed.getLocalAddress();
         try {
+            int count = 0;
+            outLoop :
             while (true) {
                 List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
                 if (CollectionUtils.isEmpty(jobCaches)) {
@@ -396,6 +398,9 @@ public class WorkNode {
                         JobClient jobClient = new JobClient(paramAction);
                         groupPriorityQueue.add(jobClient);
                         startId = jobCache.getId();
+                        if (++count <= limited){
+                            break outLoop;
+                        }
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);

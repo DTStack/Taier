@@ -202,7 +202,8 @@ public class JobSubmitExecutor {
                 ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
                 Map<String, GroupInfo> remoteQueueInfo = groupQueueZkInfo.getGroupInfo();
                 GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
-                if (groupInfo.getPriority() >= 0 && groupInfo.getPriority() > localPriority) {
+                //Priority值越低，优先级越高
+                if (groupInfo.getPriority() >= 0 && groupInfo.getPriority() < localPriority) {
                     result = false;
                     break;
                 }
