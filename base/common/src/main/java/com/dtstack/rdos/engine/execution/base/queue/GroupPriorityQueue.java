@@ -87,10 +87,10 @@ public class GroupPriorityQueue {
      *
      * @return
      */
-    public boolean isBlock() {
+    public boolean isBlocked() {
         boolean blocked = stopAcquireCount.get() < STOP_ACQUIRE_LIMITED
                 || queueJobSize.get() >= QUEUE_SIZE_LIMITED;
-        if (blocked) {
+        if (blocked && stopAcquireCount.get() >= STOP_ACQUIRE_LIMITED) {
             stopAcquireCount.set(0);
         }
         return blocked;

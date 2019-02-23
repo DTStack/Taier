@@ -170,7 +170,9 @@ public class WorkNode {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
             );
-            groupQueue.add(jobClient);
+            if (!groupQueue.isBlocked()){
+                groupQueue.add(jobClient);
+            }
         }catch (Exception e){
             LOG.error("add to priority queue error:", e);
             dealSubmitFailJob(jobClient.getTaskId(), jobClient.getComputeType().getType(), e.toString());
