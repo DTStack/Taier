@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -24,6 +25,11 @@ public class GroupPriorityQueue {
     private static final int WAIT_INTERVAL = 5000;
     private static final int QUEUE_SIZE_LIMITED = 100;
     private static final int STOP_ACQUIRE_LIMITED = 10;
+
+    /**
+     * queue 初始为不进行调度，但队列的负载超过 QUEUE_SIZE_LIMITED 的阈值时触发调度
+     */
+    private AtomicBoolean running = new AtomicBoolean(false);
 
     private AtomicLong startId = new AtomicLong(0);
     private AtomicInteger stopAcquireCount = new AtomicInteger(0);
@@ -88,9 +94,9 @@ public class GroupPriorityQueue {
      * @return
      */
     public boolean isBlocked() {
-        boolean blocked = stopAcquireCount.get() < STOP_ACQUIRE_LIMITED
-                || queueJobSize.get() >= QUEUE_SIZE_LIMITED;
-        if (blocked && stopAcquireCount.get() >= STOP_ACQUIRE_LIMITED) {
+        boolean blocked = running.get() || queueJobSize.get() >= QUEUE_SIZE_LIMITED;
+        if (blocked && !running.get()) {
+            running.set(true);
             stopAcquireCount.set(0);
         }
         return blocked;
@@ -101,17 +107,17 @@ public class GroupPriorityQueue {
         @Override
         public void run() {
 
-            if (stopAcquireCount.get() >= STOP_ACQUIRE_LIMITED) {
+            if (Boolean.FALSE == running.get()) {
                 return;
             }
 
             /**
-             * 如果连续调度了 ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据并且队列中的任务数量小于100，则停止调度
+             * 如果队列中的任务数量小于100 并且 连续调度了 ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
             if (queueJobSize.get() < QUEUE_SIZE_LIMITED) {
                 long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
-                if (limitId == startId.get()) {
-                    stopAcquireCount.incrementAndGet();
+                if (limitId == startId.get() && stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
+                    running.set(false);
                 } else {
                     stopAcquireCount.set(0);
                     startId.set(limitId);
