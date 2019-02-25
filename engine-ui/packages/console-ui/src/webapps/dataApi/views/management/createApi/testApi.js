@@ -146,7 +146,7 @@ class TestApi extends React.Component {
                 this.setState({
                     loading: true
                 })
-                this.props.apiTest(values, { bodyDescJson: testBody })
+                this.props.apiTest(values, { bodyDesc: testBody })
                     .then(() => {
                         this.setState({
                             loading: false
