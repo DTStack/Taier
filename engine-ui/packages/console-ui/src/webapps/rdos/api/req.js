@@ -58,6 +58,7 @@ export default {
     SORT_TASKS: `${RDOS_BASE_URL}/stream/streamTask/changeTaskOrder`, // 任务列表时间排序
     DELETE_TASK: `${RDOS_BASE_URL}/stream/streamTask/deleteTask`, // 删除项目
     CLONE_TASK: `${RDOS_BASE_URL}/batch/batchTask/cloneTask`, // 克隆任务
+    CLONE_TASK_TO_WORKFLOW: `${RDOS_BASE_URL}/batch/batchTask/cloneTaskToFlow`, // 克隆任务至工作流
     TASK_STATISTICS: `${RDOS_BASE_URL}/stream/streamTask/getStatusCount`, // 实时任务个状态数量统计
     GET_TASK_LOG: `${RDOS_BASE_URL}/stream/streamServerLog/getLogsByTaskId`, // 获取任务告警日志
     GLOBAL_SEARCH_TASK: `${RDOS_BASE_URL}/stream/streamTask/globalSearch`, // 全局搜索任务

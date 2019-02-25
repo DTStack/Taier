@@ -10,6 +10,7 @@ export const modalAction = mc([
     'TOGGLE_CREATE_TASK',
     'TOGGLE_EDIT_TASK',
     'TOGGLE_CLONE_TASK',
+    'TOGGLE_CLONE_TO_WORKFLOW',
     'TOGGLE_UPLOAD',
     'TOGGLE_CREATE_FOLDER',
     'TOGGLE_CREATE_FN',
