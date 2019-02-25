@@ -7,6 +7,7 @@ import { inputColumnsKeys } from '../../../model/inputColumnModel';
 import ConstColumnModel, { constColumnsKeys } from '../../../model/constColumnModel';
 
 import Editor from 'widgets/editor'
+import utils from 'utils';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
@@ -145,7 +146,7 @@ class TestApi extends React.Component {
                 this.setState({
                     loading: true
                 })
-                this.props.apiTest(values, { testBody })
+                this.props.apiTest(values, { bodyDescJson: testBody })
                     .then(() => {
                         this.setState({
                             loading: false
@@ -226,13 +227,47 @@ class TestApi extends React.Component {
     pass () {
         this.props.dataChange();
     }
+    renderRequest (request) {
+        if (!request) {
+            return null;
+        }
+        function renderHeaders (headers = {}) {
+            if (!headers) {
+                return '';
+            }
+            let keyAndValus = Object.entries(headers);
+            return keyAndValus.map(([key, value]) => {
+                return `\t${key}: ${value}`;
+            }).join('\n')
+        }
+        function renderBody (body) {
+            return body.split('\n').join('\n\t');
+        }
+        const { requestUrl, headers, body, method } = request;
+        return (`Request URL: ${requestUrl}\n\n` +
+        `Request Method: ${method}\n\n` +
+        `Headers:\n${renderHeaders(headers)}\n\n` +
+        `Body:\n\t${renderBody(body)}\n\n`
+        );
+    }
     render () {
         const { loading, sync, testBody } = this.state;
-        const { basicProperties, registerParams, respJson: testResult, isRegister } = this.props;
+        const { basicProperties, registerParams, respJson: testResult = {}, isRegister } = this.props;
         const wrapInputParams = this.wrapInputParams();
         const inputTableColumns = this.initColumns();
         const { outputResultColumns, x } = this.initOutColumns();
         const { bodyDesc } = registerParams;
+        let resultText;
+        let requestInfo;
+        if (isRegister) {
+            let data = testResult ? testResult.data : null;
+            if (data) {
+                resultText = utils.jsonFormat(data.result) || data.result;
+                requestInfo = this.renderRequest(data.httpInfo);
+            }
+        } else {
+            resultText = testResult ? JSON.stringify(testResult, null, 4) : null
+        }
         return (
             <div>
                 <div className="steps-content">
@@ -295,12 +330,12 @@ class TestApi extends React.Component {
                             {isRegister && (
                                 <div style={{ marginTop: '5px', marginBottom: '20px' }}>
                                     <p className="small-title small-title-box">请求详情</p>
-                                    <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
+                                    <TextArea className="textarea_white_disable" value={requestInfo} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
                                 </div>
                             )}
                             <div style={{ marginTop: '5px' }}>
                                 <p className="small-title small-title-box">返回结果</p>
-                                <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
+                                <TextArea className="textarea_white_disable" value={resultText} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
                                 {!isRegister && (
                                     <React.Fragment>
                                         <p style={{ marginTop: '20px' }} className="small-title small-title-box">输出结果</p>
