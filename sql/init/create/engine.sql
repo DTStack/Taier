@@ -61,11 +61,11 @@ create table `rdos_stream_task_checkpoint`(
 	`task_id` varchar(64) not null COMMENT '任务id',
 	`task_engine_id` varchar(64) not null COMMENT '任务对于的引擎id',
 	`checkpoint` longtext,
-	`trigger_start` TIMESTAMP,
-  `trigger_end` TIMESTAMP,
+	`trigger_start` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `trigger_end` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	`gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
 	PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
