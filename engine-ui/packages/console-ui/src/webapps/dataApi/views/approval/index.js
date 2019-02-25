@@ -1,16 +1,14 @@
 import React, { Component } from 'react'
-import { Card, Input, Table, Select, Modal, Form, Button, message } from 'antd';
+import { Card, Input, Table, Select, Modal, Form, message } from 'antd';
 import { connect } from 'react-redux';
 
 import utils from 'utils';
+import ApprovalModal from '../../components/approvalBox';
 
-import { formItemLayout, EXCHANGE_APPLY_STATUS, API_USER_STATUS } from '../../consts'
+import { EXCHANGE_APPLY_STATUS, API_USER_STATUS } from '../../consts'
 import { approvalActions } from '../../actions/approval';
 import { mineActions } from '../../actions/mine';
-import moment from 'moment';
 
-const TextArea = Input.TextArea;
-const FormItem = Form.Item;
 const confirm = Modal.confirm;
 const InputGroup = Input.Group;
 const Option = Select.Option;
@@ -30,9 +28,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
     approvalList (params) {
         return dispatch(approvalActions.allApplyList(params));
-    },
-    handleApply (params) {
-        return dispatch(approvalActions.handleApply(params));
     },
     updateUserApiStatus (params) {
         return dispatch(mineActions.updateApplyStatus(params));
@@ -343,35 +338,14 @@ class APIApproval extends Component {
         )
     }
     spShow (record, isApproval) {
-        const { setFieldsValue } = this.props.form;
-
-        setFieldsValue({
-            APIGroup: record.replyContent
-        });
         this.setState({
             spVisible: true,
             spApplyMsg: record,
             mode: isApproval ? 'approval' : 'view'
         })
     }
-    getModalFooter () {
-        const { mode } = this.state;
-        if (mode == 'approval') {
-            return (
-                <div>
-                    <Button type="danger" onClick={this.sp.bind(this, false)}>拒绝</Button>
-                    <Button type="primary" onClick={this.sp.bind(this, true)}>同意</Button>
-                </div>
-            )
-        } else {
-            return (<Button type="primary" onClick={this.handleCancel.bind(this)}>关闭</Button>);
-        }
-    }
     render () {
-        const { getFieldDecorator } = this.props.form;
-        const { mode, spApplyMsg } = this.state;
-        const disabled = mode == 'view';
-        const modalTitle = mode == 'view' ? '审批详情' : '授权审批';
+        const { spApplyMsg, spVisible, mode } = this.state;
 
         return (
             <div className="api-approval">
@@ -395,57 +369,16 @@ class APIApproval extends Component {
                         />
                     </Card>
                 </div>
-                <Modal
-                    title={modalTitle}
-                    visible={this.state.spVisible}
+                <ApprovalModal
+                    mode={mode}
+                    spVisible={spVisible}
+                    data={spApplyMsg}
                     onCancel={this.handleCancel.bind(this)}
-                    footer={this.getModalFooter()}
-                >
-                    <Form>
-                        <FormItem
-                            {...formItemLayout}
-                            label="API名称"
-                        >
-                            {spApplyMsg.apiName}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="申请人"
-                        >
-                            {spApplyMsg.applyUserName}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="调用次数"
-                        >
-                            {spApplyMsg.callLimit == -1 ? '无限制' : spApplyMsg.callLimit}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="调用周期"
-                        >
-                            {spApplyMsg.beginTime ? `${moment(spApplyMsg.beginTime).format('YYYY-MM-DD')} ~ ${moment(spApplyMsg.endTime).format('YYYY-MM-DD')}` : '无限制'}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="申请说明"
-                        >
-                            <TextArea value={spApplyMsg.applyContent} disabled />
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="审批说明"
-                        >
-                            {getFieldDecorator('APIGroup', {
-                                rules: [
-                                    { required: true, message: '请填写审批说明' },
-                                    { max: 200, message: '最大字数不能超过200' }
-                                ]
-                            })(<TextArea disabled={disabled} />)
-                            }
-                        </FormItem>
-                    </Form>
-                </Modal>
+                    onOk={() => {
+                        this.handleCancel()
+                        this.getApprovalList()
+                    }}
+                />
             </div>
         )
     }

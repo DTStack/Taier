@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     Input, Table, Form, message,
-    Card, Select, Tabs, Spin
+    Card, Select, Tabs, Spin, Checkbox
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
@@ -48,7 +48,8 @@ class TableList extends Component {
                 pageSize: 20,
                 catalogueId,
                 pId,
-                tableName
+                tableName,
+                showDeleted: false
             }
         }
         this.isAdminAbove = this.props.user && this.props.user.isAdminAbove;
@@ -91,7 +92,7 @@ class TableList extends Component {
     }
 
     changeParams = (field, value) => {
-        let queryParams = Object.assign(this.state.queryParams);
+        let queryParams = Object.assign({}, this.state.queryParams);
         if (field) {
             queryParams[field] = value;
             queryParams.pageIndex = 1;
@@ -159,6 +160,10 @@ class TableList extends Component {
                 key: 'tableName',
                 dataIndex: 'tableName',
                 render (text, record) {
+                    const isDeleted = record.isDeleted;
+                    if (isDeleted) {
+                        return <span>{text}（已删除）</span>
+                    }
                     return <Link to={`${ROUTER_BASE}/view/${record.id}`}>{text}</Link>
                 }
             },
@@ -210,13 +215,19 @@ class TableList extends Component {
                 fixed: 'right',
                 width: 120,
                 render (text, record) {
+                    const isDeleted = record.isDeleted;
                     switch (queryParams.listType) {
                         case '1':
                         case '2':
                         case '3':
                             return <span>
-                                <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
-                                <span className="ant-divider"></span>
+                                {!isDeleted && (
+                                    <React.Fragment>
+                                        <Link to={`${ROUTER_BASE}/edit/${record.id}`}>编辑</Link>
+                                        <span className="ant-divider"></span>
+                                    </React.Fragment>
+                                )}
+
                                 {/* <Link to={`/data-manage/log/${record.id}/${record.tableName}`}>操作记录</Link> */}
                                 <a href="javascript:void(0)" onClick={ctx.showTableLog.bind(ctx, record)}>操作记录</a>
                             </span>
@@ -305,6 +316,14 @@ class TableList extends Component {
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
                     />
+                </FormItem>
+                <FormItem>
+                    <Checkbox
+                        checked={queryParams.showDeleted}
+                        onChange={(e) => this.changeParams('showDeleted', e.target.checked)}
+                    >
+                        显示已删除的表
+                    </Checkbox>
                 </FormItem>
             </Form>
         )
