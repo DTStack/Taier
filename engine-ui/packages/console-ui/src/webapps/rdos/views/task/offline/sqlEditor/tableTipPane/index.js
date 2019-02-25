@@ -44,7 +44,7 @@ class TableTipExtraPane extends React.Component {
     }
     renderTableItem (tableName, columns) {
         const { visibleMap, searchValue } = this.state;
-        return <section className="c-tablePane__table">
+        return <section key={`item-${tableName}`} className="c-tablePane__table">
             <div className="c-tablePane__table__title">
                 <Popover
                     trigger="click"
