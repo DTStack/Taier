@@ -196,6 +196,8 @@ public class WorkNode {
                 this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
             }
         }
+
+        priorityQueueMap.forEach((k,v)->v.resetStartId());
     }
 
     public void addStopJob(ParamAction paramAction){
@@ -400,7 +402,7 @@ public class WorkNode {
                         JobClient jobClient = new JobClient(paramAction);
                         groupPriorityQueue.add(jobClient);
                         startId = jobCache.getId();
-                        if (++count <= limited){
+                        if (++count >= limited){
                             break outLoop;
                         }
                     } catch (Exception e) {

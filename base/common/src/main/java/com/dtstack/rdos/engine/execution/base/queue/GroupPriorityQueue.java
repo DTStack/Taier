@@ -102,6 +102,10 @@ public class GroupPriorityQueue {
         return blocked;
     }
 
+    public void resetStartId(){
+        startId.set(0);
+    }
+
     private class AcquireGroupQueueJob implements Runnable {
 
         @Override
