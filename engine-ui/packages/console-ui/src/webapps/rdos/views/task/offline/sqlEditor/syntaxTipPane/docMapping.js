@@ -78,7 +78,7 @@ const docsMapping = [
             }, {
                 id: 'show_create_table',
                 name: 'Show Create Table',
-                file: `${docBasePath}/SHOW/ShowCreateTables.md`
+                file: `${docBasePath}/SHOW/ShowCreateTable.md`
             }
         ]
     }, {
