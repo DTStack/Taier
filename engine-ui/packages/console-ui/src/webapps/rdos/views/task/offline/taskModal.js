@@ -95,7 +95,7 @@ class TaskForm extends React.Component {
             labelPrefix, createFromGraph
         } = this.props;
         const { operateModel } = this.state;
-
+        console.log('---------------', analyDataSourceLists)
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
          * 2. 有默认数据的情况分以下两种：
@@ -119,7 +119,7 @@ class TaskForm extends React.Component {
             <Option key={item.key} value={item.key}>{item.value}</Option>
         )
         const dataSourceOptions = analyDataSourceLists && analyDataSourceLists.map(item => {
-            return <Option key={item.key} value={item.key}>{item.value}</Option>
+            return <Option key={item.id} value={item.id}>{item.dataName}</Option>
         })
         const isCarbonSql = value === TASK_TYPE.CARBONSQL
         const isMrTask = value === TASK_TYPE.MR
@@ -486,13 +486,14 @@ class TaskForm extends React.Component {
                             {...formItemLayout}
                             label="数据源"
                         >
-                            {getFieldDecorator('dataSourceName', {
+                            {getFieldDecorator('dataSourceId', {
                                 rules: [{
                                     required: true, message: '请选择数据源'
                                 }],
-                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.dataSourceName
+                                initialValue: this.isEditExist ? defaultData.dataSourceId : undefined
                             })(
                                 <Select
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
                                 >
                                     {dataSourceOptions}
                                 </Select>
