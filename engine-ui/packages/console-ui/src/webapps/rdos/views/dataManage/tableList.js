@@ -322,6 +322,15 @@ class TableList extends Component {
                             <Table
                                 rowKey="id"
                                 className="m-table"
+                                rowClassName={
+                                    (record, index) => {
+                                        if (this.state.tableLog && this.state.tableLog.tableId == record.id) {
+                                            return 'row-select'
+                                        } else {
+                                            return '';
+                                        }
+                                    }
+                                }
                                 columns={this.initialColumns()}
                                 dataSource={table.data}
                                 pagination={pagination}
