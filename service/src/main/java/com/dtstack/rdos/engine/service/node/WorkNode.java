@@ -105,8 +105,9 @@ public class WorkNode {
         priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->{
             Map<String,GroupInfo> groupInfos = Maps.newHashMap();
             queue.getGroupPriorityQueueMap().forEach((group, groupQueue)->groupInfos.computeIfAbsent(group,sk-> {
+                int queueSize = engineJobCacheDao.countGroupQueueJob(engineType, group, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
                 GroupInfo groupInfo = new GroupInfo();
-                groupInfo.setSize(groupQueue.size());
+                groupInfo.setSize(queueSize);
                 JobClient topJob = groupQueue.getTop();
                 groupInfo.setPriority(topJob==null ? 0 : topJob.getPriority());
                 return groupInfo;

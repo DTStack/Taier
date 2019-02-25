@@ -2,11 +2,9 @@ package com.dtstack.rdos.engine.service.zk.cache;
 
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.config.ConfigParse;
-import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.queue.ClusterQueueInfo;
 import com.dtstack.rdos.engine.execution.base.queue.GroupInfo;
-import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.execution.base.queue.GroupPriorityQueue;
@@ -126,9 +124,6 @@ public class ZkLocalCache implements Closeable {
         if (groupPriorityQueue == null) {
             throw new RdosException("not support engineType:" + engineType);
         }
-        Map<String, OrderLinkedBlockingQueue<JobClient>> groupQueues = groupPriorityQueue.getGroupPriorityQueueMap();
-        OrderLinkedBlockingQueue queue = groupQueues.get(groupName);
-        int localQueueSize = queue == null ? 0 : queue.size();
         Map<String, Integer> otherQueueInfoMap = Maps.newHashMap();
         for (Map.Entry<String, ClusterQueueInfo.GroupQueueInfo> zkInfoEntry : engineTypeQueueInfo.getGroupQueueInfoMap().entrySet()) {
             ClusterQueueInfo.GroupQueueInfo groupQueueZkInfo = zkInfoEntry.getValue();
@@ -136,6 +131,7 @@ public class ZkLocalCache implements Closeable {
             GroupInfo groupInfo = remoteQueueInfo.getOrDefault(groupName, new GroupInfo());
             otherQueueInfoMap.put(zkInfoEntry.getKey(), groupInfo.getSize());
         }
+        int localQueueSize = otherQueueInfoMap.getOrDefault(localAddress, 0);
 
         String node = null;
         int minWeight = Integer.MAX_VALUE;

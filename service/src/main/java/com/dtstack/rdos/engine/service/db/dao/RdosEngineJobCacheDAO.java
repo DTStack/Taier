@@ -106,4 +106,15 @@ public class RdosEngineJobCacheDAO {
             }
         });
     }
+
+    public int countGroupQueueJob(String engineType, String groupName, Integer stage){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
+
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
+                return mapper.countByStage(engineType, groupName, stage);
+            }
+        });
+    }
 }
