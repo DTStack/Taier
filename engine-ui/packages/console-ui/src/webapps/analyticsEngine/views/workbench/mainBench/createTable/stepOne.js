@@ -307,9 +307,10 @@ class StepOne extends Component {
                                 ],
                                 initialValue: formData.blockSize || 1024
                             })(
-                                <Input style={{ width: 570, marginRight: 10 }} />
+                                <Input style={{ width: 540, marginRight: 10 }} />
                             )
                         }
+                        <span style={{ width: 30, display: 'inline-block' }}>MB</span>
                         <HelpDoc style={relativeStyle} doc="blockSize" />
                     </FormItem>
                     <Collapse onChange={() => this.setState({ downIcon: !this.state.downIcon })}>
@@ -336,9 +337,10 @@ class StepOne extends Component {
                                     getFieldDecorator('compactionSize', {
                                         initialValue: formData.compactionSize || '1024'
                                     })(
-                                        <Input style={{ width: 570, marginRight: 10 }} />
+                                        <Input style={{ width: 540, marginRight: 10 }} />
                                     )
                                 }
+                                <span style={{ width: 30, display: 'inline-block' }}>MB</span>
                                 <HelpDoc style={relativeStyle} doc="marjorCompactionSize" />
                             </FormItem>
                             <FormItem
