@@ -1067,6 +1067,9 @@ const mapDispatch = (dispatch, ownProps) => {
         },
         handleTableColumnChange: (colData) => {
             dispatch({
+                type: dataSyncAction.RESET_KEYMAP
+            });
+            dispatch({
                 type: targetMapAction.TARGET_TABLE_COLUMN_CHANGE,
                 payload: colData
             });
