@@ -8,11 +8,22 @@ class SyntaxHelpPane extends React.Component {
         loading: false
     }
 
+    componentDidMount () {
+        this.props.updateSyntaxPane({ selected: 'normal_select' });
+        const defaultFile = DocMappingData[0].children[2].file;
+        this.loadFile(defaultFile);
+    }
+
     onSelectFile = (value, option) => {
         const { updateSyntaxPane } = this.props;
         const file = option.props.data;
-        this.setState({ loading: true });
         updateSyntaxPane({ selected: value })
+        this.loadFile(file);
+    }
+
+    loadFile = (file) => {
+        const { updateSyntaxPane } = this.props;
+        this.setState({ loading: true });
 
         if (file) {
             fetch(file).then(response => response.text())

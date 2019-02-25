@@ -33,6 +33,14 @@ import { editorAction } from '../../../../store/modules/editor/actionTypes';
 
 import { getTableList } from '../../../../store/modules/offlineTask/comm';
 
+const isTableTipPane = function (editor) {
+    return editor.showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE;
+}
+
+const isSQLSyntaxTipPane = function (editor) {
+    return editor.showRightExtraPane === editorAction.SHOW_SYNTAX_HELP_PANE;
+}
+
 @pureRender
 class EditorContainer extends Component {
     state = {
@@ -440,14 +448,14 @@ class EditorContainer extends Component {
         const { editor, currentTabData, updateSyntaxPane } = this.props;
         const { columns, partition, extraPaneLoading } = this.state;
 
-        if (editor.showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE) {
+        if (isTableTipPane(editor)) {
             return <TableTipPane
                 data={columns}
                 partition={partition}
                 loading={extraPaneLoading}
                 tabId={currentTabData.id}
             />;
-        } else if (editor.showRightExtraPane === editorAction.SHOW_SYNTAX_HELP_PANE) {
+        } else if (isSQLSyntaxTipPane(editor)) {
             return <SyntaxHelpPane
                 loading={extraPaneLoading}
                 tabId={currentTabData.id}
@@ -463,20 +471,20 @@ class EditorContainer extends Component {
             hideRightPane, editor,
             showRightTablePane, showRightSyntaxPane
         } = this.props;
-        const { options, showRightExtraPane } = editor;
+        const { options } = editor;
         return (
             <div>
                 <RightTableButton
                     theme={options.theme}
                     hideRightPane={hideRightPane}
                     showRightTablePane={showRightTablePane}
-                    showTableTooltip={showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE}
+                    showTableTooltip={isTableTipPane(editor)}
                 />
                 <RightSyntaxButton
                     theme={options.theme}
                     showRightSyntaxPane={showRightSyntaxPane}
                     hideRightPane={hideRightPane}
-                    showSyntaxPane={showRightExtraPane === editorAction.SHOW_SYNTAX_HELP_PANE}
+                    showSyntaxPane={isSQLSyntaxTipPane(editor)}
                 />
             </div>
         )
