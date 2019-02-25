@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GroupPriorityQueue {
 
     private static final int WAIT_INTERVAL = 5000;
-    private static final int QUEUE_SIZE_LIMITED = 100;
+    private static final int QUEUE_SIZE_LIMITED = 500;
     private static final int STOP_ACQUIRE_LIMITED = 10;
 
     /**

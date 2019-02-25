@@ -14,11 +14,13 @@
         <result column="node_address" property="nodeAddress" jdbcType="VARCHAR"/>
         <result column="job_name" property="jobName" jdbcType="VARCHAR"/>
         <result column="stage" property="stage" jdbcType="INTEGER"/>
+        <result column="job_priority" property="jobPriority" jdbcType="BIGINT"/>
+        <result column="group_name" property="groupName" jdbcType="VARCHAR"/>
     </resultMap>
 
     <insert id="insert">
-        replace into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name)
-        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName});
+        replace into rdos_engine_job_cache( job_id, engine_type, compute_type, stage, job_info, node_address, job_name, job_priority, group_name)
+        values(#{jobId}, #{engineType}, #{computeType}, #{stage}, #{jobInfo}, #{nodeAddress},#{jobName},#{jobPriority},#{groupName});
     </insert>
 
     <delete id="delete">
@@ -42,7 +44,7 @@
         <if test="engineType != null">
             and engine_type = #{engineType}
         </if>
-        and is_deleted=0 order by id asc limit 500;
+        and is_deleted=0 order by job_priority asc limit 500;
     </select>
 
     <select id="getByJobIds" resultMap="rdosEngineJobCacheResult">

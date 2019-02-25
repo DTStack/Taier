@@ -15,7 +15,6 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.enums.SourceType;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
@@ -68,7 +67,7 @@ public class RestartDealer {
             return false;
         }
 
-        resetStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobClient.getEngineType());
+        resetStatus(jobClient);
         addToRestart(jobClient);
         //update retry num
         increaseJobRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
@@ -156,7 +155,7 @@ public class RestartDealer {
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
-            resetStatus(jobId, computeType, engineType);
+            resetStatus(jobClient);
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
@@ -219,9 +218,12 @@ public class RestartDealer {
         return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, maxRetryNum);
     }
 
-    private void resetStatus(String jobId, Integer computeType, String engineType){
+    private void resetStatus(JobClient jobClient){
+        String jobId = jobClient.getTaskId();
+        Integer computeType = jobClient.getComputeType().getType();
+        String engineType = jobClient.getEngineType();
         //重试的时候，更改cache状态
-        WorkNode.getInstance().saveCache(jobId, engineType, computeType, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),null, null);
+        WorkNode.getInstance().saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
