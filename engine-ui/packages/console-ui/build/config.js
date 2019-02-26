@@ -15,10 +15,7 @@ module.exports = {
             },
             "/api/rdos": {
                 // target: "http://172.16.10.51:9020", // test
-<<<<<<< HEAD
-=======
                 // target: "http://172.16.1.132:9020", // debug
->>>>>>> dev
                 target: "http://172.16.8.104:9020", // dev server
                 // target: "http://172.16.10.51:9020", // test
                 // target: "http://172.16.1.191:9020",
