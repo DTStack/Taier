@@ -84,9 +84,6 @@ class CodeEditor extends Component {
             if (sync) {
                 window.ted = this.self;
                 const scrollInfo = this.self.getScrollInfo();
-                if (scrollInfo.top == 0) {
-                    console.log(nextProps)
-                }
                 /**
                  * 判断滚动条是不是在底部
                  */
@@ -107,6 +104,7 @@ class CodeEditor extends Component {
                 } else if (isInBottom) {
                     /**
                      * 在底部，则自动到底部
+                     * 需要等setValue这个动作结束之后，再获取内容的高度。
                      */
                     Promise.resolve().then(() => {
                         let nowScrollInfo = this.self.getScrollInfo();
