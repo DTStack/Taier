@@ -84,6 +84,9 @@ class CodeEditor extends Component {
             if (sync) {
                 window.ted = this.self;
                 const scrollInfo = this.self.getScrollInfo();
+                if (scrollInfo.top == 0) {
+                    console.log(nextProps)
+                }
                 /**
                  * 判断滚动条是不是在底部
                  */
@@ -100,15 +103,14 @@ class CodeEditor extends Component {
                     /**
                     * 不在底部并且不设置自动滚到底部，则滚到原来位置
                     */
-                    Promise.resolve().then(() => {
-                        this.self.scrollTo(scrollInfo.left, scrollInfo.top)
-                    })
+                    this.self.scrollTo(scrollInfo.left, scrollInfo.top)
                 } else if (isInBottom) {
                     /**
                      * 在底部，则自动到底部
                      */
                     Promise.resolve().then(() => {
-                        this.self.scrollTo(scrollInfo.left, scrollInfo.height)
+                        let nowScrollInfo = this.self.getScrollInfo();
+                        this.self.scrollTo(nowScrollInfo.left, nowScrollInfo.height)
                     })
                 }
             }

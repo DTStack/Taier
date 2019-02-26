@@ -27,8 +27,8 @@ module.exports = {
             "/api/streamapp": {
                 // target: "http://172.16.1.191:9021", // formal test ser
                 // target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.8.105:9021", // formal test ser
-                target: "http://172.16.10.51:9021", // test
+                target: "http://172.16.8.105:9021", // formal test ser
+                // target: "http://172.16.10.51:9021", // test
                 // ignorePath: true,  
                 // Mock
                 // pathRewrite:{"^/api/streamapp":"/api/rdos"},
@@ -44,8 +44,8 @@ module.exports = {
                 secure: false,
             },
             "/api/da": { // da地址
-                target: "http://172.16.1.121:8087",
-                // target: "http://172.16.8.107:8087",//开发环境
+                // target: "http://172.16.1.121:8087",
+                target: "http://172.16.8.107:8087",//开发环境
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
