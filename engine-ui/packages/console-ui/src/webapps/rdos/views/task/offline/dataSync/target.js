@@ -38,7 +38,8 @@ class TargetForm extends React.Component {
             visible: false,
             modalLoading: false,
             tablePartitionList: [], // 表分区列表
-            loading: false // 请求
+            loading: false, // 请求
+            selectedDataSourceType: undefined // 选中的dataSourceType
         };
     }
 
@@ -149,7 +150,13 @@ class TargetForm extends React.Component {
     }
 
     changeSource (value) {
-        const { handleSourceChange } = this.props;
+        const { handleSourceChange, dataSourceList } = this.props;
+        const selectedDataSource = dataSourceList.filter(item => {
+            return `${item.id}` === value
+        })
+        this.setState({
+            selectedDataSourceType: selectedDataSource[0].type
+        })
         setTimeout(() => {
             this.getTableList(value);
         }, 0);
@@ -333,12 +340,12 @@ class TargetForm extends React.Component {
     }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { modalLoading } = this.state;
+        const { modalLoading, selectedDataSourceType } = this.state;
         const {
             targetMap, dataSourceList, navtoStep, isIncrementMode
         } = this.props;
-
         const getPopupContainer = this.props.getPopupContainer;
+        const isDTinsightAnalytics = selectedDataSourceType === DATA_SOURCE.CARBONDATA;
         return <div className="g-step2">
             <Modal className="m-codemodal"
                 title={(
@@ -398,6 +405,14 @@ class TargetForm extends React.Component {
                 </FormItem>
                 {this.renderDynamicForm()}
             </Form>
+            {
+                isDTinsightAnalytics ? (
+                    <div style={{ width: '358px', margin: '0 auto' }}>
+                        <Icon type='info-circle-o' /> 向分析引擎写入数据时，目标表已存在的DataMap不会自动更新,自动更新需要新建“CarbonSQL”类型的任务/节点实现<br/>
+                        <Icon type='info-circle-o' /> 本任务需设置为自依赖
+                    </div>
+                ) : null
+            }
             {!this.props.readonly && <div className="steps-action">
                 <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
                 <Button
@@ -1066,6 +1081,9 @@ const mapDispatch = (dispatch, ownProps) => {
             });
         },
         handleTableColumnChange: (colData) => {
+            dispatch({
+                type: dataSyncAction.RESET_KEYMAP
+            });
             dispatch({
                 type: targetMapAction.TARGET_TABLE_COLUMN_CHANGE,
                 payload: colData

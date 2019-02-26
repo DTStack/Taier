@@ -1,18 +1,12 @@
 import React from 'react';
-import { connect } from 'react-redux'
-import { Modal, Form, message, Select } from 'antd';
+import { Modal, Form, Input, message } from 'antd';
 
-import { formItemLayout, SECURITY_TYPE } from '../../../../../consts'
-import api from '../../../../../api/apiManage';
+import { formItemLayout } from '../../consts'
+import api from '../../api/apiManage';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
-@connect(state => {
-    const { apiManage } = state;
-    return { apiManage }
-})
-class SecurityModal extends React.Component {
+class LimitModal extends React.Component {
     state = {
         loading: false
     }
@@ -40,24 +34,6 @@ class SecurityModal extends React.Component {
             }
         })
     }
-    getSecurityListView () {
-        const data = this.props.apiManage.securityList;
-        return data.map(
-            (item, index) => {
-                return <Option
-                    value={item.id}
-                    key={item.id}
-                >
-                    {`${item.name} (${item.type == SECURITY_TYPE.BLACK ? '黑名单' : '白名单'})`}
-                </Option>
-            }
-        )
-    }
-    exchangeDataToSelectData (data) {
-        return data.map((item) => {
-            return item.id
-        })
-    }
     render () {
         const { visible, closeModal, data, form } = this.props;
         const { loading } = this.state;
@@ -67,23 +43,34 @@ class SecurityModal extends React.Component {
             onCancel={closeModal}
             onOk={this.onOk}
             confirmLoading={loading}
-            title="安全组"
+            title="调用次数限制"
         >
             <Form>
                 <FormItem
                     {...formItemLayout}
-                    label="安全组"
+                    label="调用限制"
                 >
-                    {getFieldDecorator('groupIdList', {
-                        initialValue: this.exchangeDataToSelectData(data) || []
+                    {getFieldDecorator('reqLimit', {
+                        rules: [
+                            { required: true, message: '请输入调用次数限制' },
+                            {
+                                validator: function (rule, value, callback) {
+                                    if (value && (value > 2000 || value < 1)) {
+                                        const error = '请输入不大于2000的正整数'
+                                        callback(error)
+                                        return;
+                                    }
+                                    callback();
+                                }
+                            }
+                        ],
+                        initialValue: data
                     })(
-                        <Select mode="multiple" optionFilterProp="children">
-                            {this.getSecurityListView()}
-                        </Select>
+                        <Input type="number" placeholder="单用户每秒最大调用次数不超过2000次" />
                     )}
                 </FormItem>
             </Form>
         </Modal>
     }
 }
-export default Form.create()(SecurityModal);
+export default Form.create()(LimitModal);

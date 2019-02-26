@@ -138,7 +138,7 @@ class RegisterContentSection extends React.Component {
                     <div className='c-content-register__section__card'>
                         <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
                         <div className='c-content-register__section__card__content'>
-                            {generateBody(inputColumn, getValue('reqMethod'))}
+                            {getValue('bodyDesc') || generateBody(inputColumn, getValue('reqMethod'))}
                         </div>
                     </div>
                 </section>

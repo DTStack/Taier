@@ -29,6 +29,8 @@ export function taskTypeText (type) {
             return 'HadoopMR';
         case TASK_TYPE.WORKFLOW:
             return '工作流';
+        case TASK_TYPE.CARBONSQL:
+            return 'CarbonSQL';
         default:
             return '未知';
     }
