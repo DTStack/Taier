@@ -31,14 +31,14 @@ public class RdosEngineJobCacheDAO {
         });
     }
 
-    public void updateJobStage(String jobId, int stage, String nodeAddress){
+    public void updateJobStage(String jobId, int stage, String nodeAddress, Long jobPriority, String groupName){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobCacheMapper mapper = sqlSession.getMapper(RdosEngineJobCacheMapper.class);
-                mapper.updateStage(jobId, stage, nodeAddress);
+                mapper.updateStage(jobId, stage, nodeAddress, jobPriority, groupName);
                 return null;
             }
         });

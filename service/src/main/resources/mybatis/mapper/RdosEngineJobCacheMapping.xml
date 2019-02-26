@@ -32,7 +32,8 @@
     </select>
 
     <update id="updateStage">
-        update rdos_engine_job_cache set node_address = #{nodeAddress}, stage = #{stage} where job_id = #{jobId}
+        update rdos_engine_job_cache set node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, group_name = #{groupName}
+        where job_id = #{jobId}
     </update>
 
     <select id="listByStage" resultMap="rdosEngineJobCacheResult">
