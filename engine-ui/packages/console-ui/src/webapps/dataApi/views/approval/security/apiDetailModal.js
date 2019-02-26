@@ -48,9 +48,9 @@ class APIDetailModal extends React.Component {
             dataIndex: 'name',
             key: 'name',
             width: '150px',
-            className: 'text-middle',
+            className: 'text-padding',
             render: (text, record) => {
-                return <a className="text-middle" onClick={this.toDetail.bind(this, record.id, record.name)}>{text}</a>
+                return <a onClick={this.toDetail.bind(this, record.id, record.name)}>{text}</a>
             }
         }]
     }

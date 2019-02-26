@@ -104,7 +104,6 @@ class ApiCallMethod extends Component {
 
         if (mode != 'manage') {
             this.getApiCallUrl(apiId);
-            this.fetchSecurityList(apiId);
         } else if (this.isRegister(showRecord)) {
             /**
              * 获取注册api配置信息
@@ -148,7 +147,6 @@ class ApiCallMethod extends Component {
             beginTime,
             endTime,
             callLimit,
-            securityList,
             apiConfig,
             registerInfo,
             token
@@ -161,7 +159,6 @@ class ApiCallMethod extends Component {
             <div>
                 <div style={{ paddingLeft: 30, marginTop: '20px' }}>
                     <Content
-                        securityList={securityList}
                         showSecurity={mode != 'manage'}
                         showApiConfig={mode == 'manage'}
                         apiConfig={apiConfig}

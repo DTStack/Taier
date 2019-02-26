@@ -6,7 +6,9 @@
 @import './views/layout.scss';
 @import './views/workbench.scss';
 
-
+table{
+    font-size: 12px;
+}
 * {
     &::-webkit-scrollbar-track {
         border: 1px solid #e9e9e9;

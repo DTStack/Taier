@@ -8,7 +8,7 @@ import ApiCallMethod from '../../myApi/others/apiCallMethod';
 import BuyManageState from './tabPanes/buyState';
 import ApiCallState from './tabPanes/callState';
 import ErrorLog from './tabPanes/errorLog';
-import Security from './tabPanes/security';
+import Security from '../../../components/security';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

@@ -61,8 +61,17 @@
     .ant-tree-icon__close {
         background-image: url(/public/rdos/img/icon/folder.svg)
     }
-    .ant-tree-icon__docu {
-        background-image: url(/public/dataApi/img/file.png);
+    .u-tree__node--register{
+        .ant-tree-icon__docu {
+            background-image: url(/public/dataApi/img/icon_registerapi.svg);
+            margin-right: 2px;
+        }
+    }
+    .u-tree__node--normal{
+        .ant-tree-icon__docu {
+            background-image: url(/public/dataApi/img/icon_createapi.svg);
+            margin-right: 2px;
+        }
     }
     .s-table {
         .ant-tree-icon__docu {
@@ -427,6 +436,8 @@
 .textarea_white_disable.ant-input-disabled{
     background: #000619;
     color:#fff;
+    resize: vertical;
+    white-space: pre;
 }
 .small-title{
     color:#333333;

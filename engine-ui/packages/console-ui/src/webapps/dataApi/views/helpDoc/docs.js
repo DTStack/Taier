@@ -19,8 +19,9 @@ export const apiPathInfo = (
 )
 export const registerApiPathInfo = (
     <div>
+        <p>API path即API调用路径。若填写，生成的API调用URL中将包含API path，可帮助用户快速识别调用的API。</p>
         <p>支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头，如/user。</p>
-        <p>若API path中包含请求参数中的入参，放在{'{}'}中，如/user/{'{'}userid{'}'}。</p>
+        <p>若API path中包含请求参数中的入参，放在{'{}'}中，如/user/{'{'}userid{'}'}，且API path中的入参名需与后端服务path中的保持一致。</p>
     </div>
 )
 export const registerApiHost = (
