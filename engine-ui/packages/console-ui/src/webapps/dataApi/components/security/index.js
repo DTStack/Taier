@@ -3,10 +3,11 @@ import { connect } from 'react-redux';
 
 import LimitModal from './limitModal';
 import SecurityModal from './securityModal';
+import SecurityDetailModal from '../securityDetailModal';
 
-import { apiMarketActions } from '../../../../../actions/apiMarket';
-import { getApiMarketValue } from '../../../../../utils';
-import api from '../../../../../api/apiManage'
+import { apiMarketActions } from '../../actions/apiMarket';
+import { getApiMarketValue } from '../../utils';
+import api from '../../api/apiManage'
 
 @connect(state => {
     return {
@@ -27,6 +28,7 @@ class ApiDetailSecurity extends React.Component {
     state = {
         isLimitModalVisible: false,
         isSecurityModalVisible: false,
+        securityDetailModalVisible: false,
         randomKey: null,
         securityList: []
     }
@@ -74,7 +76,7 @@ class ApiDetailSecurity extends React.Component {
     }
     renderSecurityList (securityList = []) {
         return securityList.map((security) => {
-            return <span key={security.id}>{security.name}</span>
+            return <a onClick={this.showSecurityDetail.bind(this, security)} key={security.id}>{security.name}</a>
         }).reduce((arrs, currentArr) => {
             if (arrs.length) {
                 return arrs.concat(['，', currentArr])
@@ -83,9 +85,15 @@ class ApiDetailSecurity extends React.Component {
             }
         }, [])
     }
+    showSecurityDetail (security) {
+        this.setState({
+            securityDetailModalVisible: true,
+            securityData: security
+        })
+    }
     render () {
-        const { apiId } = this.props;
-        const { isLimitModalVisible, isSecurityModalVisible, randomKey, securityList } = this.state;
+        const { apiId, disableEdit } = this.props;
+        const { isLimitModalVisible, isSecurityModalVisible, randomKey, securityList, securityData, securityDetailModalVisible } = this.state;
         const reqLimit = this.getValue('reqLimit');
         return (
             <div style={{ paddingLeft: 30, marginTop: '20px' }}>
@@ -93,11 +101,11 @@ class ApiDetailSecurity extends React.Component {
                 <div style={{ marginTop: '10px' }}>
                     <p data-title="调用次数限制：" className="pseudo-title p-line">
                         {reqLimit} 次/秒
-                        <a style={{ marginLeft: '8px' }} onClick={this.showLimitModal.bind(this)}>修改</a>
+                        {!disableEdit && <a style={{ marginLeft: '8px' }} onClick={this.showLimitModal.bind(this)}>修改</a>}
                     </p>
                     <p data-title="安全组：" className="pseudo-title p-line">
                         {this.renderSecurityList(securityList)}
-                        <a style={{ marginLeft: '8px' }} onClick={this.showSecurityModal.bind(this)}>修改</a>
+                        {!disableEdit && <a style={{ marginLeft: '8px' }} onClick={this.showSecurityModal.bind(this)}>修改</a>}
                     </p>
                 </div>
                 <LimitModal
@@ -115,6 +123,15 @@ class ApiDetailSecurity extends React.Component {
                     onOk={this.fetchData}
                     apiId={apiId}
                     data={securityList}
+                />
+                <SecurityDetailModal
+                    data={securityData}
+                    visible={securityDetailModalVisible}
+                    closeModal={() => {
+                        this.setState({
+                            securityDetailModalVisible: false
+                        })
+                    }}
                 />
             </div>
         )

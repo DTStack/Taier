@@ -16,6 +16,14 @@
     transform: translateY(-50%);
     
 }
+.m-table {
+    .ant-table-tbody,
+    .ant-table-thead{
+        .text-padding {
+            padding-left: 20px;
+        }
+    }
+}
 .state-pass{
     position: relative;
 }

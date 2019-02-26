@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import moment from 'moment';
 
 import './style.scss';
-import SecurityDetailModal from '../../components/securityDetailModal';
 import RegisterSection from './register';
 import CreateSection from './create';
 
@@ -48,23 +47,6 @@ class Content extends Component {
             return null;
         }
     }
-    showSecurityDetail (security) {
-        this.setState({
-            securityModalVisible: true,
-            securityData: security
-        })
-    }
-    renderSecurityListView (securityList) {
-        return securityList.map((security) => {
-            return <a onClick={this.showSecurityDetail.bind(this, security)} key={security.id}>{security.name}</a>
-        }).reduce((arrs, currentArr) => {
-            if (arrs.length) {
-                return arrs.concat(['，', currentArr])
-            } else {
-                return arrs.concat(currentArr)
-            }
-        }, [])
-    }
     render () {
         const {
             callUrl,
@@ -77,17 +59,16 @@ class Content extends Component {
             showRecord,
             showMarketInfo, // 是否显示订购情况
             showUserInfo, // 是否显示用户个人的调用信息
-            showSecurity, // 是否显示安全组
-            securityList,
+            showReqLimit, // 是否显示调用限制
             registerInfo,
             showApiConfig, // 是否显示api的配置信息
             apiConfig = {} // api配置信息
         } = this.props;
-        const { securityData, securityModalVisible } = this.state;
         const isManage = mode == 'manage';
         const showExt = isManage;
         const isGET = this.getValue('reqMethod') == API_METHOD.GET
         let reqJson = this.getValue('reqJson');
+        const apiPath = this.getValue('apiPath');
 
         if (isGET) {
             reqJson = Object.entries(reqJson).map(
@@ -113,12 +94,11 @@ class Content extends Component {
                                 <p data-title="后端Path：" className="pseudo-title p-line">{registerInfo.originalPath}</p>
                             </React.Fragment>
                         )}
-                        <p data-title="API path：" className="pseudo-title p-line">{this.getValue('apiPath')}</p>
-                        {!showExt && (
-                            <p data-title="调用次数限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
+                        {apiPath && (
+                            <p data-title="API path：" className="pseudo-title p-line">{apiPath}</p>
                         )}
-                        {showSecurity && (
-                            <p data-title="安全组：" className="pseudo-title p-line">{this.renderSecurityListView(securityList)}</p>
+                        {showReqLimit && (
+                            <p data-title="调用次数限制：" className="pseudo-title p-line">{this.getValue('reqLimit')} 次/秒</p>
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
@@ -138,6 +118,13 @@ class Content extends Component {
                         )}
                     </div>
                 </section>
+                {showMarketInfo && <section style={{ marginTop: 19.3 }}>
+                    <h1 className="title-border-l-blue">调用订购情况</h1>
+                    <div style={{ marginTop: 10 }}>
+                        <span data-title="累计调用次数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('apiCallNum')}</span>
+                        <span data-title="订购人数：" className="pseudo-title p-line api_item-margin">{this.getValueCallInfo('applyNum')}</span>
+                    </div>
+                </section>}
                 {isRegister ? (
                     <RegisterSection
                         isManage={isManage}
@@ -146,24 +133,13 @@ class Content extends Component {
                     />
                 ) : (<CreateSection
                     showApiConfig={showApiConfig}
-                    showMarketInfo={showMarketInfo}
                     apiConfig={apiConfig}
                     reqJson={reqJson}
                     isGET={isGET}
                     getValue={this.getValue.bind(this)}
-                    getValueCallInfo={this.getValueCallInfo.bind(this)}
                     getRequestDataSource={this.getRequestDataSource.bind(this)}
                     getResponseDataSource={this.getResponseDataSource.bind(this)}
                 />)}
-                <SecurityDetailModal
-                    data={securityData}
-                    visible={securityModalVisible}
-                    closeModal={() => {
-                        this.setState({
-                            securityModalVisible: false
-                        })
-                    }}
-                />
             </div>
         )
     }

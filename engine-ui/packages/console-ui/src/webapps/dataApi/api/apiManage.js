@@ -68,6 +68,9 @@ export default {
     checkNameExist (params) {
         return http.post(req.CHECK_API_IS_EXIST, params);
     },
+    checkHostVaild (params) {
+        return http.post(req.CHECK_HOST_PATH_IS_EXIST, params);
+    },
     getSecuritySimpleList (params) {
         return http.post(req.GET_SECURITY_SIMPLE_LIST, params)
     },

@@ -227,6 +227,7 @@ class NewApi extends Component {
             })
             newState.registerParams.successValue = data.successRespJson;
             newState.registerParams.errorValue = data.errorRespJson;
+            newState.registerParams.bodyDesc = data.bodyDesc;
             newState.registerParams.inputParam = inputParam.map((item) => {
                 return new InputColumnModel(item);
             })
@@ -380,6 +381,7 @@ class NewApi extends Component {
         result.successRespJson = registerParams.successValue;
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
+        result.bodyDesc = registerParams.bodyDesc;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item) => {
             return {
                 ...item,
@@ -412,11 +414,12 @@ class NewApi extends Component {
         params.apiType = isRegister ? API_TYPE.REGISTER : API_TYPE.NORMAL;
         return params;
     }
-    apiTest (values) {
-        const params = this.createApiServerParams();
+    apiTest (values, extValues = {}) {
+        let params = this.createApiServerParams();
         const { pageNo, pageSize, ...other } = values;
         params.pageNo = pageNo;
         params.pageSize = pageSize;
+        params = { ...params, ...extValues };
         const keys = Object.entries(other);
         const inFields = {};
         keys.map(
