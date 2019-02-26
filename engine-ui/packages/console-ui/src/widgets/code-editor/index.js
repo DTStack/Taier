@@ -100,15 +100,15 @@ class CodeEditor extends Component {
                     /**
                     * 不在底部并且不设置自动滚到底部，则滚到原来位置
                     */
-                    Promise.resolve().then(() => {
-                        this.self.scrollTo(scrollInfo.left, scrollInfo.top)
-                    })
+                    this.self.scrollTo(scrollInfo.left, scrollInfo.top)
                 } else if (isInBottom) {
                     /**
                      * 在底部，则自动到底部
+                     * 需要等setValue这个动作结束之后，再获取内容的高度。
                      */
                     Promise.resolve().then(() => {
-                        this.self.scrollTo(scrollInfo.left, scrollInfo.height)
+                        let nowScrollInfo = this.self.getScrollInfo();
+                        this.self.scrollTo(nowScrollInfo.left, nowScrollInfo.height)
                     })
                 }
             }
