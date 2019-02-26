@@ -12,7 +12,7 @@ import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 import DataManageAction from '../store/modules/dataManage/actionCreator';
-import { getTaskTypes, getAnalyDataSourceLists } from '../store/modules/offlineTask/comm';
+import { getTaskTypes } from '../store/modules/offlineTask/comm';
 const propType = {
     children: PropTypes.node
 }
@@ -28,7 +28,6 @@ class Container extends Component {
         dispatch(ProjectAction.getAllProjects())
         dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
         dispatch(getTaskTypes());
-        dispatch(getAnalyDataSourceLists());
         dispatch(updateApp(rdosApp))
         this.initProject()
     }
