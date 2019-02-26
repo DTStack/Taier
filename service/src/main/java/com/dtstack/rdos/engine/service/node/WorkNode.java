@@ -221,7 +221,7 @@ public class WorkNode {
     public void saveCache(JobClient jobClient, int stage){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(engineJobCacheDao.getJobById(jobClient.getTaskId()) != null){
-            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress);
+            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
         }else{
             engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
         }
