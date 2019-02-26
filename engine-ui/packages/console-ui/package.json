@@ -101,7 +101,7 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "webpack-dev-server --progress --inline --config build/dev.js --open",
-    "build": "npm install && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
+    "build": "npm install --unsafe-perm=true --allow-root --save-dev && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",
     "release": "./scripts/release.sh",
