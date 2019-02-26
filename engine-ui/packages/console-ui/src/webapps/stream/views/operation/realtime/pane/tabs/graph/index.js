@@ -1,9 +1,10 @@
 import React from 'react'
 
-import { Radio, Collapse, Icon, Tooltip } from 'antd'
-
+import { Radio, Collapse, Icon, Tooltip, Alert } from 'antd'
 import AlarmBaseGraph from './baseGraph';
-import { TIME_TYPE, CHARTS_COLOR, TASK_TYPE } from '../../../../../../comm/const';
+
+import utils from 'utils';
+import { TIME_TYPE, CHARTS_COLOR, TASK_TYPE, DATA_SOURCE_TEXT } from '../../../../../../comm/const';
 import Api from '../../../../../../api'
 
 const RadioButton = Radio.Button;
@@ -49,10 +50,12 @@ const defaultData = {
 class StreamDetailGraph extends React.Component {
     state = {
         time: defaultTimeValue,
-        lineDatas: defaultData
+        lineDatas: defaultData,
+        sourceStatusList: []
     }
     componentDidMount () {
         this.initData();
+        this.checkSourceStatus();
     }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
@@ -61,11 +64,26 @@ class StreamDetailGraph extends React.Component {
         if (oldData && data && oldData.id !== data.id) {
             this.clear();
             this.initData(data)
+            this.checkSourceStatus(data);
         }
     }
     clear () {
         this.setState({
-            lineDatas: defaultData
+            lineDatas: defaultData,
+            sourceStatusList: []
+        })
+    }
+    checkSourceStatus (data) {
+        data = data || this.props.data;
+        Api.checkSourceStatus({
+            taskId: data.id
+        }).then((res) => {
+            if (res.code == 1) {
+                let data = res.data || {};
+                this.setState({
+                    sourceStatusList: Object.entries(data)
+                })
+            }
         })
     }
     setLineData (data = []) {
@@ -200,6 +218,17 @@ class StreamDetailGraph extends React.Component {
             time: e.target.value
         }, this.initData.bind(this))
     }
+    renderAlertMsg () {
+        const { sourceStatusList = [] } = this.state;
+        const msg = utils.textOverflowExchange(sourceStatusList.map(([sourceName, type]) => {
+            return `${sourceName}(${DATA_SOURCE_TEXT[type]})`
+        }).join('，'), 60);
+        return msg ? <Alert
+            message={`数据源${msg}连接异常`}
+            type="warning"
+            showIcon
+        /> : null
+    }
     render () {
         const { time, lineDatas } = this.state;
         const { data = {} } = this.props;
@@ -208,7 +237,10 @@ class StreamDetailGraph extends React.Component {
 
         return (
             <div className="pane-graph-box">
-                <header className="graph-header" style={{ padding: '10px 20px 10px 20px', overflow: 'hidden' }}>
+                <header className="graph-header">
+                    <div style={{ flexGrow: 1, marginRight: '10px' }}>
+                        {this.renderAlertMsg()}
+                    </div>
                     <span className="m-radio-group" style={{ float: 'right' }}>
                         <Tooltip
                             title="刷新"
