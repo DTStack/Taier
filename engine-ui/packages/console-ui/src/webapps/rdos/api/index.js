@@ -395,6 +395,9 @@ export default {
     getTaskTypes(params) {
         return http.post(offlineReq.GET_TASK_TYPES, params)
     },
+    getAnalyDataSourceLists(params) {
+        return http.post(offlineReq.GET_ANALY_DTATSOURCE_LISTS, params)
+    },
     getJobById(params) {
         return http.post(offlineReq.GET_JOB_BY_ID, params)
     },

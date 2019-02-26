@@ -40,11 +40,19 @@ const tables = (state = {}, action) => {
         default: return newState;
     }
 }
-
+const analyDataSourceLists = (state = [], action) => {
+    switch (action.type) {
+        case commAction.GET_ANALY_DATASOURCE_LISTS: {
+            return action.payload;
+        }
+        default: return state;
+    }
+}
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
-    tables
+    tables,
+    analyDataSourceLists
 });
 
 /**
@@ -66,7 +74,18 @@ export const getTableList = (projectId) => {
         })
     }
 }
-
+export const getAnalyDataSourceLists = (params) => {
+    return (dispatch, getState) => {
+        Api.getAnalyDataSourceLists(params).then((res) => {
+            if (res.code == 1) {
+                dispatch({
+                    type: commAction.GET_ANALY_DATASOURCE_LISTS,
+                    payload: res.data
+                })
+            }
+        })
+    }
+}
 export const getTaskTypes = () => {
     return (dispatch, getState) => {
         const currentState = getState();

@@ -20,7 +20,8 @@ const Option = Select.Option;
 const DATAMAP_TYPE = {
     PRE_SUM: 0,
     TIME_SEQUENCE: 1,
-    FILTER: 2
+    FILTER: 2,
+    LUCENE: 3
 }
 
 export const formItemLayout = { // 表单常用布局
@@ -75,12 +76,17 @@ class DataMapForm extends Component {
             value={config ? config.selectSql : ''}
         />
 
-        const tableColumns = tableData ? tableData.columns : [];
+        let tableColumns = tableData ? tableData.columns : [];
 
         const timeColumnsOptions = tableColumns && tableColumns.map(opt => (
             <Option key={`${opt.name}`} value={`${opt.name}`}>{opt.name}</Option>
         ))
-
+        const timeStringColumns = tableColumns && tableColumns.filter(item => {
+            return item.type == 'string'
+        })
+        const timeStringColumnsOptions = timeStringColumns && timeStringColumns.map(opt => (
+            <Option key={`${opt.name}`} value={`${opt.name}`}>{opt.name}</Option>
+        ))
         const timeColumnsOptionsForSeq = timestampColumns && timestampColumns.map(opt =>
             <Option key={`${opt.name}`} value={`${opt.name}`}>{opt.name}</Option>
         )
@@ -147,12 +153,12 @@ class DataMapForm extends Component {
                             rules: [
                                 {
                                     required: true,
-                                    message: '时间字段不可为空！'
+                                    message: '索引字段不可为空！'
                                 }
                             ],
                             initialValue: config ? config.columns.split(',') : tableColumns.length > 0 ? [tableColumns[0].name] : []
                         })(
-                            <Select mode="multiple" placeholder="请选择时间字段" disabled={!isCreate}>
+                            <Select mode="multiple" placeholder="请选择索引字段" disabled={!isCreate}>
                                 {timeColumnsOptions}
                             </Select>
                         )}
@@ -186,6 +192,25 @@ class DataMapForm extends Component {
                             </RadioGroup>
                         )}
                         <HelpDoc style={relativeStyle} doc="isCompressIndex" />
+                    </FormItem>
+                ])
+            }
+            case DATAMAP_TYPE.LUCENE: {
+                return ([
+                    <FormItem key="columns" {...formItemLayout} label="索引字段" hasFeedback>
+                        {getFieldDecorator('configJSON.columns', {
+                            rules: [
+                                {
+                                    required: true,
+                                    message: '索引字段不可为空！'
+                                }
+                            ],
+                            initialValue: config ? config.columns.split(',') : timeStringColumns.length > 0 ? [timeStringColumns[0].name] : []
+                        })(
+                            <Select mode="multiple" placeholder="请选择索引字段" disabled={!isCreate}>
+                                {timeStringColumnsOptions}
+                            </Select>
+                        )}
                     </FormItem>
                 ])
             }
@@ -283,6 +308,7 @@ class DataMapForm extends Component {
                             <Radio value={DATAMAP_TYPE.PRE_SUM}>预聚合</Radio>
                             <Radio value={DATAMAP_TYPE.TIME_SEQUENCE} disabled={isDisable}>时间序列</Radio>
                             <Radio value={DATAMAP_TYPE.FILTER}>布隆过滤器</Radio>
+                            <Radio value={DATAMAP_TYPE.LUCENE}>Lucene</Radio>
                         </RadioGroup>
                     )}
                     <HelpDoc style={relativeStyle} doc="dataMapTypeSummary" />

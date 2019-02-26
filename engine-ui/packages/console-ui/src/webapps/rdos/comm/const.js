@@ -149,7 +149,8 @@ export const TASK_TYPE = { // 任务类型
     ML: 8,
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
-    DATA_COLLECTION: 11// 实时采集
+    DATA_COLLECTION: 11, // 实时采集
+    CARBONSQL: 12 // CarbonSQL
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
@@ -424,6 +425,10 @@ export const offlineTaskTypeFilter = [
         id: 10,
         text: 'HadoopMR',
         value: TASK_TYPE.HAHDOOPMR
+    }, {
+        id: 12,
+        text: 'CarbonSQL',
+        value: TASK_TYPE.CARBONSQL
     }]
 
 export const offlineTaskPeriodFilter = [{
