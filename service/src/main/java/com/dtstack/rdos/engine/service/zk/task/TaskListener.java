@@ -66,7 +66,7 @@ public class TaskListener implements Runnable{
 						JobResult jobResult = jobClient.getJobResult();
 						String appId = jobResult.getData(JobResult.EXT_ID_KEY);
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId);
-						WorkNode.getInstance().saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString(), null);
+						WorkNode.getInstance().saveCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
 
 					}else{//设置为失败
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
@@ -83,7 +83,7 @@ public class TaskListener implements Runnable{
 						String appId = jobResult.getData(JobResult.EXT_ID_KEY);
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
 						rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
-						WorkNode.getInstance().saveCache(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), EJobCacheStage.IN_SUBMIT_QUEUE.getStage(), jobClient.getParamAction().toString(), null);
+						WorkNode.getInstance().saveCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
 
 					}else{
 					    rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());

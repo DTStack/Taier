@@ -19,6 +19,7 @@ CREATE TABLE `rdos_engine_batch_job` (
   `exec_start_time` datetime  COMMENT '执行开始时间',
   `exec_end_time` datetime  COMMENT '执行结束时间',
   `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
+  `retry_num` int(10) NOT NULL DEFAULT '0',
   `log_info` mediumtext COMMENT '错误信息',
   `engine_log` longtext COMMENT '引擎错误信息',
   `plugin_info_id` int(11) COMMENT '插件信息',
@@ -42,6 +43,7 @@ CREATE TABLE `rdos_engine_stream_job` (
   `exec_start_time` datetime  DEFAULT CURRENT_TIMESTAMP COMMENT '执行开始时间',
   `exec_end_time` datetime  DEFAULT CURRENT_TIMESTAMP COMMENT '执行结束时间',
   `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
+  `retry_num` int(10) NOT NULL DEFAULT '0',
   `log_info` mediumtext COMMENT '错误信息',
   `engine_log` longtext COMMENT '引擎错误信息',
   `plugin_info_id` int(11) COMMENT '插件信息',
@@ -59,11 +61,11 @@ create table `rdos_stream_task_checkpoint`(
 	`task_id` varchar(64) not null COMMENT '任务id',
 	`task_engine_id` varchar(64) not null COMMENT '任务对于的引擎id',
 	`checkpoint` longtext,
-	`trigger_start` TIMESTAMP,
-  `trigger_end` TIMESTAMP,
+	`trigger_start` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `trigger_end` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	`gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
-  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
-  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+    `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
 	PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -79,6 +81,9 @@ CREATE TABLE `rdos_engine_job_cache` (
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `job_priority` BIGINT(20) NOT NULL DEFAULT '0' COMMENT '任务优先级',
+  `group_name` VARCHAR(256) NOT NULL DEFAULT '' COMMENT 'group name',
+
   PRIMARY KEY (`id`),
   unique KEY `index_job_id` (`job_id`(128))
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;

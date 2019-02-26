@@ -508,12 +508,7 @@ public class FlinkClient extends AbsClient {
         try{
             response = PoolHttpClient.get(reqUrl);
         } catch (RdosException e){
-            //如果查询不到有可能数据被flink清除了
-            if((HttpStatus.SC_NOT_FOUND + "").equals(e.getErrorMessage())){
-                return RdosTaskStatus.NOTFOUND;
-            } else {
-                return null;
-            }
+            return RdosTaskStatus.NOTFOUND;
         } catch (IOException e) {
             return null;
         }
@@ -539,7 +534,7 @@ public class FlinkClient extends AbsClient {
             } catch (RdosException appIdNotFindEx) {
             }
 
-            if (yarnAppId !=null && appId.toString().equals(yarnAppId.toString())){
+            if (yarnAppId != null && appId.toString().equals(yarnAppId.toString())){
                 logger.error("", e);
                 return RdosTaskStatus.NOTFOUND;
             } else {
@@ -601,30 +596,45 @@ public class FlinkClient extends AbsClient {
         if (FlinkYarnMode.PER_JOB == flinkYarnMode){
             return "${monitor}";
         }else if (FlinkYarnMode.NEW == flinkYarnMode) {
-            return getNewReqUrl();
+            return getReqUrl(flinkClient);
         } else {
-            return getLegacyReqUrl();
+            return getLegacyReqUrl(yarnClient, flinkClient.getClusterId().toString());
         }
     }
 
     public String getReqUrl(ClusterClient clusterClient){
-        return clusterClient.getWebInterfaceURL();
+
+        boolean isYarnClusterClient = clusterClient instanceof YarnClusterClient;
+        if(!isYarnClusterClient){
+            return clusterClient.getWebInterfaceURL();
+        }
+
+        try{
+            YarnClusterClient yarnClusterClient = (YarnClusterClient) clusterClient;
+            Field clusterDescField = YarnClusterClient.class.getDeclaredField("clusterDescriptor");
+            clusterDescField.setAccessible(true);
+            AbstractYarnClusterDescriptor clusterDesc = (AbstractYarnClusterDescriptor) clusterDescField.get(yarnClusterClient);
+            YarnClient currYarnClient = clusterDesc.getYarnClient();
+            clusterDescField.setAccessible(false);
+
+            return getLegacyReqUrl(currYarnClient, clusterClient.getClusterId().toString());
+        }catch (Exception e){
+            logger.error("", e);
+            return clusterClient.getWebInterfaceURL();
+        }
     }
 
-    private String getNewReqUrl(){
-        return flinkClient.getWebInterfaceURL();
-    }
 
     /**
      * 获取jobMgr-web地址
      * @return
      */
-    private String getLegacyReqUrl(){
+    private String getLegacyReqUrl(YarnClient currYarnClient, String appId){
         String url = "";
         try{
-            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+            Field rmClientField = currYarnClient.getClass().getDeclaredField("rmClient");
             rmClientField.setAccessible(true);
-            Object rmClient = rmClientField.get(yarnClient);
+            Object rmClient = rmClientField.get(currYarnClient);
 
             Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
             hField.setAccessible(true);
@@ -646,11 +656,9 @@ public class FlinkClient extends AbsClient {
                 addr = yarnConf.get("yarn.resourcemanager.webapp.address");
             }
 
-            String appId = flinkClient.getClusterId().toString();
             YarnApplicationState yarnApplicationState = yarnClient.getApplicationReport((ApplicationId) flinkClient.getClusterId()).getYarnApplicationState();
             if (YarnApplicationState.RUNNING != yarnApplicationState){
-                this.initClient();
-                appId = flinkClient.getClusterId().toString();
+                logger.error("curr flink application {} state is not running!", appId);
             }
 
             url = String.format(FLINK_URL_FORMAT, addr, appId);
@@ -727,7 +735,7 @@ public class FlinkClient extends AbsClient {
 
         try {
             String exceptPath = String.format(FlinkRestParseUtil.EXCEPTION_INFO, jobId);
-            String except = getMessageByHttp(exceptPath, reqURL);
+            String except = getExceptionInfo(exceptPath, reqURL);
             String jobPath = String.format(FlinkRestParseUtil.JOB_INFO, jobId);
             String jobInfo = getMessageByHttp(jobPath, reqURL);
             String accuPath = String.format(FlinkRestParseUtil.JOB_ACCUMULATOR_INFO, jobId);
@@ -740,6 +748,32 @@ public class FlinkClient extends AbsClient {
             logger.error("", e);
             return ExceptionUtil.getTaskLogError();
         }
+    }
+
+    /**
+     *  perjob模式下任务完成后进入jobHistory会有一定的时间
+     */
+    private String getExceptionInfo(String exceptPath,String reqURL){
+        String exceptionInfo = "";
+        int i = 0;
+        while (i < 10){
+            try {
+                Thread.sleep(500);
+                exceptionInfo = getMessageByHttp(exceptPath, reqURL);
+                return exceptionInfo;
+            } catch (RdosException e){
+                if (!e.getErrorMessage().contains("404")){
+                    throw e;
+                }
+            } catch (Exception ignore){
+
+            }finally {
+                i++;
+            }
+
+        }
+
+        return exceptionInfo;
     }
 
     @Override

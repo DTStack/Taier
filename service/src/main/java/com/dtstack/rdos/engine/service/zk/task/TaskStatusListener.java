@@ -55,6 +55,9 @@ public class TaskStatusListener implements Runnable{
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
     public final static int NOT_FOUND_LIMIT_TIMES = 300;
 
+    /**最大允许查询不到的任务信息最久时间*/
+    public final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
+
     public final static String SYS_CANCLED_LOG = "{\"root-exception\":\"系统查询不到任务状态,主动设置为取消状态\"}";
 
     public final static String FLINK_CP_HISTORY_KEY = "history";
@@ -66,7 +69,7 @@ public class TaskStatusListener implements Runnable{
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
 	/**记录job 连续某个状态的频次*/
-	private Map<String, Pair<Integer, Integer>> jobStatusFrequency = Maps.newConcurrentMap();
+	private Map<String, TaskStatusFrequency> jobStatusFrequency = Maps.newConcurrentMap();
 
     private RdosEngineStreamJobDAO rdosStreamTaskDAO = new RdosEngineStreamJobDAO();
 
@@ -294,16 +297,19 @@ public class TaskStatusListener implements Runnable{
                                           int computeType, JobIdentifier jobIdentifier, String pluginInfo) throws ExecutionException {
 
 
-        Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
+        TaskStatusFrequency statusPair = updateJobStatusFrequency(jobId, status);
         String engineTaskId = jobIdentifier.getEngineJobId();
 
-        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
+        if(statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()){
 
-            status = RdosTaskStatus.CANCELED.getStatus();
-            rdosEngineJobCacheDao.deleteJob(jobId);
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-            rdosStreamTaskDAO.updateTaskStatus(jobId, status);
-            updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
+            if(statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES ||
+                    System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL){
+                status = RdosTaskStatus.CANCELED.getStatus();
+                rdosEngineJobCacheDao.deleteJob(jobId);
+                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                rdosStreamTaskDAO.updateTaskStatus(jobId, status);
+                updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
+            }
         }
 
         //运行中的stream任务需要更新checkpoint 并且 控制频率
@@ -372,14 +378,16 @@ public class TaskStatusListener implements Runnable{
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId, String zkTaskId, int computeType){
 
-        Pair<Integer, Integer> statusPair = updateJobStatusFrequency(jobId, status);
-        if(statusPair.getLeft() == RdosTaskStatus.NOTFOUND.getStatus().intValue() && statusPair.getRight() >= NOT_FOUND_LIMIT_TIMES){
-
-            status = RdosTaskStatus.CANCELED.getStatus();
-            rdosEngineJobCacheDao.deleteJob(jobId);
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-            rdosBatchEngineJobDAO.updateJobStatusAndExecTime(jobId, status);
-            updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
+        TaskStatusFrequency statusPair = updateJobStatusFrequency(jobId, status);
+        if(statusPair.getStatus() == RdosTaskStatus.NOTFOUND.getStatus().intValue()){
+            if(statusPair.getNum() >= NOT_FOUND_LIMIT_TIMES ||
+                    System.currentTimeMillis() - statusPair.getCreateTime() >= NOT_FOUND_LIMIT_INTERVAL){
+                status = RdosTaskStatus.CANCELED.getStatus();
+                rdosEngineJobCacheDao.deleteJob(jobId);
+                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                rdosBatchEngineJobDAO.updateJobStatusAndExecTime(jobId, status);
+                updateJobEngineLog(jobId, SYS_CANCLED_LOG, computeType);
+            }
         }
 
         if(RdosTaskStatus.needClean(status)){
@@ -394,18 +402,18 @@ public class TaskStatusListener implements Runnable{
      * @param status
      * @return
      */
-    private Pair<Integer, Integer> updateJobStatusFrequency(String jobId, Integer status){
+    private TaskStatusFrequency updateJobStatusFrequency(String jobId, Integer status){
 
-        Pair<Integer, Integer> statusPair = jobStatusFrequency.get(jobId);
-        statusPair = statusPair == null ? new MutablePair<>(status, 0) : statusPair;
-        if(statusPair.getLeft() == status.intValue()){
-            statusPair.setValue(statusPair.getRight() + 1);
+        TaskStatusFrequency statusFrequency = jobStatusFrequency.get(jobId);
+        statusFrequency = statusFrequency == null ? new TaskStatusFrequency(status) : statusFrequency;
+        if(statusFrequency.getStatus() == status.intValue()){
+            statusFrequency.setNum(statusFrequency.getNum() + 1);
         }else{
-            statusPair = new MutablePair<>(status, 1);
+            statusFrequency = new TaskStatusFrequency(status);
         }
 
-        jobStatusFrequency.put(jobId, statusPair);
-        return statusPair;
+        jobStatusFrequency.put(jobId, statusFrequency);
+        return statusFrequency;
     }
 
     public void updateJobStatus(String jobId, Integer computeType, Integer status) {

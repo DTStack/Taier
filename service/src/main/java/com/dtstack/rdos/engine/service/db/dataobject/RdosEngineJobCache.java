@@ -19,6 +19,8 @@ public class RdosEngineJobCache extends DataObject{
     private String nodeAddress;
     private String jobName;
     private Integer stage;
+    private Long jobPriority;
+    private String groupName;
 
     public String getJobId() {
         return jobId;
@@ -74,5 +76,21 @@ public class RdosEngineJobCache extends DataObject{
 
     public void setJobName(String jobName) {
         this.jobName = jobName;
+    }
+
+    public Long getJobPriority() {
+        return jobPriority;
+    }
+
+    public void setJobPriority(Long jobPriority) {
+        this.jobPriority = jobPriority;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 }

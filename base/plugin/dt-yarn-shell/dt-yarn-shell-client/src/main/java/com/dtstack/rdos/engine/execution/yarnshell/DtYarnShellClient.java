@@ -14,6 +14,7 @@ import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.client.Client;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
@@ -83,9 +84,9 @@ public class DtYarnShellClient extends AbsClient {
             } else if(value instanceof Double) {
                 conf.setDouble(key, (Double)value);
             } else if(value instanceof Map) {
-                Map<String,String> map = (Map<String, String>) value;
-                for(Map.Entry<String,String> entry : map.entrySet()) {
-                    conf.set(entry.getKey(), entry.getValue());
+                Map<String,Object> map = (Map<String, Object>) value;
+                for(Map.Entry<String,Object> entry : map.entrySet()) {
+                    conf.set(entry.getKey(), MapUtils.getString(map,entry.getKey()));
                 }
             } else {
                 conf.set(key, value.toString());

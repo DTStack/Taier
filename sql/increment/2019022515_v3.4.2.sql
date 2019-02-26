@@ -1,0 +1,2 @@
+alter table rdos_engine_job_cache add COLUMN job_priority BIGINT(20) DEFAULT NULL COMMENT '任务优先级';
+alter table rdos_engine_job_cache add COLUMN group_name VARCHAR(256) DEFAULT NULL COMMENT 'group name';

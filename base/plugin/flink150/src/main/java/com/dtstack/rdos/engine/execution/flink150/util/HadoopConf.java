@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.flink150.util;
 
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.base.util.YarnConfTool;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.directory.api.util.Strings;
 import org.apache.hadoop.conf.Configuration;
@@ -128,6 +129,25 @@ public class HadoopConf {
         //非必须:如果多个hadoopclient之间不互相影响需要取消cache
         String disableCache = HadoopConfTool.getFsHdfsImplDisableCache(conf);
         configuration.set(HadoopConfTool.FS_HDFS_IMPL_DISABLE_CACHE, disableCache);
+
+        if(MapUtils.getString(conf, HadoopConfTool.DFS_HTTP_POLICY) != null){
+            configuration.set(HadoopConfTool.DFS_HTTP_POLICY, MapUtils.getString(conf, HadoopConfTool.DFS_HTTP_POLICY));
+        }
+
+        if(MapUtils.getString(conf, HadoopConfTool.DFS_DATA_TRANSFER_PROTECTION) != null){
+            configuration.set(HadoopConfTool.DFS_DATA_TRANSFER_PROTECTION, MapUtils.getString(conf, HadoopConfTool.DFS_DATA_TRANSFER_PROTECTION));
+        }
+
+        if(MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_HOSTS) != null){
+            configuration.set(HadoopConfTool.HADOOP_PROXYUSER_ADMIN_HOSTS, MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_HOSTS));
+        }
+
+        if(MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_GROUPS) != null){
+            configuration.set(HadoopConfTool.HADOOP_PROXYUSER_ADMIN_GROUPS, MapUtils.getString(conf, HadoopConfTool.HADOOP_PROXYUSER_ADMIN_GROUPS));
+        }
+
+        Boolean isAuth = MapUtils.getBoolean(conf, HadoopConfTool.IS_HADOOP_AUTHORIZATION, false);
+        configuration.set(HadoopConfTool.IS_HADOOP_AUTHORIZATION, isAuth.toString());
 
         if(Strings.isNotEmpty(HadoopConfTool.getAuthType(conf))){
             configuration.set(HadoopConfTool.HADOOP_AUTH_TYPE, HadoopConfTool.getAuthType(conf));

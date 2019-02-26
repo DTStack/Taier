@@ -52,6 +52,8 @@ public class RdosEngineBatchJob extends DataObject{
         this.applicationId = applicationId;
     }
 
+    private Integer retryNum;
+
     public String getJobId() {
         return jobId;
     }
@@ -138,5 +140,13 @@ public class RdosEngineBatchJob extends DataObject{
 
     public void setSourceType(Integer sourceType) {
         this.sourceType = sourceType;
+    }
+
+    public Integer getRetryNum() {
+        return retryNum;
+    }
+
+    public void setRetryNum(Integer retryNum) {
+        this.retryNum = retryNum;
     }
 }

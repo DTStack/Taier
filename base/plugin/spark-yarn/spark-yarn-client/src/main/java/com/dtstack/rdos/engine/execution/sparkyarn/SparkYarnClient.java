@@ -91,8 +91,6 @@ public class SparkYarnClient extends AbsClient {
 
     private Configuration yarnConf;
 
-    private org.apache.hadoop.conf.Configuration hadoopConf;
-
     private YarnClient yarnClient;
 
     public SparkYarnClient(){
@@ -121,7 +119,7 @@ public class SparkYarnClient extends AbsClient {
         String krb5ConfPath = sparkYarnConfig.getSparkKrb5ConfPath();
 
         try {
-            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, hadoopConf);
+            KerberosUtils.login(userPrincipal, userKeytabPath, krb5ConfPath, yarnConf);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -137,7 +135,6 @@ public class SparkYarnClient extends AbsClient {
         }
 
         yarnConf = customerConf.getYarnConfiguration();
-        hadoopConf = customerConf.getConfiguration();
     }
 
     @Override
