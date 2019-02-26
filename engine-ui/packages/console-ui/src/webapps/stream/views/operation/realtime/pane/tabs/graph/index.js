@@ -1,8 +1,9 @@
 import React from 'react'
 
 import { Radio, Collapse, Icon, Tooltip, Alert } from 'antd'
-
 import AlarmBaseGraph from './baseGraph';
+
+import utils from 'utils';
 import { TIME_TYPE, CHARTS_COLOR, TASK_TYPE, DATA_SOURCE_TEXT } from '../../../../../../comm/const';
 import Api from '../../../../../../api'
 
@@ -219,11 +220,11 @@ class StreamDetailGraph extends React.Component {
     }
     renderAlertMsg () {
         const { sourceStatusList = [] } = this.state;
-        const msg = sourceStatusList.map(([sourceName, type]) => {
+        const msg = utils.textOverflowExchange(sourceStatusList.map(([sourceName, type]) => {
             return `${sourceName}(${DATA_SOURCE_TEXT[type]})`
-        }).join('，');
+        }).join('，'), 60);
         return msg ? <Alert
-            message={msg}
+            message={`数据源${msg}连接异常`}
             type="warning"
             showIcon
         /> : null
