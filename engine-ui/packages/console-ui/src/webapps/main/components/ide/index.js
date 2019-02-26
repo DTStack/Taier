@@ -46,7 +46,7 @@ class IDEEditor extends Component {
             return <SplitPane
                 split="vertical"
                 minSize={500}
-                maxSize={-200}
+                maxSize={-300}
                 defaultSize="calc(100% - 250px)"
                 primary="first"
                 key="editor-split-pane"

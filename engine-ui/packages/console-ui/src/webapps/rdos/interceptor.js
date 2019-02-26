@@ -46,6 +46,7 @@ export function authAfterFormated (response) {
     switch (response.code) {
         case 1:
             return response;
+        case 10:
         case 0: // 需要登录
             Api.openLogin()
             return Promise.reject(response);
