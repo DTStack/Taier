@@ -40,19 +40,10 @@ const tables = (state = {}, action) => {
         default: return newState;
     }
 }
-const analyDataSourceLists = (state = [], action) => {
-    switch (action.type) {
-        case commAction.GET_ANALY_DATASOURCE_LISTS: {
-            return action.payload;
-        }
-        default: return state;
-    }
-}
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
-    tables,
-    analyDataSourceLists
+    tables
 });
 
 /**
@@ -69,18 +60,6 @@ export const getTableList = (projectId) => {
                     type: commAction.SET_TABLE_LIST,
                     payload: data.children,
                     key: projectId
-                })
-            }
-        })
-    }
-}
-export const getAnalyDataSourceLists = (params) => {
-    return (dispatch, getState) => {
-        Api.getAnalyDataSourceLists(params).then((res) => {
-            if (res.code == 1) {
-                dispatch({
-                    type: commAction.GET_ANALY_DATASOURCE_LISTS,
-                    payload: res.data
                 })
             }
         })
