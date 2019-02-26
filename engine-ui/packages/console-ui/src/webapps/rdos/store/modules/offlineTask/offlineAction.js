@@ -976,6 +976,17 @@ export const workbenchActions = (dispatch) => {
                 payload: data
             });
         },
+        // 获取工作流列表
+        getWorkFlowList (params) {
+            ajax.getWorkflowList(params).then(res => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: modalAction.GET_WORKFLOW_LIST,
+                        payload: res.data
+                    });
+                }
+            })
+        },
         toggleCreateScript: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_SCRIPT
