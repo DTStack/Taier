@@ -1,14 +1,11 @@
 package com.dtstack.rdos.engine.service.db.mapper;
 
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 
 /**
  * @author toutian
  */
 public interface RdosEngineStreamJobRetryMapper {
 
-    void insert(RdosEngineStreamJob rdosEngineStreamJob);
+    void insert(RdosEngineStreamJobRetry rdosEngineStreamJobRetry);
 }

@@ -105,4 +105,18 @@ public class RdosEngineStreamJobRetry extends DataObject{
 	public void setRetryNum(Integer retryNum) {
 		this.retryNum = retryNum;
 	}
+
+	public static RdosEngineStreamJobRetry toEntity(RdosEngineStreamJob streamJob) {
+		RdosEngineStreamJobRetry streamJobRetry = new RdosEngineStreamJobRetry();
+		streamJobRetry.setTaskId(streamJob.getTaskId());
+		streamJobRetry.setApplicationId(streamJob.getApplicationId());
+		streamJobRetry.setEngineTaskId(streamJob.getEngineTaskId());
+		streamJobRetry.setEngineLog(streamJob.getEngineLog());
+		streamJobRetry.setLogInfo(streamJob.getLogInfo());
+		streamJobRetry.setExecStartTime(streamJob.getExecStartTime());
+		streamJobRetry.setExecEndTime(streamJob.getExecEndTime());
+		streamJobRetry.setRetryNum(streamJob.getRetryNum());
+		streamJobRetry.setStatus(streamJob.getStatus());
+		return streamJobRetry;
+	}
 }

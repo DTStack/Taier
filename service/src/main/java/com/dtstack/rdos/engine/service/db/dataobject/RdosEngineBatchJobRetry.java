@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.service.db.dataobject;
 
 
+
 import java.util.Date;
 
 /**
@@ -107,5 +108,19 @@ public class RdosEngineBatchJobRetry extends DataObject{
 
     public void setRetryNum(Integer retryNum) {
         this.retryNum = retryNum;
+    }
+
+    public static RdosEngineBatchJobRetry toEntity(RdosEngineBatchJob batchJob) {
+        RdosEngineBatchJobRetry batchJobRetry = new RdosEngineBatchJobRetry();
+        batchJobRetry.setJobId(batchJob.getJobId());
+        batchJobRetry.setApplicationId(batchJob.getApplicationId());
+        batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
+        batchJobRetry.setEngineLog(batchJob.getEngineLog());
+        batchJobRetry.setLogInfo(batchJob.getLogInfo());
+        batchJobRetry.setExecStartTime(batchJob.getExecStartTime());
+        batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
+        batchJobRetry.setRetryNum(batchJob.getRetryNum());
+        batchJobRetry.setStatus(batchJob.getStatus());
+        return batchJobRetry;
     }
 }
