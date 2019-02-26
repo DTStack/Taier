@@ -87,6 +87,9 @@ class PatchData extends Component {
                         this.showAddResult(reqParams.fillName)
                         setTimeout(() => {
                             form.resetFields()
+                            this.setState({
+                                checked: false
+                            })
                         }, 500)
                     }
                 })
@@ -156,7 +159,10 @@ class PatchData extends Component {
 
     cancleModal = () => {
         this.setState({
-            selected: []
+            selected: [],
+            startTime: '00:00',
+            endTime: '23:59',
+            checked: false
         })
         this.props.form.resetFields()
         this.props.handCancel()
