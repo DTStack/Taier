@@ -12,7 +12,7 @@ import {
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import {
-    formItemLayout, MENU_TYPE, TASK_TYPE
+    formItemLayout, MENU_TYPE
 } from '../../../comm/const'
 import { getRandomInt } from '../../../../../funcs';
 // import FolderPicker from './folderTree';
@@ -28,7 +28,8 @@ const Option = Select.Option;
         defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
         resourceTreeData: state.offlineTask.resourceTree,
         taskTypes: state.offlineTask.comm.taskTypes,
-        tabs: state.offlineTask.workbench.tabs
+        tabs: state.offlineTask.workbench.tabs,
+        workFlowLists: state.offlineTask.modalShow.workFlowLists // 工作流列表
     }
 }, dispatch => {
     const benchActions = workbenchActions(dispatch)
@@ -110,9 +111,8 @@ class CloneToWorkflowModal extends React.Component {
         this.dtcount = 0;
     }
     workFlowListsOption () {
-        const { taskTreeData } = this.props;
-        const workFlowTreeData = taskTreeData && taskTreeData.children && taskTreeData.children.filter(item => item.taskType === TASK_TYPE.WORKFLOW);
-        return workFlowTreeData && workFlowTreeData.map(item => {
+        const { workFlowLists } = this.props;
+        return workFlowLists && workFlowLists.map(item => {
             return <Option
                 key={item.id}
                 value={item.id}

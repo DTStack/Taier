@@ -364,6 +364,7 @@ class FolderTree extends React.Component {
     }
     // 克隆任务至工作流
     cloneToWorkflow (data) {
+        this.props.getWorkFlowList({ taskType: TASK_TYPE.WORKFLOW })
         ajax.getOfflineTaskByID({
             id: data.id,
             lockVersion: data.readWriteLockVO.version
