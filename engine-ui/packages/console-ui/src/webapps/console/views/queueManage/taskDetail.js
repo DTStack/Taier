@@ -399,6 +399,18 @@ class TaskDetail extends Component {
                             loading: false,
                             total: data.queueSize
                         }
+                    }, () => {
+                        if (this.state.dataSource.length === 0 && (this.state.table.total != 0 && this.state.table.total % PAGE_SIZE) === 0) {
+                            this.setState({
+                                table: {
+                                    ...table,
+                                    loading: false,
+                                    pageIndex: this.state.table.pageIndex - 1
+                                }
+                            }, () => {
+                                this.getDetailTaskList()
+                            })
+                        }
                     })
                     console.log(res);
                 } else {
