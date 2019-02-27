@@ -184,6 +184,9 @@ export default {
     getCheckPoints(params) {
         return http.post(req.GET_CHECK_POINTS, params)
     },
+    checkSourceStatus(params) {
+        return http.post(req.CHECK_SOURCE_STATUS, params)
+    },
     publishRealtimeTask(params) {
         return http.post(req.PUBLISH_REALTIME_TASK, params)
     },

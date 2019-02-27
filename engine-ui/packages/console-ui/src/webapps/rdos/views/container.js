@@ -13,7 +13,6 @@ import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 import DataManageAction from '../store/modules/dataManage/actionCreator';
 import { getTaskTypes } from '../store/modules/offlineTask/comm';
-
 const propType = {
     children: PropTypes.node
 }

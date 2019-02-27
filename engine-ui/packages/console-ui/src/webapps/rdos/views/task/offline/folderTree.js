@@ -118,22 +118,47 @@ class FolderTree extends React.Component {
                 const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
                 const isLocked = data && data.readWriteLockVO && !data.readWriteLockVO.getLock; // 任务是否上锁
 
-                if (isWorkflowNode) return [];
+                if (isWorkflowNode) {
+                    return [{
+                        txt: '克隆至工作流',
+                        cb: this.cloneToWorkflow.bind(this, data)
+                    }];
+                }
 
                 if ((type === 'file' || isWorkflow)) {
-                    if (isLocked) {
-                        operations = [];
+                    if (isWorkflow) {
+                        if (isLocked) {
+                            operations = [];
+                        } else {
+                            operations = arr.concat([{
+                                txt: '编辑',
+                                cb: this.editTask.bind(this, data)
+                            }, {
+                                txt: '克隆',
+                                cb: this.cloneTask.bind(this, data)
+                            }, {
+                                txt: '删除',
+                                cb: this.deleteTask.bind(this, data)
+                            }])
+                        }
                     } else {
-                        operations = arr.concat([{
-                            txt: '编辑',
-                            cb: this.editTask.bind(this, data)
-                        }, {
-                            txt: '克隆',
-                            cb: this.cloneTask.bind(this, data)
-                        }, {
-                            txt: '删除',
-                            cb: this.deleteTask.bind(this, data)
-                        }])
+                        if (isLocked) {
+                            operations = [];
+                        } else {
+                            operations = arr.concat([{
+                                txt: '编辑',
+                                cb: this.editTask.bind(this, data)
+                            }, {
+                                txt: '克隆',
+                                cb: this.cloneTask.bind(this, data)
+                            }, {
+                                txt: '克隆至工作流',
+                                cb: this.cloneToWorkflow.bind(this, data)
+                            }, {
+                                txt: '删除',
+                                cb: this.deleteTask.bind(this, data)
+                            }])
+                        }
                     }
                 } else {
                     data.type = type;
@@ -337,7 +362,20 @@ class FolderTree extends React.Component {
                 }
             })
     }
-
+    // 克隆任务至工作流
+    cloneToWorkflow (data) {
+        this.props.getWorkFlowList({ taskType: TASK_TYPE.WORKFLOW })
+        ajax.getOfflineTaskByID({
+            id: data.id,
+            lockVersion: data.readWriteLockVO.version
+        })
+            .then(res => {
+                if (res.code === 1) {
+                    this.props.setModalDefault(res.data);
+                    this.props.toggleCloneToWorkflow();
+                }
+            })
+    }
     deleteTask (data) {
         const ctx = this
         confirm({

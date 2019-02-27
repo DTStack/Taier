@@ -90,6 +90,9 @@ export function taskTypeIcon (type, task = {}) {
             case TASK_TYPE.ML: {
                 return 's-mlicon';
             }
+            case TASK_TYPE.CARBONSQL: {
+                return 's-carbonsql';
+            }
             default:
                 return '';
         }
@@ -297,7 +300,7 @@ export function isRDB (type) {
  * @param {user} user
  */
 export function isProjectCouldEdit (project, user) {
-    const { adminUsers, projectType } = project;
+    const { adminUsers = [], projectType } = project;
     const isPro = projectType == PROJECT_TYPE.PRO;
     if (!isPro) {
         return true;

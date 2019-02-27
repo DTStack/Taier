@@ -23,6 +23,7 @@ export default {
     GET_TASK_LOG: `${RDOS_BASE_URL}/batch/batchServerLog/getLogsByJobId`, // 获取任务告警日志
     GLOBAL_SEARCH_TASK: `${RDOS_BASE_URL}/batch/batchTask/globalSearch`, // 全局搜索任务
     GET_TASK_TYPES: `${RDOS_BASE_URL}/batch/batchTask/getSupportJobTypes`, // 获取任务类型
+    GET_ANALY_DTATSOURCE_LISTS: `${RDOS_BASE_URL}/batch/batchDataSource/getAnalysisSource`, // 获取DTinsightAnalytics数据源下数据
     PUBLISH_TASK: `${RDOS_BASE_URL}/batch/batchTask/publishTask`, // 发布任务
     GET_CUSTOM_TASK_PARAMS: `${RDOS_BASE_URL}/batch/batchTask/getSysParams`, // 获取任务自定义参数
     FROZEN_TASK: `${RDOS_BASE_URL}/batch/batchTask/frozenTask`, // 冻结/解冻任务

@@ -18,7 +18,6 @@ import {
     formItemLayout, TASK_TYPE, MENU_TYPE, DATA_SYNC_TYPE,
     LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE
 } from '../../../comm/const'
-
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
@@ -32,7 +31,8 @@ class TaskForm extends React.Component {
         this.isEditExist = false;
         this.state = {
             value: 0,
-            operateModel: ''
+            operateModel: '',
+            analyDataSourceLists: []
         };
 
         this._resChange = false;
@@ -45,7 +45,21 @@ class TaskForm extends React.Component {
             operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
         })
     }
-
+    componentDidMount () {
+        this.getAnalyDataSourceLists();
+    }
+    /**
+     * 获取分析引擎数据源
+     */
+    getAnalyDataSourceLists = () => {
+        ajax.getAnalyDataSourceLists().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    analyDataSourceLists: res.data
+                })
+            }
+        })
+    }
     handleSelectTreeChange (value) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
@@ -94,8 +108,7 @@ class TaskForm extends React.Component {
             defaultData, taskTypes, createOrigin,
             labelPrefix, createFromGraph
         } = this.props;
-        const { operateModel } = this.state;
-
+        const { operateModel, analyDataSourceLists } = this.state;
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
          * 2. 有默认数据的情况分以下两种：
@@ -118,7 +131,10 @@ class TaskForm extends React.Component {
         const taskOptions = taskTypes.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>
         )
-
+        const dataSourceOptions = analyDataSourceLists && analyDataSourceLists.map(item => {
+            return <Option key={item.id} value={item.id}>{item.dataName}</Option>
+        })
+        const isCarbonSql = value === TASK_TYPE.CARBONSQL
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
         const isSyncTask = value == TASK_TYPE.SYNC
@@ -477,6 +493,27 @@ class TaskForm extends React.Component {
                         )}
                     </FormItem>
                 }
+                {
+                    isCarbonSql && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="数据源"
+                        >
+                            {getFieldDecorator('dataSourceId', {
+                                rules: [{
+                                    required: true, message: '请选择数据源'
+                                }],
+                                initialValue: this.isEditExist ? defaultData.dataSourceId : undefined
+                            })(
+                                <Select
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                >
+                                    {dataSourceOptions}
+                                </Select>
+                            )}
+                        </FormItem>
+                    )
+                }
                 <FormItem
                     {...formItemLayout}
                     label="描述"
@@ -570,7 +607,6 @@ class TaskModal extends React.Component {
 
         this.dtcount = 0;
     }
-
     handleSubmit () {
         const {
             addOfflineTask, defaultData, workflow,

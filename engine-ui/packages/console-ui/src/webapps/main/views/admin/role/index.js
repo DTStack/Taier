@@ -100,6 +100,9 @@ class AdminRole extends Component {
                     }, this.loadData.bind(true))
                 }
             }
+            this.setState({
+                loading: 'success'
+            })
         })
     }
 

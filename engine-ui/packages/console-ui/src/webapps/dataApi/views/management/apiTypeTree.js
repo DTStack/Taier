@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Tree, Tooltip, Icon, Popconfirm, message, Spin } from 'antd';
 import { cloneDeep } from 'lodash';
+import { API_TYPE } from '../../consts';
 const TreeNode = Tree.TreeNode;
 class ApiTypeTree extends Component {
     state = {
@@ -40,9 +41,10 @@ class ApiTypeTree extends Component {
                 let isLeaf = !(item.childCatalogue.length > 0)
 
                 if (item.api) { // 该节点为api
+                    let iconClassName = item.apiType == API_TYPE.NORMAL ? 'u-tree__node--normal' : 'u-tree__node--register'
                     arr.push(
                         (
-                            <TreeNode title={item.catalogueName} key={item.id}>
+                            <TreeNode className={iconClassName} title={item.catalogueName} key={item.id}>
 
                             </TreeNode>
                         )

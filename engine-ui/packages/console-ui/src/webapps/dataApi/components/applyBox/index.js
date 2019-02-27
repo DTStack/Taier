@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, message, Button, DatePicker, InputNumber, Checkbox, Tooltip, Icon } from 'antd'
 import { connect } from 'react-redux';
 import { hashHistory } from 'react-router';
 import moment from 'moment';
+
+import { Modal, Form, Input, message, Button } from 'antd'
+import CallCountFormItem from '../callCountFormItem';
+import CallDateRangeFormItem from '../callDateRangeFormItem';
 
 import { apiMarketActions } from '../../actions/apiMarket';
 
 const FormItem = Form.Item;
 const TextArea = Input.TextArea
-const RangePicker = DatePicker.RangePicker;
 
 const formLayout = {
     labelCol: {
@@ -42,15 +44,12 @@ const mapDispatchToProps = dispatch => ({
 @connect(null, mapDispatchToProps)
 class ApplyBox extends Component {
     state = {
-        loading: false,
-        countMode: false,
-        dateMode: false
+        loading: false
     }
     handleSubmit (values) {
         console.log(values)
     }
     handleOk () {
-        const { countMode, dateMode } = this.state;
         const { hideJump } = this.props;
 
         this.props.form.validateFields((err, values) => {
@@ -58,14 +57,15 @@ class ApplyBox extends Component {
                 this.setState({
                     loading: true
                 })
-                this.props.apiApply(this.props.apiId, values.applyMsg, countMode ? -1 : values.callCount, dateMode ? null : values.callDateRange)
+                const callDateRange = values.callDateRange;
+                this.props.apiApply(this.props.apiId, values.applyMsg, values.callCount, callDateRange && callDateRange.length ? callDateRange : null)
                     .then(
                         (res) => {
                             this.setState({
                                 loading: false
                             })
 
-                            if (res) {
+                            if (res.code == 1) {
                                 this.props.getApiExtInfo(this.props.apiId);
                                 this.props.form.resetFields();
                                 this.props.successCallBack();
@@ -99,12 +99,6 @@ class ApplyBox extends Component {
 
         hashHistory.push('/api/mine');
     }
-    changeCountMode (evt) {
-        this.props.form.resetFields(['callCount'])
-        this.setState({
-            countMode: evt.target.checked
-        })
-    }
     changeDateMode (evt) {
         this.props.form.resetFields(['callDateRange'])
         this.setState({
@@ -116,7 +110,6 @@ class ApplyBox extends Component {
     }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { countMode, dateMode } = this.state;
         return (
             <div>
 
@@ -141,39 +134,14 @@ class ApplyBox extends Component {
                         >
                             {this.props.apiName}
                         </FormItem>
-                        <FormItem
-                            label="调用次数"
-                            {...formLayout}
-                        >
-                            {getFieldDecorator('callCount', {
-                                rules: [
-                                    { required: !countMode, message: '请输入调用次数' },
-                                    {
-                                        validator: function (rule, value, callback) {
-                                            if ((value || value === 0) && value < 1) {
-                                                const error = '次数不能小于1'
-                                                callback(error)
-                                                return;
-                                            }
-                                            callback();
-                                        }
-                                    }
-                                ]
-                            })(<InputNumber min={1} disabled={countMode} type="number" />)}
-                            <Checkbox checked={countMode} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
-                            <Tooltip title="当服务端多机部署时，可能会存在实际调用次数略大于申请次数的情况，但不会少于申请次数。">
-                                <Icon type="question-circle" />
-                            </Tooltip>
-                        </FormItem>
-                        <FormItem
-                            label="调用周期"
-                            {...formLayout}
-                        >
-                            {getFieldDecorator('callDateRange', {
-                                rules: [{ required: !dateMode, message: '请选择调用周期' }]
-                            })(<RangePicker disabledDate={this.disabledDate} disabled={dateMode} style={{ width: '220px', verticalAlign: 'middle', marginRight: '8px' }} popupStyle={{ fontSize: '14px' }} />)}
-                            <Checkbox checked={dateMode} onChange={this.changeDateMode.bind(this)}>不限制调用时间</Checkbox>
-                        </FormItem>
+                        <CallCountFormItem
+                            form={this.props.form}
+                            formItemLayout={formLayout}
+                        />
+                        <CallDateRangeFormItem
+                            form={this.props.form}
+                            formItemLayout={formLayout}
+                        />
                         <FormItem
                             label="申请说明"
                             required

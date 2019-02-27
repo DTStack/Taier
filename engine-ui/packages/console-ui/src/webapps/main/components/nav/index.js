@@ -87,7 +87,8 @@ export function MenuRight (props) {
         apps, app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
-    const isShowAla = !app || !app.disableMessage
+    const isShowAla = !app || !app.disableMessage;
+    const isLogin = user && user.userName;
     const extraParms = app ? `?app=${app && app.id}` : '';
     const userMenu = (
         <Menu onClick={onClick}>
@@ -97,7 +98,7 @@ export function MenuRight (props) {
                 </Menu.Item>
             )}
             <Menu.Item key="logout">
-                退出登录
+                { isLogin ? '退出登录' : '去登录' }
             </Menu.Item>
         </Menu>
     )

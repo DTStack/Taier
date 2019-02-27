@@ -8,6 +8,7 @@ const initModalState = {
     createTask: false,
     editTask: false,
     cloneTask: false,
+    cloneToWorkflow: false,
     upload: false,
     createFolder: false,
     createScript: false,
@@ -20,7 +21,8 @@ const initModalState = {
     resId: undefined,
     fnId: undefined,
     moveFnData: undefined,
-    taskType: ''
+    taskType: '',
+    workFlowLists: []
 };
 
 export const modalShowReducer = (state = initModalState, action) => {
@@ -33,6 +35,14 @@ export const modalShowReducer = (state = initModalState, action) => {
         case modalAction.TOGGLE_CLONE_TASK:
             return assign({}, state, {
                 cloneTask: !state.cloneTask
+            });
+        case modalAction.TOGGLE_CLONE_TO_WORKFLOW:
+            return assign({}, state, {
+                cloneToWorkflow: !state.cloneToWorkflow
+            });
+        case modalAction.GET_WORKFLOW_LIST:
+            return assign({}, state, {
+                workFlowLists: action.payload
             });
         case modalAction.TOGGLE_CREATE_SCRIPT:
             return assign({}, state, {

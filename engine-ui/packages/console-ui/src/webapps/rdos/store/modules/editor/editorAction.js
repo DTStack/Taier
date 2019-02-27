@@ -61,8 +61,12 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
             (res) => {
                 if (res && res.code) {
                     // 获取到返回值
-                    if (res && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
-                    if (res && res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+                    if (res && res.message) {
+                        dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+                    }
+                    if (res && res.data && res.data.msg) {
+                        dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+                    }
                 }
                 // 状态正常
                 if (res && res.code === 1) {
