@@ -56,7 +56,7 @@ class NormalTaskForm extends React.Component {
             nodePid: value
         });
     }
-
+    /* eslint-disable */
     render () {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
@@ -67,7 +67,8 @@ class NormalTaskForm extends React.Component {
         const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
         const isDeepLearning = taskType == TASK_TYPE.DEEP_LEARNING;
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
-        const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning;
+        const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
+        const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning && !isHadoopMR;
         const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
         const optionsShow = isDeepLearning || isPython23;
         const couldEdit = isProjectCouldEdit(project, user);
@@ -177,7 +178,11 @@ class NormalTaskForm extends React.Component {
                     label="任务参数"
                 >
                     {getFieldDecorator('exeArgs', {
-                        initialValue: taskData.exeArgs
+                        initialValue: taskData.exeArgs,
+                        rules: [{
+                            required: isHadoopMR ? true : false,
+                            message: '请输入任务参数'
+                        }]
                     })(
                         <Input disabled={!couldEdit} placeholder="请输入任务参数" />
                     )}
@@ -273,7 +278,7 @@ class NormalTaskForm extends React.Component {
 function validValues (values, props) {
     // invalid为一个验证标记，
     // 次标记为上方任务保存按钮是否有效提供依据
-    if (values.mainClass === '') { // mainClass不可为空
+    if (values.mainClass === '' || values.exeArgs === '') { // mainClass不可为空
         return true;
     }
     return false;
