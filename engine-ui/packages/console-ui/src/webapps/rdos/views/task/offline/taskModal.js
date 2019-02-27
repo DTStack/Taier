@@ -24,7 +24,13 @@ import FolderPicker from './folderTree';
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-
+const hadoopMRInitVal =
+    `{
+"mapper": "org.apache.hadoop.examples.WordCount$TokenizerMapper",
+"reducer": "org.apache.hadoop.examples.WordCount$IntSumReducer",
+"inputPath": "input.txt",
+"outputPath": "output3.txt"
+}`
 class TaskForm extends React.Component {
     constructor (props) {
         super(props);
@@ -130,8 +136,8 @@ class TaskForm extends React.Component {
 
         const initialTaskType = this.isEditExist ? defaultData.taskType
             : createFromGraph ? createOrigin && createOrigin.taskType : (taskTypes.length > 0 && taskTypes[0].key);
-
         const resourceLable = !isPyTask ? '资源' : '入口资源';
+        console.log('------------', defaultData)
         return (
             <Form>
                 <FormItem
@@ -317,7 +323,26 @@ class TaskForm extends React.Component {
                     </div>
                 }
                 {
-                    (isHadoopMR || isMl || isMrTask || ((isDeepLearning || isPython23 || isPyTask) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
+                    isHadoopMR && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="参数"
+                        >
+                            {getFieldDecorator('exeArgs', {
+                                initialValue: isCreateNormal ? JSON.stringify(JSON.parse(hadoopMRInitVal), null, 4) : isCreateFromMenu
+                                    ? JSON.stringify(JSON.parse(hadoopMRInitVal), null, 4) : JSON.stringify(JSON.parse(defaultData.exeArgs), null, 4),
+                                rules: [{
+                                    required: true, message: '请输入参数'
+                                }]
+                            })(
+                                <Input type="textarea" autosize={{ minRows: 6, maxRows: 8 }} placeholder="请输入任务参数" />
+                            )}
+                            {/* <HelpDoc doc="optionsTaskHelp" /> */}
+                        </FormItem>
+                    )
+                }
+                {
+                    (isMl || isMrTask || ((isDeepLearning || isPython23 || isPyTask) && operateModel == DEAL_MODEL_TYPE.RESOURCE)) && <span>
                         <FormItem
                             {...formItemLayout}
                             label={resourceLable}
@@ -371,7 +396,7 @@ class TaskForm extends React.Component {
                             </FormItem>
                         }
                         {
-                            (isHadoopMR || isMl || isMrTask) && <FormItem
+                            (isMl || isMrTask) && <FormItem
                                 {...formItemLayout}
                                 label="mainClass"
                                 hasFeedback
@@ -389,7 +414,7 @@ class TaskForm extends React.Component {
                                 )}
                             </FormItem>
                         }
-                        {(isHadoopMR || isMl || isMrTask || isPyTask) && <FormItem
+                        {(isMl || isMrTask || isPyTask) && <FormItem
                             {...formItemLayout}
                             label="参数"
                             hasFeedback
@@ -450,7 +475,7 @@ class TaskForm extends React.Component {
                     </div>
                 }
                 {
-                    !createFromGraph &&
+                    (!createFromGraph && !isHadoopMR) &&
                     <FormItem
                         {...formItemLayout}
                         label="存储位置"
