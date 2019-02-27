@@ -15,7 +15,7 @@ import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
 import Api from '../../api/console';
 import { TASK_STATE } from '../../consts/index.js';
-const PAGE_SIZE = 54;
+const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
