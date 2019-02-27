@@ -10,11 +10,15 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobRetryDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobRetryDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
@@ -40,7 +44,11 @@ public class RestartDealer {
 
     private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
 
+    private RdosEngineBatchJobRetryDAO engineBatchJobRetryDAO = new RdosEngineBatchJobRetryDAO();
+
     private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
+
+    private RdosEngineStreamJobRetryDAO engineStreamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -228,17 +236,37 @@ public class RestartDealer {
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
 
+        jobRetryRecord(jobClient);
         //重试的任务不置为失败，waitengine
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.WAITENGINE.getStatus());
+            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.WAITENGINE.getStatus(),null);
+            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{
             LOG.error("not support for computeType:{}", computeType);
+        }
+    }
+
+    private void jobRetryRecord(JobClient jobClient) {
+        try {
+            Integer computeType = jobClient.getComputeType().getType();
+            if(ComputeType.STREAM.getType().equals(computeType)){
+                RdosEngineStreamJob streamJob = engineStreamJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+                RdosEngineStreamJobRetry streamJobRetry = RdosEngineStreamJobRetry.toEntity(streamJob);
+                streamJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
+                engineStreamJobRetryDAO.insert(streamJobRetry);
+            } else if(ComputeType.BATCH.getType().equals(computeType)){
+                RdosEngineBatchJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+                RdosEngineBatchJobRetry batchJobRetry = RdosEngineBatchJobRetry.toEntity(batchJob);
+                batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
+                engineBatchJobRetryDAO.insert(batchJobRetry);
+            }
+        } catch (Throwable e ){
+            LOG.error("{}",e);
         }
     }
 
