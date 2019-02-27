@@ -31,6 +31,7 @@ const hadoopMRInitVal =
 "inputPath": "input.txt",
 "outputPath": "output3.txt"
 }`
+const hadoopMRJsonValue = JSON.stringify(JSON.parse(hadoopMRInitVal), null, 4)
 class TaskForm extends React.Component {
     constructor (props) {
         super(props);
@@ -411,8 +412,8 @@ class TaskForm extends React.Component {
                             label="参数"
                         >
                             {getFieldDecorator('exeArgs', {
-                                initialValue: isCreateNormal ? JSON.stringify(JSON.parse(hadoopMRInitVal), null, 4) : isCreateFromMenu
-                                    ? JSON.stringify(JSON.parse(hadoopMRInitVal), null, 4) : defaultData.exeArgs,
+                                initialValue: isCreateNormal ? hadoopMRJsonValue : isCreateFromMenu
+                                    ? hadoopMRJsonValue : defaultData.exeArgs,
                                 rules: [{
                                     required: true, message: '请输入参数'
                                 }]
