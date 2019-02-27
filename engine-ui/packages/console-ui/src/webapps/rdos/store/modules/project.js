@@ -37,7 +37,7 @@ export function getProject (id) {
         }).then((res) => {
             return dispatch({
                 type: projectAction.GET_PROJECT,
-                data: res.data
+                data: res.data || {}
             })
         })
     }

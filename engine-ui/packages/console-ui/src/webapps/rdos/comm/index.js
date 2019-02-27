@@ -297,7 +297,7 @@ export function isRDB (type) {
  * @param {user} user
  */
 export function isProjectCouldEdit (project, user) {
-    const { adminUsers, projectType } = project;
+    const { adminUsers = [], projectType } = project;
     const isPro = projectType == PROJECT_TYPE.PRO;
     if (!isPro) {
         return true;
