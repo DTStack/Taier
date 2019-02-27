@@ -16,7 +16,7 @@ import { workbenchActions } from '../../../store/modules/offlineTask/offlineActi
 
 import {
     formItemLayout, TASK_TYPE, MENU_TYPE, DATA_SYNC_TYPE,
-    LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE
+    LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE, HADOOPMR_INITIAL_VALUE
 } from '../../../comm/const'
 
 import FolderPicker from './folderTree';
@@ -24,14 +24,7 @@ import FolderPicker from './folderTree';
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-const hadoopMRInitVal =
-    `{
-"mapper": "org.apache.hadoop.examples.WordCount$TokenizerMapper",
-"reducer": "org.apache.hadoop.examples.WordCount$IntSumReducer",
-"inputPath": "input.txt",
-"outputPath": "output3.txt"
-}`
-const hadoopMRJsonValue = JSON.stringify(JSON.parse(hadoopMRInitVal), null, 4)
+const hadoopMRJsonValue = JSON.stringify(HADOOPMR_INITIAL_VALUE, null, 4)
 class TaskForm extends React.Component {
     constructor (props) {
         super(props);
