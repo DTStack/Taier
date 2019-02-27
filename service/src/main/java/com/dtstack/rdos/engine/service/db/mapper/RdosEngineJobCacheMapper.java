@@ -32,6 +32,6 @@ public interface RdosEngineJobCacheMapper {
 
     List<String> listNames(@Param("computeType") Integer computeType,@Param("jobName") String jobName);
 
-    int countByStage(@Param("engineType") String engineType, @Param("groupName") String groupName, @Param("stage") Integer stage);
+    int countByStage(@Param("engineType") String engineType, @Param("groupName") String groupName, @Param("stage") Integer stage, @Param("nodeAddress") String nodeAddress);
 
 }

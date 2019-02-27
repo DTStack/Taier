@@ -101,11 +101,12 @@ public class WorkNode {
      * 获取当前节点的队列大小信息
      */
     public Map<String, Map<String, GroupInfo>> getEngineTypeQueueInfo(){
+        String localAddress = zkDistributed.getLocalAddress();
         Map<String, Map<String, GroupInfo>> engineTypeQueueSizeInfo = Maps.newHashMap();
         priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->{
             Map<String,GroupInfo> groupInfos = Maps.newHashMap();
             queue.getGroupPriorityQueueMap().forEach((group, groupQueue)->groupInfos.computeIfAbsent(group,sk-> {
-                int queueSize = engineJobCacheDao.countGroupQueueJob(engineType, group, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+                int queueSize = engineJobCacheDao.countGroupQueueJob(engineType, group, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),localAddress);
                 GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setSize(queueSize);
                 JobClient topJob = groupQueue.getTop();
