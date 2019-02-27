@@ -364,7 +364,7 @@ class ManageBasicProperties extends Component {
     checkHostVaild () {
         const form = this.props.form;
         const host = form.getFieldValue('originalHost');
-        const path = form.getFieldValue('APIPath');
+        const path = form.getFieldValue('originalPath');
         return api.checkHostVaild({
             host,
             path,
