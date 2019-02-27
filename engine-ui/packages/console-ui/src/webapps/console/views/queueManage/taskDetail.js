@@ -15,7 +15,7 @@ import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
 import Api from '../../api/console';
 import { TASK_STATE } from '../../consts/index.js';
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 54;
 // const Search = Input.Search;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -392,25 +392,17 @@ class TaskDetail extends Component {
             }).then((res) => {
                 if (res.code == 1) {
                     const data = res.data || {};
+                    const isReducePageIndex = data.topN && data.topN.length === 0 && (data.queueSize != 0 && data.queueSize % PAGE_SIZE === 0);
                     this.setState({
                         dataSource: data.topN,
                         table: {
                             ...table,
                             loading: false,
-                            total: data.queueSize
+                            total: data.queueSize,
+                            pageIndex: isReducePageIndex ? pageIndex - 1 : pageIndex
                         }
                     }, () => {
-                        if (this.state.dataSource.length === 0 && (this.state.table.total != 0 && this.state.table.total % PAGE_SIZE) === 0) {
-                            this.setState({
-                                table: {
-                                    ...table,
-                                    loading: false,
-                                    pageIndex: this.state.table.pageIndex - 1
-                                }
-                            }, () => {
-                                this.getDetailTaskList()
-                            })
-                        }
+                        isReducePageIndex && this.getDetailTaskList()
                     })
                     console.log(res);
                 } else {
