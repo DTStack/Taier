@@ -136,7 +136,7 @@ class CreateContentSection extends React.Component {
                     </div>
                 </section>
                 <section className='c-content-register__section'>
-                    <h1 className="title-border-l-blue">返回结果</h1>
+                    <h1 className="title-border-l-blue">请求示例</h1>
                     <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
                         <div className='c-content-register__section__card__title'>请求{isGET ? 'URL' : 'JSON'}样例</div>
                         <div className='c-content-register__section__card__content'>
@@ -146,7 +146,10 @@ class CreateContentSection extends React.Component {
                             />
                         </div>
                     </div>
-                    <div className='c-content-register__section__card'>
+                </section>
+                <section className='c-content-register__section'>
+                    <h1 className="title-border-l-blue">返回结果</h1>
+                    <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
                         <div className='c-content-register__section__card__title'>返回JSON样例</div>
                         <div className='c-content-register__section__card__content'>
                             <JsonContent

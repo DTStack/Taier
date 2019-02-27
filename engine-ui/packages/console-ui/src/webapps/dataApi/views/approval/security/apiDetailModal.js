@@ -48,10 +48,14 @@ class APIDetailModal extends React.Component {
             dataIndex: 'name',
             key: 'name',
             width: '150px',
-            className: 'text-padding',
             render: (text, record) => {
                 return <a onClick={this.toDetail.bind(this, record.id, record.name)}>{text}</a>
             }
+        }, {
+            title: '描述',
+            dataIndex: 'apiDesc',
+            key: 'apiDesc',
+            width: '150px'
         }]
     }
     render () {
