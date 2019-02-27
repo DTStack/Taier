@@ -47,7 +47,7 @@ class IDEEditor extends Component {
                 split="vertical"
                 minSize={500}
                 maxSize={-300}
-                defaultSize="calc(100% - 250px)"
+                defaultSize="calc(100% - 300px)"
                 primary="first"
                 key="editor-split-pane"
                 className="remove-default border"
