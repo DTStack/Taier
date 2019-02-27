@@ -4,6 +4,7 @@ import moment from 'moment';
 import './style.scss';
 import RegisterSection from './register';
 import CreateSection from './create';
+import { showAdminMsg } from '../../components/adminMsgModal';
 
 import { API_METHOD, API_METHOD_KEY } from '../../consts';
 import { getApiMarketValue } from '../../utils';
@@ -49,6 +50,7 @@ class Content extends Component {
     }
     render () {
         const {
+            apiId,
             callUrl,
             callLimit,
             beginTime,
@@ -103,8 +105,22 @@ class Content extends Component {
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
                             <p data-title="API-TOKEN：" className="pseudo-title p-line">{token}</p>
-                            <p data-title="申请调用次数：" className="pseudo-title p-line">{callLimit == -1 ? '无限制' : callLimit}</p>
-                            <p data-title="申请调用周期：" className="pseudo-title p-line">{beginTime ? `${moment(beginTime).format('YYYY-MM-DD')} ~ ${moment(endTime).format('YYYY-MM-DD')}` : '无限制'}</p>
+                            <p data-title="申请调用次数：" className="pseudo-title p-line">
+                                {callLimit == -1 ? '无限制' : callLimit}
+                                <a style={{ marginLeft: '5px' }} onClick={() => {
+                                    showAdminMsg(apiId)
+                                }}>
+                                    申请修改
+                                </a>
+                            </p>
+                            <p data-title="申请调用周期：" className="pseudo-title p-line">
+                                {beginTime ? `${moment(beginTime).format('YYYY-MM-DD')} ~ ${moment(endTime).format('YYYY-MM-DD')}` : '无限制'}
+                                <a style={{ marginLeft: '5px' }} onClick={() => {
+                                    showAdminMsg(apiId)
+                                }}>
+                                    申请修改
+                                </a>
+                            </p>
                         </div>
                         }
 
