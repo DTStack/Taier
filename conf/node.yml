@@ -1,22 +1,15 @@
 #engine
 slots: 10
-localAddress: localhost:8080
+localAddress: 172.16.2.236:8090
 #nodeZkAddress: node1:24002,node2:24002,node3:24002/xc_engine
-nodeZkAddress: node01:2181,node02:2181,node03:2181/mq_engine
+nodeZkAddress: 172.16.10.82:2181,172.16.10.91:2181,172.16.10.97:2181/engine
 exeQueueSize: 1
 #debug模式关闭数据校验
 isDebug: true
-
 isSecurity: false
-userPrincipal: yanxi@HADOOP.COM
-zkPrincipal: yanxi@HADOOP.COM
-userKeytabPath: D:\kerberos\fusioninsight\yanxi_keytab\user.keytab
-krb5ConfPath: D:\kerberos\fusioninsight\yanxi_keytab\krb5.conf
-
-hadoopConfPath: /etc/hadoop/conf
 
 db:
-   url: jdbc:mysql://172.16.8.104:3306/ide?charset=utf8&autoReconnect=true
+   url: jdbc:mysql://172.16.10.91:3306/ide?charset=utf8&autoReconnect=true
    userName: dtstack
    pwd: abc123
 
