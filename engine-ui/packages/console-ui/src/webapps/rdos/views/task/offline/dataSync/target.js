@@ -427,8 +427,8 @@ class TargetForm extends React.Component {
         const showCreateTable = (
             sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
             sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
-            sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.MYSQL ||
-            sourceType == DATA_SOURCE.HIVE || sourceType == DATA_SOURCE.MAXCOMPUTE
+            sourceType == DATA_SOURCE.DB2 || sourceType == DATA_SOURCE.HIVE ||
+            sourceType == DATA_SOURCE.MAXCOMPUTE
         );
 
         if (isEmpty(targetMap)) return null;
