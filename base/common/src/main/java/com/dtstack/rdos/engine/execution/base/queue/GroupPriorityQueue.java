@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.base.queue;
 
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.collect.Maps;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class GroupPriorityQueue {
 
     private static final int WAIT_INTERVAL = 5000;
-    private static final int QUEUE_SIZE_LIMITED = 500;
+    private static final int QUEUE_SIZE_LIMITED = ConfigParse.getQueueSize();
     private static final int STOP_ACQUIRE_LIMITED = 10;
 
     /**

@@ -137,4 +137,8 @@ public class ConfigParse {
         return shardSize==null ? 200 : MathUtil.getIntegerVal(shardSize);
     }
 
+    public static int getQueueSize() {
+        Object queueSize = configs.get("queueSize");
+        return queueSize == null ? 500 : MathUtil.getIntegerVal(queueSize);
+    }
 }
