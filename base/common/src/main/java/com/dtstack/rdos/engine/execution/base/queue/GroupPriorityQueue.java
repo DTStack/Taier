@@ -117,15 +117,15 @@ public class GroupPriorityQueue {
             }
 
             /**
-             * 如果队列中的任务数量小于100 并且 连续调度了 ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
+             * 如果队列中的任务数量小于 ${GroupPriorityQueue.QUEUE_SIZE_LIMITED} 并且 连续调度了 ${GroupPriorityQueue.STOP_ACQUIRE_LIMITED} 次都没有查询到新的数据，则停止调度
              */
             if (queueJobSize.get() < QUEUE_SIZE_LIMITED) {
                 long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
-                if (limitId == startId.get() && stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
-                    running.set(false);
-                } else {
+                startId.set(limitId);
+                if (limitId != startId.get()){
                     stopAcquireCount.set(0);
-                    startId.set(limitId);
+                } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
+                    running.set(false);
                 }
             }
 
