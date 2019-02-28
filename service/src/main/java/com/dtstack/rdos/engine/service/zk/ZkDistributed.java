@@ -352,11 +352,11 @@ public class ZkDistributed implements Closeable{
 		return objectMapper.readValue(data, BrokersNode.class).getMaster();
 	}
 
-	public BrokerDataNode initMemTaskStatus(){
-		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(localAddress);
-		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
-		return brokerDataNode;
-	}
+//	public BrokerDataNode initMemTaskStatus(){
+//		Map<String,BrokerDataShard> brokerDataShardMap = this.getBrokerDataNode(localAddress);
+//		BrokerDataNode brokerDataNode = new BrokerDataNode(brokerDataShardMap);
+//		return brokerDataNode;
+//	}
 
 	public void createNodeIfNotExists(String node, Object obj) throws Exception{
 		if (zkClient.checkExists().forPath(node) == null) {
@@ -383,21 +383,21 @@ public class ZkDistributed implements Closeable{
 		this.engineTypeList = ConfigParse.getEngineTypeList();
 	}
 
-	public Map<String,BrokerDataShard> getBrokerDataNode(String node) {
-		try {
-			List<String> shards = getBrokerDataChildren(node);
-			Map<String,BrokerDataShard> shardMap = new ConcurrentHashMap<>(shards.size());
-			for (String shard:shards){
-				BrokerDataShard shardNode = getBrokerDataShard(node,shard);
-				shardMap.put(shard,shardNode);
-			}
-			return shardMap;
-		} catch (Exception e) {
-			logger.error("{}:getBrokerNodeData error:{}", node,
-					ExceptionUtil.getErrorMessage(e));
-		}
-		return null;
-	}
+//	public Map<String,BrokerDataShard> getBrokerDataNode(String node) {
+//		try {
+//			List<String> shards = getBrokerDataChildren(node);
+//			Map<String,BrokerDataShard> shardMap = new ConcurrentHashMap<>(shards.size());
+//			for (String shard:shards){
+//				BrokerDataShard shardNode = getBrokerDataShard(node,shard);
+//				shardMap.put(shard,shardNode);
+//			}
+//			return shardMap;
+//		} catch (Exception e) {
+//			logger.error("{}:getBrokerNodeData error:{}", node,
+//					ExceptionUtil.getErrorMessage(e));
+//		}
+//		return null;
+//	}
 
 	public List<String> getBrokerDataChildren(String node) {
 		try {

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -59,7 +60,8 @@ public class ZkLocalCache implements Closeable {
 
     public void init(ZkDistributed zkDistributed) {
         localAddress = zkDistributed.getLocalAddress();
-        localDataCache = zkDistributed.initMemTaskStatus();
+//        localDataCache = zkDistributed.initMemTaskStatus();
+        localDataCache = new BrokerDataNode(new ConcurrentHashMap<String,BrokerDataShard>(16));
         distributeQueueWeight = ConfigParse.getTaskDistributeQueueWeight();
         distributeZkWeight = ConfigParse.getTaskDistributeZkWeight();
         distributeDeviation = ConfigParse.getTaskDistributeDeviation();

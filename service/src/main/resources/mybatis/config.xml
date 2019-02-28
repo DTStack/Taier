@@ -6,8 +6,10 @@
 <configuration>
     <typeAliases>
         <typeAlias alias="RdosEngineStreamJob" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob"/>
+        <typeAlias alias="RdosEngineStreamJobRetry" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry"/>
         <typeAlias alias="RdosNodeMachine" type="com.dtstack.rdos.engine.service.db.dataobject.RdosNodeMachine"/>
         <typeAlias alias="RdosEngineBatchJob" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob"/>
+        <typeAlias alias="RdosEngineBatchJobRetry" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry"/>
         <typeAlias alias="RdosEngineJobCache" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache" />
         <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint" />
         <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo"/>
@@ -30,7 +32,9 @@
     <mappers>
         <mapper resource="mybatis/mapper/RdosNodeMachineMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineStreamJobMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineStreamJobRetryMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineBatchJobMapping.xml"/>
+        <mapper resource="mybatis/mapper/RdosEngineBatchJobRetryMapping.xml"/>
         <mapper resource="mybatis/mapper/RdosEngineJobCacheMapping.xml" />
         <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
         <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
