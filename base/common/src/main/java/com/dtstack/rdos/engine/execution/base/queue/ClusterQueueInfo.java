@@ -2,7 +2,10 @@ package com.dtstack.rdos.engine.execution.base.queue;
 
 import com.google.common.collect.Maps;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Reason:
@@ -28,7 +31,7 @@ public class ClusterQueueInfo {
     private ClusterQueueInfo() {
     }
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return infoMap.isEmpty();
     }
 
@@ -36,10 +39,13 @@ public class ClusterQueueInfo {
      * key1:address, key2:engineType, key3: groupName, value: GroupInfo
      */
     public void updateClusterQueueInfo(Map<String, Map<String, Map<String, GroupInfo>>> clusterQueueInfo) {
+        Set<String> engineTypes = new HashSet<>();
+        clusterQueueInfo.values().forEach(engineTypeInfo -> engineTypes.addAll(engineTypeInfo.keySet()));
         Map<String, EngineTypeQueueInfo> newInfoMap = Maps.newHashMap();
         clusterQueueInfo.forEach((address, engineTypeInfo) -> {
-            engineTypeInfo.forEach((engineType, groupQueueInfo) -> {
+            engineTypes.forEach(engineType->{
                 EngineTypeQueueInfo engineTypeQueueInfo = newInfoMap.computeIfAbsent(engineType, k -> new EngineTypeQueueInfo(engineType));
+                Map<String, GroupInfo> groupQueueInfo = engineTypeInfo.getOrDefault(engineType,  new HashMap<String,GroupInfo>());
                 engineTypeQueueInfo.put(address, groupQueueInfo);
             });
         });
