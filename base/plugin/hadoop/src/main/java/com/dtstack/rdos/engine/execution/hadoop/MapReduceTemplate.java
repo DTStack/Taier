@@ -26,6 +26,7 @@ public class MapReduceTemplate {
     public static final String REDUCER = "reducer";
     public static final String INPUT_PATH = "inputPath";
     public static final String OUTPUT_PATH = "outputPath";
+    public static final String QUEUE = "queue";
 
     public MapReduceTemplate(String jobName, Configuration conf, Map<String,String> params) throws Exception {
         job = Job.getInstance(conf, jobName);
@@ -43,6 +44,11 @@ public class MapReduceTemplate {
         String reducer = params.get(REDUCER);
 //        cl.loadClass(reducer);
         job.getConfiguration().set(MRJobConfig.REDUCE_CLASS_ATTR, reducer);
+
+        // set queue name
+        if (params.containsKey(QUEUE)){
+            job.getConfiguration().set(MRJobConfig.QUEUE_NAME,params.get(QUEUE));
+        }
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
