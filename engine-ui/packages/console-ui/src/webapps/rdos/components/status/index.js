@@ -216,6 +216,8 @@ export function DatabaseType (props) {
             return <span>SQLServer</span>
         case DATA_SOURCE.POSTGRESQL:
             return <span>PostgreSQL</span>
+        case DATA_SOURCE.RDBMS:
+            return <span>RDBMS</span>
         case DATA_SOURCE.HDFS:
             return <span>HDFS</span>
         case DATA_SOURCE.HIVE:
@@ -234,6 +236,10 @@ export function DatabaseType (props) {
             return <span>MongoDB</span>
         case DATA_SOURCE.KAFKA:
             return <span>Kafka</span>
+        case DATA_SOURCE.DB2:
+            return <span>DB2</span>
+        case DATA_SOURCE.CARBONDATA:
+            return <span>CarbonData</span>
         default:
             return <span>其他</span>
     }
