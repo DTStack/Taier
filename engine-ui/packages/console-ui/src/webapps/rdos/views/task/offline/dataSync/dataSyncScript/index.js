@@ -57,7 +57,9 @@ class DataSyncScript extends Component {
         const data = {
             merged: true
         }
-
+        if (!sqlText) {
+            return;
+        }
         data.sqlText = utils.jsonFormat(sqlText);
 
         if (!data.sqlText) {
