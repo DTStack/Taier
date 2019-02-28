@@ -40,6 +40,10 @@ const docsMapping = [
                 name: 'Alter Table Partitions',
                 file: `${docBasePath}/DDL/AlterTablePartitions.md`
             }, {
+                id: 'ddl_truncate_table',
+                name: 'Truncate Table',
+                file: `${docBasePath}/DDL/TruncateTable.md`
+            }, {
                 id: 'ddl_drop_table',
                 name: 'Drop Table',
                 file: `${docBasePath}/DDL/DropTable.md`
