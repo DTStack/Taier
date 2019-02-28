@@ -192,6 +192,12 @@ public class HadoopClient extends AbsClient {
             downloadHdfsFile(jarPath, localJarPath);
 
             Map<String,String> params = new ObjectMapper().readValue(jobClient.getClassArgs(), Map.class);
+
+            Map<String, Object> plugininfo = jobClient.getParamAction().getPluginInfo();
+            if(plugininfo.containsKey(MapReduceTemplate.QUEUE)){
+                params.put(MapReduceTemplate.QUEUE,plugininfo.get(MapReduceTemplate.QUEUE).toString());
+            }
+
             params.put(MapReduceTemplate.JAR, localJarPath);
             MapReduceTemplate mr = new MapReduceTemplate(jobClient.getJobName(), conf, params);
             mr.run();
