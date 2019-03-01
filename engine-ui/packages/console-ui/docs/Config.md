@@ -13,8 +13,8 @@
 | theme  |  否 | 'default' / 'aliyun'  | 'default'  | 应用的主题，将会改变门户页面的布局样式以及应用的导航栏。当前只有 `aliyun` 和 `default` 两种可选  |
 | hideUserCenter |  否 | boolean  | false  | 是否隐藏右上角下拉框中的用户中心  |
 | disableHelp  | 否  |  boolean | false  | 是否隐藏帮助文档  |
-| macChrome | 否 | string | 无 | mac 版`Chrome浏览器`下载地址 |
-| windowsChrome | 否 | string | 无 | windows 版`Chrome浏览器`下载地址 |
+| macChrome | 否 | string | 有 | mac 版`Chrome浏览器`官方下载地址 |
+| windowsChrome | 否 | string | 有 | windows 版`Chrome浏览器`官方下载地址 |
 
 #### 各应用特殊配置
 

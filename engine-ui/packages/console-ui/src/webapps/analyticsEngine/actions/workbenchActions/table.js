@@ -294,6 +294,7 @@ export function handleSave () {
 
         const res = await API.createTable({
             ...params,
+            lifeDay: params.lifeCycle,
             partConfig: params.partitions.partConfig,
             partitionType: params.partitions.partitionType,
             partitions: params.partitions.columns,
