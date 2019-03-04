@@ -111,6 +111,7 @@ class Main extends Component {
                         fixStreamChildrenApps[1] = item;
                         break;
                     case '任务运维':
+                    case '运维中心':
                         fixStreamChildrenApps[2] = item;
                         break;
                     case '项目管理':
