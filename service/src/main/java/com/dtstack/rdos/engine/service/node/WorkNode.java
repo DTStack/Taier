@@ -138,6 +138,12 @@ public class WorkNode {
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
+        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
+        jobClient.setCallBack((jobStatus)-> {
+            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
+            updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
+        });
+
         saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
@@ -168,11 +174,6 @@ public class WorkNode {
                     })
             );
             if (!groupQueue.isBlocked()){
-                String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
-                jobClient.setCallBack((jobStatus)-> {
-                    zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
-                    updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
-                });
                 groupQueue.add(jobClient);
             }
         }catch (Exception e){
