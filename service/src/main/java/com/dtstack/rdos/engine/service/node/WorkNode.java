@@ -15,6 +15,7 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo;
 import com.dtstack.rdos.engine.service.enums.RequestStart;
@@ -256,6 +257,12 @@ public class WorkNode {
         }
 
         boolean result = groupPriorityQueue.remove(groupName, jobId);
+        if (!result){
+            RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+            if (jobCache !=null && jobCache.getStage() == EJobCacheStage.IN_PRIORITY_QUEUE.getStage()){
+                result = true;
+            }
+        }
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
