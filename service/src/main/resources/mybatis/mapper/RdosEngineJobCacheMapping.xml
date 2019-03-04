@@ -32,7 +32,8 @@
     </select>
 
     <update id="updateStage">
-        update rdos_engine_job_cache set node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, group_name = #{groupName}
+        update rdos_engine_job_cache
+        set node_address = #{nodeAddress}, stage = #{stage}, job_priority = #{jobPriority}, group_name = #{groupName}, gmt_modified=now()
         where job_id = #{jobId}
     </update>
 
