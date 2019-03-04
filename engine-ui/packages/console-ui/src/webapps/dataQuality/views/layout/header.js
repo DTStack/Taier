@@ -71,7 +71,7 @@ class Header extends Component {
             menuItems={menuItems}
             {...this.props}
             showHelpSite={true}
-            helpUrl='http://rdos.dev.dtstack.net:8080/public/helpSite/dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html'
+            helpUrl='/public/helpSite/dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html'
         />;
     }
 }

@@ -10,5 +10,5 @@ window.COMMON_CONF = {
     loadingTitle: '数栈', // loading的应用名字
     theme: 'default', // 主题
     hideUserCenter: false, // 隐藏用户中心按钮
-    disableHelp: true // 禁用帮助文档
+    disableHelp: false // 禁用帮助文档
 }

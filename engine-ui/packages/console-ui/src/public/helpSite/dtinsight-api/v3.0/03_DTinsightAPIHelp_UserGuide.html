@@ -9,7 +9,7 @@
     <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
     <meta name="dcterms.subject" content="dtinsight-api">
     <meta name="dcterms.identifier" content="v3.0">
-    <meta name="generator" content="Antora 1.1.1">
+    <meta name="generator" content="Antora 2.0.0">
     <link rel="icon" href="../../_/img/favicon.ico" type="image/x-icon">
   </head>
   <body class="article">
@@ -33,13 +33,13 @@
                 <ul>
                   <li><a href="../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
                   <li><a href="../../dtinsight-batch/v3.0/Summary.html">离线计算v3.0</a></li>
-                  <li><a href="../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../dtinsight-stream/v3.0/Summary.html">流计算v3.0</a></li>
                   <li><a href="../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
                 </ul>
                 <ul>
                   <li><a href="01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
-                  <li><a href="../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
-                  <!--li><a href="../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <li><a href="../../dtinsight-valid/v3.0/Summary.html">数据质量v3.0</a></li>
+                  <li><a href="../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL Guide v1.0</a></li>
                   <!--li><a href="#">控制台</a></li-->
                 </ul>
               </div>
@@ -241,6 +241,95 @@
 </div>
 </div>
 <div class="paragraph">
+<p>API返回结果中,data[]中为返回的数据，errorCode为返回状态码，errorInfo为具体错误信息，Space是调用时间。返回状态码对应的具体释义如下：</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">返回状态码</th>
+<th class="tableblock halign-left valign-top">释义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">调用成功</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">服务运行出错</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">未定义异常</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">4</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">不支持本次请求，请查看操作文档</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">5</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">token不合法</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">无权限访问此API</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">101</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">访问频繁，请稍后重试</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">102</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API不可用</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">103</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">参数解析异常</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">104</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API查询超时</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">106</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API调用未在申请时间内或已超过申请次数</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">107</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">安全组限制访问</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">108</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">客户端IP获取失败</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">109</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">API path错误</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">140</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">访问远程服务器出错</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">141</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">仅支持GET、POST、Delete、Put请求</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">142</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">常量参数仅支持header和query</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">143</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">必填参数缺失。</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
 <p>至此，API已生成，可在API管理页面进行发布，发布至API网关后，使用者将可进行申请、调用。</p>
 </div>
 </div>
@@ -420,6 +509,13 @@
 <div class="content">
 <img src="_images/主要功能及操作方式-b9d47.png" alt="主要功能及操作方式 b9d47" width="1000">
 </div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>API-Token需放在header中填写；</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p><strong>步骤三</strong>：查看返回结果与数据库核对。</p>

@@ -97,6 +97,8 @@ class Header extends Component {
             logo={logo}
             menuItems={menuItems}
             {...this.props}
+            showHelpSite={true}
+            helpUrl="/public/helpSite/dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html"
         />
     }
 }
