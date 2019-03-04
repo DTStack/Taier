@@ -9,7 +9,7 @@
     <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
     <meta name="dcterms.subject" content="dtinsight-sparksql">
     <meta name="dcterms.identifier" content="v1.0">
-    <meta name="generator" content="Antora 1.1.1">
+    <meta name="generator" content="Antora 2.0.0">
     <link rel="icon" href="../../_/img/favicon.ico" type="image/x-icon">
   </head>
   <body class="article">
@@ -33,13 +33,13 @@
                 <ul>
                   <li><a href="../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
                   <li><a href="../../dtinsight-batch/v3.0/Summary.html">离线计算v3.0</a></li>
-                  <li><a href="../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../dtinsight-stream/v3.0/Summary.html">流计算v3.0</a></li>
                   <li><a href="../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
                 </ul>
                 <ul>
                   <li><a href="../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
-                  <li><a href="../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
-                  <!--li><a href="Summary.html">SparkSQL手册v1.0</a></li-->
+                  <li><a href="../../dtinsight-valid/v3.0/Summary.html">数据质量v3.0</a></li>
+                  <li><a href="Summary.html">SparkSQL Guide v1.0</a></li>
                   <!--li><a href="#">控制台</a></li-->
                 </ul>
               </div>
@@ -64,19 +64,15 @@
 <div class="nav-menu">
 <ul class="nav-list">
   <li class="nav-item is-active" data-depth="0">
-    <span class="nav-line">
-    <button class="nav-toggle"></button>
-    <span class="nav-text">DTinsight使用手册</span>
-    </span>
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">01_DTinsightBatchHelp_Summary.adoc</a>
+    <a class="nav-link" href="Summary.html">概览</a>
     </span>
   </li>
-  <li class="nav-item" data-depth="1">
+  <li class="nav-item is-current-page is-active" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">02_DTinsightBatchHelp_Explain.adoc</a>
+    <a class="nav-link" href="FileFormats.html">文件格式</a>
     </span>
   </li>
 </ul>
@@ -84,57 +80,118 @@
   <li class="nav-item is-active" data-depth="0">
     <span class="nav-line">
     <button class="nav-toggle"></button>
-    <span class="nav-text">用户手册</span>
+    <span class="nav-text">数据类型</span>
     </span>
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">03_DTinsightBatchHelp_Project.adoc</a>
+    <a class="nav-link" href="DataTypes/Overview.html">概览</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">04_DTinsightBatchHelp_DataIntegration.adoc</a>
+    <a class="nav-link" href="DataTypes/ImplicitConversion.html">隐式转换</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">05_DTinsightBatchHelp_DataDevelopment.adoc</a>
+    <a class="nav-link" href="DataTypes/ColumnTypes.html">字段类型</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">LanguageManual</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/Index.html">语法索引</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">06_DTinsightBatchHelp_Maintenance.adoc</a>
+    <a class="nav-link" href="LanguageManual/AlterTable.html">Alter Table</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">07_DTinsightBatchHelp_DataManagement.adoc</a>
+    <a class="nav-link" href="LanguageManual/AlterTablePartitions.html">Alter Table Partitions</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">08_DTinsightBatchHelp_UserManagement.adoc</a>
+    <a class="nav-link" href="LanguageManual/CreateTable.html">Create Table</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">09_DTinsightBatchHelp_SystemConfig.adoc</a>
+    <a class="nav-link" href="LanguageManual/DescribeTable.html">Describe Table</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">10_DTinsightBatchHelp_HiveSQLGuBatch.adoc</a>
+    <a class="nav-link" href="LanguageManual/DropTable.html">Drop Table</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">12_DTinsightBatchHelp_BatchJobDevelopmentGuBatch.adoc</a>
+    <a class="nav-link" href="LanguageManual/Explain.html">Explain</a>
     </span>
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">13_DTinsightBatchHelp_QA.adoc</a>
+    <a class="nav-link" href="LanguageManual/Insert.html">Insert</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/Select.html">Select</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/Set.html">Set</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/ShowColumns.html">Show Columns</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/ShowCreateTable.html">Show Create Table</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/ShowPartitions.html">Show Partitions</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/ShowTables.html">Show Tables</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="LanguageManual/TruncateTable.html">Truncate Table</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Functions</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="Functions/AllFunction.html">全部函数</a>
     </span>
   </li>
 </ul>
@@ -143,7 +200,7 @@
 <ul class="nav-list">
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
-    <a class="nav-link" href="#">16_DTinsightBatchHelp_Appendix.adoc</a>
+    <a class="nav-link" href="HiveCompatibility/HiveCompatibility.html">Hive兼容性说明</a>
     </span>
   </li>
 </ul>
@@ -175,7 +232,7 @@
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-DTinsight推荐使用orc格式作为数据存储格式
+DTinsightBatch推荐使用orc格式作为数据存储格式
 </td>
 </tr>
 </table>

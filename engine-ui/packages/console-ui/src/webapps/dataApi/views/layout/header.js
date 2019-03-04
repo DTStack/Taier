@@ -134,6 +134,8 @@ class Header extends Component {
             menuItems={menuItems}
             licenseApps={licenseApps}
             {...this.props}
+            showHelpSite={true}
+            helpUrl="/public/helpSite/dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html"
         />
     }
 }

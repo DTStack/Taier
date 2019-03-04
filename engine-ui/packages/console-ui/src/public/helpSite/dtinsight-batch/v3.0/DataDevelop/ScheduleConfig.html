@@ -9,7 +9,7 @@
     <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
     <meta name="dcterms.subject" content="dtinsight-batch">
     <meta name="dcterms.identifier" content="v3.0">
-    <meta name="generator" content="Antora 1.1.1">
+    <meta name="generator" content="Antora 2.0.0">
     <link rel="icon" href="../../../_/img/favicon.ico" type="image/x-icon">
   </head>
   <body class="article">
@@ -33,13 +33,13 @@
                 <ul>
                   <li><a href="../../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
                   <li><a href="../Summary.html">离线计算v3.0</a></li>
-                  <li><a href="../../../dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-stream/v3.0/Summary.html">流计算v3.0</a></li>
                   <li><a href="../../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
                 </ul>
                 <ul>
                   <li><a href="../../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
-                  <li><a href="../../../dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html">数据质量v3.0</a></li>
-                  <!--li><a href="../../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL手册v1.0</a></li-->
+                  <li><a href="../../../dtinsight-valid/v3.0/Summary.html">数据质量v3.0</a></li>
+                  <li><a href="../../../dtinsight-sparksql/v1.0/Summary.html">SparkSQL Guide v1.0</a></li>
                   <!--li><a href="#">控制台</a></li-->
                 </ul>
               </div>
@@ -172,6 +172,11 @@
   </li>
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
+    <a class="nav-link" href="UDFDevelop.html">UDF开发指南</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
     <a class="nav-link" href="TableLookup.html">表查询</a>
     </span>
   </li>
@@ -248,6 +253,15 @@
   <li class="nav-item" data-depth="1">
     <span class="nav-line">
     <a class="nav-link" href="../QA/QA.html">QA</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../ErrorHandle/ErrorHandle.html">错误处理</a>
     </span>
   </li>
 </ul>
@@ -340,7 +354,7 @@
 </li>
 </ul>
 </div>
-<table class="tableblock frame-all grid-all spread">
+<table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 16.6666%;">
 <col style="width: 83.3334%;">
@@ -354,7 +368,7 @@
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">日</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>天调度任务，即每天自动运行一次。新建周期任务时，默认的时间周期为每天0点运行一次，可根据需要自行指定运行时间点，配置“具体时间”：</p>
 </div>
 <div class="ulist">
@@ -370,7 +384,7 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">周</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>周调度任务，即每周的特定几天里每天在特定时间点自动运行一次，需配置“选择时间”和“具体时间”：</p>
 </div>
 <div class="ulist">
@@ -386,7 +400,7 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">月</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>月调度任务，即每月指定的特定几天里每天在特定时间点自动运行一次，需配置“选择时间”和“具体时间”：</p>
 </div>
 <div class="ulist">
@@ -402,7 +416,7 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">小时</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>小时调度任务，即每天指定的时间段内按N*1小时的时间间隔运行一次，比如每天1点到4点的时间段内，每1小时运行一次。当调度周期切换到非天级调度时，节点起调时间将不可选，需配置“开始时间”、“结束时间”和“间隔时间”：</p>
 </div>
 <div class="ulist">
@@ -421,7 +435,7 @@
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">分钟</p></td>
-<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>分钟调度任务，即每天指定的时间段内按N*指定分钟的时间间隔运行一次，目前能支持的最短时间间隔为每5分钟运行一次，当调度周期切换到非天级调度，节点起调时间将不可选，需配置“开始时间”、“结束时间”和“间隔时间”：</p>
 </div>
 <div class="ulist">
@@ -522,12 +536,12 @@
 <div class="paragraph">
 <p>为使任务自动周期运行时能动态适配环境变化，DTinsightBatch提供了参数配置的功能。详细的参数配置如下表所示：</p>
 </div>
-<table class="tableblock frame-all grid-all spread">
+<table class="tableblock frame-all grid-all stretch">
 <colgroup>
-<col style="width: 18.1818%;">
-<col style="width: 36.3636%;">
-<col style="width: 9.0909%;">
-<col style="width: 36.3637%;">
+<col style="width: 22.2222%;">
+<col style="width: 33.3333%;">
+<col style="width: 11.1111%;">
+<col style="width: 33.3334%;">
 </colgroup>
 <thead>
 <tr>
@@ -539,16 +553,43 @@
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">系统参数bdp.system.bizdate、bdp.system.cyctime、bdp.system.premonth、bdp.system.currmonth</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">在调度系统中运行时，无须在编辑框设置，可直接在代码中引用${bdp.system.bizdate}、${bdp.system.cyctime}、${bdp.system.premonth}、${bdp.system.currmonth}， <strong>系统将自动替换这些参数的取值</strong></p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><strong>系统参数</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>bdp.system.bizdate</p>
+</li>
+<li>
+<p>bdp.system.cyctime</p>
+</li>
+<li>
+<p>bdp.system.premonth</p>
+</li>
+<li>
+<p>bdp.system.currmonth</p>
+</li>
+</ul>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">在调度系统中运行时，无须在编辑框设置，可直接在代码中引用 <code>${bdp.system.bizdate}</code> 、 <code>${bdp.system.cyctime}</code> 、 <code>${bdp.system.premonth}</code> 、 <code>${bdp.system.currmonth}</code> ， <strong>系统将自动替换这些参数的取值</strong></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">全部任务类型，不支持脚本</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">无</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">自定义参数</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">在代码中引用${key1},${key2}， 然后在“参数”编辑框以如下方式设置key1=value1 key2=value2</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">在代码中引用 <code>${key1},${key2}</code> ， 然后在“参数”编辑框设置key1=value1 key2=value2</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">全部任务类型，不支持脚本</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">常量参数：param1=”abc” param2=1234；变量参数：param1=$[yyyymmdd], 结果将基于bdp.system.cyctime的取值计算</p></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="ulist">
+<ul>
+<li>
+<p>常量参数： <code>param1="abc" param2=1234</code> ；</p>
+</li>
+<li>
+<p>变量参数： <code>param1=$[yyyymmdd]</code> , 结果将基于bdp.system.cyctime的取值计算</p>
+</li>
+</ul>
+</div></div></td>
 </tr>
 </tbody>
 </table>
@@ -559,7 +600,7 @@
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-应用场景举例：某任务为每天调度一次，需要统计昨天的历史数据，那么可以在SQL或MR任务中添加业务日期变量，此变量需要随着系统时间而变化，即实现“今天的任务处理昨天的数据”。
+应用场景举例：某任务为每天调度一次，需要统计昨天的历史数据，那么可以在SQL或数据同步任务中添加业务日期变量，此变量需要随着系统时间而变化，即实现“今天的任务处理昨天的数据”。
 </td>
 </tr>
 </table>
@@ -586,10 +627,22 @@
 </ul>
 </div>
 <div class="paragraph">
-<p>从定义可知，运行时间和业务日期有如下计算公式：<strong>运行时间=（业务日期+1）+定时时间</strong>。</p>
+<p>若使用系统参数，无需在编辑框设置，直接在代码中引用${bdp.system.bizdate}和${bdp.system.cyctime}即可，系统将自动替换代码中对这两个参数的引用字段。</p>
 </div>
 <div class="paragraph">
-<p>若使用系统参数，无需在编辑框设置，直接在代码中引用${bdp.system.bizdate}和${bdp.system.cyctime}即可，系统将自动替换代码中对这两个参数的引用字段。</p>
+<p>定时运行时间是任务被设置的启动运行的时间，例如可配置为天任务，每天02:23开始运行，那么任务的定时时间是：2018-02-03 02:23:00，其中的日期部分会随着每天的运行而动态变化。</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+定时运行时间，不是任务实际开始运行的时间，若设置了每天02:23开始运行，但此时系统资源不足，则任务会延迟执行。
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -639,7 +692,7 @@ DTinsightBatch会将系统参数做简单替换，如果SQL中写为：ds='${bdp
 <div class="sect2">
 <h3 id="CustParam"><a class="anchor" href="#CustParam"></a>自定义参数</h3>
 <div class="paragraph">
-<p>使用自定义参数的使用方式：需要先在代码中编辑${key1},${key2}，然后在<strong>任务参数</strong>面板中输入“key1=value1 key2=value2”方可生效。</p>
+<p>使用自定义参数的使用方式：需要先在代码中编辑 <code>${key1},${key2}</code> ，然后在<strong>任务参数</strong>面板中输入 <code>key1=value1 key2=value2</code> 方可生效。</p>
 </div>
 <div class="paragraph">
 <p>其中，value的计算分为两种类型：</p>
@@ -647,7 +700,7 @@ DTinsightBatch会将系统参数做简单替换，如果SQL中写为：ds='${bdp
 <div class="ulist">
 <ul>
 <li>
-<p>常量：直接替换的字符串或数字，例如“key1=1234 key2=abcdefg”。</p>
+<p>常量：直接替换的字符串或数字，例如 <code>key1=1234 key2=abcdefg</code> 。</p>
 </li>
 <li>
 <p>变量：基于 <code>bdp.system.cyctime</code> 取值计算出的取值，例如“key1=${yyyyMMdd+1}”表示按 <code>bdp.system.cyctime</code> 的日期加一天。关于 `bdp.system.cyctime的取值，请参见<a href="#SystemParam">系统参数</a>的说明。</p>
@@ -705,12 +758,33 @@ DTinsightBatch会将系统参数做简单替换，如果SQL中写为：ds='${bdp
 </div>
 </div>
 <div class="paragraph">
-<p>在右侧的<strong>任务参数</strong>面板中自动会出现tablename和ct的输入表单，您直接在表单中输入表名：big_table2和分区名yyyyMMdd，且此任务的定时时间为2018年4月13日，那么系统将其替换为：</p>
+<p>在右侧的<strong>任务参数</strong>面板中自动会出现tablename和ct的输入表单，您直接在表单中输入表名： <code>big_table2</code> 和分区名 <code>$[yyyyMMdd]</code> ，且此任务的定时时间为2018年4月13日，那么系统将其替换为：</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">select * from big_table2 where ds=20180413;</code></pre>
 </div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>填写常量时，直接填写值</p>
+</li>
+<li>
+<p>填写变量时，必须使用 <code>$[参数]</code> 的格式填写</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p>可供参考的变量参数配置方式如下：</p>
