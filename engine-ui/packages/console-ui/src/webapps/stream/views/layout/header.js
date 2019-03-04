@@ -130,6 +130,7 @@ class Header extends Component {
                         fixArrChildrenApps[1] = item;
                         break;
                     case '任务运维':
+                    case '运维中心':
                         fixArrChildrenApps[2] = item;
                         break;
                     case '项目管理':
