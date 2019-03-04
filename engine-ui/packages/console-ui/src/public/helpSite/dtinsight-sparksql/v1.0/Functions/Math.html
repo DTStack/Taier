@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>数学函数 | 数栈帮助文档</title>
+    <link rel="canonical" href="https://insight.dtstack.com/dtinsight-sparksql/v1.0/Functions/Math.html">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <link rel="schema.dcterms" href="https://purl.org/dc/terms/">
+    <meta name="dcterms.subject" content="dtinsight-sparksql">
+    <meta name="dcterms.identifier" content="v1.0">
+    <meta name="generator" content="Antora 2.0.0">
+    <link rel="icon" href="../../../_/img/favicon.ico" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar" id="topbar">
+    <div class="container">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="https://insight.dtstack.com"><img src="../../../_/img/logo.svg" alt="dtinsight"></a>
+        <button class="navbar-burger" data-target="topbar-menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+      <div id="topbar-menu" class="navbar-menu">
+        <div class="navbar-start">
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link" href="https://insight.dtstack.com">Document Overview</a>
+            <div class="navbar-dropdown explore">
+              <div class="cols">
+                <ul>
+                  <li><a href="../../../dtinsight-productsystem/v1.0/ProductSystem.html">数据中台产品体系</a></li>
+                  <li><a href="../../../dtinsight-batch/v3.0/Summary.html">离线计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-stream/v3.0/Summary.html">流计算v3.0</a></li>
+                  <li><a href="../../../dtinsight-analytic/v1.0/Summary.html">分析引擎v1.0</a></li>
+                </ul>
+                <ul>
+                  <li><a href="../../../dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html">数据APIv3.0</a></li>
+                  <li><a href="../../../dtinsight-valid/v3.0/Summary.html">数据质量v3.0</a></li>
+                  <li><a href="../Summary.html">SparkSQL Guide v1.0</a></li>
+                  <!--li><a href="#">控制台</a></li-->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="navbar-item has-dropdown">
+            <a class="navbar-link component" href="../Summary.html"><span class="title">SparkSQL手册</span> <span class="version">v1.0</span></a>
+            <div class="navbar-dropdown versions">
+              <div class="cols">
+                <ul>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="body container">
+<nav class="nav">
+<div class="nav-menu">
+<ul class="nav-list">
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../Summary.html">概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../FileFormats.html">文件格式</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">数据类型</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataTypes/Overview.html">概览</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataTypes/ImplicitConversion.html">隐式转换</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../DataTypes/ColumnTypes.html">字段类型</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">LanguageManual</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/Index.html">语法索引</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/AlterTable.html">Alter Table</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/AlterTablePartitions.html">Alter Table Partitions</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/CreateTable.html">Create Table</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/DescribeTable.html">Describe Table</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/DropTable.html">Drop Table</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/Explain.html">Explain</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/Insert.html">Insert</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/Select.html">Select</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/Set.html">Set</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/ShowColumns.html">Show Columns</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/ShowCreateTable.html">Show Create Table</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/ShowPartitions.html">Show Partitions</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/ShowTables.html">Show Tables</a>
+    </span>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../LanguageManual/TruncateTable.html">Truncate Table</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+    <span class="nav-line">
+    <button class="nav-toggle"></button>
+    <span class="nav-text">Functions</span>
+    </span>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="AllFunction.html">全部函数</a>
+    </span>
+  </li>
+</ul>
+  </li>
+  <li class="nav-item is-active" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <span class="nav-line">
+    <a class="nav-link" href="../HiveCompatibility/HiveCompatibility.html">Hive兼容性说明</a>
+    </span>
+  </li>
+</ul>
+  </li>
+</ul>
+</div>
+</nav>
+<aside class="toc sidebar">
+  <div class="toc-menu"></div>
+</aside>
+<main class="article" data-ceiling="topbar">
+  <div class="article-header">
+<button class="nav-control"></button>
+<nav class="crumbs" aria-label="breadcrumbs">
+  <ul>
+    <li class="crumb"><a href="../Summary.html">SparkSQL手册</a></li>
+    <li class="crumb"><a href="Math.html">数学函数</a></li>
+  </ul>
+</nav>
+  </div>
+<article class="doc">
+<h1 class="page">数学函数</h1>
+<div class="sect1">
+<h2 id="index"><a class="anchor" href="#index"></a>索引</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#round">round</a>：HALF_UP模式四舍五入</p>
+</li>
+<li>
+<p><a href="#bround">bround</a>：HALF_EVEN模式四舍五入</p>
+</li>
+<li>
+<p><a href="#floor">floor</a>：不大于expr的最大整数</p>
+</li>
+<li>
+<p><a href="#ceil">ceil</a>：不小于expr的最小整数</p>
+</li>
+<li>
+<p><a href="#ceiling">ceiling</a>：不小于expr的最小整数，与<a href="#ceil">ceil</a>相同</p>
+</li>
+<li>
+<p><a href="#rand">rand</a>：[0, 1)之间的随机数（均匀分布）</p>
+</li>
+<li>
+<p><a href="#randn">randn</a>：[0,1]之间的随机数（独立同分布、正态分布）</p>
+</li>
+<li>
+<p><a href="#exp">exp</a>：e的expr次幂</p>
+</li>
+<li>
+<p><a href="#ln">ln</a>：自然对数</p>
+</li>
+<li>
+<p><a href="#log10">log10</a>：以10为底的对数</p>
+</li>
+<li>
+<p><a href="#log2">log2</a>：以2为底的对数</p>
+</li>
+<li>
+<p><a href="#log">log</a>：以base为底的对数</p>
+</li>
+<li>
+<p><a href="#log1p">log1p</a>：log(1 + expr)</p>
+</li>
+<li>
+<p><a href="#pow">pow</a>：expr1的expr2次方</p>
+</li>
+<li>
+<p><a href="#power">power</a>：与<a href="#pow">pow</a>相同</p>
+</li>
+<li>
+<p><a href="#sqrt">sqrt</a>：expr的平方根</p>
+</li>
+<li>
+<p><a href="#bin">bin</a>：二进制字符串</p>
+</li>
+<li>
+<p><a href="#hex">hex</a>：转换为16进制</p>
+</li>
+<li>
+<p><a href="#conv">conv</a>：进制转换</p>
+</li>
+<li>
+<p><a href="#abs">abs</a>：绝对值</p>
+</li>
+<li>
+<p><a href="#pmod">pmod</a>：取模</p>
+</li>
+<li>
+<p><a href="#sin">sin</a>：正弦</p>
+</li>
+<li>
+<p><a href="#asin">asin</a>：反正弦</p>
+</li>
+<li>
+<p><a href="#sinh">sinh</a>：双曲正弦</p>
+</li>
+<li>
+<p><a href="#cos">cos</a>：余弦</p>
+</li>
+<li>
+<p><a href="#acos">acos</a>：反余弦</p>
+</li>
+<li>
+<p><a href="#cosh">cosh</a>：双曲余弦</p>
+</li>
+<li>
+<p><a href="#tan">tan</a>：正切</p>
+</li>
+<li>
+<p><a href="#atan">atan</a>：反正切</p>
+</li>
+<li>
+<p><a href="#atan2">atan2</a>：正X轴与给出点（exprX，exprY）之间的弧度角</p>
+</li>
+<li>
+<p><a href="#tanh">tanh</a>：双曲正切</p>
+</li>
+<li>
+<p><a href="#degrees">degrees</a>：弧度转换为角度</p>
+</li>
+<li>
+<p><a href="#radians">radians</a>：角度转换为弧度值</p>
+</li>
+<li>
+<p><a href="#positive">positive</a>：返回expr的值</p>
+</li>
+<li>
+<p><a href="#negative">negative</a>：返回expr的负值</p>
+</li>
+<li>
+<p><a href="#sign">sign</a>：信号函数</p>
+</li>
+<li>
+<p><a href="#signum">signum</a>：信号函数，与<a href="#sign">sign</a>相同</p>
+</li>
+<li>
+<p><a href="#e">e</a>：自然对数</p>
+</li>
+<li>
+<p><a href="#pi">pi</a>：圆周率pi</p>
+</li>
+<li>
+<p><a href="#factorial">factorial</a>：expr的阶乘</p>
+</li>
+<li>
+<p><a href="#cbrt">cbrt</a>：expr的立方根</p>
+</li>
+<li>
+<p><a href="#shiftleft">shiftleft</a>：按位左移</p>
+</li>
+<li>
+<p><a href="#shiftright">shiftright</a>：按位（signed）右移</p>
+</li>
+<li>
+<p><a href="#shiftrightunsigned">shiftrightunsigned</a>：按位（unsigned）右移</p>
+</li>
+<li>
+<p><a href="#greatest">greatest</a>：最大值</p>
+</li>
+<li>
+<p><a href="#least">least</a>：最小值</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="round"><a class="anchor" href="#round"></a>round</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>round(expr, d) - 使用HALF_UP舍入模式，将expr舍入为d小数位</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT round(2.5, 0);
+-- 输出结果：3</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="bround"><a class="anchor" href="#bround"></a>bround</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>bround(expr, d) - 使用HALF_EVEN舍入模式将expr舍入为d小数位</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT bround(2.5, 0);
+-- 输出结果：2
+
+select bround(11.23456, 4)
+-- 输出结果：11.2346</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="floor"><a class="anchor" href="#floor"></a>floor</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>floor(expr) - 返回不大于expr的最大整数。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT floor(-0.1);
+-- 输出结果：-1
+
+SELECT floor(5);
+-- 输出结果：5</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ceil"><a class="anchor" href="#ceil"></a>ceil</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ceil(expr) - 不小于expr的最小整数。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT ceil(-0.1);
+-- 输出结果：0
+
+SELECT ceil(5);
+-- 输出结果：5</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ceiling"><a class="anchor" href="#ceiling"></a>ceiling</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ceiling(expr) - 与ceil相同</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT ceiling(-0.1);
+-- 输出结果：0
+
+SELECT ceiling(5);
+-- 输出结果：5</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="rand"><a class="anchor" href="#rand"></a>rand</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>rand([seed]) - 随机值函数，返回在[0,1]中具有独立同分布（缩写为IID），均匀分布，散落在[0, 1)之间</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT rand();
+-- 输出结果：0.9629742951434543
+
+SELECT rand(0);
+-- 输出结果：0.8446490682263027
+
+SELECT rand(null);
+-- 输出结果：0.8446490682263027</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="randn"><a class="anchor" href="#randn"></a>randn</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>randn([seed]) - 随机值函数，返回在[0,1]中具有独立同分布（缩写为IID），正态分布</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT randn();
+-- 输出结果：-0.3254147983080288
+
+SELECT randn(0);
+-- 输出结果：1.1164209726833079
+
+SELECT randn(null);
+-- 输出结果：1.1164209726833079</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="exp"><a class="anchor" href="#exp"></a>exp</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>exp(expr) - e的expr次幂</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT exp(0);
+-- 输出结果:1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ln"><a class="anchor" href="#ln"></a>ln</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>ln(expr) - 返回expr的自然对数（基数e）</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT ln(1);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="log10"><a class="anchor" href="#log10"></a>log10</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>log10(expr) - 返回expr以10为底的对数</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT log10(10);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="log2"><a class="anchor" href="#log2"></a>log2</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>log2(expr) - 返回expr以2为底的对数</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT log2(2);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="log"><a class="anchor" href="#log"></a>log</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>log(base, expr) - 返回expr以base为底的对数</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT log(10, 100);
+-- 输出结果：2</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="log1p"><a class="anchor" href="#log1p"></a>log1p</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>log1p(expr) - 返回log(1 + expr)</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT log1p(0);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="pow"><a class="anchor" href="#pow"></a>pow</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>pow(expr1, expr2) - expr1的expr2次方，与<a href="#power">power</a>函数相同</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT pow(2, 3);
+-- 输出结果：8</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="power"><a class="anchor" href="#power"></a>power</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>power(expr1, expr2) - expr1的expr2次方，与<a href="#pow">pow</a>函数相同</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT power(2, 3);
+-- 输出结果：8</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sqrt"><a class="anchor" href="#sqrt"></a>sqrt</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>sqrt(expr) - 返回expr的平方根</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT sqrt(4);
+-- 输出结果：2</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="bin"><a class="anchor" href="#bin"></a>bin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>bin(expr) - 以字符串的格式，返回数值对应的二进制字符串</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT bin(13);
+-- 输出结果：1101
+
+SELECT bin(-13);
+-- 输出结果：1111111111111111111111111111111111111111111111111111111111110011
+
+SELECT bin(13.3);
+-- 输出结果：1101</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="hex"><a class="anchor" href="#hex"></a>hex</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>hex(expr) - 将expr转换为十六进制</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT hex(17);
+-- 输出结果：11
+
+SELECT hex('Spark SQL');
+-- 输出结果：537061726B2053514C</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="conv"><a class="anchor" href="#conv"></a>conv</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>conv(num, from_base, to_base) - 进制转换函数，将num从from_base进制转换为to_base函数</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT conv('100', 2, 10);
+-- 输出结果：4
+
+SELECT conv(-10, 16, -10);
+-- 输出结果：-16</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="abs"><a class="anchor" href="#abs"></a>abs</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>abs(expr) - 数值型数据的绝对值</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT abs(-1);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="pmod"><a class="anchor" href="#pmod"></a>pmod</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>pmod(expr1, expr2) - 返回expr1模expr2的正值。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT pmod(10, 3);
+-- 输出结果：1
+
+SELECT pmod(-10, 3);
+-- 输出结果：2</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sin"><a class="anchor" href="#sin"></a>sin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>sin(expr) - expr的正弦，与java.lang.Math.sin计算的一样</p>
+</div>
+<div class="paragraph">
+<p>Arguments:</p>
+</div>
+<div class="paragraph">
+<p>expr - 弧度值</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT sin(0);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="asin"><a class="anchor" href="#asin"></a>asin</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>asin(expr) - expr的反正弦，与java.lang.Math.asin计算的一样，要求-1&#8656;expr&#8656;1，否则返回NaN。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT asin(0);
+-- 输出结果：0
+
+SELECT asin(2);
+-- 输出结果：NaN</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sinh"><a class="anchor" href="#sinh"></a>sinh</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>sinh(expr) - expr的双曲正弦值，与java.lang.Math.sinh计算的一样</p>
+</div>
+<div class="paragraph">
+<p>Arguments:</p>
+</div>
+<div class="paragraph">
+<p>expr - 双曲线角</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT sinh(0);
+-- 输出结果：0.0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cos"><a class="anchor" href="#cos"></a>cos</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>cos(expr) - expr的余弦值，与java.lang.Math.cos计算的一样</p>
+</div>
+<div class="paragraph">
+<p><strong>expr</strong> - 弧度值</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT cos(0);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="acos"><a class="anchor" href="#acos"></a>acos</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>acos(expr) - expr的反余弦，与java.lang.Math.acos计算的一样，要求-1&#8656;expr&#8656;1，否则返回NaN。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT acos(1);
+-- 输出结果：0
+&gt; SELECT acos(2);
+-- 输出结果：NaN</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cosh"><a class="anchor" href="#cosh"></a>cosh</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>cosh(expr) - expr的双曲余弦值，与java.lang.Math.cosh计算的一样</p>
+</div>
+<div class="paragraph">
+<p>expr - 双曲线角（hyperbolic angle）</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT cosh(0);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="tan"><a class="anchor" href="#tan"></a>tan</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>tan(expr) - expr的正切值，与java.lang.Math.tan计算的一样</p>
+</div>
+<div class="paragraph">
+<p>Arguments:</p>
+</div>
+<div class="paragraph">
+<p>expr - 弧度</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT tan(0);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="atan"><a class="anchor" href="#atan"></a>atan</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>atan(expr) - expr的反正切，与java.lang.Math.atan计算的一样。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT atan(0);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="atan2"><a class="anchor" href="#atan2"></a>atan2</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>atan2(exprY, exprX) - 平面的正X轴与给出点（exprX，exprY）之间的弧度角（the angle in radians between the positive x-axis of a plane and the point given by the coordinates (exprX, exprY)），与java.lang.Math.atan2计算的一样。</p>
+</div>
+<div class="paragraph">
+<p><strong>exprY</strong> - Y轴坐标</p>
+</div>
+<div class="paragraph">
+<p><strong>exprX</strong> - X轴坐标</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT atan2(0, 0);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="tanh"><a class="anchor" href="#tanh"></a>tanh</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>tanh(expr) - expr的双曲正切值，与java.lang.Math.tanh计算的一样</p>
+</div>
+<div class="paragraph">
+<p>Arguments:</p>
+</div>
+<div class="paragraph">
+<p>expr - 双曲线角</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT tanh(0);
+-- 输出结果：0</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="degrees"><a class="anchor" href="#degrees"></a>degrees</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>degrees(expr) - 将弧度转换为角度</p>
+</div>
+<div class="paragraph">
+<p><strong>expr</strong>：弧度</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT degrees(3.141592653589793);
+-- 输出结果：180</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="radians"><a class="anchor" href="#radians"></a>radians</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>radians(expr) - 将角度转换为弧度值</p>
+</div>
+<div class="paragraph">
+<p>Arguments:</p>
+</div>
+<div class="paragraph">
+<p>expr - angle in degrees
+Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT radians(180);
+-- 输出结果：3.141592653589793</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="positive"><a class="anchor" href="#positive"></a>positive</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>positive(expr) - 返回expr的值</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="negative"><a class="anchor" href="#negative"></a>negative</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>negative(expr) - 返回expr的负值</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT negative(1);
+-- 输出结果：-1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="sign"><a class="anchor" href="#sign"></a>sign</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>sign(expr) - 当expr为正，返回1.0，当expr为0，返回0，当expr为负，返回-1.0</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT sign(40);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="signum"><a class="anchor" href="#signum"></a>signum</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>signum(expr) - 当expr为正，返回1.0，当expr为0，返回0，当expr为负，返回-1.0</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT signum(40);
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="e"><a class="anchor" href="#e"></a>e</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>e() - 返回自然对数e</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT e();
+-- 输出结果：2.718281828459045</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="pi"><a class="anchor" href="#pi"></a>pi</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>pi() - 返回pi</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT pi();
+-- 输出结果：3.141592653589793</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="factorial"><a class="anchor" href="#factorial"></a>factorial</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>factorial(expr) - 返回expr的阶乘，expr为0-20之间的整数，其他值返回null</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT factorial(5);
+-- 输出结果：120</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="cbrt"><a class="anchor" href="#cbrt"></a>cbrt</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>cbrt(expr) - expr的立方根</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT cbrt(32.768);
+-- 输出结果：3.2</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="shiftleft"><a class="anchor" href="#shiftleft"></a>shiftleft</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>shiftleft(base, expr) - 按位左移</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT shiftleft(2, 1);  --1的二进制左移2位（1&lt;&lt;2,0001左移两位是0100）
+-- 输出结果：4</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="shiftright"><a class="anchor" href="#shiftright"></a>shiftright</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>shiftright(base, expr) - 按位（signed）右移</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT shiftright(4, 2);  -- 4的二进制右移2位（4&gt;&gt;2,0100右移两位是0001）
+-- 输出结果：1</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="shiftrightunsigned"><a class="anchor" href="#shiftrightunsigned"></a>shiftrightunsigned</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>shiftrightunsigned(base, expr) - 按位（unsigned）右移</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT shiftrightunsigned(8,2)  -- 8的二进制无符号右移2位(8&gt;&gt;&gt;2,1000右移两位是0010)
+-- 输出结果：2
+
+SELECT shiftrightunsigned(-14,2)=  -- -14的二进制右移2位(-14&gt;&gt;&gt;2, 11111111 11111111 11111111 11110010右移2位是 00111111 11111111 11111111 11111100)
+-- 输出结果：1073741820</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="greatest"><a class="anchor" href="#greatest"></a>greatest</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>greatest(expr, &#8230;&#8203;) - 返回expr中的最大值，跳过空值。</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT greatest(10, 9, 2, 4, 3);
+-- 输出结果：10</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="least"><a class="anchor" href="#least"></a>least</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>least(expr, &#8230;&#8203;) - 返回expr中的最小值，跳过null</p>
+</div>
+<div class="paragraph">
+<p>Examples:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-SQL hljs" data-lang="SQL">SELECT least(10, 9, 2, 4, 3);
+-- 输出结果：2</code></pre>
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+</div>
+<footer class="footer">
+  <!--div class="container">
+    <div class="footer-links">
+      <div class="col">
+        <div class="footer-logo">
+          <a href="https://www.dtstack.com" class="icon">
+            <img src="../../../_/img/logo.svg" alt="Couchbase">
+          </a>
+        </div>
+        <div class="contact">
+          <p class="address">2440 West El Camino Real
+Mountain View, CA 94040
+United States</p>
+          <a href="https://www.couchbase.com/contact" class="btn white-btn">Contact Us</a>
+          <a class="tel" href="tel:1-650-417-7500">1-650-417-7500</a>
+        </div>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Company</span></li>
+          <li><a href="https://www.couchbase.com/about">About</a></li>
+          <li><a href="https://www.couchbase.com/leadership">Leadership</a></li>
+          <li><a href="https://www.couchbase.com/news-and-press-releases">News &amp; Press</a></li>
+          <li><a href="https://www.couchbase.com/careers">Careers</a></li>
+          <li><a href="https://www.couchbase.com/resources/events">Events</a></li>
+          <li><a href="https://www.couchbase.com/contact">Contact Us</a></li>
+          <li><a href="https://www.couchbase.com/request-pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Support</span></li>
+          <li><a href="https://developer.couchbase.com" target="_blank" rel="noopener">Developer Portal</a></li>
+          <li><a href="https://docs.couchbase.com" target="_blank" rel="noopener">Documentation</a></li>
+          <li><a href="https://forums.couchbase.com" target="_blank" rel="noopener">Forums</a></li>
+          <li><a href="https://www.couchbase.com/services">Professional Services</a></li>
+          <li><a href="https://support.couchbase.com" target="_blank" rel="noopener">Support Login</a></li>
+          <li><a href="https://training.couchbase.com" target="_blank" rel="noopener">Training</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul>
+          <li><span class="heading">Quicklinks</span></li>
+          <li><a href="https://blog.couchbase.com" target="_blank" rel="noopener">Blog</a></li>
+          <li><a href="https://www.couchbase.com/downloads">Downloads</a></li>
+          <li><a href="https://www.couchbase.com/get-started-developing-nosql">Get Started</a></li>
+          <li><a href="https://training.couchbase.com/online" target="_blank" rel="noopener">Online Training</a></li>
+          <li><a href="https://www.couchbase.com/resources">Resources</a></li>
+          <li><a href="https://www.couchbase.com/nosql-resources/why-nosql">Why NoSQL</a></li>
+          <li><a href="https://www.couchbase.com/resources/security">Security</a></li>
+          <li><a href="https://www.couchbase.com/resources/gdpr">GDPR</a></li>
+        </ul>
+      </div>
+      <div class="col">
+        <ul class="social-icons">
+          <li>
+            <a href="https://www.facebook.com/Couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="26.363 116.363 560.215 560.215"><path d="m586.58 209.58c0-48.96-44.252-93.212-93.212-93.212h-373.79c-48.96 0-93.212 44.252-93.212 93.212v373.79c0 48.96 44.252 93.212 93.212 93.212h186.42v-211.85h-68.732v-93.212h68.732v-36.72c0-63.083 47.077-119.58 105.45-119.58h75.323v93.212h-75.323c-8.474 0-17.889 10.357-17.889 25.422v37.662h93.212v93.212h-93.212v211.85h99.803c48.96 0 93.212-44.252 93.212-93.212v-373.79z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://twitter.com/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="32.012 176.622 542.326 437.815"><path d="m574.34 227.46c-19.772 8.474-41.428 15.065-64.025 17.889 22.597-14.123 40.486-35.778 48.96-61.2-21.655 13.182-45.194 21.655-70.615 27.305-20.714-21.655-48.96-34.837-80.972-34.837-61.2 0-111.1 49.902-111.1 111.1 0 8.474 0.942 16.948 2.825 25.422-92.271-5.649-174.18-49.902-229.74-117.69-9.415 16.006-15.065 35.778-15.065 55.551 0 38.603 19.772 72.498 49.902 92.271-17.889-0.942-35.778-5.649-50.843-14.123v0.942c0 53.668 38.603 98.862 89.446 109.22-9.415 2.825-18.831 3.766-29.188 3.766-7.532 0-14.123-0.942-20.714-1.883 14.123 44.252 55.551 76.265 103.57 77.206-37.662 30.129-85.68 48.018-138.41 48.018-9.415 0-17.889-0.941-26.363-1.883 48.96 32.012 107.34 49.902 170.42 49.902 204.31 0 316.36-169.48 316.36-316.36v-14.123c21.656-14.125 40.487-33.897 55.551-56.494z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://www.linkedin.com/company/couchbase" class="icon">
+              <svg width="50px" height="50px" viewBox="31.071 119.188 539.537 540.443"><path d="m531.97 119.19h-461.35c-21.655 0-39.545 16.948-39.545 38.603v463.24c0 21.655 17.889 38.603 39.545 38.603h460.41c21.655 0 39.545-16.948 39.545-38.603v-463.24c0.942-21.656-16.947-38.603-38.603-38.603zm-337.07 451.94h-81.914v-243.86h81.914v243.86zm-40.486-276.81c-28.246 0-46.135-18.831-46.135-42.369s17.889-42.369 46.135-42.369 45.194 17.889 45.194 42.369c0.942 23.538-16.948 42.369-45.194 42.369zm335.19 276.81h-81.914v-129.93c0-32.954-12.24-55.551-41.428-55.551-22.597 0-35.778 15.065-41.428 30.129-1.883 5.649-2.825 12.24-2.825 19.772v136.52h-81.914s0.942-221.26 0-243.86h81.914v34.837c11.298-16.948 30.129-40.486 73.44-40.486 53.668 0 94.154 34.837 94.154 110.16l1e-3 138.41zm-168.54-208.08s0.941-0.941 0 0z"/></svg>
+            </a>
+          </li>
+          <li>
+            <a href="https://plus.google.com/+CouchbaseServer" class="icon">
+              <svg width="50px" height="50px" viewBox="36.72 225.573 542.326 343.67"><path d="m209.02 363.05v68.732h93.212c-15.065 44.252-37.662 68.732-93.212 68.732-56.492 0-100.74-46.135-100.74-102.63s44.252-102.63 100.74-102.63c30.129 0 48.96 10.357 66.849 25.422 14.123-14.123 13.182-16.006 48.96-49.902-31.071-28.246-71.557-45.194-115.81-45.194-95.096-0.94-172.3 76.266-172.3 171.36s77.206 172.3 172.3 172.3c142.17 0 177.01-124.28 165.71-206.2-33.896-1e-3 -165.71-1e-3 -165.71-1e-3zm310.71 3.766v-59.317h-42.369v59.317h-61.2v42.369h61.2v61.2h42.369v-61.2h59.317v-42.369h-59.317z"/></svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-terms">
+      <span>2018 COUCHBASE All rights reserved.</span>
+      <a href="https://www.couchbase.com/privacy-policy">Privacy Policy</a>
+      <a href="https://www.couchbase.com/terms-of-use">Terms of Use</a>
+      <a href="https://www.couchbase.com/cookie-policy">Cookie Policy</a>
+      <a href="https://info.couchbase.com/unsubscribe-or-manage-preferences.html" target="_blank" rel="noopener">Marketing Preference Center</a>
+    </div>
+  </div-->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
