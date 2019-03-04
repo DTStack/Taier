@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.4.2"></a>
+## [3.4.2](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.4.1...3.4.2) (2019-03-04)
+
+
+### Bug Fixes
+
+* allow clear splitPK value ([207ff35](http://git.dtstack.cn/ziv/data-stack-web/commits/207ff35)), closes [#14145](http://redmine.prod.dtstack.cn/issues/14145)
+* allow the subNode of workflow to expand ([602ee1b](http://git.dtstack.cn/ziv/data-stack-web/commits/602ee1b)), closes [#14083](http://redmine.prod.dtstack.cn/issues/14083)
+* allow user to alter task variable value to null ([347f330](http://git.dtstack.cn/ziv/data-stack-web/commits/347f330)), closes [#14144](http://redmine.prod.dtstack.cn/issues/14144)
+* disable run operation to locked task ([43d1c66](http://git.dtstack.cn/ziv/data-stack-web/commits/43d1c66)), closes [#14002](http://redmine.prod.dtstack.cn/issues/14002)
+* enable restart operation to killed task ([7ead3cd](http://git.dtstack.cn/ziv/data-stack-web/commits/7ead3cd)), closes [#14084](http://redmine.prod.dtstack.cn/issues/14084)
+* fix the normal task can't save problem ([a63f285](http://git.dtstack.cn/ziv/data-stack-web/commits/a63f285)), closes [#14102](http://redmine.prod.dtstack.cn/issues/14102)
+* fixed not show go to login menu when user logout ([457471e](http://git.dtstack.cn/ziv/data-stack-web/commits/457471e)), closes [#14225](http://redmine.prod.dtstack.cn/issues/14225)
+* **data-manage:** add selected style ([aa760e3](http://git.dtstack.cn/ziv/data-stack-web/commits/aa760e3)), closes [#14130](http://redmine.prod.dtstack.cn/issues/14130)
+* remove 'dataSyncSaved'  when save dataSync task ([4a34a51](http://git.dtstack.cn/ziv/data-stack-web/commits/4a34a51))
+* **analytics:** set default style of table ([dcf45a0](http://git.dtstack.cn/ziv/data-stack-web/commits/dcf45a0)), closes [#11169](http://redmine.prod.dtstack.cn/issues/11169)
+* **analytics-engine:** add 'MB' after Block Size and MajorCompactionSize ([0ca5a97](http://git.dtstack.cn/ziv/data-stack-web/commits/0ca5a97))
+* **analytics-engine:** add 'MB' to MAJOR_COMPACTION_SIZE in tableDetail ([df1ea92](http://git.dtstack.cn/ziv/data-stack-web/commits/df1ea92))
+* **analytics-engine:** fix the priority between '||' and '+' ([8c85ace](http://git.dtstack.cn/ziv/data-stack-web/commits/8c85ace))
+* **analytics-engine:** fix the vertical-align of input; ([6b09356](http://git.dtstack.cn/ziv/data-stack-web/commits/6b09356))
+* **analytics-engine:** modify input addonAfter; ([8d5fa20](http://git.dtstack.cn/ziv/data-stack-web/commits/8d5fa20))
+* **analytics-engine:** replace lifeCycle with lifeDay when creat table ([d74220a](http://git.dtstack.cn/ziv/data-stack-web/commits/d74220a))
+* **api:** change location of request msg ([f4ae87d](http://git.dtstack.cn/ziv/data-stack-web/commits/f4ae87d))
+* **api:** change path to originalPath ([b9b3058](http://git.dtstack.cn/ziv/data-stack-web/commits/b9b3058))
+* **api:** remove rdos bug ([de2ebc5](http://git.dtstack.cn/ziv/data-stack-web/commits/de2ebc5))
+* **console:** fix current page no data ([7cf0bc7](http://git.dtstack.cn/ziv/data-stack-web/commits/7cf0bc7)), closes [#14135](http://redmine.prod.dtstack.cn/issues/14135)
+* **console:** fix pagination error ([1772d5c](http://git.dtstack.cn/ziv/data-stack-web/commits/1772d5c)), closes [fix#14135](http://git.dtstack.cn/fix/issues/14135)
+* **console:** modify pagesize ([034fb54](http://git.dtstack.cn/ziv/data-stack-web/commits/034fb54)), closes [#14135](http://redmine.prod.dtstack.cn/issues/14135)
+* **console:** optimize ([a1aa7b6](http://git.dtstack.cn/ziv/data-stack-web/commits/a1aa7b6))
+* **license:** add oparation case ([3c40e09](http://git.dtstack.cn/ziv/data-stack-web/commits/3c40e09))
+* **rdos:** add empty case of json format ([c9f2a90](http://git.dtstack.cn/ziv/data-stack-web/commits/c9f2a90)), closes [#14325](http://redmine.prod.dtstack.cn/issues/14325)
+* **rdos:** add running case ([54a4d40](http://git.dtstack.cn/ziv/data-stack-web/commits/54a4d40))
+* **rdos:** add source type ([3e78865](http://git.dtstack.cn/ziv/data-stack-web/commits/3e78865))
+* **rdos:** fix close re-run modal ([e341d15](http://git.dtstack.cn/ziv/data-stack-web/commits/e341d15)), closes [#14356](http://redmine.prod.dtstack.cn/issues/14356)
+* **rdos:** fix conditions of one-click generate target table ([fec2bf1](http://git.dtstack.cn/ziv/data-stack-web/commits/fec2bf1))
+* **rdos:** fix del mainclass ([bdecfe8](http://git.dtstack.cn/ziv/data-stack-web/commits/bdecfe8))
+* **rdos:** handle blank page while error request ([55f4bb9](http://git.dtstack.cn/ziv/data-stack-web/commits/55f4bb9))
+* **rdos:** optimize ([5a59338](http://git.dtstack.cn/ziv/data-stack-web/commits/5a59338))
+* **rdos console:** fix log scroll bug ([41b8560](http://git.dtstack.cn/ziv/data-stack-web/commits/41b8560)), closes [#14282](http://redmine.prod.dtstack.cn/issues/14282)
+* **rods:** extract hadoopmr initval ([807faea](http://git.dtstack.cn/ziv/data-stack-web/commits/807faea))
+* reset keymap to null after table changed ([4f07cec](http://git.dtstack.cn/ziv/data-stack-web/commits/4f07cec))
+* **role user:** fix analyticsengine not show ([d8c6bb0](http://git.dtstack.cn/ziv/data-stack-web/commits/d8c6bb0)), closes [#14079](http://redmine.prod.dtstack.cn/issues/14079)
+* **sheet:** optimization ([3568ea5](http://git.dtstack.cn/ziv/data-stack-web/commits/3568ea5))
+* **version:** change version ([f98590d](http://git.dtstack.cn/ziv/data-stack-web/commits/f98590d))
+
+
+### Features
+
+* **api:** add a security module in the personal cneter ([7f32132](http://git.dtstack.cn/ziv/data-stack-web/commits/7f32132))
+* **api:** add api create info ([2805bc0](http://git.dtstack.cn/ziv/data-stack-web/commits/2805bc0))
+* **api:** add body ([d009e74](http://git.dtstack.cn/ziv/data-stack-web/commits/d009e74)), closes [#14099](http://redmine.prod.dtstack.cn/issues/14099)
+* **api:** add bodydesc to slide ([7731adb](http://git.dtstack.cn/ziv/data-stack-web/commits/7731adb))
+* **api:** add desc of api detail ([93c1683](http://git.dtstack.cn/ziv/data-stack-web/commits/93c1683)), closes [#13562](http://redmine.prod.dtstack.cn/issues/13562)
+* **api:** add edit module of approval ([36004b4](http://git.dtstack.cn/ziv/data-stack-web/commits/36004b4))
+* **api:** add host vaild ([0b98a85](http://git.dtstack.cn/ziv/data-stack-web/commits/0b98a85)), closes [#13936](http://redmine.prod.dtstack.cn/issues/13936)
+* **api:** add request module of test ([8764221](http://git.dtstack.cn/ziv/data-stack-web/commits/8764221))
+* **api:** add security ([cc980a0](http://git.dtstack.cn/ziv/data-stack-web/commits/cc980a0))
+* **api:** change api path doc ([7280d17](http://git.dtstack.cn/ziv/data-stack-web/commits/7280d17)), closes [#14051](http://redmine.prod.dtstack.cn/issues/14051)
+* **api:** change style of create api ([c8406d7](http://git.dtstack.cn/ziv/data-stack-web/commits/c8406d7))
+* chrome版本过低建议升级页面开发; ([39f3735](http://git.dtstack.cn/ziv/data-stack-web/commits/39f3735))
+* **api:** disable api name input in Chinese ([cb1e1ce](http://git.dtstack.cn/ziv/data-stack-web/commits/cb1e1ce))
+* **api:** fix style ([0a476b5](http://git.dtstack.cn/ziv/data-stack-web/commits/0a476b5)), closes [#13562](http://redmine.prod.dtstack.cn/issues/13562)
+* **doc:** update api doc ([0a56765](http://git.dtstack.cn/ziv/data-stack-web/commits/0a56765))
+* **ide console:** remove the default scrolling behavior ([d1f4139](http://git.dtstack.cn/ziv/data-stack-web/commits/d1f4139)), closes [#14013](http://redmine.prod.dtstack.cn/issues/14013) [#14012](http://redmine.prod.dtstack.cn/issues/14012)
+* **rdos:** modify hadoopmr task params ([a74ce3f](http://git.dtstack.cn/ziv/data-stack-web/commits/a74ce3f)), closes [#14310](http://redmine.prod.dtstack.cn/issues/14310)
+
+
+
 <a name="3.4.1"></a>
 ## [3.4.1](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.4.0...3.4.1) (2019-01-30)
 
