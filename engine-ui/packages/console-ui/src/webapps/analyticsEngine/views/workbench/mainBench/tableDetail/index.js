@@ -197,7 +197,7 @@ class TableDetail extends Component {
                       <tbody>
                           <tr>
                               <td>MAJOR_COMPACTION_SIZE</td>
-                              <td>{tableDetail.compactionSize || '-' + ' MB'}</td>
+                              <td>{(tableDetail.compactionSize || '-') + ' MB'}</td>
                               <td>AUTO_LOAD_MERGE</td>
                               <td>{tableDetail.autoLoadMerge === 1 ? 'true' : 'false'}</td>
                           </tr>
