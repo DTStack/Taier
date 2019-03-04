@@ -75,6 +75,14 @@ public class GroupPriorityQueue {
         return groupPriorityQueueMap;
     }
 
+    public int incrQueueSize(){
+        return queueJobSize.incrementAndGet();
+    }
+
+    public int decrQueueSize(){
+        return queueJobSize.decrementAndGet();
+    }
+
     public boolean remove(String groupName, String jobId) {
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
         if (queue == null) {
