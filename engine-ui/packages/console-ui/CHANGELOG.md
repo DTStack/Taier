@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.6"></a>
+## [3.3.6](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.5...3.3.6) (2019-03-04)
+
+
+
 <a name="3.3.5"></a>
 ## [3.3.5](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.4...3.3.5) (2019-01-25)
 
