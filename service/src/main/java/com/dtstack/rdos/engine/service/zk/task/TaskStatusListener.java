@@ -26,8 +26,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +33,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -151,7 +148,6 @@ public class TaskStatusListener implements Runnable{
                     try {
                         for (Map.Entry<String, Byte> entry : shardEntry.getValue().getView().entrySet()) {
                             try {
-                                Integer oldStatus = Integer.valueOf(entry.getValue());
                                 if (!RdosTaskStatus.needClean(entry.getValue().intValue())) {
                                     String zkTaskId = entry.getKey();
                                     int computeType = TaskIdUtil.getComputeType(zkTaskId);
@@ -159,9 +155,9 @@ public class TaskStatusListener implements Runnable{
                                     String taskId = TaskIdUtil.getTaskId(zkTaskId);
 
                                     if (computeType == ComputeType.STREAM.getType()) {
-                                        dealStreamJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                                        dealStreamJob(taskId, engineTypeName, zkTaskId, computeType);
                                     } else if (computeType == ComputeType.BATCH.getType()) {
-                                        dealBatchJob(taskId, engineTypeName, zkTaskId, computeType, oldStatus);
+                                        dealBatchJob(taskId, engineTypeName, zkTaskId, computeType);
                                     }
                                 }
                             } catch (Throwable e) {
@@ -181,7 +177,7 @@ public class TaskStatusListener implements Runnable{
         }
 	}
 
-	private void dealStreamJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
+	private void dealStreamJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
         RdosEngineStreamJob rdosTask = rdosStreamTaskDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosTask != null){
@@ -226,7 +222,7 @@ public class TaskStatusListener implements Runnable{
         }
     }
 
-    private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType, Integer oldStatus) throws Exception {
+    private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {
         RdosEngineBatchJob rdosBatchJob  = rdosBatchEngineJobDAO.getRdosTaskByTaskId(taskId);
 
         if(rdosBatchJob != null){

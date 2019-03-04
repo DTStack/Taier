@@ -159,7 +159,7 @@ public class WorkNode {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        saveCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+        updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
         //检查分片
         zkLocalCache.checkShard();
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
@@ -214,18 +214,14 @@ public class WorkNode {
         }
     }
 
-    /**
-     * 1. 接受到任务的时候需要将数据缓存
-     * 2. 添加到优先级队列之后保存
-     * 3. cache的移除在任务发送完毕之后
-     */
     public void saveCache(JobClient jobClient, int stage){
         String nodeAddress = zkDistributed.getLocalAddress();
-        if(engineJobCacheDao.getJobById(jobClient.getTaskId()) != null){
-            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
-        }else{
-            engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
-        }
+        engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
+    }
+
+    public void updateCache(JobClient jobClient, int stage){
+        String nodeAddress = zkDistributed.getLocalAddress();
+        engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
     }
 
     private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
