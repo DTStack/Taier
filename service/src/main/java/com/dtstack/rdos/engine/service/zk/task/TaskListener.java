@@ -56,26 +56,25 @@ public class TaskListener implements Runnable{
 					continue;
 				}
 
-				logger.warn("{}:{} addTaskIdToEngineTaskId...", jobClient.getTaskId(), jobClient.getEngineTaskId());
+				logger.warn("submit job failed, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
 				//存储执行日志
 				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
 
 				if(ComputeType.STREAM.getType().equals(jobClient.getComputeType().getType())){
-
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
 						JobResult jobResult = jobClient.getJobResult();
 						String appId = jobResult.getData(JobResult.EXT_ID_KEY);
 						rdosStreamTaskDAO.updateTaskEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(), appId);
-						WorkNode.getInstance().saveCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
-
-					}else{//设置为失败
+						WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+						jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
+						zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.SUBMITTED.getStatus());
+					}else{
+						//设置为失败
                         rdosStreamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus());
                         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
 						rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
-
 					rdosStreamTaskDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
-
 				}else if(ComputeType.BATCH.getType().equals(jobClient.getComputeType().getType())){
 
 					if(StringUtils.isNotBlank(jobClient.getEngineTaskId())){
@@ -83,15 +82,15 @@ public class TaskListener implements Runnable{
 						String appId = jobResult.getData(JobResult.EXT_ID_KEY);
 						rdosbatchJobDAO.updateJobEngineId(jobClient.getTaskId(), jobClient.getEngineTaskId(),appId);
 						rdosbatchJobDAO.updateSubmitLog(jobClient.getTaskId(), jobClient.getJobResult().getJsonStr());
-						WorkNode.getInstance().saveCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
-
+						WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+						jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
+						zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.SUBMITTED.getStatus());
 					}else{
 					    rdosbatchJobDAO.submitFail(jobClient.getTaskId(), RdosTaskStatus.FAILED.getStatus(), jobClient.getJobResult().getJsonStr());
 						zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
                         rdosEngineJobCacheDao.deleteJob(jobClient.getTaskId());
 					}
 				}
-
 			} catch (Throwable e) {
 				logger.error("TaskListener run error:{}", ExceptionUtil.getErrorMessage(e));
 			}

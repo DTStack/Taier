@@ -75,6 +75,14 @@ public class GroupPriorityQueue {
         return groupPriorityQueueMap;
     }
 
+    public int incrQueueSize(){
+        return queueJobSize.incrementAndGet();
+    }
+
+    public int decrQueueSize(){
+        return queueJobSize.decrementAndGet();
+    }
+
     public boolean remove(String groupName, String jobId) {
         OrderLinkedBlockingQueue<JobClient> queue = groupPriorityQueueMap.get(groupName);
         if (queue == null) {
@@ -121,12 +129,12 @@ public class GroupPriorityQueue {
              */
             if (queueJobSize.get() < QUEUE_SIZE_LIMITED) {
                 long limitId = ingestion.ingestion(GroupPriorityQueue.this, startId.get(), QUEUE_SIZE_LIMITED);
-                startId.set(limitId);
                 if (limitId != startId.get()){
                     stopAcquireCount.set(0);
                 } else if (stopAcquireCount.incrementAndGet() >= STOP_ACQUIRE_LIMITED) {
                     running.set(false);
                 }
+                startId.set(limitId);
             }
 
         }

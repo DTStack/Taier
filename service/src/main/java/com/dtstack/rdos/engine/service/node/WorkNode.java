@@ -132,22 +132,20 @@ public class WorkNode {
     /**
      * 提交优先级队列->最终提交到具体执行组件
      */
-    public void addSubmitJob(JobClient jobClient) {
+    public void addSubmitJob(JobClient jobClient, boolean insert) {
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
-        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
         jobClient.setCallBack((jobStatus)-> {
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
-        saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+        saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), insert);
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
-        this.redirectSubmitJob(jobClient);
+        this.redirectSubmitJob(jobClient, true);
     }
 
     /**
@@ -159,20 +157,20 @@ public class WorkNode {
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
-        saveCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
+        updateCache(jobClient, EJobCacheStage.IN_SUBMIT_QUEUE.getStage());
         //检查分片
         zkLocalCache.checkShard();
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
     }
 
-    public void redirectSubmitJob(JobClient jobClient){
+    public void redirectSubmitJob(JobClient jobClient, boolean judgeBlocked){
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k -> new GroupPriorityQueue(jobClient.getEngineType(),
                     (groupPriorityQueue, startId, limited) -> {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
             );
-            if (!groupQueue.isBlocked()){
+            if (!judgeBlocked || !groupQueue.isBlocked()){
                 groupQueue.add(jobClient);
             }
         }catch (Exception e){
@@ -188,7 +186,7 @@ public class WorkNode {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                    this.addSubmitJob(jobClient);
+                    this.addSubmitJob(jobClient, false);
                 } else {
                     this.afterSubmitJob(jobClient);
                 }
@@ -214,18 +212,18 @@ public class WorkNode {
         }
     }
 
-    /**
-     * 1. 接受到任务的时候需要将数据缓存
-     * 2. 添加到优先级队列之后保存
-     * 3. cache的移除在任务发送完毕之后
-     */
-    public void saveCache(JobClient jobClient, int stage){
+    public void saveCache(JobClient jobClient, int stage, boolean insert){
         String nodeAddress = zkDistributed.getLocalAddress();
-        if(engineJobCacheDao.getJobById(jobClient.getTaskId()) != null){
-            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
-        }else{
+        if(insert){
             engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
+        } else {
+            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
         }
+    }
+
+    public void updateCache(JobClient jobClient, int stage){
+        String nodeAddress = zkDistributed.getLocalAddress();
+        engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
     }
 
     private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
@@ -256,6 +254,12 @@ public class WorkNode {
         }
 
         boolean result = groupPriorityQueue.remove(groupName, jobId);
+        if (!result){
+            RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
+            if (jobCache !=null && jobCache.getStage() == EJobCacheStage.IN_PRIORITY_QUEUE.getStage()){
+                result = true;
+            }
+        }
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
@@ -285,7 +289,7 @@ public class WorkNode {
                 return result;
             }
             if (address.equals(zkDistributed.getLocalAddress())){
-                this.addSubmitJob(jobClient);
+                this.addSubmitJob(jobClient, true);
                 return result;
             }
             ParamAction paramAction = jobClient.getParamAction();
@@ -369,7 +373,7 @@ public class WorkNode {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                            this.addSubmitJob(jobClient);
+                            this.addSubmitJob(jobClient, false);
                         } else {
                             this.afterSubmitJob(jobClient);
                         }
@@ -402,6 +406,9 @@ public class WorkNode {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
+                        jobClient.setCallBack((jobStatus)-> {
+                            updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
+                        });
                         groupPriorityQueue.add(jobClient);
                         startId = jobCache.getId();
                         if (++count >= limited){

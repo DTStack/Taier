@@ -60,8 +60,8 @@ public class DataObject {
 	/**
 	 * getter for column 创建时间
 	 */
-	public String getGmtCreate() {
-		return DateUtil.getDate(this.gmtCreate, "yyyy-MM-dd");
+	public Date getGmtCreate() {
+		return this.gmtCreate;
 	}
 
 	/**
@@ -74,8 +74,8 @@ public class DataObject {
 	/**
 	 * getter for column 修改时间
 	 */
-	public String getGmtModified() {
-		return DateUtil.getDate(this.gmtModified,"yyyy-MM-dd");
+	public Date getGmtModified() {
+		return this.gmtModified;
 	}
 
 }

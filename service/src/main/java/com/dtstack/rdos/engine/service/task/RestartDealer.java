@@ -140,9 +140,12 @@ public class RestartDealer {
             return false;
         }
         try {
-
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
-            if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null)){
+            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null);
+            LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
+                                        jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
+
+            if(!needResubmit){
                 return false;
             }
 
@@ -157,9 +160,7 @@ public class RestartDealer {
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobClient.getTaskId();
             Integer finalComputeType = jobClient.getComputeType().getType();
-            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             jobClient.setCallBack((jobStatus)->{
-                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
@@ -231,7 +232,7 @@ public class RestartDealer {
         Integer computeType = jobClient.getComputeType().getType();
         String engineType = jobClient.getEngineType();
         //重试的时候，更改cache状态
-        WorkNode.getInstance().saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+        WorkNode.getInstance().updateCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
         String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
@@ -280,7 +281,7 @@ public class RestartDealer {
 
     private void addToRestart(JobClient jobClient){
         jobClient.setRestartTime(System.currentTimeMillis() + SUBMIT_INTERVAL);
-        WorkNode.getInstance().redirectSubmitJob(jobClient);
+        WorkNode.getInstance().redirectSubmitJob(jobClient, false);
     }
 
     /**

@@ -168,6 +168,7 @@ public class JobSubmitExecutor {
         private boolean submitJob(JobClient jobClient,OrderLinkedBlockingQueue<JobClient> priorityQueue){
             try {
                 jobSubmitPool.submit(new JobSubmitProcessor(jobClient, ()-> handlerNoResource(jobClient,priorityQueue)));
+                groupPriorityQueueMap.get(jobClient.getEngineType()).decrQueueSize();
                 return true;
             } catch (RejectedExecutionException e){
                 logger.error("", e);
@@ -179,6 +180,7 @@ public class JobSubmitExecutor {
             try {
                 jobClient.setPriority(jobClient.getPriority() + 100);
                 priorityQueue.put(jobClient);
+                groupPriorityQueueMap.get(jobClient.getEngineType()).incrQueueSize();
             } catch (InterruptedException e){
                 logger.error("add jobClient: " + jobClient.getTaskId() +" back to queue error:", e);
             }
