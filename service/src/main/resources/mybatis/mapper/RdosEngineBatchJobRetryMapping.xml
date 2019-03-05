@@ -17,13 +17,10 @@
         <result column="application_id" property="applicationId" jdbcType="VARCHAR"/>
         <result column="retry_num" property="retryNum" jdbcType="INTEGER" />
     </resultMap>
-	
+
    <insert id="insert" parameterType="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry">
 	   insert into rdos_engine_batch_job_retry(gmt_create,gmt_modified,exec_start_time,exec_end_time,job_id,engine_job_id,status,engine_log,log_info,application_id,retry_num)
 	   values(#{gmtCreate},#{gmtModified},#{execStartTime},#{execEndTime},#{jobId},#{engineJobId},#{status},#{engineLog},#{logInfo},#{applicationId},#{retryNum})
-	   <selectKey resultType="long" keyProperty="id" order="AFTER">
-	      SELECT LAST_INSERT_ID() AS ID
-	   </selectKey>
     </insert>
 
 </mapper>

@@ -1,13 +1,12 @@
 package com.dtstack.rdos.engine.service.db.dataobject;
 
 
-
 import java.util.Date;
 
 /**
  * @author toutian
  */
-public class RdosEngineBatchJobRetry extends DataObject{
+public class RdosEngineBatchJobRetry extends DataObject {
 
     /**
      * 工作任务id
@@ -70,20 +69,20 @@ public class RdosEngineBatchJobRetry extends DataObject{
     }
 
     public Date getExecStartTime() {
-    return execStartTime;
-}
+        return execStartTime;
+    }
 
     public void setExecStartTime(Date execStartTime) {
-    this.execStartTime = execStartTime;
-}
+        this.execStartTime = execStartTime;
+    }
 
     public Date getExecEndTime() {
-    return execEndTime;
-}
+        return execEndTime;
+    }
 
     public void setExecEndTime(Date execEndTime) {
-    this.execEndTime = execEndTime;
-}
+        this.execEndTime = execEndTime;
+    }
 
     public String getLogInfo() {
         return logInfo;
@@ -113,10 +112,26 @@ public class RdosEngineBatchJobRetry extends DataObject{
     public static RdosEngineBatchJobRetry toEntity(RdosEngineBatchJob batchJob) {
         RdosEngineBatchJobRetry batchJobRetry = new RdosEngineBatchJobRetry();
         batchJobRetry.setJobId(batchJob.getJobId());
-        batchJobRetry.setApplicationId(batchJob.getApplicationId());
-        batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
-        batchJobRetry.setEngineLog(batchJob.getEngineLog());
-        batchJobRetry.setLogInfo(batchJob.getLogInfo());
+        if (batchJob.getApplicationId() == null) {
+            batchJobRetry.setApplicationId("");
+        } else {
+            batchJobRetry.setApplicationId(batchJob.getApplicationId());
+        }
+        if (batchJob.getEngineJobId() == null) {
+            batchJobRetry.setEngineJobId("");
+        } else {
+            batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
+        }
+        if (batchJob.getEngineLog() == null) {
+            batchJobRetry.setEngineLog("");
+        } else {
+            batchJobRetry.setEngineLog(batchJob.getEngineLog());
+        }
+        if (batchJob.getLogInfo() == null) {
+            batchJobRetry.setLogInfo("");
+        } else {
+            batchJobRetry.setLogInfo(batchJob.getLogInfo());
+        }
         batchJobRetry.setExecStartTime(batchJob.getExecStartTime());
         batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
         batchJobRetry.setRetryNum(batchJob.getRetryNum());
