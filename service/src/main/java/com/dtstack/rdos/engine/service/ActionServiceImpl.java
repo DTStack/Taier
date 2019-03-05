@@ -96,7 +96,7 @@ public class ActionServiceImpl {
                 return result;
             }
             JobClient jobClient = new JobClient(paramAction);
-            workNode.addSubmitJob(jobClient);
+            workNode.addSubmitJob(jobClient, true);
         }catch (Exception e){
             logger.error("", e);
             result.put("send", false);

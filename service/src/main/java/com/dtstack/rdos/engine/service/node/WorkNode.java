@@ -132,7 +132,7 @@ public class WorkNode {
     /**
      * 提交优先级队列->最终提交到具体执行组件
      */
-    public void addSubmitJob(JobClient jobClient) {
+    public void addSubmitJob(JobClient jobClient, boolean insert) {
         Integer computeType = jobClient.getComputeType().getType();
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
@@ -141,7 +141,7 @@ public class WorkNode {
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
-        saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage());
+        saveCache(jobClient, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), insert);
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
@@ -186,7 +186,7 @@ public class WorkNode {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                 JobClient jobClient = new JobClient(paramAction);
                 if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                    this.addSubmitJob(jobClient);
+                    this.addSubmitJob(jobClient, false);
                 } else {
                     this.afterSubmitJob(jobClient);
                 }
@@ -212,9 +212,13 @@ public class WorkNode {
         }
     }
 
-    public void saveCache(JobClient jobClient, int stage){
+    public void saveCache(JobClient jobClient, int stage, boolean insert){
         String nodeAddress = zkDistributed.getLocalAddress();
-        engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
+        if(insert){
+            engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
+        } else {
+            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
+        }
     }
 
     public void updateCache(JobClient jobClient, int stage){
@@ -285,7 +289,7 @@ public class WorkNode {
                 return result;
             }
             if (address.equals(zkDistributed.getLocalAddress())){
-                this.addSubmitJob(jobClient);
+                this.addSubmitJob(jobClient, true);
                 return result;
             }
             ParamAction paramAction = jobClient.getParamAction();
@@ -369,7 +373,7 @@ public class WorkNode {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
                         if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()) {
-                            this.addSubmitJob(jobClient);
+                            this.addSubmitJob(jobClient, false);
                         } else {
                             this.afterSubmitJob(jobClient);
                         }
