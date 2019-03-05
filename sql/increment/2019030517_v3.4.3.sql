@@ -1,0 +1,1 @@
+alter table rdos_engine_batch_job_retry add COLUMN application_id varchar(256) DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id';
