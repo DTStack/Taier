@@ -145,7 +145,7 @@ public class WorkNode {
         updateJobStatus(jobClient.getTaskId(), computeType, RdosTaskStatus.WAITENGINE.getStatus());
 
         //加入节点的优先级队列
-        this.redirectSubmitJob(jobClient);
+        this.redirectSubmitJob(jobClient, true);
     }
 
     /**
@@ -163,14 +163,14 @@ public class WorkNode {
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId,RdosTaskStatus.SUBMITTED.getStatus());
     }
 
-    public void redirectSubmitJob(JobClient jobClient){
+    public void redirectSubmitJob(JobClient jobClient, boolean judgeBlocked){
         try{
             GroupPriorityQueue groupQueue = priorityQueueMap.computeIfAbsent(jobClient.getEngineType(), k -> new GroupPriorityQueue(jobClient.getEngineType(),
                     (groupPriorityQueue, startId, limited) -> {
                         return this.emitJob2GQ(jobClient.getEngineType(), groupPriorityQueue, startId, limited);
                     })
             );
-            if (!groupQueue.isBlocked()){
+            if (!judgeBlocked || !groupQueue.isBlocked()){
                 groupQueue.add(jobClient);
             }
         }catch (Exception e){

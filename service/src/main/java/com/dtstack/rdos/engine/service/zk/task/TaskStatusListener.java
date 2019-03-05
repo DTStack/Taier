@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class TaskStatusListener implements Runnable{
 
-	private static Logger logger = LoggerFactory.getLogger(TaskListener.class);
+	private static Logger logger = LoggerFactory.getLogger(TaskStatusListener.class);
 
 	/**最大允许查询不到任务信息的次数--超过这个次数任务会被设置为CANCELED*/
     public final static int NOT_FOUND_LIMIT_TIMES = 300;

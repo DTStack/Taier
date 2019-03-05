@@ -56,7 +56,7 @@ public class TaskListener implements Runnable{
 					continue;
 				}
 
-				logger.warn("{}:{} addTaskIdToEngineTaskId...", jobClient.getTaskId(), jobClient.getEngineTaskId());
+				logger.warn("submit job failed, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
 				//存储执行日志
 				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
 

@@ -140,9 +140,12 @@ public class RestartDealer {
             return false;
         }
         try {
-
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
-            if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null)){
+            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null);
+            LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
+                                        jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
+
+            if(!needResubmit){
                 return false;
             }
 
@@ -278,7 +281,7 @@ public class RestartDealer {
 
     private void addToRestart(JobClient jobClient){
         jobClient.setRestartTime(System.currentTimeMillis() + SUBMIT_INTERVAL);
-        WorkNode.getInstance().redirectSubmitJob(jobClient);
+        WorkNode.getInstance().redirectSubmitJob(jobClient, false);
     }
 
     /**
