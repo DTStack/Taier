@@ -155,6 +155,7 @@ export default class TaskVersion extends React.Component {
 
         switch (taskInfo.taskType) {
             case TASK_TYPE.SQL:
+            case TASK_TYPE.CARBONSQL:
             case TASK_TYPE.SYNC:
             case TASK_TYPE.SHELL:
             case TASK_TYPE.DATA_COLLECTION: {
