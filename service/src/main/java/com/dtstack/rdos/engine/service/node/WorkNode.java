@@ -137,9 +137,7 @@ public class WorkNode {
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
-        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
         jobClient.setCallBack((jobStatus)-> {
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 
@@ -404,9 +402,7 @@ public class WorkNode {
                     try {
                         ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                         JobClient jobClient = new JobClient(paramAction);
-                        String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
                         jobClient.setCallBack((jobStatus)-> {
-                            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
                             updateJobStatus(jobClient.getTaskId(), jobClient.getComputeType().getType(), jobStatus);
                         });
                         groupPriorityQueue.add(jobClient);

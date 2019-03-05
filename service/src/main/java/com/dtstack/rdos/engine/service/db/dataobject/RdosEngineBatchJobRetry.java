@@ -121,6 +121,8 @@ public class RdosEngineBatchJobRetry extends DataObject{
         batchJobRetry.setExecEndTime(batchJob.getExecEndTime());
         batchJobRetry.setRetryNum(batchJob.getRetryNum());
         batchJobRetry.setStatus(batchJob.getStatus());
+        batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
+        batchJobRetry.setGmtModified(batchJob.getGmtModified());
         return batchJobRetry;
     }
 }

@@ -117,6 +117,8 @@ public class RdosEngineStreamJobRetry extends DataObject{
 		streamJobRetry.setExecEndTime(streamJob.getExecEndTime());
 		streamJobRetry.setRetryNum(streamJob.getRetryNum());
 		streamJobRetry.setStatus(streamJob.getStatus());
+		streamJobRetry.setGmtCreate(streamJob.getGmtCreate());
+		streamJobRetry.setGmtModified(streamJob.getGmtModified());
 		return streamJobRetry;
 	}
 }
