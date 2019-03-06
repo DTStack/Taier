@@ -403,7 +403,6 @@ class DiffParams extends React.Component {
                         </TabPane>
                 }
                 {
-                    this.state.currentValue.taskType !== TASK_TYPE.SYNC &&
                     this.state.currentValue.taskType !== TASK_TYPE.WORKFLOW &&
                     <TabPane tab="环境参数" key="params">
                         <DiffCodeEditor
