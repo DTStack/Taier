@@ -269,6 +269,7 @@ export function TaskType (props) {
         case TASK_TYPE.WORKFLOW:
             return <span>工作流</span>
         case TASK_TYPE.SQL:
+            return <span>SparkSQL</span>
         case TASK_TYPE.CARBONSQL:
             return <span>CarbonSQL</span>
         default:
