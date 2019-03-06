@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.7"></a>
+## [3.3.7](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.6...3.3.7) (2019-03-06)
+
+
+### Bug Fixes
+
+* **rdos:** fix taskView layout problem ([c4dfbde](http://git.dtstack.cn/ziv/data-stack-web/commits/c4dfbde)), closes [#14416](http://redmine.prod.dtstack.cn/issues/14416)
+
+
+
 <a name="3.3.6"></a>
 ## [3.3.6](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.5...3.3.6) (2019-03-04)
 
