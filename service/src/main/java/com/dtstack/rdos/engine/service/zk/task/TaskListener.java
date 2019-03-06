@@ -53,10 +53,12 @@ public class TaskListener implements Runnable{
 				JobClient jobClient  = queue.take();
 
 				if(RestartDealer.getInstance().checkAndRestartForSubmitResult(jobClient)){
+					logger.warn("failed submit job restarting, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
 					continue;
 				}
 
-				logger.warn("submit job failed, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
+				logger.info("success submit job to Engine, jobId:{} jobResult:{} ...", jobClient.getTaskId(), jobClient.getJobResult());
+
 				//存储执行日志
 				String zkTaskId = TaskIdUtil.getZkTaskId(jobClient.getComputeType().getType(), jobClient.getEngineType(), jobClient.getTaskId());
 
