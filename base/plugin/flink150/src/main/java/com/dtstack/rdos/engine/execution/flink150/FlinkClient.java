@@ -522,25 +522,10 @@ public class FlinkClient extends AbsClient {
 
             String state = (String) stateObj;
             state = StringUtils.upperCase(state);
-            RdosTaskStatus status = RdosTaskStatus.getTaskStatus(state);
-            return status;
+            return RdosTaskStatus.getTaskStatus(state);
         }catch (Exception e){
-            //flink-session被kill的情况下，如果找不到application或appid不对，则为失败
-            //其他情况置为not find
-            ApplicationId appId = ((YarnClusterClient) flinkClient).getApplicationId();
-            ApplicationId yarnAppId = null;
-            try {
-                yarnAppId = flinkClientBuilder.acquireApplicationId(flinkClientBuilder.getYarnClusterDescriptor().getYarnClient(), flinkConfig);
-            } catch (RdosException appIdNotFindEx) {
-            }
-
-            if (yarnAppId != null && appId.toString().equals(yarnAppId.toString())){
-                logger.error("", e);
-                return RdosTaskStatus.NOTFOUND;
-            } else {
-                return RdosTaskStatus.FAILED;
-            }
-
+            logger.error("", e);
+            return RdosTaskStatus.NOTFOUND;
         }
 
     }
@@ -698,13 +683,9 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    private String getMessageByHttp(String path, String reqURL){
+    private String getMessageByHttp(String path, String reqURL) throws IOException {
         String reqUrl = String.format("%s%s", reqURL, path);
-        try {
-            return PoolHttpClient.get(reqUrl);
-        } catch (IOException e) {
-            throw new RdosException(ErrorCode.HTTP_CALL_ERROR, e);
-        }
+        return PoolHttpClient.get(reqUrl);
     }
 
     @Override
@@ -899,7 +880,12 @@ public class FlinkClient extends AbsClient {
             reqURL = currClient.getWebInterfaceURL();
         }
 
-        return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+        try {
+            return getMessageByHttp(String.format(FLINK_CP_URL_FORMAT, jobId), reqURL);
+        } catch (IOException e) {
+            logger.error("", e);
+            return null;
+        }
     }
 
     private boolean existsJobOnFlink(String engineJobId){
