@@ -981,10 +981,13 @@ class Keymap extends React.Component {
                             <br/>
                             {
                                 isHdfsType(targetSrcType) || isFtpType(targetSrcType)
-                                    ? <Button
-                                        onClick={() => { this.copySourceCols(sourceCol) }}>
-                                    拷贝源字段
-                                    </Button>
+                                    ? <>
+                                        <Button
+                                            onClick={() => { this.copySourceCols(sourceCol) }}>
+                                            拷贝源字段
+                                        </Button>
+                                        <br />
+                                    </>
                                     : ''
                             }
                             {
