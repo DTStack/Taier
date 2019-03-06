@@ -154,6 +154,9 @@ public class TaskStatusListener implements Runnable{
                                     String engineTypeName = TaskIdUtil.getEngineType(zkTaskId);
                                     String taskId = TaskIdUtil.getTaskId(zkTaskId);
 
+                                    //todo : 测试日志，便于排查问题
+                                    logger.info("jobId:{} status:{}", taskId, entry.getValue().intValue());
+
                                     if (computeType == ComputeType.STREAM.getType()) {
                                         dealStreamJob(taskId, engineTypeName, zkTaskId, computeType);
                                     } else if (computeType == ComputeType.BATCH.getType()) {
