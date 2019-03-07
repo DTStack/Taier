@@ -37,6 +37,8 @@ public class ExceptionInfoConstrant {
 
     public final static String  LEASE_EXPIRED_RESTART_EXCEPTION = "org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException)";
 
+    public final static String  AKKA_ASK_TIMEOUT_RESTART_EXCEPTION = "akka.pattern.AskTimeoutException";
+
     public final static String RESOURCE_OVER_LIMIT_RESTART_EXCEPTION = EngineResourceInfo.LIMIT_RESOURCE_ERROR;
 
 
