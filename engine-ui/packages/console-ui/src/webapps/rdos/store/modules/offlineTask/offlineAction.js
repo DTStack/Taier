@@ -250,7 +250,29 @@ export const workbenchActions = (dispatch) => {
                 });
             }
         });
-    }
+    };
+
+    /**
+     * 确定保存，提交Modal
+     */
+    const toggleConfirmModal = (data) => {
+        dispatch({
+            type: modalAction.TOGGLE_SAVE_MODAL,
+            payload: data
+        });
+    };
+    const togglePublishModal = (data) => {
+        dispatch({
+            type: modalAction.TOGGLE_PUBLISH_MODAL,
+            payload: data
+        });
+    };
+    const isSaveFInish = (data) => {
+        dispatch({
+            type: modalAction.IS_SAVE_FINISH,
+            payload: data
+        });
+    };
 
     /**
      * 在 Modal 框编辑任务
@@ -286,6 +308,12 @@ export const workbenchActions = (dispatch) => {
          * 在 Modal 框编辑任务
          */
         onEditTaskByModal,
+        /**
+         * 保存提交Modal
+        */
+        toggleConfirmModal,
+        togglePublishModal,
+        isSaveFInish,
         /**
          * 更新目录
          */
@@ -566,8 +594,10 @@ export const workbenchActions = (dispatch) => {
          * @param {} params
          * @param {*} isSave
          * @param {*} type
+         * @param {*} isButtonSubmit // 判断保存操作
+         * 是否是从提交确认保存 还是直接保存
          */
-        saveTab (params, isSave, type) {
+        saveTab (params, isSave, type, isButtonSubmit) {
             const updateTaskInfo = function (data) {
                 dispatch({
                     type: workbenchAction.SET_TASK_FIELDS_VALUE,
@@ -585,6 +615,15 @@ export const workbenchActions = (dispatch) => {
                     const lockStatus = lockInfo.result; // 1-正常，2-被锁定，3-需同步
                     if (lockStatus === 0) {
                         message.success(isSave ? '保存成功！' : '发布成功！');
+                        setTimeout(() => {
+                            if (isButtonSubmit) {
+                                isSaveFInish(true);
+                                toggleConfirmModal(false);
+                                togglePublishModal(true);
+                            } else {
+                                isSaveFInish(true);
+                            }
+                        }, 500)
                         updateTaskInfo({
                             version: fileData.version,
                             readWriteLockVO: fileData.readWriteLockVO

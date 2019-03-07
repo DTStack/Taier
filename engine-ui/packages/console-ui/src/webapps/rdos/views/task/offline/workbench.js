@@ -45,9 +45,6 @@ class Workbench extends React.Component {
 
     state = {
         visible: false,
-        confirmSaveVisible: false,
-        showPublish: false,
-        theReqIsEnd: true,
         submitLoading: false
     }
 
@@ -109,7 +106,7 @@ class Workbench extends React.Component {
         }
 
         if (vaildPass) {
-            this.setState({ showPublish: true })
+            this.props.togglePublishModal(true)
         }
     }
 
@@ -127,19 +124,15 @@ class Workbench extends React.Component {
         this.props.dispatch(showSeach(true));
     }
     showConfirmModal = () => {
-        this.setState({
-            confirmSaveVisible: true
-        })
+        this.props.toggleConfirmModal(true)
     }
     renderConfirSave = () => {
         return (
             <Modal
                 title='提交'
-                visible={this.state.confirmSaveVisible}
+                visible={this.props.confirmSaveVisible}
                 onCancel={() => {
-                    this.setState({
-                        confirmSaveVisible: false
-                    })
+                    this.props.toggleConfirmModal(false)
                 }}
                 onOk={() => {
                     this.saveTab(true, 'popOut')
@@ -157,7 +150,7 @@ class Workbench extends React.Component {
                 wrapClassName="vertical-center-modal"
                 title="提交任务"
                 style={{ height: '600px', width: '600px' }}
-                visible={this.state.showPublish}
+                visible={this.props.showPublish}
                 onCancel={this.closePublish}
                 onOk={this.submitTab.bind(this)}
                 confirmLoading={submitLoading}
@@ -209,7 +202,7 @@ class Workbench extends React.Component {
         } = this.props;
 
         const { sourceMap, targetMap } = dataSync;
-        const { theReqIsEnd } = this.state;
+        const { theReqIsEnd } = this.props;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
         const couldEdit = isProjectCouldEdit(project, user);
         let isSaveAvaliable = false;
@@ -387,9 +380,9 @@ class Workbench extends React.Component {
 
     closePublish = () => {
         this.setState({
-            publishDesc: '',
-            showPublish: false
+            publishDesc: ''
         })
+        this.props.togglePublishModal(false)
     }
 
     renderTabs (tabs) {
@@ -427,8 +420,8 @@ class Workbench extends React.Component {
     }
 
     saveTab (isSave, saveMode) {
-        const isPopOut = saveMode == 'popOut';
-        this.setState({ theReqIsEnd: false })
+        const isButtonSubmit = saveMode == 'popOut';
+        this.props.isSaveFInish(true)
         const { saveTab, currentTabData } = this.props;
 
         // 如果是工作流任务，需要对保存操作提前做校验
@@ -450,16 +443,16 @@ class Workbench extends React.Component {
             type = 'script';
         }
 
-        saveTab(saveData, isSave, type);
-        setTimeout(() => {
-            isPopOut ? this.setState({
-                theReqIsEnd: true,
-                confirmSaveVisible: false,
-                showPublish: true
-            }) : this.setState({
-                theReqIsEnd: true
-            })
-        }, 500);
+        saveTab(saveData, isSave, type, isButtonSubmit);
+        // setTimeout(() => {
+        //     isButtonSubmit ? this.setState({
+        //         theReqIsEnd: true,
+        //         confirmSaveVisible: false,
+        //         showPublish: true
+        //     }) : this.setState({
+        //         theReqIsEnd: true
+        //     })
+        // }, 500);
     }
 
     submitTab () {
@@ -561,9 +554,9 @@ class Workbench extends React.Component {
 }
 
 const mapState = state => {
-    const { workbench, dataSync, scriptTree } = state.offlineTask;
+    const { workbench, dataSync, scriptTree, modalShow } = state.offlineTask;
     const { currentTab, tabs, taskCustomParams } = workbench;
-
+    const { confirmSaveVisible, showPublish, theReqIsEnd } = modalShow
     const currentTabData = tabs.filter(tab => {
         return tab.id === currentTab;
     })[0];
@@ -574,6 +567,9 @@ const mapState = state => {
         tabs,
         dataSync,
         taskCustomParams,
+        confirmSaveVisible,
+        showPublish,
+        theReqIsEnd,
         user: state.user,
         uploader: state.uploader,
         scriptTreeData: scriptTree,
