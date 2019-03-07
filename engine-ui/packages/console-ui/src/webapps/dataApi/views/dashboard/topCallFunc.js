@@ -17,7 +17,7 @@ class TopCall extends Component {
             return;
         }
         this.props.router.push({
-            pathname: '/api/mine/approved',
+            pathname: '/api/mine/myApi/approved',
             query: {
                 apiName: apiName,
                 apiId: text

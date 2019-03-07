@@ -190,7 +190,7 @@ class APIMarket extends Component {
     }
     dealcomplete (record) {
         this.props.router.push({
-            pathname: '/api/mine/approved',
+            pathname: '/api/mine/myApi/approved',
             query: {
                 apiId: record.key,
                 apiName: record.apiName
@@ -211,7 +211,7 @@ class APIMarket extends Component {
     }
     dealapplying (record) {
         this.props.router.push({
-            pathname: '/api/mine/notApproved',
+            pathname: '/api/mine/myApi/notApproved',
             query: {
                 apiId: record.key,
                 apiName: record.apiName
@@ -351,7 +351,7 @@ class APIMarket extends Component {
 
     jumpToMine () {
         modal.destroy();
-        this.props.router.push('/api/mine');
+        this.props.router.push('/api/mine/myApi');
     }
     showApplySuccessModal () {
         modal = Modal.success({
