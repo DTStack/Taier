@@ -21,7 +21,10 @@ export const modalAction = mc([
     'SHOW_RESVIEW_MODAL',
     'HIDE_RESVIEW_MODAL',
     'TOGGLE_CREATE_SCRIPT',
-    'SET_MODAL_CREATE_ORIGIN'
+    'SET_MODAL_CREATE_ORIGIN',
+    'TOGGLE_SAVE_MODAL',
+    'TOGGLE_PUBLISH_MODAL',
+    'IS_SAVE_FINISH'
 ], { prefix: 'offline/modal/' });
 
 export const workflowAction = mc([
