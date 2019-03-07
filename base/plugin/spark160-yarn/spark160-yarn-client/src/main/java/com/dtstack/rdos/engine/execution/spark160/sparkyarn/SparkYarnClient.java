@@ -70,13 +70,15 @@ public class SparkYarnClient extends AbsClient {
 
     private YarnClient yarnClient;
 
+    private Properties sparkExtProp;
+
     public SparkYarnClient(){
         this.restartStrategy = new SparkRestartStrategy();
     }
 
-
     @Override
     public void init(Properties prop) throws Exception {
+        this.sparkExtProp = prop;
         String propStr = PublicUtil.objToString(prop);
         sparkYarnConfig = PublicUtil.jsonStrToObject(propStr, SparkYarnConfig.class);
         setHadoopUserName(sparkYarnConfig);
@@ -278,6 +280,13 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.dependence.jars", sparkYarnConfig.getSparkSqlDependenceJars());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
+        if(sparkExtProp != null){
+            sparkExtProp.forEach((key, value) -> {
+                if (key.toString().contains(".")) {
+                    sparkConf.set(key.toString(), value.toString());
+                }
+            });
+        }
         SparkConfig.initDefautlConf(sparkConf);
         return sparkConf;
     }
