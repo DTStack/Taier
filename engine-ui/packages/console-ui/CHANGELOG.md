@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.8"></a>
+## [3.3.8](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.7...3.3.8) (2019-03-07)
+
+
+### Features
+
+* **data source:** remove end point valid ([8110f2c](http://git.dtstack.cn/ziv/data-stack-web/commits/8110f2c))
+* **rdos:** remove datasource hdfs ([aa26051](http://git.dtstack.cn/ziv/data-stack-web/commits/aa26051)), closes [#14473](http://redmine.prod.dtstack.cn/issues/14473)
+
+
+
 <a name="3.3.7"></a>
 ## [3.3.7](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.6...3.3.7) (2019-03-06)
 
