@@ -406,11 +406,11 @@ class Main extends Component {
 
     render () {
         let { children, licenseApps } = this.props;
-        let lowVersionChrome = utils.isLowVersionChrome();
+        let browserCheck = utils.browserCheck();
         if (!licenseApps) {
             children = <GlobalLoading />
         }
-        if (lowVersionChrome) {
+        if (!browserCheck) {
             children = <div>
                 <Header />
                 <ChromeDownload />
