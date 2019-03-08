@@ -47,7 +47,7 @@ public class JobSubmitProcessor implements Runnable {
                     logger.info("--------submit job:{} to engine start----.", jobClient.toString());
                 }
 
-                jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTED.getStatus());
+                jobClient.doStatusCallBack(RdosTaskStatus.SUBMITTING.getStatus());
 
                 jobResult = clusterClient.submitJob(jobClient);
 

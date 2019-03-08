@@ -131,9 +131,7 @@ public class WorkNode {
         if(jobClient.getPluginInfo() != null){
             updateJobClientPluginInfo(jobClient.getTaskId(), computeType, jobClient.getPluginInfo());
         }
-        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, jobClient.getEngineType(), jobClient.getTaskId());
         jobClient.setCallBack((jobStatus)-> {
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
             updateJobStatus(jobClient.getTaskId(), computeType, jobStatus);
         });
 

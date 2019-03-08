@@ -438,8 +438,9 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
         if (o == null){ return false;}
         allLock.lock();
         try {
+            String oId = ((OrderObject)o).getId();
             for (Node<E> p = head.next; p != null; p = p.next){
-                if (o.equals(p.item)){
+                if (oId.equals(((OrderObject)p.item).getId())) {
                     return true;
                 }
             }

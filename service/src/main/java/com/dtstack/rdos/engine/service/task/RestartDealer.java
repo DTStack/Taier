@@ -150,9 +150,7 @@ public class RestartDealer {
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobClient.getTaskId();
             Integer finalComputeType = jobClient.getComputeType().getType();
-            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             jobClient.setCallBack((jobStatus)->{
-                zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
