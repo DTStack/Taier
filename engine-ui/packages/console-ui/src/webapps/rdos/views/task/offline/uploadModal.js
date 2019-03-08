@@ -24,7 +24,7 @@ class ResForm extends React.Component {
         this.state = {
             file: '',
             accept: '.jar',
-            fileType: props.defaultData.resourceType || RESOURCE_TYPE.JAR
+            fileType: props.defaultData ? props.defaultData.resourceType : RESOURCE_TYPE.JAR
         };
     }
 
@@ -37,24 +37,37 @@ class ResForm extends React.Component {
         this.props.form.validateFields(['id']);
     }
 
-    validateFileType (rule, value, callback) {
-        /* eslint-disable-next-line */
-        const reg = /\.(jar|sql|py|egg|zip)$/;
-
-        if (value && !reg.test(value.toLocaleLowerCase())) {
-            /* eslint-disable-next-line */
-            callback('资源文件只能是Jar、SQL、egg、Zip或者Python文件!');
+    validateFileType = (rule, value, callback) => {
+        if (!value) {
+            // eslint-disable-next-line
+            callback();
+            return;
+        }
+        const { fileType } = this.state;
+        const fileSuffix = RESOURCE_TYPE[fileType];
+        const suffix = value.split('.').slice(1).pop();
+        if (fileType == RESOURCE_TYPE.OTHER) {
+            callback();
+            return;
+        }
+        if (fileSuffix != suffix) {
+            // eslint-disable-next-line
+            callback(`资源文件只能是${fileSuffix}文件!`);
+            return;
         }
         callback();
     }
 
     fileChange (e) {
         const file = e.target;
-
         this.setState({ file });
         this.props.handleFileChange(file);
     }
-
+    resetFile () {
+        this.setState({ file: '' });
+        this.props.handleFileChange('');
+        this.props.form.resetFields(['file']);
+    }
     renderFormItem = () => {
         const { file, fileType } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -62,6 +75,10 @@ class ResForm extends React.Component {
             defaultData, isEditExist, isCreateFromMenu,
             isCreateNormal, isCoverUpload
         } = this.props;
+        let accept;
+        if (fileType != RESOURCE_TYPE.OTHER) {
+            accept = `.${RESOURCE_TYPE[fileType]}`;
+        }
 
         if (!isCoverUpload) {
             return [
@@ -101,6 +118,7 @@ class ResForm extends React.Component {
                             this.setState({
                                 fileType: value
                             })
+                            this.resetFile();
                         }}>
                             <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
                             <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
@@ -128,10 +146,11 @@ class ResForm extends React.Component {
                                 style={{ lineHeight: '28px' }}
                                 className="ant-btn btn-upload"
                                 htmlFor="myOfflinFile">选择文件</label>
-                            <span> {file.files && file.files[0].name}</span>
+                            <span> {file.files && file.files.length && file.files[0].name}</span>
                             <input
                                 name="file"
                                 type="file"
+                                accept={accept}
                                 id="myOfflinFile"
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
@@ -237,6 +256,7 @@ class ResForm extends React.Component {
                             this.setState({
                                 fileType: value
                             })
+                            this.resetFile();
                         }}>
                             <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
                             <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
@@ -264,11 +284,12 @@ class ResForm extends React.Component {
                                 style={{ lineHeight: '28px' }}
                                 className="ant-btn"
                                 htmlFor="myOfflinFile">选择文件</label>
-                            <span> {file.files && file.files[0].name}</span>
+                            <span> {file.files && file.files.length && file.files[0].name}</span>
                             <input
                                 name="file"
                                 type="file"
                                 id="myOfflinFile"
+                                accept={accept}
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
                             />
@@ -358,11 +379,9 @@ class ResForm extends React.Component {
 }
 
 const ResFormWrapper = Form.create()(ResForm);
-
 class ResModal extends React.Component {
     constructor (props) {
         super(props);
-
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.state = {
