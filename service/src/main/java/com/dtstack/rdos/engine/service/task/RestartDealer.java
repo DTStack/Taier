@@ -135,7 +135,10 @@ public class RestartDealer {
         try {
 
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
-            if(!checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null)){
+            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null);
+            LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
+                                        jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
+            if(!needResubmit){
                 return false;
             }
 
