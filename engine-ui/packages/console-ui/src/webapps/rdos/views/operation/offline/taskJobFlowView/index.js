@@ -256,10 +256,10 @@ class TaskJobFlowView extends Component {
                     })
                 }, null, null,
                 // 显示终止操作
-                currentNode.status === TASK_STATUS.RUNNING || // 运行中
-                    currentNode.status === TASK_STATUS.RESTARTING || // 重启中
-                    currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
-                    currentNode.status === TASK_STATUS.WAIT_RUN
+                currentNode.status === TASK_STATUS.WAIT_SUBMIT || // 等待提交
+                    currentNode.status === TASK_STATUS.SUBMITTING || // 提交中
+                    currentNode.status === TASK_STATUS.WAIT_RUN || // 等待运行
+                    currentNode.status === TASK_STATUS.RUNNING // 运行中
                 )
 
                 menu.addItem('刷新任务实例', null, function () {
