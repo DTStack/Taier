@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.5.0"></a>
+# [3.5.0](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.4.2...3.5.0) (2019-03-08)
+
+
+### Bug Fixes
+
+* add a new login expire code 10 to interceptor ([6d1adc4](http://git.dtstack.cn/ziv/data-stack-web/commits/6d1adc4))
+* alter the doc file path of showCreateTable ([d9ae3a6](http://git.dtstack.cn/ziv/data-stack-web/commits/d9ae3a6))
+* **rdos:** fix conflic ([069c1a7](http://git.dtstack.cn/ziv/data-stack-web/commits/069c1a7))
+* resolve conflicts ([1938524](http://git.dtstack.cn/ziv/data-stack-web/commits/1938524))
+* **fix conflict:** fix conflict ([2bbd388](http://git.dtstack.cn/ziv/data-stack-web/commits/2bbd388))
+* **rdos:** dataSync task add environment params tab ([3ba1cf7](http://git.dtstack.cn/ziv/data-stack-web/commits/3ba1cf7))
+* **rdos:** del analytics hint ([dee921f](http://git.dtstack.cn/ziv/data-stack-web/commits/dee921f)), closes [fix#14462](http://git.dtstack.cn/fix/issues/14462)
+* **rdos:** fix carbonsql ([238315b](http://git.dtstack.cn/ziv/data-stack-web/commits/238315b))
+* **rdos:** fix carbonsql ([e08b279](http://git.dtstack.cn/ziv/data-stack-web/commits/e08b279))
+* **rdos:** fix clone refresh ([2b1e576](http://git.dtstack.cn/ziv/data-stack-web/commits/2b1e576)), closes [#14096](http://redmine.prod.dtstack.cn/issues/14096)
+* **rdos:** fix conditions of  one-click generate target table ([348f139](http://git.dtstack.cn/ziv/data-stack-web/commits/348f139))
+* **rdos:** fix conflict ([1ff07db](http://git.dtstack.cn/ziv/data-stack-web/commits/1ff07db))
+* **rdos:** fix icon ([d0ef933](http://git.dtstack.cn/ziv/data-stack-web/commits/d0ef933))
+* **rdos:** fix patchdata ([a3b8f77](http://git.dtstack.cn/ziv/data-stack-web/commits/a3b8f77)), closes [#14283](http://redmine.prod.dtstack.cn/issues/14283)
+* **rdos:** reduce the analyticsoucedata scope ([76a6fda](http://git.dtstack.cn/ziv/data-stack-web/commits/76a6fda))
+* **rdos operation:** add minute checkbox ([2844512](http://git.dtstack.cn/ziv/data-stack-web/commits/2844512))
+* **rdos operation:** add tasktype ([ec36aff](http://git.dtstack.cn/ziv/data-stack-web/commits/ec36aff))
+* **rdos task:** fix workflow overlapping ([1223713](http://git.dtstack.cn/ziv/data-stack-web/commits/1223713))
+* **rdos task:** otimize code ([1cb04da](http://git.dtstack.cn/ziv/data-stack-web/commits/1cb04da))
+* **rdos task:** rollback stable ([028e43a](http://git.dtstack.cn/ziv/data-stack-web/commits/028e43a))
+* **version:** 3.5 ([76d43f5](http://git.dtstack.cn/ziv/data-stack-web/commits/76d43f5))
+
+
+### Features
+
+* **data-manager:** add isDeleted checkbox ([d3a61b9](http://git.dtstack.cn/ziv/data-stack-web/commits/d3a61b9)), closes [#12669](http://redmine.prod.dtstack.cn/issues/12669)
+* **doc:** update api doc ([fa170b3](http://git.dtstack.cn/ziv/data-stack-web/commits/fa170b3))
+* editor add sql syntax help pane ([499648f](http://git.dtstack.cn/ziv/data-stack-web/commits/499648f))
+* **editor:** add showRightExtraPane new reducer and actions ([4127398](http://git.dtstack.cn/ziv/data-stack-web/commits/4127398))
+* **merge:** fix ([4e292f5](http://git.dtstack.cn/ziv/data-stack-web/commits/4e292f5))
+* **rdos:** feat clone to workflow ([10868fb](http://git.dtstack.cn/ziv/data-stack-web/commits/10868fb))
+* **rdos datamap:** feat datasync datamap ([8b2832d](http://git.dtstack.cn/ziv/data-stack-web/commits/8b2832d))
+* **rdos opera task:** patch data minute and clone to workflow ([bd8ca96](http://git.dtstack.cn/ziv/data-stack-web/commits/bd8ca96))
+* **rdos operation:** add patchdata minute ([367f55c](http://git.dtstack.cn/ziv/data-stack-web/commits/367f55c))
+* **rdos task:** task clone refresh workflow ([fb7109d](http://git.dtstack.cn/ziv/data-stack-web/commits/fb7109d))
+* support visit the history of params or codes for all tasks ([b445a2e](http://git.dtstack.cn/ziv/data-stack-web/commits/b445a2e)), closes [#13538](http://redmine.prod.dtstack.cn/issues/13538)
+* **stream:** add source msg ([44902ad](http://git.dtstack.cn/ziv/data-stack-web/commits/44902ad)), closes [#12748](http://redmine.prod.dtstack.cn/issues/12748)
+* **stream:** add text overflow handliing ([3f30733](http://git.dtstack.cn/ziv/data-stack-web/commits/3f30733))
+* **widgets:** add a new markdonw render component ([1feae92](http://git.dtstack.cn/ziv/data-stack-web/commits/1feae92))
+
+
+
 <a name="3.4.2"></a>
 ## [3.4.2](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.4.1...3.4.2) (2019-03-04)
 
