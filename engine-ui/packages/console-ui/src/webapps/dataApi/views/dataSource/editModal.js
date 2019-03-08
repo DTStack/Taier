@@ -125,6 +125,7 @@ class DataSourceModal extends Component {
         const { form, sourceData } = this.props;
         const { getFieldDecorator } = form;
         const config = sourceData.dataJson || {};
+        const jdbcHelpDoc = jdbcUrlExample[sourceType];
         console.log(sourceType);
 
         switch (sourceType) {
@@ -233,7 +234,7 @@ class DataSourceModal extends Component {
                         {
                             getFieldDecorator('dataJson.endPoint', {
                                 rules: [{
-                                    required: true, message: 'End Point不可为空！'
+                                    required: false, message: 'End Point不可为空！'
                                 }],
                                 initialValue: config.endPoint || ''
                             })(
@@ -313,9 +314,11 @@ class DataSourceModal extends Component {
                                 <Input autoComplete="off" />
                             )
                         }
-                        <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcUrlExample[sourceType]}>
-                            <Icon className="help-doc" type="question-circle-o" />
-                        </Tooltip>
+                        {jdbcHelpDoc && (
+                            <Tooltip overlayClassName="big-tooltip" title={'示例：' + jdbcHelpDoc}>
+                                <Icon className="help-doc" type="question-circle-o" />
+                            </Tooltip>
+                        )}
                     </FormItem>,
                     <FormItem {...formItemLayout} label="用户名" key="username" hasFeedback>
                         {
