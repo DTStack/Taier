@@ -972,9 +972,7 @@ class DataSourceForm extends Component {
 
     render () {
         const { visible, title, sourceTypes } = this.props
-
         const FormWrapper = Form.create()(BaseForm)
-
         return (
             <Modal
                 title={title}

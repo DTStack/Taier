@@ -4,7 +4,7 @@ import {
     Input, Button,
     Select, Form, Checkbox,
     Radio, Modal, Tooltip,
-    Icon
+    Icon, Alert
 } from 'antd'
 
 import { isEmpty } from 'lodash';
@@ -1032,12 +1032,20 @@ class DataSourceForm extends Component {
         this.myFrom.resetFields()
         handCancel()
     }
-
+    isShowWarning () {
+        const { project, sourceData = {} } = this.props;
+        const projectName = project.projectName;
+        if (sourceData) {
+            if (sourceData.dataName == projectName) {
+                return true;
+            }
+        }
+        return false;
+    }
     render () {
-        const { visible, title, sourceTypes } = this.props
-
+        const { visible, title, sourceTypes } = this.props;
+        const isShowWarning = this.isShowWarning();
         const FormWrapper = Form.create()(BaseForm)
-
         return (
             <Modal
                 title={title}
@@ -1047,6 +1055,7 @@ class DataSourceForm extends Component {
                 footer={false}
                 maskClosable={false}
             >
+                {isShowWarning && (<Alert style={{ marginBottom: '15px' }} message="项目自身数据源，建议不要修改" type="warning" showIcon />)}
                 <FormWrapper
                     types={sourceTypes}
                     ref={el => this.myFrom = el}
