@@ -149,7 +149,8 @@ export const TASK_TYPE = { // 任务类型
     ML: 8,
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
-    DATA_COLLECTION: 11// 实时采集
+    DATA_COLLECTION: 11, // 实时采集
+    CARBONSQL: 12 // CarbonSQL
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
@@ -196,7 +197,12 @@ export const HELP_DOC_URL = {
     DATA_SYNC: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/JobConfig.html',
     TASKPARAMS: '/public/helpSite/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
 }
-
+export const HADOOPMR_INITIAL_VALUE = {
+    'mapper': 'org.apache.hadoop.examples.WordCount$TokenizerMapper',
+    'reducer': 'org.apache.hadoop.examples.WordCount$IntSumReducer',
+    'inputPath': 'input.txt',
+    'outputPath': 'output3.txt'
+}
 export const TASK_STATUS = { // 任务状态
     ALL: null,
     WAIT_SUBMIT: 0,
@@ -424,6 +430,10 @@ export const offlineTaskTypeFilter = [
         id: 10,
         text: 'HadoopMR',
         value: TASK_TYPE.HAHDOOPMR
+    }, {
+        id: 12,
+        text: 'CarbonSQL',
+        value: TASK_TYPE.CARBONSQL
     }]
 
 export const offlineTaskPeriodFilter = [{

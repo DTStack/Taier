@@ -419,7 +419,6 @@ class WorkflowEditor extends Component {
 
     initGraphData = (cells) => {
         const { tabs, updateTabData, data } = this.props;
-
         const waitUpdateTabs = [];
         if (cells) {
             for (let i = 0; i < cells.length; i++) {

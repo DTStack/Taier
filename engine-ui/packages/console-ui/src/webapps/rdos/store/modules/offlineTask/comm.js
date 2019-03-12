@@ -40,7 +40,6 @@ const tables = (state = {}, action) => {
         default: return newState;
     }
 }
-
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
@@ -66,7 +65,6 @@ export const getTableList = (projectId) => {
         })
     }
 }
-
 export const getTaskTypes = () => {
     return (dispatch, getState) => {
         const currentState = getState();

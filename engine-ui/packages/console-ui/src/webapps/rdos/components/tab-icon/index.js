@@ -71,6 +71,10 @@ export default class TabIcon extends Component {
                     iconName = 'workflow.svg';
                     break;
                 }
+                case TASK_TYPE.CARBONSQL: {
+                    iconName = 'carbonsql.svg';
+                    break;
+                }
                 default:
                     return '';
             }

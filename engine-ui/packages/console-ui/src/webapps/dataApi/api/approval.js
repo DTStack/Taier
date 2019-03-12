@@ -8,6 +8,9 @@ export default {
     handleApply (params) {
         return http.post(req.HANDLE_APPLY, params);
     },
+    editHandleApply (params) {
+        return http.post(req.EDIT_HANDLE_APPLY, params);
+    },
     getSecurityList (params) {
         return http.post(req.GET_SECURITY_LIST, params);
     },

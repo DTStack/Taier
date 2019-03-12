@@ -1,10 +1,13 @@
 import React from 'react';
 import { Table, Input, Button, Checkbox, Form, InputNumber } from 'antd'
 
-import { API_METHOD_KEY } from '../../../consts';
+import { API_METHOD_KEY, PARAMS_POSITION } from '../../../consts';
 import ColumnsModel from '../../../model/columnsModel'
 import { inputColumnsKeys } from '../../../model/inputColumnModel';
 import ConstColumnModel, { constColumnsKeys } from '../../../model/constColumnModel';
+
+import Editor from 'widgets/editor'
+import utils from 'utils';
 
 const TextArea = Input.TextArea;
 const FormItem = Form.Item;
@@ -24,9 +27,14 @@ const pageInput = [new ColumnsModel({
     required: false
 })];
 class TestApi extends React.Component {
-    state = {
-        results: [],
-        status: apiTestStatus.NOTHING
+    constructor (props) {
+        super(props);
+        this.state = {
+            results: [],
+            status: apiTestStatus.NOTHING,
+            sync: true,
+            testBody: props.registerParams.bodyDesc
+        }
     }
     prev () {
         this.props.prev();
@@ -132,12 +140,13 @@ class TestApi extends React.Component {
     }
     testApi () {
         const { validateFieldsAndScroll } = this.props.form;
+        const { testBody } = this.state;
         validateFieldsAndScroll({}, (err, values) => {
             if (!err) {
                 this.setState({
                     loading: true
                 })
-                this.props.apiTest(values)
+                this.props.apiTest(values, { bodyDesc: testBody })
                     .then(() => {
                         this.setState({
                             loading: false
@@ -182,7 +191,7 @@ class TestApi extends React.Component {
         }
     }
     wrapInputParams () {
-        const { isRegister } = this.props;
+        const { isRegister, registerParams } = this.props;
         const { inputParam, resultPageChecked } = this.props.paramsConfig;
         const { inputParam: registerInputParams } = this.props.registerParams;
         if (!isRegister) {
@@ -191,6 +200,17 @@ class TestApi extends React.Component {
             }
             return inputParam || [];
         } else {
+            /**
+             * 存在bodyDesc，则不现实body参数
+             */
+            if (registerParams.bodyDesc) {
+                return [].concat(registerInputParams || []).filter((param) => {
+                    if (param[inputColumnsKeys.POSITION] == PARAMS_POSITION.BODY) {
+                        return false
+                    }
+                    return true;
+                });
+            }
             return [].concat(registerInputParams || []);
         }
     }
@@ -198,15 +218,56 @@ class TestApi extends React.Component {
         const { constParam } = this.props.registerParams;
         return constParam;
     }
+    editorChange (value) {
+        this.setState({
+            sync: false,
+            testBody: value
+        })
+    }
     pass () {
         this.props.dataChange();
     }
+    renderRequest (request) {
+        if (!request) {
+            return null;
+        }
+        function renderHeaders (headers = {}) {
+            if (!headers) {
+                return '';
+            }
+            let keyAndValus = Object.entries(headers);
+            return keyAndValus.map(([key, value]) => {
+                return `\t${key}: ${value}`;
+            }).join('\n')
+        }
+        function renderBody (body) {
+            return body.split('\n').join('\n\t');
+        }
+        const { requestUrl, headers, body, method } = request;
+        return (`Request URL: ${requestUrl}\n\n` +
+        `Request Method: ${method}\n\n` +
+        `Headers:\n${renderHeaders(headers)}\n\n` +
+        `Body:\n\t${renderBody(body)}\n\n`
+        );
+    }
     render () {
-        const { loading } = this.state;
-        const { basicProperties, respJson: testResult, isRegister } = this.props;
+        const { loading, sync, testBody } = this.state;
+        const { basicProperties, registerParams, respJson: testResult = {}, isRegister } = this.props;
         const wrapInputParams = this.wrapInputParams();
         const inputTableColumns = this.initColumns();
         const { outputResultColumns, x } = this.initOutColumns();
+        const { bodyDesc } = registerParams;
+        let resultText;
+        let requestInfo;
+        if (isRegister) {
+            let data = testResult ? testResult.data : null;
+            if (data) {
+                resultText = utils.jsonFormat(data.result) || data.result;
+                requestInfo = this.renderRequest(data.httpInfo);
+            }
+        } else {
+            resultText = testResult ? JSON.stringify(testResult, null, 4) : null
+        }
         return (
             <div>
                 <div className="steps-content">
@@ -244,14 +305,37 @@ class TestApi extends React.Component {
                                         />
                                     </React.Fragment>
                                 )}
+                                {!!bodyDesc && (
+                                    <React.Fragment>
+                                        <p style={{ marginTop: '10px', marginBottom: '6px' }} className="middle-title">body参数：</p>
+                                        <Editor
+                                            sync={sync}
+                                            onChange={this.editorChange.bind(this)}
+                                            language='plaintext'
+                                            style={{
+                                                height: '218px',
+                                                minHeight: '218px',
+                                                border: '1px solid #DDDDDD'
+                                            }}
+                                            options={{ minimap: { enabled: false } }}
+                                            value={testBody}
+                                        />
+                                    </React.Fragment>
+                                )}
                                 <Button loading={loading} style={{ marginTop: 12, float: 'right' }} onClick={() => this.testApi()}>开始测试</Button>
                             </div>
                         </div>
                         <div className="right_box">
                             <p style={{ color: '#151515' }} className="middle-title">测试结果：</p>
+                            {isRegister && (
+                                <div style={{ marginTop: '5px', marginBottom: '20px' }}>
+                                    <p className="small-title small-title-box">请求详情</p>
+                                    <TextArea className="textarea_white_disable" value={requestInfo} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
+                                </div>
+                            )}
                             <div style={{ marginTop: '5px' }}>
                                 <p className="small-title small-title-box">返回结果</p>
-                                <TextArea className="textarea_white_disable" value={testResult ? JSON.stringify(testResult, null, 4) : null} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
+                                <TextArea className="textarea_white_disable" value={resultText} disabled autosize={{ minRows: isRegister ? 12 : 8, maxRows: 20 }} />
                                 {!isRegister && (
                                     <React.Fragment>
                                         <p style={{ marginTop: '20px' }} className="small-title small-title-box">输出结果</p>

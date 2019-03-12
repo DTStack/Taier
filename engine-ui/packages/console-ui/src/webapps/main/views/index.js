@@ -4,11 +4,14 @@ import { connect } from 'react-redux'
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
 import GlobalLoading from './layout/loading'
+import ChromeDownload from 'widgets/chromeDownload';
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
 import http from '../api';
 import { cloneDeep } from 'lodash';
+import Header from './layout/header';
+import utils from 'utils/index';
 const propType = {
     children: PropTypes.node
 }
@@ -108,6 +111,7 @@ class Main extends Component {
                         fixStreamChildrenApps[1] = item;
                         break;
                     case '任务运维':
+                    case '运维中心':
                         fixStreamChildrenApps[2] = item;
                         break;
                     case '项目管理':
@@ -402,8 +406,15 @@ class Main extends Component {
 
     render () {
         let { children, licenseApps } = this.props;
+        let lowVersionChrome = utils.isLowVersionChrome();
         if (!licenseApps) {
             children = <GlobalLoading />
+        }
+        if (lowVersionChrome) {
+            children = <div>
+                <Header />
+                <ChromeDownload />
+            </div>
         }
         return children || <NotFund />
     }

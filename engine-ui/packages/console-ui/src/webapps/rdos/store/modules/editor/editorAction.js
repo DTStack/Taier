@@ -61,8 +61,12 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
             (res) => {
                 if (res && res.code) {
                     // 获取到返回值
-                    if (res && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
-                    if (res && res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+                    if (res && res.message) {
+                        dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
+                    }
+                    if (res && res.data && res.data.msg) {
+                        dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
+                    }
                 }
                 // 状态正常
                 if (res && res.code === 1) {
@@ -387,6 +391,38 @@ export function updateEditorOptions (data) {
     return {
         type: editorAction.UPDATE_OPTIONS,
         data
+    }
+}
+
+/**
+ * 更新右侧面板行为
+ * @param {String} showAction 展示行为
+ */
+export function showRightTablePane () {
+    return {
+        type: editorAction.SHOW_RIGHT_PANE,
+        data: editorAction.SHOW_TABLE_TIP_PANE
+    }
+}
+
+export function showRightSyntaxPane () {
+    return {
+        type: editorAction.SHOW_RIGHT_PANE,
+        data: editorAction.SHOW_SYNTAX_HELP_PANE
+    }
+}
+
+export function hideRightPane () {
+    return {
+        type: editorAction.SHOW_RIGHT_PANE,
+        data: ''
+    }
+}
+
+export function updateSyntaxPane (data) {
+    return {
+        type: editorAction.UPDATE_SYNTAX_PANE,
+        data: data
     }
 }
 

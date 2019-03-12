@@ -196,6 +196,14 @@ export default class MainBench extends React.Component {
                         currentTab={tabData.id}
                         currentTabData={tabData}
                     />
+                case TASK_TYPE.CARBONSQL:
+                    return <CommonEditor
+                        mode="sql"
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
                 case TASK_TYPE.SHELL:
                     return <CommonEditor
                         mode="shell"

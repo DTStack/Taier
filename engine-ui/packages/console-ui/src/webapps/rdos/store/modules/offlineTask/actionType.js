@@ -10,6 +10,7 @@ export const modalAction = mc([
     'TOGGLE_CREATE_TASK',
     'TOGGLE_EDIT_TASK',
     'TOGGLE_CLONE_TASK',
+    'TOGGLE_CLONE_TO_WORKFLOW',
     'TOGGLE_UPLOAD',
     'TOGGLE_CREATE_FOLDER',
     'TOGGLE_CREATE_FN',
@@ -21,7 +22,8 @@ export const modalAction = mc([
     'SHOW_RESVIEW_MODAL',
     'HIDE_RESVIEW_MODAL',
     'TOGGLE_CREATE_SCRIPT',
-    'SET_MODAL_CREATE_ORIGIN'
+    'SET_MODAL_CREATE_ORIGIN',
+    'GET_WORKFLOW_LIST'
 ], { prefix: 'offline/modal/' });
 
 export const workflowAction = mc([
@@ -106,9 +108,7 @@ export const workbenchAction = mc([
     'MAKE_TAB_DIRTY',
     'MAKE_TAB_CLEAN',
     'LOAD_TASK_CUSTOM_PARAMS',
-    'SAVE_DATASYNC_TO_TAB',
-    'CLOSE_TABLE_TOOLTIP',
-    'OPEN_TABLE_TOOLTIP'
+    'SAVE_DATASYNC_TO_TAB'
 ], { prefix: 'offline/workbench/' });
 
 export const dataSourceListAction = mc([

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Menu, Icon, Dropdown, Modal } from 'antd';
+import { Menu, Icon, Dropdown, Modal, Input } from 'antd';
 
 import { MenuRight } from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
@@ -14,6 +14,7 @@ const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
 
 const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
+const Search = Input.Search;
 
 @connect(state => {
     const { pages } = state.realtimeTask;
@@ -28,7 +29,8 @@ class Header extends Component {
         super(props);
         this.state = {
             current: 'project',
-            devPath: '/realtime/task'
+            devPath: '/realtime/task',
+            filter: ''
         };
     }
 
@@ -56,9 +58,15 @@ class Header extends Component {
                 if (this.state.current === 'overview') {
                     router.push('/realtime/task');
                 }
+                this.searchProject();
             }
             this.checkUnSaveTask(switchProject);
         }
+    }
+    searchProject = (value) => {
+        this.setState({
+            filter: value || ''
+        })
     }
 
     checkUnSaveTask = (onOk) => {
@@ -100,20 +108,23 @@ class Header extends Component {
 
     getProjectItems () {
         const projects = this.props.projects;
+        const { filter } = this.state;
         if (projects && projects.length > 0) {
-            return projects.map(project => {
-                const name = project.projectAlias || project.projectName;
-                return (
-                    <Menu.Item
-                        data={project}
-                        title={name}
-                        value={name}
-                        key={project.id}
-                    >
-                        {project.projectAlias || project.projectName}
-                    </Menu.Item>
-                );
-            });
+            return projects
+                .filter(o => o.projectIdentifier.indexOf(filter) > -1 || o.projectName.indexOf(filter) > -1)
+                .map(project => {
+                    const name = project.projectAlias || project.projectName;
+                    return (
+                        <Menu.Item
+                            data={project}
+                            title={name}
+                            value={name}
+                            key={project.id}
+                        >
+                            {project.projectAlias || project.projectName}
+                        </Menu.Item>
+                    );
+                });
         }
         return [];
     }
@@ -130,6 +141,7 @@ class Header extends Component {
                         fixArrChildrenApps[1] = item;
                         break;
                     case '任务运维':
+                    case '运维中心':
                         fixArrChildrenApps[2] = item;
                         break;
                     case '项目管理':
@@ -180,7 +192,7 @@ class Header extends Component {
 
     renderProjectSelect = () => {
         const { project } = this.props;
-
+        const { filter } = this.state;
         const projectName =
             project && project.projectName
                 ? project.projectAlias || project.projectName
@@ -197,6 +209,9 @@ class Header extends Component {
                     width: '170px'
                 }}
             >
+                <Menu.Item disabled>
+                    <Search placeholder="请输入项目名称" value={filter} onChange={(e) => this.searchProject(e.target.value)} />
+                </Menu.Item>
                 {this.getProjectItems()}
             </Menu>
         )

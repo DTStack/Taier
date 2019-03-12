@@ -16,15 +16,14 @@ import { workbenchActions } from '../../../store/modules/offlineTask/offlineActi
 
 import {
     formItemLayout, TASK_TYPE, MENU_TYPE, DATA_SYNC_TYPE,
-    LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE
+    LEARNING_TYPE, PYTON_VERSION, DEAL_MODEL_TYPE, DATA_SYNC_MODE, HADOOPMR_INITIAL_VALUE
 } from '../../../comm/const'
-
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-
+const hadoopMRJsonValue = JSON.stringify(HADOOPMR_INITIAL_VALUE, null, 4)
 class TaskForm extends React.Component {
     constructor (props) {
         super(props);
@@ -32,7 +31,8 @@ class TaskForm extends React.Component {
         this.isEditExist = false;
         this.state = {
             value: 0,
-            operateModel: ''
+            operateModel: '',
+            analyDataSourceLists: []
         };
 
         this._resChange = false;
@@ -45,7 +45,21 @@ class TaskForm extends React.Component {
             operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
         })
     }
-
+    componentDidMount () {
+        this.getAnalyDataSourceLists();
+    }
+    /**
+     * 获取分析引擎数据源
+     */
+    getAnalyDataSourceLists = () => {
+        ajax.getAnalyDataSourceLists().then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    analyDataSourceLists: res.data
+                })
+            }
+        })
+    }
     handleSelectTreeChange (value) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
@@ -94,8 +108,7 @@ class TaskForm extends React.Component {
             defaultData, taskTypes, createOrigin,
             labelPrefix, createFromGraph
         } = this.props;
-        const { operateModel } = this.state;
-
+        const { operateModel, analyDataSourceLists } = this.state;
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
          * 2. 有默认数据的情况分以下两种：
@@ -118,7 +131,10 @@ class TaskForm extends React.Component {
         const taskOptions = taskTypes.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>
         )
-
+        const dataSourceOptions = analyDataSourceLists && analyDataSourceLists.map(item => {
+            return <Option key={item.id} value={item.id}>{item.dataName}</Option>
+        })
+        const isCarbonSql = value === TASK_TYPE.CARBONSQL
         const isMrTask = value === TASK_TYPE.MR
         const isPyTask = value === TASK_TYPE.PYTHON
         const isSyncTask = value == TASK_TYPE.SYNC
@@ -130,7 +146,6 @@ class TaskForm extends React.Component {
 
         const initialTaskType = this.isEditExist ? defaultData.taskType
             : createFromGraph ? createOrigin && createOrigin.taskType : (taskTypes.length > 0 && taskTypes[0].key);
-
         const resourceLable = !isPyTask ? '资源' : '入口资源';
         return (
             <Form>
@@ -371,7 +386,7 @@ class TaskForm extends React.Component {
                             </FormItem>
                         }
                         {
-                            (isHadoopMR || isMl || isMrTask) && <FormItem
+                            (isMl || isMrTask) && <FormItem
                                 {...formItemLayout}
                                 label="mainClass"
                                 hasFeedback
@@ -389,7 +404,7 @@ class TaskForm extends React.Component {
                                 )}
                             </FormItem>
                         }
-                        {(isHadoopMR || isMl || isMrTask || isPyTask) && <FormItem
+                        {(isMl || isMrTask || isPyTask) && <FormItem
                             {...formItemLayout}
                             label="参数"
                             hasFeedback
@@ -400,6 +415,21 @@ class TaskForm extends React.Component {
                             })(
                                 <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入任务参数" />
                             )}
+                        </FormItem>}
+                        { isHadoopMR && <FormItem
+                            {...formItemLayout}
+                            label="参数"
+                        >
+                            {getFieldDecorator('exeArgs', {
+                                initialValue: isCreateNormal ? hadoopMRJsonValue : isCreateFromMenu
+                                    ? hadoopMRJsonValue : defaultData.exeArgs,
+                                rules: [{
+                                    required: true, message: '请输入参数'
+                                }]
+                            })(
+                                <Input type="textarea" autosize={{ minRows: 6, maxRows: 8 }} placeholder="请输入任务参数" />
+                            )}
+                            {/* <HelpDoc doc="optionsTaskHelp" /> */}
                         </FormItem>}
                     </span>
                 }
@@ -450,7 +480,7 @@ class TaskForm extends React.Component {
                     </div>
                 }
                 {
-                    !createFromGraph &&
+                    (!createFromGraph) &&
                     <FormItem
                         {...formItemLayout}
                         label="存储位置"
@@ -476,6 +506,27 @@ class TaskForm extends React.Component {
                             />
                         )}
                     </FormItem>
+                }
+                {
+                    isCarbonSql && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="数据源"
+                        >
+                            {getFieldDecorator('dataSourceId', {
+                                rules: [{
+                                    required: true, message: '请选择数据源'
+                                }],
+                                initialValue: this.isEditExist ? defaultData.dataSourceId : undefined
+                            })(
+                                <Select
+                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                >
+                                    {dataSourceOptions}
+                                </Select>
+                            )}
+                        </FormItem>
+                    )
                 }
                 <FormItem
                     {...formItemLayout}
@@ -570,7 +621,6 @@ class TaskModal extends React.Component {
 
         this.dtcount = 0;
     }
-
     handleSubmit () {
         const {
             addOfflineTask, defaultData, workflow,

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Row, Col, Table } from 'antd';
+import { Table } from 'antd';
 import JsonContent from './jsonContent';
 
 import { API_MODE, dataSourceTypes } from '../../consts';
@@ -80,19 +80,17 @@ class CreateContentSection extends React.Component {
     render () {
         const {
             showApiConfig,
-            showMarketInfo,
             apiConfig,
             reqJson,
             isGET,
             getValue,
-            getValueCallInfo,
             getRequestDataSource,
             getResponseDataSource
         } = this.props;
         return (
             <div>
                 {showApiConfig && (
-                    <section style={{ marginTop: 19.3 }}>
+                    <section className='c-content-register__section'>
                         <h1 className="title-border-l-blue">配置信息</h1>
                         <div style={{ marginTop: 10 }}>
                             <p data-title="数据源类型：" className="pseudo-title p-line">{dataSourceTypes[apiConfig.dataSrcType]}</p>
@@ -108,17 +106,11 @@ class CreateContentSection extends React.Component {
                         </div>
                     </section>
                 )}
-                {showMarketInfo && <section style={{ marginTop: 19.3 }}>
-                    <h1 className="title-border-l-blue">调用订购情况</h1>
-                    <div style={{ marginTop: 10 }}>
-                        <span data-title="累计调用次数：" className="pseudo-title p-line api_item-margin">{getValueCallInfo('apiCallNum')}</span>
-                        <span data-title="订购人数：" className="pseudo-title p-line api_item-margin">{getValueCallInfo('applyNum')}</span>
-                    </div>
-                </section>}
-                <Row gutter={30} style={{ marginTop: 19.3 }}>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">请求参数</h1>
+                <section className='c-content-register__section'>
+                    <h1 className="title-border-l-blue">参数配置</h1>
+                    <div style={{ marginTop: '16px' }} className='c-content-register__section__card'>
+                        <div className='c-content-register__section__card__title'>输入参数</div>
+                        <div className='c-content-register__section__card__content'>
                             <Table
                                 rowKey="paramName"
                                 style={{ marginTop: 18 }}
@@ -127,11 +119,11 @@ class CreateContentSection extends React.Component {
                                 dataSource={getRequestDataSource()}
                                 scroll={{ y: 160 }}
                                 columns={this.getRequestColumns()} />
-                        </section>
-                    </Col>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">返回参数</h1>
+                        </div>
+                    </div>
+                    <div className='c-content-register__section__card'>
+                        <div className='c-content-register__section__card__title'>返回参数</div>
+                        <div className='c-content-register__section__card__content'>
                             <Table
                                 rowKey="paramName"
                                 style={{ marginTop: 18 }}
@@ -140,27 +132,33 @@ class CreateContentSection extends React.Component {
                                 dataSource={getResponseDataSource()}
                                 scroll={{ y: 160 }}
                                 columns={this.getResponseColumns()} />
-                        </section>
-                    </Col>
-                </Row>
-                <Row gutter={30} style={{ marginTop: 19.3 }}>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">请求{isGET ? 'URL' : 'JSON'}样例</h1>
-                            <div style={{ marginTop: 18 }}>
-                                <JsonContent json={reqJson} />
-                            </div>
-                        </section>
-                    </Col>
-                    <Col span={11}>
-                        <section>
-                            <h1 className="title-border-l-blue">返回JSON样例</h1>
-                            <div style={{ marginTop: 18 }}>
-                                <JsonContent json={getValue('respJson')} />
-                            </div>
-                        </section>
-                    </Col>
-                </Row>
+                        </div>
+                    </div>
+                </section>
+                <section className='c-content-register__section'>
+                    <h1 className="title-border-l-blue">请求示例</h1>
+                    <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                        <div className='c-content-register__section__card__title'>请求{isGET ? 'URL' : 'JSON'}样例</div>
+                        <div className='c-content-register__section__card__content'>
+                            <JsonContent
+                                style={{ width: '470px' }}
+                                json={reqJson}
+                            />
+                        </div>
+                    </div>
+                </section>
+                <section className='c-content-register__section'>
+                    <h1 className="title-border-l-blue">返回结果</h1>
+                    <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
+                        <div className='c-content-register__section__card__title'>返回JSON样例</div>
+                        <div className='c-content-register__section__card__content'>
+                            <JsonContent
+                                style={{ width: '470px' }}
+                                json={getValue('respJson')}
+                            />
+                        </div>
+                    </div>
+                </section>
             </div>
         )
     }

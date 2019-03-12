@@ -140,9 +140,47 @@ export const options = (state = initialEditorOptions(), action) => {
     }
 }
 
+/**
+ * 是否展示左侧面板
+*/
+export const showRightExtraPane = (state = '', action) => {
+    switch (action.type) {
+        case editorAction.SHOW_RIGHT_PANE: {
+            return action.data;
+        }
+        default:
+            return state
+    }
+}
+
+/**
+ * 语法面板数据
+ * @param {*} state
+ * @param {*} action
+ */
+const SYNTAX_PANE = 'syntax_pane_state';
+const initialSyntaxPaneState = function () {
+    const defaultState = localDb.get(SYNTAX_PANE);
+    return defaultState || { selected: undefined, html: '' };
+}
+export const syntaxPane = (state = initialSyntaxPaneState(), action) => {
+    const { type, data } = action;
+    let nextState = state;
+    switch (type) {
+        case editorAction.UPDATE_SYNTAX_PANE: {
+            nextState = Object.assign({}, state, data)
+            localDb.set(SYNTAX_PANE, nextState);
+            break;
+        }
+    }
+    return nextState;
+}
+
 export const editor = combineReducers({
     console,
     selection,
     running,
-    options
+    options,
+    showRightExtraPane,
+    syntaxPane
 })

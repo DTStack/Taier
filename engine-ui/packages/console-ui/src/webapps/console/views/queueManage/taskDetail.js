@@ -392,13 +392,17 @@ class TaskDetail extends Component {
             }).then((res) => {
                 if (res.code == 1) {
                     const data = res.data || {};
+                    const isReducePageIndex = data.topN && data.topN.length === 0 && (data.queueSize != 0 && data.queueSize % PAGE_SIZE === 0);
                     this.setState({
                         dataSource: data.topN,
                         table: {
                             ...table,
                             loading: false,
-                            total: data.queueSize
+                            total: data.queueSize,
+                            pageIndex: isReducePageIndex ? pageIndex - 1 : pageIndex
                         }
+                    }, () => {
+                        isReducePageIndex && this.getDetailTaskList()
                     })
                     console.log(res);
                 } else {
@@ -438,17 +442,16 @@ class TaskDetail extends Component {
     getPagination () {
         const { pageIndex, total } = this.state.table;
         return {
-            currentPage: pageIndex,
+            current: pageIndex,
             pageSize: PAGE_SIZE,
             total: total
         }
     }
     // 表格换页
-    onTableChange = (page, sorter) => {
+    onTableChange = (pagination, filters, sorter) => {
+        const table = Object.assign(this.state.table, { pageIndex: pagination.current })
         this.setState({
-            table: {
-                pageIndex: page.current
-            }
+            table
         },
         () => {
             this.getDetailTaskList();

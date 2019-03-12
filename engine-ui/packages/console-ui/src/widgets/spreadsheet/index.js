@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import CopyUtils from 'utils/copy';
 import './style.scss';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/languages/zh-CN.js';
 
-class SpreadSheet extends React.Component {
+class SpreadSheet extends React.PureComponent {
     tableRef = React.createRef()
     copyUtils = new CopyUtils()
     componentDidUpdate (prevProps, prevState) {
@@ -13,8 +14,9 @@ class SpreadSheet extends React.Component {
             if (this.tableRef) {
                 this.removeRenderClock();
                 this._renderColck = setTimeout(() => {
+                    console.log('render sheet')
                     this.tableRef.current.hotInstance.render();
-                })
+                }, 100)
             }
         }
     }
@@ -49,9 +51,6 @@ class SpreadSheet extends React.Component {
             return [{ row: 0, col: 0, className: 'htCenter htMiddle' }]
         }
         return null;
-    }
-    afterGetRowHeader (row, th) {
-        console.log(row);
     }
     beforeCopy (arr, arr2) {
         /**
@@ -98,12 +97,15 @@ class SpreadSheet extends React.Component {
                 manualColumnResize={true}// 拉伸功能
                 colWidths={200}
                 beforeCopy={this.beforeCopy.bind(this)}
-                afterGetRowHeader={this.afterGetRowHeader}
                 columnHeaderHeight={25}
                 contextMenu={this.getContextMenu()}
                 stretchH='all' // 填充空白区域
             />
         )
     }
+}
+SpreadSheet.PropTypes = {
+    data: PropTypes.array,
+    columns: PropTypes.array
 }
 export default SpreadSheet;

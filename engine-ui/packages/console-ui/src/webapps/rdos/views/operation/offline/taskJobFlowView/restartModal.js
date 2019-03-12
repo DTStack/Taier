@@ -26,6 +26,7 @@ class RestartModal extends Component {
         if (visible && node) {
             this.setState({
                 currentNode: node,
+                checkedKeys: [],
                 treeData: [node]
             }, () => {
                 this.loadTaskTree({
@@ -56,7 +57,7 @@ class RestartModal extends Component {
         Api.restartAndResume(reqParams).then((res) => {
             if (res.code === 1) {
                 message.success('已经成功开始重跑!')
-                this.cancleModal();
+                this.onCancelModal();
             }
         })
     }
@@ -93,11 +94,11 @@ class RestartModal extends Component {
         this.setState({ treeData })
     }
 
-    cancleModal = () => {
+    onCancelModal = () => {
         this.setState({
             checkedKeys: []
         })
-        this.props.onCancel()
+        this.props.onCancel();
     }
 
     onCheck = (checkedKeys, info) => {
@@ -139,7 +140,8 @@ class RestartModal extends Component {
                 status === TASK_STATUS.SUBMIT_FAILED || // 提交失败
                 status === TASK_STATUS.SET_SUCCESS || // 手动设置成功
                 status === TASK_STATUS.PARENT_FAILD || // 上游失败
-                status === TASK_STATUS.STOPED; // 已停止
+                status === TASK_STATUS.KILLED || // 已停止
+                status === TASK_STATUS.STOPED; // 已取消
 
                 const content = <Row>
                     <Col span="6" className="ellipsis" title={name}>{name}</Col>
@@ -172,7 +174,7 @@ class RestartModal extends Component {
     }
 
     render () {
-        const { visible, onCancel, restartNode } = this.props
+        const { visible, restartNode } = this.props
         const { treeData } = this.state
         const treeNodes = this.getTreeNodes(treeData, restartNode)
 
@@ -182,7 +184,7 @@ class RestartModal extends Component {
                 okText="确认执行"
                 visible={visible}
                 onOk={this.restartChildNodes}
-                onCancel={onCancel}
+                onCancel={this.onCancelModal}
                 maskClosable={true}
             >
                 <Row>

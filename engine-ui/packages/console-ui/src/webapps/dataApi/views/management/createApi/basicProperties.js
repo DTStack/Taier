@@ -110,9 +110,13 @@ class ManageBasicProperties extends Component {
     }
     pass () {
         const { isRegister } = this.props;
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async (err, values) => {
             if (!err) {
                 if (isRegister) {
+                    const isHostVaild = await this.checkHostVaild();
+                    if (!isHostVaild) {
+                        return false;
+                    }
                     if (values.APIPath && !this.checkParamsPath(values)) {
                         return false;
                     }
@@ -357,6 +361,22 @@ class ManageBasicProperties extends Component {
             callback()
         }
     }
+    checkHostVaild () {
+        const form = this.props.form;
+        const host = form.getFieldValue('originalHost');
+        const path = form.getFieldValue('originalPath');
+        return api.checkHostVaild({
+            host,
+            path,
+            apiId: utils.getParameterByName('apiId')
+        }).then((res) => {
+            if (res.code == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        })
+    }
     changeMethod (value) {
         const oldValue = this.props.form.getFieldValue('method');
         const { registerParams, isRegister } = this.props;
@@ -368,6 +388,7 @@ class ManageBasicProperties extends Component {
             });
             this.props.changeRegisterParams({
                 ...registerParams,
+                bodyDesc: null,
                 inputParam: inputParam
             }, true)
         }
@@ -412,7 +433,7 @@ class ManageBasicProperties extends Component {
                                     { required: true, message: '请输入API名称' },
                                     { min: 2, message: '最小字数不能少于2' },
                                     { max: 64, message: '最大字数不能超过64' },
-                                    { pattern: new RegExp(/^([\w|\u4e00-\u9fa5]*)$/), message: 'API名字只能以字母，数字，下划线组成' },
+                                    { pattern: new RegExp(/^(\w*)$/), message: 'API名字只能以字母，数字，下划线组成' },
                                     {
                                         validator: this.checkNameExist.bind(this)
                                     }],

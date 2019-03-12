@@ -969,7 +969,24 @@ export const workbenchActions = (dispatch) => {
                 payload: data
             });
         },
-
+        // 克隆至工作流
+        toggleCloneToWorkflow: function (data) {
+            dispatch({
+                type: modalAction.TOGGLE_CLONE_TO_WORKFLOW,
+                payload: data
+            });
+        },
+        // 获取工作流列表
+        getWorkFlowList (params) {
+            ajax.getWorkflowList(params).then(res => {
+                if (res.code === 1) {
+                    dispatch({
+                        type: modalAction.GET_WORKFLOW_LIST,
+                        payload: res.data
+                    });
+                }
+            })
+        },
         toggleCreateScript: function () {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_SCRIPT
@@ -1160,6 +1177,8 @@ export const getDataSyncReqParams = (dataSyncStore) => {
     delete clone.keymap;
     delete clone.setting;
     delete clone.dataSourceList;
+    delete clone.dataSyncSaved;
+
     const paths = get(clone, 'sourceMap.path');
     if (paths && isArray(paths)) {
         clone.sourceMap.path = paths.filter(o => o !== '');
@@ -1195,6 +1214,7 @@ export const getDataSyncSaveTabParams = (currentTabData, dataSync) => {
 
     // 删除不必要的字段
     delete reqBody.taskVersions;
+    delete reqBody.dataSyncSaved;
 
     // 数据拼装结果
     return reqBody;

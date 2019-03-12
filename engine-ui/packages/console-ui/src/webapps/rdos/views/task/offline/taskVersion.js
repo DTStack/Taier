@@ -4,7 +4,7 @@ import { Table, Modal, message } from 'antd';
 import utils from 'utils';
 
 import DiffCodeEditor from 'widgets/editor/diff';
-import { TASK_TYPE } from '../../../comm/const';
+import { TASK_TYPE, DEAL_MODEL_TYPE } from '../../../comm/const';
 import DiffParams from './diffParams';
 
 export default class TaskVersion extends React.Component {
@@ -143,23 +143,42 @@ export default class TaskVersion extends React.Component {
         );
     }
 
-    taskTypeJudge = (taskInfo, record) => {
-        if (taskInfo.taskType === TASK_TYPE.SQL ||
-            taskInfo.taskType === TASK_TYPE.SYNC ||
-            taskInfo.taskType == TASK_TYPE.DATA_COLLECTION) {
-            return (
-                <div>
-                    <a onClick={() => this.diffCode(record)}>代码</a>
-                    <span className="ant-divider" />
-                    <a onClick={() => this.diffParams(record)}>参数</a>
-                </div>
-            );
-        } else if (taskInfo.taskType === TASK_TYPE.WORKFLOW) {
-            return <div>
-                <a onClick={() => this.diffParams(record)}>参数</a>
-            </div>
-        } else {
-            return '-';
+    renderTaskOperation = (taskInfo, record) => {
+        const showCodeAndConfig = <div>
+            <a onClick={() => this.diffCode(record)}>代码</a>
+            <span className="ant-divider" />
+            <a onClick={() => this.diffParams(record)}>参数</a>
+        </div>;
+        const showConfig = <div>
+            <a onClick={() => this.diffParams(record)}>参数</a>
+        </div>;
+
+        switch (taskInfo.taskType) {
+            case TASK_TYPE.SQL:
+            case TASK_TYPE.CARBONSQL:
+            case TASK_TYPE.SYNC:
+            case TASK_TYPE.SHELL:
+            case TASK_TYPE.DATA_COLLECTION: {
+                return showCodeAndConfig;
+            }
+            case TASK_TYPE.DEEP_LEARNING:
+            case TASK_TYPE.PYTHON_23:
+            case TASK_TYPE.PYTHON: {
+                // 脚本模式
+                if (taskInfo.operateModel == DEAL_MODEL_TYPE.EDIT) {
+                    return showCodeAndConfig;
+                }
+                return showConfig;
+            }
+            case TASK_TYPE.MR:
+            case TASK_TYPE.ML:
+            case TASK_TYPE.WORKFLOW:
+            case TASK_TYPE.HAHDOOPMR:
+            case TASK_TYPE.VIRTUAL_NODE: {
+                return showConfig;
+            }
+
+            default: return '-';
         }
     };
 
@@ -194,7 +213,7 @@ export default class TaskVersion extends React.Component {
                 width: 80,
                 key: 'operation',
                 render: (text, record) => {
-                    return this.taskTypeJudge(taskInfo, record);
+                    return this.renderTaskOperation(taskInfo, record);
                 }
             }
         ];
