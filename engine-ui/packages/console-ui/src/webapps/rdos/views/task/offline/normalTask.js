@@ -20,16 +20,20 @@ class NormalTaskForm extends React.Component {
         const formData = form.getFieldsValue();
         const isPyTask = taskType === TASK_TYPE.PYTHON;
         const resourceLable = !isPyTask ? '资源' : '入口资源';
-        let invalid = false;
-        if (!formData.resourceIdList || formData.resourceIdList.length === 0) {
-            invalid = true;
-            message.error(`${resourceLable}不可为空！`)
-        } else if (formData.resourceIdList && formData.resourceIdList.length > 0 && checkNotDir(formData.resourceIdList[0], resTreeData)) {
-            if (formData.refResourceIdList && formData.refResourceIdList.length > 0 && !checkNotDir(formData.refResourceIdList[0], resTreeData)) {
-                invalid = true;
+        let invalid = true;
+        if (formData.resourceIdList && formData.resourceIdList.length && checkNotDir(formData.resourceIdList[0], resTreeData)) {
+            /**
+             * 引用资源存在的时候，需要校验引用资源。
+             */
+            if (formData.refResourceIdList && formData.refResourceIdList.length) {
+                if (checkNotDir(formData.refResourceIdList[0], resTreeData)) {
+                    invalid = false;
+                }
+            } else {
+                invalid = false;
             }
         } else {
-            invalid = true;
+            message.error(`${resourceLable}不可为空！`)
         }
         this.props.setFieldsValue({
             invalid
@@ -116,7 +120,7 @@ class NormalTaskForm extends React.Component {
                             required: true, message: '请选择关联资源'
                         }],
                         initialValue: taskData.resourceList.length
-                            ? taskData.resourceList[0].id : undefined
+                            ? [taskData.resourceList[0].id] : undefined
                     })(
                         <Input disabled={!couldEdit} type="hidden" />
                     )}
@@ -298,7 +302,7 @@ const NormalTaskFormWrapper = Form.create({
 })(NormalTaskForm);
 
 class NormalTaskEditor extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
     }
 

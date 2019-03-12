@@ -274,12 +274,12 @@ class OfflineTaskList extends Component {
                 const id = ids[i]
                 const res = tasks.find(task => task.id === id)
                 if (res && (
-                    res.status === TASK_STATUS.SUBMIT_FAILED ||
-                    res.status === TASK_STATUS.RUN_FAILED ||
-                    res.status === TASK_STATUS.PARENT_FAILD ||
-                    res.status === TASK_STATUS.STOPED ||
-                    res.status === TASK_STATUS.FINISHED ||
-                    res.batchTask.isDeleted === 1
+                    (
+                        res.status !== TASK_STATUS.WAIT_SUBMIT &&
+                        res.status !== TASK_STATUS.SUBMITTING &&
+                        res.status !== TASK_STATUS.WAIT_RUN &&
+                        res.status !== TASK_STATUS.RUNNING
+                    ) || res.batchTask.isDeleted === 1
                 )) return false
             }
             return true

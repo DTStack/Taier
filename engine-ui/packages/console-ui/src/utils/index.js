@@ -41,17 +41,25 @@ const utils = {
         return navigator.userAgent.indexOf("Windows") > -1;
     },
     /**
-     * @description 是否为低版本的chrome浏览器
-     * 
+     * @description 浏览器类型和版本检测
+     * @returns {Boolean} `true`表示通过兼容性检测,`false`表示不通过兼容性检测
      */
-    isLowVersionChrome () {
-        let Sys = {};
+    browserCheck() {
+        let Sys = {};  
         let ua = navigator.userAgent.toLowerCase();
-        let re = /(msie|firefox|chrome|opera|version).*?([\d.]+)/;
-        let m = ua.match(re);
-        Sys.browser = m && m[1].replace(/version/, "'safari");
-        Sys.ver = m && m[2];
-        return Sys.browser == 'chrome' && (parseInt(Sys.ver.split('.')[0]) < 66)
+        let s;
+        (s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1] :
+            (s = ua.match(/msie ([\d\.]+)/)) ? Sys.ie = s[1] :
+                (s = ua.match(/edge\/([\d\.]+)/)) ? Sys.edge = s[1] :
+                    (s = ua.match(/firefox\/([\d\.]+)/)) ? Sys.firefox = s[1] :
+                        (s = ua.match(/(?:opera|opr).([\d\.]+)/)) ? Sys.opera = s[1] :
+                            (s = ua.match(/chrome\/([\d\.]+)/)) ? Sys.chrome = s[1] :
+                                (s = ua.match(/version\/([\d\.]+).*safari/)) ? Sys.safari = s[1] : 0;
+        if (
+            (Sys.chrome && parseInt(Sys.chrome.split('.'[0])) >= 66) || 
+            Sys.firefox
+        ) return true
+        return false;
     },
     /**
      * 根据参数名获取URL数据
