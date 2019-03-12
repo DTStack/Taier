@@ -962,7 +962,6 @@ class BaseForm extends Component {
         )
     }
 }
-
 class DataSourceForm extends Component {
     cancle = () => {
         const { handCancel } = this.props
