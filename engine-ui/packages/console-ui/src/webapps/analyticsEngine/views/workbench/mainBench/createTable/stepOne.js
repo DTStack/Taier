@@ -169,7 +169,7 @@ class StepOne extends Component {
                 <div className="btn-box">
                     <Button className="ddl-btn" type="primary" onClick={() => { this.setState({ showDDL: true }) }}>DDL建表</Button>
                 </div>
-                <Form>
+                <Form style={{ maxWidth: 1200, margin: '0 auto' }}>
                     <FormItem
                         {...formItemLayout}
                         label="数据库">
