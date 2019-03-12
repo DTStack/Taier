@@ -65,7 +65,8 @@ class TaskDetail extends Component {
         // 更多任务列表记录值
         isClickGroup: false,
         selectedRowKeys: [],
-        isShowAllKill: false
+        isShowAllKill: false,
+        isTotal: false // 是否杀死全部任务
     }
     componentDidMount () {
         const { query = {} } = this.props;
@@ -454,7 +455,8 @@ class TaskDetail extends Component {
     onTableChange = (pagination, filters, sorter) => {
         const table = Object.assign(this.state.table, { pageIndex: pagination.current })
         this.setState({
-            table
+            table,
+            selectedRowKeys: []
         },
         () => {
             this.getDetailTaskList();
@@ -645,7 +647,10 @@ class TaskDetail extends Component {
             message.error('您没有选择任何任务！')
             return false;
         }
-        // TODO 杀死任务
+        this.setState({
+            isTotal: false,
+            isShowAllKill: true
+        })
     }
     // 查看详情
     viewDetails (record) {
@@ -675,7 +680,7 @@ class TaskDetail extends Component {
     // kill
     killSuccess (killId) {
         this.setState({
-            killIds: [...this.state.killIds, killId]
+            killIds: [...this.state.killIds].concat(killId)
         })
     }
     // 顺序调整
@@ -724,7 +729,8 @@ class TaskDetail extends Component {
     }
     handleKillAll = (e) => {
         this.setState({
-            isShowAllKill: true
+            isShowAllKill: true,
+            isTotal: true
         })
     }
     // 改变单选框值
@@ -748,7 +754,7 @@ class TaskDetail extends Component {
     tableFooter = (currentPageData) => {
         const { selectedRowKeys, dataSource } = this.state;
         const indeterminate = !!selectedRowKeys.length && (selectedRowKeys.length < dataSource.length);
-        const checked = selectedRowKeys.length === dataSource.length;
+        const checked = !!dataSource.length && (selectedRowKeys.length === dataSource.length);
         const menu = (
             <Menu onClick={this.handleKillAll}>
                 <Menu.Item key="1" style={{ width: 118 }}>杀死全部任务</Menu.Item>
@@ -769,7 +775,7 @@ class TaskDetail extends Component {
                 <Col className="inline">
                     <Dropdown.Button
                         size="small"
-                        trigger="click"
+                        trigger={['click']}
                         onClick={this.handleKillSelect} type="primary" overlay={menu}>
                         杀死选中任务
                     </Dropdown.Button>
@@ -779,7 +785,7 @@ class TaskDetail extends Component {
     }
 
     render () {
-        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill } = this.state;
+        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill, isTotal } = this.state;
         const columns = this.initTableColumns();
         const { dataSource, table, selectedRowKeys } = this.state;
         const { loading } = table;
@@ -936,10 +942,11 @@ class TaskDetail extends Component {
                 <KillAllTask
                     visible={isShowAllKill}
                     onCancel={this.handleCloseKill.bind(this)}
-                    killResource={killResource}
+                    killResource={selectedRowKeys}
                     killSuccess={this.killSuccess.bind(this)}
                     autoRefresh={this.autoRefresh.bind(this)}
                     node={node}
+                    total={isTotal}
                 />
                 <Reorder
                     visible={isShowReorder}

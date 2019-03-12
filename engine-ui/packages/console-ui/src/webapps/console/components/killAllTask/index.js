@@ -5,11 +5,11 @@ import Api from '../../api/console';
 class killAllTask extends Component {
     // 请求杀任务接口
     killTask () {
-        const { killResource } = this.props;
-        // console.log(killResource.jobName);
+        const { killResource = [], node, isTotal } = this.props;
         // 获取集群
-        var queueName, clusterName, computeTypeInt;
-        const arr = killResource.groupName.split('_');
+        let queueName, clusterName, computeTypeInt;
+        const arr = killResource.groupName && killResource.groupName.split('_');
+        const jobIdList = killResource.map(o => o.taskId);
         if (arr.length == 1) {
             clusterName = killResource.groupName
         } else {
@@ -24,16 +24,17 @@ class killAllTask extends Component {
         } else {
             computeTypeInt = 0
         }
-        Api.killTask({
+        Api.killAllTask({
             computeTypeInt: computeTypeInt,
             engineType: killResource.engineType,
-            jobId: killResource.taskId,
+            jobIdList,
             queueName: queueName,
-            node: this.props.node,
-            clusterName: clusterName
+            node,
+            clusterName: clusterName,
+            total: isTotal
         }).then((res) => {
             if (res.code == 1) {
-                this.props.killSuccess(killResource.taskId);
+                this.props.killSuccess(jobIdList);
                 message.success('操作成功');
                 this.props.autoRefresh();
                 // 异步,成功之后才能关闭
@@ -44,19 +45,29 @@ class killAllTask extends Component {
         })
     }
     confirmKilltask () {
+        const { killResource } = this.props;
+        if (!killResource || killResource.length <= 0) {
+            message.error('当前列表为空');
+            return false;
+        }
         this.killTask();
     }
     render () {
+        const { isTotal } = this.props;
+        const title = isTotal ? `杀死全部任务` : `杀死选中任务`;
+        const htmlText = isTotal
+            ? <p style={{ color: 'red' }}>本操作将杀死列表（跨分页）中的全部任务，不仅是当前页</p>
+            : <p style={{ color: 'red' }}>本操作将杀死列表（非跨分页）中的选中任务</p>;
         return (
             <Modal
-                title="杀死全部任务"
+                title={title}
                 visible={this.props.visible}
-                okText="杀死全部任务"
+                okText={title}
                 okType="danger"
                 onCancel={this.props.onCancel}
                 onOk={this.confirmKilltask.bind(this)}
             >
-                <p style={{ color: 'red' }}>本操作将杀死列表（跨分页）中的全部任务，不仅是当前页</p>
+                {htmlText}
             </Modal>
         )
     }
