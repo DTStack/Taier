@@ -776,7 +776,9 @@ class TaskDetail extends Component {
                     <Dropdown.Button
                         size="small"
                         trigger={['click']}
-                        onClick={this.handleKillSelect} type="primary" overlay={menu}>
+                        onClick={this.handleKillSelect}
+                        type="primary"
+                        overlay={menu}>
                         杀死选中任务
                     </Dropdown.Button>
                 </Col>
@@ -945,7 +947,8 @@ class TaskDetail extends Component {
                     killResource={selectedRowKeys}
                     killSuccess={this.killSuccess.bind(this)}
                     autoRefresh={this.autoRefresh.bind(this)}
-                    node={node}
+                    queueSize={total}
+                    groupName={this.state.groupName}
                     total={isTotal}
                 />
                 <Reorder

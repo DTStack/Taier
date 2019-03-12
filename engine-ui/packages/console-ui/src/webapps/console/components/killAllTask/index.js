@@ -5,7 +5,7 @@ import Api from '../../api/console';
 class killAllTask extends Component {
     // 请求杀任务接口
     killTask () {
-        const { killResource = [], node, isTotal } = this.props;
+        const { killResource = [], total, queueSize, groupName } = this.props;
         // 获取集群
         let queueName, clusterName, computeTypeInt;
         const arr = killResource.groupName && killResource.groupName.split('_');
@@ -29,9 +29,10 @@ class killAllTask extends Component {
             engineType: killResource.engineType,
             jobIdList,
             queueName: queueName,
-            node,
             clusterName: clusterName,
-            total: isTotal
+            total, // 是否全部杀死
+            queueSize,
+            groupName
         }).then((res) => {
             if (res.code == 1) {
                 this.props.killSuccess(jobIdList);
@@ -53,9 +54,9 @@ class killAllTask extends Component {
         this.killTask();
     }
     render () {
-        const { isTotal } = this.props;
-        const title = isTotal ? `杀死全部任务` : `杀死选中任务`;
-        const htmlText = isTotal
+        const { total } = this.props;
+        const title = total ? `杀死全部任务` : `杀死选中任务`;
+        const htmlText = total
             ? <p style={{ color: 'red' }}>本操作将杀死列表（跨分页）中的全部任务，不仅是当前页</p>
             : <p style={{ color: 'red' }}>本操作将杀死列表（非跨分页）中的选中任务</p>;
         return (
