@@ -85,7 +85,7 @@ class OfflineTaskList extends Component {
         }
     }
 
-    search = () => {
+    getReqParams = () => {
         const {
             jobName, person, taskStatus,
             bussinessDate, businessDateSort, jobType, current,
@@ -130,6 +130,11 @@ class OfflineTaskList extends Component {
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
 
+        return reqParams;
+    }
+
+    search = () => {
+        const reqParams = this.getReqParams();
         this.loadTaskList(reqParams)
     }
 
@@ -521,15 +526,12 @@ class OfflineTaskList extends Component {
 
     onExpand = (expanded, record) => {
         if (expanded) {
-            if (record.children && record.children.length) {
-                return;
-            }
             const { tasks } = this.state;
             let newTasks = cloneDeep(tasks);
             const { jobId } = record;
-            Api.getRelatedJobs({
-                jobId
-            }).then((res) => {
+            const reqParams = this.getReqParams();
+            reqParams.jobId = jobId;
+            Api.getRelatedJobs(reqParams).then((res) => {
                 if (res.code == 1) {
                     const index = newTasks.data.findIndex((task) => {
                         return task.jobId == jobId
