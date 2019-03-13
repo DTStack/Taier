@@ -66,7 +66,7 @@ class TaskDetail extends Component {
         isClickGroup: false,
         selectedRowKeys: [],
         isShowAllKill: false,
-        isTotal: false // 是否杀死全部任务
+        isKillAllTasks: false // 是否杀死全部任务
     }
     componentDidMount () {
         const { query = {} } = this.props;
@@ -92,6 +92,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 table: {
                     ...table,
                     total: 0
@@ -181,7 +182,8 @@ class TaskDetail extends Component {
         const { table } = this.state;
         const { pageIndex } = table;
         this.setState({
-            dataSource: []
+            dataSource: [],
+            selectedRowKeys: []
         })
         if (jobName) {
             Api.searchTaskList({
@@ -250,6 +252,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 node: value,
                 groupList: [],
                 groupName: undefined,
@@ -262,6 +265,7 @@ class TaskDetail extends Component {
             this.setState({
                 node: value,
                 dataSource: [],
+                selectedRowKeys: [],
                 groupName: undefined,
                 table: {
                     ...table,
@@ -296,6 +300,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 engineType: undefined,
                 groupName: undefined,
                 node: node,
@@ -308,6 +313,7 @@ class TaskDetail extends Component {
         } else {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 jobName: undefined,
                 engineType: value,
                 groupName: undefined,
@@ -340,7 +346,8 @@ class TaskDetail extends Component {
                 })
         } else {
             this.setState({
-                dataSource: []
+                dataSource: [],
+                selectedRowKeys: []
             })
         }
     }
@@ -356,6 +363,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 groupName: value,
                 table: {
                     ...table,
@@ -378,7 +386,8 @@ class TaskDetail extends Component {
         const { table } = this.state;
         const { pageIndex } = table;
         this.setState({
-            dataSource: []
+            dataSource: [],
+            selectedRowKeys: []
         })
         if (engineType && groupName && node) {
             this.setState({
@@ -648,7 +657,7 @@ class TaskDetail extends Component {
             return false;
         }
         this.setState({
-            isTotal: false,
+            isKillAllTasks: false,
             isShowAllKill: true
         })
     }
@@ -717,9 +726,9 @@ class TaskDetail extends Component {
         });
     }
     onCheckAllChange = (e) => {
-        let selectedRowKeys = []
+        let selectedRowKeys = [];
         if (e.target.checked) {
-            selectedRowKeys = this.state.dataSource.map(item => item.taskId)
+            selectedRowKeys = this.state.dataSource.map(item => item.taskId);
         }
 
         this.setState({
@@ -730,7 +739,7 @@ class TaskDetail extends Component {
     handleKillAll = (e) => {
         this.setState({
             isShowAllKill: true,
-            isTotal: true
+            isKillAllTasks: true
         })
     }
     // 改变单选框值
@@ -738,6 +747,7 @@ class TaskDetail extends Component {
         const { table } = this.state;
         this.setState({
             dataSource: [],
+            selectedRowKeys: [],
             table: {
                 ...table,
                 total: 0
@@ -787,7 +797,7 @@ class TaskDetail extends Component {
     }
 
     render () {
-        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill, isTotal } = this.state;
+        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill, isKillAllTasks } = this.state;
         const columns = this.initTableColumns();
         const { dataSource, table, selectedRowKeys } = this.state;
         const { loading } = table;
@@ -810,6 +820,7 @@ class TaskDetail extends Component {
             },
             selectedRowKeys: selectedRowKeys
         };
+        let totalModel = isKillAllTasks ? (radioValue === 1 ? 0 : 1) : undefined;
         return (
             <div>
                 <div style={{ margin: '20px' }}>
@@ -944,12 +955,16 @@ class TaskDetail extends Component {
                 <KillAllTask
                     visible={isShowAllKill}
                     onCancel={this.handleCloseKill.bind(this)}
-                    killResource={selectedRowKeys}
                     killSuccess={this.killSuccess.bind(this)}
                     autoRefresh={this.autoRefresh.bind(this)}
-                    queueSize={total}
+                    killResource={selectedRowKeys}
+                    node={node}
+                    totalModel={totalModel}
+                    totalSize={total}
+                    engineType={this.state.engineType}
                     groupName={this.state.groupName}
-                    total={isTotal}
+                    jobName={this.state.jobName}
+                    computeType={this.state.computeType}
                 />
                 <Reorder
                     visible={isShowReorder}
