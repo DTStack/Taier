@@ -510,6 +510,7 @@ class PatchDataDetail extends Component {
                     break;
                 }
                 case TASK_STATUS.RUNNING:
+                case TASK_STATUS.SUBMITTING:
                 case TASK_STATUS.WAIT_SUBMIT:
                 case TASK_STATUS.WAIT_RUN: {
                     haveRunning = true;
