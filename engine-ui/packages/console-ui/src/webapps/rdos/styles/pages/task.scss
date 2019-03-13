@@ -134,7 +134,7 @@
         }
         .s-jaricon-r {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/icon/ja.png);
+                background-image: url(/public/rdos/img/icon/jaricon.svg);
             }
         }
         .s-mricon {
@@ -169,7 +169,22 @@
         }
         .s-pythonicon-r {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/icon/py.png)
+                background-image: url(/public/rdos/img/icon/pyicon.svg)
+            }
+        }
+        .s-zipicon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/zipicon.svg)
+            }
+        }
+        .s-eggicon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/eggicon.svg)
+            }
+        }
+        .s-othericon-r {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/icon/othericon.svg)
             }
         }
         .s-virtualicon {
