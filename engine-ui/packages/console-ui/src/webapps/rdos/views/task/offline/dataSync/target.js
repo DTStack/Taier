@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Input, Select, Button, Radio, Modal, Icon, message } from 'antd';
+import { Form, Input, Select, Button, Radio, Modal, Icon, message, Tooltip } from 'antd';
 import { isEmpty, debounce, get } from 'lodash';
 import assign from 'object-assign';
 
@@ -28,6 +28,7 @@ import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon';
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const TextArea = Input.TextArea;
 
 class TargetForm extends React.Component {
     constructor (props) {
@@ -404,6 +405,28 @@ class TargetForm extends React.Component {
                     )}
                 </FormItem>
                 {this.renderDynamicForm()}
+                {!isEmpty(targetMap) ? (
+                    <FormItem
+                        {...formItemLayout}
+                        label="高级配置"
+                    >
+                        {getFieldDecorator('extralConfig', {
+                            initialValue: get(targetMap, 'extralConfig', '')
+                        })(
+                            <TextArea
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"
+                                autosize={{ minRows: 2, maxRows: 6 }}
+                            />
+                        )}
+                        <Tooltip title="以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考《帮助文档》">
+                            <Icon
+                                className="help-doc"
+                                type="question-circle-o"
+                            />
+                        </Tooltip>
+                    </FormItem>
+                ) : null}
             </Form>
             {
                 isDTinsightAnalytics ? (

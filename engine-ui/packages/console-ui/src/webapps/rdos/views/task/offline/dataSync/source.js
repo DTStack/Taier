@@ -39,6 +39,7 @@ import {
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const TextArea = Input.TextArea;
 
 class SourceForm extends React.Component {
     _isMounted = false;
@@ -491,10 +492,7 @@ class SourceForm extends React.Component {
                                 optionFilterProp="name"
                             >
                                 {dataSourceList.map(src => {
-                                    let title = `${src.dataName}（${
-                                        DATA_SOURCE_TEXT[src.type]
-                                    }）`;
-
+                                    let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
                                     const disableSelect =
                                         src.type === DATA_SOURCE.ES ||
                                         src.type === DATA_SOURCE.REDIS ||
@@ -518,6 +516,28 @@ class SourceForm extends React.Component {
                         )}
                     </FormItem>
                     {this.renderDynamicForm()}
+                    {!isEmpty(sourceMap) ? (
+                        <FormItem
+                            {...formItemLayout}
+                            label="高级配置"
+                        >
+                            {getFieldDecorator('extralConfig', {
+                                initialValue: get(sourceMap, 'extralConfig', '')
+                            })(
+                                <TextArea
+                                    onChange={this.submitForm.bind(this)}
+                                    placeholder="以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"
+                                    autosize={{ minRows: 2, maxRows: 6 }}
+                                />
+                            )}
+                            <Tooltip title="以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考《帮助文档》">
+                                <Icon
+                                    className="help-doc"
+                                    type="question-circle-o"
+                                />
+                            </Tooltip>
+                        </FormItem>
+                    ) : null}
                 </Form>
                 <div
                     className="m-datapreview"
@@ -674,16 +694,14 @@ class SourceForm extends React.Component {
                                             );
                                         })
                                         .map(src => {
-                                            let title = `${src.dataName}（${
-                                                DATA_SOURCE_TEXT[src.type]
-                                            }）`;
+                                            let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
 
                                             const disableSelect =
                                                 src.type === DATA_SOURCE.ES ||
                                                 src.type ===
-                                                    DATA_SOURCE.REDIS ||
+                                                DATA_SOURCE.REDIS ||
                                                 src.type ===
-                                                    DATA_SOURCE.MONGODB;
+                                                DATA_SOURCE.MONGODB;
 
                                             return (
                                                 <Option
@@ -784,10 +802,10 @@ class SourceForm extends React.Component {
                         placeholder="请选择增量标识字段"
                         onChange={this.onIncrementColumnChange}
                     >
-                        { columnsOpts }
+                        {columnsOpts}
                     </Select>
                 )}
-                <HelpDoc doc="incrementColumnHelp"/>
+                <HelpDoc doc="incrementColumnHelp" />
             </FormItem>
             : '';
     }
@@ -803,8 +821,8 @@ class SourceForm extends React.Component {
 
         // 非增量模式
         const supportSubLibrary = SUPPROT_SUB_LIBRARY_DB_ARRAY.indexOf(sourceMap &&
-                sourceMap.sourceList &&
-                sourceMap.sourceList[0].type
+            sourceMap.sourceList &&
+            sourceMap.sourceList[0].type
         ) > -1 && !isIncrementMode;
 
         let formItem;
@@ -879,7 +897,7 @@ class SourceForm extends React.Component {
                                 offset={formItemLayout.labelCol.sm.span}
                             >
                                 <a onClick={this.addDataSource.bind(this)}>
-                                        添加数据源
+                                    添加数据源
                                 </a>
                             </Col>
                         </Row>
@@ -913,7 +931,7 @@ class SourceForm extends React.Component {
                                 offset={formItemLayout.labelCol.sm.span}
                             >
                                 <p className="warning-color">
-                                        当前输入含有中文引号
+                                    当前输入含有中文引号
                                 </p>
                             </Col>
                         </Row>
@@ -934,13 +952,13 @@ class SourceForm extends React.Component {
                             >
                                 {(
                                     (sourceMap.copate &&
-                                            sourceMap.copate
-                                                .map(v => v.key)
-                                                .filter(
-                                                    (v, index, self) =>
-                                                        self.indexOf(v) === index
-                                                )) ||
-                                        []
+                                        sourceMap.copate
+                                            .map(v => v.key)
+                                            .filter(
+                                                (v, index, self) =>
+                                                    self.indexOf(v) === index
+                                            )) ||
+                                    []
                                 ).map((copateValue, index) => {
                                     return (
                                         <Option
@@ -1162,9 +1180,9 @@ class SourceForm extends React.Component {
                                 }
                             ],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.fileType
-                                        ? sourceMap.type.fileType
-                                        : 'text'
+                                sourceMap.type && sourceMap.type.fileType
+                                    ? sourceMap.type.fileType
+                                    : 'text'
                         })(
                             <Select
                                 getPopupContainer={getPopupContainer}
@@ -1214,9 +1232,9 @@ class SourceForm extends React.Component {
                                 }
                             ],
                             initialValue:
-                                    !sourceMap.type || !sourceMap.type.encoding
-                                        ? 'utf-8'
-                                        : sourceMap.type.encoding
+                                !sourceMap.type || !sourceMap.type.encoding
+                                    ? 'utf-8'
+                                    : sourceMap.type.encoding
                         })(
                             <Select
                                 getPopupContainer={getPopupContainer}
@@ -1280,9 +1298,9 @@ class SourceForm extends React.Component {
                                 }
                             ],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.encoding
-                                        ? sourceMap.type.encoding
-                                        : 'utf-8'
+                                sourceMap.type && sourceMap.type.encoding
+                                    ? sourceMap.type.encoding
+                                    : 'utf-8'
                         })(
                             <Select
                                 getPopupContainer={getPopupContainer}
@@ -1301,9 +1319,9 @@ class SourceForm extends React.Component {
                         {getFieldDecorator('startRowkey', {
                             rules: [],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.startRowkey
-                                        ? sourceMap.type.startRowkey
-                                        : ''
+                                sourceMap.type && sourceMap.type.startRowkey
+                                    ? sourceMap.type.startRowkey
+                                    : ''
                         })(
                             <Input
                                 placeholder="startRowkey"
@@ -1319,9 +1337,9 @@ class SourceForm extends React.Component {
                         {getFieldDecorator('endRowkey', {
                             rules: [],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.endRowkey
-                                        ? sourceMap.type.endRowkey
-                                        : ''
+                                sourceMap.type && sourceMap.type.endRowkey
+                                    ? sourceMap.type.endRowkey
+                                    : ''
                         })(
                             <Input
                                 placeholder="endRowkey"
@@ -1338,16 +1356,16 @@ class SourceForm extends React.Component {
                         {getFieldDecorator('isBinaryRowkey', {
                             rules: [],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.isBinaryRowkey
-                                        ? sourceMap.type.isBinaryRowkey
-                                        : '0'
+                                sourceMap.type && sourceMap.type.isBinaryRowkey
+                                    ? sourceMap.type.isBinaryRowkey
+                                    : '0'
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value="0" style={{ float: 'left' }}>
-                                        FALSE
+                                    FALSE
                                 </Radio>
                                 <Radio value="1" style={{ float: 'left' }}>
-                                        TRUE
+                                    TRUE
                                 </Radio>
                             </RadioGroup>
                         )}
@@ -1360,9 +1378,9 @@ class SourceForm extends React.Component {
                         {getFieldDecorator('scanCacheSize', {
                             rules: [],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.scanCacheSize
-                                        ? sourceMap.type.scanCacheSize
-                                        : ''
+                                sourceMap.type && sourceMap.type.scanCacheSize
+                                    ? sourceMap.type.scanCacheSize
+                                    : ''
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1381,9 +1399,9 @@ class SourceForm extends React.Component {
                         {getFieldDecorator('scanBatchSize', {
                             rules: [],
                             initialValue:
-                                    sourceMap.type && sourceMap.type.scanBatchSize
-                                        ? sourceMap.type.scanBatchSize
-                                        : ''
+                                sourceMap.type && sourceMap.type.scanBatchSize
+                                    ? sourceMap.type.scanBatchSize
+                                    : ''
                         })(
                             <Input
                                 onChange={this.submitForm.bind(this)}
@@ -1405,17 +1423,17 @@ class SourceForm extends React.Component {
                             <Input
                                 className="ant-input-lg"
                                 placeholder="例如: /rdos/batch"
-                                defaultValue={ path }
+                                defaultValue={path}
                                 data-index={index}
                                 onChange={this.debounceFtpChange}
                             />
-                            { index > 0 ? <Button
-                                    onClick={this.onRemoveFtpPath.bind(this, index)}
-                                    title="删除当前路径"
-                                    shape="circle"
-                                    style={removeBtnStyle} 
-                                    icon="minus"
-                                /> : '' 
+                            {index > 0 ? <Button
+                                onClick={this.onRemoveFtpPath.bind(this, index)}
+                                title="删除当前路径"
+                                shape="circle"
+                                style={removeBtnStyle}
+                                icon="minus"
+                            /> : ''
                             }
                         </div>
                     )
@@ -1424,7 +1442,7 @@ class SourceForm extends React.Component {
                     position: 'absolute',
                     right: '-25px',
                     top: '6px',
-                    cursor:' pointer',
+                    cursor: ' pointer',
                     width: '20px',
                     height: '20px'
                 }
@@ -1470,9 +1488,9 @@ class SourceForm extends React.Component {
                                 }
                             ],
                             initialValue:
-                                    !sourceMap.type || !sourceMap.type.encoding
-                                        ? 'utf-8'
-                                        : sourceMap.type.encoding
+                                !sourceMap.type || !sourceMap.type.encoding
+                                    ? 'utf-8'
+                                    : sourceMap.type.encoding
                         })(
                             <Select
                                 getPopupContainer={getPopupContainer}
@@ -1496,17 +1514,17 @@ class SourceForm extends React.Component {
                                 }
                             ],
                             initialValue:
-                                    !sourceMap.type ||
+                                !sourceMap.type ||
                                     !sourceMap.type.isFirstLineHeader
-                                        ? false
-                                        : sourceMap.type.isFirstLineHeader
+                                    ? false
+                                    : sourceMap.type.isFirstLineHeader
                         })(
                             <RadioGroup onChange={this.submitForm.bind(this)}>
                                 <Radio value={true} style={{ float: 'left' }}>
-                                        是
+                                    是
                                 </Radio>
                                 <Radio value={false} style={{ float: 'left' }}>
-                                        否
+                                    否
                                 </Radio>
                             </RadioGroup>
                         )}
@@ -1523,7 +1541,7 @@ class SourceForm extends React.Component {
 const SourceFormWrap = Form.create()(SourceForm);
 
 class Source extends React.Component {
-    constructor (props) {
+    constructor(props) {
         super(props);
     }
 
