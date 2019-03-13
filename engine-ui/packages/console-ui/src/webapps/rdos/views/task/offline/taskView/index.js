@@ -202,9 +202,7 @@ export default class TaskView extends Component {
 
                         nodeData._geometry = getGeoByRelativeNode(currentNodeGeo, node);
 
-                        if (childNodes[j].subTaskVOS) {
-                            loop(nodeData, parent, ++level, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, ++level, currentNodeGeo)
 
                         const treeItem = {
                             parent: parent,

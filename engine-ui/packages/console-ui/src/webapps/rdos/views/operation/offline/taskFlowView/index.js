@@ -368,9 +368,7 @@ class TaskFlowView extends Component {
                             target: treeNodeData
                         });
 
-                        if (nodeData.parentNodes) {
-                            loop(nodeData, parent, level - 1, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, level - 1, currentNodeGeo)
                     }
                 }
 
@@ -403,9 +401,7 @@ class TaskFlowView extends Component {
                             target: nodeData
                         });
 
-                        if (nodeData.jobVOS) {
-                            loop(nodeData, parent, ++level, currentNodeGeo)
-                        }
+                        loop(nodeData, parent, ++level, currentNodeGeo)
                     }
                 }
             }
