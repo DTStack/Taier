@@ -483,7 +483,6 @@ public class FlinkClient extends AbsClient {
      */
     @Override
     public RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) {
-
         String jobId = jobIdentifier.getEngineJobId();
         String applicationId = jobIdentifier.getApplicationId();
 
@@ -500,12 +499,7 @@ public class FlinkClient extends AbsClient {
         try{
             response = PoolHttpClient.get(reqUrl);
         } catch (RdosException e){
-            //如果查询不到有可能数据被flink清除了
-            if((HttpStatus.SC_NOT_FOUND + "").equals(e.getErrorMessage())){
-                return RdosTaskStatus.NOTFOUND;
-            } else {
-                return null;
-            }
+            return RdosTaskStatus.NOTFOUND;
         } catch (IOException e) {
             return null;
         }
