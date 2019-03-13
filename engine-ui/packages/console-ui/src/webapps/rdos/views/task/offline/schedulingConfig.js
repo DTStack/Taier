@@ -4,7 +4,8 @@ import moment from 'moment';
 import assign from 'object-assign';
 import { get } from 'lodash';
 
-import { Row,
+import {
+    Row,
     Col,
     Checkbox,
     Form,
@@ -52,7 +53,7 @@ class ScheduleForm extends React.Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
-        const { periodType } = scheduleConf;
+        const { periodType, isFailRetry } = scheduleConf;
 
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
@@ -66,9 +67,9 @@ class ScheduleForm extends React.Component {
             }
             return <Select
                 disabled={disabledInvokeTime}
-                onChange={ this.changeScheduleConf.bind(this) }
+                onChange={this.changeScheduleConf.bind(this)}
             >
-                { options }
+                {options}
             </Select>;
         };
         const generateMins = () => {
@@ -78,9 +79,9 @@ class ScheduleForm extends React.Component {
             }
             return <Select
                 disabled={disabledInvokeTime}
-                onChange={ this.changeScheduleConf.bind(this) }
+                onChange={this.changeScheduleConf.bind(this)}
             >
-                { options }
+                {options}
             </Select>;
         };
         const generateDate = () => {
@@ -91,14 +92,14 @@ class ScheduleForm extends React.Component {
             return <Select
                 mode="multiple"
                 style={{ width: '100%' }}
-                onChange={ this.changeScheduleConf.bind(this) }
-            >{ options }</Select>;
+                onChange={this.changeScheduleConf.bind(this)}
+            >{options}</Select>;
         };
         const generateDays = () => {
             return <Select
                 mode="multiple"
                 style={{ width: '100%' }}
-                onChange={ this.changeScheduleConf.bind(this) }
+                onChange={this.changeScheduleConf.bind(this)}
             >
                 <Option key={1} value="1">星期一</Option>
                 <Option key={2} value="2">星期二</Option>
@@ -109,7 +110,7 @@ class ScheduleForm extends React.Component {
                 <Option key={7} value="7">星期天</Option>
             </Select>
         }
-        return <Form key={ periodType } className="schedule-form" >
+        return <Form key={periodType} className="schedule-form" >
             <FormItem
                 {...formItemLayout}
                 label="调度状态"
@@ -119,7 +120,7 @@ class ScheduleForm extends React.Component {
                     initialValue: status === 0 || status === 2
                 })(
                     <Checkbox
-                        onChange={ this.changeScheduleStatus.bind(this) }
+                        onChange={this.changeScheduleStatus.bind(this)}
                     >冻结</Checkbox>
                 )}
             </FormItem>
@@ -132,11 +133,37 @@ class ScheduleForm extends React.Component {
                     initialValue: get(scheduleConf, 'isFailRetry', true)
                 })(
                     <Checkbox
-                        onChange={ this.changeScheduleConf.bind(this) }
+                        onChange={this.changeScheduleConf.bind(this)}
                     >是</Checkbox>
                 )}
                 <HelpDoc style={relativeStyle} doc="taskFailRetry" />
             </FormItem>
+            {isFailRetry && (
+                <FormItem
+                    {...formItemLayout}
+                    label="重试次数"
+                >
+                    <Col span="6">
+                        {getFieldDecorator('failRetryCount', {
+                            rules: [{
+                                required: true, message: '请选择重试次数'
+                            }],
+                            initialValue: get(scheduleConf, 'failRetryCount', 3)
+                        })(
+                            <Select
+                                onChange={this.changeScheduleConf.bind(this)}
+                            >
+                                <Option key='1' value='1'>1</Option>
+                                <Option key='2' value='2'>2</Option>
+                                <Option key='3' value='3'>3</Option>
+                                <Option key='4' value='4'>4</Option>
+                                <Option key='5' value='5'>5</Option>
+                            </Select>
+                        )}
+                    </Col>
+                    <span className="split-text">次，每次间隔2分钟</span>
+                </FormItem>
+            )}
             {
                 !isWorkflowNode && <div>
 
@@ -149,7 +176,7 @@ class ScheduleForm extends React.Component {
                         })(
                             <DatePicker
                                 style={{ width: '140px' }}
-                                onChange={ this.changeScheduleConf.bind(this) }
+                                onChange={this.changeScheduleConf.bind(this)}
                             />
                         )}
                         <span className="split-text" style={{ float: 'none' }} >-</span>
@@ -158,7 +185,7 @@ class ScheduleForm extends React.Component {
                         })(
                             <DatePicker
                                 style={{ width: '140px' }}
-                                onChange={ this.changeScheduleConf.bind(this) }
+                                onChange={this.changeScheduleConf.bind(this)}
                             />
                         )}
                     </FormItem>
@@ -173,7 +200,7 @@ class ScheduleForm extends React.Component {
                                     required: true
                                 }]
                             })(
-                                <Select onChange={ this.changeScheduleType.bind(this) }>
+                                <Select onChange={this.changeScheduleType.bind(this)}>
                                     <Option key={0} value="0">分钟</Option>
                                     <Option key={1} value="1">小时</Option>
                                     <Option key={2} value="2">天</Option>
@@ -246,7 +273,7 @@ class ScheduleForm extends React.Component {
                                         initialValue: `${scheduleConf.gapMin}`
                                     })(
                                         <Select
-                                            onChange={ ctx.changeScheduleConf.bind(ctx) }
+                                            onChange={ctx.changeScheduleConf.bind(ctx)}
                                         >
                                             {(function () {
                                                 let options = [];
@@ -345,7 +372,7 @@ class ScheduleForm extends React.Component {
                                         initialValue: `${scheduleConf.gapHour}`
                                     })(
                                         <Select
-                                            onChange={ ctx.changeScheduleConf.bind(ctx) }
+                                            onChange={ctx.changeScheduleConf.bind(ctx)}
                                         >
                                             {(function () {
                                                 let options = [];
@@ -718,7 +745,7 @@ class SchedulingConfig extends React.Component {
             defaultScheduleConf = this.getDefaultScheduleConf(2);
         }
         setTimeout(() => {
-            this.form.validateFields((err, values) => {
+            this.form.props.form.validateFields((err, values) => {
                 if (!err) {
                     let formData = this.form.getFieldsValue();
                     formData.selfReliance = this.state.selfReliance;
@@ -733,11 +760,11 @@ class SchedulingConfig extends React.Component {
     handleScheduleType (type) {
         const dft = this.getDefaultScheduleConf(type);
         const values = assign({}, dft, {
-            scheduleStatus: this.form.getFieldValue('scheduleStatus'),
+            scheduleStatus: this.form.props.form.getFieldValue('scheduleStatus'),
             periodType: type,
-            beginDate: this.form.getFieldValue('beginDate'),
-            endDate: this.form.getFieldValue('endDate'),
-            selfReliance: this.form.getFieldValue('selfReliance')
+            beginDate: this.form.props.form.getFieldValue('beginDate'),
+            endDate: this.form.props.form.getFieldValue('endDate'),
+            selfReliance: this.form.props.form.getFieldValue('selfReliance')
         });
         this.props.changeScheduleConf(values);
     }
@@ -842,7 +869,7 @@ class SchedulingConfig extends React.Component {
                 key: 'name',
                 render: (text, record) => <a
                     href="javascript:void(0)"
-                    onClick={ this.goEdit.bind(this, record) }
+                    onClick={this.goEdit.bind(this, record)}
                 >{text}</a>
             },
             {
@@ -856,7 +883,7 @@ class SchedulingConfig extends React.Component {
                 render: (text, record) => (
                     <span>
                         <a href="javascript:void(0)"
-                            onClick={ this.handleDelVOS.bind(this, record) }
+                            onClick={this.handleDelVOS.bind(this, record)}
                         >删除</a>
                     </span>
                 )
@@ -870,19 +897,19 @@ class SchedulingConfig extends React.Component {
         };
 
         return <div className="m-scheduling" style={{ position: 'relative' }}>
-            { isLocked || !couldEdit ? <div className="cover-mask"></div> : null }
+            {isLocked || !couldEdit ? <div className="cover-mask"></div> : null}
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap
-                        scheduleConf={ scheduleConf }
-                        wFScheduleConf={ wFScheduleConf }
-                        status={ tabData.scheduleStatus }
+                        scheduleConf={scheduleConf}
+                        wFScheduleConf={wFScheduleConf}
+                        status={tabData.scheduleStatus}
                         isWorkflowNode={isWorkflowNode}
-                        handleScheduleStatus={ this.handleScheduleStatus.bind(this) }
-                        handleScheduleConf={ this.handleScheduleConf.bind(this) }
-                        handleScheduleType={ this.handleScheduleType.bind(this) }
-                        ref={ el => this.form = el }
-                        key={ `${tabData.id}-${scheduleConf.periodType}` }
+                        handleScheduleStatus={this.handleScheduleStatus.bind(this)}
+                        handleScheduleConf={this.handleScheduleConf.bind(this)}
+                        handleScheduleType={this.handleScheduleType.bind(this)}
+                        wrappedComponentRef={el => this.form = el}
+                        key={`${tabData.id}-${scheduleConf.periodType}`}
                     />
                 </Panel>
                 {
@@ -896,8 +923,8 @@ class SchedulingConfig extends React.Component {
                                 label="上游任务"
                             >
                                 <TaskSelector
-                                    onSelect={ this.handleAddVOS.bind(this) }
-                                    taskId={ tabData.id }
+                                    onSelect={this.handleAddVOS.bind(this)}
+                                    taskId={tabData.id}
                                 />
                             </FormItem>
                         </Form>
@@ -909,7 +936,7 @@ class SchedulingConfig extends React.Component {
                                             className="m-table"
                                             columns={columns}
                                             bordered={false}
-                                            dataSource={ tabData.taskVOS }
+                                            dataSource={tabData.taskVOS}
                                             rowKey={record => record.id.lable}
                                         />
                                     </Col>
@@ -923,20 +950,20 @@ class SchedulingConfig extends React.Component {
                         <Row style={{ marginBottom: 16 }}>
                             <Col span="1" />
                             <Col>
-                                <RadioGroup onChange={ this.setSelfReliance.bind(this) }
-                                    value={ selfReliance }
+                                <RadioGroup onChange={this.setSelfReliance.bind(this)}
+                                    value={selfReliance}
                                 >
-                                    {!isIncrementMode && <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio> }
+                                    {!isIncrementMode && <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>}
                                     <Radio style={radioStyle} value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
                                     <Radio style={radioStyle} value={3}>
                                         自依赖，等待上一调度周期结束，才能继续运行&nbsp;
                                         <HelpDoc style={{ position: 'inherit' }} doc={!isIncrementMode ? 'taskDependentTypeDesc' : 'incrementModeScheduleTypeHelp'} />
                                     </Radio>
-                                    {!isIncrementMode && <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio> }
+                                    {!isIncrementMode && <Radio style={radioStyle} value={2}>等待下游任务的上一周期成功，才能继续运行</Radio>}
                                     {!isIncrementMode && <Radio style={radioStyle} value={4}>
                                         等待下游任务的上一周期结束，才能继续运行&nbsp;
                                         <HelpDoc style={{ position: 'inherit' }} doc="taskDependentTypeDesc" />
-                                    </Radio> }
+                                    </Radio>}
                                 </RadioGroup>
                             </Col>
                         </Row>
@@ -1026,19 +1053,20 @@ class TaskSelector extends React.Component {
         }
 
         return <div className="m-taskselector">
-            <input onInput={(event) => {
-                this.resetError();
-                debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 })(event);
-            }}
-            ref={el => this.$input = el}
-            className="ant-input"
-            placeholder="根据任务名称搜索"
+            <input
+                onInput={(event) => {
+                    this.resetError();
+                    debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 })(event);
+                }}
+                ref={el => this.$input = el}
+                className="ant-input"
+                placeholder="根据任务名称搜索"
             />
             {emptyError && <span style={emptyErrorStyle}>没有符合条件的任务</span>}
             {list.length > 0 && <ul className="tasklist">
                 {list.map(o => <li className="taskitem"
-                    onClick={ () => { this.handleClick(o) } }
-                    key={ o.id }
+                    onClick={() => { this.handleClick(o) }}
+                    key={o.id}
                 >
                     {o.name}
                 </li>)}
