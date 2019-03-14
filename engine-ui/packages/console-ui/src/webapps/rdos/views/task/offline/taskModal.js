@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
-import { isArray } from 'lodash';
+import { isArray, get } from 'lodash';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -27,24 +27,18 @@ const hadoopMRJsonValue = JSON.stringify(HADOOPMR_INITIAL_VALUE, null, 4)
 class TaskForm extends React.Component {
     constructor (props) {
         super(props);
+        const defaultData = props.defaultData || {};
         this.handleTaskTypeChange = this.handleTaskTypeChange.bind(this);
         this.isEditExist = false;
         this.state = {
             value: 0,
-            operateModel: '',
+            operateModel: get(defaultData, 'operateModel', DEAL_MODEL_TYPE.RESOURCE),
             analyDataSourceLists: []
         };
 
         this._resChange = false;
     }
 
-    // eslint-disable-next-line
-    UNSAFE_componentWillMount () {
-        const { defaultData } = this.props;
-        this.setState({
-            operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
-        })
-    }
     componentDidMount () {
         this.getAnalyDataSourceLists();
     }
@@ -120,8 +114,14 @@ class TaskForm extends React.Component {
 
         this.isEditExist = !isCreateNormal && !isCreateFromMenu;
 
-        let value = isCreateNormal ? this.state.value
-            : (!isCreateFromMenu ? defaultData.taskType : this.state.value);
+        let value;
+        if (isCreateNormal) {
+            value = this.state.value;
+        } else if (!isCreateFromMenu) {
+            value = defaultData.taskType;
+        } else {
+            value = this.state.value;
+        }
 
         // 如果是从Graph中触发创建
         if (createFromGraph) {
@@ -708,6 +708,9 @@ class TaskModal extends React.Component {
         const { loading } = this.state;
 
         let isCreate = true;
+        /**
+         * 是否为工作流节点
+         */
         const createFromGraph = workflow && workflow.status === 'create';
         const labelPrefix = createFromGraph ? '节点' : '任务';
 
