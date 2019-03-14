@@ -92,13 +92,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="${basedir}/../lib/">
-                                    <fileset dir="target/">
-                                        <include name="${project.name}-${project.version}.jar" />
-                                    </fileset>
-                                </copy>
-                                <move file="${basedir}/../lib/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../lib/core.jar" />
+                                <copy file="${basedir}/target/${project.name}-${project.version}.jar"
+                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
