@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.9"></a>
+## [3.3.9](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.8...3.3.9) (2019-03-14)
+
+
+### Bug Fixes
+
+* **rdos:** fix invaild bug ([c75bf76](http://git.dtstack.cn/ziv/data-stack-web/commits/c75bf76)), closes [#14689](http://redmine.prod.dtstack.cn/issues/14689)
+* **rdos:** fix pyspark params bug ([954e7df](http://git.dtstack.cn/ziv/data-stack-web/commits/954e7df)), closes [#14691](http://redmine.prod.dtstack.cn/issues/14691)
+
+
+
 <a name="3.3.8"></a>
 ## [3.3.8](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.7...3.3.8) (2019-03-07)
 
