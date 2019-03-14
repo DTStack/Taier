@@ -60,6 +60,10 @@ export default {
     killTask (params) {
         return http.post(req.KILL_TASK, params);
     },
+    // 明细-杀死选中或者杀死全部任务
+    killAllTask (params) {
+        return http.post(req.KILL_ALL_TASK, params);
+    },
 
     // 引擎列表
     getEngineList (params) {

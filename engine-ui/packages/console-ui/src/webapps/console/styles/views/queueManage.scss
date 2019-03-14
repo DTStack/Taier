@@ -31,5 +31,38 @@
 
 // 杀任务
 .killTask {
-    background: rgba(255,186,180,.4);
+    background: rgba(255, 186, 180, .4);
+}
+
+// 明细表格
+.detail-table {
+    .ant-table-footer {
+        background: #fff;
+        padding: 10 0 0;
+        border-bottom: 0;
+    }
+    .ant-pagination {
+        position: relative;
+        top: -32px;
+        right: 20;
+        margin-right: 0;
+    }
+    .ant-table-pagination.ant-pagination {
+        margin: 0;
+        float: right;
+    }
+    .ant-row.table-footer {
+        .select-all {
+            padding: 0 16px 0 30px;
+            .ant-checkbox {
+                margin-right: 16px;
+            }
+        }
+        .ant-btn {
+            margin-right: 0;
+            &:nth-child(2) {
+                margin-top: 1px;
+            }
+        }
+    }
 }
