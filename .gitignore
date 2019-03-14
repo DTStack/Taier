@@ -8,3 +8,5 @@ target/
 .classpath
 .vertx/
 etc
+dependency-reduced-pom.xml
+entrance/dependency-reduced-pom.xml
