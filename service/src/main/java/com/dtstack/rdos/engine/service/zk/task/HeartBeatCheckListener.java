@@ -88,8 +88,10 @@ public class HeartBeatCheckListener implements Runnable{
 				});
 				//是否假死
 				if (brokerNode.getAlive()){
-					//异常宕机的节点，alive=true，seq不会再进行更新
-					if(brokerNodeCount.getHeartSeq() == brokerNode.getSeq().longValue()){
+					//1. 异常宕机的节点，alive=true，seq不会再进行更新
+					//2. 需要加入条件 seq !=0，因为当节点重启时 seq 可能都为0，可能会满足条件 brokerNode.getAlive() && brokerNodeCount.getCount() > OUTAGE_TIMEOUT_COUNT
+					//导致多执行一次 dataMigration
+					if(brokerNodeCount.getHeartSeq() != 0 && brokerNodeCount.getHeartSeq() == brokerNode.getSeq().longValue()){
 						brokerNodeCount.increment();
 					}else{
 						brokerNodeCount.reset();

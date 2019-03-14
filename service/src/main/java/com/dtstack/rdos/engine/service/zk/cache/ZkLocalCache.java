@@ -60,7 +60,6 @@ public class ZkLocalCache implements Closeable {
 
     public void init(ZkDistributed zkDistributed) {
         localAddress = zkDistributed.getLocalAddress();
-//        localDataCache = zkDistributed.initMemTaskStatus();
         localDataCache = new BrokerDataNode(new ConcurrentHashMap<String,BrokerDataShard>(16));
         distributeQueueWeight = ConfigParse.getTaskDistributeQueueWeight();
         distributeZkWeight = ConfigParse.getTaskDistributeZkWeight();
@@ -73,7 +72,8 @@ public class ZkLocalCache implements Closeable {
         if (zkTaskId == null || status == null) {
             throw new UnsupportedOperationException();
         }
-        if (RdosTaskStatus.WAITCOMPUTE.getStatus().equals(status)){
+        //任务只有在提交成功后开始zk status轮询并同时checkShard一次
+        if (RdosTaskStatus.SUBMITTED.getStatus().equals(status)){
             checkShard();
         }
         String shard = localDataCache.getShard(zkTaskId);
