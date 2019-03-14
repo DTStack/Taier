@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Radio, message } from 'antd';
+import { Form, Input, Radio } from 'antd';
 import { connect } from 'react-redux';
 
 import { matchTaskParams, isProjectCouldEdit, checkNotDir } from '../../../comm'
@@ -21,7 +21,6 @@ class NormalTaskForm extends React.Component {
         let invalid = false;
         if (!formData.resourceIdList || formData.resourceIdList.length === 0) {
             invalid = true;
-            message.error('资源不可为空！')
         } else if (formData.resourceIdList && formData.resourceIdList.length > 0 && checkNotDir(formData.resourceIdList[0], resTreeData)) {
             if (formData.refResourceIdList && formData.refResourceIdList.length > 0 && !checkNotDir(formData.refResourceIdList[0], resTreeData)) {
                 invalid = true;
@@ -278,11 +277,6 @@ function validValus (values, props) {
     // invalid为一个验证标记，
     // 次标记为上方任务保存按钮是否有效提供依据
     if (values.mainClass === '') { // mainClass不可为空
-        return true;
-    }
-
-    // 资源列表不可为空
-    if (!values.resourceIdList || values.resourceIdList.length === 0) {
         return true;
     }
 
