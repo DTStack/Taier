@@ -288,7 +288,7 @@ const NormalTaskFormWrapper = Form.create({
         const { setFieldsValue, taskCustomParams } = props;
 
         // 获取任务自定义参数
-        if (values.exeArgs !== '') {
+        if (values.hasOwnProperty('exeArgs')) {
             values.taskVariables = matchTaskParams(taskCustomParams, values.exeArgs)
         }
         values.invalid = validValus(values, props);
