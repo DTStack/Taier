@@ -149,7 +149,7 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, extTable = {}, extralConfig } = action.payload;
+            const { sourceId, splitPK, src, table, extralConfig, extTable = {} } = action.payload;
             if (!src) return state;
             const { type } = src;
             const key = action.key;
@@ -157,7 +157,9 @@ const sourceMap = (state = {}, action) => {
 
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
-            clone.extralConfig = extralConfig;
+            if (typeof extralConfig != 'undefined') {
+                clone.extralConfig = extralConfig;
+            }
 
             if (RDB_TYPE_ARRAY.indexOf(+type) !== -1) {
                 clone.splitPK = splitPK;
@@ -329,7 +331,9 @@ const targetMap = (state = {}, action) => {
 
             if (sourceId) clone.sourceId = sourceId;
             if (rowkey) clone.type.rowkey = rowkey;
-            clone.extralConfig = extralConfig;
+            if (typeof extralConfig != 'undefined') {
+                clone.extralConfig = extralConfig;
+            }
 
             // if (havePartition !== undefined) clone.type.havePartition = havePartition;
 
