@@ -160,6 +160,27 @@ $activeColor: #262e36; // 主色
     overflow: hidden;
     vertical-align: top;
 }
+.ant-dropdown-menu-item .dropdown-content{
+    padding:6px 58px 7px 20px;
+    font-size: 14px;
+    color: #333333;
+    line-height: 27px;
+    .iconfont{
+        color: inherit;
+        margin-right: 8px;
+        vertical-align: -1px;
+    }
+}
+
+.theme-dark {
+    .ant-dropdown-menu-item .dropdown-content{
+        color: #dddddd;
+    }
+    .ant-dropdown-menu-item-selected .dropdown-content{
+        background-color:#3D3D3D;
+    }
+    
+}/* 暗色主题下的导航栏下拉 */
 @media(min-width:1330px){
     .menu_large{
         display: inline-block;
