@@ -7,7 +7,8 @@ import {
     Table, message, Modal,
     Card, Input, Button, Select,
     Icon, DatePicker, Tooltip,
-    Form, Checkbox
+    Form, Checkbox, Dropdown,
+    Menu
 } from 'antd'
 
 import utils from 'utils'
@@ -32,6 +33,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import TaskJobFlowView from './taskJobFlowView'
+import KillJobForm from './killJobForm';
 
 const Option = Select.Option
 const confirm = Modal.confirm
@@ -68,7 +70,8 @@ class OfflineTaskList extends Component {
         visibleSlidePane: false,
         selectedTask: '',
         selectedRowKeys: [],
-        expandedRowKeys: []
+        expandedRowKeys: [],
+        killJobVisible: false
     }
 
     componentDidMount () {
@@ -85,7 +88,7 @@ class OfflineTaskList extends Component {
         }
     }
 
-    search = () => {
+    getReqParams = () => {
         const {
             jobName, person, taskStatus,
             bussinessDate, businessDateSort, jobType, current,
@@ -130,6 +133,11 @@ class OfflineTaskList extends Component {
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
 
+        return reqParams;
+    }
+
+    search = () => {
+        const reqParams = this.getReqParams();
         this.loadTaskList(reqParams)
     }
 
@@ -176,7 +184,7 @@ class OfflineTaskList extends Component {
         })
     }
 
-    batchKillJobs = () => { // 批量重跑
+    batchKillJobs = () => { // 批量杀死
         const ctx = this
         const selected = this.state.selectedRowKeys
 
@@ -210,7 +218,12 @@ class OfflineTaskList extends Component {
             })
         }
     }
-
+    // 批量按照业务日期杀死任务
+    showKillJobsByDate = (show) => {
+        this.setState({
+            killJobVisible: show
+        })
+    }
     batchReloadJobs = () => { // 批量重跑
         const ctx = this
         const selected = this.state.selectedRowKeys
@@ -498,6 +511,9 @@ class OfflineTaskList extends Component {
         return current && current.valueOf() > moment().subtract(1, 'days').valueOf();
     }
     tableFooter = (currentPageData) => {
+        const menu = (<Menu onClick={() => this.showKillJobsByDate(true)} style={{ width: 114 }}>
+            <Menu.Item key="1">按业务日期杀</Menu.Item>
+        </Menu>);
         return (
             <div className="ant-table-row  ant-table-row-level-0">
                 <div style={{ padding: '15px 20px 10px 23px', display: 'inline-block' }}>
@@ -508,7 +524,14 @@ class OfflineTaskList extends Component {
                     </Checkbox>
                 </div>
                 <div style={{ display: 'inline-block' }}>
-                    <Button type="primary" onClick={this.batchKillJobs}>批量杀任务</Button>&nbsp;
+                    <Dropdown.Button
+                        type="primary"
+                        onClick={this.batchKillJobs}
+                        overlay={menu}
+                        trigger={['click']}
+                    >
+                        批量杀任务
+                    </Dropdown.Button>&nbsp;
                     <Button type="primary" onClick={this.batchReloadJobs}>重跑当前及下游任务</Button>&nbsp;
                 </div>
             </div>
@@ -521,15 +544,12 @@ class OfflineTaskList extends Component {
 
     onExpand = (expanded, record) => {
         if (expanded) {
-            if (record.children && record.children.length) {
-                return;
-            }
             const { tasks } = this.state;
             let newTasks = cloneDeep(tasks);
             const { jobId } = record;
-            Api.getRelatedJobs({
-                jobId
-            }).then((res) => {
+            const reqParams = this.getReqParams();
+            reqParams.jobId = jobId;
+            Api.getRelatedJobs(reqParams).then((res) => {
                 if (res.code == 1) {
                     const index = newTasks.data.findIndex((task) => {
                         return task.jobId == jobId
@@ -555,7 +575,8 @@ class OfflineTaskList extends Component {
         const {
             tasks, selectedRowKeys, jobName,
             bussinessDate, current, statistics,
-            selectedTask, visibleSlidePane, cycDate
+            selectedTask, visibleSlidePane, cycDate,
+            killJobVisible
         } = this.state
 
         const { projectUsers, project } = this.props
@@ -584,8 +605,8 @@ class OfflineTaskList extends Component {
 
         return (
             <div>
-                <h1 className="box-title" style={{ lineHeight: '50px' }}>
-                    <div style={{ marginTop: '5px' }}>
+                <h1 className="box-title" style={{ lineHeight: '50px', overflowX: 'auto', height: 50 }}>
+                    <div style={{ marginTop: '5px', minWidth: 1200 }}>
                         <span className="ope-statistics">
                             <span className="status_overview_count_font">
                                 <Circle className="status_overview_count" />&nbsp;
@@ -760,6 +781,7 @@ class OfflineTaskList extends Component {
                             />
                         </SlidePane>
                     </Card>
+                    <KillJobForm visible={killJobVisible} autoFresh={this.search} onCancel={() => this.showKillJobsByDate(false)} />
                 </div>
             </div>
         )
