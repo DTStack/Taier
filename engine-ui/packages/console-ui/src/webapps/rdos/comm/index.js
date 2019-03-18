@@ -124,6 +124,15 @@ export function resourceTypeIcon (type) {
         case RESOURCE_TYPE.PY: {
             return 's-pythonicon-r';
         }
+        case RESOURCE_TYPE.ZIP: {
+            return 's-zipicon-r';
+        }
+        case RESOURCE_TYPE.EGG: {
+            return 's-eggicon-r';
+        }
+        case RESOURCE_TYPE.OTHER: {
+            return 's-othericon-r';
+        }
         default:
             return '';
     }

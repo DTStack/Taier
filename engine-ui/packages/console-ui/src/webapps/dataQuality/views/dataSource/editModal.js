@@ -272,7 +272,7 @@ class DataSourceModal extends Component {
                             {getFieldDecorator('dataJson.endPoint', {
                                 rules: [
                                     {
-                                        required: true,
+                                        required: false,
                                         message: 'End Point不可为空！'
                                     }
                                 ],

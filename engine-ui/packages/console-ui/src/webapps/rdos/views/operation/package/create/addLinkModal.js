@@ -228,6 +228,7 @@ class AddLinkModal extends React.Component {
 
         return (
             <Modal
+                width={1010}
                 visible={visible}
                 title="添加关联"
                 onOk={this.onOk.bind(this)}

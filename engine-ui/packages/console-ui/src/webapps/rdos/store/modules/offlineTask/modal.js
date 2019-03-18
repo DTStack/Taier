@@ -22,7 +22,10 @@ const initModalState = {
     fnId: undefined,
     moveFnData: undefined,
     taskType: '',
-    workFlowLists: []
+    workFlowLists: [],
+    confirmSaveVisible: false,
+    showPublish: false,
+    theReqIsEnd: true
 };
 
 export const modalShowReducer = (state = initModalState, action) => {
@@ -115,7 +118,19 @@ export const modalShowReducer = (state = initModalState, action) => {
                 resId: undefined
             });
         }
-
+        // 保存提交
+        case modalAction.TOGGLE_SAVE_MODAL:
+            return assign({}, state, {
+                confirmSaveVisible: action.payload
+            });
+        case modalAction.TOGGLE_PUBLISH_MODAL:
+            return assign({}, state, {
+                showPublish: action.payload
+            });
+        case modalAction.IS_SAVE_FINISH:
+            return assign({}, state, {
+                theReqIsEnd: action.payload
+            });
         default:
             return state;
     }

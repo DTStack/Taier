@@ -416,6 +416,7 @@ class DataSourceMana extends Component {
                     status={status}
                     handOk={this.addOrUpdateDataSource}
                     testConnection={this.testConnection}
+                    project={project}
                     sourceData={source}
                     sourceTypes={sourceTypes}
                     handCancel={() => { this.setState({ visible: false }) }}

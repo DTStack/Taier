@@ -189,7 +189,6 @@ export default class MainBench extends React.Component {
                     }
                     return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
-                case TASK_TYPE.CARBONSQL: //  carbonsql
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
@@ -197,6 +196,14 @@ export default class MainBench extends React.Component {
                         currentTab={tabData.id}
                         currentTabData={tabData}
                     />
+                case TASK_TYPE.CARBONSQL:
+                    return <CommonEditor
+                        mode="sql"
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
                 case TASK_TYPE.SHELL:
                     return <CommonEditor
                         mode="shell"
