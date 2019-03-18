@@ -149,7 +149,7 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, extTable = {}, extralConfig } = action.payload;
+            const { sourceId, splitPK, src, table, extralConfig, extTable = {} } = action.payload;
             if (!src) return state;
             const { type } = src;
             const key = action.key;
@@ -330,7 +330,9 @@ const targetMap = (state = {}, action) => {
             if (sourceId) clone.sourceId = sourceId;
             if (rowkey) clone.type.rowkey = rowkey;
             if (havePartition !== undefined) clone.type.havePartition = havePartition;
-            clone.extralConfig = extralConfig;
+            if (typeof extralConfig != 'undefined') {
+                clone.extralConfig = extralConfig;
+            }
 
             if (src) {
                 const { type } = src;
