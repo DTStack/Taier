@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Input, Select, Button, Radio, Modal, Icon, message, Tooltip } from 'antd';
+import { Form, Input, Select, Button, Radio, Modal, Icon, message } from 'antd';
 import { isEmpty, debounce, get } from 'lodash';
 import assign from 'object-assign';
 
@@ -20,6 +20,8 @@ import {
     DATA_SOURCE,
     DATA_SOURCE_TEXT
 } from '../../../../comm/const';
+
+import { formJsonValidator } from '../../../../comm'
 
 import HelpDoc from '../../../helpDoc';
 
@@ -411,6 +413,9 @@ class TargetForm extends React.Component {
                         label="高级配置"
                     >
                         {getFieldDecorator('extralConfig', {
+                            rules: [{
+                                validator: formJsonValidator
+                            }],
                             initialValue: get(targetMap, 'extralConfig', '')
                         })(
                             <TextArea
