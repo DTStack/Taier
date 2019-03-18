@@ -606,8 +606,8 @@ class PatchDataDetail extends Component {
 
         return (
             <div>
-                <h1 className="box-title" style={{ lineHeight: '50px', overflowX: 'auto', height: 50 }}>
-                    <div style={{ marginTop: '5px', minWidth: 1200 }}>
+                <h1 className="box-title" style={{ lineHeight: 2.5, height: 'auto', padding: '7px 20px' }}>
+                    <div style={{ marginTop: '5px' }}>
                         <span className="ope-statistics">
                             <span className="status_overview_count_font">
                                 <Circle className="status_overview_count" />&nbsp;
