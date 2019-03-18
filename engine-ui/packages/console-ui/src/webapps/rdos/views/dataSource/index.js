@@ -34,7 +34,8 @@ class DataSourceMana extends Component {
         loading: false,
         title: '新增数据源',
         status: 'add',
-        source: {}
+        source: {},
+        params: {} // 请求参数
     }
 
     componentDidMount () {
@@ -56,14 +57,17 @@ class DataSourceMana extends Component {
 
     loadDataSources = (params) => {
         const ctx = this
+        const { params: param } = this.state;
         this.setState({ loading: true })
         const reqParams = Object.assign({
             pageSize: 10,
             currentPage: 1
-        }, params)
+        }, param, params)
+        console.log('reqParams:', reqParams)
         Api.queryDataSource(reqParams).then((res) => {
             this.setState({
-                loading: false
+                loading: false,
+                params: reqParams
             })
             if (res.code === 1) {
                 ctx.setState({ dataSource: res.data })
