@@ -9,7 +9,7 @@ import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../../api/dataManage'
 
-import { getUploadStatus, updateUploader, UPLOAD_STATUS } from '../../../../store/modules/uploader'
+import { getUploadStatus } from '../../../../store/modules/uploader'
 
 const defaultState = {
     file: '',
@@ -50,10 +50,6 @@ class ImportLocalData extends Component {
             this.setState({
                 loading: true
             })
-            dispatch(updateUploader({
-                status: UPLOAD_STATUS.PROGRESSING,
-                fileName: file.name
-            }))
             API.importLocalData(params).then((res) => {
                 this.setState({
                     loading: false
