@@ -50,27 +50,17 @@ export function compareEnable (apps, licenseApps) {
     }
 }
 
-function renderATagMenuItems (menuItems, isRoot) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
-        const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
-        return isShow ? (<Menu.Item key={menu.id}>
-            <a href={menu.link} target={menu.target} className="dropdown-content">{menu.name}</a>
-        </Menu.Item>) : ''
-    }) : []
-}
-
-function renderIconTagMenuItems (menuItems, isRoot) {
+function renderATagMenuItems (menuItems, isRoot, isRenderIcon = false) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target} className="dropdown-content">
-                <span className={`iconfont icon-${menu.className || ''}`}></span>
-                <span>{menu.name}</span>
+                {isRenderIcon && <span className={`iconfont icon-${menu.className || ''}`}></span>}
+                {menu.name}
             </a>
         </Menu.Item>) : ''
     }) : []
 }
-
 export function Logo (props) {
     const { linkTo, img } = props
     return (
@@ -135,7 +125,7 @@ export function MenuRight (props) {
     // 右下拉菜单
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderIconTagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot)}
+            {renderATagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot, true)}
         </Menu>
     )
 
