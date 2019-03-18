@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import {
     Form, Input, Checkbox, InputNumber,
-    Select, Modal, TimePicker
+    Select, Modal, TimePicker,
+    Tooltip, Icon
 } from 'antd'
 
 import pureRender from 'utils/pureRender';
@@ -131,6 +132,13 @@ class AlarmForm extends Component {
         }
         console.log('myTrigger:', myTrigger)
 
+        const text = (
+            <>
+                <p>定时未完成：从计划时间开始计算，超出定时时间，若处于成功/失败之外的状态，会触发告警。</p>
+                <p>超时未完成：从任务开始运行计算，超出指定时间，若处于未完成的状态，会触发告警。</p>
+                <p>任务重跑、补数据时，不会触发告警。</p>
+            </>
+        )
         return (
             <Modal
                 title={title}
@@ -223,10 +231,14 @@ class AlarmForm extends Component {
                                 <Option value={5}>超时未完成</Option>
                             </Select>
                         )}
+                        &nbsp;
+                        <Tooltip placement="top" title={text} arrowPointAtCenter overlayClassName="extremely-big-tooltip">
+                            <Icon type="question-circle-o" />
+                        </Tooltip>
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="定时时长"
+                        label="触发时刻"
                         style={{ display: myTrigger === 4 ? 'block' : 'none' }}
                     >
                         {getFieldDecorator('uncompleteTime', {
@@ -240,7 +252,7 @@ class AlarmForm extends Component {
                     <FormItem
                         {...formItemLayout}
                         style={{ display: myTrigger === 5 ? 'block' : 'none' }}
-                        label="运行时长"
+                        label="开始运行起"
                     >
                         {getFieldDecorator('runTime', { // 换算成秒
                             rules: [{
