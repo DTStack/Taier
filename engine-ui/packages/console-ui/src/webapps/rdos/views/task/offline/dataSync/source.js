@@ -26,7 +26,7 @@ import {
 } from '../../../../store/modules/offlineTask/actionType';
 
 import HelpDoc from '../../../helpDoc';
-import { isRDB } from '../../../../comm';
+import { isRDB, formJsonValidator } from '../../../../comm';
 
 import {
     formItemLayout,
@@ -522,6 +522,9 @@ class SourceForm extends React.Component {
                             label="高级配置"
                         >
                             {getFieldDecorator('extralConfig', {
+                                rules: [{
+                                    validator: formJsonValidator
+                                }],
                                 initialValue: get(sourceMap, 'extralConfig', '')
                             })(
                                 <TextArea
