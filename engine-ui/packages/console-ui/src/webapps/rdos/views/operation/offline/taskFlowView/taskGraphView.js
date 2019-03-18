@@ -6,6 +6,8 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { removeToolTips } from 'funcs';
+
 import MyIcon from '../../../../components/icon'
 import { TASK_TYPE, SCHEDULE_STATUS } from '../../../../comm/const'
 import { taskTypeText } from '../../../../components/display'
@@ -407,6 +409,7 @@ class TaskGraphView extends Component {
             }
         }
         this.layoutView();
+        removeToolTips();
     }
 
     initContextMenu = (graph) => {

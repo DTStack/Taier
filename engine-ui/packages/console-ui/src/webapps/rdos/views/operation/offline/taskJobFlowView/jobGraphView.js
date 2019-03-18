@@ -6,6 +6,7 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { removeToolTips } from 'funcs'
 import MyIcon from '../../../../components/icon'
 import { getVertxtStyle } from '../../../../comm'
 import { TASK_TYPE } from '../../../../comm/const'
@@ -447,6 +448,7 @@ class JobGraphView extends Component {
             }
         }
         this.layoutView();
+        removeToolTips();
     }
 
     initContextMenu = (graph) => {
