@@ -187,7 +187,6 @@ class TargetForm extends React.Component {
         const { isNativeHive, sourceId, type } = targetMap;
         if (type && (
             type.type === DATA_SOURCE.HIVE ||
-            type.type === DATA_SOURCE.MAXCOMPUTE ||
             (isNativeHive && type.type !== DATA_SOURCE.CARBONDATA)
         )) {
             ajax.getHivePartitions({

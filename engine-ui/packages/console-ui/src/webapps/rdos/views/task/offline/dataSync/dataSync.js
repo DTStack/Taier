@@ -91,7 +91,7 @@ class DataSync extends React.Component {
         const newTargetFileName = get(targetMap, 'type.fileName');
 
         const isWhereChange = (oldSourceTable === newSourceTable) && oldWhere !== undefined && newWhere !== undefined && oldWhere !== newWhere;
-        const isSourceParitionChange = oldSourceTable === newSourceTable && (oldSourcePartition !== undefined || newSourcePartition) && oldSourcePartition !== newSourcePartition;
+        const isSourcePartitionChange = oldSourceTable === newSourceTable && (oldSourcePartition !== undefined || newSourcePartition) && oldSourcePartition !== newSourcePartition;
         const isTargetPartitionChange = oldTargetTable === newTargetTable && (oldTargetPartition !== undefined || newTargetPartition !== undefined) && oldTargetPartition !== newTargetPartition;
         const isSQLChange = oldSQL !== undefined && newSQL !== undefined && oldSQL !== newSQL;
         const isPostSQLChange = oldPostSQL !== undefined && newPostSQL !== undefined && oldPostSQL !== newPostSQL;
@@ -104,14 +104,14 @@ class DataSync extends React.Component {
         // console.log('old', oldDataSync);
         // console.log('new', dataSync);
         // console.log('isWhereChange', isWhereChange);
-        // console.log('isSourceParitionChange', isSourceParitionChange);
+        // console.log('isSourcePartitionChange', isSourcePartitionChange);
         // console.log('isTargetPartitionChange', isTargetPartitionChange);
         // console.log('isSQLChange', isSQLChange);
         // console.log('isSourceColumnChange', isSourceColumnChange);
         // console.log('isTargetFileNameChange', isTargetFileNameChange);
 
         return isWhereChange || // source type update
-        isSourceParitionChange || // source type update
+        isSourcePartitionChange || // source type update
         isTargetPartitionChange || // target type update
         isSQLChange || // target type update
         isPostSQLChange || // target type update
