@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router'
 
 import { TASK_TYPE, HELP_DOC_URL } from '../../../../comm/const'
 import {
@@ -20,7 +21,7 @@ class WelcomePage extends React.Component {
         this.props.toggleCreateTask();
     }
     newDataSource = () => {
-
+        this.props.router.push('/database')
     }
     uploadFile = () => {
         this.props.toggleUpload();
@@ -61,4 +62,4 @@ class WelcomePage extends React.Component {
         )
     }
 }
-export default WelcomePage;
+export default withRouter(WelcomePage);
