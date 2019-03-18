@@ -97,7 +97,7 @@ class ApplyBox extends Component {
             modal.destroy();
         }
 
-        hashHistory.push('/api/mine');
+        hashHistory.push('/api/mine/myApi');
     }
     changeDateMode (evt) {
         this.props.form.resetFields(['callDateRange'])
