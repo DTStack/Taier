@@ -6,7 +6,7 @@
 */
 
 import React, { Component } from 'react';
-import { Select, Table, Button, message, Radio } from 'antd'
+import { Select, Table, Button, message, Radio, Row, Col, Checkbox, Dropdown, Menu } from 'antd'
 import moment from 'moment';
 import '../../styles/main.scss'
 import ViewDetail from '../../components/viewDetail';
@@ -15,6 +15,7 @@ import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
 import Api from '../../api/console';
 import { TASK_STATE } from '../../consts/index.js';
+import KillAllTask from '../../components/killAllTask';
 const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
@@ -62,7 +63,10 @@ class TaskDetail extends Component {
         // 单选框值
         radioValue: 1,
         // 更多任务列表记录值
-        isClickGroup: false
+        isClickGroup: false,
+        selectedRowKeys: [],
+        isShowAllKill: false,
+        isKillAllTasks: false // 是否杀死全部任务
     }
     componentDidMount () {
         const { query = {} } = this.props;
@@ -88,6 +92,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 table: {
                     ...table,
                     total: 0
@@ -177,7 +182,8 @@ class TaskDetail extends Component {
         const { table } = this.state;
         const { pageIndex } = table;
         this.setState({
-            dataSource: []
+            dataSource: [],
+            selectedRowKeys: []
         })
         if (jobName) {
             Api.searchTaskList({
@@ -246,6 +252,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 node: value,
                 groupList: [],
                 groupName: undefined,
@@ -258,6 +265,7 @@ class TaskDetail extends Component {
             this.setState({
                 node: value,
                 dataSource: [],
+                selectedRowKeys: [],
                 groupName: undefined,
                 table: {
                     ...table,
@@ -292,6 +300,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 engineType: undefined,
                 groupName: undefined,
                 node: node,
@@ -304,6 +313,7 @@ class TaskDetail extends Component {
         } else {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 jobName: undefined,
                 engineType: value,
                 groupName: undefined,
@@ -336,7 +346,8 @@ class TaskDetail extends Component {
                 })
         } else {
             this.setState({
-                dataSource: []
+                dataSource: [],
+                selectedRowKeys: []
             })
         }
     }
@@ -352,6 +363,7 @@ class TaskDetail extends Component {
         if (!value) {
             this.setState({
                 dataSource: [],
+                selectedRowKeys: [],
                 groupName: value,
                 table: {
                     ...table,
@@ -374,7 +386,8 @@ class TaskDetail extends Component {
         const { table } = this.state;
         const { pageIndex } = table;
         this.setState({
-            dataSource: []
+            dataSource: [],
+            selectedRowKeys: []
         })
         if (engineType && groupName && node) {
             this.setState({
@@ -451,7 +464,8 @@ class TaskDetail extends Component {
     onTableChange = (pagination, filters, sorter) => {
         const table = Object.assign(this.state.table, { pageIndex: pagination.current })
         this.setState({
-            table
+            table,
+            selectedRowKeys: []
         },
         () => {
             this.getDetailTaskList();
@@ -634,6 +648,19 @@ class TaskDetail extends Component {
         }
     }
 
+    // 杀死选中的任务
+    handleKillSelect = () => {
+        const selected = this.state.selectedRowKeys
+
+        if (!selected || selected.length <= 0) {
+            message.error('您没有选择任何任务！')
+            return false;
+        }
+        this.setState({
+            isKillAllTasks: false,
+            isShowAllKill: true
+        })
+    }
     // 查看详情
     viewDetails (record) {
         this.setState({
@@ -655,13 +682,14 @@ class TaskDetail extends Component {
     }
     handleCloseKill () {
         this.setState({
-            isShowKill: false
+            isShowKill: false,
+            isShowAllKill: false
         })
     }
     // kill
     killSuccess (killId) {
         this.setState({
-            killIds: [...this.state.killIds, killId]
+            killIds: [...this.state.killIds].concat(killId)
         })
     }
     // 顺序调整
@@ -697,15 +725,29 @@ class TaskDetail extends Component {
             }
         });
     }
-    // 集群筛选
-    onClusterChange () {
+    onCheckAllChange = (e) => {
+        let selectedRowKeys = [];
+        if (e.target.checked) {
+            selectedRowKeys = this.state.dataSource.map(item => item.taskId);
+        }
 
+        this.setState({
+            selectedRowKeys,
+            checkAll: e.target.checked
+        })
+    }
+    handleKillAll = (e) => {
+        this.setState({
+            isShowAllKill: true,
+            isKillAllTasks: true
+        })
     }
     // 改变单选框值
     changeRadioValue (e) {
         const { table } = this.state;
         this.setState({
             dataSource: [],
+            selectedRowKeys: [],
             table: {
                 ...table,
                 total: 0
@@ -718,10 +760,46 @@ class TaskDetail extends Component {
             radioValue: e.target.value
         })
     }
+
+    tableFooter = (currentPageData) => {
+        const { selectedRowKeys, dataSource } = this.state;
+        const indeterminate = !!selectedRowKeys.length && (selectedRowKeys.length < dataSource.length);
+        const checked = !!dataSource.length && (selectedRowKeys.length === dataSource.length);
+        const menu = (
+            <Menu onClick={this.handleKillAll}>
+                <Menu.Item key="1" style={{ width: 118 }}>杀死全部任务</Menu.Item>
+            </Menu>
+        )
+        return (
+            <Row className="table-footer">
+                <Col className="inline">
+                    <Checkbox
+                        className="select-all"
+                        indeterminate={indeterminate}
+                        checked={checked}
+                        onChange={this.onCheckAllChange}
+                    >
+                        全选
+                    </Checkbox>
+                </Col>
+                <Col className="inline">
+                    <Dropdown.Button
+                        size="small"
+                        trigger={['click']}
+                        onClick={this.handleKillSelect}
+                        type="primary"
+                        overlay={menu}>
+                        杀死选中任务
+                    </Dropdown.Button>
+                </Col>
+            </Row>
+        )
+    }
+
     render () {
-        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey } = this.state;
+        const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill, isKillAllTasks } = this.state;
         const columns = this.initTableColumns();
-        const { dataSource, table } = this.state;
+        const { dataSource, table, selectedRowKeys } = this.state;
         const { loading } = table;
         const { resource } = this.state;
         const { killResource, priorityResource } = this.state;
@@ -734,6 +812,15 @@ class TaskDetail extends Component {
         const { node } = this.state;
         const { radioValue } = this.state;
         const { singleTaskInfo } = this.state;
+        const rowSelection = {
+            onChange: (selectedRowKeys, selectedRows) => {
+                this.setState({
+                    selectedRowKeys
+                })
+            },
+            selectedRowKeys: selectedRowKeys
+        };
+        let totalModel = isKillAllTasks ? (radioValue === 1 ? 0 : 1) : undefined;
         return (
             <div>
                 <div style={{ margin: '20px' }}>
@@ -833,8 +920,9 @@ class TaskDetail extends Component {
                     }}
                     loading={loading}
                     // className="m-table no-card-table q-table"
-                    className="m-table s-table q-table"
+                    className="m-table s-table q-table detail-table"
                     pagination={this.getPagination()}
+                    rowSelection={rowSelection}
                     rowClassName={(record, index) => {
                         if (this.state.killIds.indexOf(record.taskId) > -1) {
                             return 'killTask'
@@ -843,13 +931,7 @@ class TaskDetail extends Component {
                     dataSource={dataSource}
                     columns={columns}
                     onChange={this.onTableChange}
-                    footer={() => {
-                        return (
-                            <div style={{ lineHeight: '20px', paddingLeft: '18px' }}>
-                                任务总数<span>{total}</span>个
-                            </div>
-                        )
-                    }}
+                    footer={this.tableFooter}
                 />
                 <Resource
                     key={editModalKey}
@@ -869,6 +951,20 @@ class TaskDetail extends Component {
                     killSuccess={this.killSuccess.bind(this)}
                     autoRefresh={this.autoRefresh.bind(this)}
                     node={node}
+                />
+                <KillAllTask
+                    visible={isShowAllKill}
+                    onCancel={this.handleCloseKill.bind(this)}
+                    killSuccess={this.killSuccess.bind(this)}
+                    autoRefresh={this.autoRefresh.bind(this)}
+                    killResource={selectedRowKeys}
+                    node={node}
+                    totalModel={totalModel}
+                    totalSize={total}
+                    engineType={this.state.engineType}
+                    groupName={this.state.groupName}
+                    jobName={this.state.jobName}
+                    computeType={this.state.computeType}
                 />
                 <Reorder
                     visible={isShowReorder}

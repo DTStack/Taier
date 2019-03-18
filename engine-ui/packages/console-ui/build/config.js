@@ -14,10 +14,8 @@ module.exports = {
                 secure: false,
             },
             "/api/rdos": {
-                // target: "http://172.16.10.51:9020", // test
+                // target: "http://172.16.10.86:9020", // test
                 target: "http://172.16.8.104:9020", // dev server
-                // target: "http://172.16.2.175:9020", // test
-                // target: "http://172.16.1.191:9020",
                 // target: "http://127.0.0.1:3001", // tmp server
                 // ignorePath: true,  
                 // Mock
@@ -58,7 +56,7 @@ module.exports = {
                 secure: false,
             },
             "/api/console": { // 控制台
-                target: "http://172.16.8.107:8084",//开发环境
+                target: "http://172.16.8.104:8084",//开发环境
                 // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,

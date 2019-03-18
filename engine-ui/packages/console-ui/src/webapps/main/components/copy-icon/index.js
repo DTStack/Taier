@@ -78,7 +78,7 @@ export default class CopyIcon extends Component {
     }
 
     render () {
-        let { copyText, style, title, ...otherProps } = this.props
+        let { customView, copyText, style, title, ...otherProps } = this.props
 
         style = {
             'cursor': 'pointer',
@@ -86,10 +86,12 @@ export default class CopyIcon extends Component {
             ...style
         }
 
-        return (
-            <Tooltip placement="right" title={title || '复制'}>
-                <Icon className="copy-hover" onClick={this.copy.bind(this, copyText)} style={style} {...otherProps} type="copy" />
-            </Tooltip>
-        )
+        return customView ? (
+            <span onClick={this.copy.bind(this, copyText)}>
+                {customView}
+            </span>
+        ) : (<Tooltip placement="right" title={title || '复制'}>
+            <Icon className="copy-hover" onClick={this.copy.bind(this, copyText)} style={style} {...otherProps} type="copy" />
+        </Tooltip >)
     }
 }

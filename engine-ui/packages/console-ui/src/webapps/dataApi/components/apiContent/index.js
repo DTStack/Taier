@@ -54,7 +54,6 @@ class Content extends Component {
             callUrl,
             callLimit,
             beginTime,
-            token,
             endTime,
             mode, // 管理模式/用户模式
             isRegister,
@@ -104,7 +103,6 @@ class Content extends Component {
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
-                            <p data-title="API-TOKEN：" className="pseudo-title p-line">{token}</p>
                             <p data-title="申请调用次数：" className="pseudo-title p-line">
                                 {callLimit == -1 ? '无限制' : callLimit}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {

@@ -52,6 +52,7 @@ export default {
     START_JOB: `${RDOS_BASE_URL}/batch/batchJob/loadDataJob`, // 启动任务
     STOP_JOB: `${RDOS_BASE_URL}/batch/batchJob/stopJob`, // 停止任务
     BATCH_STOP_JOBS: `${RDOS_BASE_URL}/batch/batchJob/batchStopJobs`, // 停止任务
+    BATCH_STOP_JOBS_BY_DATE: `${RDOS_BASE_URL}/batch/batchJob/stopJobByCondition`, // 按照业务日期杀任务
     RESTART_AND_RESUME_JOB: `${RDOS_BASE_URL}/batch/batchJob/restartJobAndResume`, // 重启并恢复任务
     BATCH_RESTART_AND_RESUME_JOB: `${RDOS_BASE_URL}/batch/batchJob/batchRestartJobAndResume`, // 批量重启
     GET_FILL_DATA: `${RDOS_BASE_URL}/batch/batchJob/getFillDataJobInfoPreview`, // 获取补数据
