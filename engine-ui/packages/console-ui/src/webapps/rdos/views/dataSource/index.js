@@ -35,14 +35,16 @@ class DataSourceMana extends Component {
         title: '新增数据源',
         status: 'add',
         source: {},
-        params: {} // 请求参数
+        params: {
+            pageSize: 10,
+            currentPage: 1,
+            name: '',
+            type: undefined
+        } // 请求参数
     }
 
     componentDidMount () {
-        this.loadDataSources({
-            pageSize: 10,
-            currentPage: 1
-        })
+        this.loadDataSources()
         this.props.getSourceTypes();
     }
 
@@ -55,15 +57,14 @@ class DataSourceMana extends Component {
         }
     }
 
-    loadDataSources = (params) => {
+    loadDataSources = () => {
         const ctx = this
-        const { params: param } = this.state;
+        const { params } = this.state;
         this.setState({ loading: true })
         const reqParams = Object.assign({
             pageSize: 10,
             currentPage: 1
-        }, param, params)
-        console.log('reqParams:', reqParams)
+        }, params)
         Api.queryDataSource(reqParams).then((res) => {
             this.setState({
                 loading: false,
@@ -76,9 +77,12 @@ class DataSourceMana extends Component {
     }
 
     searchDataSources = (query) => {
-        this.loadDataSources({
-            name: query
-        })
+        this.setState({
+            params: {
+                ...this.state.params,
+                name: query.trim()
+            }
+        }, this.loadDataSources())
     }
 
     addOrUpdateDataSource = (sourceFormData, formObj, callBack) => {
@@ -143,8 +147,10 @@ class DataSourceMana extends Component {
             params.type = filters.type[0]
         }
         params.currentPage = pagination.current
-        this.setState({ current: pagination.current })
-        this.loadDataSources(params)
+        this.setState({
+            current: pagination.current,
+            params: Object.assign(this.state.params, params)
+        }, this.loadDataSources())
     }
 
     initEdit = (source) => {
