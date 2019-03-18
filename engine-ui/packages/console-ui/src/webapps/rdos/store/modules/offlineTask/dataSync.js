@@ -157,7 +157,9 @@ const sourceMap = (state = {}, action) => {
 
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
-            clone.extralConfig = extralConfig;
+            if (typeof extralConfig != 'undefined') {
+                clone.extralConfig = extralConfig;
+            }
 
             if (RDB_TYPE_ARRAY.indexOf(+type) !== -1) {
                 clone.splitPK = splitPK;
