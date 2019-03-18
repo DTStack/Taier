@@ -1,13 +1,64 @@
 import React from 'react';
 
-import { Tooltip, Icon } from 'antd';
+import { Tooltip, Icon, Button, Popconfirm } from 'antd';
 import Copy from 'main/components/copy-icon';
+
+import api from '../../../api/mine';
+import docPath from '../../../consts/docPath';
 
 class CallApi extends React.Component {
     state = {
-        appKey: '25710890',
-        appSecret: '8easjnqh23u283aishdjaiqwrbkfjaf',
-        isShow: false
+        appKey: '',
+        appSecret: '',
+        isShow: false,
+        haveKey: true,
+        loading: false
+    }
+    componentDidMount () {
+        this.getUserKey();
+    }
+    resetKey = () => {
+        api.resetUserKey().then((res) => {
+            if (res.code == 1) {
+                this.setState({
+                    appKey: res.data.appKey,
+                    appSecret: res.data.appSecret
+                })
+            }
+        })
+    }
+    generateKey = () => {
+        this.setState({
+            loading: true
+        })
+        api.generateSkInfo().then((res) => {
+            this.setState({
+                loading: false
+            })
+            if (res.code == 1) {
+                this.setState({
+                    appKey: res.data.appKey,
+                    appSecret: res.data.appSecret,
+                    haveKey: true
+                })
+            }
+        })
+    }
+    getUserKey () {
+        api.getUserKey().then((res) => {
+            if (res.code == 1) {
+                if (res.data) {
+                    this.setState({
+                        appKey: res.data.appKey,
+                        appSecret: res.data.appSecret
+                    })
+                } else {
+                    this.setState({
+                        haveKey: false
+                    })
+                }
+            }
+        })
     }
     showOrHideSecret () {
         const { isShow } = this.state;
@@ -16,7 +67,7 @@ class CallApi extends React.Component {
         })
     }
     render () {
-        const { appKey, appSecret, isShow } = this.state;
+        const { appKey, appSecret, isShow, haveKey, loading } = this.state;
         let showAppSecret = isShow ? appSecret : '*'.repeat(appSecret.length);
         return (
             <div className='c-call-api'>
@@ -34,24 +85,34 @@ class CallApi extends React.Component {
                             </h1>
                         </div>
                         <div className='c-call-api__section__content'>
-                            <div className='c-shadow-text'>
-                                <span className='c-shadow-text__prefix'>APP key：</span>
-                                <span className='c-shadow-text__content'>{appKey}</span>
-                            </div>
-                            <div className='c-shadow-text'>
-                                <span className='c-shadow-text__prefix'>APP Secret：</span>
-                                <span className='c-shadow-text__content'>{showAppSecret}</span>
-                                <span className='c-shadow-text__extra'>
-                                    <a onClick={this.showOrHideSecret.bind(this)}>{isShow ? '隐藏' : '显示'}</a>
-                                    <Copy
-                                        customView={(
-                                            <a style={{ marginLeft: '13px' }}>复制</a>
+                            {haveKey ? (
+                                <React.Fragment>
+                                    <div className='c-shadow-text'>
+                                        <span className='c-shadow-text__prefix'>APP key：</span>
+                                        <span className='c-shadow-text__content'>{appKey}</span>
+                                    </div>
+                                    <div className='c-shadow-text'>
+                                        <span className='c-shadow-text__prefix'>APP Secret：</span>
+                                        {appSecret && (
+                                            <React.Fragment>
+                                                <span className='c-shadow-text__content'>{showAppSecret}</span>
+                                                <span className='c-shadow-text__extra'>
+                                                    <a onClick={this.showOrHideSecret.bind(this)}>{isShow ? '隐藏' : '显示'}</a>
+                                                    <Copy
+                                                        customView={(
+                                                            <a style={{ marginLeft: '13px' }}>复制</a>
+                                                        )}
+                                                        copyText={appSecret}
+                                                    />
+                                                    <Popconfirm title="确定重置吗?" onConfirm={this.resetKey} okText="确认" cancelText="取消">
+                                                        <a style={{ marginLeft: '13px' }}>重置</a>
+                                                    </Popconfirm>
+                                                </span>
+                                            </React.Fragment>
                                         )}
-                                        copyText={appSecret}
-                                    />
-                                    <a style={{ marginLeft: '13px' }}>重置</a>
-                                </span>
-                            </div>
+                                    </div>
+                                </React.Fragment>
+                            ) : (<Button loading={loading} type='primary' onClick={this.generateKey}>生成</Button>)}
                         </div>
                     </section>
                     <section className='c-call-api__content__section'>
@@ -59,7 +120,7 @@ class CallApi extends React.Component {
                             <h1 className="title-border-l-blue">APP secret签名生成</h1>
                         </div>
                         <div className='c-call-api__section__content'>
-                            <a>查看签名生成示例</a>
+                            <a target='blank' href={docPath.API_KEY}>查看签名生成示例</a>
                         </div>
                     </section>
                 </div>
