@@ -14,7 +14,10 @@ const mapStateToProps = function (state) {
 @connect(mapStateToProps, workbenchActions)
 class WelcomePage extends React.Component {
     newTask (taskType) {
-
+        this.props.setModalDefault({
+            taskType
+        });
+        this.props.toggleCreateTask();
     }
     newDataSource = () => {
 
@@ -49,7 +52,7 @@ class WelcomePage extends React.Component {
                     <div className='c-welcome__menu__menu'>
                         <header className='c-welcome__menu__title'>更多支持</header>
                         <nav className='c-welcome__menu__nav'>
-                            <a onClick={this.showExampleCode}>查看示例代码</a>
+                            {/* <a onClick={this.showExampleCode}>查看示例代码</a> */}
                             <a target="blank" href={HELP_DOC_URL.INDEX}>查看帮助文档</a>
                         </nav>
                     </div>
