@@ -530,12 +530,7 @@ class SourceForm extends React.Component {
                                     autosize={{ minRows: 2, maxRows: 6 }}
                                 />
                             )}
-                            <Tooltip title="以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考《帮助文档》">
-                                <Icon
-                                    className="help-doc"
-                                    type="question-circle-o"
-                                />
-                            </Tooltip>
+                            <HelpDoc doc='dataSyncExtralConfigHelp' />
                         </FormItem>
                     ) : null}
                 </Form>
