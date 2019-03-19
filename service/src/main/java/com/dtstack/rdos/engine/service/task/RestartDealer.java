@@ -269,14 +269,14 @@ public class RestartDealer {
                 RdosEngineStreamJobRetry streamJobRetry = RdosEngineStreamJobRetry.toEntity(streamJob);
                 streamJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
                 streamJobRetry.setEngineTaskId(jobClient.getEngineTaskId());
-                streamJobRetry.setApplicationId(jobClient.getEngineTaskId());
+                streamJobRetry.setApplicationId(jobClient.getApplicationId());
                 engineStreamJobRetryDAO.insert(streamJobRetry);
             } else if(ComputeType.BATCH.getType().equals(computeType)){
                 RdosEngineBatchJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
                 RdosEngineBatchJobRetry batchJobRetry = RdosEngineBatchJobRetry.toEntity(batchJob);
                 batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
                 batchJobRetry.setEngineJobId(jobClient.getEngineTaskId());
-                batchJobRetry.setApplicationId(jobClient.getEngineTaskId());
+                batchJobRetry.setApplicationId(jobClient.getApplicationId());
                 engineBatchJobRetryDAO.insert(batchJobRetry);
             }
         } catch (Throwable e ){
