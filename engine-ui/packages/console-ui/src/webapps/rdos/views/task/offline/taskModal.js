@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
 import { isArray } from 'lodash';
+
+import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';

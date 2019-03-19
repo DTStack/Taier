@@ -15,7 +15,7 @@ const RadioGroup = Radio.Group;
  * TODO 当前的表单逻辑需要重构，目前代码的维护性比较差
  */
 class NormalTaskForm extends React.Component {
-    checkReource () {
+    checkResource () {
         const { resTreeData, form, taskType } = this.props;
         const formData = form.getFieldsValue();
         const isPyTask = taskType === TASK_TYPE.PYTHON;
@@ -28,8 +28,6 @@ class NormalTaskForm extends React.Component {
             if (formData.refResourceIdList && formData.refResourceIdList.length > 0 && !checkNotDir(formData.refResourceIdList[0], resTreeData)) {
                 invalid = true;
             }
-        } else {
-            invalid = true;
         }
         this.props.setFieldsValue({
             invalid
@@ -41,14 +39,14 @@ class NormalTaskForm extends React.Component {
         this.props.form.setFieldsValue({
             resourceIdList: value ? [value] : []
         });
-        this.checkReource();
+        this.checkResource();
     }
 
     handleRefResChange = (value) => {
         this.props.form.setFieldsValue({
             refResourceIdList: value ? [value] : []
         });
-        this.checkReource();
+        this.checkResource();
     }
 
     handlePathChange (value) {
@@ -74,6 +72,9 @@ class NormalTaskForm extends React.Component {
         const couldEdit = isProjectCouldEdit(project, user);
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
+
+        const initialRefResourceName = taskData.refResourceList && taskData.refResourceList.length > 0
+            ? taskData.refResourceList.map(res => res.resourceName) : [];
 
         return (<Form>
             <FormItem
@@ -138,8 +139,7 @@ class NormalTaskForm extends React.Component {
                 >
                     {getFieldDecorator('refResourceIdList', {
                         rules: [],
-                        initialValue: taskData.refResourceList && taskData.refResourceList.length > 0
-                            ? taskData.refResourceList.map(res => res.resourceName) : []
+                        initialValue: initialRefResourceName
                     })(
                         <Input disabled={!couldEdit} type="hidden" />
                     )}
@@ -147,11 +147,11 @@ class NormalTaskForm extends React.Component {
                         couldEdit={couldEdit}
                         ispicker
                         isFilepicker
-                        key="refResourceIdList"
+                        key={`refResourceIdList${initialRefResourceName}`}
                         allowClear={true}
                         treeData={this.props.resTreeData}
                         onChange={this.handleRefResChange.bind(this)}
-                        defaultNode={taskData.refResourceList && taskData.refResourceList.length > 0 ? taskData.refResourceList.map(res => res.resourceName) : []}
+                        defaultNode={initialRefResourceName}
                     />
                 </FormItem>
             }
@@ -278,7 +278,7 @@ class NormalTaskForm extends React.Component {
 function validValues (values, props) {
     // invalid为一个验证标记，
     // 次标记为上方任务保存按钮是否有效提供依据
-    if (values.mainClass === '' || values.exeArgs === '') { // mainClass不可为空
+    if (values.hasOwnProperty('mainClass') && values.mainClass === '') { // mainClass不可为空
         return true;
     }
     return false;
