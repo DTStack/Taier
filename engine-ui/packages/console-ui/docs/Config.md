@@ -11,6 +11,7 @@
 | titleName  | 否  |  string | 无  | 网页的 title 中显示的名字，例如`DTinsight-离线计算`中的 `离线计算`  |
 | loadingTitle  |  否 |  string | 无  | loading 页面显示的名字，和 titleName 类似 |
 | theme  |  否 | 'default' / 'aliyun'  | 'default'  | 应用的主题，将会改变门户页面的布局样式以及应用的导航栏。当前只有 `aliyun` 和 `default` 两种可选  |
+| logo  | 否  |  string | 无  |  应用的图标路径 **（该配置只在 `default` 主题下生效）** |
 | hideUserCenter |  否 | boolean  | false  | 是否隐藏右上角下拉框中的用户中心  |
 | disableHelp  | 否  |  boolean | false  | 是否隐藏帮助文档  |
 | macChrome | 否 | string | 有 | mac 版`Chrome浏览器`官方下载地址 |
