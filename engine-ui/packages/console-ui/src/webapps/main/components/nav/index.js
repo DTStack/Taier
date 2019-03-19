@@ -148,7 +148,7 @@ export function MenuRight (props) {
                 ) : null
 
                 }
-                <Dropdown overlay={appMenus} trigger={['click']}>
+                <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                     <span className="menu-item">
                         <Icon type="home" />
                     </span>
@@ -161,10 +161,10 @@ export function MenuRight (props) {
                         </Badge> */}
                     </span>
                 </a>}
-                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']}>
+                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                     <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>}
-                <Dropdown overlay={userMenu} trigger={['click']}>
+                <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                     <div className="user-info">
                         {/* <Icon className="avatar" type="user" /> */}
                         <span className="user-name" title={user && user.userName}>

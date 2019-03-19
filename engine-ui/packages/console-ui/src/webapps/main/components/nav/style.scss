@@ -149,6 +149,10 @@ $activeColor: #262e36; // 主色
             }
         }
 
+        /* dropdown的上下冗余 */
+        .ant-dropdown .ant-dropdown-menu{
+            padding: 8px 0;
+        }
     }
 }
 
