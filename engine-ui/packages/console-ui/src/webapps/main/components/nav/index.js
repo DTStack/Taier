@@ -114,10 +114,16 @@ export function MenuRight (props) {
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">
-                <a href={`/admin/user${extraParms}`} target="blank">用户管理</a>
+                <a href={`/admin/user${extraParms}`} target="blank" className="dropdown-content">
+                    <span className='iconfont icon-icon_usermanagement'></span>
+                    用户管理
+                </a>
             </Menu.Item>
             <Menu.Item key="setting:2">
-                <a href={`/admin/role${extraParms}`} target="blank">角色管理</a>
+                <a href={`/admin/role${extraParms}`} target="blank" className="dropdown-content">
+                    <span className='iconfont icon-role_usermanagement'></span>
+                    角色管理
+                </a>
             </Menu.Item>
             {renderMenuItems(settingMenus)}
         </Menu>
