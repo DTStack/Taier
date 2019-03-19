@@ -144,11 +144,11 @@ class ScheduleForm extends React.Component {
                     label="重试次数"
                 >
                     <Col span="6">
-                        {getFieldDecorator('failRetryCount', {
+                        {getFieldDecorator('maxRetryNum', {
                             rules: [{
                                 required: true, message: '请选择重试次数'
                             }],
-                            initialValue: get(scheduleConf, 'failRetryCount', 3)
+                            initialValue: get(scheduleConf, 'maxRetryNum', 3)
                         })(
                             <Select
                                 onChange={this.changeScheduleConf.bind(this)}
