@@ -119,7 +119,7 @@ class Header extends Component {
             enable: dataSourceNav && dataSourceNav.isShow
         }];
 
-        const logo = <span>
+        const logo = <React.Fragment>
             <img
                 className='c-header__logo c-header__logo--api'
                 alt="logo"
@@ -128,7 +128,7 @@ class Header extends Component {
             <span className='c-header__title c-header__title--api'>
                 {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
             </span>
-        </span>;
+        </React.Fragment>;
         return <Navigator
             logo={logo}
             menuItems={menuItems}

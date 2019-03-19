@@ -20,7 +20,7 @@ class Header extends Component {
 
     render () {
         const { apps, licenseApps } = this.props;
-        const logo = <span>
+        const logo = <React.Fragment>
             <img
                 className='c-header__logo'
                 alt="logo"
@@ -29,7 +29,7 @@ class Header extends Component {
             <span className='c-header__title c-header__title--main'>
                 {window.APP_CONF.prefix}
             </span>
-        </span>;
+        </React.Fragment>;
 
         return <Navigator
             logo={logo}
