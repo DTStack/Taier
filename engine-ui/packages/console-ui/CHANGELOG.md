@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.3.10"></a>
+## [3.3.10](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.9...3.3.10) (2019-03-19)
+
+
+### Bug Fixes
+
+* **task view:** fix task view lost nodes ([1368ee1](http://git.dtstack.cn/ziv/data-stack-web/commits/1368ee1)), closes [#14416](http://redmine.prod.dtstack.cn/issues/14416)
+
+
+
 <a name="3.3.9"></a>
 ## [3.3.9](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.8...3.3.9) (2019-03-14)
 
