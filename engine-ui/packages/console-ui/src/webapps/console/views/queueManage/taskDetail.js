@@ -835,11 +835,6 @@ class TaskDetail extends Component {
                     // className="m-table no-card-table q-table"
                     className="m-table s-table q-table"
                     pagination={this.getPagination()}
-                    rowClassName={(record, index) => {
-                        if (this.state.killIds.indexOf(record.taskId) > -1) {
-                            return 'killTask'
-                        }
-                    }}
                     dataSource={dataSource}
                     columns={columns}
                     onChange={this.onTableChange}
