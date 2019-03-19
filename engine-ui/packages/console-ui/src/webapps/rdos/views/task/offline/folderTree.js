@@ -523,7 +523,7 @@ class FolderTree extends React.Component {
     render () {
         const {
             type, placeholder, currentTab, multiple, key,
-            onExpand, expandedKeys, onChange, couldEdit
+            onExpand, expandedKeys, onChange, couldEdit, allowClear
         } = this.props;
 
         return (
@@ -531,6 +531,7 @@ class FolderTree extends React.Component {
                 {this.props.ispicker
                     ? <div ref={(ins) => this.selEle = ins} className='org-tree-select-wrap'>
                         <TreeSelect
+                            allowClear={allowClear}
                             disabled={typeof couldEdit == 'boolean' && !couldEdit}
                             size="large"
                             key={key || type}
