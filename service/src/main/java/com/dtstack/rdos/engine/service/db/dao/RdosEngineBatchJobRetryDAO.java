@@ -23,4 +23,15 @@ public class RdosEngineBatchJobRetryDAO {
         });
 	}
 
+    public RdosEngineBatchJobRetry getJobRetryByJobId(String jobId) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineBatchJobRetry>(){
+
+            @Override
+            public RdosEngineBatchJobRetry execute(SqlSession sqlSession) throws Exception {
+                RdosEngineBatchJobRetryMapper mapper = sqlSession.getMapper(RdosEngineBatchJobRetryMapper.class);
+                return mapper.getJobRetryByJobId(jobId);
+            }
+        });
+    }
+
 }

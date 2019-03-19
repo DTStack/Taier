@@ -6,7 +6,9 @@ import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.service.db.dao.*;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
@@ -49,6 +51,11 @@ public class ActionServiceImpl {
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
+
+    private RdosEngineStreamJobRetryDAO streamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
+
+    private RdosEngineBatchJobRetryDAO batchJobRetryDAO = new RdosEngineBatchJobRetryDAO();
+
 
     private WorkNode workNode = WorkNode.getInstance();
 
@@ -401,6 +408,32 @@ public class ActionServiceImpl {
             if (batchJob != null) {
                 log.put("logInfo",batchJob.getLogInfo());
                 log.put("engineLog",batchJob.getEngineLog());
+            }
+        }
+        return PublicUtil.objToString(log);
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job的重试retry日志
+     */
+    public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId) || computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        Map<String,String> log = new HashMap<>(2);
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            RdosEngineStreamJobRetry streamJobRetry = streamJobRetryDAO.getJobRetryByTaskId(jobId);
+            if (streamJobRetry != null) {
+                log.put("logInfo",streamJobRetry.getLogInfo());
+                log.put("engineLog",streamJobRetry.getEngineLog());
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            RdosEngineBatchJobRetry batchJobRetry = batchJobRetryDAO.getJobRetryByJobId(jobId);
+            if (batchJobRetry != null) {
+                log.put("logInfo",batchJobRetry.getLogInfo());
+                log.put("engineLog",batchJobRetry.getEngineLog());
             }
         }
         return PublicUtil.objToString(log);
