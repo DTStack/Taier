@@ -116,7 +116,7 @@ public class RestartDealer {
             }
 
             Integer alreadyRetryNum = getAlreadyRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
-            return restartStrategy.retrySubmitFail(jobClient.getTaskId(), resultMsg, alreadyRetryNum, null);
+            return restartStrategy.retrySubmitFail(jobClient.getTaskId(), resultMsg, alreadyRetryNum, jobClient.getMaxRetryNum());
         }catch (Exception e){
             LOG.error("", e);
         }
@@ -141,7 +141,7 @@ public class RestartDealer {
         }
         try {
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
-            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum, null);
+            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum);
             LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
                                         jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
 
@@ -181,8 +181,7 @@ public class RestartDealer {
                                       String engineType,
                                       String pluginInfo,
                                       Integer computeType,
-                                      Integer alreadyRetryNum,
-                                      Integer maxRetryNum) throws Exception {
+                                      Integer alreadyRetryNum) throws Exception {
         if(Strings.isNullOrEmpty(engineJobId)){
             return false;
         }
@@ -224,7 +223,7 @@ public class RestartDealer {
             return false;
         }
 
-        return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, maxRetryNum);
+        return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
     }
 
     private void resetStatus(JobClient jobClient){
