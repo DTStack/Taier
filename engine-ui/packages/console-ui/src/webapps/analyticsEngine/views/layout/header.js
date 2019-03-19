@@ -21,7 +21,7 @@ class Header extends Component {
     render () {
         const menuItems = [];
         const { app, licenseApps } = this.props;
-        const logo = <span>
+        const logo = <React.Fragment>
             <img
                 className='c-header__logo c-header__logo--analytics'
                 alt="logo"
@@ -30,7 +30,7 @@ class Header extends Component {
             <span className='c-header__title c-header__title--analytics'>
                 {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
             </span>
-        </span>
+        </React.Fragment>
         return <Navigator
             logo={logo}
             menuItems={menuItems}

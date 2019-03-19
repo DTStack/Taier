@@ -88,7 +88,7 @@ class Header extends Component {
         ];
 
         const logo = (
-            <span>
+            <React.Fragment>
                 <img
                     className='c-header__logo c-header__logo--dq'
                     alt="logo"
@@ -97,7 +97,7 @@ class Header extends Component {
                 <span className='c-header__title c-header__title--dq'>
                     {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
                 </span>
-            </span>
+            </React.Fragment>
         );
         return <Navigator
             logo={logo}
