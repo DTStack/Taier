@@ -292,6 +292,9 @@ const NormalTaskFormWrapper = Form.create({
         if (values.exeArgs !== '') {
             values.taskVariables = matchTaskParams(taskCustomParams, values.exeArgs)
         }
+        if (values.hasOwnProperty('options')) {
+            values.taskVariables = matchTaskParams(taskCustomParams, values.options)
+        }
         values.invalid = validValues(values, props);
         setFieldsValue(values);
     }
