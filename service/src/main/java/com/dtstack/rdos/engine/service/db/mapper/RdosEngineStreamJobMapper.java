@@ -22,7 +22,7 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateTaskPluginId(@Param("taskId") String taskId, @Param("pluginId") long pluginId);
 
-	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("applicationId") String applicationId, @Param("status") int status);
+	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("applicationId") String applicationId, @Param("status") int status, @Param("updateStartTime") String updateStartTime);
 
 	void updateTaskEngineId(@Param("taskId") String taskId, @Param("engineId") String engineId, @Param("applicationId") String applicationId);
 

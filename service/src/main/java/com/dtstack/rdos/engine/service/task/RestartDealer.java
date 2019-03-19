@@ -75,7 +75,7 @@ public class RestartDealer {
             return false;
         }
 
-        resetStatus(jobClient);
+        resetStatus(jobClient, true);
         addToRestart(jobClient);
         //update retry num
         increaseJobRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
@@ -164,7 +164,7 @@ public class RestartDealer {
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
-            resetStatus(jobClient);
+            resetStatus(jobClient, false);
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
@@ -227,7 +227,7 @@ public class RestartDealer {
         return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, maxRetryNum);
     }
 
-    private void resetStatus(JobClient jobClient){
+    private void resetStatus(JobClient jobClient, boolean submitFailed){
         String jobId = jobClient.getTaskId();
         Integer computeType = jobClient.getComputeType().getType();
         String engineType = jobClient.getEngineType();
@@ -237,14 +237,19 @@ public class RestartDealer {
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
 
-        jobRetryRecord(jobClient);
+        String updateStartTime = "no";
+        if (submitFailed){
+            updateStartTime="yes";
+        }
         //重试的任务不置为失败，waitengine
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
+            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus(), updateStartTime);
+            jobRetryRecord(jobClient);
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
+            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null, updateStartTime);
+            jobRetryRecord(jobClient);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
         }else{
@@ -259,11 +264,15 @@ public class RestartDealer {
                 RdosEngineStreamJob streamJob = engineStreamJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
                 RdosEngineStreamJobRetry streamJobRetry = RdosEngineStreamJobRetry.toEntity(streamJob);
                 streamJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
+                streamJobRetry.setEngineTaskId(jobClient.getEngineTaskId());
+                streamJobRetry.setApplicationId(jobClient.getEngineTaskId());
                 engineStreamJobRetryDAO.insert(streamJobRetry);
             } else if(ComputeType.BATCH.getType().equals(computeType)){
                 RdosEngineBatchJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
                 RdosEngineBatchJobRetry batchJobRetry = RdosEngineBatchJobRetry.toEntity(batchJob);
                 batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
+                batchJobRetry.setEngineJobId(jobClient.getEngineTaskId());
+                batchJobRetry.setApplicationId(jobClient.getEngineTaskId());
                 engineBatchJobRetryDAO.insert(batchJobRetry);
             }
         } catch (Throwable e ){
