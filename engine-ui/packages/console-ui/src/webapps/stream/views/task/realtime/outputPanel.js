@@ -9,7 +9,7 @@ import { debounce } from 'lodash';
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { DATA_SOURCE } from '../../../comm/const';
-import { haveTableList, haveCustomParams } from './sidePanel/panelCommonUtil';
+import { haveTableList, haveCustomParams, haveTableColumn, havePrimaryKey } from './sidePanel/panelCommonUtil';
 
 import Editor from 'widgets/code-editor'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
@@ -107,6 +107,7 @@ class OutputOrigin extends Component {
                             showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
+                            <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.ES}>ElasticSearch</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
@@ -265,7 +266,7 @@ class OutputOrigin extends Component {
                         <label>字段</label>
                     </div>
                     {
-                        panelColumn[index].type == DATA_SOURCE.MYSQL
+                        haveTableColumn(panelColumn[index].type)
                             ? <Col span="18" className="bd" style={{ marginBottom: 20 }}>
                                 <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                                     <Column
@@ -320,7 +321,7 @@ class OutputOrigin extends Component {
                     }
                 </Row>
                 {
-                    panelColumn[index].type == DATA_SOURCE.MYSQL
+                    havePrimaryKey(panelColumn[index].type)
                         ? <FormItem
                             {...formItemLayout}
                             label="主键"
@@ -681,8 +682,12 @@ export default class OutputPanel extends Component {
             return flag;
         })
     }
-
-    handleInputChange = (/** 改变的属性 */type, /** 改变的panel序号 */index, value, subValue) => { // 监听数据改变
+    /**
+     * 监听数据改变
+     * @param {String} type 改变的属性
+     * @param {String} index 改变的panel序号
+     */
+    handleInputChange = (type, index, value, subValue) => {
         const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
         let shouldUpdateEditor = true;
         if (type === 'columns') {
