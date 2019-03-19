@@ -75,7 +75,7 @@ public class RestartDealer {
             return false;
         }
 
-        resetStatus(jobClient);
+        resetStatus(jobClient, true);
         addToRestart(jobClient);
         //update retry num
         increaseJobRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
@@ -164,7 +164,7 @@ public class RestartDealer {
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
-            resetStatus(jobClient);
+            resetStatus(jobClient, false);
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
@@ -227,7 +227,7 @@ public class RestartDealer {
         return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, maxRetryNum);
     }
 
-    private void resetStatus(JobClient jobClient){
+    private void resetStatus(JobClient jobClient, boolean submitFailed){
         String jobId = jobClient.getTaskId();
         Integer computeType = jobClient.getComputeType().getType();
         String engineType = jobClient.getEngineType();
@@ -239,12 +239,20 @@ public class RestartDealer {
 
         //重试的任务不置为失败，waitengine
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamJobDAO.updateTaskSubmitFailed(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
+            if (submitFailed){
+                engineStreamJobDAO.updateTaskSubmitFailed(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
+            } else {
+                engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
+            }
             jobRetryRecord(jobClient);
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
+            if (submitFailed){
+                engineBatchJobDAO.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
+            } else {
+                engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
+            }
             jobRetryRecord(jobClient);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
