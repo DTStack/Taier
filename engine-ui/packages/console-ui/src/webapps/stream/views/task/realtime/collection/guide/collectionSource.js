@@ -232,7 +232,7 @@ class CollectionSourceForm extends React.Component {
                                             {table}
                                         </Option>
                                     }
-                                )) : []}
+                                )) : [<Option key={-1} value={-1}>全部</Option>]}
                             </Select>
                         )}
                     </FormItem>,
