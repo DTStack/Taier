@@ -65,6 +65,8 @@ public class ParamAction {
 
 	private long generateTime = System.currentTimeMillis();
 
+	private Integer maxRetryNum;
+
 	public boolean getIsFailRetry() {
 		return isFailRetry;
 	}
@@ -217,6 +219,14 @@ public class ParamAction {
 
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
+	}
+
+	public Integer getMaxRetryNum() {
+		return maxRetryNum;
+	}
+
+	public void setMaxRetryNum(Integer maxRetryNum) {
+		this.maxRetryNum = maxRetryNum;
 	}
 
 	@Override
