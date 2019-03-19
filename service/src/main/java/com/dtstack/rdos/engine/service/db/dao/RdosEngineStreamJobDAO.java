@@ -98,14 +98,27 @@ public class RdosEngineStreamJobDAO {
 	}
 	
 	
-	public void updateTaskEngineIdAndStatus(String taskId, String engineId, String applicationId, int status, String updateStartTime){
+	public void updateTaskEngineIdAndStatus(String taskId, String engineId, String applicationId, int status){
 		
 		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
 			@Override
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
-				rdosTaskMapper.updateTaskEngineIdAndStatus(taskId, engineId, applicationId, status, updateStartTime);
+				rdosTaskMapper.updateTaskEngineIdAndStatus(taskId, engineId, applicationId, status);
+				return null;
+			}
+		});
+	}
+
+	public void updateTaskSubmitFailed(String taskId, String engineId, String applicationId, int status){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.updateTaskSubmitFailed(taskId, engineId, applicationId, status);
 				return null;
 			}
 		});

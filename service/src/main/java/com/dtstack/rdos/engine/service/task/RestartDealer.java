@@ -237,18 +237,14 @@ public class RestartDealer {
         //重试任务更改在zk的状态，统一做状态清理
         zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.RESTARTING.getStatus());
 
-        String updateStartTime = "no";
-        if (submitFailed){
-            updateStartTime="yes";
-        }
         //重试的任务不置为失败，waitengine
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus(), updateStartTime);
+            engineStreamJobDAO.updateTaskSubmitFailed(jobId, null, null, RdosTaskStatus.RESTARTING.getStatus());
             jobRetryRecord(jobClient);
             engineStreamJobDAO.updateSubmitLog(jobId, null);
             engineStreamJobDAO.updateEngineLog(jobId, null);
         }else if(ComputeType.BATCH.getType().equals(computeType)){
-            engineBatchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null, updateStartTime);
+            engineBatchJobDAO.updateJobSubmitFailed(jobId, null, RdosTaskStatus.RESTARTING.getStatus(),null);
             jobRetryRecord(jobClient);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
