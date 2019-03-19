@@ -190,9 +190,12 @@ class EditCluster extends React.Component {
             'java.home', 'hadoop.home.dir', 'python2.path',
             'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath'
         ]
-
+        let notExtKeys_hive = [
+            'jdbcUrl', 'username', 'password'
+        ]
         let sparkConfig = config.sparkConf || {};
         let flinkConfig = config.flinkConf || {};
+        let hiveConfig = config.hiveConf || {};
         let learningConfig = config.learningConf || {};
         let dtyarnshellConfig = config.dtyarnshellConf || {};
         function setDefault (config, notExtKeys, type, keys) {
@@ -213,6 +216,7 @@ class EditCluster extends React.Component {
 
         setDefault(sparkConfig, notExtKeys_spark, 'spark', result.sparkKeys)
         setDefault(flinkConfig, notExtKeys_flink, 'flink', result.flinkKeys)
+        setDefault(hiveConfig, notExtKeys_hive, 'hive', result.hiveKeys)
         setDefault(learningConfig, notExtKeys_learning, 'learning', result.learningKeys)
         setDefault(dtyarnshellConfig, notExtKeys_dtyarnshell, 'dtyarnshell', result.dtyarnshellKeys)
         return result;
