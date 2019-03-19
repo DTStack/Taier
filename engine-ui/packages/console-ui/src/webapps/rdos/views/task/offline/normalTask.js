@@ -55,7 +55,7 @@ class NormalTaskForm extends React.Component {
             nodePid: value
         });
     }
-    /* eslint-disable */
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
@@ -181,7 +181,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('exeArgs', {
                         initialValue: taskData.exeArgs,
                         rules: [{
-                            required: isHadoopMR ? true : false,
+                            required: !!isHadoopMR,
                             message: '请输入任务参数'
                         }]
                     })(
@@ -290,8 +290,11 @@ const NormalTaskFormWrapper = Form.create({
         const { setFieldsValue, taskCustomParams } = props;
 
         // 获取任务自定义参数
-        if (values.exeArgs !== '') {
+        if (values.hasOwnProperty('exeArgs')) {
             values.taskVariables = matchTaskParams(taskCustomParams, values.exeArgs)
+        }
+        if (values.hasOwnProperty('options')) {
+            values.taskVariables = matchTaskParams(taskCustomParams, values.options)
         }
         values.invalid = validValues(values, props);
         setFieldsValue(values);
@@ -299,7 +302,7 @@ const NormalTaskFormWrapper = Form.create({
 })(NormalTaskForm);
 
 class NormalTaskEditor extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
     }
 
