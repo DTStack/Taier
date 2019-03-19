@@ -75,7 +75,7 @@ public class RestartDealer {
             return false;
         }
 
-        resetStatus(jobClient, true);
+        resetStatus(jobClient);
         addToRestart(jobClient);
         //update retry num
         increaseJobRetryNum(jobClient.getTaskId(), jobClient.getComputeType().getType());
@@ -164,7 +164,7 @@ public class RestartDealer {
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
-            resetStatus(jobClient, false);
+            resetStatus(jobClient);
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
@@ -227,7 +227,7 @@ public class RestartDealer {
         return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, maxRetryNum);
     }
 
-    private void resetStatus(JobClient jobClient, boolean submitFailed){
+    private void resetStatus(JobClient jobClient){
         String jobId = jobClient.getTaskId();
         Integer computeType = jobClient.getComputeType().getType();
         String engineType = jobClient.getEngineType();
