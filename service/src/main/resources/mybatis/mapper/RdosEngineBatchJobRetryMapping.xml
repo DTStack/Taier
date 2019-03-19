@@ -30,7 +30,7 @@
     <select id="getJobRetryByJobId" resultMap="jobRetryResult">
         select
         <include refid="select_content_fragment"/>
-        from rdos_engine_batch_job_retry where job_id=#{jobId} and is_deleted=0 limit 1;
+        from rdos_engine_batch_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
     </select>
 
 </mapper>

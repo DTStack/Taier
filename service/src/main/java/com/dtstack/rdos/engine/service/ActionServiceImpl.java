@@ -422,21 +422,32 @@ public class ActionServiceImpl {
             throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
         }
 
-        Map<String,String> log = new HashMap<>(2);
+        List<Map<String,String>> logs = new ArrayList<>(5);
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJobRetry streamJobRetry = streamJobRetryDAO.getJobRetryByTaskId(jobId);
-            if (streamJobRetry != null) {
-                log.put("logInfo",streamJobRetry.getLogInfo());
-                log.put("engineLog",streamJobRetry.getEngineLog());
+            List<RdosEngineStreamJobRetry> streamJobRetrys = streamJobRetryDAO.getJobRetryByTaskId(jobId);
+            if (CollectionUtils.isNotEmpty(streamJobRetrys)) {
+                streamJobRetrys.forEach(jobRetry->{
+                    Map<String,String> log = new HashMap<String,String>(3);
+                    log.put("retryNum",jobRetry.getRetryNum().toString());
+                    log.put("logInfo",jobRetry.getLogInfo());
+                    log.put("engineLog",jobRetry.getEngineLog());
+                    logs.add(log);
+                });
+
             }
         } else if (ComputeType.BATCH.getType().equals(computeType)) {
-            RdosEngineBatchJobRetry batchJobRetry = batchJobRetryDAO.getJobRetryByJobId(jobId);
-            if (batchJobRetry != null) {
-                log.put("logInfo",batchJobRetry.getLogInfo());
-                log.put("engineLog",batchJobRetry.getEngineLog());
+            List<RdosEngineBatchJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
+            if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
+                batchJobRetrys.forEach(jobRetry->{
+                    Map<String,String> log = new HashMap<String,String>(3);
+                    log.put("retryNum",jobRetry.getRetryNum().toString());
+                    log.put("logInfo",jobRetry.getLogInfo());
+                    log.put("engineLog",jobRetry.getEngineLog());
+                    logs.add(log);
+                });
             }
         }
-        return PublicUtil.objToString(log);
+        return PublicUtil.objToString(logs);
     }
 
     /**

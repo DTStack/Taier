@@ -6,6 +6,8 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 import com.dtstack.rdos.engine.service.db.mapper.RdosEngineStreamJobRetryMapper;
 import org.apache.ibatis.session.SqlSession;
 
+import java.util.List;
+
 /**
  * @author toutian
  */
@@ -24,12 +26,12 @@ public class RdosEngineStreamJobRetryDAO {
         });
 	}
 
-    public RdosEngineStreamJobRetry getJobRetryByTaskId(String taskId) {
+    public List<RdosEngineStreamJobRetry> getJobRetryByTaskId(String taskId) {
 
-        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineStreamJobRetry>(){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineStreamJobRetry>>(){
 
             @Override
-            public RdosEngineStreamJobRetry execute(SqlSession sqlSession) throws Exception {
+            public List<RdosEngineStreamJobRetry> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineStreamJobRetryMapper mapper = sqlSession.getMapper(RdosEngineStreamJobRetryMapper.class);
                 return mapper.getJobRetryByTaskId(taskId);
             }

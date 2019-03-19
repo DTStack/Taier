@@ -6,6 +6,8 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
 import com.dtstack.rdos.engine.service.db.mapper.RdosEngineBatchJobRetryMapper;
 import org.apache.ibatis.session.SqlSession;
 
+import java.util.List;
+
 /**
  * @author toutian
  */
@@ -23,11 +25,11 @@ public class RdosEngineBatchJobRetryDAO {
         });
 	}
 
-    public RdosEngineBatchJobRetry getJobRetryByJobId(String jobId) {
-        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosEngineBatchJobRetry>(){
+    public List<RdosEngineBatchJobRetry> getJobRetryByJobId(String jobId) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineBatchJobRetry>>(){
 
             @Override
-            public RdosEngineBatchJobRetry execute(SqlSession sqlSession) throws Exception {
+            public List<RdosEngineBatchJobRetry> execute(SqlSession sqlSession) throws Exception {
                 RdosEngineBatchJobRetryMapper mapper = sqlSession.getMapper(RdosEngineBatchJobRetryMapper.class);
                 return mapper.getJobRetryByJobId(jobId);
             }
