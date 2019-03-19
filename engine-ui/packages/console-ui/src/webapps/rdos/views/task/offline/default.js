@@ -7,6 +7,7 @@ import utils from 'utils';
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
 
 import Workbench from './workbench';
+import WelcomePage from './welcome';
 import { isProjectCouldEdit } from '../../../comm';
 
 class Default extends Component {
@@ -84,7 +85,7 @@ class Default extends Component {
                         </Col>
                     )}
                 </Row>
-            )
+            ) && (<WelcomePage />)
         );
     }
 }

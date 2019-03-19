@@ -6,7 +6,7 @@ import { MenuRight } from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 
 import Api from '../../api';
-import { PROJECT_TYPE } from '../../comm/const';
+import { PROJECT_TYPE, HELP_DOC_URL } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
 
 // eslint-disable-next-line
@@ -482,7 +482,7 @@ class Header extends Component {
                     licenseApps={licenseApps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
-                    helpUrl="/public/helpSite/dtinsight-batch/v3.0/Summary.html"
+                    helpUrl={HELP_DOC_URL.INDEX}
                 />
             </div>
         );
