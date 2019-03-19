@@ -67,8 +67,7 @@ class DataSourceMana extends Component {
         }, params)
         Api.queryDataSource(reqParams).then((res) => {
             this.setState({
-                loading: false,
-                params: reqParams
+                loading: false
             })
             if (res.code === 1) {
                 ctx.setState({ dataSource: res.data })
@@ -77,12 +76,15 @@ class DataSourceMana extends Component {
     }
 
     searchDataSources = (query) => {
+        const { params } = this.state;
         this.setState({
             params: {
-                ...this.state.params,
+                ...params,
                 name: query.trim()
             }
-        }, this.loadDataSources())
+        }, () => {
+            this.loadDataSources()
+        })
     }
 
     addOrUpdateDataSource = (sourceFormData, formObj, callBack) => {
@@ -150,7 +152,9 @@ class DataSourceMana extends Component {
         this.setState({
             current: pagination.current,
             params: Object.assign(this.state.params, params)
-        }, this.loadDataSources())
+        }, () => {
+            this.loadDataSources()
+        })
     }
 
     initEdit = (source) => {
