@@ -79,7 +79,7 @@ class OfflineTaskMana extends Component {
         }
     }
 
-    search = () => {
+    getReqParams = () => {
         const {
             taskName, person,
             startTime, endTime, taskType,
@@ -89,7 +89,6 @@ class OfflineTaskMana extends Component {
         const reqParams = {
             currentPage: current || 1
         }
-
         if (taskName) {
             reqParams.name = taskName
         }
@@ -109,6 +108,11 @@ class OfflineTaskMana extends Component {
         if (taskPeriodId) {
             reqParams.taskPeriodId = taskPeriodId.join(',')
         }
+        return reqParams;
+    }
+
+    search = () => {
+        const reqParams = this.getReqParams();
         this.loadTaskList(reqParams)
     }
 
@@ -350,14 +354,11 @@ class OfflineTaskMana extends Component {
 
     onExpand = (expanded, record) => {
         if (expanded) {
-            if (record.children && record.children.length) {
-                return;
-            }
             const { tasks } = this.state;
             let newTasks = cloneDeep(tasks);
-            Api.getRelatedTasks({
-                taskId: record.id
-            }).then((res) => {
+            const reqParams = this.getReqParams();
+            reqParams.taskId = record.id;
+            Api.getRelatedTasks(reqParams).then((res) => {
                 if (res.code == 1) {
                     const index = newTasks.data.findIndex((task) => {
                         return task.id === record.id

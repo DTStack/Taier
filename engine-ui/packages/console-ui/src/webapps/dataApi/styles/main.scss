@@ -26,15 +26,15 @@ table{
 .title-border-l-blue{
     font-size:14px;
     position: relative;
-    line-height:1.1;
+    line-height:20px;
 }
 .title-border-l-blue:before{
     content:"";
     position: absolute;
     left:-10px;
     width: 4px;
-    top:0px;
-    bottom:0px;
+    top:2px;
+    bottom:2px;
     background: #2491F7;
 }
 .form-title-line{

@@ -50,7 +50,7 @@ class SiderBench extends React.Component {
     }
 
     getTabPanes = () => {
-        const { tabData, project, user } = this.props;
+        const { tabData, project, user, editor } = this.props;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const couldEdit = isProjectCouldEdit(project, user);
         if (!tabData) return null;
@@ -111,8 +111,8 @@ class SiderBench extends React.Component {
             panes.push(
                 <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                     <SQLEditor
-                        options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false } }}
-                        key={'params' + tabData.id}
+                        options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false }, theme: editor.options.theme }}
+                        key={`env-parmas-${tabData.id}-${editor.options.theme}`}
                         value={tabData.taskParams}
                         onFocus={() => { }}
                         focusOut={() => { }}
@@ -147,7 +147,8 @@ class SiderBench extends React.Component {
 export default connect(state => {
     return {
         project: state.project,
-        user: state.user
+        user: state.user,
+        editor: state.editor
     }
 }, dispatch => {
     return {

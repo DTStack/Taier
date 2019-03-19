@@ -26,7 +26,10 @@ import Security from './views/approval/security'
 import DataSource from './views/dataSource'
 import APIManage from './views/management'
 import APIMarket from './views/market'
+
+import MyApiContainer from './views/myApi/container'
 import MyAPI from './views/myApi'
+import CallApi from './views/myApi/callApi'
 
 import ApiType from './views/management/apiType'
 import NewApi from './views/management/createApi'
@@ -36,36 +39,41 @@ import NewApi from './views/management/createApi'
 // .then(module => module.default), { name: 'testPage' })
 
 export default (
-    <Route path="/" component={ Main }>
+    <Route path="/" component={Main}>
         <IndexRedirect to="/api" />
         {/* <IndexRoute component={ Container } /> */}
-        <Route path="/message" component={ MsgCenter }>
-            <IndexRoute component={ MsgList } />
-            <Route path="list" component={ MsgList } />
-            <Route path="detail/:msgId" component={ MsgDetail } />
+        <Route path="/message" component={MsgCenter}>
+            <IndexRoute component={MsgList} />
+            <Route path="list" component={MsgList} />
+            <Route path="detail/:msgId" component={MsgDetail} />
         </Route>
-        <Route path="/admin" component={ SysAdmin }>
-            <IndexRoute component={ AdminUser } />
-            <Route path="user" component={ AdminUser } />
-            <Route path="role" component={ AdminRole } />
-            <Route path="role/add" component={ RoleAdd } />
-            <Route path="role/edit/:roleId" component={ RoleEdit } />
+        <Route path="/admin" component={SysAdmin}>
+            <IndexRoute component={AdminUser} />
+            <Route path="user" component={AdminUser} />
+            <Route path="role" component={AdminRole} />
+            <Route path="role/add" component={RoleAdd} />
+            <Route path="role/edit/:roleId" component={RoleEdit} />
         </Route>
-        <Route path="/api" component={ Container }>
-            <IndexRoute component={ Dashboard } />
-            <Route path="overview" component={ Dashboard }></Route>
-            <Route path="approvalAndsecurity" component={ SecurityContainer }>
-                <IndexRoute component={ Approval } />
-                <Route path="approval" component={ Approval }></Route>
-                <Route path="security" component={ Security }></Route>
+        <Route path="/api" component={Container}>
+            <IndexRoute component={Dashboard} />
+            <Route path="overview" component={Dashboard}></Route>
+            <Route path="approvalAndsecurity" component={SecurityContainer}>
+                <IndexRoute component={Approval} />
+                <Route path="approval" component={Approval}></Route>
+                <Route path="security" component={Security}></Route>
             </Route>
-            <Route path="manage" component={ APIManage }></Route>
-            <Route path="manage/apiType" component={ ApiType }></Route>
-            <Route path="manage/newApi" component={ NewApi }></Route>
-            <Route path="market" component={ APIMarket }></Route>
-            <Route path="mine" component={ MyAPI }></Route>
-            <Route path="mine/:view" component={ MyAPI }></Route>
-            <Route path="dataSource" component={ DataSource }></Route>
+            <Route path="manage" component={APIManage}></Route>
+            <Route path="manage/apiType" component={ApiType}></Route>
+            <Route path="manage/newApi" component={NewApi}></Route>
+            <Route path="market" component={APIMarket}></Route>
+            <Route path="mine" component={MyApiContainer}>
+                <IndexRoute component={MyAPI} />
+                <Route path="myApi" component={MyAPI}>
+                    <Route path=":view" component={MyAPI}></Route>
+                </Route>
+                <Route path="callApi" component={CallApi}></Route>
+            </Route>
+            <Route path="dataSource" component={DataSource}></Route>
         </Route>
         <Route path="/*" component={NotFund} />
     </Route>

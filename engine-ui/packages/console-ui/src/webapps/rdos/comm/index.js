@@ -352,3 +352,18 @@ export function checkNotDir (value, folderTree) {
     }
     return true;
 }
+export function formJsonValidator (rule, value, callback) {
+    let msg;
+    try {
+        if (value) {
+            let t = JSON.parse(value);
+            if (typeof t != 'object') {
+                msg = '请填写正确的JSON'
+            }
+        }
+    } catch (e) {
+        msg = '请检查JSON格式，确认无中英文符号混用！'
+    } finally {
+        callback(msg);
+    }
+}

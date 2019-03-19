@@ -83,9 +83,9 @@ class MyAPI extends Component {
         })
 
         if (e == 'approved') {
-            this.props.router.replace('/api/mine/approved')
+            this.props.router.replace('/api/mine/myApi/approved')
         } else {
-            this.props.router.replace('/api/mine/notApproved')
+            this.props.router.replace('/api/mine/myApi/notApproved')
         }
     }
     // eslint-disable-next-line

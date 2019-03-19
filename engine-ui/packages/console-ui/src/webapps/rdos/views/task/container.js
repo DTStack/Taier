@@ -124,7 +124,7 @@ class Container extends Component {
                             size="large"
                             spinning={this.state.loading === 'loading'}
                         >
-                            <div style={{ width: '100%', height: '100%' }}>
+                            <div className='c-task__main-box'>
                                 {children || "i'm container."}
                             </div>
                         </Spin>

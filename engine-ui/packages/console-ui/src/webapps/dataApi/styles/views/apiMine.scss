@@ -118,3 +118,44 @@
 .disable-all{
     color: rgba(0,0,0,0.4);
 }
+// callApi
+.c-call-api{
+    min-height: calc(100% - 40px);
+    margin: 20px;
+    background: #fff;
+    box-shadow: 0 2px 6px 0 rgba(0,0,0,0.10);
+}
+.c-call-api__header{
+    min-height: 40px;
+    border-bottom: 1px solid #ddd;
+    padding: 0px 20px;
+}
+.c-call-api__header__title{
+    line-height: 40px;
+    font-size: 14px;
+    color: #333333;
+}
+.c-call-api__content{
+    padding: 20px 30px;
+}
+.c-call-api__content__section{
+    .c-call-api__section__title{
+        margin-bottom: 10px;
+    }
+    .c-call-api__section__content{
+        margin-bottom: 21px;
+        line-height: 18px;
+        font-size: 13px;
+    }
+}
+.c-shadow-text{
+    .c-shadow-text__prefix{
+        color: #666666;
+    }
+    .c-shadow-text__content{
+        color: #151515;
+    }
+    .c-shadow-text__extra{
+        margin-left: 13px;
+    }
+}

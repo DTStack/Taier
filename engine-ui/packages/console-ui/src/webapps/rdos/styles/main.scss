@@ -198,6 +198,9 @@ body:-webkit-full-screen {
 .big-tooltip .ant-tooltip-inner{
     max-width: 350px;
 }
+.extremely-big-tooltip .ant-tooltip-inner{
+    max-width: 550px;
+}
 
 .split-text{
     float: left;

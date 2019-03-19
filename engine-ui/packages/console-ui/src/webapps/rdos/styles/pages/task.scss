@@ -1,5 +1,6 @@
 @import '../const.scss';
 @import './tablePane.scss';
+@import './taskComponent/index.scss';
 
 .dt-dev-task {
 
@@ -1104,4 +1105,9 @@
     .ant-tabs{
         overflow: auto;
     }
+}
+.c-task__main-box {
+    width: 100%;
+    height: 100%;
+    background: #fff;
 }

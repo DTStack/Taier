@@ -149,7 +149,7 @@ const sourceMap = (state = {}, action) => {
         }
 
         case sourceMapAction.DATA_SOURCEMAP_CHANGE: {
-            const { sourceId, splitPK, src, table, extTable = {} } = action.payload;
+            const { sourceId, splitPK, src, table, extralConfig, extTable = {} } = action.payload;
             if (!src) return state;
             const { type } = src;
             const key = action.key;
@@ -157,6 +157,9 @@ const sourceMap = (state = {}, action) => {
 
             clone.sourceId = +sourceId;
             clone.name = src.dataName;
+            if (typeof extralConfig != 'undefined') {
+                clone.extralConfig = extralConfig;
+            }
 
             if (RDB_TYPE_ARRAY.indexOf(+type) !== -1) {
                 clone.splitPK = splitPK;
@@ -322,23 +325,27 @@ const targetMap = (state = {}, action) => {
          */
         case targetMapAction.DATA_TARGETMAP_CHANGE: {
             const {
-                sourceId, src, rowkey, havePartition
+                sourceId, src, rowkey, extralConfig //, havePartition
             } = action.payload;
             const clone = cloneDeep(state);
 
             if (sourceId) clone.sourceId = sourceId;
             if (rowkey) clone.type.rowkey = rowkey;
-            if (havePartition !== undefined) clone.type.havePartition = havePartition;
+            if (typeof extralConfig != 'undefined') {
+                clone.extralConfig = extralConfig;
+            }
+
+            // if (havePartition !== undefined) clone.type.havePartition = havePartition;
+
+            const typeValues = cloneDeep(action.payload);
+            // 在赋值给Type前，删除无用的字段
+            delete typeValues.sourceId;
+            delete typeValues.src;
+            clone.type = assign(clone.type, typeValues);
 
             if (src) {
-                const { type } = src;
-                clone.name = src.dataName;
-
-                // 在赋值给Type前，删除无用的字段
-                delete action.payload.sourceId;
-                delete action.payload.src;
-
-                clone.type = assign(clone.type, action.payload, { type });
+                if (src.dataName) clone.name = src.dataName;
+                if (src.type) clone.type = assign(clone.type, src.type);
             }
 
             return clone;
