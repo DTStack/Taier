@@ -922,6 +922,7 @@ class TaskDetail extends Component {
                     // className="m-table no-card-table q-table"
                     className="m-table s-table q-table detail-table"
                     pagination={this.getPagination()}
+                    rowSelection={rowSelection}
                     dataSource={dataSource}
                     columns={columns}
                     onChange={this.onTableChange}
