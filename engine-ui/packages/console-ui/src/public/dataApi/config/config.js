@@ -4,5 +4,6 @@
 window.APP_CONF = {
     name: 'API', // 应用名字
     loadingTitle: '数据API', // loading的应用名字
+    logo: 'public/dataApi/img/logo.svg', // header图标
     titleName: '数据API' // 网页title
 }
