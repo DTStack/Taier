@@ -7,7 +7,7 @@ const FormItem = Form.Item;
 
 export class HiveConfig extends React.Component {
     render () {
-        const { isView, getFieldDecorator } = this.props;
+        const { isView, getFieldDecorator, customView } = this.props;
         return (
             <div className="config-content" style={{ width: '680px' }}>
                 <FormItem
@@ -39,6 +39,7 @@ export class HiveConfig extends React.Component {
                         <Input disabled={isView} />
                     )}
                 </FormItem>
+                { customView }
             </div>
         )
     }

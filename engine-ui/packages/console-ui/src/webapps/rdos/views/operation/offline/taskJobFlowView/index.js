@@ -401,6 +401,7 @@ class TaskJobFlowView extends Component {
                 <Modal
                     width={900}
                     height={600}
+                    zIndex={999}
                     footer={null}
                     maskClosable={true}
                     visible={this.state.visibleWorkflow}

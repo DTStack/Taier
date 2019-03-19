@@ -16,25 +16,19 @@ const TextArea = Input.TextArea;
  * TODO 当前的表单逻辑需要重构，目前代码的维护性比较差
  */
 class NormalTaskForm extends React.Component {
-    checkReource () {
+    checkResource () {
         const { resTreeData, form, taskType } = this.props;
         const formData = form.getFieldsValue();
         const isPyTask = taskType === TASK_TYPE.PYTHON;
         const resourceLable = !isPyTask ? '资源' : '入口资源';
-        let invalid = true;
-        if (formData.resourceIdList && formData.resourceIdList.length && checkNotDir(formData.resourceIdList[0], resTreeData)) {
-            /**
-             * 引用资源存在的时候，需要校验引用资源。
-             */
-            if (formData.refResourceIdList && formData.refResourceIdList.length) {
-                if (checkNotDir(formData.refResourceIdList[0], resTreeData)) {
-                    invalid = false;
-                }
-            } else {
-                invalid = false;
-            }
-        } else {
+        let invalid = false;
+        if (!formData.resourceIdList || formData.resourceIdList.length === 0) {
+            invalid = true;
             message.error(`${resourceLable}不可为空！`)
+        } else if (formData.resourceIdList && formData.resourceIdList.length > 0 && checkNotDir(formData.resourceIdList[0], resTreeData)) {
+            if (formData.refResourceIdList && formData.refResourceIdList.length > 0 && !checkNotDir(formData.refResourceIdList[0], resTreeData)) {
+                invalid = true;
+            }
         }
         this.props.setFieldsValue({
             invalid
@@ -46,14 +40,14 @@ class NormalTaskForm extends React.Component {
         this.props.form.setFieldsValue({
             resourceIdList: value ? [value] : []
         });
-        this.checkReource();
+        this.checkResource();
     }
 
     handleRefResChange = (value) => {
         this.props.form.setFieldsValue({
             refResourceIdList: value ? [value] : []
         });
-        this.checkReource();
+        this.checkResource();
     }
 
     handlePathChange (value) {
@@ -79,6 +73,9 @@ class NormalTaskForm extends React.Component {
         const couldEdit = isProjectCouldEdit(project, user);
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
+
+        const initialRefResourceName = taskData.refResourceList && taskData.refResourceList.length > 0
+            ? taskData.refResourceList.map(res => res.resourceName) : [];
 
         return (<Form>
             <FormItem
@@ -143,8 +140,7 @@ class NormalTaskForm extends React.Component {
                 >
                     {getFieldDecorator('refResourceIdList', {
                         rules: [],
-                        initialValue: taskData.refResourceList && taskData.refResourceList.length > 0
-                            ? taskData.refResourceList.map(res => res.resourceName) : []
+                        initialValue: initialRefResourceName
                     })(
                         <Input disabled={!couldEdit} type="hidden" />
                     )}
@@ -152,11 +148,11 @@ class NormalTaskForm extends React.Component {
                         couldEdit={couldEdit}
                         ispicker
                         isFilepicker
-                        key="refResourceIdList"
+                        key={`refResourceIdList${initialRefResourceName}`}
                         allowClear={true}
                         treeData={this.props.resTreeData}
                         onChange={this.handleRefResChange.bind(this)}
-                        defaultNode={taskData.refResourceList && taskData.refResourceList.length > 0 ? taskData.refResourceList.map(res => res.resourceName) : []}
+                        defaultNode={initialRefResourceName}
                     />
                 </FormItem>
             }
