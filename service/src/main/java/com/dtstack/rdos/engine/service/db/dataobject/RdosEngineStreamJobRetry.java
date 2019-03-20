@@ -121,8 +121,16 @@ public class RdosEngineStreamJobRetry extends DataObject {
         streamJobRetry.setGmtCreate(streamJob.getGmtCreate());
         streamJobRetry.setGmtModified(streamJob.getGmtModified());
         streamJobRetry.setEngineLog(streamJob.getEngineLog());
-        streamJobRetry.setApplicationId(jobClient.getApplicationId());
-        streamJobRetry.setEngineTaskId(jobClient.getEngineTaskId());
+        if (streamJob.getApplicationId() == null) {
+            streamJobRetry.setApplicationId(jobClient.getApplicationId());
+        } else {
+            streamJobRetry.setApplicationId(streamJob.getApplicationId());
+        }
+        if (streamJob.getEngineTaskId() == null) {
+            streamJobRetry.setEngineTaskId(jobClient.getEngineTaskId());
+        } else {
+            streamJobRetry.setEngineTaskId(streamJob.getEngineTaskId());
+        }
         try {
             if (StringUtils.isEmpty(streamJob.getLogInfo()) && jobClient.getJobResult() != null) {
                 streamJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
