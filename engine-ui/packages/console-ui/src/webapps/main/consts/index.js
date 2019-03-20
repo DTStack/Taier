@@ -100,44 +100,16 @@ export const tailFormItemLayout = { // 表单末尾布局
 export function getHeaderLogo (app, theme) {
     theme = theme || window.APP_CONF.theme || 'default';
     app = app || MY_APPS.MAIN;
+    const logo = window.APP_CONF.logo;
     const defaultLogo = 'public/main/img/logo.svg';
     const aliyunDefaultLogo = 'public/main/img/aliyun-logo.svg';
-    const mainLogoMap = {
-        [MY_APPS.MAIN]: {
-            aliyun: aliyunDefaultLogo,
-            default: defaultLogo
-        },
-        [MY_APPS.RDOS]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/rdos/img/logo.svg'
-        },
-        [MY_APPS.STREAM]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/stream/img/logo.svg'
-        },
-        [MY_APPS.ANALYTICS_ENGINE]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/analyticsEngine/img/logo.svg'
-        },
-        [MY_APPS.DATA_QUALITY]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/dataQuality/img/logo.svg'
-        },
-        [MY_APPS.API]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/dataApi/img/logo.svg'
-        },
-        [MY_APPS.LABEL]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/dataLabel/img/logo.svg'
-        },
-        [MY_APPS.CONSOLE]: {
-            aliyun: aliyunDefaultLogo,
-            default: 'public/console/img/logo.svg'
-        }
+
+    const themeLogoMap = {
+        default: logo || defaultLogo,
+        aliyun: aliyunDefaultLogo
     }
 
-    return mainLogoMap[app][theme] || defaultLogo;
+    return themeLogoMap[theme] || defaultLogo;
 }
 
 export function getThemeBanner (theme) {
