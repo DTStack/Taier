@@ -5,7 +5,7 @@
   <parent>
       <groupId>com.dtstack.rdos</groupId>
       <artifactId>engine</artifactId>
-	  <version>1.0.0</version>
+	  <version>${revision}</version>
     <relativePath>../../../pom.xml</relativePath>
   </parent>
   <artifactId>base.flink130</artifactId>
@@ -20,7 +20,7 @@
 		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>base.common</artifactId>
-			<version>1.0.0</version>
+			<version>${revision}</version>
 	        <scope>provided</scope>
 		</dependency>
 
@@ -152,26 +152,6 @@
 									</excludes>
 								</filter>
 							</filters>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.2</version>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<!-- here the phase you need -->
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<move file="${basedir}/target/${project.name}-${project.version}.jar"
-									  tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-							</tasks>
 						</configuration>
 					</execution>
 				</executions>
