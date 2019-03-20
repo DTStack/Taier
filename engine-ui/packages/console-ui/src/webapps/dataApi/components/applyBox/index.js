@@ -155,7 +155,7 @@ class ApplyBox extends Component {
                                                 callback(error)
                                                 return;
                                             } else if (value > 999999999) {
-                                                const error = '次数不能大于10亿'
+                                                const error = '次数必须小于10亿'
                                                 callback(error)
                                                 return;
                                             }
