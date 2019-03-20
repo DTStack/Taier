@@ -121,9 +121,9 @@ public class RdosEngineBatchJobRetry extends DataObject {
         batchJobRetry.setStatus(batchJob.getStatus());
         batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
         batchJobRetry.setGmtModified(batchJob.getGmtModified());
-        batchJobRetry.setApplicationId(batchJob.getApplicationId());
-        batchJobRetry.setEngineJobId(batchJob.getEngineJobId());
         batchJobRetry.setEngineLog(batchJob.getEngineLog());
+        batchJobRetry.setApplicationId(jobClient.getApplicationId());
+        batchJobRetry.setEngineJobId(jobClient.getEngineTaskId());
         try {
             if (StringUtils.isEmpty(batchJob.getLogInfo()) && jobClient.getJobResult() != null) {
                 batchJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
