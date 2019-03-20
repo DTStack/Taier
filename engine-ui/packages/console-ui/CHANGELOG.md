@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="3.3.10"></a>
+## [3.3.10](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.10...3.3.10) (2019-03-20)
+
+
+### Bug Fixes
+
+* fix save error due to task resource ([5d4d13c](http://git.dtstack.cn/ziv/data-stack-web/commits/5d4d13c)), closes [#14690](http://redmine.prod.dtstack.cn/issues/14690)
+* recognize the params from task options field ([0ed565a](http://git.dtstack.cn/ziv/data-stack-web/commits/0ed565a))
+
+
+
+<a name="3.3.10"></a>
 ## [3.3.10](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.3.9...3.3.10) (2019-03-19)
 
 
