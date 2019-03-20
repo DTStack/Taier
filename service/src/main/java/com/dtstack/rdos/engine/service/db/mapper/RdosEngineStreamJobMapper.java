@@ -24,6 +24,8 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("applicationId") String applicationId, @Param("status") int status);
 
+	void updateTaskSubmitFailed(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("applicationId") String applicationId, @Param("status") int status);
+
 	void updateTaskEngineId(@Param("taskId") String taskId, @Param("engineId") String engineId, @Param("applicationId") String applicationId);
 
 	RdosEngineStreamJob getRdosTaskByTaskId(@Param("taskId")String taskId);
