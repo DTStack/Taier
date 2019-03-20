@@ -1081,7 +1081,7 @@ export default class OutputPanel extends Component {
                 }
             });
             const { sourceId } = panelColumn[index];
-            if (panelColumn[index].type == DATA_SOURCE.MYSQL) {
+            if (haveTableColumn(panelColumn[index].type)) {
                 this.getTableColumns(index, sourceId, value);
             }
         } else {
