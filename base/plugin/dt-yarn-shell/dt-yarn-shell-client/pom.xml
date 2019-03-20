@@ -143,12 +143,11 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <move file="${basedir}/target/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
-
-                                <delete>
-                                    <fileset dir="${basedir}/../dt-yarn-shell-core/target" includes="dt-yarn-shell-core-${project.version}.jar"/>
-                                </delete>
+                                <copy todir="${basedir}/../target">
+                                    <fileset dir="${basedir}/target">
+                                        <include name="${project.name}-${project.version}.jar" />
+                                    </fileset>
+                                </copy>
                             </tasks>
                         </configuration>
                     </execution>
