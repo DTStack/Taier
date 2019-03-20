@@ -131,7 +131,7 @@ class TaskForm extends React.Component {
             value = createOrigin.taskType;
         } else if (isCreateNormal || isCreateFromMenu) {
             value = isValueEmpty ? (taskTypes.length > 0 && taskTypes[0].key) : taskTypeValue
-        } else if (isCreateFromIndex) {
+        } else {
             value = defaultData.taskType;
         }
 
