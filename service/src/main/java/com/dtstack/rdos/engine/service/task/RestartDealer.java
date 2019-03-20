@@ -190,7 +190,6 @@ public class RestartDealer {
         if(ComputeType.STREAM.getType().equals(computeType)){
             //do nothing
         }else{
-            //需要判断数据来源-->临时查询不需重跑
             RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
             if(engineBatchJob == null){
                 LOG.error("batch job {} can't find.", jobId);
