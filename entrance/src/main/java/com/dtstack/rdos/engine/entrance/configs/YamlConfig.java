@@ -35,10 +35,6 @@ public class YamlConfig implements Config{
     }
 
     public void checkEngineAguments(Map<String,Object> nodeConfig) throws EngineAgumentsException {
-        String localAddress = (String)nodeConfig.get("localAddress");
-        if(StringUtils.isBlank(localAddress)){
-            throw new EngineAgumentsException("localAddress");
-        }
         String nodeZkAddress = (String)nodeConfig.get("nodeZkAddress");
         if(StringUtils.isBlank(nodeZkAddress)){
             throw new EngineAgumentsException("nodeZkAddress");
