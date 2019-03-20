@@ -130,7 +130,7 @@ public class RdosEngineStreamJobRetry extends DataObject {
                 streamJobRetry.setLogInfo(streamJob.getLogInfo());
             }
         } catch (Throwable e) {
-            streamJobRetry.setLogInfo(e.getMessage());
+            streamJobRetry.setLogInfo("提交任务失败，日志解析该异常:" + e.getMessage());
         }
         return streamJobRetry;
     }

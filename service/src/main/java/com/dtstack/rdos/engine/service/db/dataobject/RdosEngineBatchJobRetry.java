@@ -131,7 +131,7 @@ public class RdosEngineBatchJobRetry extends DataObject {
                 batchJobRetry.setLogInfo(batchJob.getLogInfo());
             }
         } catch (Throwable e) {
-            batchJobRetry.setLogInfo(e.getMessage());
+            batchJobRetry.setLogInfo("提交任务失败，日志解析该异常:" + e.getMessage());
         }
         return batchJobRetry;
     }
