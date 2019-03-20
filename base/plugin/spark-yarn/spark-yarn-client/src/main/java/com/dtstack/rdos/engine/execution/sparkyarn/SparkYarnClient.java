@@ -271,7 +271,9 @@ public class SparkYarnClient extends AbsClient {
 
         try {
             ClientArguments clientArguments = new ClientArguments(argList.toArray(new String[argList.size()]));
-            appId = new Client(clientArguments, yarnConf, sparkConf).submitApplication();
+            ClientExt clientExt = new ClientExt(clientArguments, yarnConf, sparkConf);
+            clientExt.setSparkYarnConfig(sparkYarnConfig);
+            appId = clientExt.submitApplication(jobClient.getJobPriority());
             return JobResult.createSuccessResult(appId.toString());
         } catch(Exception ex) {
             logger.info("", ex);
