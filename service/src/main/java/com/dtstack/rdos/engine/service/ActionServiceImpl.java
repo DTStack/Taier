@@ -6,7 +6,9 @@ import com.dtstack.rdos.common.annotation.Param;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.service.db.dao.*;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
@@ -49,6 +51,11 @@ public class ActionServiceImpl {
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
     private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
+
+    private RdosEngineStreamJobRetryDAO streamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
+
+    private RdosEngineBatchJobRetryDAO batchJobRetryDAO = new RdosEngineBatchJobRetryDAO();
+
 
     private WorkNode workNode = WorkNode.getInstance();
 
@@ -404,6 +411,43 @@ public class ActionServiceImpl {
             }
         }
         return PublicUtil.objToString(log);
+    }
+
+    /**
+     * 根据jobid 和 计算类型，查询job的重试retry日志
+     */
+    public String retryLog(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
+
+        if (StringUtils.isBlank(jobId) || computeType==null){
+            throw new RdosException("jobId or computeType is not allow null", ErrorCode.INVALID_PARAMETERS);
+        }
+
+        List<Map<String,String>> logs = new ArrayList<>(5);
+        if (ComputeType.STREAM.getType().equals(computeType)) {
+            List<RdosEngineStreamJobRetry> streamJobRetrys = streamJobRetryDAO.getJobRetryByTaskId(jobId);
+            if (CollectionUtils.isNotEmpty(streamJobRetrys)) {
+                streamJobRetrys.forEach(jobRetry->{
+                    Map<String,String> log = new HashMap<String,String>(3);
+                    log.put("retryNum",jobRetry.getRetryNum().toString());
+                    log.put("logInfo",jobRetry.getLogInfo());
+                    log.put("engineLog",jobRetry.getEngineLog());
+                    logs.add(log);
+                });
+
+            }
+        } else if (ComputeType.BATCH.getType().equals(computeType)) {
+            List<RdosEngineBatchJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
+            if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
+                batchJobRetrys.forEach(jobRetry->{
+                    Map<String,String> log = new HashMap<String,String>(3);
+                    log.put("retryNum",jobRetry.getRetryNum().toString());
+                    log.put("logInfo",jobRetry.getLogInfo());
+                    log.put("engineLog",jobRetry.getEngineLog());
+                    logs.add(log);
+                });
+            }
+        }
+        return PublicUtil.objToString(logs);
     }
 
     /**
