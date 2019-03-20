@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.5.1"></a>
+## [3.5.1](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.5.0...3.5.1) (2019-03-20)
+
+
+### Bug Fixes
+
+* recognize the params from task options field ([de8ec99](http://git.dtstack.cn/ziv/data-stack-web/commits/de8ec99))
+* remove conflict ([1328faf](http://git.dtstack.cn/ziv/data-stack-web/commits/1328faf))
+
+
+### Features
+
+* **header:** add config of log ([fc8da70](http://git.dtstack.cn/ziv/data-stack-web/commits/fc8da70)), closes [#14480](http://redmine.prod.dtstack.cn/issues/14480)
+* **header:** rewrite logo style ([765d248](http://git.dtstack.cn/ziv/data-stack-web/commits/765d248))
+
+
+
 <a name="3.5.0"></a>
 # [3.5.0](http://git.dtstack.cn/ziv/data-stack-web/compare/DTinsight_v3.4.2...3.5.0) (2019-03-08)
 
