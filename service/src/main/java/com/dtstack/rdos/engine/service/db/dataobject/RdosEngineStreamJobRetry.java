@@ -1,5 +1,8 @@
 package com.dtstack.rdos.engine.service.db.dataobject;
 
+import com.dtstack.rdos.engine.execution.base.JobClient;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Date;
 
 /**
@@ -106,35 +109,29 @@ public class RdosEngineStreamJobRetry extends DataObject {
         this.retryNum = retryNum;
     }
 
-    public static RdosEngineStreamJobRetry toEntity(RdosEngineStreamJob streamJob) {
+    public static RdosEngineStreamJobRetry toEntity(RdosEngineStreamJob streamJob, JobClient jobClient) {
+
         RdosEngineStreamJobRetry streamJobRetry = new RdosEngineStreamJobRetry();
+
         streamJobRetry.setTaskId(streamJob.getTaskId());
-        if (streamJob.getApplicationId() == null) {
-            streamJobRetry.setApplicationId("");
-        } else {
-            streamJobRetry.setApplicationId(streamJob.getApplicationId());
-        }
-        if (streamJob.getEngineTaskId() == null) {
-            streamJobRetry.setEngineTaskId("");
-        } else {
-            streamJobRetry.setEngineTaskId(streamJob.getEngineTaskId());
-        }
-        if (streamJob.getEngineLog() == null) {
-            streamJobRetry.setEngineLog("");
-        } else {
-            streamJobRetry.setEngineLog(streamJob.getEngineLog());
-        }
-        if (streamJob.getLogInfo() == null) {
-            streamJobRetry.setLogInfo("");
-        } else {
-            streamJobRetry.setLogInfo(streamJob.getLogInfo());
-        }
         streamJobRetry.setExecStartTime(streamJob.getExecStartTime());
         streamJobRetry.setExecEndTime(streamJob.getExecEndTime());
         streamJobRetry.setRetryNum(streamJob.getRetryNum());
         streamJobRetry.setStatus(streamJob.getStatus());
         streamJobRetry.setGmtCreate(streamJob.getGmtCreate());
         streamJobRetry.setGmtModified(streamJob.getGmtModified());
+        streamJobRetry.setEngineLog(streamJob.getEngineLog());
+        streamJobRetry.setApplicationId(jobClient.getApplicationId());
+        streamJobRetry.setEngineTaskId(jobClient.getEngineTaskId());
+        try {
+            if (StringUtils.isEmpty(streamJob.getLogInfo()) && jobClient.getJobResult() != null) {
+                streamJobRetry.setLogInfo(jobClient.getJobResult().getMsgInfo());
+            } else {
+                streamJobRetry.setLogInfo(streamJob.getLogInfo());
+            }
+        } catch (Throwable e) {
+            streamJobRetry.setLogInfo(e.getMessage());
+        }
         return streamJobRetry;
     }
 }

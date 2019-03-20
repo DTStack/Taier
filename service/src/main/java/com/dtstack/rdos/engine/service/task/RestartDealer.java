@@ -266,17 +266,13 @@ public class RestartDealer {
             Integer computeType = jobClient.getComputeType().getType();
             if(ComputeType.STREAM.getType().equals(computeType)){
                 RdosEngineStreamJob streamJob = engineStreamJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-                RdosEngineStreamJobRetry streamJobRetry = RdosEngineStreamJobRetry.toEntity(streamJob);
+                RdosEngineStreamJobRetry streamJobRetry = RdosEngineStreamJobRetry.toEntity(streamJob, jobClient);
                 streamJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
-                streamJobRetry.setEngineTaskId(jobClient.getEngineTaskId());
-                streamJobRetry.setApplicationId(jobClient.getApplicationId());
                 engineStreamJobRetryDAO.insert(streamJobRetry);
             } else if(ComputeType.BATCH.getType().equals(computeType)){
                 RdosEngineBatchJob batchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-                RdosEngineBatchJobRetry batchJobRetry = RdosEngineBatchJobRetry.toEntity(batchJob);
+                RdosEngineBatchJobRetry batchJobRetry = RdosEngineBatchJobRetry.toEntity(batchJob, jobClient);
                 batchJobRetry.setStatus(RdosTaskStatus.RESTARTING.getStatus().byteValue());
-                batchJobRetry.setEngineJobId(jobClient.getEngineTaskId());
-                batchJobRetry.setApplicationId(jobClient.getApplicationId());
                 engineBatchJobRetryDAO.insert(batchJobRetry);
             }
         } catch (Throwable e ){
