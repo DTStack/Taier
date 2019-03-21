@@ -361,7 +361,8 @@ export function dtNotification (title, message, type, config) {
             Modal[showType]({
                 title: title,
                 content: message,
-                width: 520
+                width: 520,
+                style: { wordBreak: 'break-word' }
             })
         }}>查看详情</a>
     </span>) : message;
