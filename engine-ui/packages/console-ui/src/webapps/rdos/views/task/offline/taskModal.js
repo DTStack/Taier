@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { isArray } from 'lodash';
+
 import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
 
 import ajax from '../../../api';
@@ -327,6 +329,7 @@ class TaskForm extends React.Component {
                                     ispicker
                                     placeholder="请选择关联资源"
                                     isFilepicker
+                                    allowClear={true}
                                     treeData={this.props.resTreeData}
                                     onChange={this.handleRefResSelectTreeChange.bind(this)}
                                     defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 && defaultData.refResourceList.map(res => res.resourceName)}
@@ -559,7 +562,7 @@ class TaskModal extends React.Component {
                     values.resourceIdList = [values.resourceIdList];
                 }
 
-                if (values.refResourceIdList) {
+                if (values.refResourceIdList && !isArray(values.refResourceIdList)) {
                     values.refResourceIdList = [values.refResourceIdList];
                 }
 
