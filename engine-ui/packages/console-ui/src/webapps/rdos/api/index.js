@@ -183,17 +183,13 @@ export default {
     cloneTask (params) {
         return http.post(req.CLONE_TASK, params)
     },
-<<<<<<< Updated upstream
-    cloneTaskToWorkflow(params) {
+    cloneTaskToWorkflow (params) {
         return http.post(req.CLONE_TASK_TO_WORKFLOW, params)
     },
-    getWorkflowList(params) {
+    getWorkflowList (params) {
         return http.post(req.GET_WORKFLOW_LISTS, params)
     },
-    taskStatistics() {
-=======
     taskStatistics () {
->>>>>>> Stashed changes
         return http.post(req.TASK_STATISTICS)
     },
     getTaskLogs (params) {
@@ -403,14 +399,10 @@ export default {
     getTaskTypes (params) {
         return http.post(offlineReq.GET_TASK_TYPES, params)
     },
-<<<<<<< Updated upstream
-    getAnalyDataSourceLists(params) {
+    getAnalyDataSourceLists (params) {
         return http.post(offlineReq.GET_ANALY_DTATSOURCE_LISTS, params)
     },
-    getJobById(params) {
-=======
     getJobById (params) {
->>>>>>> Stashed changes
         return http.post(offlineReq.GET_JOB_BY_ID, params)
     },
     getJobGraph (params) {

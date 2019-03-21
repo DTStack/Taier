@@ -72,7 +72,7 @@ const dataSourceList = (state = [], action) => {
     }
 };
 
-const sourceMap = (state = {}, action) => {
+export const sourceMap = (state = {}, action) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
             if (action.payload === null) return {};
@@ -287,7 +287,7 @@ const sourceMap = (state = {}, action) => {
     }
 };
 
-const targetMap = (state = {}, action) => {
+export const targetMap = (state = {}, action) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
             if (action.payload === null) return {};
@@ -437,7 +437,7 @@ const targetMap = (state = {}, action) => {
     }
 };
 
-const keymap = (state = { source: [], target: [] }, action) => {
+export const keymap = (state = { source: [], target: [] }, action) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
             if (action.payload === null) return { source: [], target: [] };
