@@ -22,7 +22,11 @@
     },
     "globals": {
         "expect": "readable",
-        "test": "readable"
+        "test": "readable",
+        "describe": "readable",
+        "beforeEach": "readable",
+        "afterEach": "readable",
+        "jest": "readable"
     },
     "parserOptions": {
         "ecmaVersion": 8,
