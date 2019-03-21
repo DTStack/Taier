@@ -468,6 +468,7 @@ public class FlinkClient extends AbsClient {
             JobID jobID = new JobID(org.apache.flink.util.StringUtils.hexStringToByte(jobId));
             targetClusterClient.cancel(jobID);
         }catch (Exception e){
+            logger.error("", e);
             return JobResult.createErrorResult(e);
         }
 
