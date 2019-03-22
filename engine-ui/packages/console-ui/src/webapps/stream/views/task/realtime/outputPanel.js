@@ -254,16 +254,16 @@ class OutputOrigin extends Component {
                     label="映射表"
                 >
                     {getFieldDecorator('tableName', {
-                        rules: panelColumn[index].type === DATA_SOURCE.ES ? [
+                        rules: [
                             { required: true, message: '请输入映射表名' }
-                        ] : []
+                        ]
                     })(
                         <Input placeholder="请输入映射表名" onChange={e => handleInputChange('tableName', index, e.target.value)} />
                     )}
                 </FormItem>
                 <Row>
-                    <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-                        <label>字段</label>
+                    <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6 required-tip">
+                        <label className='required-tip'>字段</label>
                     </div>
                     {
                         haveTableColumn(panelColumn[index].type)
