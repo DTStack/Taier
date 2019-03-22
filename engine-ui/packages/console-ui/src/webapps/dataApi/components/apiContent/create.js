@@ -4,6 +4,7 @@ import { Table } from 'antd';
 import JsonContent from './jsonContent';
 
 import { API_MODE, dataSourceTypes } from '../../consts';
+import { generateHeader } from './helper';
 
 class CreateContentSection extends React.Component {
     getRequestColumns () {
@@ -138,14 +139,28 @@ class CreateContentSection extends React.Component {
                 <section className='c-content-register__section'>
                     <h1 className="title-border-l-blue">请求示例</h1>
                     <div style={{ marginTop: '12px' }} className='c-content-register__section__card'>
-                        <div className='c-content-register__section__card__title'>请求{isGET ? 'URL' : 'JSON'}样例</div>
+                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Request URL</div>
                         <div className='c-content-register__section__card__content'>
-                            <JsonContent
-                                style={{ width: '470px' }}
-                                json={reqJson}
-                            />
+                            <pre>{isGET ? reqJson : 'http(s)://调用URL'}</pre>
                         </div>
                     </div>
+                    <div className='c-content-register__section__card'>
+                        <div className='c-content-register__section__card__title c__section__card__title--bold'>Headers</div>
+                        <div className='c-content-register__section__card__content'>
+                            {generateHeader([])}
+                        </div>
+                    </div>
+                    {!isGET && (
+                        <div className='c-content-register__section__card'>
+                            <div className='c-content-register__section__card__title c__section__card__title--bold'>Body</div>
+                            <div className='c-content-register__section__card__content'>
+                                <JsonContent
+                                    style={{ width: '470px' }}
+                                    json={reqJson}
+                                />
+                            </div>
+                        </div>
+                    )}
                 </section>
                 <section className='c-content-register__section'>
                     <h1 className="title-border-l-blue">返回结果</h1>
