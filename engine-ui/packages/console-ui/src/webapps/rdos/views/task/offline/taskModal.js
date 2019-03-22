@@ -117,10 +117,10 @@ class TaskForm extends React.Component {
         if (typeof defaultData === 'undefined') {
             isCreateNormal = true;
         } else if (typeof defaultData.id === 'undefined') {
-            if (defaultData.taskType !== 'undefined') {
+            if (typeof defaultData.taskType !== 'undefined') {
                 isCreateFromIndex = true;
             } else {
-                isCreateFromIndex = true;
+                isCreateFromMenu = true;
             }
         }
         this.isEditExist = !isCreateNormal && !isCreateFromMenu && !isCreateFromIndex;
@@ -185,7 +185,7 @@ class TaskForm extends React.Component {
                         initialValue: value
                     })(
                         <Select
-                            disabled={(isCreateNormal ? false : !isCreateFromMenu) || createFromGraph}
+                            disabled={this.isEditExist}
                             onChange={this.handleTaskTypeChange}
                         >
                             {taskOptions}
