@@ -149,7 +149,7 @@ class TaskForm extends React.Component {
         const isPython23 = value == TASK_TYPE.PYTHON_23
         const isMl = value == TASK_TYPE.ML;
         const isHadoopMR = value == TASK_TYPE.HAHDOOPMR;
-        const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
+        const savePath = (isCreateNormal || isCreateFromIndex) ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
         return (
