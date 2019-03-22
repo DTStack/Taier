@@ -747,8 +747,18 @@ class SchedulingConfig extends React.Component {
         setTimeout(() => {
             this.form.props.form.validateFields((err, values) => {
                 if (!err) {
-                    let formData = this.form.getFieldsValue();
+                    let formData = this.form.props.form.getFieldsValue();
                     formData.selfReliance = this.state.selfReliance;
+                    /**
+                     * 默认重试次数 3次
+                     */
+                    if (formData.isFailRetry) {
+                        if (!formData.maxRetryNum) {
+                            formData.maxRetryNum = 3;
+                        }
+                    } else {
+                        formData.maxRetryNum = undefined;
+                    }
                     formData = Object.assign(defaultScheduleConf, formData);
                     delete formData.scheduleStatus;
                     this.props.changeScheduleConf(formData);
