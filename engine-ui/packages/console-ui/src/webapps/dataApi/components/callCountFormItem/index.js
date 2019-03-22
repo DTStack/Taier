@@ -30,6 +30,11 @@ export default class CallCountFormItem extends React.Component {
                                     callback(error)
                                     return;
                                 }
+                                if (value > 999999999) {
+                                    const error = '次数须小于10亿'
+                                    callback(error)
+                                    return;
+                                }
                                 callback();
                             }
                         }
