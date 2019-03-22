@@ -58,22 +58,9 @@ public class ParamAction {
 
 	private long priority;
 
-	/**
-	 * 任务失败是否重试
-	 */
-	private boolean isFailRetry = true;
-
 	private long generateTime = System.currentTimeMillis();
 
 	private Integer maxRetryNum;
-
-	public boolean getIsFailRetry() {
-		return isFailRetry;
-	}
-
-	public void setIsFailRetry(boolean failRetry) {
-		isFailRetry = failRetry;
-	}
 
 	public Integer getRequestStart() {
 		return requestStart;

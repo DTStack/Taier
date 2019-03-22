@@ -83,11 +83,6 @@ public class JobClient extends OrderObject{
 
     private long generateTime;
 
-    /**
-     * 任务失败是否重试
-     */
-    private boolean isFailRetry;
-
     private int maxRetryNum;
 
     /***
@@ -135,7 +130,6 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
-        this.isFailRetry = paramAction.getIsFailRetry();
         this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
@@ -177,7 +171,6 @@ public class JobClient extends OrderObject{
         action.setGenerateTime(generateTime);
         action.setPriority(priority);
         action.setApplicationId(applicationId);
-        action.setIsFailRetry(isFailRetry);
         action.setMaxRetryNum(maxRetryNum);
         if(!Strings.isNullOrEmpty(pluginInfo)){
             try{
@@ -378,16 +371,12 @@ public class JobClient extends OrderObject{
         this.applicationId = applicationId;
     }
 
-    public boolean getIsFailRetry() {
-        return isFailRetry;
-    }
-
-    public void setIsFailRetry(boolean failRetry) {
-        isFailRetry = failRetry;
-    }
-
     public int getMaxRetryNum() {
         return maxRetryNum;
+    }
+
+    public boolean getIsFailRetry() {
+        return maxRetryNum > 0;
     }
 
     public void setMaxRetryNum(int maxRetryNum) {
@@ -417,8 +406,8 @@ public class JobClient extends OrderObject{
                 ", restartTime=" + restartTime +
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
-                ", isFailRetry=" + isFailRetry +
                 ", maxRetryNum=" + maxRetryNum +
                 '}';
     }
+
 }
