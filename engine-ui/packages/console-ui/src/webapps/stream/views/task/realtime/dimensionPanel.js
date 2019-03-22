@@ -19,7 +19,7 @@ import { debounce } from 'lodash';
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser';
 import { DATA_SOURCE } from '../../../comm/const';
-import { haveTableList, haveCustomParams } from './sidePanel/panelCommonUtil';
+import { haveTableList, haveCustomParams, haveTableColumn } from './sidePanel/panelCommonUtil';
 
 import Editor from 'widgets/code-editor';
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
@@ -160,6 +160,7 @@ class OutputOrigin extends Component {
                             }
                         >
                             <Option value={DATA_SOURCE.MYSQL}>MySQL</Option>
+                            <Option value={DATA_SOURCE.ORACLE}>Oracle</Option>
                             <Option value={DATA_SOURCE.HBASE}>HBase</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
                             <Option value={DATA_SOURCE.MONGODB}>MongoDB</Option>
@@ -251,7 +252,7 @@ class OutputOrigin extends Component {
                     <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
                         <label>字段</label>
                     </div>
-                    {panelColumn[index].type == DATA_SOURCE.MYSQL ? (
+                    {haveTableColumn(panelColumn[index].type) ? (
                         <Col
                             span="18"
                             className="bd"
@@ -367,6 +368,7 @@ class OutputOrigin extends Component {
                 </Row>
                 {(() => {
                     switch (panelColumn[index].type) {
+                        case DATA_SOURCE.ORACLE:
                         case DATA_SOURCE.MYSQL: {
                             return (
                                 <FormItem {...formItemLayout} label="主键">
@@ -1079,7 +1081,7 @@ export default class OutputPanel extends Component {
                 }
             });
             const { sourceId } = panelColumn[index];
-            if (panelColumn[index].type == DATA_SOURCE.MYSQL) {
+            if (haveTableColumn(panelColumn[index].type)) {
                 this.getTableColumns(index, sourceId, value);
             }
         } else {

@@ -22,6 +22,7 @@ const initModalState = {
     fnId: undefined,
     moveFnData: undefined,
     taskType: '',
+    workFlowLists: [],
     confirmSaveVisible: false,
     showPublish: false,
     theReqIsEnd: true

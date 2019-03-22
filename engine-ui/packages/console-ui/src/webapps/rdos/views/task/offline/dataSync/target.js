@@ -21,6 +21,8 @@ import {
     DATA_SOURCE_TEXT
 } from '../../../../comm/const';
 
+import { formJsonValidator } from '../../../../comm'
+
 import HelpDoc from '../../../helpDoc';
 
 import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon';
@@ -28,6 +30,7 @@ import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon';
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+const TextArea = Input.TextArea;
 
 class TargetForm extends React.Component {
     constructor (props) {
@@ -419,6 +422,26 @@ class TargetForm extends React.Component {
                     )}
                 </FormItem>
                 {this.renderDynamicForm()}
+                {!isEmpty(targetMap) ? (
+                    <FormItem
+                        {...formItemLayout}
+                        label="高级配置"
+                    >
+                        {getFieldDecorator('extralConfig', {
+                            rules: [{
+                                validator: formJsonValidator
+                            }],
+                            initialValue: get(targetMap, 'extralConfig', '')
+                        })(
+                            <TextArea
+                                onChange={this.submitForm.bind(this)}
+                                placeholder="以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize"
+                                autosize={{ minRows: 2, maxRows: 6 }}
+                            />
+                        )}
+                        <HelpDoc doc='dataSyncExtralConfigHelp' />
+                    </FormItem>
+                ) : null}
             </Form>
             {
                 isDTinsightAnalytics ? (

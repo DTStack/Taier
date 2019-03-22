@@ -450,6 +450,9 @@ export default {
     batchStopJob (params) { // 批量停止任务
         return http.post(offlineReq.BATCH_STOP_JOBS, params)
     },
+    batchStopJobByDate (params) { // 按业务日期批量杀任务
+        return http.post(offlineReq.BATCH_STOP_JOBS_BY_DATE, params)
+    },
     batchRestartAndResume (params) { // 重启并恢复任务
         return http.post(offlineReq.BATCH_RESTART_AND_RESUME_JOB, params)
     },

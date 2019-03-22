@@ -6,6 +6,7 @@ import { cloneDeep } from 'lodash';
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
 import { MY_APPS } from '../../consts';
+import 'public/dtinsightFont/iconfont.css'
 import './style.scss'
 
 /* eslint-disable */
@@ -49,15 +50,17 @@ export function compareEnable (apps, licenseApps) {
     }
 }
 
-function renderATagMenuItems (menuItems, isRoot) {
+function renderATagMenuItems (menuItems, isRoot, isRenderIcon = false) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
-            <a href={menu.link} target={menu.target}>{menu.name}</a>
+            <a href={menu.link} target={menu.target} className="dropdown-content">
+                {isRenderIcon && <span className={`iconfont icon-${menu.className || ''}`}></span>}
+                {menu.name}
+            </a>
         </Menu.Item>) : ''
     }) : []
 }
-
 export function Logo (props) {
     const { linkTo, img } = props
     return (
@@ -94,21 +97,33 @@ export function MenuRight (props) {
         <Menu onClick={onClick}>
             {!window.APP_CONF.hideUserCenter && (
                 <Menu.Item key="ucenter">
-                    <a href={UIC_URL_TARGET}>用户中心</a>
+                    <a href={UIC_URL_TARGET} className="dropdown-content">
+                        <span className='iconfont icon-icon_uic'></span>
+                        用户中心
+                    </a>
                 </Menu.Item>
             )}
             <Menu.Item key="logout">
-                { isLogin ? '退出登录' : '去登录' }
+                <a className="dropdown-content" href="javascript:void(0)">
+                    <span className='iconfont icon-icon_logout'></span>
+                    { isLogin ? '退出登录' : '去登录' }
+                </a>
             </Menu.Item>
         </Menu>
     )
     const settingMenuItems = (
         <Menu>
             <Menu.Item key="setting:1">
-                <a href={`/admin/user${extraParms}`} target="blank">用户管理</a>
+                <a href={`/admin/user${extraParms}`} target="blank" className="dropdown-content">
+                    <span className='iconfont icon-icon_usermanagement'></span>
+                    用户管理
+                </a>
             </Menu.Item>
             <Menu.Item key="setting:2">
-                <a href={`/admin/role${extraParms}`} target="blank">角色管理</a>
+                <a href={`/admin/role${extraParms}`} target="blank" className="dropdown-content">
+                    <span className='iconfont icon-role_usermanagement'></span>
+                    角色管理
+                </a>
             </Menu.Item>
             {renderMenuItems(settingMenus)}
         </Menu>
@@ -116,7 +131,7 @@ export function MenuRight (props) {
     // 右下拉菜单
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot)}
+            {renderATagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot, true)}
         </Menu>
     )
 
@@ -133,7 +148,7 @@ export function MenuRight (props) {
                 ) : null
 
                 }
-                <Dropdown overlay={appMenus} trigger={['click']}>
+                <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                     <span className="menu-item">
                         <Icon type="home" />
                     </span>
@@ -146,10 +161,10 @@ export function MenuRight (props) {
                         </Badge> */}
                     </span>
                 </a>}
-                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']}>
+                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                     <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>}
-                <Dropdown overlay={userMenu} trigger={['click']}>
+                <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
                     <div className="user-info">
                         {/* <Icon className="avatar" type="user" /> */}
                         <span className="user-name" title={user && user.userName}>

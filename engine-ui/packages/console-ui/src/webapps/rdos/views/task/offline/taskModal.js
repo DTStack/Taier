@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
-import { isArray } from 'lodash';
+import { isArray, get } from 'lodash';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -28,24 +28,18 @@ const hadoopMRJsonValue = JSON.stringify(HADOOPMR_INITIAL_VALUE, null, 4)
 class TaskForm extends React.Component {
     constructor (props) {
         super(props);
+        const defaultData = props.defaultData || {};
         this.handleTaskTypeChange = this.handleTaskTypeChange.bind(this);
         this.isEditExist = false;
         this.state = {
-            value: 0,
-            operateModel: '',
+            value: undefined,
+            operateModel: get(defaultData, 'operateModel', DEAL_MODEL_TYPE.RESOURCE),
             analyDataSourceLists: []
         };
 
         this._resChange = false;
     }
 
-    // eslint-disable-next-line
-    UNSAFE_componentWillMount () {
-        const { defaultData } = this.props;
-        this.setState({
-            operateModel: (defaultData && defaultData.operateModel) ? defaultData.operateModel : DEAL_MODEL_TYPE.RESOURCE
-        })
-    }
     componentDidMount () {
         this.getAnalyDataSourceLists();
     }
@@ -109,24 +103,36 @@ class TaskForm extends React.Component {
             defaultData, taskTypes, createOrigin,
             labelPrefix, createFromGraph
         } = this.props;
-        const { operateModel, analyDataSourceLists } = this.state;
+        const { operateModel, analyDataSourceLists, value: taskTypeValue } = this.state;
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
-         * 2. 有默认数据的情况分以下两种：
+         * 2. 有默认数据的情况分以下三种：
          *  a. 编辑任务时,默认数据是task对象
          *  b. 从文件夹新建时默认数据只有一个{ parentId }
+         *  c. 从欢迎页面创建，带有任务类型
          */
-        const isCreateNormal = typeof defaultData === 'undefined';
-        const isCreateFromMenu = !isCreateNormal && typeof defaultData.id === 'undefined';
+        let isCreateNormal = false;
+        let isCreateFromMenu = false;
+        let isCreateFromIndex = false;
+        if (typeof defaultData === 'undefined') {
+            isCreateNormal = true;
+        } else if (typeof defaultData.id === 'undefined') {
+            if (defaultData.taskType !== 'undefined') {
+                isCreateFromIndex = true;
+            } else {
+                isCreateFromIndex = true;
+            }
+        }
+        this.isEditExist = !isCreateNormal && !isCreateFromMenu && !isCreateFromIndex;
 
-        this.isEditExist = !isCreateNormal && !isCreateFromMenu;
-
-        let value = isCreateNormal ? this.state.value
-            : (!isCreateFromMenu ? defaultData.taskType : this.state.value);
-
-        // 如果是从Graph中触发创建
+        let value;
+        let isValueEmpty = typeof taskTypeValue == 'undefined';
         if (createFromGraph) {
             value = createOrigin.taskType;
+        } else if (isCreateNormal || isCreateFromMenu) {
+            value = isValueEmpty ? (taskTypes.length > 0 && taskTypes[0].key) : taskTypeValue
+        } else {
+            value = defaultData.taskType;
         }
 
         const taskOptions = taskTypes.map(item =>
@@ -145,8 +151,6 @@ class TaskForm extends React.Component {
         const isHadoopMR = value == TASK_TYPE.HAHDOOPMR;
         const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
 
-        const initialTaskType = this.isEditExist ? defaultData.taskType
-            : createFromGraph ? createOrigin && createOrigin.taskType : (taskTypes.length > 0 && taskTypes[0].key);
         const resourceLable = !isPyTask ? '资源' : '入口资源';
         return (
             <Form>
@@ -178,7 +182,7 @@ class TaskForm extends React.Component {
                         rules: [{
                             required: true, message: `请选择${labelPrefix}类型`
                         }],
-                        initialValue: initialTaskType
+                        initialValue: value
                     })(
                         <Select
                             disabled={(isCreateNormal ? false : !isCreateFromMenu) || createFromGraph}
@@ -435,7 +439,7 @@ class TaskForm extends React.Component {
                                 initialValue: this.isEditExist ? defaultData.createModel : DATA_SYNC_TYPE.GUIDE
                             })(
                                 <RadioGroup
-                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                    disabled={this.isEditExist}
                                 >
                                     <Radio key={DATA_SYNC_TYPE.GUIDE} value={DATA_SYNC_TYPE.GUIDE}>向导模式</Radio>
                                     <Radio key={DATA_SYNC_TYPE.SCRIPT} value={DATA_SYNC_TYPE.SCRIPT}>脚本模式</Radio>
@@ -697,6 +701,9 @@ class TaskModal extends React.Component {
         const { loading } = this.state;
 
         let isCreate = true;
+        /**
+         * 是否为工作流节点
+         */
         const createFromGraph = workflow && workflow.status === 'create';
         const labelPrefix = createFromGraph ? '节点' : '任务';
 

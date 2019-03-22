@@ -229,6 +229,12 @@
             font-size: 12px;
             margin-right: 16px;
         }
+        .ant-dropdown-button {
+            margin-right: 16px;
+            .ant-btn {
+                margin-right:0;
+            }
+        }
     }
     .ant-table-placeholder {
         border-bottom: 0;

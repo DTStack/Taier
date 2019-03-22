@@ -4,6 +4,8 @@ import { connect } from 'react-redux'
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
 
+import docPath from '../../consts/docPath';
+
 @connect(state => {
     return {
         user: state.user,
@@ -135,7 +137,7 @@ class Header extends Component {
             licenseApps={licenseApps}
             {...this.props}
             showHelpSite={true}
-            helpUrl="/public/helpSite/dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html"
+            helpUrl={docPath.INDEX}
         />
     }
 }
