@@ -130,7 +130,7 @@
   "engines": {
     "node": ">=8.9.4"
   },
-  "repository": "http://git.dtstack.cn/ziv/data-stack-web",
+  "repository": "http://git.dtstack.cn/dtstack/data-stack-web",
   "bugs": {
     "url": "http://redmine.prod.dtstack.cn/issues/"
   },
