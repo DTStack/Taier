@@ -185,7 +185,7 @@ class TaskForm extends React.Component {
                         initialValue: value
                     })(
                         <Select
-                            disabled={this.isEditExist}
+                            disabled={this.isEditExist || createFromGraph}
                             onChange={this.handleTaskTypeChange}
                         >
                             {taskOptions}
