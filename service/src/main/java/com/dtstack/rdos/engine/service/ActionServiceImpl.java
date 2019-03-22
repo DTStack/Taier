@@ -166,6 +166,7 @@ public class ActionServiceImpl {
      */
     public void workSendStop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
+        fillJobClientEngineId(paramAction);
         stopAction.stopJob(paramAction);
         logger.info("stop job:{} success." + paramAction.getTaskId());
     }
