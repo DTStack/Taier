@@ -234,7 +234,11 @@ class OutputOrigin extends Component {
                     }
                 })()}
                 <FormItem {...formItemLayout} label="映射表">
-                    {getFieldDecorator('tableName')(
+                    {getFieldDecorator('tableName', {
+                        rules: [
+                            { required: true, message: '请输入映射表名' }
+                        ]
+                    })(
                         <Input
                             placeholder="请输入映射表名"
                             onChange={e =>
@@ -248,8 +252,8 @@ class OutputOrigin extends Component {
                     )}
                 </FormItem>
                 <Row>
-                    <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-                        <label>字段</label>
+                    <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6 required-tip">
+                        <label className='required-tip'>字段</label>
                     </div>
                     {panelColumn[index].type == DATA_SOURCE.MYSQL ? (
                         <Col
