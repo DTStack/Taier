@@ -6,13 +6,15 @@ import { Link } from 'react-router'
 import {
     Input, Select, message,
     Checkbox, Form,
-    DatePicker, Table, Card
+    DatePicker, Table, Card,
+    Modal
 } from 'antd'
 
 import Api from '../../../api'
 const Search = Input.Search
 const Option = Select.Option
 const FormItem = Form.Item
+const confirm = Modal.confirm
 
 class PatchDataList extends Component {
     state = {
@@ -54,13 +56,19 @@ class PatchDataList extends Component {
     }
 
     killAllJobs = (job) => {
-        Api.stopFillDataJobs({
-            fillDataJobName: job.fillDataJobName
-        }).then(res => {
-            if (res.code === 1) {
-                message.success('已成功杀死所有实例！')
+        confirm({
+            title: '确认提示',
+            content: '确定要杀死所有实例？',
+            onOk () {
+                Api.stopFillDataJobs({
+                    fillDataJobName: job.fillDataJobName
+                }).then(res => {
+                    if (res.code === 1) {
+                        message.success('已成功杀死所有实例！')
+                    }
+                })
             }
-        })
+        });
     }
 
     getReqParams = () => {
