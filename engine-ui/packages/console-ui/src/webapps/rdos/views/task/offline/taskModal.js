@@ -490,7 +490,7 @@ class TaskForm extends React.Component {
                                 type={MENU_TYPE.TASK_DEV}
                                 treeData={this.props.treeData}
                                 onChange={this.handleSelectTreeChange.bind(this)}
-                                defaultNode={isCreateNormal
+                                defaultNode={(isCreateNormal || isCreateFromIndex)
                                     ? this.props.treeData.name
                                     : isCreateFromMenu
                                         ? this.getFolderName(defaultData.parentId, defaultData.type)
