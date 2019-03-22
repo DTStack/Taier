@@ -6,6 +6,11 @@
 	<meta charset="utf-8">
     <link rel="Shortcut Icon" href="public/favicon.png">
     <link rel="manifest" href="manifest.json">
+    <script>
+        if (!!window.ActiveXObject || "ActiveXObject" in window){
+            window.location.href="/public/compatibility/tips.html"
+        }
+    </script>
     <base href="/" />
 	<style type="text/css">
         .laoding-wrapper {

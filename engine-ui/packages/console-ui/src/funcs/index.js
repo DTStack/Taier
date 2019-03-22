@@ -361,7 +361,8 @@ export function dtNotification (title, message, type, config) {
             Modal[showType]({
                 title: title,
                 content: message,
-                width: 520
+                width: 520,
+                style: { wordBreak: 'break-word' }
             })
         }}>查看详情</a>
     </span>) : message;
@@ -410,4 +411,19 @@ export function initConfig () {
  */
 export const filterValueOption = (input, option) => {
     return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+}
+
+/**
+ * 从document.body 隐藏 mxGraph 所产生的的tooltip
+ */
+export const removeToolTips = () => {
+    const remove = () => {
+        const tips = document.querySelectorAll('.mxTooltip');
+        if (tips) {
+            tips.forEach(o => {
+                o.style.visibility = 'hidden';
+            })
+        }
+    }
+    setTimeout(remove, 500);
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Input, message } from 'antd';
+import { Modal, Button, Form, Input, message, Select } from 'antd';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -14,6 +14,7 @@ import { formItemLayout, MENU_TYPE, RESOURCE_TYPE } from '../../../comm/const'
 import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 class ResForm extends React.Component {
     constructor (props) {
@@ -23,7 +24,7 @@ class ResForm extends React.Component {
         this.state = {
             file: '',
             accept: '.jar',
-            fileType: RESOURCE_TYPE.JAR
+            fileType: props.defaultData ? props.defaultData.resourceType : RESOURCE_TYPE.JAR
         };
     }
 
@@ -36,31 +37,48 @@ class ResForm extends React.Component {
         this.props.form.validateFields(['id']);
     }
 
-    validateFileType (rule, value, callback) {
-        /* eslint-disable-next-line */
-        const reg = /\.(jar|sql|py|egg|zip)$/;
-
-        if (value && !reg.test(value.toLocaleLowerCase())) {
-            /* eslint-disable-next-line */
-            callback('资源文件只能是Jar、SQL、egg、Zip或者Python文件!');
+    validateFileType = (rule, value, callback) => {
+        if (!value) {
+            // eslint-disable-next-line
+            callback();
+            return;
+        }
+        const { fileType } = this.state;
+        const fileSuffix = RESOURCE_TYPE[fileType];
+        const suffix = value.split('.').slice(1).pop();
+        if (fileType == RESOURCE_TYPE.OTHER) {
+            callback();
+            return;
+        }
+        if (fileSuffix != suffix) {
+            // eslint-disable-next-line
+            callback(`资源文件只能是${fileSuffix}文件!`);
+            return;
         }
         callback();
     }
 
     fileChange (e) {
         const file = e.target;
-
         this.setState({ file });
         this.props.handleFileChange(file);
     }
-
+    resetFile () {
+        this.setState({ file: '' });
+        this.props.handleFileChange('');
+        this.props.form.resetFields(['file']);
+    }
     renderFormItem = () => {
-        const { file } = this.state;
+        const { file, fileType } = this.state;
         const { getFieldDecorator } = this.props.form;
         const {
             defaultData, isEditExist, isCreateFromMenu,
             isCreateNormal, isCoverUpload
         } = this.props;
+        let accept;
+        if (fileType != RESOURCE_TYPE.OTHER) {
+            accept = `.${RESOURCE_TYPE[fileType]}`;
+        }
 
         if (!isCoverUpload) {
             return [
@@ -86,6 +104,32 @@ class ResForm extends React.Component {
                 </FormItem>,
                 <FormItem
                     {...formItemLayout}
+                    label="资源类型"
+                    hasFeedback
+                    key="resourceType"
+                >
+                    {getFieldDecorator('resourceType', {
+                        rules: [{
+                            required: true, message: '资源类型不可为空!'
+                        }],
+                        initialValue: fileType
+                    })(
+                        <Select onChange={(value) => {
+                            this.setState({
+                                fileType: value
+                            })
+                            this.resetFile();
+                        }}>
+                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
+                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
+                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{RESOURCE_TYPE[RESOURCE_TYPE.EGG]}</Option>
+                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{RESOURCE_TYPE[RESOURCE_TYPE.ZIP]}</Option>
+                            <Option value={RESOURCE_TYPE.OTHER} key={RESOURCE_TYPE.OTHER}>其它</Option>
+                        </Select>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
                     label="上传"
                     key="file"
                     hasFeedback
@@ -93,6 +137,8 @@ class ResForm extends React.Component {
                     {getFieldDecorator('file', {
                         rules: [{
                             required: true, message: '请选择上传文件'
+                        }, {
+                            validator: this.validateFileType
                         }]
                     })(
                         <div>
@@ -100,10 +146,11 @@ class ResForm extends React.Component {
                                 style={{ lineHeight: '28px' }}
                                 className="ant-btn btn-upload"
                                 htmlFor="myOfflinFile">选择文件</label>
-                            <span> {file.files && file.files[0].name}</span>
+                            <span> {file.files && file.files.length && file.files[0].name}</span>
                             <input
                                 name="file"
                                 type="file"
+                                accept={accept}
                                 id="myOfflinFile"
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
@@ -195,6 +242,32 @@ class ResForm extends React.Component {
                 </FormItem>,
                 <FormItem
                     {...formItemLayout}
+                    label="资源类型"
+                    hasFeedback
+                    key="resourceType"
+                >
+                    {getFieldDecorator('resourceType', {
+                        rules: [{
+                            required: true, message: '资源类型不可为空!'
+                        }],
+                        initialValue: fileType
+                    })(
+                        <Select onChange={(value) => {
+                            this.setState({
+                                fileType: value
+                            })
+                            this.resetFile();
+                        }}>
+                            <Option value={RESOURCE_TYPE.JAR} key={RESOURCE_TYPE.JAR}>{RESOURCE_TYPE[RESOURCE_TYPE.JAR]}</Option>
+                            <Option value={RESOURCE_TYPE.PY} key={RESOURCE_TYPE.PY}>{RESOURCE_TYPE[RESOURCE_TYPE.PY]}</Option>
+                            <Option value={RESOURCE_TYPE.EGG} key={RESOURCE_TYPE.EGG}>{RESOURCE_TYPE[RESOURCE_TYPE.EGG]}</Option>
+                            <Option value={RESOURCE_TYPE.ZIP} key={RESOURCE_TYPE.ZIP}>{RESOURCE_TYPE[RESOURCE_TYPE.ZIP]}</Option>
+                            <Option value={RESOURCE_TYPE.OTHER} key={RESOURCE_TYPE.OTHER}>其它</Option>
+                        </Select>
+                    )}
+                </FormItem>,
+                <FormItem
+                    {...formItemLayout}
                     label="上传"
                     key="file"
                     hasFeedback
@@ -211,11 +284,12 @@ class ResForm extends React.Component {
                                 style={{ lineHeight: '28px' }}
                                 className="ant-btn"
                                 htmlFor="myOfflinFile">选择文件</label>
-                            <span> {file.files && file.files[0].name}</span>
+                            <span> {file.files && file.files.length && file.files[0].name}</span>
                             <input
                                 name="file"
                                 type="file"
                                 id="myOfflinFile"
+                                accept={accept}
                                 onChange={this.fileChange}
                                 style={{ display: 'none' }}
                             />
@@ -233,7 +307,7 @@ class ResForm extends React.Component {
                             max: 200,
                             message: '描述请控制在200个字符以内！'
                         }],
-                        initialValue: ''
+                        initialValue: defaultData.resourceDesc
                     })(
                         <Input type="textarea" rows={4} />
                     )}
@@ -305,11 +379,9 @@ class ResForm extends React.Component {
 }
 
 const ResFormWrapper = Form.create()(ResForm);
-
 class ResModal extends React.Component {
     constructor (props) {
         super(props);
-
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.state = {
@@ -370,25 +442,25 @@ class ResModal extends React.Component {
         return (
             <div id="JS_upload_modal">
                 <Modal
-                    title={ isCoverUpload ? '替换资源' : isEditExist ? '编辑资源' : '上传资源' }
-                    visible={ isModalShow }
+                    title={isCoverUpload ? '替换资源' : isEditExist ? '编辑资源' : '上传资源'}
+                    visible={isModalShow}
                     footer={[
-                        <Button key="back" size="large" onClick={ this.handleCancel }>取消</Button>,
-                        <Button key="submit" loading={loading} type="primary" size="large" onClick={ this.handleSubmit }> 确认 </Button>
+                        <Button key="back" size="large" onClick={this.handleCancel}>取消</Button>,
+                        <Button key="submit" loading={loading} type="primary" size="large" onClick={this.handleSubmit}> 确认 </Button>
                     ]}
-                    key={ this.dtcount }
+                    key={this.dtcount}
                     onCancel={this.handleCancel}
                     getContainer={() => getContainer('JS_upload_modal')}
                 >
                     <ResFormWrapper
                         ref={el => this.form = el}
-                        treeData={ resourceTreeData }
+                        treeData={resourceTreeData}
                         handleFileChange={this.handleFileChange.bind(this)}
-                        defaultData={ defaultData }
-                        isCreateNormal={ isCreateNormal }
-                        isCreateFromMenu={ isCreateFromMenu }
-                        isCoverUpload={ isCoverUpload }
-                        isEditExist={ isEditExist }
+                        defaultData={defaultData || {}}
+                        isCreateNormal={isCreateNormal}
+                        isCreateFromMenu={isCreateFromMenu}
+                        isCoverUpload={isCoverUpload}
+                        isEditExist={isEditExist}
                     />
                 </Modal>
             </div>
@@ -403,8 +475,7 @@ export default connect(state => {
         resourceTreeData: state.offlineTask.resourceTree,
         defaultData: state.offlineTask.modalShow.defaultData // 表单默认数据
     }
-},
-dispatch => {
+}, dispatch => {
     return {
         toggleUploadModal: function () {
             dispatch({

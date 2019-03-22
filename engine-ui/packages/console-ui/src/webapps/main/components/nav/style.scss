@@ -12,18 +12,15 @@ $activeColor: #262e36; // 主色
     left: 0;
     right: 0;
     z-index: 1000;
-    .logo,
     .menu,
     .user-info {
         display: inline-block;
         padding-left: 8px;
     }
     .logo {
-        width: 200px;
+        padding-left: 8px;
+        margin-right: 70px;
         height: 50px;
-        img {
-            height: 38px;
-        }
     }
 
     .my-menu {

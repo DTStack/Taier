@@ -233,14 +233,6 @@
         .logo{
             .c-header__logo{
                 height: 30px;
-                margin-top: 10px;
-                &.c-header__logo--rdos,
-                &.c-header__logo--stream{
-                    margin-top:5px;
-                }
-            }
-            .c-header__title{
-                left: 50px;
             }
         }
         .ant-menu-horizontal{
@@ -277,46 +269,20 @@
     &.default{
         .logo{
             position: relative;
-            .c-header__logo{
-                &.c-header__logo--api,
-                &.c-header__logo--dq,
-                &.c-header__logo--label{
-                    width: 40px;
-                    height: 40px;
-                    margin-top: 5px;
-                }
-                &.c-header__logo--rdos,
-                &.c-header__logo--stream{
-                    margin-top:10px;
-                }
-            }
-            .c-header__title{
-                &.c-header__title--api,
-                &.c-header__title--dq,
-                &.c-header__title--label{
-                    left: 52px;
-                }
-                &.c-header__title--rdos,
-                &.c-header__title--stream{
-                    left: 37px;
-                }
-                
-            }
         }
     }
     //基础公用样式
     .logo{
         position: relative;
+        display: flex;
+        align-items: center;
         .c-header__logo{
             height: 20px;
-            margin-top: 15px;
         }
         .c-header__title{
             font-size: 14px;
+            padding-left: 10px;
             color: #ffffff;
-            position: absolute;
-            left: 40px;
-            top: 0;
             &.c-header__title--main{
                 letter-spacing: 1px;
             }

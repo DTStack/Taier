@@ -186,7 +186,6 @@ class TargetForm extends React.Component {
         const { isNativeHive, sourceId, type } = targetMap;
         if (type && (
             type.type === DATA_SOURCE.HIVE ||
-            type.type === DATA_SOURCE.MAXCOMPUTE ||
             (isNativeHive && type.type !== DATA_SOURCE.CARBONDATA)
         )) {
             ajax.getHivePartitions({
@@ -222,6 +221,22 @@ class TargetForm extends React.Component {
              * targetMap
              */
             let values = form.getFieldsValue();
+            const keyAndValues = Object.entries(values);
+            /**
+             * 这边将 ·writeMode@hdfs· 类的key全部转化为writeMode
+             * 加上@ 的原因是避免antd相同key引发的bug
+             */
+            values = (() => {
+                let values = {};
+                keyAndValues.forEach(([key, value]) => {
+                    if (key.indexOf('@') > -1) {
+                        values[key.split('@')[0]] = value;
+                    } else {
+                        values[key] = value;
+                    }
+                });
+                return values;
+            })();
             // 去空格
             if (values.partition) {
                 values.partition = utils.trim(values.partition);
@@ -521,10 +536,10 @@ class TargetForm extends React.Component {
                     <FormItem
                         {...formItemLayout}
                         label="主键冲突"
-                        key="writeMode"
+                        key="writeMode-mysql"
                         className="txt-left"
                     >
-                        {getFieldDecorator('writeMode', {
+                        {getFieldDecorator('writeMode@mysql', {
                             rules: [{
                                 required: true
                             }],
@@ -611,10 +626,10 @@ class TargetForm extends React.Component {
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
-                        key="writeMode"
+                        key="writeMode-carbondata"
                         className="txt-left"
                     >
-                        {getFieldDecorator('writeMode', {
+                        {getFieldDecorator('writeMode@carbondata', {
                             rules: [{
                                 required: true
                             }],
@@ -710,10 +725,10 @@ class TargetForm extends React.Component {
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
-                        key="writeMode"
+                        key="writeMode-hive"
                         className="txt-left"
                     >
-                        {getFieldDecorator('writeMode', {
+                        {getFieldDecorator('writeMode@hive', {
                             rules: [{
                                 required: true
                             }],
@@ -822,9 +837,9 @@ class TargetForm extends React.Component {
                         {...formItemLayout}
                         label="写入模式"
                         className="txt-left"
-                        key="writeMode"
+                        key="writeMode-hdfs"
                     >
-                        {getFieldDecorator('writeMode', {
+                        {getFieldDecorator('writeMode@hdfs', {
                             rules: [{
                                 required: true
                             }],
@@ -995,9 +1010,9 @@ class TargetForm extends React.Component {
                         {...formItemLayout}
                         label="写入模式"
                         className="txt-left"
-                        key="writeMode"
+                        key="writeMode-ftp"
                     >
-                        {getFieldDecorator('writeMode', {
+                        {getFieldDecorator('writeMode@ftp', {
                             rules: [{
                                 required: true
                             }],

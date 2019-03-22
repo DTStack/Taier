@@ -962,7 +962,6 @@ class BaseForm extends Component {
         )
     }
 }
-
 class DataSourceForm extends Component {
     cancle = () => {
         const { handCancel } = this.props
@@ -972,9 +971,7 @@ class DataSourceForm extends Component {
 
     render () {
         const { visible, title, sourceTypes } = this.props
-
         const FormWrapper = Form.create()(BaseForm)
-
         return (
             <Modal
                 title={title}

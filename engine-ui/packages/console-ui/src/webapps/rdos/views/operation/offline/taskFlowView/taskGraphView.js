@@ -6,6 +6,8 @@ import {
 } from 'antd'
 
 import utils from 'utils'
+import { removeToolTips } from 'funcs';
+
 import MyIcon from '../../../../components/icon'
 import { TASK_TYPE, SCHEDULE_STATUS } from '../../../../comm/const'
 import { taskTypeText } from '../../../../components/display'
@@ -407,6 +409,7 @@ class TaskGraphView extends Component {
             }
         }
         this.layoutView();
+        removeToolTips();
     }
 
     initContextMenu = (graph) => {
@@ -478,8 +481,8 @@ class TaskGraphView extends Component {
     }
 
     render () {
-        const { goToTaskDev, data } = this.props;
-
+        const { goToTaskDev, data, hideFooter } = this.props;
+        const editorHeight = hideFooter ? '100%' : 'calc(100% - 35px)';
         return (
             <div className="graph-editor"
                 style={{
@@ -498,7 +501,7 @@ class TaskGraphView extends Component {
                             position: 'relative',
                             overflow: 'auto',
                             width: '100%',
-                            height: 'calc(100% - 35px)'
+                            height: editorHeight
                         }}
                         ref={(e) => { this.Container = e }}
                     >
@@ -515,20 +518,24 @@ class TaskGraphView extends Component {
                         <MyIcon onClick={this.zoomOut} type="zoom-out" />
                     </Tooltip>
                 </div>
-                <div
-                    className="box-title graph-info"
-                    style={{
-                        bottom: 0,
-                        height: '35px',
-                        lineHeight: '35px'
-                    }}
-                >
-                    <span>{get(data, 'name', '-')}</span>
-                    <span style={{ marginLeft: '15px' }}>{get(data, 'createUser.userName', '-')}</span>&nbsp;
-                     发布于&nbsp;
-                    <span>{ utils.formatDateTime(get(data, 'gmtModified')) }</span>&nbsp;
-                    <a onClick={() => { goToTaskDev(get(data, 'id')) }}>查看代码</a>
-                </div>
+                {
+                    !hideFooter
+                        ? <div
+                            className="box-title graph-info"
+                            style={{
+                                bottom: 0,
+                                height: '35px',
+                                lineHeight: '35px'
+                            }}
+                        >
+                            <span>{get(data, 'name', '-')}</span>
+                            <span style={{ marginLeft: '15px' }}>{get(data, 'createUser.userName', '-')}</span>&nbsp;
+                            发布于&nbsp;
+                            <span>{ utils.formatDateTime(get(data, 'gmtModified')) }</span>&nbsp;
+                            <a onClick={() => { goToTaskDev(get(data, 'id')) }}>查看代码</a>
+                        </div>
+                        : ''
+                }
             </div>
         )
     }

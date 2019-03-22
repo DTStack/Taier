@@ -407,7 +407,7 @@ class SourceForm extends React.Component {
             // clean no use property
             for (let key in values) {
                 if (values[key] === '') {
-                    delete values[key];
+                    values[key] = undefined;
                 }
             }
             // 去空格

@@ -90,7 +90,8 @@ class PatchDataDetail extends Component {
             this.search(true);
         }, 36000);
     }
-    search = (isSilent) => {
+
+    getReqParams = () => {
         const {
             fillJobName, dutyUserId, jobStatuses,
             bizDay, current, taskName, taskType,
@@ -136,6 +137,11 @@ class PatchDataDetail extends Component {
         reqParams.execStartSort = execStartSort || undefined;
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
+        return reqParams;
+    }
+
+    search = (isSilent) => {
+        const reqParams = this.getReqParams();
         clearTimeout(this._timeClock);
         this.loadPatchRecords(reqParams, isSilent)
     }
@@ -510,6 +516,7 @@ class PatchDataDetail extends Component {
                     break;
                 }
                 case TASK_STATUS.RUNNING:
+                case TASK_STATUS.SUBMITTING:
                 case TASK_STATUS.WAIT_SUBMIT:
                 case TASK_STATUS.WAIT_RUN: {
                     haveRunning = true;
@@ -536,15 +543,12 @@ class PatchDataDetail extends Component {
 
     onExpand = (expanded, record) => {
         if (expanded) {
-            if (record.children && record.children.length) {
-                return;
-            }
             const { table } = this.state;
             let newTableData = cloneDeep(table);
             const { jobId } = record;
-            Api.getFillDataRelatedJobs({
-                jobId
-            }).then((res) => {
+            const reqParams = this.getReqParams();
+            reqParams.jobId = jobId;
+            Api.getFillDataRelatedJobs(reqParams).then((res) => {
                 if (res.code == 1) {
                     const recordList = newTableData.data.recordList;
                     const index = recordList.findIndex((task) => {
@@ -602,7 +606,7 @@ class PatchDataDetail extends Component {
 
         return (
             <div>
-                <h1 className="box-title" style={{ lineHeight: '50px' }}>
+                <h1 className="box-title" style={{ lineHeight: 2.5, height: 'auto', padding: '7px 20px' }}>
                     <div style={{ marginTop: '5px' }}>
                         <span className="ope-statistics">
                             <span className="status_overview_count_font">

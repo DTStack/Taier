@@ -116,12 +116,10 @@ class Index extends Component {
     }
 
     createProject = async (project) => {
-        const { dispatch } = this.props;
         let res = await Api.createProject(project);
         if (res.code === 1) {
             this.setState({ visible: false });
             this.getProjectListInfo();
-            dispatch(ProjectAction.getProjects());
             message.success('创建项目成功！');
             return true;
         }
@@ -140,6 +138,7 @@ class Index extends Component {
         } else {
             src = '/offline/task'
         }
+        dispatch(ProjectAction.getProjects());
         dispatch(ProjectAction.getProject(v.id));
         hashHistory.push(src)
     }

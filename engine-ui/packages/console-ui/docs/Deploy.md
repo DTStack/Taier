@@ -25,6 +25,13 @@
 2. root <br>
 目前 `root` 配置的根路径为前端静态文件的根目录地址，也就是我们打包后通常`dist`文件夹所在的目录。打包好 dist 文件后，需要放到 `root` 指定的目录地址。
 
+3. location ~ /public/helpSite/  <br>
+此项配置为帮助文档的映射配置，需要将访问路径映射到帮助文档的路径下，并且重写路径 `rewrite /public/helpSite/(.*)$ /$1 break;`
+例：<br>
+用户访问路径为: `http://1.12.1.22/public/helpSite/dtinsight/v3.0/index.html`
+帮助文档路径为: `/home/admin/helpdoc/output`
+实际访问路径为 `/home/admin/helpdoc/output/dtinsight/v3.0/index.html`
+
 <i style="color:red">* 注：可以通过`nginx_init.sh`脚本，帮你安装 Nignx 和拷贝默认服务器配置文件</i>
 
 ## 二、获取生产代码
