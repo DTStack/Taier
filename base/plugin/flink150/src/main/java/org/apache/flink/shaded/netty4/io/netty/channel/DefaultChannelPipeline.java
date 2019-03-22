@@ -13,17 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package io.netty.channel;
-
-import io.netty.channel.Channel.Unsafe;
-import io.netty.util.ReferenceCountUtil;
-import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.EventExecutorGroup;
-import io.netty.util.internal.OneTimeTask;
-import io.netty.util.internal.PlatformDependent;
-import io.netty.util.internal.StringUtil;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory;
+package org.apache.flink.shaded.netty4.io.netty.channel;
 
 import java.net.SocketAddress;
 import java.util.ArrayList;
@@ -35,8 +25,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import org.apache.flink.shaded.netty4.io.netty.channel.Channel.Unsafe;
+import org.apache.flink.shaded.netty4.io.netty.util.ReferenceCountUtil;
+import org.apache.flink.shaded.netty4.io.netty.util.concurrent.EventExecutor;
+import org.apache.flink.shaded.netty4.io.netty.util.concurrent.EventExecutorGroup;
+import org.apache.flink.shaded.netty4.io.netty.util.concurrent.Future;
+import org.apache.flink.shaded.netty4.io.netty.util.internal.OneTimeTask;
+import org.apache.flink.shaded.netty4.io.netty.util.internal.PlatformDependent;
+import org.apache.flink.shaded.netty4.io.netty.util.internal.StringUtil;
+import org.apache.flink.shaded.netty4.io.netty.util.internal.logging.InternalLogger;
+import org.apache.flink.shaded.netty4.io.netty.util.internal.logging.InternalLoggerFactory;
 
 /**
  * The default {@link ChannelPipeline} implementation.  It is usually created
