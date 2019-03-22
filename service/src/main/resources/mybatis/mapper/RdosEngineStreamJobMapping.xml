@@ -49,7 +49,15 @@
     </update>
 
     <update id="updateTaskEngineIdAndStatus" parameterType="java.util.HashMap">
- 	   update rdos_engine_stream_job set gmt_modified=now(),exec_end_time=now(),engine_task_id=#{engineId},application_id=#{applicationId},status=#{status} where task_id=#{taskId};
+ 	   update rdos_engine_stream_job
+ 	   set gmt_modified=now(),exec_end_time=now(),engine_task_id=#{engineId},application_id=#{applicationId},status=#{status}
+ 	   where task_id=#{taskId};
+    </update>
+
+    <update id="updateTaskSubmitFailed" parameterType="java.util.HashMap">
+        update rdos_engine_stream_job
+        set gmt_modified=now(),exec_start_time=now(),exec_end_time=now(),engine_task_id=#{engineId},application_id=#{applicationId},status=#{status}
+        where task_id=#{taskId};
     </update>
 
     <select id="getRdosTaskByTaskId" parameterType="java.util.HashMap" resultMap="rdosTaskResult">
