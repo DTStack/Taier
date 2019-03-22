@@ -279,7 +279,7 @@ class NormalTaskForm extends React.Component {
 function validValues (values, props) {
     // invalid为一个验证标记，
     // 次标记为上方任务保存按钮是否有效提供依据
-    if (values.mainClass === '' || values.exeArgs === '') { // mainClass不可为空
+    if (values.hasOwnProperty('mainClass') && values.mainClass === '') { // mainClass不可为空
         return true;
     }
     return false;

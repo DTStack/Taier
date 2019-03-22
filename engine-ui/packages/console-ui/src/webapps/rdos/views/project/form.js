@@ -60,8 +60,8 @@ class ProjectForm extends Component {
                             rules: [{
                                 required: true, message: '项目标识不可为空！'
                             }, {
-                                pattern: /^[A-Za-z0-9_]*([A-Za-z])[A-Za-z0-9_]*$/,
-                                message: '项目标识由字母、数字、下划线组成!'
+                                pattern: /^([A-Za-z])[A-Za-z0-9_]*$/,
+                                message: '项目标识须由字母开头，且由字母、数字、下划线组成!'
                             }, {
                                 max: 20,
                                 message: '项目标识不得超过20个字符！'
