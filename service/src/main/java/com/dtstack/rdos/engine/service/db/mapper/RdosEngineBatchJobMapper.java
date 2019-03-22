@@ -29,6 +29,8 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateJobEngineIdAndStatus(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("status") int status,@Param("appId") String appId);
 
+	void updateJobSubmitFailed(@Param("jobId") String jobId, @Param("engineId") String engineId, @Param("status") int status,@Param("appId") String appId);
+
 	RdosEngineBatchJob getRdosJobByJobId(@Param("jobId") String jobId);
 
 	List<RdosEngineBatchJob> getRdosJobByJobIds(@Param("jobIds")List<String> jobIds);
