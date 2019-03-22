@@ -158,13 +158,17 @@ class InputOrigin extends Component {
                             </span>
                         )}
                     >
-                        {getFieldDecorator('table')(
+                        {getFieldDecorator('table', {
+                            rules: [
+                                { required: true, message: '请输入映射表名' }
+                            ]
+                        })(
                             <Input placeholder="请输入映射表名" className="right-input" onChange={e => handleInputChange('table', index, e.target.value)} />
                         )}
                     </FormItem>
                     <Row>
                         <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-                            <label>字段</label>
+                            <label className='required-tip'>字段</label>
                         </div>
                         <Col span="18" style={{ marginBottom: 20, height: 202 }}>
                             {isShow && (
