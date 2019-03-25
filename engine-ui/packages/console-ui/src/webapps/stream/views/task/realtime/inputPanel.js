@@ -7,8 +7,7 @@ import { debounce, cloneDeep } from 'lodash';
 
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import { DATA_SOURCE_TEXT, DATA_SOURCE, TOPIC_TYPE } from '../../../comm/const'
-import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
+import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 
 import Editor from 'widgets/code-editor'
 
@@ -65,10 +64,10 @@ class InputOrigin extends Component {
         }
     }
 
-    editorParamsChange (type, a, b, c) {
+    editorParamsChange (a, b, c) {
         const { handleInputChange, textChange, index } = this.props;
         textChange();
-        handleInputChange(type, index, b);
+        handleInputChange('columnsText', index, b);
     }
 
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
@@ -77,13 +76,8 @@ class InputOrigin extends Component {
         const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [], topicOptionType = [], isShow } = this.props;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
+
         const eventTimeOptionType = this.originOption('eventTime', timeColumoption[index] || []);
-
-        const topicIsPattern = panelColumn[index].topicIsPattern;
-        const topic = panelColumn[index].topic || [];
-        const offsetReset = panelColumn[index].offsetReset;
-        const customParams = panelColumn[index].customParams || [];
-
         const { getFieldDecorator } = this.props.form;
 
         const formItemLayout = {
@@ -137,42 +131,20 @@ class InputOrigin extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="Topic类型"
-                    >
-                        {getFieldDecorator('topicIsPattern', {})(
-                            <RadioGroup className="right-select" onChange={(v) => { handleInputChange('topicIsPattern', index, v.target.value) }} >
-                                <Radio value={TOPIC_TYPE.NORMAL}>非正则</Radio>
-                                <Radio value={TOPIC_TYPE.REXGEP}>正则</Radio>
-                            </RadioGroup>
-                        )}
-                    </FormItem>
-                    <FormItem
-                        {...formItemLayout}
                         label="Topic"
                     >
-                        {!topicIsPattern ? getFieldDecorator('topic', {
+                        {getFieldDecorator('topic', {
                             rules: [
                                 { required: true, message: '请选择Topic' }
                             ]
                         })(
-                            <Select
-                                placeholder="请选择Topic"
-                                className="right-select"
-                                onChange={(v) => { handleInputChange('topic', index, v) }}
-                                showSearch
-                                mode='multiple'
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange('topic', index, v) }}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {
                                     topicOptionTypes
                                 }
                             </Select>
-                        ) : getFieldDecorator('topic_input', {
-                            rules: [
-                                { required: true, message: '请输入Topic' }
-                            ]
-                        })(
-                            <Input placeholder="请输入正则表达式" onChange={(v) => { handleInputChange('topic', index, [v.target.value]) }} />
                         )}
                     </FormItem>
                     <FormItem
@@ -206,7 +178,7 @@ class InputOrigin extends Component {
                                     sync={sync}
                                     placeholder="字段 类型, 比如 id int 一行一个字段"
                                     value={panelColumn[index].columnsText}
-                                    onChange={this.debounceEditorChange.bind(this, 'columnsText')}
+                                    onChange={this.debounceEditorChange.bind(this)}
                                     editorRef={(ref) => {
                                         this._editorRef = ref;
                                     }}
@@ -230,31 +202,9 @@ class InputOrigin extends Component {
                             <RadioGroup className="right-select" onChange={(v) => { handleInputChange('offsetReset', index, v.target.value) }}>
                                 <Radio value='latest'>latest</Radio>
                                 <Radio value='earliest'>earliest</Radio>
-                                {topic.length < 2 && !topicIsPattern && (
-                                    <Radio value='custom'>自定义参数</Radio>
-                                )}
                             </RadioGroup>
                         )}
                     </FormItem>
-                    {offsetReset == 'custom' && (
-                        <Row>
-                            <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
-                                <label>偏移量</label>
-                            </div>
-                            <Col span="18" style={{ marginBottom: 20, height: 202 }}>
-                                {isShow && (
-                                    <Editor
-                                        style={{ minHeight: 202 }}
-                                        className="bd"
-                                        sync={sync}
-                                        placeholder="分区 偏移量，比如pt 2 一行一对值"
-                                        value={panelColumn[index].offsetValue}
-                                        onChange={this.debounceEditorChange.bind(this, 'offsetValue')}
-                                    />
-                                )}
-                            </Col>
-                        </Row>
-                    )}
                     <FormItem
                         {...formItemLayout}
                         label={<span>
@@ -325,12 +275,6 @@ class InputOrigin extends Component {
                             <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism', index, value)} />
                         )}
                     </FormItem>
-                    <CustomParams
-                        getFieldDecorator={getFieldDecorator}
-                        formItemLayout={formItemLayout}
-                        customParams={customParams}
-                        onChange={(type, id, value) => { handleInputChange('customParams', index, value, { id, type }) }}
-                    />
                 </Form>
             </Row>
         )
@@ -341,26 +285,11 @@ class InputOrigin extends Component {
  */
 const InputForm = Form.create({
     mapPropsToFields (props) {
-        const {
-            type,
-            sourceId,
-            topic,
-            table,
-            columns,
-            timeType,
-            timeColumn,
-            offset,
-            columnsText,
-            parallelism,
-            offsetReset,
-            topicIsPattern,
-            customParams
-        } = props.panelColumn[props.index];
+        const { type, sourceId, topic, table, columns, timeType, timeColumn, offset, columnsText, parallelism, offsetReset } = props.panelColumn[props.index];
         return {
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             topic: { value: topic },
-            topic_input: { value: topic },
             table: { value: table },
             columns: { value: columns },
             timeType: { value: timeType },
@@ -368,9 +297,7 @@ const InputForm = Form.create({
             offset: { value: offset },
             offsetReset: { value: offsetReset },
             columnsText: { value: columnsText },
-            parallelism: { value: parallelism },
-            topicIsPattern: { value: topicIsPattern },
-            ...generateMapValues(customParams)
+            parallelism: { value: parallelism }
             // alias: { value: alias },
         }
     }
@@ -414,7 +341,6 @@ export default class InputPanel extends Component {
         source.map((v, index) => {
             tabTemplate.push('InputForm');
             panelColumn.push(v);
-            initCustomParam(v);
             this.getTypeOriginData(index, v.type);
             this.parseColumnsText(index, v.columnsText);
             this.getTopicType(index, v.sourceId);
@@ -578,7 +504,7 @@ export default class InputPanel extends Component {
         const inputData = {
             type: DATA_SOURCE.KAFKA,
             sourceId: undefined,
-            topic: [],
+            topic: undefined,
             table: undefined,
             // model: 1,
             // columns: [],
@@ -587,20 +513,11 @@ export default class InputPanel extends Component {
             offset: 0,
             columnsText: undefined,
             parallelism: 1,
-            offsetReset: 'latest',
-            topicIsPattern: TOPIC_TYPE.NORMAL
+            offsetReset: 'latest'
             // alias: undefined,
         }
 
-        let {
-            tabTemplate,
-            panelActiveKey,
-            popoverVisible,
-            panelColumn,
-            checkFormParams,
-            originOptionType,
-            topicOptionType
-        } = this.state;
+        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType, topicOptionType } = this.state;
         if (type === 'add') {
             tabTemplate.push('InputForm');
             panelColumn.push(inputData);
@@ -657,125 +574,75 @@ export default class InputPanel extends Component {
         })
     }
 
-    handleInputChange = (type, index, value, subValue) => { // 监听数据改变
+    handleInputChange = (type, index, value) => { // 监听数据改变
         let { panelColumn, timeColumoption, originOptionType, topicOptionType } = this.state;
         let shouldUpdateEditor = true;
-        const allParamsType = [
-            'type',
-            'sourceId',
-            'topic',
-            'table',
-            'columns',
-            'timeType',
-            'timeColumn',
-            'offset',
-            'offsetReset',
-            'columnsText',
-            'parallelism',
-            'topicIsPattern',
-            'offsetValue',
-            'customParams'
-        ]
+        const allParamsType = ['type', 'sourceId', 'topic', 'table', 'columns', 'timeType', 'timeColumn', 'offset', 'offsetReset', 'columnsText', 'parallelism']
         if (type === 'columnsText') {
             this.parseColumnsText(index, value, 'changeText')
         }
         panelColumn = cloneDeep(panelColumn);
-        if (type == 'customParams') {
-            changeCustomParams(panelColumn[index], value, subValue);
+        panelColumn[index][type] = value;
+        if (type === 'type') {
+            // this.clearCurrentInfo(type,index)
+            timeColumoption[index] = [];
+            originOptionType[index] = [];
+            topicOptionType[index] = [];
+            allParamsType.map(v => {
+                if (v != 'type') {
+                    if (v == 'columns') {
+                        panelColumn[index][v] = [];
+                    } else if (v == 'timeType') {
+                        panelColumn[index][v] = 1
+                    } else if (v == 'parallelism') {
+                        panelColumn[index][v] = 1
+                    } else if (v == 'offsetReset') {
+                        panelColumn[index][v] = 'latest'
+                    } else {
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
+            this.getTypeOriginData(index, value);
+        } else if (type === 'sourceId') {
+            // this.clearCurrentInfo(type,index)
+            timeColumoption[index] = [];
+            topicOptionType[index] = [];
+            allParamsType.map(v => {
+                if (v != 'type' && v != 'sourceId') {
+                    if (v == 'columns') {
+                        panelColumn[index][v] = [];
+                    } else if (v == 'timeType') {
+                        panelColumn[index][v] = 1
+                    } else if (v == 'parallelism') {
+                        panelColumn[index][v] = 1
+                    } else if (v == 'offsetReset') {
+                        panelColumn[index][v] = 'latest'
+                    } else {
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
+            this.getTopicType(index, value);
+        } else if (type === 'topic') {
+            timeColumoption[index] = [];
+            allParamsType.map(v => {
+                if (v != 'type' && v != 'sourceId' && v != 'topic') {
+                    if (v == 'columns') {
+                        panelColumn[index][v] = [];
+                    } else if (v == 'timeType') {
+                        panelColumn[index][v] = 1
+                    } else if (v == 'parallelism') {
+                        panelColumn[index][v] = 1
+                    } else if (v == 'offsetReset') {
+                        panelColumn[index][v] = 'latest'
+                    } else {
+                        panelColumn[index][v] = undefined
+                    }
+                }
+            })
         } else {
-            panelColumn[index][type] = value;
-        }
-        switch (type) {
-            case 'type': {
-                timeColumoption[index] = [];
-                originOptionType[index] = [];
-                topicOptionType[index] = [];
-                allParamsType.map(v => {
-                    if (v != 'type') {
-                        if (v == 'columns' || v == 'topic') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else if (v == 'topicIsPattern') {
-                            panelColumn[index][v] = TOPIC_TYPE.NORMAL
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
-                this.getTypeOriginData(index, value);
-                break;
-            }
-            case 'sourceId': {
-                timeColumoption[index] = [];
-                topicOptionType[index] = []; // 清空topic列表
-                allParamsType.map(v => {
-                    if (v != 'type' && v != 'sourceId') {
-                        if (v == 'columns' || v == 'topic') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else if (v == 'topicIsPattern') {
-                            panelColumn[index][v] = TOPIC_TYPE.NORMAL
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
-                this.getTopicType(index, value);
-                break;
-            }
-            case 'topic': {
-                timeColumoption[index] = [];
-                allParamsType.map(v => {
-                    if (v != 'type' && v != 'sourceId' && v != 'topic' && v != 'topicIsPattern') {
-                        if (v == 'columns') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
-                break;
-            }
-            case 'topicIsPattern': {
-                timeColumoption[index] = [];
-                allParamsType.map(v => {
-                    if (v != 'type' && v != 'sourceId' && v != 'topicIsPattern') {
-                        if (v == 'columns') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else if (v == 'topic') {
-                            panelColumn[index][v] = [];
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
-                break;
-            }
-            default: {
-                shouldUpdateEditor = false;
-            }
+            shouldUpdateEditor = false;
         }
         this.props.tableParamsChange()// 添加数据改变标记
         this.setCurrentSource({ panelColumn })
