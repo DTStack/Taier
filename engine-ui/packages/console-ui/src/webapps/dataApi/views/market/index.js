@@ -395,7 +395,7 @@ class APIMarket extends Component {
                     key={applyKey}
                 />
                 <h1 className="box-title">Api市场</h1>
-                <div className="margin-0-20 m-card box-2">
+                <div style={{ minHeight: 'calc(100% - 65px)' }} className="m-card box-2">
                     <SlidePane
                         className="m-tabs"
                         visible={slidePaneShow}
@@ -421,7 +421,7 @@ class APIMarket extends Component {
 
                     </SlidePane>
                     <Card
-
+                        bordered={false}
                         noHovering
                         title={this.getCardTitle()}
                     >
