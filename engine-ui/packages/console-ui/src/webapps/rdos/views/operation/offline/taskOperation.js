@@ -213,7 +213,7 @@ class OfflineTaskList extends Component {
             warning({
                 title: '提示',
                 content: `
-                    “失败”、“取消”、“成功”状态和“已删除”的任务，不能被杀死 !
+                   “失败、取消、成功、冻结”状态和“已删除”的任务，不能被杀死！
                 `
             })
         }
