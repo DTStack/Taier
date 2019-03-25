@@ -539,7 +539,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const clone = cloneDeep(state);
             if (map) {
                 const index = clone.source.findIndex((item) => isFieldMatch(item, old))
-                if (index > 0) {
+                if (index > -1) {
                     clone.source[index] = assign({}, clone.source[index], replace);
                     return clone;
                 }
@@ -553,7 +553,7 @@ const keymap = (state = { source: [], target: [] }, action) => {
             const clone = cloneDeep(state);
             if (map) {
                 const index = clone.target.findIndex((item) => isFieldMatch(item, old))
-                if (index > 0) {
+                if (index > -1) {
                     clone.target[index] = replace;
                     return clone;
                 }
@@ -575,7 +575,6 @@ const keymap = (state = { source: [], target: [] }, action) => {
                 }
             } else if (target) {
                 const index = clone.target.findIndex((item) => isFieldMatch(item, target))
-                console.log('removeKeyMap:', target, index)
                 if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
