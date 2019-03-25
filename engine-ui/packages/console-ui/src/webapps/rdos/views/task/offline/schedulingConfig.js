@@ -52,9 +52,8 @@ class ScheduleForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
+        const { status, scheduleConf, isWorkflowNode, wFScheduleConf, isWorkflowRoot } = this.props;
         const { periodType, isFailRetry } = scheduleConf;
-
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
             wFScheduleConf.periodType === '0' ||
@@ -124,45 +123,50 @@ class ScheduleForm extends React.Component {
                     >冻结</Checkbox>
                 )}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="出错重试"
-            >
-                {getFieldDecorator('isFailRetry', {
-                    valuePropName: 'checked',
-                    initialValue: get(scheduleConf, 'isFailRetry', true)
-                })(
-                    <Checkbox
-                        onChange={this.changeScheduleConf.bind(this)}
-                    >是</Checkbox>
-                )}
-                <HelpDoc style={relativeStyle} doc="taskFailRetry" />
-            </FormItem>
-            {isFailRetry && (
-                <FormItem
-                    {...formItemLayout}
-                    label="重试次数"
-                >
-                    <Col span="6">
-                        {getFieldDecorator('maxRetryNum', {
-                            rules: [{
-                                required: true, message: '请选择重试次数'
-                            }],
-                            initialValue: get(scheduleConf, 'maxRetryNum', 3)
+            {!isWorkflowRoot && (
+                <React.Fragment>
+                    <FormItem
+                        {...formItemLayout}
+                        label="出错重试"
+                    >
+                        {getFieldDecorator('isFailRetry', {
+                            valuePropName: 'checked',
+                            initialValue: get(scheduleConf, 'isFailRetry', true)
                         })(
-                            <Select
+                            <Checkbox
                                 onChange={this.changeScheduleConf.bind(this)}
-                            >
-                                <Option key='1' value='1'>1</Option>
-                                <Option key='2' value='2'>2</Option>
-                                <Option key='3' value='3'>3</Option>
-                                <Option key='4' value='4'>4</Option>
-                                <Option key='5' value='5'>5</Option>
-                            </Select>
+                            >是</Checkbox>
                         )}
-                    </Col>
-                    <span className="split-text">次，每次间隔2分钟</span>
-                </FormItem>
+                        <HelpDoc style={relativeStyle} doc="taskFailRetry" />
+                    </FormItem>
+                    {isFailRetry && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="重试次数"
+                        >
+                            <Col span="6">
+                                {getFieldDecorator('maxRetryNum', {
+                                    rules: [{
+                                        required: true, message: '请选择重试次数'
+                                    }],
+                                    initialValue: get(scheduleConf, 'maxRetryNum', 3)
+                                })(
+                                    <Select
+                                        onChange={this.changeScheduleConf.bind(this)}
+                                    >
+                                        <Option key='1' value='1'>1</Option>
+                                        <Option key='2' value='2'>2</Option>
+                                        <Option key='3' value='3'>3</Option>
+                                        <Option key='4' value='4'>4</Option>
+                                        <Option key='5' value='5'>5</Option>
+                                    </Select>
+                                )}
+                            </Col>
+                            <span className="split-text">次，每次间隔2分钟</span>
+                        </FormItem>
+                    )}
+                </React.Fragment>
+
             )}
             {
                 !isWorkflowNode && <div>
@@ -852,6 +856,7 @@ class SchedulingConfig extends React.Component {
 
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
+        const isWorkflowRoot = tabData.taskType == TASK_TYPE.WORKFLOW;
 
         let initConf = tabData.scheduleConf;
 
@@ -915,6 +920,7 @@ class SchedulingConfig extends React.Component {
                         wFScheduleConf={wFScheduleConf}
                         status={tabData.scheduleStatus}
                         isWorkflowNode={isWorkflowNode}
+                        isWorkflowRoot={isWorkflowRoot}
                         handleScheduleStatus={this.handleScheduleStatus.bind(this)}
                         handleScheduleConf={this.handleScheduleConf.bind(this)}
                         handleScheduleType={this.handleScheduleType.bind(this)}
