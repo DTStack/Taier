@@ -46,7 +46,10 @@ export const REDIS_TYPE = {
     CLUSTER: 3,
     SENTINEL: 2
 }
-
+export const TOPIC_TYPE = {
+    NORMAL: false,
+    REXGEP: true
+}
 // 锁类型
 export const LOCK_TYPE = {
     OFFLINE_TASK: 'BATCH_TASK',
