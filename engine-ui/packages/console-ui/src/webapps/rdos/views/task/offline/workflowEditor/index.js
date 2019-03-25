@@ -144,6 +144,9 @@ class WorkflowEditor extends Component {
         if (nextState.searchResult !== this.state.searchResult) {
             return true;
         }
+        if (nextProps.taskTypes.length !== this.props.taskTypes.length){
+            return true;
+        }
         return false;
     }
 
