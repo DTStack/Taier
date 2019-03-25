@@ -117,10 +117,10 @@ class TaskForm extends React.Component {
         if (typeof defaultData === 'undefined') {
             isCreateNormal = true;
         } else if (typeof defaultData.id === 'undefined') {
-            if (defaultData.taskType !== 'undefined') {
+            if (typeof defaultData.taskType !== 'undefined') {
                 isCreateFromIndex = true;
             } else {
-                isCreateFromIndex = true;
+                isCreateFromMenu = true;
             }
         }
         this.isEditExist = !isCreateNormal && !isCreateFromMenu && !isCreateFromIndex;
@@ -149,7 +149,7 @@ class TaskForm extends React.Component {
         const isPython23 = value == TASK_TYPE.PYTHON_23
         const isMl = value == TASK_TYPE.ML;
         const isHadoopMR = value == TASK_TYPE.HAHDOOPMR;
-        const savePath = isCreateNormal ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
+        const savePath = (isCreateNormal || isCreateFromIndex) ? this.props.treeData.id : isCreateFromMenu ? defaultData.parentId : defaultData.nodePid;
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
         return (
@@ -185,7 +185,7 @@ class TaskForm extends React.Component {
                         initialValue: value
                     })(
                         <Select
-                            disabled={(isCreateNormal ? false : !isCreateFromMenu) || createFromGraph}
+                            disabled={this.isEditExist || createFromGraph}
                             onChange={this.handleTaskTypeChange}
                         >
                             {taskOptions}
@@ -490,7 +490,7 @@ class TaskForm extends React.Component {
                                 type={MENU_TYPE.TASK_DEV}
                                 treeData={this.props.treeData}
                                 onChange={this.handleSelectTreeChange.bind(this)}
-                                defaultNode={isCreateNormal
+                                defaultNode={(isCreateNormal || isCreateFromIndex)
                                     ? this.props.treeData.name
                                     : isCreateFromMenu
                                         ? this.getFolderName(defaultData.parentId, defaultData.type)

@@ -89,6 +89,7 @@ class Content extends Component {
                         )}
                         <span data-title="请求协议：" className="pseudo-title p-line api_item-margin">{this.getValue('reqProtocol')}</span>
                         <span data-title="请求方式：" className="pseudo-title p-line api_item-margin">{API_METHOD_KEY[this.getValue('reqMethod')]}</span>
+                        <p data-title="API ID：" className="pseudo-title p-line">{apiId}</p>
                         {isRegister && isManage && (
                             <React.Fragment>
                                 <p data-title="后端Host：" className="pseudo-title p-line">{registerInfo.originalHost}</p>

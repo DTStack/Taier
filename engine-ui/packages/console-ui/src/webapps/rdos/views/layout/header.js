@@ -119,7 +119,7 @@ class Header extends Component {
         const { filter } = this.state;
         if (projects && projects.length > 0) {
             return projects
-                .filter(o => o.projectIdentifier.indexOf(filter) > -1 || o.projectName.indexOf(filter) > -1)
+                .filter(o => o.projectIdentifier.indexOf(filter) > -1 || o.projectName.indexOf(filter) > -1 || o.projectAlias.indexOf(filter) > -1)
                 .map(project => {
                     const name = project.projectAlias || project.projectName;
                     return (
