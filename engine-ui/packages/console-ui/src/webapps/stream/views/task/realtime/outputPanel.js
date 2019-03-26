@@ -37,7 +37,7 @@ class OutputOrigin extends Component {
             if (!err) {
                 const { panelColumn, index } = this.props;
                 const data = panelColumn[index];
-                if (!data.columnsText && !data.columns.filter((item) => { return !isEmpty(item) }).length) {
+                if ((!data.columnsText || !data.columnsText.trim()) && !data.columns.filter((item) => { return !isEmpty(item) }).length) {
                     result.status = false;
                     result.message = '字段信息不能为空！'
                     return;
