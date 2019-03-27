@@ -4,11 +4,9 @@ import {
     running,
     options,
     showRightExtraPane,
-    syntaxPane,
-    KEY_EDITOR_OPTIONS
+    syntaxPane
 } from '../index';
 import { editorAction } from '../actionTypes';
-import localDb from 'utils/localDb';
 
 describe('editor reducer', () => {
     test('showRightExtraPane', () => {
@@ -87,5 +85,136 @@ describe('editor reducer', () => {
             type: editorAction.SET_SELECTION_CONTENT
         })
         expect(state).toEqual('');
+    })
+    test('syntaxPane', () => {
+        let defaultData = { selected: undefined, html: '' };
+        let state = syntaxPane(undefined, {})
+        expect(state).toEqual(defaultData);
+        state = syntaxPane(state, {
+            type: editorAction.UPDATE_SYNTAX_PANE,
+            data: {
+                html: 'test'
+            }
+        })
+        expect(state).toEqual({
+            ...defaultData,
+            html: 'test'
+        });
+        state = syntaxPane(state, {
+            type: editorAction.UPDATE_SYNTAX_PANE
+        })
+        expect(state).toEqual({
+            ...defaultData,
+            html: 'test'
+        });
+    });
+    test('console', () => {
+        let state = console(undefined, {});
+        expect(state).toEqual({});
+        /**
+         * 初始化tab
+         */
+        state = console(state, {
+            type: editorAction.GET_TAB,
+            key: 'test'
+        })
+        expect(state).toEqual({
+            test: { log: '', results: [] }
+        });
+        state = console(state, {
+            type: editorAction.SET_TAB,
+            data: { data: { log: '11', results: [] }, key: 'test' }
+        })
+        expect(state).toEqual({
+            test: { log: '11', results: [] }
+        });
+        state = console(state, {
+            type: editorAction.SET_CONSOLE_LOG,
+            key: 'test',
+            data: '123'
+        })
+        expect(state).toEqual({
+            test: { log: '123', results: [], showRes: false }
+        });
+        state = console(state, {
+            type: editorAction.APPEND_CONSOLE_LOG,
+            key: 'test',
+            data: '123'
+        })
+        expect(state).toEqual({
+            test: { log: '123 \n123', results: [], showRes: false }
+        });
+        state = console(state, {
+            type: editorAction.UPDATE_RESULTS,
+            key: 'test',
+            data: {
+                list: ['1']
+            }
+        })
+        expect(state).toEqual({
+            test: {
+                log: '123 \n123',
+                results: [{
+                    list: ['1'],
+                    id: 1
+                }],
+                showRes: true
+            }
+        });
+        state = console(state, {
+            type: editorAction.UPDATE_RESULTS,
+            key: 'test',
+            data: {
+                list: ['12']
+            }
+        })
+        expect(state).toEqual({
+            test: {
+                log: '123 \n123',
+                results: [{
+                    list: ['1'],
+                    id: 1
+                }, {
+                    list: ['12'],
+                    id: 2
+                }],
+                showRes: true
+            }
+        });
+        state = console(state, {
+            type: editorAction.DELETE_RESULT,
+            key: 'test',
+            data: 0
+        })
+        expect(state).toEqual({
+            test: {
+                log: '123 \n123',
+                results: [{
+                    list: ['12'],
+                    id: 2
+                }],
+                showRes: true
+            }
+        });
+        state = console(state, {
+            type: editorAction.UPDATE_RESULTS,
+            key: 'test',
+            data: {
+                list: ['123']
+            }
+        })
+        expect(state).toEqual({
+            test: {
+                log: '123 \n123',
+                results: [{
+                    list: ['12'],
+                    id: 2
+                }, {
+                    list: ['123'],
+                    id: 3
+                }],
+                showRes: true
+            }
+        });
     })
 });
