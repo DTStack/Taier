@@ -11,18 +11,8 @@ import { editorAction } from '../actionTypes';
 import localDb from 'utils/localDb';
 
 describe('editor reducer', () => {
-    let initState = {
-        'console': {},
-        'selection': '',
-        'running': [],
-        'options': { 'theme': 'vs' },
-        'showRightExtraPane': '',
-        'syntaxPane': {
-            'html': ''
-        }
-    };
     test('showRightExtraPane', () => {
-        let state = showRightExtraPane(initState.showRightExtraPane, {
+        let state = showRightExtraPane(undefined, {
             type: editorAction.SHOW_RIGHT_PANE,
             data: editorAction.SHOW_TABLE_TIP_PANE
         })
@@ -50,10 +40,52 @@ describe('editor reducer', () => {
             data: testData
         })
         expect(state).toEqual(testData);
-        let localData = localDb.get(KEY_EDITOR_OPTIONS);
+        state = options(undefined, {});
         /**
-         * 验证是否存入了localStorage
+         * 验证本地缓存是否生效
          */
-        expect(state).toEqual(localData);
+        expect(state).toEqual(testData);
+    })
+    test('running', () => {
+        let state = running(undefined, {
+            type: editorAction.ADD_LOADING_TAB,
+            data: {
+                id: 1
+            }
+        });
+        expect(state).toContain(1);
+        state = running(state, {
+            type: editorAction.ADD_LOADING_TAB,
+            data: {
+                id: 2
+            }
+        })
+        expect(state).toContain(1);
+        expect(state).toContain(2);
+        state = running(state, {
+            type: editorAction.REMOVE_LOADING_TAB,
+            data: {
+                id: 1
+            }
+        });
+        expect(state).toContain(2);
+        expect(state).not.toContain(1);
+        state = running(state, {
+            type: editorAction.REMOVE_ALL_LOAING_TAB
+        });
+        expect(state).toHaveLength(0)
+    })
+    test('selection', () => {
+        let state = selection(undefined, {})
+        expect(state).toEqual('');
+        state = selection(state, {
+            type: editorAction.SET_SELECTION_CONTENT,
+            data: { test: 1 }
+        })
+        expect(state).toEqual({ test: 1 });
+        state = selection(state, {
+            type: editorAction.SET_SELECTION_CONTENT
+        })
+        expect(state).toEqual('');
     })
 });

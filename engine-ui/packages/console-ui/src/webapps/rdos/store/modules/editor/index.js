@@ -86,8 +86,6 @@ export const selection = (state = '', action) => {
         case editorAction.SET_SELECTION_CONTENT: {
             if (action.data) {
                 return action.data
-            } else if (state !== '') {
-                return '';
             }
             return '';
         }
