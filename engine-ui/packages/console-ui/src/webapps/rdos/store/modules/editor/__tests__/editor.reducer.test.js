@@ -163,6 +163,20 @@ describe('editor reducer', () => {
         });
         state = console(state, {
             type: editorAction.UPDATE_RESULTS,
+            key: 'test'
+        })
+        expect(state).toEqual({
+            test: {
+                log: '123 \n123',
+                results: [{
+                    list: ['1'],
+                    id: 1
+                }],
+                showRes: false
+            }
+        });
+        state = console(state, {
+            type: editorAction.UPDATE_RESULTS,
             key: 'test',
             data: {
                 list: ['12']
@@ -214,6 +228,16 @@ describe('editor reducer', () => {
                     id: 3
                 }],
                 showRes: true
+            }
+        });
+        state = console(state, {
+            type: editorAction.RESET_CONSOLE,
+            key: 'test'
+        })
+        expect(state).toEqual({
+            test: {
+                log: '',
+                results: []
             }
         });
     })
