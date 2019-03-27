@@ -74,7 +74,6 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
                         case taskStatus.FINISHED: {
                             // 成功
                             getDataOver(dispatch, currentTab, res, jobId)
-                            dispatch(removeLoadingTab(currentTab))
                             resolve(true);
                             return;
                         }
@@ -84,7 +83,6 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
                             if (res.data && res.data.download) {
                                 dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
                             }
-                            dispatch(removeLoadingTab(currentTab))
                             resolve(false)
                             return;
                         }
@@ -105,7 +103,6 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
                     }
                 } else {
                     dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
-                    dispatch(removeLoadingTab(currentTab))
                     // 不正常，则直接终止执行
                     resolve(false)
                 }
@@ -121,6 +118,17 @@ function selectData (dispatch, jobId, currentTab, taskType) {
     )
 }
 
+/**
+ * 执行一系列sql任务
+ * @param {dispath} dispatch redux dispatch
+ * @param {index} currentTab 当前tabID
+ * @param {Task} task 任务对象
+ * @param {Params} params 额外参数
+ * @param {Array} sqls 要执行的Sql数组
+ * @param {Int} index 当前执行的数组下标
+ * @param {function} resolve promise resolve
+ * @param {function} reject promise reject
+ */
 function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject) {
     const key = getUniqueKey(task.id)
 
@@ -132,6 +140,7 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
         if (stopSign[currentTab]) {
             console.log('find stop sign in exec')
             stopSign[currentTab] = false;
+            dispatch(removeLoadingTab(currentTab))
             return;
         }
         exec(dispatch, currentTab, task, params, sqls, index + 1, resolve, reject)
@@ -141,6 +150,7 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
         if (stopSign[currentTab]) {
             console.log('find stop sign in succCall')
             stopSign[currentTab] = false;
+            dispatch(removeLoadingTab(currentTab))
             return;
         }
         if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
@@ -160,10 +170,8 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
                     .then(
                         (isSuccess) => {
                             if (index < sqls.length - 1 && isSuccess) {
-                                // 剩余任务，则继续执行
                                 execContinue();
-                            }
-                            if (index >= sqls.length - 1) {
+                            } else {
                                 dispatch(removeLoadingTab(currentTab))
                                 resolve(true)
                             }
@@ -196,6 +204,7 @@ export function execSql (currentTab, task, params, sqls) {
     return (dispatch) => {
         stopSign[currentTab] = false;
         return new Promise((resolve, reject) => {
+            dispatch(addLoadingTab(currentTab));
             exec(dispatch, currentTab, task, params, sqls, 0, resolve, reject);
         })
     }

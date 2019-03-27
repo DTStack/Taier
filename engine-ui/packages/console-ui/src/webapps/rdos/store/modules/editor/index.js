@@ -3,10 +3,10 @@ import { cloneDeep, assign } from 'lodash';
 import { editorAction } from './actionTypes'
 import localDb from 'utils/localDb';
 
-const KEY_EDITOR_OPTIONS = 'editor_options';
+export const KEY_EDITOR_OPTIONS = 'editor_options';
 
 // Console Reducers
-const console = (state = {}, action) => {
+export const console = (state = {}, action) => {
     switch (action.type) {
         case editorAction.GET_TAB: { // 初始化console
             const origin = cloneDeep(state)
@@ -141,7 +141,7 @@ export const options = (state = initialEditorOptions(), action) => {
 }
 
 /**
- * 是否展示左侧面板
+ * 是否展示右侧面板
 */
 export const showRightExtraPane = (state = '', action) => {
     switch (action.type) {
