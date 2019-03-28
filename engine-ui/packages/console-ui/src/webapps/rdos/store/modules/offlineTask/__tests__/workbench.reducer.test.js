@@ -3,23 +3,6 @@ import {
 } from '../actionType';
 
 import { workbenchReducer } from '../workbench';
-expect.extend({
-    toBeEmptyArray (received) {
-        if (Array.isArray(received) && received.length === 0) {
-            return {
-                message: () =>
-                    `expected is an empty array`,
-                pass: true
-            }
-        } else {
-            return {
-                message: () =>
-                    `expected is not an empty array`,
-                pass: false
-            }
-        }
-    }
-})
 describe('workbench reducer', () => {
     const initial = () => {
         return {
@@ -100,7 +83,7 @@ describe('workbench reducer', () => {
         let nextState = workbenchReducer(initialState, {
             type: workbenchAction.CLOSE_TASK_TAB
         })
-        expect(nextState.tabs).toBeEmptyArray();
+        expect(nextState.tabs).toEqual([]);
         expect(nextState.currentTab).toBeUndefined()
     })
     /**
@@ -211,5 +194,258 @@ describe('workbench reducer', () => {
         expect(nextState.tabs[0].submitStatus).toBe(1);
         expect(nextState.tabs[0].notSynced).toBe(false);
         expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description 测试sql任务的自动推荐
+     */
+    test('ADD_VOS', () => {
+        initialState.tabs = [{
+            id: 1,
+            taskVOS: [],
+            notSynced: false
+        }, {
+            id: 2,
+            taskVOS: [],
+            notSynced: false
+        }];
+        initialState.currentTab = 1;
+        // 测试自动推荐成功
+        let payload = {
+            'id': 1,
+            'taskType': 2,
+            'name': 'multi_part'
+        };
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.ADD_VOS,
+            payload
+        })
+        expect(nextState.tabs[0].taskVOS).toContainEqual(payload);
+        expect(nextState.tabs[0].notSynced).toBe(true);
+        // 测试依赖任务存在
+        let anotherState = workbenchReducer(nextState, {
+            type: workbenchAction.ADD_VOS,
+            payload
+        })
+        expect(anotherState).toEqual(nextState);
+        expect(anotherState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description 测试删除sql任务的自动推荐
+     */
+    test('DEL_VOS', () => {
+        initialState.tabs = [{
+            id: 1,
+            taskVOS: [{
+                'id': 1,
+                'taskType': 2,
+                'name': 'multi_part'
+            }],
+            notSynced: false
+        }, {
+            id: 2,
+            taskVOS: [],
+            notSynced: false
+        }];
+        initialState.currentTab = 1;
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.DEL_VOS,
+            payload: 1
+        })
+        expect(nextState.tabs[0].taskVOS).toEqual([]);
+        expect(nextState.tabs[0].notSynced).toBe(true);
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description 测试修改任务属性
+     */
+    test('SET_TASK_FIELDS_VALUE', () => {
+        initialState.tabs = [{
+            id: 1,
+            sqlText: `test`,
+            taskVariables: [{
+                paramName: 'test',
+                paramCommand: 'test',
+                type: 1
+            }, {
+                paramName: 'test_2',
+                paramCommand: 'test_2',
+                type: 1
+            }],
+            notSynced: false
+        }, {
+            id: 2,
+            sqlText: '',
+            taskVariables: [],
+            notSynced: false
+        }];
+        initialState.currentTab = 1;
+        const payload = {
+            sqlText: 'sqlText',
+            taskVariables: [{
+                paramName: 'test',
+                paramCommand: 'nextTest',
+                type: 1
+            }, {
+                paramName: 'testName',
+                paramCommand: 'testValue',
+                type: 1
+            }]
+        };
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload
+        })
+        expect(nextState.tabs[0].sqlText).toEqual(payload.sqlText);
+        expect(nextState.tabs[0].taskVariables).toEqual(expect.arrayContaining([
+            {
+                paramName: 'test',
+                paramCommand: 'test',
+                type: 1
+            }, {
+                paramName: 'testName',
+                paramCommand: 'testValue',
+                type: 1
+            }
+        ]));
+        expect(nextState.tabs[0].notSynced).toBe(true);
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description 测试修改任务属性
+     */
+    test('UPDATE_TASK_TAB', () => {
+        initialState.tabs = [{
+            id: 1,
+            sqlText: `test`,
+            taskVariables: [{
+                paramName: 'test',
+                paramCommand: 'test',
+                type: 1
+            }, {
+                paramName: 'test_2',
+                paramCommand: 'test_2',
+                type: 1
+            }],
+            notSynced: false
+        }, {
+            id: 2,
+            sqlText: '',
+            taskVariables: [],
+            notSynced: false
+        }];
+        initialState.currentTab = 1;
+        const payload = {
+            id: 1,
+            sqlText: 'sqlText',
+            taskVariables: [{
+                paramName: 'test',
+                paramCommand: 'nextTest',
+                type: 1
+            }, {
+                paramName: 'testName',
+                paramCommand: 'testValue',
+                type: 1
+            }]
+        };
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.UPDATE_TASK_TAB,
+            payload
+        })
+        expect(nextState.tabs[0].sqlText).toEqual(payload.sqlText);
+        expect(nextState.tabs[0].taskVariables).toEqual(expect.arrayContaining([
+            {
+                paramName: 'test',
+                paramCommand: 'test',
+                type: 1
+            }, {
+                paramName: 'testName',
+                paramCommand: 'testValue',
+                type: 1
+            }
+        ]));
+        expect(nextState.tabs[0].notSynced).toBe(false);
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description 测试修改sql任务的值
+     */
+    test('SET_TASK_SQL_FIELD_VALUE', () => {
+        initialState.tabs = [{
+            id: 1,
+            sqlText: 'test',
+            notSynced: false
+        }, {
+            id: 2,
+            sqlText: 'test',
+            notSynced: false
+        }]
+        initialState.currentTab = 1;
+        const payload = {
+            sqlText: 'sqlText'
+        }
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.SET_TASK_SQL_FIELD_VALUE,
+            payload
+        })
+        expect(nextState.tabs[0].sqlText).toEqual(payload.sqlText);
+        expect(nextState.tabs[0].notSynced).toBe(true);
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description 测试保存数据同步
+     */
+    test('SAVE_DATASYNC_TO_TAB', () => {
+        initialState.tabs = [{
+            id: 1,
+            name: 'dataSync'
+        }];
+        let payload = {
+            id: 1,
+            data: {
+                tabId: 1111
+            }
+        };
+        const nextState = workbenchReducer(initialState, {
+            type: workbenchAction.SAVE_DATASYNC_TO_TAB,
+            payload
+        })
+        expect(nextState.tabs[0].dataSyncSaved).toEqual(payload.data);
+        // 测试state中不存在传入的id
+        payload.id = 2;
+        const anotherState = workbenchReducer(nextState, {
+            type: workbenchAction.SAVE_DATASYNC_TO_TAB,
+            payload
+        })
+        expect(anotherState.tabs).toEqual(nextState.tabs);
+    })
+    test('MAKE_TAB_DIRTY', () => {
+        initialState.tabs = [{
+            id: 1,
+            notSynced: false
+        }, {
+            id: 2,
+            notSynced: false
+        }]
+        initialState.currentTab = 1;
+        const nextState = workbenchReducer(initialState, {
+            type: workbenchAction.MAKE_TAB_DIRTY
+        })
+        expect(nextState.tabs[0].notSynced).toBe(true);
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]);
+    })
+    test('MAKE_TAB_CLEAN', () => {
+        initialState.tabs = [{
+            id: 1,
+            notSynced: true
+        }, {
+            id: 2,
+            notSynced: false
+        }]
+        initialState.currentTab = 1;
+        const nextState = workbenchReducer(initialState, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        })
+        expect(nextState.tabs[0].notSynced).toBeFalsy();
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]);
     })
 })
