@@ -158,6 +158,8 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
         if (!res || (res && res.code != 1)) {
             dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
             dispatch(removeLoadingTab(currentTab))
+            resolve(true)
+            return;
         }
         if (res && res.code === 1) {
             if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
