@@ -105,7 +105,7 @@ class Header extends Component {
             licenseApps={licenseApps}
             {...this.props}
             showHelpSite={true}
-            helpUrl='/public/helpSite/dtinsight-valid/v3.0/01_DTinsightValidHelp_Summary.html'
+            helpUrl='/public/helpSite/dtinsight-valid/v3.0/Summary.html'
         />;
     }
 }
