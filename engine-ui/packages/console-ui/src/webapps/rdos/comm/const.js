@@ -201,10 +201,10 @@ export const TASK_TYPE_ARRAY = [ //
 ]
 
 export const HELP_DOC_URL = {
-    INDEX: '/public/helpSite/dtinsight-batch/v3.0/Summary.html',
-    DATA_SOURCE: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/Overview.html',
-    DATA_SYNC: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/JobConfig.html',
-    TASKPARAMS: '/public/helpSite/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
+    INDEX: '/public/helpSite/batch/v3.0/Summary.html',
+    DATA_SOURCE: '/public/helpSite/batch/v3.0/DataIntegration/Overview.html',
+    DATA_SYNC: '/public/helpSite/batch/v3.0/DataIntegration/JobConfig.html',
+    TASKPARAMS: '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
 }
 export const HADOOPMR_INITIAL_VALUE = {
     'mapper': 'org.apache.hadoop.examples.WordCount$TokenizerMapper',
