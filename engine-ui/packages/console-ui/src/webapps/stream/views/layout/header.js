@@ -350,7 +350,7 @@ class Header extends Component {
                     licenseApps={licenseApps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
-                    helpUrl="/public/helpSite/dtinsight-stream/v3.0/01_DTinsightStreamHelp_Summary.html"
+                    helpUrl="/public/helpSite/stream/v3.0/Summary.html"
                 />
             </div>
         );

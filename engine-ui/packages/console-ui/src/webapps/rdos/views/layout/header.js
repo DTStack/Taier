@@ -468,7 +468,7 @@ class Header extends Component {
                     licenseApps={licenseApps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
-                    helpUrl="/public/helpSite/dtinsight-batch/v3.0/Summary.html"
+                    helpUrl="/public/helpSite/batch/v3.0/Summary.html"
                 />
             </div>
         );

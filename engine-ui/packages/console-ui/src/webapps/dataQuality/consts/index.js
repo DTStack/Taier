@@ -50,7 +50,7 @@ export const CHECK_STATUS = { // 2，4, 5, 6 可查看报告
 }
 
 export const HELP_DOC_URL = {
-    REMOTE: '/public/helpSite/dtinsight-valid/v3.0/05_DTinsightValidHelp_RulesManagement.html#rm_remote'
+    REMOTE: '/public/helpSite/valid/v3.0/RuleManage/Remote.html'
 }
 
 /**
