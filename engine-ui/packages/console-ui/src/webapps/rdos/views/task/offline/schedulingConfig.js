@@ -23,7 +23,7 @@ import ajax from '../../../api';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounceEventHander } from '../../../comm';
-import HelpDoc, { relativeStyle } from '../../helpDoc';
+import HelpDoc from '../../helpDoc';
 import RecommentTaskModal from './recommentTaskModal';
 
 const Panel = Collapse.Panel;
@@ -137,7 +137,6 @@ class ScheduleForm extends React.Component {
                                 onChange={this.changeScheduleConf.bind(this)}
                             >是</Checkbox>
                         )}
-                        <HelpDoc style={relativeStyle} doc="taskFailRetry" />
                     </FormItem>
                     {isFailRetry && (
                         <FormItem
