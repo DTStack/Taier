@@ -568,6 +568,7 @@ class ScheduleForm extends React.Component {
         if (beginHour * 60 + beginMin > endHour) {
             /* eslint-disable-next-line */
             callback('开始时间不能晚于结束时间');
+            return;
         }
         callback();
     }
@@ -580,6 +581,7 @@ class ScheduleForm extends React.Component {
         if (beginHour * 60 + beginMin > endHour) {
             /* eslint-disable-next-line */
             callback('结束时间不能早于开始时间');
+            return;
         }
         callback();
     }
@@ -718,7 +720,7 @@ class SchedulingConfig extends React.Component {
             defaultScheduleConf = this.getDefaultScheduleConf(2);
         }
         setTimeout(() => {
-            this.form.validateFields((err, values) => {
+            this.form.validateFields({ force: true }, (err, values) => {
                 if (!err) {
                     let formData = this.form.getFieldsValue();
                     formData.selfReliance = this.state.selfReliance;
