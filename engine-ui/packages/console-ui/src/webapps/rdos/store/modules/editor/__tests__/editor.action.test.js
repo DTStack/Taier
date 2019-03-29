@@ -129,7 +129,7 @@ describe('editor action', () => {
             }]);
         })
     }
-    function mockMultipleTaskWithPoll (isScript) {
+    function mockMultipleTaskWithPoll (isScript, testStop) {
         let currentTab = 666;
         let task = {
             id: 666
@@ -146,13 +146,34 @@ describe('editor action', () => {
             projectId: 141,
             scriptId: 666
         };
-        pollRespCollection.reduce((mockFunc, value) => {
-            return mockFunc.mockResolvedValueOnce(value)
-        }, api.selectExecResultData)
-        return execSql(currentTab, task, params, [testSqls[1]])(store.dispatch).then((isComplete) => {
+        if (testStop) {
+            let mockFunc = pollRespCollection.slice(0, pollRespCollection.length - 1).reduce((mockFunc, value) => {
+                return mockFunc.mockResolvedValueOnce(value)
+            }, api.selectExecResultData)
+            /**
+             * 这边要延迟返回成功结果，测试停止效果
+             */
+            mockFunc.mockImplementationOnce(() => {
+                return new Promise((resolve, reject) => {
+                    stopSql(currentTab, task, true)(store.dispatch, () => {
+                        return {
+                            editor: {
+                                running: [currentTab]
+                            }
+                        }
+                    })
+                    resolve(pollRespCollection[pollRespCollection.length - 1])
+                })
+            })
+        } else {
+            pollRespCollection.reduce((mockFunc, value) => {
+                return mockFunc.mockResolvedValueOnce(value)
+            }, api.selectExecResultData)
+        }
+        return execSql(currentTab, task, params, testSqls)(store.dispatch).then((isComplete) => {
             expect(isComplete).toBeTruthy();
             const allActions = store.getActions();
-            expect(allActions).toEqual([{
+            let normalExpectActions = [{
                 type: editorAction.ADD_LOADING_TAB,
                 data: {
                     id: currentTab
@@ -202,11 +223,51 @@ describe('editor action', () => {
                 data: `完整日志下载地址：${createLinkMark({ href: pollRespCollection[3].data.download, download: '' })}\n`,
                 key: currentTab
             }, {
+                type: editorAction.APPEND_CONSOLE_LOG,
+                data: createLog(`第2条任务开始执行`, 'info'),
+                key: currentTab
+            }, {
+                type: editorAction.APPEND_CONSOLE_LOG,
+                data: createLog(respWithoutPoll.message, 'error'),
+                key: currentTab
+            }, {
+                type: editorAction.APPEND_CONSOLE_LOG,
+                data: `${createTitle('任务信息')}\n${respWithoutPoll.data.sqlText}\n${createTitle('')}`,
+                key: currentTab
+            }, {
+                type: editorAction.APPEND_CONSOLE_LOG,
+                data: createLog('执行完成!', 'info'),
+                key: currentTab
+            }, {
+                type: editorAction.UPDATE_RESULTS,
+                data: { jobId: undefined, data: respWithoutPoll.data.result },
+                key: currentTab
+            }, {
                 type: editorAction.REMOVE_LOADING_TAB,
                 data: {
                     id: currentTab
                 }
-            }]);
+            }]
+            if (testStop) {
+                normalExpectActions.splice(9, 99999, {
+                    type: editorAction.APPEND_CONSOLE_LOG,
+                    data: createLog('执行停止', 'warning'),
+                    key: currentTab
+                }, {
+                    type: editorAction.REMOVE_LOADING_TAB,
+                    data: {
+                        id: currentTab
+                    }
+                }, {
+                    type: editorAction.REMOVE_LOADING_TAB,
+                    data: {
+                        id: currentTab
+                    }
+                })
+                expect(allActions).toEqual(normalExpectActions);
+            } else {
+                expect(allActions).toEqual(normalExpectActions);
+            }
         })
     }
     test('single script without poll', () => {
@@ -220,5 +281,8 @@ describe('editor action', () => {
     })
     test('multiple job with poll', () => {
         return mockMultipleTaskWithPoll(false)
+    })
+    test('stop job', () => {
+        return mockMultipleTaskWithPoll(false, true)
     })
 });

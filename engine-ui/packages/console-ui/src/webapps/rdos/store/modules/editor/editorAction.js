@@ -59,6 +59,12 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
     }, taskType)
         .then(
             (res) => {
+                if (stopSign[currentTab]) {
+                    console.log('find stop sign in doSelect')
+                    stopSign[currentTab] = false;
+                    resolve(false)
+                    return;
+                }
                 if (res && res.code) {
                     // 获取到返回值
                     if (res && res.message) {
@@ -90,11 +96,6 @@ function doSelect (resolve, dispatch, jobId, currentTab, taskType) {
                             // 正常运行，则再次请求,并记录定时器id
                             intervalsStore[currentTab] = setTimeout(
                                 () => {
-                                    if (stopSign[currentTab]) {
-                                        console.log('find stop sign in doSelect')
-                                        stopSign[currentTab] = false;
-                                        return;
-                                    }
                                     outputStatus(res.data.status, '.....')
                                     doSelect(resolve, dispatch, jobId, currentTab, taskType)
                                 }, INTERVALS
