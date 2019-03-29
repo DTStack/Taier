@@ -90,7 +90,10 @@ export function getLogMark (value) {
  * @param {string} type 日志类型
  */
 export function createLog (log, type = '') {
-    const now = moment().format('HH:mm:ss');
+    let now = moment().format('HH:mm:ss');
+    if (process.env.NODE_ENV == 'test') {
+        now = 'test'
+    }
     return `[${now}] <${type}> ${log}`
 }
 export function createTitle (title = '') {

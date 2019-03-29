@@ -58,7 +58,7 @@ export let pollRespCollection = [
         code: 1,
         data: {
             download: '/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=e5edd8c0&taskType=0',
-            msg: '/api/rdos/download/batch/batchDownload/downloadJobLog?jobId=e5edd8c0&taskType=0',
+            msg: '',
             result: [
                 ['count(1)'],
                 ['0']

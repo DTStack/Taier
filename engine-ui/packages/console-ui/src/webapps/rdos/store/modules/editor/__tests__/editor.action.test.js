@@ -38,19 +38,25 @@ describe('editor action', () => {
         jest.resetAllMocks();
         store.clearActions();
     });
-    test('single script without poll', () => {
+    function mockTaskWithoutPoll (isScript) {
         let currentTab = 666;
         let task = {
-            id: 666,
-            type: TASK_TYPE.SQL
+            id: 666
         };
+        if (isScript) {
+            task.type = TASK_TYPE.SQL
+            api.execScript.mockResolvedValue(respWithoutPoll);
+        } else {
+            task.taskType = TASK_TYPE.SQL
+            api.execSQLImmediately.mockResolvedValue(respWithoutPoll);
+        }
         let params = {
             isCheckDDL: 0,
             projectId: 141,
             scriptId: 666
         };
         let sqls = testSqls.slice(0, 1)
-        api.execScript.mockResolvedValue(respWithoutPoll);
+
         return execSql(currentTab, task, params, sqls)(store.dispatch).then((isComplete) => {
             expect(isComplete).toBeTruthy();
             const allActions = store.getActions();
@@ -87,7 +93,13 @@ describe('editor action', () => {
             }]);
         }).then(() => {
             store.clearActions();
-            api.execScript.mockResolvedValue(errorResp);
+            if (isScript) {
+                task.type = TASK_TYPE.SQL
+                api.execScript.mockResolvedValue(errorResp);
+            } else {
+                task.taskType = TASK_TYPE.SQL
+                api.execSQLImmediately.mockResolvedValue(errorResp);
+            }
             return execSql(currentTab, task, params, sqls)(store.dispatch)
         }).then((isComplete) => {
             expect(isComplete).toBeTruthy();
@@ -116,19 +128,24 @@ describe('editor action', () => {
                 }
             }]);
         })
-    })
-    test('multiple script with poll', () => {
+    }
+    function mockMultipleTaskWithPoll (isScript) {
         let currentTab = 666;
         let task = {
-            id: 666,
-            type: TASK_TYPE.SQL
+            id: 666
         };
+        if (isScript) {
+            task.type = TASK_TYPE.SQL
+            api.execScript.mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
+        } else {
+            task.taskType = TASK_TYPE.SQL
+            api.execSQLImmediately.mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
+        }
         let params = {
             isCheckDDL: 0,
             projectId: 141,
             scriptId: 666
         };
-        api.execScript.mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
         pollRespCollection.reduce((mockFunc, value) => {
             return mockFunc.mockResolvedValueOnce(value)
         }, api.selectExecResultData)
@@ -191,5 +208,17 @@ describe('editor action', () => {
                 }
             }]);
         })
+    }
+    test('single script without poll', () => {
+        return mockTaskWithoutPoll(true)
+    })
+    test('single job without poll', () => {
+        return mockTaskWithoutPoll(false)
+    })
+    test('multiple script with poll', () => {
+        return mockMultipleTaskWithPoll(true)
+    })
+    test('multiple job with poll', () => {
+        return mockMultipleTaskWithPoll(false)
     })
 });
