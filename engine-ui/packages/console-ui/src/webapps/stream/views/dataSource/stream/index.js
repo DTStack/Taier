@@ -19,18 +19,19 @@ class DataSourceManaStream extends Component {
         dataSource: {
             data: []
         },
-        loading: false,
+        sourceTypes: [],
         title: '新增数据源',
+        loading: false,
         status: 'add',
+        currentPage: 1,
+        pageSize: 10,
         source: {},
-        sourceTypes: []
+        name: '',
+        type: undefined
     }
 
     componentDidMount () {
-        this.loadDataSources({
-            pageSize: 10,
-            currentPage: 1
-        })
+        this.loadDataSources()
         this.getSourceTypes();
     }
 
@@ -54,27 +55,29 @@ class DataSourceManaStream extends Component {
         })
     }
 
-    loadDataSources = (params) => {
-        const ctx = this
+    loadDataSources = () => {
+        const { pageSize, currentPage, name, type } = this.state;
         this.setState({ loading: true })
-        const reqParams = Object.assign({
-            pageSize: 10,
-            currentPage: 1
-        }, params)
+        const reqParams = {
+            pageSize,
+            currentPage,
+            name,
+            type
+        }
         Api.streamQueryDataSource(reqParams).then((res) => {
             this.setState({
                 loading: false
             })
             if (res.code === 1) {
-                ctx.setState({ dataSource: res.data })
+                this.setState({ dataSource: res.data })
             }
         })
     }
 
     searchDataSources = (query) => {
-        this.loadDataSources({
+        this.setState({
             name: query
-        })
+        }, this.loadDataSources)
     }
 
     addOrUpdateDataSource = (sourceFormData, formObj, callBack) => {
@@ -133,13 +136,10 @@ class DataSourceManaStream extends Component {
     }
 
     handleTableChange = (pagination, filters) => {
-        const params = {}
-        if (filters.type) {
-            params.type = filters.type[0]
-        }
-        params.currentPage = pagination.current
-        this.setState({ current: pagination.current })
-        this.loadDataSources(params)
+        this.setState({
+            currentPage: pagination.current,
+            type: filters.type && filters.type[0]
+        }, this.loadDataSources);
     }
 
     initEdit = (source) => {
@@ -294,10 +294,11 @@ class DataSourceManaStream extends Component {
     }
 
     render () {
-        const { source, dataSource, sourceTypes } = this.state
+        const { source, dataSource, sourceTypes, currentPage, pageSize } = this.state
         const pagination = {
             total: dataSource.totalCount,
-            defaultPageSize: 10
+            pageSize: pageSize,
+            current: currentPage
         };
         const title = (
             <div>
@@ -316,8 +317,6 @@ class DataSourceManaStream extends Component {
                 onClick={this.openDataSourceModal}
             >新增数据源</Button>
         )
-
-        console.log('dataSource.data', dataSource.data);
         return (
             <div>
                 <div className="shadow rdos-data-source">

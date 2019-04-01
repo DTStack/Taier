@@ -359,3 +359,15 @@
     font-size: 12px;
     margin-left: 25px;
 }
+.required-tip:before{
+    content:"*";
+    color:rgba(255, 0, 0, 0.84  );
+    font-size:12px;
+    position: absolute;
+    left: -12px;
+    top:50%;
+    transform: translateY(-50%);
+}
+.required-tip{
+    position: relative;
+}

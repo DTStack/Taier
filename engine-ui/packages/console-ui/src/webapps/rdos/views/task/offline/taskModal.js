@@ -283,7 +283,7 @@ class TaskForm extends React.Component {
                     )
                 }
                 {
-                    (isDeepLearning || isPython23) && (
+                    (isDeepLearning || isPython23 || isPyTask) && (
                         <FormItem
                             {...formItemLayout}
                             label="参数"
@@ -316,18 +316,6 @@ class TaskForm extends React.Component {
                                     <Radio key={DEAL_MODEL_TYPE.RESOURCE} value={DEAL_MODEL_TYPE.RESOURCE}>资源上传</Radio>
                                     <Radio key={DEAL_MODEL_TYPE.EDIT} value={DEAL_MODEL_TYPE.EDIT}>WEB编辑</Radio>
                                 </RadioGroup>
-                            )}
-                        </FormItem>
-                        <FormItem
-                            {...formItemLayout}
-                            label="参数"
-                            hasFeedback
-                        >
-                            {getFieldDecorator('exeArgs', {
-                                rules: [],
-                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.exeArgs
-                            })(
-                                <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="请输入任务参数" />
                             )}
                         </FormItem>
                     </div>
@@ -405,7 +393,7 @@ class TaskForm extends React.Component {
                                 )}
                             </FormItem>
                         }
-                        {(isMl || isMrTask || isPyTask) && <FormItem
+                        {(isMl || isMrTask) && <FormItem
                             {...formItemLayout}
                             label="参数"
                             hasFeedback

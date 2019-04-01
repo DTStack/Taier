@@ -44,8 +44,16 @@ export const LOCK_TYPE = {
 
 // 资源类型
 export const RESOURCE_TYPE = {
+    0: 'other',
+    OTHER: 0,
+    1: 'jar',
     JAR: 1,
-    PY: 2
+    2: 'py',
+    PY: 2,
+    3: 'zip',
+    ZIP: 3,
+    4: 'egg',
+    EGG: 4
 }
 export const RESOURCE_TYPE_MAP = {
     1: 'jar',

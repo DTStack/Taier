@@ -10,6 +10,7 @@ import FolderPicker from './folderTree';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
+const TextArea = Input.TextArea;
 
 /**
  * TODO 当前的表单逻辑需要重构，目前代码的维护性比较差
@@ -54,7 +55,7 @@ class NormalTaskForm extends React.Component {
             nodePid: value
         });
     }
-    /* eslint-disable */
+
     render () {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
@@ -67,8 +68,8 @@ class NormalTaskForm extends React.Component {
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
         const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning && !isHadoopMR;
-        const exeArgsShow = !isVirtual && !isPython23 && !isDeepLearning;
-        const optionsShow = isDeepLearning || isPython23;
+        const exeArgsShow = !isPyTask && !isVirtual && !isPython23 && !isDeepLearning;
+        const optionsShow = isDeepLearning || isPython23 || isPyTask;
         const couldEdit = isProjectCouldEdit(project, user);
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
@@ -117,7 +118,7 @@ class NormalTaskForm extends React.Component {
                             required: true, message: '请选择关联资源'
                         }],
                         initialValue: taskData.resourceList.length
-                            ? taskData.resourceList[0].id : undefined
+                            ? [taskData.resourceList[0].id] : undefined
                     })(
                         <Input disabled={!couldEdit} type="hidden" />
                     )}
@@ -180,7 +181,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('exeArgs', {
                         initialValue: taskData.exeArgs,
                         rules: [{
-                            required: isHadoopMR ? true : false,
+                            required: !!isHadoopMR,
                             message: '请输入任务参数'
                         }]
                     })(
@@ -220,7 +221,7 @@ class NormalTaskForm extends React.Component {
                     {getFieldDecorator('options', {
                         initialValue: taskData.options
                     })(
-                        <Input disabled={!couldEdit} placeholder="请输入命令行参数" />
+                        <TextArea disabled={!couldEdit} placeholder="请输入命令行参数" />
                     )}
                 </FormItem>
             }
@@ -289,7 +290,7 @@ const NormalTaskFormWrapper = Form.create({
         const { setFieldsValue, taskCustomParams } = props;
 
         // 获取任务自定义参数
-        if (values.exeArgs !== '') {
+        if (values.hasOwnProperty('exeArgs')) {
             values.taskVariables = matchTaskParams(taskCustomParams, values.exeArgs)
         }
         if (values.hasOwnProperty('options')) {

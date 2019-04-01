@@ -85,7 +85,7 @@ class OfflineTaskList extends Component {
         }
     }
 
-    search = () => {
+    getReqParams = () => {
         const {
             jobName, person, taskStatus,
             bussinessDate, businessDateSort, jobType, current,
@@ -130,6 +130,11 @@ class OfflineTaskList extends Component {
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
 
+        return reqParams;
+    }
+
+    search = () => {
+        const reqParams = this.getReqParams();
         this.loadTaskList(reqParams)
     }
 
@@ -274,12 +279,12 @@ class OfflineTaskList extends Component {
                 const id = ids[i]
                 const res = tasks.find(task => task.id === id)
                 if (res && (
-                    res.status === TASK_STATUS.SUBMIT_FAILED ||
-                    res.status === TASK_STATUS.RUN_FAILED ||
-                    res.status === TASK_STATUS.PARENT_FAILD ||
-                    res.status === TASK_STATUS.STOPED ||
-                    res.status === TASK_STATUS.FINISHED ||
-                    res.batchTask.isDeleted === 1
+                    (
+                        res.status !== TASK_STATUS.WAIT_SUBMIT &&
+                        res.status !== TASK_STATUS.SUBMITTING &&
+                        res.status !== TASK_STATUS.WAIT_RUN &&
+                        res.status !== TASK_STATUS.RUNNING
+                    ) || res.batchTask.isDeleted === 1
                 )) return false
             }
             return true
@@ -521,15 +526,12 @@ class OfflineTaskList extends Component {
 
     onExpand = (expanded, record) => {
         if (expanded) {
-            if (record.children && record.children.length) {
-                return;
-            }
             const { tasks } = this.state;
             let newTasks = cloneDeep(tasks);
             const { jobId } = record;
-            Api.getRelatedJobs({
-                jobId
-            }).then((res) => {
+            const reqParams = this.getReqParams();
+            reqParams.jobId = jobId;
+            Api.getRelatedJobs(reqParams).then((res) => {
                 if (res.code == 1) {
                     const index = newTasks.data.findIndex((task) => {
                         return task.jobId == jobId
@@ -584,7 +586,7 @@ class OfflineTaskList extends Component {
 
         return (
             <div>
-                <h1 className="box-title" style={{ lineHeight: '50px' }}>
+                <h1 className="box-title" style={{ lineHeight: 2.5, height: 'auto', padding: '7px 20px' }}>
                     <div style={{ marginTop: '5px' }}>
                         <span className="ope-statistics">
                             <span className="status_overview_count_font">
