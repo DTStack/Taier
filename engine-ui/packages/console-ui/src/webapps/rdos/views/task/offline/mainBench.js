@@ -224,7 +224,7 @@ export default class MainBench extends React.Component {
                             currentTab={tabData.id}
                             currentTabData={tabData} />;
                     } else {
-                        return <NormalTaskForm key={tabData.id} {...tabData} />
+                        return <NormalTaskForm key={tabData.id + '.' + tabData.version} {...tabData} />
                     }
                 case TASK_TYPE.WORKFLOW: {
                     const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;

@@ -6,9 +6,9 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             '/api/dq': {
-                target: 'http://172.16.8.104:8089',
+                // target: 'http://172.16.8.104:8089',
                 // target: "http://172.16.6.135:8089", // tmp server
-                // target: "http://172.16.0.79:8089",
+                target: "http://172.16.10.45:8089",
                 // ignorePath: true,
                 changeOrigin: true,
                 secure: false
@@ -58,7 +58,7 @@ module.exports = {
                 secure: false
             },
             '/api/console': { // 控制台
-                target: 'http://172.16.8.104:8084', // 开发环境
+                target: 'http://172.16.10.34:8084', // 开发环境
                 // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
@@ -72,8 +72,8 @@ module.exports = {
                 secure: false
             },
             '/public/helpSite': { // 分析引擎
-                target: 'http://172.16.8.104', // 开发环境
-                // target: "http://172.16.10.45:9022", // 测试环境
+                // target: 'http://172.16.8.104', // 开发环境
+                target: "http://172.16.10.34", // 测试环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false
