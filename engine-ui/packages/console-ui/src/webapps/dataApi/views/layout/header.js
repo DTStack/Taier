@@ -135,7 +135,7 @@ class Header extends Component {
             licenseApps={licenseApps}
             {...this.props}
             showHelpSite={true}
-            helpUrl="/public/helpSite/dtinsight-api/v3.0/01_DTinsightAPIHelp_Summary.html"
+            helpUrl="/public/helpSite/api/v3.0/01_DTinsightAPIHelp_Summary.html"
         />
     }
 }

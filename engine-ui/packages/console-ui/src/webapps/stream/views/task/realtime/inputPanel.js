@@ -37,6 +37,13 @@ class InputOrigin extends Component {
         let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                const { panelColumn, index } = this.props;
+                const data = panelColumn[index];
+                if (!data.columnsText || !data.columnsText.trim()) {
+                    result.status = false;
+                    result.message = '字段信息不能为空！'
+                    return;
+                }
                 result.status = true;
             } else {
                 result.status = false;
