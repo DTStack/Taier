@@ -299,6 +299,7 @@ public class ActionServiceImpl {
                 RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
                 if(batchJob != null){
                     paramAction.setEngineTaskId(batchJob.getEngineJobId());
+                    paramAction.setApplicationId(batchJob.getApplicationId());
                 }
             }
         }
