@@ -9,7 +9,7 @@
 	<name>engine</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<revision>3.5.2</revision>
+		<revision>3.6.0</revision>
 	</properties>
 
 	<modules>
