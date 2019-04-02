@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
-import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 
 /**
@@ -28,14 +27,4 @@ public class SparkRestartStrategy extends IRestartStrategy {
         return false;
     }
 
-    @Override
-    public boolean checkCanRestart(String jobId,String engineJobId, IClient client,
-                                   Integer alreadyRetryNum, Integer maxRetryNum) {
-        return false;
-    }
-
-    @Override
-    public boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum) {
-        return false;
-    }
 }

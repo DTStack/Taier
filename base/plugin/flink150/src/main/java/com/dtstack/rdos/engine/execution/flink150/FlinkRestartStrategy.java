@@ -37,36 +37,36 @@ public class FlinkRestartStrategy extends IRestartStrategy {
         return false;
     }
 
-    @Override
-    public boolean checkCanRestart(String jobId,String engineJobId, IClient client,
-                                   Integer alreadyRetryNum, Integer maxRetryNum) {
-        String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
-        String msg;
-        try {
-            msg = client.getMessageByHttp(reqURL);
-        } catch (Exception e){
-            msg = null;
-        }
-        return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
-    }
-
-    @Override
-    public boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum) {
-
-        boolean restart = false;
-        if(StringUtils.isNotBlank(msg)){
-            for(String emsg : errorMsgs){
-                if(msg.contains(emsg)){
-                    restart =  true;
-                    break;
-                }
-            }
-        }
-
-        if(restart){
-            return retry(jobId,alreadyRetryNum, maxRetryNum);
-        }else {
-            return false;
-        }
-    }
+//    @Override
+//    public boolean checkCanRestart(String jobId,String engineJobId, IClient client,
+//                                   int alreadyRetryNum, int maxRetryNum) {
+//        String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
+//        String msg;
+//        try {
+//            msg = client.getMessageByHttp(reqURL);
+//        } catch (Exception e){
+//            msg = null;
+//        }
+//        return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
+//    }
+//
+//    @Override
+//    public boolean checkCanRestart(String jobId, String msg, int alreadyRetryNum, int maxRetryNum) {
+//
+//        boolean restart = false;
+//        if(StringUtils.isNotBlank(msg)){
+//            for(String emsg : errorMsgs){
+//                if(msg.contains(emsg)){
+//                    restart =  true;
+//                    break;
+//                }
+//            }
+//        }
+//
+//        if(restart){
+//            return retry(jobId,alreadyRetryNum, maxRetryNum);
+//        }else {
+//            return false;
+//        }
+//    }
 }
