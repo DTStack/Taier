@@ -83,32 +83,38 @@ class ApprovalModal extends React.Component {
             }
         )
     }
+    couldEditUserMsg () {
+        const { data } = this.props;
+        return data.status == API_USER_STATUS.PASS;
+    }
     getModalFooter () {
         const { mode, onCancel, data } = this.props;
-        const disabled = data.status == API_USER_STATUS.REJECT;
-        if (disabled) {
-            return <Button type="primary" onClick={onCancel}>关闭</Button>
-        } else if (mode == 'approval') {
+        const isHanding = data.status == API_USER_STATUS.IN_HAND;
+        const couldEditUserMsg = this.couldEditUserMsg();
+        if (isHanding && mode == 'approval') {
             return (
                 <div>
                     <Button type="danger" onClick={this.sp.bind(this, false)}>拒绝</Button>
                     <Button type="primary" onClick={this.sp.bind(this, true)}>同意</Button>
                 </div>
             )
-        } else {
+        } else if (couldEditUserMsg) {
             return (
                 <div>
                     <Button onClick={onCancel}>取消</Button>
                     <Button type="primary" onClick={this.editSp.bind(this)}>修改</Button>
                 </div>
             );
+        } else {
+            return <Button type="primary" onClick={onCancel}>关闭</Button>
         }
     }
     render () {
         const { spVisible, mode, data = {}, onCancel } = this.props;
         const { getFieldDecorator } = this.props.form;
         const modalTitle = mode == 'view' ? '审批详情' : '授权审批';
-        const disabled = data.status == API_USER_STATUS.REJECT;
+        const isHanding = data.status == API_USER_STATUS.IN_HAND;
+        const couldEditUserMsg = this.couldEditUserMsg();
         return (
             <Modal
                 title={modalTitle}
@@ -131,13 +137,13 @@ class ApprovalModal extends React.Component {
                         {data.applyUserName}
                     </FormItem>
                     <CallCountFormItem
-                        disabled={disabled}
+                        disabled={!couldEditUserMsg}
                         form={this.props.form}
                         formItemLayout={formLayout}
                         initialValue={data.callLimit}
                     />
                     <CallDateRangeFormItem
-                        disabled={disabled}
+                        disabled={!couldEditUserMsg}
                         form={this.props.form}
                         formItemLayout={formLayout}
                         initialValue={data.beginTime ? [moment(data.beginTime), moment(data.endTime)] : []}
@@ -158,7 +164,7 @@ class ApprovalModal extends React.Component {
                                 { max: 200, message: '最大字数不能超过200' }
                             ],
                             initialValue: data.replyContent
-                        })(<TextArea disabled={disabled} style={{ width: 300 }} rows={4} />)
+                        })(<TextArea disabled={!isHanding && !couldEditUserMsg} style={{ width: 300 }} rows={4} />)
                         }
                     </FormItem>
                 </Form>
