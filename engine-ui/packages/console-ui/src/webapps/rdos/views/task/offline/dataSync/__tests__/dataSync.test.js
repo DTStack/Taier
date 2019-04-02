@@ -1,5 +1,5 @@
 // dataSync.test.js 数据同步测试
-import React from 'react';
+// import React from 'react';
 
 // eslint-disable-next-line
 import renderer from 'react-test-renderer';
