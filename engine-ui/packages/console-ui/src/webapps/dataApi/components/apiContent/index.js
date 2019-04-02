@@ -104,7 +104,7 @@ class Content extends Component {
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
-                            <p data-title="申请调用次数：" className="pseudo-title p-line">
+                            <p data-title="支持调用次数：" className="pseudo-title p-line">
                                 {callLimit == -1 ? '无限制' : callLimit}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {
                                     showAdminMsg(apiId)
@@ -112,7 +112,7 @@ class Content extends Component {
                                     申请修改
                                 </a>
                             </p>
-                            <p data-title="申请调用周期：" className="pseudo-title p-line">
+                            <p data-title="支持调用周期：" className="pseudo-title p-line">
                                 {beginTime ? `${moment(beginTime).format('YYYY-MM-DD')} ~ ${moment(endTime).format('YYYY-MM-DD')}` : '无限制'}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {
                                     showAdminMsg(apiId)
