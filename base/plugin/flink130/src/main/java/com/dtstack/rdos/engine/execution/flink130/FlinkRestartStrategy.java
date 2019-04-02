@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.flink130;
 
-import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import org.apache.commons.lang3.StringUtils;
 
@@ -32,17 +31,6 @@ public class FlinkRestartStrategy extends IRestartStrategy {
         if(StringUtils.isNotBlank(msg) && msg.contains(FLINK_NO_RESOURCE_AVAILABLE_EXCEPTION)){
             return true;
         }
-        return false;
-    }
-
-    @Override
-    public boolean checkCanRestart(String jobId, String engineJobId, IClient client,
-                                   Integer alreadyRetryNum, Integer maxRetryNum) {
-        return false;
-    }
-
-    @Override
-    public boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum) {
         return false;
     }
 }
