@@ -11,6 +11,7 @@ export const DL_BASE_URL = '/api/tag/service';
 export const CONSOLE_BASE_URL = '/api/console/service';
 export const CONSOLE_BASE_UPLOAD_URL = '/api/console';
 export const ANALYTICS_ENGINE_BASE_URL = '/api/analysis/service';
+export const SCIENCE_BASE_URL = '/api/science/service';
 
 export const rdosApp = {
     id: 'rdos',
@@ -87,4 +88,14 @@ export const aeApp = {
     enable: true,
     apiBase: '/analytics',
     disableMessage: true // 禁用消息
+}
+
+export const scienceApp = {
+    id: 'science',
+    name: '分析引擎',
+    link: 'science.html#/',
+    filename: 'science.html',
+    target: '_blank',
+    enable: true,
+    apiBase: '/science'
 }

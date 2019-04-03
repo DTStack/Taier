@@ -69,7 +69,7 @@ export function Logo (props) {
 }
 
 export function MenuLeft (props) {
-    const { activeKey, onClick, menuItems, user, licenseApps } = props;
+    const { activeKey, onClick, menuItems, user, licenseApps, customItems = [] } = props;
     return (
         <div className="menu left">
             <Menu
@@ -77,8 +77,8 @@ export function MenuLeft (props) {
                 onClick={onClick}
                 selectedKeys={[activeKey]}
                 mode="horizontal"
-            >
-                {renderATagMenuItems(menuItems, user.isRoot)}
+            >   
+                {customItems.concat(renderATagMenuItems(menuItems, user.isRoot))}
             </Menu>
         </div>
     )
@@ -235,7 +235,7 @@ class Navigator extends Component {
         const {
             user, logo, menuItems,
             settingMenus, apps, app, licenseApps,
-            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
+            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl, customItems
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
@@ -248,6 +248,7 @@ class Navigator extends Component {
                     menuLeft || <MenuLeft
                         user={user}
                         activeKey={current}
+                        customItems={customItems}
                         menuItems={menuItems}
                         licenseApps={licenseApps}
                         onClick={this.handleClick}

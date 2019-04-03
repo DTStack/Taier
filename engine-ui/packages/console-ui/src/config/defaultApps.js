@@ -83,6 +83,17 @@ module.exports = [
         description: '快速生成规则标签，提供便捷、统一标签服务管理',
         className: ''
     }, {
+        id: 'science',
+        name: '算法平台',
+        link: 'science.html#/',
+        filename: 'science.html',
+        target: '_self',
+        enable: true,
+        apiBase: '/science',
+        icon: '/public/main/img/icon_5.png',
+        description: '我的梦想是成为一个科学家',
+        className: 'icon_dropdown_api'
+    }, {
         id: 'console',
         name: '控制台',
         link: 'console.html#/',
