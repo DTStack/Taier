@@ -34,6 +34,7 @@ public class ClientArguments {
     int psNum;
     int appMem;
     String[] files;
+    Boolean algFile;
 //    Configuration remoteConf;
     String[] libJars;
     String launchCmd;
@@ -338,6 +339,7 @@ public class ClientArguments {
         appMem = DtYarnConfiguration.DEFAULT_LEARNING_APP_MEMORY;
         pythonVersion = DtYarnConfiguration.DEFAULT_LEARNING_PYTHON_VERSION;
         files = null;
+        algFile = null;
         cacheFiles = "";
         libJars = null;
         launchCmd = "";
@@ -383,6 +385,9 @@ public class ClientArguments {
 
         allOptions.addOption("files", "files", true,
                 "Location of the XLearning files used in container");
+        allOptions.addOption("algFile", "algFile", false,
+                "the files is or not a algorithm file");
+
         allOptions.addOption("jars", "jars", true,
                 "Location of the XLearning lib jars used in container");
 
@@ -524,6 +529,10 @@ public class ClientArguments {
 
         if (commandLine.hasOption(CliOptions.OPT_FILES)) {
             files = StringUtils.split(commandLine.getOptionValue(CliOptions.OPT_FILES), ",");
+        }
+
+        if (commandLine.hasOption(CliOptions.OPT_ALG_FILES)) {
+            algFile = Boolean.parseBoolean(commandLine.getOptionValue(CliOptions.OPT_ALG_FILES));
         }
 
 //        if (commandLine.hasOption(CliOptions.OPT_REMOTE_DFS_CONFIG)) {

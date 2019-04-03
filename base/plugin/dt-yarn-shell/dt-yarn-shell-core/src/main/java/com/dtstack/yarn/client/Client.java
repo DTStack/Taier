@@ -171,7 +171,7 @@ public class Client {
             classPathEnv.append(cp.trim());
         }
 
-        if (clientArguments.files != null) {
+        if (clientArguments.algFile == Boolean.FALSE && clientArguments.files != null) {
             StringBuffer appFilesRemotePath = new StringBuffer(1000);
             Path[] xlearningFilesDst = new Path[clientArguments.files.length];
             LOG.info("Copy dtyarnshell files from local filesystem to remote.");

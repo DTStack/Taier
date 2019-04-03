@@ -8,3 +8,5 @@ target/
 .classpath
 .vertx/
 etc
+/tmpHadoopConf/
+/conf/node.yml
