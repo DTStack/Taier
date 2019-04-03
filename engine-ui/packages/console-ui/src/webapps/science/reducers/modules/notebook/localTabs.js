@@ -1,18 +1,18 @@
 
-import { experimentTabType } from '../../../consts/actionType/tabType';
+import { notebookTabType } from '../../../consts/actionType/tabType';
 import { saveReducer } from '../../helper'
 function localTabs (state = [], action) {
     const { type, payload } = action;
     switch (type) {
-        case experimentTabType.ADD_TAB: {
+        case notebookTabType.ADD_TAB: {
             return [...state, payload];
         }
-        case experimentTabType.DELETE_TAB: {
+        case notebookTabType.DELETE_TAB: {
             return state.filter((tab) => {
                 return tab.id != payload
             })
         }
-        case experimentTabType.CHANGE_TAB: {
+        case notebookTabType.CHANGE_TAB: {
             const index = state.findIndex((tab) => {
                 return tab.id == payload.id
             });
@@ -21,7 +21,7 @@ function localTabs (state = [], action) {
             }
             return state;
         }
-        case experimentTabType.DELETE_ALL_TAB: {
+        case notebookTabType.DELETE_ALL_TAB: {
             return [];
         }
         default: {
@@ -30,4 +30,4 @@ function localTabs (state = [], action) {
     }
 }
 
-export default saveReducer('experimentLocalTabs', localTabs);
+export default saveReducer('notebookLocalTabs', localTabs);

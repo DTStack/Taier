@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import actionType from '../../../consts/actionType/projectType'
+import { saveReducer } from '../../helper';
 function projectList (state = [], action) {
     const { type, payload } = action;
     switch (type) {
@@ -26,5 +27,5 @@ function currentProject (state = null, action) {
 
 export default combineReducers({
     projectList,
-    currentProject
+    currentProject: saveReducer('currentProject', currentProject)
 });

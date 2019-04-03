@@ -15,10 +15,9 @@ const { Content } = Layout;
 
 @connect(
     state => {
-        const { workbench, modal } = state;
+        const { modal } = state;
         return {
-            modal,
-            mainBench: workbench.mainBench
+            modal
         };
     },
     dispatch => {

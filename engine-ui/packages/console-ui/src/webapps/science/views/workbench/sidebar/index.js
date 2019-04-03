@@ -22,10 +22,8 @@ const Search = Input.Search;
 
 @connect(
     state => {
-        const { folderTree } = state.workbench;
         return {
-            routing: state.routing,
-            folderTree
+            routing: state.routing
         }
     },
     dispatch => {

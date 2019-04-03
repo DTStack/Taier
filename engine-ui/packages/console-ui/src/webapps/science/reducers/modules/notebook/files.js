@@ -1,16 +1,16 @@
 
-import { experimentFilesType } from '../../../consts/actionType/filesType';
+import { notebookFilesType } from '../../../consts/actionType/filesType';
 import { updateTreeNode, replaceTreeNode } from '../../helper';
 function files (state = [], action) {
     const { type, payload } = action;
     switch (type) {
-        case experimentFilesType.UPDATE_TREE_NODE: {
+        case notebookFilesType.UPDATE_TREE_NODE: {
             return updateTreeNode(state, payload) || state;
         }
-        case experimentFilesType.REPLACE_TREE_NODE: {
+        case notebookFilesType.REPLACE_TREE_NODE: {
             return replaceTreeNode(state, payload) || state;
         }
-        case experimentFilesType.INIT_TREE: {
+        case notebookFilesType.INIT_TREE: {
             return payload;
         }
         default: {

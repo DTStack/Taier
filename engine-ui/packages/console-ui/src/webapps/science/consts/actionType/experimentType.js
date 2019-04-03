@@ -1,0 +1,9 @@
+import mc from 'mirror-creator';
+
+export default mc([
+    'ADD_TAB', // 添加tab
+    'DELETE_TAB', // 删除tab
+    'CHANGE_TAB', // 更改tab内容
+    'DELETE_ALL_TAB', // 删除所有tab
+    'SET_CURRENT_TAB' // 设置当前的tab
+], { prefix: 'experiment/' });
