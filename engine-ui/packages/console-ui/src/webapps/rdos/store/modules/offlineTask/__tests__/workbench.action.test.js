@@ -308,10 +308,292 @@ describe('workbenchActions', () => {
         expect(api.getOfflineTaskDetail).toHaveBeenCalled();
         expect(nextActions).toEqual(expectedActions);
     })
-    test('saveTab', () => {
-        // todo
+    test('saveTab when type is task and lockStatus equals to 0', async () => {
+        const argument = {
+            params: {
+                readWriteLockVO: {
+                    version: 1
+                }
+            },
+            isSave: true,
+            type: 'task',
+            isButtonSubmit: true
+        }
+        const task = {
+            readWriteLockVO: {
+                result: 0
+            },
+            name: 'test',
+            version: 'v1.0.0'
+        }
+        const response = { data: task, code: 1 };
+        const expectedActions = [{
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload: {
+                version: task.version,
+                readWriteLockVO: task.readWriteLockVO
+            }
+        }, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }]
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.saveOfflineJobData
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        // 测试请求失败
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        let nextActions = store.getActions();
+        expect(nextActions).toEqual([]);
+        // 测试请求成功
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        nextActions = store.getActions();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+        expect(messageSuccess).toHaveBeenCalled();
     })
-
+    test('saveTab when type is task and lockStatus equals to 1', async () => {
+        const argument = {
+            params: {
+                readWriteLockVO: {
+                    version: 1
+                }
+            },
+            isSave: true,
+            type: 'task',
+            isButtonSubmit: true
+        }
+        const task = {
+            readWriteLockVO: {
+                result: 1
+            },
+            name: 'test',
+            version: 'v1.0.0'
+        }
+        const response = { data: task, code: 1 };
+        const expectedActions = [{
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload: {
+                version: task.version,
+                readWriteLockVO: task.readWriteLockVO
+            }
+        }, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }]
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.saveOfflineJobData
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        api.forceUpdateOfflineTask
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        // 测试请求失败
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        let nextActions = store.getActions();
+        expect(api.forceUpdateOfflineTask).toHaveBeenCalled();
+        expect(nextActions).toEqual([]);
+        // 测试请求成功
+        document.getElementsByTagName('html')[0].innerHTML = ''; // 清除dom元素
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        nextActions = store.getActions();
+        expect(api.forceUpdateOfflineTask).toHaveBeenCalled();
+        expect(messageSuccess).toHaveBeenCalled();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+    })
+    test('saveTab when type is task and lockStatus equals to 2', async () => {
+        const argument = {
+            params: {
+                readWriteLockVO: {
+                    version: 1
+                }
+            },
+            isSave: true,
+            type: 'task',
+            isButtonSubmit: true
+        }
+        const task = {
+            readWriteLockVO: {
+                result: 2
+            },
+            name: 'test',
+            version: 'v1.0.0'
+        }
+        const response = { data: task, code: 1 };
+        const expectedActions = [{
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload: {
+                ...task,
+                merged: true
+            }
+        }, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }]
+        api.saveOfflineJobData
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        api.getOfflineTaskDetail
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        // 测试请求失败
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        let nextActions = store.getActions();
+        expect(api.getOfflineTaskDetail).toHaveBeenCalled();
+        expect(nextActions).toEqual([]);
+        // 测试请求成功
+        document.getElementsByTagName('html')[0].innerHTML = ''; // 清除dom元素
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        nextActions = store.getActions();
+        expect(api.getOfflineTaskDetail).toHaveBeenCalled();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+    })
+    test('saveTab when type is script and lockStatus equals to 0', async () => {
+        const argument = {
+            params: {
+                readWriteLockVO: {
+                    version: 1
+                }
+            },
+            isSave: true,
+            type: 'script',
+            isButtonSubmit: true
+        }
+        const task = {
+            readWriteLockVO: {
+                result: 0
+            },
+            name: 'test',
+            version: 'v1.0.0'
+        }
+        const response = { data: task, code: 1 };
+        const expectedActions = [{
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload: {
+                version: task.version,
+                readWriteLockVO: task.readWriteLockVO
+            }
+        }, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }]
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.saveScript
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        // 测试请求失败
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        let nextActions = store.getActions();
+        expect(nextActions).toEqual([]);
+        // 测试请求成功
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        nextActions = store.getActions();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+        expect(messageSuccess).toHaveBeenCalled();
+    })
+    test('saveTab when type is script and lockStatus equals to 1', async () => {
+        const argument = {
+            params: {
+                readWriteLockVO: {
+                    version: 1
+                }
+            },
+            isSave: true,
+            type: 'script',
+            isButtonSubmit: true
+        }
+        const task = {
+            readWriteLockVO: {
+                result: 1
+            },
+            name: 'test',
+            version: 'v1.0.0'
+        }
+        const response = { data: task, code: 1 };
+        const expectedActions = [{
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload: {
+                version: task.version,
+                readWriteLockVO: task.readWriteLockVO
+            }
+        }, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }]
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.saveScript
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        api.forceUpdateOfflineScript
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        // 测试请求失败
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        let nextActions = store.getActions();
+        expect(api.forceUpdateOfflineScript).toHaveBeenCalled();
+        expect(nextActions).toEqual([]);
+        // 测试请求成功
+        document.getElementsByTagName('html')[0].innerHTML = ''; // 清除dom元素
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        nextActions = store.getActions();
+        expect(api.forceUpdateOfflineScript).toHaveBeenCalled();
+        expect(messageSuccess).toHaveBeenCalled();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+    })
+    test('saveTab when type is script and lockStatus equals to 2', async () => {
+        const argument = {
+            params: {
+                readWriteLockVO: {
+                    version: 1
+                }
+            },
+            isSave: true,
+            type: 'script',
+            isButtonSubmit: true
+        }
+        const task = {
+            readWriteLockVO: {
+                result: 2
+            },
+            name: 'test',
+            version: 'v1.0.0'
+        }
+        const response = { data: task, code: 1 };
+        const expectedActions = [{
+            type: workbenchAction.SET_TASK_FIELDS_VALUE,
+            payload: {
+                ...task,
+                merged: true
+            }
+        }, {
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }]
+        api.saveScript
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        api.getScriptById
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+        // 测试请求失败
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        let nextActions = store.getActions();
+        expect(api.getScriptById).toHaveBeenCalled();
+        expect(nextActions).toEqual([]);
+        // 测试请求成功
+        document.getElementsByTagName('html')[0].innerHTML = ''; // 清除dom元素
+        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
+        await $('.ant-btn-danger')[0].click()
+        nextActions = store.getActions();
+        expect(api.getScriptById).toHaveBeenCalled();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+    })
     test('openTab when currentTab equals to id and id exists in tabs', async () => {
         const data = {
             id: 2,
@@ -330,14 +612,13 @@ describe('workbenchActions', () => {
             tabs: [{
                 id: 2
             }],
-            currentTab: 2
+            currentTab: 1
         }
         let expectedActions = [{
             type: workbenchAction.OPEN_TASK_TAB,
             payload: data.id
         }]
         // isExist === true && id !== currentTab
-        data.currentTab = 1;
         await actions.openTab(data);
         const nextActions = store.getActions();
         expect(nextActions).toEqual(expect.arrayContaining(expectedActions))

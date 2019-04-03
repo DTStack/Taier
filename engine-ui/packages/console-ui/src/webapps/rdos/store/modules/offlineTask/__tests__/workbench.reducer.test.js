@@ -47,28 +47,57 @@ describe('workbench reducer', () => {
         expect(nextState.currentTab).toEqual(payload.id);
     })
     /**
+     * @description
+     */
+    test('LOAD_TASK_CUSTOM_PARAMS', () => {
+        const payload = { name: 'test' };
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.LOAD_TASK_CUSTOM_PARAMS,
+            payload
+        })
+        expect(nextState).toEqual({
+            ...initialState,
+            taskCustomParams: payload
+        });
+    })
+    /**
+     * @description
+     */
+    test('OPEN_TASK_TAB', () => {
+        const payload = 1;
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.OPEN_TASK_TAB,
+            payload
+        })
+        expect(nextState).toEqual({
+            ...initialState,
+            currentTab: payload
+        });
+    })
+    /**
      * @description 测试关闭某一个任务
      */
     test('CLOSE_TASK_TAB', () => {
         // 当前state中不存在需要关闭的task
         let payload = { id: 3 };
-        initialState.tabs = [{ id: 1 }, { id: 2 }, { id: 10 }];
-        initialState.currentTab = 1;
+        initialState.tabs = [{ id: 2 }, { id: 10 }];
+        initialState.currentTab = 10;
+        // 需要关闭的tabid不在tabs中
         let nextState = workbenchReducer(initialState, {
             type: workbenchAction.CLOSE_TASK_TAB,
             payload: payload.id
         })
         expect(nextState).toEqual(initialState);
         // 当前state中存在需要关闭的task，并且就是当前的task
-        payload = { id: 1 };
+        payload = { id: 10 };
         nextState = workbenchReducer(nextState, {
             type: workbenchAction.CLOSE_TASK_TAB,
             payload: payload.id
         })
         expect(nextState.tabs).not.toContain(payload);
         expect(nextState.currentTab).toEqual(2);
-        // 当前state中存在需要关闭的task，却不是当前的task
-        payload = { id: 10 };
+        // 当前state的tabs中只有一个tab
+        payload = { id: 2 };
         nextState = workbenchReducer(nextState, {
             type: workbenchAction.CLOSE_TASK_TAB,
             payload: payload.id
@@ -81,7 +110,7 @@ describe('workbench reducer', () => {
      */
     test('CLOSE_ALL_TABS', () => {
         let nextState = workbenchReducer(initialState, {
-            type: workbenchAction.CLOSE_TASK_TAB
+            type: workbenchAction.CLOSE_ALL_TABS
         })
         expect(nextState.tabs).toEqual([]);
         expect(nextState.currentTab).toBeUndefined()
@@ -133,7 +162,7 @@ describe('workbench reducer', () => {
         expect(nextState.tabs[0].notSynced).toBe(true);
         // 测试调度周期为月
         scheduleConf = {
-            'day': '5,6',
+            'day': [5, 6],
             'hour': '0',
             'min': '23',
             'periodType': '4',
@@ -366,6 +395,28 @@ describe('workbench reducer', () => {
         expect(nextState.tabs[0].notSynced).toBe(false);
         expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
     })
+    test('SET_TASK_FIELDS_VALUE_SILENT', () => {
+        initialState.tabs = [{
+            id: 1,
+            sqlText: 'test',
+            notSynced: false
+        }, {
+            id: 2,
+            sqlText: 'test',
+            notSynced: false
+        }]
+        initialState.currentTab = 1;
+        const payload = {
+            sqlText: 'fieldsValuesSilent'
+        }
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.SET_TASK_FIELDS_VALUE_SILENT,
+            payload
+        })
+        expect(nextState.tabs[0].sqlText).toEqual(payload.sqlText);
+        expect(nextState.tabs[0].notSynced).toBe(true);
+        expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
     /**
      * @description 测试修改sql任务的值
      */
@@ -390,6 +441,24 @@ describe('workbench reducer', () => {
         expect(nextState.tabs[0].sqlText).toEqual(payload.sqlText);
         expect(nextState.tabs[0].notSynced).toBe(true);
         expect(nextState.tabs[1]).toEqual(initialState.tabs[1]); // 不是当前的tab不变
+    })
+    /**
+     * @description
+     */
+    test('SET_CURRENT_TAB_NEW', () => {
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.SET_CURRENT_TAB_NEW
+        })
+        expect(nextState.isCurrentTabNew).toBe(true);
+    })
+    /**
+     * @description
+     */
+    test('SET_CURRENT_TAB_SAVED', () => {
+        let nextState = workbenchReducer(initialState, {
+            type: workbenchAction.SET_CURRENT_TAB_SAVED
+        })
+        expect(nextState.isCurrentTabNew).toBeUndefined();
     })
     /**
      * @description 测试保存数据同步
