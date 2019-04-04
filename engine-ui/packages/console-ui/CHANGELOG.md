@@ -2,6 +2,75 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0"></a>
+# [3.6.0](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.5.2...3.6.0) (2019-04-04)
+
+
+### Bug Fixes
+
+* **analytics:** centered createTable form ([8cfa5ec](http://git.dtstack.cn/dtstack/data-stack-web/commits/8cfa5ec))
+* **api:** fill market page ([feffe89](http://git.dtstack.cn/dtstack/data-stack-web/commits/feffe89)), closes [#14920](http://redmine.prod.dtstack.cn/issues/14920) [#14921](http://redmine.prod.dtstack.cn/issues/14921)
+* **api:** fix approval edit bug ([8df8482](http://git.dtstack.cn/dtstack/data-stack-web/commits/8df8482))
+* **api:** fix my api style ([0ec5326](http://git.dtstack.cn/dtstack/data-stack-web/commits/0ec5326))
+* **api:** fix regexp ([2912383](http://git.dtstack.cn/dtstack/data-stack-web/commits/2912383))
+* **data sync:** disable run button before save dataSync or unlock task ([cc386cf](http://git.dtstack.cn/dtstack/data-stack-web/commits/cc386cf)), closes [#14965](http://redmine.prod.dtstack.cn/issues/14965)
+* **merge:** fix merge code ([6773f5d](http://git.dtstack.cn/dtstack/data-stack-web/commits/6773f5d))
+* **merge:** merge ([c359fbd](http://git.dtstack.cn/dtstack/data-stack-web/commits/c359fbd))
+* **merge:** merge 3.4.3 ([b392ac7](http://git.dtstack.cn/dtstack/data-stack-web/commits/b392ac7))
+* **merge:** merge dev ([fc377e4](http://git.dtstack.cn/dtstack/data-stack-web/commits/fc377e4))
+* **navigator:** add setting menu icons ([8063145](http://git.dtstack.cn/dtstack/data-stack-web/commits/8063145))
+* **navigator:** change the style of dropdown menu ([5e0220d](http://git.dtstack.cn/dtstack/data-stack-web/commits/5e0220d))
+* **navigator:** modify dropdown style ([11734c0](http://git.dtstack.cn/dtstack/data-stack-web/commits/11734c0))
+* **navigator:** optimization code ([3234400](http://git.dtstack.cn/dtstack/data-stack-web/commits/3234400))
+* **rdos:** add confirm before kill all jobs ([fe616bd](http://git.dtstack.cn/dtstack/data-stack-web/commits/fe616bd))
+* **rdos:** add helpdoc ([6b52fe8](http://git.dtstack.cn/dtstack/data-stack-web/commits/6b52fe8))
+* **rdos:** add partition in completeItem ([a2ce76e](http://git.dtstack.cn/dtstack/data-stack-web/commits/a2ce76e)), closes [#14870](http://redmine.prod.dtstack.cn/issues/14870)
+* **rdos:** add sourcemap case ([ab648d9](http://git.dtstack.cn/dtstack/data-stack-web/commits/ab648d9))
+* **rdos:** add workflow case of taskmodal ([78505e0](http://git.dtstack.cn/dtstack/data-stack-web/commits/78505e0))
+* **rdos:** change the text of projects list ([8d578b4](http://git.dtstack.cn/dtstack/data-stack-web/commits/8d578b4))
+* **rdos:** change the tip of killing jobs in batch ([6fea85b](http://git.dtstack.cn/dtstack/data-stack-web/commits/6fea85b))
+* **rdos:** fix create task modal bug ([38813d6](http://git.dtstack.cn/dtstack/data-stack-web/commits/38813d6)), closes [#14903](http://redmine.prod.dtstack.cn/issues/14903)
+* **rdos:** fix create task modal savepath bug ([fdd2295](http://git.dtstack.cn/dtstack/data-stack-web/commits/fdd2295))
+* **rdos:** fix datasync change bug ([adc37b2](http://git.dtstack.cn/dtstack/data-stack-web/commits/adc37b2)), closes [#14731](http://redmine.prod.dtstack.cn/issues/14731)
+* **rdos:** fix edit task bug ([078f40d](http://git.dtstack.cn/dtstack/data-stack-web/commits/078f40d))
+* **rdos:** fix retry bug ([688fbbf](http://git.dtstack.cn/dtstack/data-stack-web/commits/688fbbf))
+* **rdos:** fix taskmodal treenode bug ([30c4aa2](http://git.dtstack.cn/dtstack/data-stack-web/commits/30c4aa2)), closes [#14860](http://redmine.prod.dtstack.cn/issues/14860)
+* uic test address ([b111a07](http://git.dtstack.cn/dtstack/data-stack-web/commits/b111a07))
+* **rdos:** fix tasktypes cannot see in slow network ([9a4137f](http://git.dtstack.cn/dtstack/data-stack-web/commits/9a4137f))
+* **rdos:** remove the functional explanation of failure-retry ([4e8753b](http://git.dtstack.cn/dtstack/data-stack-web/commits/4e8753b))
+* **rdos:** remove workflow retry item ([c511410](http://git.dtstack.cn/dtstack/data-stack-web/commits/c511410)), closes [#14908](http://redmine.prod.dtstack.cn/issues/14908)
+* **rdos:** set different key of operatemodel ([4ea0df3](http://git.dtstack.cn/dtstack/data-stack-web/commits/4ea0df3)), closes [#15022](http://redmine.prod.dtstack.cn/issues/15022)
+* **stream & rdos:** allow filter by alias name ([485831a](http://git.dtstack.cn/dtstack/data-stack-web/commits/485831a))
+
+
+### Features
+
+* **api:** add app key support ([c3ad7ef](http://git.dtstack.cn/dtstack/data-stack-web/commits/c3ad7ef))
+* **api:** change label of content ([e35a87e](http://git.dtstack.cn/dtstack/data-stack-web/commits/e35a87e)), closes [#15037](http://redmine.prod.dtstack.cn/issues/15037)
+* **api:** change view of create api detail ([0e2ddd7](http://git.dtstack.cn/dtstack/data-stack-web/commits/0e2ddd7)), closes [#14865](http://redmine.prod.dtstack.cn/issues/14865)
+* **api:** get key, reset key, generate key ([b772028](http://git.dtstack.cn/dtstack/data-stack-web/commits/b772028))
+* **api:** remove api token ([a917525](http://git.dtstack.cn/dtstack/data-stack-web/commits/a917525))
+* **api:** show api id ([990795c](http://git.dtstack.cn/dtstack/data-stack-web/commits/990795c)), closes [#14864](http://redmine.prod.dtstack.cn/issues/14864)
+* **console:** add new params in killing tasks in batch ([b930ccc](http://git.dtstack.cn/dtstack/data-stack-web/commits/b930ccc))
+* **console:** add the interface about kill tasks in batches ([0f60e61](http://git.dtstack.cn/dtstack/data-stack-web/commits/0f60e61))
+* **console:** allow kill tasks in batch ([d86d5bd](http://git.dtstack.cn/dtstack/data-stack-web/commits/d86d5bd))
+* **console:** can batch kill tasks ([bf5dd58](http://git.dtstack.cn/dtstack/data-stack-web/commits/bf5dd58))
+* **rdos:** add custom config of datasync ([65c5322](http://git.dtstack.cn/dtstack/data-stack-web/commits/65c5322)), closes [#14374](http://redmine.prod.dtstack.cn/issues/14374)
+* **rdos:** add datasource link ([b396c67](http://git.dtstack.cn/dtstack/data-stack-web/commits/b396c67))
+* **rdos:** add json validator ([9807790](http://git.dtstack.cn/dtstack/data-stack-web/commits/9807790))
+* **rdos:** add maxRetryNum ([0a8c43c](http://git.dtstack.cn/dtstack/data-stack-web/commits/0a8c43c))
+* **rdos:** add new task ([547ea7b](http://git.dtstack.cn/dtstack/data-stack-web/commits/547ea7b))
+* **rdos:** add retry count ([2a1c658](http://git.dtstack.cn/dtstack/data-stack-web/commits/2a1c658))
+* **rdos:** add welcome page ([0715bd3](http://git.dtstack.cn/dtstack/data-stack-web/commits/0715bd3))
+* **rdos:** can search projects by keyword ([c15ec8d](http://git.dtstack.cn/dtstack/data-stack-web/commits/c15ec8d))
+* **rdos:** support kill tasks by business date ([8d2783b](http://git.dtstack.cn/dtstack/data-stack-web/commits/8d2783b))
+* **rdos:** tmp ([9ec63ed](http://git.dtstack.cn/dtstack/data-stack-web/commits/9ec63ed))
+* **stream:** allow Oracle when add a new data source ([177385e](http://git.dtstack.cn/dtstack/data-stack-web/commits/177385e))
+* **stream:** allow Oracle when add a new data source ([1acf047](http://git.dtstack.cn/dtstack/data-stack-web/commits/1acf047))
+* **stream:** can search projects by keyword ([71c0bfd](http://git.dtstack.cn/dtstack/data-stack-web/commits/71c0bfd))
+
+
+
 <a name="3.5.2"></a>
 ## [3.5.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.3.11...3.5.2) (2019-04-01)
 
