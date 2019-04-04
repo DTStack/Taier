@@ -27,7 +27,7 @@ public class Python3Type extends AppType {
                 String[] parts = fullPath.split("/");
                 execFile = parts[parts.length - 1];
             }
-            return cmdPrefix(conf) + " " + execFile + " " + encodedOpts;
+            return cmdPrefix(conf) + " " + execFile;
         }
     }
 
