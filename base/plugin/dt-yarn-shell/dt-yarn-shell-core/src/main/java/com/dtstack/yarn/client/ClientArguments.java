@@ -3,6 +3,7 @@ package com.dtstack.yarn.client;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.JobPriority;
+import com.dtstack.yarn.common.type.DummyType;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -334,7 +335,7 @@ public class ClientArguments {
 
     private void init() {
         appName = "";
-        appType = AppType.fromString("");
+        appType = new DummyType();
         amMem = DtYarnConfiguration.DEFAULT_LEARNING_AM_MEMORY;
         amCores = DtYarnConfiguration.DEFAULT_LEARNING_AM_CORES;
         workerMemory = DtYarnConfiguration.DEFAULT_LEARNING_WORKER_MEMORY;
@@ -535,7 +536,7 @@ public class ClientArguments {
         }
 
         if (commandLine.hasOption(CliOptions.OPT_ALG_FILES)) {
-            algFile = Boolean.parseBoolean(commandLine.getOptionValue(CliOptions.OPT_ALG_FILES));
+            algFile = Boolean.TRUE;
         }
 
 //        if (commandLine.hasOption(CliOptions.OPT_REMOTE_DFS_CONFIG)) {
