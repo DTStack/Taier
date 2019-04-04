@@ -34,7 +34,7 @@ public class ClientArguments {
     int psNum;
     int appMem;
     String[] files;
-    Boolean algFile;
+    Boolean algFile = false;
 //    Configuration remoteConf;
     String[] libJars;
     String launchCmd;
@@ -155,7 +155,11 @@ public class ClientArguments {
         this.files = files;
     }
 
-//    public Configuration getRemoteConf() {
+    public Boolean getAlgFile() {
+        return algFile;
+    }
+
+    //    public Configuration getRemoteConf() {
 //        return remoteConf;
 //    }
 //
