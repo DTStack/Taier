@@ -465,7 +465,7 @@ class ManageBasicProperties extends Component {
                                     {getFieldDecorator('originalHost', {
                                         rules: [
                                             { required: true, message: '请输入后端 Host' },
-                                            { pattern: new RegExp(/^(http|https):\/\/[\w|.|-|:]+$/), message: '请填写正确的host' }],
+                                            { pattern: new RegExp(/^(http|https):\/\/[\w|.|\-|:]+$/), message: '请填写正确的host' }],
                                         initialValue: this.props.originalHost
                                     })(
                                         <Input placeholder='http(s)://host:port' style={{ width: '85%' }} />
