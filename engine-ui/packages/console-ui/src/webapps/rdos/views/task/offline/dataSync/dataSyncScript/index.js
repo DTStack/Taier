@@ -103,6 +103,9 @@ class DataSyncScript extends Component {
     render () {
         const { taskCustomParams, id, sqlText, currentTabData, project, user } = this.props;
         const couldEdit = isProjectCouldEdit(project, user);
+        const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
+        const unSave = currentTabData.notSynced; // 未保存的同步任务无法运行
+
         return (
             <CommonEditor
                 mode="json"
@@ -115,6 +118,7 @@ class DataSyncScript extends Component {
                     enableRun: true,
                     enableFormat: couldEdit,
                     disableEdit: !couldEdit,
+                    disableRun: isLocked || unSave,
                     onRun: this.onRun,
                     onStop: this.onStop,
                     onFormat: this.onFormat.bind(this),
