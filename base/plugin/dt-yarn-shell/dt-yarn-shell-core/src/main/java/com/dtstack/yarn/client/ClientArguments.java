@@ -343,7 +343,6 @@ public class ClientArguments {
         appMem = DtYarnConfiguration.DEFAULT_LEARNING_APP_MEMORY;
         pythonVersion = DtYarnConfiguration.DEFAULT_LEARNING_PYTHON_VERSION;
         files = null;
-        algFile = null;
         cacheFiles = "";
         libJars = null;
         launchCmd = "";
