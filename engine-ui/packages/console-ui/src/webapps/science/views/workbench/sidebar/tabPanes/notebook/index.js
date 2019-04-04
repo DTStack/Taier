@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
-import { message } from 'antd';
+import { message, Icon } from 'antd';
 
 import utils from 'utils';
 import CopyUtils from 'utils/copy';
 
+import MyIcon from '../../../../../components/icon';
 import ToolBar from '../../toolbar';
 import FolderTree from '../../folderTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
@@ -129,29 +130,94 @@ class NotebookSidebar extends Component {
             <div>
                 {!files.length ? (
                     <FolderTree
-                        targetClassName='anchor-database'
                         loadData={this.asynLoadCatalogue}
                         onSelect={this.onNodeSelect}
                         onExpand={this.onExpand}
                         expandedKeys={this.state.expandedKeys}
                         selectedKeys={this.state.selectedKeys}
+                        renderNodeHoverButton={(item) => {
+                            if (item.type == 'file') {
+                                return (
+                                    <span className="tree-node-hover-items">
+                                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
+                                            title="SQL查询"
+                                            style={{ width: 15, height: 15 }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                console.log(item);
+                                            }}
+                                        />
+                                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                console.log({ databaseId: item.id });
+                                            }
+                                            }
+                                        />
+                                    </span>
+                                )
+                            }
+                            return null;
+                        }}
                         treeData={[{
                             id: 1,
-                            name: 'hhh',
+                            name: 'folder1',
                             type: 'folder',
-                            children: null
+                            children: [{
+                                id: 11,
+                                name: 'file1',
+                                type: 'file'
+                            }, {
+                                id: 12,
+                                name: 'file2',
+                                type: 'file'
+                            }]
                         }]}
-                        contextMenu={[{
-                            text: '新建表',
-                            onClick: (activeNode) => {
-                                console.log(activeNode);
+                        nodeClass={(item) => {
+                            if (item.type == 'file') {
+                                return 'anchor-file o-tree-icon--normal'
                             }
-                        }, {
-                            text: '查看详情',
-                            onClick: (activeNode) => {
-                                console.dir({ databaseId: activeNode.id })
-                            }
-                        }]}
+                            return 'anchor-folder'
+                        }}
+                        contextMenus={[
+                            {
+                                targetClassName: 'anchor-folder',
+                                menuItems: [{
+                                    text: '新建任务',
+                                    onClick: (activeNode) => {
+                                        console.log(activeNode);
+                                    }
+                                }, {
+                                    text: '新建文件夹',
+                                    onClick: (activeNode) => {
+                                        console.log(activeNode);
+                                    }
+                                }, {
+                                    text: '重命名',
+                                    onClick: (activeNode) => {
+                                        console.log(activeNode);
+                                    }
+                                }, {
+                                    text: '删除',
+                                    onClick: (activeNode) => {
+                                        console.log(activeNode);
+                                    }
+                                }]
+                            },
+                            {
+                                targetClassName: 'anchor-file',
+                                menuItems: [{
+                                    text: '属性',
+                                    onClick: (activeNode) => {
+                                        console.log(activeNode);
+                                    }
+                                }, {
+                                    text: '删除',
+                                    onClick: (activeNode) => {
+                                        console.dir({ databaseId: activeNode.id })
+                                    }
+                                }]
+                            }]}
                     />
                 ) : <span>暂无数据</span>}
             </div>
