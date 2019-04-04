@@ -388,7 +388,7 @@ public class ClientArguments {
 
         allOptions.addOption("files", "files", true,
                 "Location of the XLearning files used in container");
-        allOptions.addOption("algFile", "algFile", false,
+        allOptions.addOption("alg-files", "alg-files", false,
                 "the files is or not a algorithm file");
 
         allOptions.addOption("jars", "jars", true,
