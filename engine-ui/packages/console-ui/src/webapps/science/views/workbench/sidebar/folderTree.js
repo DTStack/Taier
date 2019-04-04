@@ -4,37 +4,19 @@ import { Tree, Tooltip, Icon } from 'antd';
 import { CATALOGUE_TYPE } from '../../../consts';
 import MyIcon from '../../../components/icon';
 
+import {
+    ContextMenu,
+    MenuItem
+} from 'widgets/context-menu';
+
 const TreeNode = Tree.TreeNode;
-
-const getItemClassName = function (type) {
-    switch (type) {
-        case CATALOGUE_TYPE.DATA_BASE:
-            return 's-database anchor-database';
-        case CATALOGUE_TYPE.DATA_MAP:
-            return 's-datamap anchor-datamap';
-        case CATALOGUE_TYPE.TABLE:
-            return 's-table anchor-table';
-        case CATALOGUE_TYPE.FOLDER:
-        default: return 's-tree-item anchor-tree-item';
-    }
-}
-
-// const getContextMenuAnchorName = function (type) {
-//     switch (type) {
-//     case CATALOGUE_TYPE.DATA_BASE:
-//         return 'anchor-database';
-//     case CATALOGUE_TYPE.DATA_MAP:
-//         return 'anchor-datamap';
-//     case CATALOGUE_TYPE.TABLE:
-//         return 'anchor-table';
-//     case CATALOGUE_TYPE.FOLDER:
-//     default: return 'anchor-tree-item';
-//     }
-// }
 
 class FolderTree extends React.PureComponent {
     constructor (props) {
         super(props)
+        this.state = {
+            activeNode: null
+        }
     }
 
     renderNodeHoverButton = (item) => {
@@ -97,14 +79,14 @@ class FolderTree extends React.PureComponent {
     }
 
     renderNodes = () => {
-        const { treeData } = this.props;
+        const { treeData, targetClassName } = this.props;
         const loop = (data) => {
             return data && data.map(item => {
                 const id = `${item.id || item.tableId}`
                 const name = item.name || item.tableName
                 const isLeaf = !item.children || item.children.length === 0;
                 // 用作展示上下文的锚点， 暂时取消
-                const className = getItemClassName(item.type);
+                const className = targetClassName;
 
                 const nodeTitle = (
                     <Tooltip placement="bottomLeft" mouseEnterDelay={0.5}>
@@ -113,7 +95,7 @@ class FolderTree extends React.PureComponent {
                             style={{ padding: '8px 0px' }}
                         >
                             {name}
-                            { this.renderNodeHoverButton(item) }
+                            {this.renderNodeHoverButton(item)}
                         </span>
                     </Tooltip>
                 )
@@ -138,7 +120,26 @@ class FolderTree extends React.PureComponent {
         const result = loop(treeData)
         return result;
     }
-
+    onRightClick (e, node) {
+        const activeNode = e.node.props.data;
+        this.setState({
+            activeNode
+        })
+    }
+    renderContextMenu () {
+        const { contextMenu = [], targetClassName } = this.props;
+        const { activeNode } = this.state;
+        if (!contextMenu || !contextMenu.length) {
+            return null;
+        }
+        return <ContextMenu targetClassName={targetClassName}>
+            {contextMenu.map((menu) => {
+                return (<MenuItem key={menu.text} onClick={() => {
+                    menu.onClick(activeNode);
+                }}>{menu.text}</MenuItem>)
+            })}
+        </ContextMenu>
+    }
     render () {
         return (
             <div className="s-catalogue">
@@ -150,10 +151,11 @@ class FolderTree extends React.PureComponent {
                     loadData={this.props.loadData}
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}
-                    onRightClick={this.props.onRightClick}
+                    onRightClick={this.onRightClick.bind(this)}
                 >
                     {this.renderNodes()}
                 </Tree>
+                {this.renderContextMenu()}
             </div>
         )
     }

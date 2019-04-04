@@ -1,0 +1,14 @@
+.c-antd-tabs-sidebar{
+    &.ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
+        padding-left: 0px;
+    }
+    > .ant-tabs-bar .ant-tabs-tab {
+        height: auto;
+        padding: 10px 5px;
+        writing-mode: tb-rl;
+        letter-spacing: 3px;
+        margin-bottom: 0;
+        font-size: 12px;
+        user-select: none;
+    }
+}

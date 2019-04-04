@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import '../../styles/views/workbench/index.scss'
 
-import Sidebar from './sidebar';
+import Sidebar from './sidebar/container';
 import MainBench from './mainBench';
 
 import workbenchActions from '../../actions/workbenchActions';
