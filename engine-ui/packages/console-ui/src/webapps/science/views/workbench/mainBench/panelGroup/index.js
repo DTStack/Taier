@@ -51,8 +51,7 @@ class PanelGroup extends Component {
     }
 
     renderTabBarExtraContent = () => {
-        const { closeTabs, workbench, switchTab } = this.props;
-        const { tabs, currentTab } = workbench.mainBench;
+        const { closeTabs, tabs = [], currentTab } = this.props;
         return (
             <Dropdown overlay={
                 <Menu style={{ marginRight: 2, maxHeight: '500px', overflowY: 'auto' }}>
@@ -66,7 +65,7 @@ class PanelGroup extends Component {
                     {tabs.map((tab) => {
                         return <Menu.Item key={tab.id} >
                             <a
-                                onClick={() => switchTab(tab.id)}
+                                onClick={() => this.switchTab(tab.id)}
                                 style={tab.id == currentTab ? { color: '#2491F7' } : {} }
                             >
                                 {tab.tabName || tab.name}
@@ -79,16 +78,17 @@ class PanelGroup extends Component {
             </Dropdown>
         )
     }
-
+    switchTab (key) {
+        console.log(key)
+    }
     render () {
-        const { closeTab, switchTab, workbench } = this.props;
-        const { tabs, currentTab } = workbench.mainBench;
+        const { closeTab, tabs = [], currentTab } = this.props;
         return (
             <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                 <div className="m-mainbench">
                     <Tabs
                         hideAdd
-                        onTabClick={switchTab.bind(currentTab)}
+                        onTabClick={this.switchTab.bind(currentTab)}
                         activeKey={`${currentTab}`}
                         type="editable-card"
                         onEdit={(tabId) => closeTab(tabId)}

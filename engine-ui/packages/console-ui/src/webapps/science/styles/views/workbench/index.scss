@@ -1,20 +1,5 @@
 @import './siderbar.scss';
 .sidebar {
-    background: #ffffff;
-    
-   .toolbar {
-       height: 35px;
-       padding: 7px 7px;
-       line-height: 35px;
-       border-bottom: 1px solid #E8E8E8;
-
-       .btn-icon {
-           width: 20px;
-           height: 20px;
-           margin-right: 8px;
-           cursor: pointer;
-       }
-   }
 
    .s-catalogue {
         padding: 6px 15px 5px 12px;

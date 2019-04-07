@@ -1,14 +1,48 @@
 .c-antd-tabs-sidebar{
+    &.u-pane--hidden {
+        .ant-tabs-content {
+            display: none;
+        }
+    }
+    .toolbar {
+        height: 35px;
+        padding: 7px 7px;
+        line-height: 35px;
+        border-bottom: 1px solid #dddddd;
+ 
+        .btn-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+    }
+    .ant-tabs-nav-wrap{
+        background:#262E36;
+        color: #fff;
+    }
+    .ant-tabs-nav {
+        .ant-tabs-tab-active{
+            color: #fff;
+            background: #2491F7;
+        }
+        .ant-tabs-ink-bar{
+            background: transparent;
+        }
+    }
     &.ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
         padding-left: 0px;
+        background: #f5f5f5
     }
     > .ant-tabs-bar .ant-tabs-tab {
         height: auto;
-        padding: 10px 5px;
+        padding: 18px 8px;
         writing-mode: tb-rl;
         letter-spacing: 3px;
         margin-bottom: 0;
-        font-size: 12px;
+        font-size: 13px;
+        line-height: 16px;
         user-select: none;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
     }
 }

@@ -1,10 +1,12 @@
 import { cloneDeep } from 'lodash';
 
 import commonActionType from '../../consts/commonActionType';
+import { siderBarType } from '../../consts/index'
 
 const initialState = {
     userList: [],
-    allDict: {}
+    allDict: {},
+    siderBarKey: siderBarType.notebook
 }
 
 export default function comm (state = initialState, action) {
@@ -21,7 +23,12 @@ export default function comm (state = initialState, action) {
             clone.allDict = payload;
             return clone;
         }
-
+        case commonActionType.CHANGE_SIDERBAR_KEY: {
+            return {
+                ...state,
+                siderBarKey: payload
+            };
+        }
         default:
             return state;
     }

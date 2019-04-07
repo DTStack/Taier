@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
-import workbenchAction from '../../consts/workbenchActionType';
-
+let workbenchAction = {}
 export default class TabIcon extends Component {
     render () {
         const { type } = this.props;

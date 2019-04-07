@@ -36,7 +36,7 @@ class FolderTree extends React.PureComponent {
                             style={{ padding: '8px 0px' }}
                         >
                             {name}
-                            {this.props.renderNodeHoverButton(item)}
+                            {typeof this.props.renderNodeHoverButton === 'function' && this.props.renderNodeHoverButton(item)}
                         </span>
                     </Tooltip>
                 )

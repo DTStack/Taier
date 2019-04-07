@@ -6,18 +6,20 @@ import { bindActionCreators } from 'redux';
 
 import '../../styles/views/workbench/index.scss'
 
-import Sidebar from './sidebar/container';
+import Sidebar from './sidebar';
 import MainBench from './mainBench';
 
 import workbenchActions from '../../actions/workbenchActions';
+import { siderBarType } from '../../consts'
 
 const { Content } = Layout;
 
 @connect(
     state => {
-        const { modal } = state;
+        const { modal, common } = state;
         return {
-            modal
+            modal,
+            siderBarKey: common.siderBarKey
         };
     },
     dispatch => {
@@ -37,13 +39,14 @@ class Workbench extends Component {
     }
 
     render () {
+        const { siderBarKey } = this.props;
         return (
             <Layout>
                 <SplitPane
                     split="vertical"
-                    minSize={240}
-                    maxSize="80%"
-                    defaultSize={240}
+                    minSize={siderBarKey == siderBarType.model ? 32 : 240}
+                    maxSize={siderBarKey == siderBarType.model ? 32 : '80%'}
+                    defaultSize={siderBarKey == siderBarType.model ? 32 : 240}
                     primary="first"
                 >
                     <div

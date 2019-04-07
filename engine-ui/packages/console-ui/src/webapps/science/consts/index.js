@@ -10,6 +10,12 @@ export const CATALOGUE_TYPE = {
     SEARCH_TABLE: 'searchTable'
 }
 
+export const siderBarType = {
+    notebook: 'notebook',
+    experiment: 'experiment',
+    component: 'component',
+    model: 'model'
+}
 /**
  * SQL执行状态
  */
