@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.dtstack.rdos</groupId>
 		<artifactId>engine</artifactId>
-		<version>${revision}</version>
+		<version>1.0.0</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>base.common</artifactId>
@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>com.dtstack.rdos</groupId>
 			<artifactId>common</artifactId>
-			<version>${revision}</version>
+			<version>1.0.0</version>
 		</dependency>
 
 		<dependency>

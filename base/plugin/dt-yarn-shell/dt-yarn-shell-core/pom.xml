@@ -5,7 +5,7 @@
     <parent>
         <artifactId>base.dt-yarn-shell</artifactId>
         <groupId>com.dtstack.rdos</groupId>
-        <version>${revision}</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -93,13 +93,8 @@
                         </goals>
                         <configuration>
                             <tasks>
-                                <copy todir="${basedir}/../lib/">
-                                    <fileset dir="target/">
-                                        <include name="${project.name}-${project.version}.jar" />
-                                    </fileset>
-                                </copy>
-                                <move file="${basedir}/../lib/${project.name}-${project.version}.jar"
-                                      tofile="${basedir}/../lib/core.jar" />
+                                <copy file="${basedir}/target/${project.name}-${project.version}.jar"
+                                      tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
                             </tasks>
                         </configuration>
                     </execution>
