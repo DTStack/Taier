@@ -21,6 +21,11 @@ function localTabs (state = [], action) {
             }
             return state;
         }
+        case notebookTabType.DELETE_OTHER_TAB: {
+            return state.filter((tab) => {
+                return tab.id == payload
+            })
+        }
         case notebookTabType.DELETE_ALL_TAB: {
             return [];
         }

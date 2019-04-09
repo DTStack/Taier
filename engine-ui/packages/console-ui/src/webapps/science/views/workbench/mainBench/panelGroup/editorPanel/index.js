@@ -2,16 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { bindActionCreators } from 'redux';
-
-import utils from 'utils';
-import { filterComments, splitSql } from 'funcs';
 import { commonFileEditDelegator } from 'widgets/editor/utils';
-import { language } from 'widgets/editor/languages/dtsql/dtsql';
 
-import IDEEditor from 'main/components/ide';
+import CommonEditor from '../../../../../components/commonEditor';
+import Editor from 'widgets/editor/index'
 
 import API from '../../../../../api';
 import reqUrls from '../../../../../consts/reqUrls';
+import { siderBarType } from '../../../../../consts';
 
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
@@ -32,69 +30,8 @@ import commActions from '../../../../../actions';
         return Object.assign(actionsOne, actionsTwo, actionsThree);
     }
 )
-class EditorContainer extends Component {
-    state = {
-        tableList: [],
-        funcList: [],
-        tableCompleteItems: [],
-        funcCompleteItems: [],
-        selectedDatabase: '', // 选中的数据库数据库
-        tables: [],
-        columns: {} // 暂时不支持字段AutoComplete
-    };
-
-    _tableColumns = {};
-    _tableLoading = {};
-
-    componentDidMount () {
-        const { data } = this.props;
-        if (data) {
-            this.props.getTab(data.id); // 初始化console所需的数据结构
-        }
-    }
-
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
-        const current = nextProps.data;
-        const old = this.props.data;
-        if (current && current.id !== old.id) {
-            this.props.getTab(current.id);
-        }
-    }
-
-    async initTableList (databaseId) {
-        if (databaseId) {
-            const res = await API.getTablesByDB({
-                databaseId
-            })
-            if (res.code === 1) {
-                const tableList = res.data;
-                const items = tableList.map(table => {
-                    return [table.tableName, '表名', '1200', 'Field'];
-                })
-                this.setState({
-                    tableList: tableList,
-                    tableCompleteItems: items
-                });
-            }
-        }
-    }
-
-    initFuncList () {
-        API.getAllFunction().then(res => {
-            if (res.code == 1) {
-                let { data } = res;
-                this.setState({
-                    funcList: data || [],
-                    funcCompleteItems:
-                        data &&
-                        data.map(funcName => {
-                            return [funcName, '函数', '2000', 'Function'];
-                        })
-                });
-            }
-        });
-    }
+class EditorPanel extends Component {
+    state = { };
 
     handleEditorTxtChange = (newVal, editorInstance) => {
         const data = this.props.data;
@@ -105,27 +42,6 @@ class EditorContainer extends Component {
             cursorPosition: editorInstance.getPosition()
         };
         this.props.updateTab(newData);
-    };
-
-    filterSql = sql => {
-        const arr = [];
-        let sqls = filterComments(sql);
-        // 如果有有效内容
-        if (sqls) {
-            sqls = splitSql(sqls);
-        }
-
-        if (sqls && sqls.length > 0) {
-            for (let i = 0; i < sqls.length; i++) {
-                let sql = sqls[i];
-                const trimed = utils.trim(sql);
-                if (trimed !== '') {
-                    // 过滤语句前后空格
-                    arr.push(utils.trimlr(sql));
-                }
-            }
-        }
-        return arr;
     };
 
     execSQL = () => {
@@ -197,71 +113,13 @@ class EditorContainer extends Component {
 
     closeConsole = () => {
         const { currentTab } = this.props;
-        this.props.resetConsole(currentTab);
+        this.props.resetConsole(currentTab, siderBarType.notebook);
     };
-
-    /**
-     * 获取表的字段
-     * @param {表名} tableName
-     */
-    getTableColumns (tableName) {
-        let _tableColumns = this._tableColumns;
-        if (_tableColumns[tableName]) {
-            return Promise.resolve(_tableColumns[tableName]);
-        }
-        // 共用现有请求线程
-        if (this._tableLoading[tableName]) {
-            return this._tableLoading[tableName];
-        }
-        this._tableLoading[tableName] = API.getColumnsOfTable({
-            tableName
-        }).then(res => {
-            this._tableLoading[tableName] = null;
-            if (res.code == 1) {
-                _tableColumns[tableName] = [tableName, res.data];
-                return _tableColumns[tableName];
-            } else {
-                console.log('get table columns error');
-            }
-        });
-        return this._tableLoading[tableName];
-    }
-
-    onSyntaxChange (autoComplete, syntax) {
-        const locations = autoComplete.locations;
-        let tables = [];
-        let tmpTables = {};
-        for (let location of locations) {
-            if (location.type == 'table') {
-                for (let identifierChain of location.identifierChain) {
-                    if (tmpTables[identifierChain.name]) {
-                        continue;
-                    }
-                    tmpTables[identifierChain.name] = true;
-                    tables.push(identifierChain.name);
-                }
-            }
-        }
-        this.setState({
-            tables: tables
-        });
-    }
-
-    onDatabaseChange = (value) => {
-        this.setState({
-            selectedDatabase: value
-        }, () => {
-            this.initTableList(value);
-        })
-    }
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, {
         maxWait: 2000
     });
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, {
-        maxWait: 2000
-    });
-    debounceSyntaxChange = debounce(this.onSyntaxChange.bind(this), 200, {
         maxWait: 2000
     });
 
@@ -270,13 +128,10 @@ class EditorContainer extends Component {
 
         const currentTab = data.id;
 
-        const consoleData = editor.console;
-
-        const resultData = consoleData && consoleData[currentTab]
-            ? consoleData[currentTab]
-            : { results: [] };
-
-        const { funcList } = this.state;
+        const consoleData = editor.console[siderBarType.notebook];
+        const resultData = consoleData[currentTab] && consoleData[currentTab].data
+            ? consoleData[currentTab].data
+            : [];
 
         const cursorPosition = data.cursorPosition || undefined;
 
@@ -284,18 +139,9 @@ class EditorContainer extends Component {
             value: data.sqlText,
             language: 'python',
             disabledSyntaxCheck: true,
-            languageConfig: {
-                ...language,
-                builtinFunctions: [],
-                windowsFunctions: [],
-                innerFunctions: [],
-                otherFunctions: [],
-                customFunctions: funcList
-            },
             cursorPosition: cursorPosition,
             theme: editor.options.theme,
             onChange: this.debounceChange,
-            onSyntaxChange: this.debounceSyntaxChange,
             sync: data.merged || undefined,
             onCursorSelection: this.debounceSelectionChange
         };
@@ -320,18 +166,29 @@ class EditorContainer extends Component {
         };
 
         return (
-            <div className="m-editor" style={{ height: '100%' }}>
-                <IDEEditor
+            <CommonEditor
+                console={consoleOpts}
+                toolbar={toolbarOpts}
+            >
+                <Editor
+                    {...editorOpts}
                     editorInstanceRef={instance => {
                         this._editor = instance;
                     }}
-                    editor={editorOpts}
-                    toolbar={toolbarOpts}
-                    console={consoleOpts}
                 />
-            </div>
+            </CommonEditor>
+            // <div className="m-editor" style={{ height: '100%' }}>
+            //     <IDEEditor
+            //         editorInstanceRef={instance => {
+            //             this._editor = instance;
+            //         }}
+            //         editor={editorOpts}
+            //         toolbar={toolbarOpts}
+            //         console={consoleOpts}
+            //     />
+            // </div>
         );
     }
 }
 
-export default EditorContainer;
+export default EditorPanel;

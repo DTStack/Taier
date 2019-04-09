@@ -21,6 +21,11 @@ function localTabs (state = [], action) {
             }
             return state;
         }
+        case experimentTabType.DELETE_OTHER_TAB: {
+            return state.filter((tab) => {
+                return tab.id == payload
+            })
+        }
         case experimentTabType.DELETE_ALL_TAB: {
             return [];
         }

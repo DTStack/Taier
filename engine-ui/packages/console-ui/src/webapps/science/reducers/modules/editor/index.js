@@ -3,87 +3,106 @@ import { cloneDeep, assign } from 'lodash';
 import localDb from 'utils/localDb';
 
 import editorAction from '../../../consts/editorActionType';
+import { experimentTabType, notebookTabType } from '../../../consts/actionType/tabType';
+import { siderBarType } from '../../../consts/index'
 const KEY_EDITOR_OPTIONS = 'editor_options';
 
+const { experiment, notebook } = siderBarType;
+
 // Console Reducers
-const console = (state = {}, action) => {
-    switch (action.type) {
-        case editorAction.GET_TAB: {
-            // 初始化console
-            const origin = cloneDeep(state);
-            if (action.key) {
-                const tab = origin[action.key];
-                if (!tab) {
-                    origin[action.key] = { log: '', results: [] };
-                }
+const console = (state = { [experiment]: {}, [notebook]: {} }, action) => {
+    const { type, payload = {} } = action;
+    const { siderType } = payload;
+    switch (type) {
+        case experimentTabType.ADD_TAB: {
+            const oldData = cloneDeep(state[experiment]);
+            oldData[payload.tabId] = { data: [] };
+            return {
+                ...state,
+                [experiment]: oldData
             }
-            return origin;
+        }
+        case notebookTabType.ADD_TAB: {
+            const oldData = cloneDeep(state[notebook]);
+            oldData[payload.tabId] = { data: [] };
+            return {
+                ...state,
+                [notebook]: oldData
+            }
         }
         case editorAction.RESET_CONSOLE: {
             // reset console
-            const origin = cloneDeep(state);
-            origin[action.key] = { log: '', results: [] };
-            return origin;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            origin[payload.tabId] = { data: [] };
+            return newState;
         }
         case editorAction.SET_TAB: {
             // 设置Tab
-            const obj = cloneDeep(state);
-            const map = action.data;
-            if (map) {
-                obj[map.key] = map.data;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            if (payload) {
+                origin[payload.key] = payload.data;
             }
-            return obj;
+            return newState;
         }
         case editorAction.APPEND_CONSOLE_LOG: {
             // 追加日志
-            const { key, data } = action;
-            const newLog = cloneDeep(state);
-            newLog[key].log = newLog[key]
-                ? `${newLog[key].log} \n${data}`
-                : `${data}`;
-            return newLog;
+            const { key, tabId, data } = payload;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            const items = origin[tabId].data;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.id == key) {
+                    items[i].log = items[i].log
+                        ? `${items[i].log} \n${data}`
+                        : `${data}`;
+                }
+            }
+            return newState;
         }
         case editorAction.SET_CONSOLE_LOG: {
-            const { key } = action;
-            const newLog = cloneDeep(state);
-            newLog[key].log = action.data;
-            newLog[key].showRes = false;
-            return newLog;
+            const { key, tabId, data } = payload;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            const items = origin[tabId].data;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.id == key) {
+                    items[i].log = data;
+                }
+            }
+            return newState;
         }
         case editorAction.UPDATE_RESULTS: {
             // 更新结果
-            const updatedKey = action.key;
-            let updated = cloneDeep(state);
-            const updateArr = [...updated[updatedKey].results];
-            if (updated[updatedKey] && action.data) {
-                const lastResult = updateArr[updateArr.length - 1];
-                let index = 1;
-                // 根据最后一个结果的id序号来递增序号
-                if (lastResult) {
-                    index = lastResult.id
-                        ? lastResult.id + 1
-                        : updateArr.length + 1;
+            const { key, tabId, data } = payload;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            const items = origin[tabId].data;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.id == key) {
+                    items[i].data = items[i].data || [];
+                    items[i].data.push(data);
                 }
-                updateArr.push({ ...action.data, id: index });
-                updated[updatedKey].results = updateArr;
-                updated[updatedKey].showRes = true;
-            } else {
-                updated[updatedKey].showRes = false;
             }
-
-            return updated;
+            return newState;
         }
         case editorAction.DELETE_RESULT: {
             // 删除结果
-            const key = action.key;
-            let index = action.data;
-            const origin = cloneDeep(state);
-            const arr = origin[key].results;
-            if (arr.length > 0 && index !== undefined) {
-                arr.splice(index, 1);
-                origin[key].results = arr;
+            const { key, tabId } = payload;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            const items = origin[tabId].data;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item.id == key) {
+                    items.splice(i, 1);
+                }
             }
-            return origin;
+            return newState;
         }
         default:
             return state;
