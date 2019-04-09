@@ -2,6 +2,13 @@
     .sidebar {
         height: 100%;
     }
+    .container{
+        background: #ffffff;
+        .ant-layout{
+            background: #ffffff;
+        }
+    }
+    
     header {
         .menu {
             .my-menu-item.ant-menu-submenu-horizontal.ant-menu-submenu{

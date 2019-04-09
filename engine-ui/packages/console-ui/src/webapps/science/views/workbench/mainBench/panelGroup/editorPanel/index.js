@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { debounce } from 'lodash';
 import { bindActionCreators } from 'redux';
-import { Select } from 'antd';
 
 import utils from 'utils';
 import { filterComments, splitSql } from 'funcs';
@@ -18,17 +17,12 @@ import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
 import commActions from '../../../../../actions';
 
-const Option = Select.Option;
-
 @connect(
     state => {
         const { workbench, editor } = state;
-        const databaseList = workbench.folderTree.children || [];
         return {
             editor,
-            workbench,
-            databaseList,
-            currentTab: workbench.mainBench.currentTab
+            workbench
         };
     },
     dispatch => {
@@ -53,11 +47,10 @@ class EditorContainer extends Component {
     _tableLoading = {};
 
     componentDidMount () {
-        const { data, databaseList } = this.props;
+        const { data } = this.props;
         if (data) {
             this.props.getTab(data.id); // 初始化console所需的数据结构
         }
-        this.initEditorData(data, databaseList);
     }
 
     // eslint-disable-next-line
@@ -67,20 +60,6 @@ class EditorContainer extends Component {
         if (current && current.id !== old.id) {
             this.props.getTab(current.id);
         }
-        if (this.props.databaseList !== nextProps.databaseList) {
-            this.initEditorData(current, nextProps.databaseList);
-        }
-    }
-
-    initEditorData = (data, databaseList) => {
-        const defaultDBValue = data && data.databaseId ? data.databaseId
-            : databaseList.length > 0 ? databaseList[0].id : '';
-
-        console.log('defaultDb:', defaultDBValue);
-        this.setState({
-            selectedDatabase: `${defaultDBValue}`
-        })
-        this.initTableList(defaultDBValue);
     }
 
     async initTableList (databaseId) {
@@ -221,20 +200,6 @@ class EditorContainer extends Component {
         this.props.resetConsole(currentTab);
     };
 
-    completeProvider (
-        completeItems,
-        resolve,
-        customCompletionItemsCreater
-    ) {
-        const { tableCompleteItems, funcCompleteItems } = this.state;
-
-        // 初始完成项：默认项+所有表+所有函数
-        let defaultItems = completeItems
-            .concat(customCompletionItemsCreater(tableCompleteItems))
-            .concat(customCompletionItemsCreater(funcCompleteItems));
-        resolve(defaultItems);
-    }
-
     /**
      * 获取表的字段
      * @param {表名} tableName
@@ -290,24 +255,6 @@ class EditorContainer extends Component {
         })
     }
 
-    customToolbar = () => {
-        const { databaseList } = this.props;
-        const dbOptions = databaseList && databaseList.map(opt => (
-            <Option key={`${opt.id}`} value={`${opt.id}`}>{opt.name}</Option>
-        ))
-
-        return (
-            <Select
-                className="ide-toobar-select"
-                placeholder="请选择数据库"
-                onChange={this.onDatabaseChange}
-                value={this.state.selectedDatabase}
-            >
-                { dbOptions }
-            </Select>
-        )
-    }
-
     debounceChange = debounce(this.handleEditorTxtChange, 300, {
         maxWait: 2000
     });
@@ -335,9 +282,8 @@ class EditorContainer extends Component {
 
         const editorOpts = {
             value: data.sqlText,
-            language: 'dtsql',
+            language: 'python',
             disabledSyntaxCheck: true,
-            customCompleteProvider: this.completeProvider.bind(this),
             languageConfig: {
                 ...language,
                 builtinFunctions: [],
@@ -363,8 +309,7 @@ class EditorContainer extends Component {
             onRun: this.execConfirm,
             onStop: this.stopSQL,
             onFormat: this.sqlFormat,
-            onFileEdit: commonFileEditDelegator(this._editor),
-            customToobar: this.customToolbar()
+            onFileEdit: commonFileEditDelegator(this._editor)
         };
 
         const consoleOpts = {

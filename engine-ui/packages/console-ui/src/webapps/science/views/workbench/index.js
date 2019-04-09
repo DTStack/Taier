@@ -55,7 +55,7 @@ class Workbench extends Component {
                     >
                         <Sidebar />
                     </div>
-                    <Content style={{ height: '100%' }}>
+                    <Content style={{ height: '100%', overflow: 'hidden' }}>
                         <MainBench />
                     </Content>
                 </SplitPane>
