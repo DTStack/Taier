@@ -18,7 +18,8 @@ export default {
     TEST_CLUSTER_CONNECT: `${CONSOLE_BASE_URL}/cluster/testConnect`, // 测试集群联通性
     UPLOAD_CLUSTER_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/cluster/config`, // 上传集群资源配置包
     GET_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getOne`, // 获取集群信息
-
+    GET_QUEUE_LISTS: `${CONSOLE_BASE_URL}/cluster/queue`, // 集群下队列列表 (暂缺)
+    CONFIRM_SWITCH_QUEUE: `${CONSOLE_BASE_URL}/cluster/confirmQueue`, // 确认切换队列 (暂缺)
     // 任务管理
     GET_CLUSTER_DETAIL: `${CONSOLE_BASE_URL}/group/overview`, // 概览-获取集群
     GET_CLUSTER_SELECT: `${CONSOLE_BASE_URL}/cluster/clusters`, // 概览-集群下拉列表
