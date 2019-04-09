@@ -5,17 +5,7 @@ import Notebook from './notebook';
 const TabPane = Tabs.TabPane;
 class TaskManage extends PureComponent {
     state = {
-        activeKey: 'experiment',
-        data: [],
-        loading: false,
-        pagination: {
-            current: 1,
-            total: 20
-        },
-        selectedRowKeys: [],
-        params: {
-            search: ''
-        }
+        activeKey: 'experiment'
     }
     render () {
         const { activeKey } = this.state;

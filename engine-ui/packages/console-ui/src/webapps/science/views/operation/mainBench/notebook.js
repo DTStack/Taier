@@ -27,6 +27,13 @@ class Notebook extends PureComponent {
             }
         }, this.getTableData)
     }
+    handleTableChange = (pagination, filters, sorter) => {
+        const params = Object.assign(this.state.params);
+        params.filter = filters.taskPeriodId.length ? filters.taskPeriodId.join(',') : '';
+        this.setState({
+            params
+        }, this.getTableData);
+    }
     handlePaginationChange = (page, pageSize) => {
         this.setState({
             pagination: {
@@ -152,6 +159,7 @@ class Notebook extends PureComponent {
                         rowKey="id"
                         className='m-table'
                         loading={loading}
+                        onChange={this.handleTableChange}
                         columns={this.initCol()}
                         dataSource={data}
                         pagination={false}

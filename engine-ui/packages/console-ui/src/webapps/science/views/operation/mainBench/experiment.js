@@ -12,7 +12,8 @@ class Experiment extends PureComponent {
         },
         selectedRowKeys: [],
         params: {
-            search: ''
+            search: '',
+            filter: ''
         }
     }
     componentDidMount () {
@@ -26,6 +27,13 @@ class Experiment extends PureComponent {
                 search: value
             }
         }, this.getTableData)
+    }
+    handleTableChange = (pagination, filters, sorter) => {
+        const params = Object.assign(this.state.params);
+        params.filter = filters.taskPeriodId.length ? filters.taskPeriodId.join(',') : '';
+        this.setState({
+            params
+        }, this.getTableData);
     }
     handlePaginationChange = (page, pageSize) => {
         this.setState({
@@ -153,6 +161,7 @@ class Experiment extends PureComponent {
                         className='m-table'
                         loading={loading}
                         columns={this.initCol()}
+                        onChange={this.handleTableChange}
                         dataSource={data}
                         pagination={false}
                         footer={this.tableFooter}
