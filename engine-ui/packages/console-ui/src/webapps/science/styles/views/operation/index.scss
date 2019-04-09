@@ -116,4 +116,49 @@
             }
         }
     }
+
+    .ant-card-head {
+        padding: 3px 20px;
+        border-bottom: 0;
+        font-size: 13px;
+        .ant-input-search {
+            margin: 10px 0;
+        }
+    }
+
+    .ant-card-body {
+        padding: 11px 20px;
+
+        .m-table {
+            .ant-table-body {
+                border: 1px solid #DDDDDD;
+                border-bottom: 0;
+                border-radius: 3px;
+            }
+
+            .ant-table-thead .ant-table-selection-column span {
+                visibility: visible;
+            }
+
+            .ant-table-footer {
+                border-bottom: 0;
+                margin-top: 10px;
+                margin-bottom: 2px;
+
+                &:before {
+                    background: transparent;
+                }
+
+                button {
+                    width: 94px;
+                    height: 30px;
+                    font-size: 13px;
+                }
+
+                .ant-pagination {
+                    float: right
+                }
+            }
+        }
+    }
 }

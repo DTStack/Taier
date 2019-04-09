@@ -84,3 +84,24 @@ export const lineChartOptions = {// 堆叠折现图默认选项
     ],
     series: []
 };
+export const offlineTaskPeriodFilter = [{
+    id: 1,
+    text: '分钟任务',
+    value: 0
+}, {
+    id: 2,
+    text: '小时任务',
+    value: 1
+}, {
+    id: 3,
+    text: '天任务',
+    value: 2
+}, {
+    id: 4,
+    text: '周任务',
+    value: 3
+}, {
+    id: 5,
+    text: '月任务',
+    value: 4
+}]

@@ -3,6 +3,7 @@ import { Row, Col, Icon, Tabs } from 'antd';
 import { cloneDeep } from 'lodash';
 import Resize from 'widgets/resize';
 import { lineChartOptions } from '../../../comm/const.js';
+import Api from '../../../api/index';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
 // 引入柱状图
@@ -18,6 +19,7 @@ class Overview extends React.PureComponent {
         activeKey: 'experiment'
     }
     componentDidMount () {
+        // this.getStatistics();
         this.getExperiment();
     }
     componentDidUpdate (prevProps, prevState, snapshot) {
@@ -107,6 +109,13 @@ class Overview extends React.PureComponent {
         }, () => {
             this._chart1 = this.drawCharts(this.state.experimentData, 'experiment');
             this._chart2 = this.drawCharts(this.state.experimentData, 'notebook');
+        })
+    }
+    getStatistics = () => {
+        Api.getStatistics().then(res => {
+            if (res.code === 1) {
+
+            }
         })
     }
     renderOverview = () => {
