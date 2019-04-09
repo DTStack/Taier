@@ -11,7 +11,7 @@ import { DATA_SOURCE_TEXT, DATA_SOURCE, TOPIC_TYPE } from '../../../comm/const'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 import Editor from 'widgets/code-editor'
-
+import DataPreviewModal from './dataPreviewModal'
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
@@ -19,6 +19,12 @@ const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 
 class InputOrigin extends Component {
+    constructor (props) {
+        super(props)
+        this.state = {
+            visible: false
+        };
+    }
     componentDidMount () {
         this.props.onRef(this);
     }
@@ -182,6 +188,13 @@ class InputOrigin extends Component {
                             <Input placeholder="请输入正则表达式" onChange={(v) => { handleInputChange('topic', index, [v.target.value]) }} />
                         )}
                     </FormItem>
+                    <Row>
+                        <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+                        </div>
+                        <Col span="18" style={{ marginBottom: 12 }}>
+                            <a onClick={() => { this.setState({ visible: true }) }}>数据预览</a>
+                        </Col>
+                    </Row>
                     <FormItem
                         {...formItemLayout}
                         label={(
@@ -339,6 +352,10 @@ class InputOrigin extends Component {
                         onChange={(type, id, value) => { handleInputChange('customParams', index, value, { id, type }) }}
                     />
                 </Form>
+                <DataPreviewModal
+                    visible={this.state.visible}
+                    onCancel={() => { this.setState({ visible: false }) }}
+                />
             </Row>
         )
     }
