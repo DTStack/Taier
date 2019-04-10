@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Form, Input, Select, message } from 'antd';
-
+import { uniqBy } from 'lodash';
 import Api from '../../api'
 import { formItemLayout } from '../../comm/const';
 import { ExtTableCell } from './extDataSourceMsg'
@@ -119,7 +119,7 @@ class LinkModal extends React.Component {
                     })(
 
                         <Select style={{ width: '100%' }} placeholder="目标数据源">
-                            {targetList.map(
+                            {uniqBy(targetList, 'dataName').map(
                                 (target) => {
                                     if (target.type != sourceData.type) {
                                         return null;
