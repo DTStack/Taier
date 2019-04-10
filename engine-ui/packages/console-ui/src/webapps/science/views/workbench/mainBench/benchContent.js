@@ -34,11 +34,7 @@ class BenchContent extends Component {
     }
 
     render () {
-        return (
-            <div className="m-content">
-                {this.renderContent()}
-            </div>
-        )
+        return this.renderContent()
     }
 }
 

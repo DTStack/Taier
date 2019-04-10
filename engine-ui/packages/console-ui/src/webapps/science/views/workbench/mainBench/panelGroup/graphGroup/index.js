@@ -8,6 +8,7 @@ import GraphPanel from '../graphPanel';
 
 import * as tabActions from '../../../../../actions/base/tab';
 import { siderBarType } from '../../../../../consts';
+import DefaultExperimentView from '../../default/defaultExperimentView';
 
 const TabPane = Tabs.TabPane;
 
@@ -39,7 +40,9 @@ class GraphGroup extends React.Component {
     }
     render () {
         const { tabs = [] } = this.props;
-        return (
+        return !tabs || !tabs.length ? (
+            <DefaultExperimentView />
+        ) : (
             <PanelGroup
                 switchTab={this.switchTab.bind(this)}
                 closeTabs={this.closeTabs.bind(this)}

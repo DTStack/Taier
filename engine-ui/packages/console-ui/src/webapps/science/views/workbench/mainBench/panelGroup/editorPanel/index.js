@@ -150,13 +150,9 @@ class EditorPanel extends Component {
             ? consoleData[currentTab].data
             : [];
 
-        const cursorPosition = data.cursorPosition || undefined;
-
         const editorOpts = {
             value: data.sqlText,
             language: 'python',
-            disabledSyntaxCheck: true,
-            cursorPosition: cursorPosition,
             theme: editor.options.theme,
             onChange: this.debounceChange,
             sync: data.merged || undefined,
