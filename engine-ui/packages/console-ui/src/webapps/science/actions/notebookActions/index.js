@@ -1,6 +1,7 @@
 import { changeTab } from '../base/tab';
+import { siderBarType } from '../../consts';
 export function changeContent (newContent, tab, isDirty = true) {
-    return changeTab('notebook', {
+    return changeTab(siderBarType.notebook, {
         ...tab,
         ...newContent,
         isDirty
@@ -8,6 +9,6 @@ export function changeContent (newContent, tab, isDirty = true) {
 }
 export function changeText (text, tab) {
     return changeContent({
-        sqlText: 'text'
+        sqlText: text
     }, tab)
 }

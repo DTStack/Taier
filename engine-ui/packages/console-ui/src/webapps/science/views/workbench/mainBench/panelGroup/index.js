@@ -51,7 +51,7 @@ class PanelGroup extends Component {
     }
 
     renderTabBarExtraContent = () => {
-        const { closeTabs, tabs = [], currentTab } = this.props;
+        const { closeTabs } = this.props;
         return (
             <Dropdown overlay={
                 <Menu style={{ marginRight: 2, maxHeight: '500px', overflowY: 'auto' }}>
@@ -62,7 +62,7 @@ class PanelGroup extends Component {
                         <a onClick={() => closeTabs('ALL')} >关闭所有</a>
                     </Menu.Item>
                     <Menu.Divider />
-                    {tabs.map((tab) => {
+                    {/* {tabs.map((tab) => {
                         return <Menu.Item key={tab.id} >
                             <a
                                 onClick={() => this.switchTab(tab.id)}
@@ -71,7 +71,7 @@ class PanelGroup extends Component {
                                 {tab.tabName || tab.name}
                             </a>
                         </Menu.Item>
-                    })}
+                    })} */}
                 </Menu>
             }>
                 <Icon type="bars" size="" style={{ margin: '7 5 0 0', fontSize: 18 }} />
@@ -82,19 +82,20 @@ class PanelGroup extends Component {
         console.log(key)
     }
     render () {
-        const { closeTab, tabs = [], currentTab } = this.props;
+        const { closeTab, currentTabIndex, children } = this.props;
         return (
-            <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            <div style={{ position: 'relative', width: '100%', height: 'calc(100% - 10px)', marginTop: '10px' }}>
                 <div className="m-mainbench">
                     <Tabs
+                        className='c-group-tabs'
                         hideAdd
-                        onTabClick={this.switchTab.bind(currentTab)}
-                        activeKey={`${currentTab}`}
+                        onTabClick={this.props.switchTab}
+                        activeKey={`${currentTabIndex}`}
                         type="editable-card"
                         onEdit={(tabId) => closeTab(tabId)}
                         tabBarExtraContent={this.renderTabBarExtraContent()}
                     >
-                        {this.renderTabs(tabs)}
+                        {children}
                     </Tabs>
                 </div>
             </div>

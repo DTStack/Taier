@@ -202,53 +202,61 @@ export function stopSql (currentTab, currentTabData, isSilent) {
 }
 
 // Actions
-export function output (tab, log) {
+export function output (tabId, log, key, type) {
     return {
-        type: editorAction.APPEND_CONSOLE_LOG,
-        data: log,
-        key: tab
+        payload: {
+            key,
+            tabId,
+            siderType: type,
+            data: log
+        },
+        type: editorAction.APPEND_CONSOLE_LOG
     }
 }
 
-export function setOutput (tab, log) {
+export function setOutput (tabId, log, key, type) {
     return {
-        type: editorAction.SET_CONSOLE_LOG,
-        data: createLog(log, 'info'),
-        key: tab
+        payload: {
+            key,
+            tabId,
+            siderType: type,
+            data: createLog(log, 'info')
+        },
+        type: editorAction.SET_CONSOLE_LOG
     }
 }
 
-export function outputRes (tab, item, jobId) {
+export function outputRes (tabId, item, jobId, key, type) {
     return {
-        type: editorAction.UPDATE_RESULTS,
-        data: { jobId: jobId, data: item },
-        key: tab
+        payload: {
+            key,
+            tabId,
+            siderType: type,
+            data: { jobId: jobId, data: item }
+        },
+        type: editorAction.UPDATE_RESULTS
     }
 }
 
-export function removeRes (tab, index) {
+export function removeRes (tabId, index, key, type) {
     return {
-        type: editorAction.DELETE_RESULT,
-        data: index,
-        key: tab
+        payload: {
+            key,
+            tabId,
+            siderType: type,
+            data: index
+        },
+        type: editorAction.DELETE_RESULT
     }
 }
 
-export function resetConsole (tab) {
+export function resetConsole (tabId, type) {
     return {
-        type: editorAction.RESET_CONSOLE,
-        key: tab
-    }
-}
-
-/**
- * 初始化tab的console对象
- * @param {tabId} key
- */
-export function getTab (key) {
-    return {
-        type: editorAction.GET_TAB,
-        key
+        payload: {
+            siderType: type,
+            tabId
+        },
+        type: editorAction.RESET_CONSOLE
     }
 }
 

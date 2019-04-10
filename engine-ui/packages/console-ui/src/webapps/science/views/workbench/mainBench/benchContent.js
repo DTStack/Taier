@@ -3,11 +3,15 @@ import { connect } from 'react-redux';
 
 import { siderBarType } from '../../../consts'
 
-import PanelGroup from './panelGroup'
+import NoteBookGroup from './panelGroup/notebookGroup';
+import GraphGroup from './panelGroup/graphGroup';
 import ModelView from './model'
 @connect((state) => {
     return {
-        siderBarKey: state.common.siderBarKey
+        siderBarKey: state.common.siderBarKey,
+        experiment: state.experiment,
+        component: state.component,
+        notebook: state.notebook
     }
 })
 class BenchContent extends Component {
@@ -15,13 +19,13 @@ class BenchContent extends Component {
         const { siderBarKey } = this.props;
         switch (siderBarKey) {
             case siderBarType.notebook: {
-                return <PanelGroup />
+                return <NoteBookGroup />
             }
             case siderBarType.experiment: {
-                return <PanelGroup />
+                return <GraphGroup />
             }
             case siderBarType.component: {
-                return <PanelGroup />
+                return <GraphGroup />
             }
             case siderBarType.model: {
                 return <ModelView />
@@ -30,11 +34,7 @@ class BenchContent extends Component {
     }
 
     render () {
-        return (
-            <div className="m-content">
-                {this.renderContent()}
-            </div>
-        )
+        return this.renderContent()
     }
 }
 
