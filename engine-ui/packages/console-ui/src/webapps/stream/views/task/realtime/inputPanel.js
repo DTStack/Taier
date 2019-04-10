@@ -7,7 +7,8 @@ import { debounce, cloneDeep } from 'lodash';
 
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-import { DATA_SOURCE_TEXT, DATA_SOURCE, TOPIC_TYPE } from '../../../comm/const'
+// import { DATA_SOURCE_TEXT, DATA_SOURCE, TOPIC_TYPE } from '../../../comm/const'
+import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 import Editor from 'widgets/code-editor'
@@ -92,8 +93,8 @@ class InputOrigin extends Component {
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
         const eventTimeOptionType = this.originOption('eventTime', timeColumoption[index] || []);
 
-        const topicIsPattern = panelColumn[index].topicIsPattern;
-        const topic = panelColumn[index].topic || [];
+        // const topicIsPattern = panelColumn[index].topicIsPattern;
+        // const topic = panelColumn[index].topic || [];
         const offsetReset = panelColumn[index].offsetReset;
         const customParams = panelColumn[index].customParams || [];
 
@@ -148,7 +149,7 @@ class InputOrigin extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <FormItem
+                    {/* <FormItem
                         {...formItemLayout}
                         label="Topic类型"
                     >
@@ -158,8 +159,8 @@ class InputOrigin extends Component {
                                 <Radio value={TOPIC_TYPE.REXGEP}>正则</Radio>
                             </RadioGroup>
                         )}
-                    </FormItem>
-                    <FormItem
+                    </FormItem> */}
+                    {/* <FormItem
                         {...formItemLayout}
                         label="Topic"
                     >
@@ -186,6 +187,24 @@ class InputOrigin extends Component {
                             ]
                         })(
                             <Input placeholder="请输入正则表达式" onChange={(v) => { handleInputChange('topic', index, [v.target.value]) }} />
+                        )}
+                    </FormItem> */}
+                    <FormItem
+                        {...formItemLayout}
+                        label="Topic"
+                    >
+                        {getFieldDecorator('topic', {
+                            rules: [
+                                { required: true, message: '请选择Topic' }
+                            ]
+                        })(
+                            <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange('topic', index, v) }}
+                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
+                                {
+                                    topicOptionTypes
+                                }
+                            </Select>
                         )}
                     </FormItem>
                     <Row>
@@ -234,7 +253,7 @@ class InputOrigin extends Component {
                             )}
                         </Col>
                     </Row>
-                    <FormItem
+                    {/* <FormItem
                         {...formItemLayout}
                         label={<span>
                             <span style={{ paddingRight: '5px' }}>Offset</span>
@@ -253,6 +272,29 @@ class InputOrigin extends Component {
                                 {topic.length < 2 && !topicIsPattern && (
                                     <Radio value='custom'>自定义参数</Radio>
                                 )}
+                            </RadioGroup>
+                        )}
+                    </FormItem> */}
+                    <FormItem
+                        {...formItemLayout}
+                        label={<span>
+                            <span style={{ paddingRight: '5px' }}>Offset</span>
+                            <Tooltip overlayClassName="big-tooltip" title={<div>
+                                <p>latest：从Kafka Topic内最新的数据开始消费</p>
+                                <p>earliest：从Kafka Topic内最老的数据开始消费</p>
+                            </div>}>
+                                <Icon type="question-circle-o" />
+                            </Tooltip>
+                        </span>}
+                    >
+                        {getFieldDecorator('offsetReset')(
+                            <RadioGroup className="right-select" onChange={(v) => { handleInputChange('offsetReset', index, v.target.value) }}>
+                                <Radio value='latest'>latest</Radio>
+                                <Radio value='earliest'>earliest</Radio>
+                                {/* {topic.length < 2 && (
+                                    <Radio value='custom'>自定义参数</Radio>
+                                )} */}
+                                <Radio value='custom'>自定义参数</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>
@@ -377,7 +419,7 @@ const InputForm = Form.create({
             columnsText,
             parallelism,
             offsetReset,
-            topicIsPattern,
+            // topicIsPattern,
             customParams
         } = props.panelColumn[props.index];
         return {
@@ -393,7 +435,7 @@ const InputForm = Form.create({
             offsetReset: { value: offsetReset },
             columnsText: { value: columnsText },
             parallelism: { value: parallelism },
-            topicIsPattern: { value: topicIsPattern },
+            // topicIsPattern: { value: topicIsPattern },
             ...generateMapValues(customParams)
             // alias: { value: alias },
         }
@@ -611,8 +653,8 @@ export default class InputPanel extends Component {
             offset: 0,
             columnsText: undefined,
             parallelism: 1,
-            offsetReset: 'latest',
-            topicIsPattern: TOPIC_TYPE.NORMAL
+            offsetReset: 'latest'
+            // topicIsPattern: TOPIC_TYPE.NORMAL
             // alias: undefined,
         }
 
@@ -680,7 +722,6 @@ export default class InputPanel extends Component {
             panelActiveKey
         })
     }
-
     handleInputChange = (type, index, value, subValue) => { // 监听数据改变
         let { panelColumn, timeColumoption, originOptionType, topicOptionType } = this.state;
         let shouldUpdateEditor = true;
@@ -696,7 +737,7 @@ export default class InputPanel extends Component {
             'offsetReset',
             'columnsText',
             'parallelism',
-            'topicIsPattern',
+            // 'topicIsPattern',
             'offsetValue',
             'customParams'
         ]
@@ -716,7 +757,7 @@ export default class InputPanel extends Component {
                 topicOptionType[index] = [];
                 allParamsType.map(v => {
                     if (v != 'type') {
-                        if (v == 'columns' || v == 'topic') {
+                        if (v == 'columns') {
                             panelColumn[index][v] = [];
                         } else if (v == 'timeType') {
                             panelColumn[index][v] = 1
@@ -724,8 +765,6 @@ export default class InputPanel extends Component {
                             panelColumn[index][v] = 1
                         } else if (v == 'offsetReset') {
                             panelColumn[index][v] = 'latest'
-                        } else if (v == 'topicIsPattern') {
-                            panelColumn[index][v] = TOPIC_TYPE.NORMAL
                         } else {
                             panelColumn[index][v] = undefined
                         }
@@ -747,8 +786,6 @@ export default class InputPanel extends Component {
                             panelColumn[index][v] = 1
                         } else if (v == 'offsetReset') {
                             panelColumn[index][v] = 'latest'
-                        } else if (v == 'topicIsPattern') {
-                            panelColumn[index][v] = TOPIC_TYPE.NORMAL
                         } else {
                             panelColumn[index][v] = undefined
                         }
@@ -760,7 +797,7 @@ export default class InputPanel extends Component {
             case 'topic': {
                 timeColumoption[index] = [];
                 allParamsType.map(v => {
-                    if (v != 'type' && v != 'sourceId' && v != 'topic' && v != 'topicIsPattern') {
+                    if (v != 'type' && v != 'sourceId' && v != 'topic') {
                         if (v == 'columns') {
                             panelColumn[index][v] = [];
                         } else if (v == 'timeType') {
@@ -776,27 +813,27 @@ export default class InputPanel extends Component {
                 })
                 break;
             }
-            case 'topicIsPattern': {
-                timeColumoption[index] = [];
-                allParamsType.map(v => {
-                    if (v != 'type' && v != 'sourceId' && v != 'topicIsPattern') {
-                        if (v == 'columns') {
-                            panelColumn[index][v] = [];
-                        } else if (v == 'timeType') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'parallelism') {
-                            panelColumn[index][v] = 1
-                        } else if (v == 'offsetReset') {
-                            panelColumn[index][v] = 'latest'
-                        } else if (v == 'topic') {
-                            panelColumn[index][v] = [];
-                        } else {
-                            panelColumn[index][v] = undefined
-                        }
-                    }
-                })
-                break;
-            }
+            // case 'topicIsPattern': {
+            //     timeColumoption[index] = [];
+            //     allParamsType.map(v => {
+            //         if (v != 'type' && v != 'sourceId' && v != 'topicIsPattern') {
+            //             if (v == 'columns') {
+            //                 panelColumn[index][v] = [];
+            //             } else if (v == 'timeType') {
+            //                 panelColumn[index][v] = 1
+            //             } else if (v == 'parallelism') {
+            //                 panelColumn[index][v] = 1
+            //             } else if (v == 'offsetReset') {
+            //                 panelColumn[index][v] = 'latest'
+            //             } else if (v == 'topic') {
+            //                 panelColumn[index][v] = [];
+            //             } else {
+            //                 panelColumn[index][v] = undefined
+            //             }
+            //         }
+            //     })
+            //     break;
+            // }
             default: {
                 shouldUpdateEditor = false;
             }
