@@ -85,3 +85,19 @@
         }
     }
 }
+.c-panel{
+    position: relative;
+    height: 100%;
+    .c-panel__content{
+        position: absolute;
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 30px;
+    }
+    .c-panel__siderbar{
+        position: absolute;
+        right: 0px;
+        height: 100%;
+    }
+}

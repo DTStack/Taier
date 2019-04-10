@@ -5,6 +5,7 @@ import { Tabs } from 'antd';
 
 import PanelGroup from '../index';
 import EditorPanel from '../editorPanel';
+import DefaultNotebookView from '../../default/defaultNoteBookView';
 
 import * as tabActions from '../../../../../actions/base/tab';
 import { siderBarType } from '../../../../../consts';
@@ -37,26 +38,35 @@ class NoteBookGroup extends React.Component {
             }
         }
     }
+    closeTab (tabId) {
+        this.props.deleteTab(siderBarType.notebook, tabId);
+    }
     render () {
         const { tabs = [], currentTabIndex } = this.props;
-        return (
-            <PanelGroup
-                switchTab={this.switchTab.bind(this)}
-                closeTabs={this.closeTabs.bind(this)}
-                currentTabIndex={currentTabIndex}
-            >
-                {tabs.map((tab) => {
-                    return (
-                        <TabPane
-                            tab={tab.name}
-                            key={tab.id}
-                        >
-                            <EditorPanel currentTab={tab.id} data={tab} />
-                        </TabPane>
-                    )
-                })}
-            </PanelGroup>
+        return !tabs || !tabs.length ? (
+            <DefaultNotebookView />
         )
+            : (
+                <PanelGroup
+                    switchTab={this.switchTab.bind(this)}
+                    closeTabs={this.closeTabs.bind(this)}
+                    closeTab={this.closeTab.bind(this)}
+                    currentTabIndex={currentTabIndex}
+                >
+                    {
+                        tabs.map((tab) => {
+                            return (
+                                <TabPane
+                                    tab={<span className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}>{tab.name}</span>}
+                                    key={tab.id}
+                                >
+                                    <EditorPanel currentTab={tab.id} data={tab} />
+                                </TabPane>
+                            )
+                        })
+                    }
+                </PanelGroup>
+            )
     }
 }
 export default NoteBookGroup;

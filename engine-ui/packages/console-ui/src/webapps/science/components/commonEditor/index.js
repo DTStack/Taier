@@ -6,6 +6,7 @@ import 'handsontable/dist/handsontable.full.css';
 
 import ToolBar from './toolbar';
 import Console from './console';
+import SiderBar from './siderbar';
 
 const propType = {
     editor: PropTypes.object,
@@ -65,59 +66,68 @@ class CommonEditor extends Component {
     }
 
     render () {
-        const { toolbar, console } = this.props;
+        const { toolbar, console, siderBarItems } = this.props;
 
         const { size } = this.state;
 
         const editorPane = this.renderEditorPane();
 
         return (
-            <div className="ide-editor">
-                {
-                    toolbar && toolbar.enable
-                        ? <div className="ide-header bd-bottom">
-                            <ToolBar
-                                {...toolbar}
-                                changeTab={this.changeTab}
-                            />
+            <div className='c-panel'>
+                <div className='c-panel__content'>
+                    <div className="ide-editor">
+                        {
+                            toolbar && toolbar.enable
+                                ? <div className="ide-header bd-bottom">
+                                    <ToolBar
+                                        {...toolbar}
+                                        changeTab={this.changeTab}
+                                    />
+                                </div>
+                                : ''
+                        }
+                        <div style={{ zIndex: 901 }} className="ide-content">
+                            {console && console.data && console.data.length ? (
+                                <SplitPane
+                                    split="horizontal"
+                                    minSize={100}
+                                    maxSize={-77}
+                                    defaultSize="60%"
+                                    primary="first"
+                                    key="ide-split-pane"
+                                    size={size}
+                                    onChange={(size) => {
+                                        this.setState({
+                                            size: size
+                                        });
+                                    }}
+                                >
+                                    {editorPane}
+                                    <Console
+                                        onConsoleTabChange={this.changeTab}
+                                        setSplitMax={() => {
+                                            this.setState({
+                                                size: '100px'
+                                            });
+                                        }}
+                                        setSplitMin={() => {
+                                            this.setState({
+                                                size: 'calc(100% - 40px)'
+                                            });
+                                        }}
+                                        {...console}
+                                    />
+                                </SplitPane>
+                            ) : (
+                                editorPane
+                            )}
                         </div>
-                        : ''
-                }
-                <div style={{ zIndex: 901 }} className="ide-content">
-                    {console && console.data && console.data.length ? (
-                        <SplitPane
-                            split="horizontal"
-                            minSize={100}
-                            maxSize={-77}
-                            defaultSize="60%"
-                            primary="first"
-                            key="ide-split-pane"
-                            size={size}
-                            onChange={(size) => {
-                                this.setState({
-                                    size: size
-                                });
-                            }}
-                        >
-                            {editorPane}
-                            <Console
-                                onConsoleTabChange={this.changeTab}
-                                setSplitMax={() => {
-                                    this.setState({
-                                        size: '100px'
-                                    });
-                                }}
-                                setSplitMin={() => {
-                                    this.setState({
-                                        size: 'calc(100% - 40px)'
-                                    });
-                                }}
-                                {...console}
-                            />
-                        </SplitPane>
-                    ) : (
-                        editorPane
-                    )}
+                    </div>
+                </div>
+                <div className='c-panel__siderbar'>
+                    <SiderBar>
+                        {siderBarItems}
+                    </SiderBar>
                 </div>
             </div>
         );

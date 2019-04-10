@@ -48,6 +48,7 @@ class GraphGroup extends React.Component {
                 {tabs.map((tab) => {
                     return (
                         <TabPane
+                            className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}
                             tab={tab.name}
                             key={tab.id}
                         >

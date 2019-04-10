@@ -17,7 +17,8 @@ function localTabs (state = [], action) {
                 return tab.id == payload.id
             });
             if (index > -1) {
-                return [...state].splice(index, 1, payload);
+                state = [...state];
+                state.splice(index, 1, payload);
             }
             return state;
         }

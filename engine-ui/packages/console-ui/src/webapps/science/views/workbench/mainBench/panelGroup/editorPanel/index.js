@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Tabs } from 'antd';
 import { debounce } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { commonFileEditDelegator } from 'widgets/editor/utils';
@@ -13,6 +14,7 @@ import { siderBarType } from '../../../../../consts';
 
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
+import * as notebookActions from '../../../../../actions/notebookActions';
 import commActions from '../../../../../actions';
 
 @connect(
@@ -27,21 +29,15 @@ import commActions from '../../../../../actions';
         const actionsOne = bindActionCreators(workbenchActions, dispatch);
         const actionsTwo = bindActionCreators(editorActions, dispatch);
         const actionsThree = bindActionCreators(commActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree);
+        const notebookAction = bindActionCreators(notebookActions, dispatch);
+        return Object.assign(actionsOne, actionsTwo, actionsThree, notebookAction);
     }
 )
 class EditorPanel extends Component {
-    state = { };
+    state = {};
 
     handleEditorTxtChange = (newVal, editorInstance) => {
-        const data = this.props.data;
-        const newData = {
-            merged: false,
-            id: data.id,
-            sqlText: newVal,
-            cursorPosition: editorInstance.getPosition()
-        };
-        this.props.updateTab(newData);
+        this.props.changeText(newVal, this.props.data);
     };
 
     execSQL = () => {
@@ -122,7 +118,28 @@ class EditorPanel extends Component {
     debounceSelectionChange = debounce(this.props.setSelectionContent, 200, {
         maxWait: 2000
     });
-
+    renderSiderbarItems () {
+        return [
+            <Tabs.TabPane
+                tab='调度参数'
+                key='key'
+            >
+                123
+            </Tabs.TabPane>,
+            <Tabs.TabPane
+                tab='任务参数'
+                key='key1'
+            >
+                1232
+            </Tabs.TabPane>,
+            <Tabs.TabPane
+                tab='任务属性'
+                key='key2'
+            >
+                1232
+            </Tabs.TabPane>
+        ]
+    }
     render () {
         const { editor, data } = this.props;
 
@@ -169,6 +186,7 @@ class EditorPanel extends Component {
             <CommonEditor
                 console={consoleOpts}
                 toolbar={toolbarOpts}
+                siderBarItems={this.renderSiderbarItems()}
             >
                 <Editor
                     {...editorOpts}
@@ -177,16 +195,6 @@ class EditorPanel extends Component {
                     }}
                 />
             </CommonEditor>
-            // <div className="m-editor" style={{ height: '100%' }}>
-            //     <IDEEditor
-            //         editorInstanceRef={instance => {
-            //             this._editor = instance;
-            //         }}
-            //         editor={editorOpts}
-            //         toolbar={toolbarOpts}
-            //         console={consoleOpts}
-            //     />
-            // </div>
         );
     }
 }
