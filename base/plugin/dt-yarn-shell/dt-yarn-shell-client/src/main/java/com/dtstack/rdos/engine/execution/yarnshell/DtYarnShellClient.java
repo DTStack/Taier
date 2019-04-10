@@ -172,7 +172,7 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public String getJobMaster() {
-        throw new RdosException("learning client not support method 'getJobMaster'");
+        throw new RdosException("dt-yarn-shell client not support method 'getJobMaster'");
     }
 
     @Override
