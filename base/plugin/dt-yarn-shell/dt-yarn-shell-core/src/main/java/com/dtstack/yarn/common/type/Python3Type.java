@@ -6,6 +6,7 @@ import com.dtstack.yarn.client.ClientArguments;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
+import java.net.URLEncoder;
 import java.util.List;
 
 public class Python3Type extends AppType {
@@ -18,16 +19,26 @@ public class Python3Type extends AppType {
 
     @Override
     public String buildCmd(ClientArguments clientArguments, YarnConfiguration conf) {
+
+        String encodedOpts = "";
+        if (StringUtils.isNotBlank(clientArguments.getCmdOpts())) {
+            try {
+                encodedOpts = URLEncoder.encode(clientArguments.getCmdOpts(), "UTF-8");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         if (StringUtils.isNotBlank(clientArguments.getLaunchCmd())) {
             return clientArguments.getLaunchCmd();
         } else {
             String execFile =clientArguments.getFiles()[0];
-            if (!clientArguments.getAlgFile()){
+            if (!clientArguments.getLocalFile()){
                 String fullPath = clientArguments.getFiles()[0];
                 String[] parts = fullPath.split("/");
                 execFile = parts[parts.length - 1];
             }
-            return cmdPrefix(conf) + " " + execFile;
+            return cmdPrefix(conf) + " " + execFile + " " + encodedOpts;
         }
     }
 
