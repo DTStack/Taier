@@ -17,7 +17,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.Master;
 import org.apache.hadoop.security.Credentials;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.token.Token;
@@ -171,7 +170,7 @@ public class Client {
             classPathEnv.append(cp.trim());
         }
 
-        if (clientArguments.algFile == Boolean.FALSE && clientArguments.files != null) {
+        if (Boolean.FALSE.equals(clientArguments.localFile) && clientArguments.files != null) {
             StringBuffer appFilesRemotePath = new StringBuffer(1000);
             Path[] xlearningFilesDst = new Path[clientArguments.files.length];
             LOG.info("Copy dtyarnshell files from local filesystem to remote.");
@@ -192,7 +191,6 @@ public class Client {
             }
             appMasterEnv.put(DtYarnConstants.Environment.FILES_LOCATION.toString(),
                     appFilesRemotePath.deleteCharAt(appFilesRemotePath.length() - 1).toString());
-
         }
 
         if (StringUtils.isNotBlank(clientArguments.cacheFiles)) {

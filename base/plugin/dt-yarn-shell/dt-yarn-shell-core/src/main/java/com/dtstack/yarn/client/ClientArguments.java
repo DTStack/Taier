@@ -35,7 +35,7 @@ public class ClientArguments {
     int psNum;
     int appMem;
     String[] files;
-    Boolean algFile = false;
+    Boolean localFile = false;
 //    Configuration remoteConf;
     String[] libJars;
     String launchCmd;
@@ -156,8 +156,8 @@ public class ClientArguments {
         this.files = files;
     }
 
-    public Boolean getAlgFile() {
-        return algFile;
+    public Boolean getLocalFile() {
+        return localFile;
     }
 
     //    public Configuration getRemoteConf() {
@@ -389,9 +389,6 @@ public class ClientArguments {
 
         allOptions.addOption("files", "files", true,
                 "Location of the XLearning files used in container");
-        allOptions.addOption("algFiles", "alg-files", false,
-                "the files is or not a algorithm file");
-
         allOptions.addOption("jars", "jars", true,
                 "Location of the XLearning lib jars used in container");
 
@@ -533,10 +530,9 @@ public class ClientArguments {
 
         if (commandLine.hasOption(CliOptions.OPT_FILES)) {
             files = StringUtils.split(commandLine.getOptionValue(CliOptions.OPT_FILES), ",");
-        }
-
-        if (commandLine.hasOption(CliOptions.OPT_ALG_FILES)) {
-            algFile = Boolean.TRUE;
+            if (files != null && !files[0].startsWith("hdfs:") && !files[0].startsWith("http:")){
+                localFile = Boolean.TRUE;
+            }
         }
 
 //        if (commandLine.hasOption(CliOptions.OPT_REMOTE_DFS_CONFIG)) {
