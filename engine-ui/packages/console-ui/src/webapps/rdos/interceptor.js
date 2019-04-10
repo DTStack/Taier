@@ -44,6 +44,7 @@ export function authBeforeFormate (response) {
 // TODO 状态码这块还是太乱
 export function authAfterFormated (response) {
     switch (response.code) {
+        case 548: // 获取分区失败，避免notification窗口提示
         case 1:
             return response;
         case 0: // 需要登录
