@@ -136,3 +136,68 @@
         }
     }
 }
+
+.detailModal {
+    tr {
+        height: 40px;
+        font-size: 13px;
+        color: #333333;
+
+        th:nth-child(1) {
+            border: 1px solid #DDDDDD;
+            background: #F5F5F5;
+            width: 100px;
+            word-break: keep-all;
+            text-align: left;
+            padding: 0 20px;
+            font-weight: normal;
+        }
+
+        th:nth-child(2) {
+            border: 1px solid #DDDDDD;
+            width: auto;
+            text-align: left;
+            padding-left: 20px;
+            font-weight: normal;
+
+            .editable-cell-text-wrapper {
+                position: relative;
+                height: 16px;
+
+
+                i {
+                    position: absolute;
+                    right: 20px;
+                    line-height: 18px;
+
+                    &:hover {
+                        color: #2491F7;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .editable-cell-input-wrapper {
+                i {
+                    margin-left: 6px;
+
+                    &:hover {
+                        color: #2491F7;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+    }
+
+    .ant-modal-footer {
+        border-top: 0;
+        padding: 20px;
+
+        button {
+            width: 86px;
+            height: 30px;
+            border-radius: 3px;
+        }
+    }
+}

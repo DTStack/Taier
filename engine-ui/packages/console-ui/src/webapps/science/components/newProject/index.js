@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Modal, Form, Input, Icon } from 'antd';
-import PropTypes from 'prop-types'
 import './index.scss';
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -96,8 +95,4 @@ class Index extends Component {
         );
     }
 }
-Index.propTypes = {
-    visible: PropTypes.Boolean,
-    onCancel: PropTypes.func
-};
 export default Form.create()(Index);

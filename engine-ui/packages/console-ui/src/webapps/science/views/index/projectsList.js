@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Icon, Card, Input, Table, Button } from 'antd';
 import NewProject from '../../components/newProject';
-import SlidePane from 'widgets/slidePane';
+import ProjectDetail from './projectDetail';
 const Search = Input.Search;
 class ProjectsList extends Component {
     state = {
@@ -16,15 +16,17 @@ class ProjectsList extends Component {
             current: 1,
             total: 0
         },
+        checkProject: undefined,
         visible: false,
         visibleSlidePane: false
     }
     componentDidMount () {
         this.getTableData();
     }
-    handleCheckProject = () => {
+    handleCheckProject = (record) => {
         this.setState({
-            visibleSlidePane: true
+            visibleSlidePane: true,
+            checkProject: record
         });
     }
     handleNewProject = () => {
@@ -84,7 +86,7 @@ class ProjectsList extends Component {
             key: 'projectAliaName',
             sorter: true,
             render: (text, record) => {
-                return <a href="javascript:void(0)" onClick={this.handleCheckProject}>{text}</a>
+                return <a href="javascript:void(0)" onClick={() => this.handleCheckProject(record)}>{text}</a>
             }
         }, {
             title: '项目名称',
@@ -113,7 +115,7 @@ class ProjectsList extends Component {
         }]
     }
     render () {
-        const { loading, data, pagination, visible, visibleSlidePane } = this.state;
+        const { loading, data, pagination, visible, visibleSlidePane, checkProject } = this.state;
         return (
             <div className="projects-list">
                 <header className="projects-header"><Icon type="rollback" onClick={() => this.props.toggle()} />项目列表</header>
@@ -140,13 +142,10 @@ class ProjectsList extends Component {
                 <NewProject
                     onCancel={this.handleCancel}
                     visible={visible} />
-                <SlidePane
-                    className="m-tabs bd-top bd-right m-slide-pane"
-                    onClose={this.closeSlidePane}
-                    visible={visibleSlidePane}
-                    style={{ right: '0px', width: '60%', height: '100%', minHeight: '600px', position: 'fixed', paddingTop: '50px' }}>
-                    <div>1</div>
-                </SlidePane>
+                <ProjectDetail
+                    checkProject={checkProject || {}}
+                    onCancel={this.closeSlidePane}
+                    visible={visibleSlidePane}/>
             </div>
         );
     }
