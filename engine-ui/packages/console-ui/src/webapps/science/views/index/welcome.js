@@ -58,7 +58,7 @@ class Welcome extends Component {
             width: '20%'
         }
         return (
-            <Row className="inner-container">
+            <Row className="welcome">
                 <Col span={20} className="welcome-page">
                     <div>
                         <Row gutter={20}>

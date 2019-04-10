@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input, Icon } from 'antd';
-import './index.scss';
+import { Modal, Form, Input } from 'antd';
 const FormItem = Form.Item;
 const formItemLayout = {
     labelCol: {
@@ -12,10 +11,17 @@ const formItemLayout = {
         sm: { span: 14 }
     }
 };
-class Index extends Component {
+// TODO
+const FORM_ENUM = {
+    '表名称': 'projectName',
+    '表生命周期': 'projectAliaName',
+    '表描述': 'projectDesc'
+}
+class Edit extends Component {
     handleOk = () => {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
+                // TODO
                 console.log('Received values of form: ', values);
                 this.handleCancel();
             }
@@ -25,10 +31,6 @@ class Index extends Component {
         this.props.form.resetFields();
         this.props.onCancel();
     }
-    alert () {
-        const values = this.props.form.getFieldsValue(['projectName', 'projectAliaName']);
-        return values.projectName && values.projectAliaName && <div className="alert"><Icon type="question-circle-o" />项目创建后，项目显示名支持修改，项目名称将不能再修改</div>;
-    }
     render () {
         const { visible } = this.props;
         const { getFieldDecorator } = this.props.form;
@@ -36,23 +38,21 @@ class Index extends Component {
             <div>
                 <Modal
                     maskClosable={false}
-                    title="创建项目"
+                    title="数据源编辑"
                     visible={visible}
                     onOk={this.handleOk}
-                    wrapClassName='projects-modal'
+                    wrapClassName='datasource-edit-modal'
                     okText="创建"
                     onCancel={this.handleCancel}
                 >
-                    <div className="tips">注：数据科学平台创建的项目，同时会同步至离线计算中，可在离线计算中进行数据同步、任务运维。</div>
-                    {this.alert()}
                     <Form>
                         <FormItem
                             {...formItemLayout}
-                            label="项目名称"
+                            label="表名称"
                         >
-                            {getFieldDecorator('projectName', {
+                            {getFieldDecorator(FORM_ENUM['表名称'], {
                                 rules: [{
-                                    required: true, message: '请填写项目名称'
+                                    required: true, message: '请填写表名称'
                                 }, {
                                     max: 32, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }, {
@@ -64,23 +64,21 @@ class Index extends Component {
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="项目显示名"
+                            label="表生命周期"
                         >
-                            {getFieldDecorator('projectAliaName', {
+                            {getFieldDecorator(FORM_ENUM['表生命周期'], {
                                 rules: [{
-                                    required: true, message: '请填写项目显示名'
-                                }, {
-                                    max: 32, message: '不超过32个字符'
+                                    required: true, message: '请填写表生命周期'
                                 }]
                             })(
-                                <Input placeholder="不超过32个字符" />
+                                <Input />
                             )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
-                            label="项目描述"
+                            label="表描述"
                         >
-                            {getFieldDecorator('projectDesc', {
+                            {getFieldDecorator(FORM_ENUM['表描述'], {
                                 rules: [{
                                     max: 64,
                                     message: '不超过64个字符'
@@ -95,4 +93,20 @@ class Index extends Component {
         );
     }
 }
-export default Form.create()(Index);
+
+export default Form.create({
+    mapPropsToFields (props) {
+        return {
+            // TODO
+            [FORM_ENUM['表名称']]: {
+                value: props.record.projectName || ''
+            },
+            [FORM_ENUM['表生命周期']]: {
+                value: props.record.projectName || ''
+            },
+            [FORM_ENUM['表描述']]: {
+                value: props.record.projectName || ''
+            }
+        };
+    }
+})(Edit);

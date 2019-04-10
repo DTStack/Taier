@@ -157,7 +157,7 @@ class Notebook extends PureComponent {
                     <Table
                         rowSelection={rowSelection}
                         rowKey="id"
-                        className='m-table'
+                        className='science-table'
                         loading={loading}
                         onChange={this.handleTableChange}
                         columns={this.initCol()}

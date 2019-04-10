@@ -1,4 +1,4 @@
-.inner-container {
+.welcome {
     padding: 0;
     background: #F5F5F5;
     height: 100%;
@@ -126,18 +126,10 @@
 
     .ant-card-body {
         padding: 7px 0;
-
-        .m-table {
-            .ant-table-body {
-                border: 1px solid #DDDDDD;
-                border-bottom: 0;
-                border-radius: 3px;
-            }
-        }
     }
 }
 
-.detailModal {
+.detail-modal {
     tr {
         height: 40px;
         font-size: 13px;

@@ -105,3 +105,17 @@ export const offlineTaskPeriodFilter = [{
     text: '月任务',
     value: 4
 }]
+
+export const dataSourceFilter = [{
+    id: 1,
+    text: 'HDFS',
+    value: 0
+}, {
+    id: 2,
+    text: 'TXT',
+    value: 1
+}, {
+    id: 3,
+    text: 'CSV',
+    value: 2
+}]

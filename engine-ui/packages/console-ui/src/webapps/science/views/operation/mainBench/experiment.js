@@ -158,7 +158,7 @@ class Experiment extends PureComponent {
                     <Table
                         rowSelection={rowSelection}
                         rowKey="id"
-                        className='m-table'
+                        className='science-table'
                         loading={loading}
                         columns={this.initCol()}
                         onChange={this.handleTableChange}

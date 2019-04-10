@@ -121,6 +121,7 @@
         padding: 3px 20px;
         border-bottom: 0;
         font-size: 13px;
+
         .ant-input-search {
             margin: 10px 0;
         }
@@ -129,13 +130,7 @@
     .ant-card-body {
         padding: 11px 20px;
 
-        .m-table {
-            .ant-table-body {
-                border: 1px solid #DDDDDD;
-                border-bottom: 0;
-                border-radius: 3px;
-            }
-
+        .science-table {
             .ant-table-thead .ant-table-selection-column span {
                 visibility: visible;
             }
@@ -144,6 +139,8 @@
                 border-bottom: 0;
                 margin-top: 10px;
                 margin-bottom: 2px;
+                padding: 0;
+                background: transparent;
 
                 &:before {
                     background: transparent;

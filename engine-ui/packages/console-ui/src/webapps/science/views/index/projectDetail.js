@@ -34,7 +34,7 @@ class ProjectDetail extends PureComponent {
                 maskClosable={false}
                 title="项目属性"
                 visible={visible}
-                wrapClassName='detailModal'
+                wrapClassName='detail-modal'
                 okText="确定"
                 width={550}
                 onCancel={this.handleClose}
