@@ -5,7 +5,9 @@ import { union } from 'lodash';
 
 import Loading from '../loading';
 import FolderTree from '../../folderTree';
-import workbenchActions from '../../../../../actions/workbenchActions';
+import * as fileTreeActions from '../../../../../actions/base/fileTree';
+
+import { siderBarType } from '../../../../../consts';
 
 // const Search = Input.Search;
 
@@ -17,7 +19,7 @@ import workbenchActions from '../../../../../actions/workbenchActions';
         }
     },
     dispatch => {
-        const actions = bindActionCreators(workbenchActions, dispatch);
+        const actions = bindActionCreators(fileTreeActions, dispatch);
         return actions;
     })
 class ComponentSidebar extends Component {
@@ -29,10 +31,6 @@ class ComponentSidebar extends Component {
         expandedKeys: []
     }
 
-    componentDidMount () {
-        this.props.loadCatalogue();
-    }
-
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;
         if (expanded) {
@@ -42,7 +40,9 @@ class ComponentSidebar extends Component {
             expandedKeys: keys
         })
     }
-
+    asynLoadCatalogue = (treeNode) => {
+        return this.props.loadTreeData(siderBarType.component, treeNode.props.data.id)
+    }
     renderFolderContent = () => {
         const {
             files
@@ -52,37 +52,9 @@ class ComponentSidebar extends Component {
                 {files.length ? (
                     <FolderTree
                         loadData={this.asynLoadCatalogue}
-                        onSelect={this.onNodeSelect}
                         onExpand={this.onExpand}
                         expandedKeys={this.state.expandedKeys}
-                        selectedKeys={this.state.selectedKeys}
-                        treeData={[{
-                            id: 1,
-                            name: 'folder1',
-                            type: 'folder',
-                            children: [{
-                                id: 11,
-                                name: 'file1',
-                                type: 'file'
-                            }, {
-                                id: 12,
-                                name: 'file2',
-                                type: 'file'
-                            }]
-                        }, {
-                            id: 10,
-                            name: 'folder11',
-                            type: 'folder',
-                            children: [{
-                                id: 110,
-                                name: 'file11',
-                                type: 'file'
-                            }, {
-                                id: 120,
-                                name: 'file21',
-                                type: 'file'
-                            }]
-                        }]}
+                        treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
                                 return 'anchor-file o-tree-icon--normal'

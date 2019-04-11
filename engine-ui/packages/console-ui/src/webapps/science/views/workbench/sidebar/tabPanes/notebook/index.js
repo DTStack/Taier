@@ -31,9 +31,6 @@ class NotebookSidebar extends Component {
         newFolderData: null
     }
 
-    componentDidMount () {
-        this.props.loadTreeData();
-    }
     newFolder (folder) {
         this.setState({
             newFolderVisible: true,

@@ -22,7 +22,8 @@ export function updateTreeNode (origin, replaceNode) {
                     return tmpMap[childNode.id] || childNode;
                 });
             }
-            return [...origin].splice(i, 1, replaceNode)
+            origin.splice(i, 1, replaceNode)
+            return [...origin];
         } else if (node.children) {
             const tree = updateTreeNode(node.children, replaceNode);
             if (tree) {
@@ -41,7 +42,8 @@ export function replaceTreeNode (origin, replaceNode) {
     for (let i = 0; i < origin.length; i++) {
         const node = origin[i];
         if (node.id == replaceNode.id) {
-            return [...origin].splice(i, 1, replaceNode)
+            origin.splice(i, 1, replaceNode)
+            return [...origin];
         } else if (node.children) {
             const tree = replaceTreeNode(node.children, replaceNode);
             if (tree) {

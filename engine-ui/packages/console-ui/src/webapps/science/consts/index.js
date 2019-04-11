@@ -12,7 +12,7 @@ export const CATALOGUE_TYPE = {
 
 export const siderBarType = {
     notebook: 'notebook',
-    experiment: 'experiment',
+    experiment: 'laboratory',
     component: 'component',
     model: 'model'
 }

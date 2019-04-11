@@ -11,7 +11,7 @@ export const DL_BASE_URL = '/api/tag/service';
 export const CONSOLE_BASE_URL = '/api/console/service';
 export const CONSOLE_BASE_UPLOAD_URL = '/api/console';
 export const ANALYTICS_ENGINE_BASE_URL = '/api/analysis/service';
-export const SCIENCE_BASE_URL = '/api/science/service';
+export const SCIENCE_BASE_URL = '/api/dataScience';
 
 export const rdosApp = {
     id: 'rdos',

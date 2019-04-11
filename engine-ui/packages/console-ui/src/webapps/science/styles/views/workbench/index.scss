@@ -4,20 +4,22 @@
 @import './defaultView.scss';
 @import './modelView.scss';
 .sidebar {
-
+    
    .s-catalogue {
+
+        position: absolute;
+        top: 35px;
+        right: 0px;
+        left: 0px;
+        bottom: 0px;
         padding: 6px 15px 5px 12px;
-        padding-bottom: 80px;
-        height: 100%;
-        overflow-y: auto;
-        overflow-x: hidden;
+        overflow: auto;
 
         .ant-tree {
 
             li {
                 padding: 4px 0 0 0;
                 .ant-tree-node-content-wrapper {
-                    width: 100%;
                     padding: 5px 5px;
 
                     &:hover, &.ant-tree-node-selected {

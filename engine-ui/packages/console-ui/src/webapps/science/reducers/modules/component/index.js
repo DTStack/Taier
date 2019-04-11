@@ -11,6 +11,9 @@ function files (state = [], action) {
         case componentFilesType.REPLACE_TREE_NODE: {
             return replaceTreeNode(state, payload) || state;
         }
+        case componentFilesType.INIT_TREE: {
+            return payload;
+        }
         default: {
             return state;
         }
