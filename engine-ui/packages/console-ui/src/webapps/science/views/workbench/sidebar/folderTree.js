@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tree, Tooltip } from 'antd';
+import { Tree, Tooltip, TreeSelect } from 'antd';
 
 import {
     ContextMenu,
@@ -17,12 +17,15 @@ class FolderTree extends React.PureComponent {
     }
 
     renderNodes = () => {
-        const { treeData, nodeClass } = this.props;
+        const { treeData, nodeClass, hideFiles } = this.props;
         const loop = (data) => {
             return data && data.map(item => {
-                const id = `${item.id || item.tableId}`
-                const name = item.name || item.tableName
+                const id = `${item.id}`
+                const name = item.name
                 const isLeaf = item.type == 'file';
+                if (isLeaf && hideFiles) {
+                    return null;
+                }
                 // 用作展示上下文的锚点， 暂时取消
                 let className;
                 if (nodeClass && typeof nodeClass == 'function') {
@@ -43,6 +46,7 @@ class FolderTree extends React.PureComponent {
                 return (
                     <TreeNode
                         title={nodeTitle}
+                        name={name}
                         key={`${item.type}-${id}`}
                         value={id}
                         isLeaf={isLeaf}
@@ -69,7 +73,7 @@ class FolderTree extends React.PureComponent {
     }
     renderContextMenus () {
         const { contextMenus = [] } = this.props;
-        return contextMenus && contextMenus.map((contextMenu) => {
+        return contextMenus && contextMenus.map((contextMenu, index) => {
             return this.renderContextMenu(contextMenu);
         })
     }
@@ -78,7 +82,7 @@ class FolderTree extends React.PureComponent {
         if (!contextMenu.menuItems || !contextMenu.menuItems.length) {
             return null;
         }
-        return <ContextMenu targetClassName={contextMenu.targetClassName}>
+        return <ContextMenu key={contextMenu.targetClassName} targetClassName={contextMenu.targetClassName}>
             {contextMenu.menuItems.map((menu) => {
                 return (<MenuItem key={menu.text} onClick={() => {
                     menu.onClick(activeNode);
@@ -87,7 +91,20 @@ class FolderTree extends React.PureComponent {
         </ContextMenu>
     }
     render () {
-        return (
+        const { isSelect, value, onChange } = this.props;
+        return isSelect ? (
+            <TreeSelect
+                showSearch
+                placeholder='选择一个父节点'
+                dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                loadData={this.props.loadData}
+                value={typeof value == 'undefined' ? undefined : `${value}`}
+                onChange={onChange}
+                treeNodeFilterProp='name'
+            >
+                {this.renderNodes()}
+            </TreeSelect>
+        ) : (
             <div className="s-catalogue">
                 <Tree
                     showIcon={true}

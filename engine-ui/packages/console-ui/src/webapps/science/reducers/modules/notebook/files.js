@@ -1,7 +1,20 @@
 
 import { notebookFilesType } from '../../../consts/actionType/filesType';
 import { updateTreeNode, replaceTreeNode } from '../../helper';
-function files (state = [], action) {
+function files (state = [{
+    id: 1,
+    name: 'folder1',
+    type: 'folder',
+    children: [{
+        id: 11,
+        name: 'file1',
+        type: 'file'
+    }, {
+        id: 12,
+        name: 'file2',
+        type: 'file'
+    }]
+}], action) {
     const { type, payload } = action;
     switch (type) {
         case notebookFilesType.UPDATE_TREE_NODE: {

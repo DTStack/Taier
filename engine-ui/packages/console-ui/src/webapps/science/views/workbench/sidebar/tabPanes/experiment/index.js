@@ -2,15 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
-import { message } from 'antd';
 
-import utils from 'utils';
-import CopyUtils from 'utils/copy';
-
+import Loading from '../loading';
 import ToolBar from '../../toolbar';
 import FolderTree from '../../folderTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
-import { CATALOGUE_TYPE } from '../../../../../consts';
 
 // const Search = Input.Search;
 
@@ -18,7 +14,7 @@ import { CATALOGUE_TYPE } from '../../../../../consts';
     state => {
         return {
             routing: state.routing,
-            files: state.notebook.files
+            files: state.experiment.files
         }
     },
     dispatch => {
@@ -31,78 +27,11 @@ class ExperimentSidebar extends Component {
     }
 
     state = {
-        expandedKeys: [],
-        selectedKeys: []
+        expandedKeys: []
     }
 
     componentDidMount () {
         this.props.loadCatalogue();
-    }
-
-    refresh = () => {
-        this.setState({
-            expandedKeys: [],
-            selectedKeys: []
-        })
-        this.props.loadCatalogue();
-    }
-
-    searchTable = (value) => {
-        const query = utils.trim(value);
-        if (!query) {
-            this.refresh();
-            return;
-        };
-
-        this.props.loadCatalogue({
-            tableName: query
-        }, CATALOGUE_TYPE.SEARCH_TABLE);
-    }
-
-    copyName = () => {
-        const activeNode = this.state.activeNode;
-        if (activeNode) {
-            const copyValue = activeNode.name || activeNode.tableName;
-            const copyUtil = new CopyUtils();
-            copyUtil.copy(copyValue, (success) => {
-                if (success) {
-                    message.success('复制成功！');
-                }
-            })
-        }
-    }
-
-    asynLoadCatalogue = (treeNode) => {
-        const ctx = this;
-        const { data, fileType } = treeNode.props;
-        return new Promise(async (resolve) => {
-            ctx.props.loadCatalogue(data, fileType);
-            resolve();
-        });
-    }
-
-    onNodeSelect = (selectedKeys, { node }) => {
-        const { expandedKeys } = this.state;
-        const { eventKey, fileType, data } = node.props;
-        this.setState({
-            selectedKeys
-        });
-
-        if (fileType === CATALOGUE_TYPE.DATA_MAP) {
-            this.props.onGetDataMap({ id: data.id })
-            return false;
-        }
-
-        const eventKeyIndex = expandedKeys.indexOf(eventKey);
-        this.asynLoadCatalogue(node);
-
-        if (eventKeyIndex > -1) {
-            expandedKeys.splice(eventKeyIndex, 1);
-            this.onExpand(expandedKeys, { expanded: false });
-        } else {
-            expandedKeys.push(eventKey);
-            this.onExpand(expandedKeys, { expanded: true });
-        }
     }
 
     onExpand = (expandedKeys, { expanded }) => {
@@ -121,7 +50,7 @@ class ExperimentSidebar extends Component {
         } = this.props;
         return (
             <div>
-                {!files.length ? (
+                {files.length ? (
                     <FolderTree
                         loadData={this.asynLoadCatalogue}
                         onSelect={this.onNodeSelect}
@@ -144,13 +73,13 @@ class ExperimentSidebar extends Component {
                         }]}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
-                                return 'anchor-file o-tree-icon--normal'
+                                return 'anchor-experiment-file o-tree-icon--normal'
                             }
-                            return 'anchor-folder'
+                            return 'anchor-experiment-folder'
                         }}
                         contextMenus={[
                             {
-                                targetClassName: 'anchor-folder',
+                                targetClassName: 'anchor-experiment-folder',
                                 menuItems: [{
                                     text: '新建实验',
                                     onClick: (activeNode) => {
@@ -174,7 +103,7 @@ class ExperimentSidebar extends Component {
                                 }]
                             },
                             {
-                                targetClassName: 'anchor-file',
+                                targetClassName: 'anchor-experiment-file',
                                 menuItems: [{
                                     text: '属性',
                                     onClick: (activeNode) => {
@@ -188,29 +117,38 @@ class ExperimentSidebar extends Component {
                                 }]
                             }]}
                     />
-                ) : <span>暂无数据</span>}
+                ) : <Loading />}
             </div>
         )
     }
 
     render () {
-        const {
-            onCreateDB,
-            onCreateTable,
-            onSQLQuery,
-            onEditTable,
-            onTableDetail
-        } = this.props;
-
         return (
             <div className="sidebar">
                 <ToolBar
-                    onRefresh={this.refresh}
-                    onCreateDB={() => onCreateDB()}
-                    onSQLQuery={() => onSQLQuery()}
-                    onEditTable={() => onEditTable()}
-                    onCreateTable={() => onCreateTable()}
-                    onTableDetail={() => onTableDetail()}
+                    toolbarItems={[
+                        {
+                            title: '新建实验',
+                            type: 'file-add',
+                            onClick: () => {
+                                console.log(1)
+                            }
+                        },
+                        {
+                            title: '新建文件夹',
+                            type: 'folder-add',
+                            onClick: () => {
+                                console.log(2)
+                            }
+                        },
+                        {
+                            title: '搜索并打开实验',
+                            type: 'search',
+                            onClick: () => {
+                                console.log(11)
+                            }
+                        }
+                    ]}
                 />
                 {
                     this.renderFolderContent()
