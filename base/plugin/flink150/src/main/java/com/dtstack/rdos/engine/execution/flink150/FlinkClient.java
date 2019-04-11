@@ -303,6 +303,8 @@ public class FlinkClient extends AbsClient {
                 clusterSpecification.setYarnConfiguration(getYarnConf(jobClient.getPluginInfo()));
 
                 runResult = runJobByPerJob(clusterSpecification);
+
+                packagedProgram = clusterSpecification.getProgram();
             } else {
                 runResult = runJobByYarnSession(packagedProgram,runParallelism);
             }
@@ -311,9 +313,7 @@ public class FlinkClient extends AbsClient {
         }catch (Exception e){
             return JobResult.createErrorResult(e);
         }finally {
-            if(packagedProgram != null){
-                packagedProgram.deleteExtractedLibraries();
-            }
+            packagedProgram.deleteExtractedLibraries();
             jobClientThreadLocal.remove();
         }
     }
@@ -332,7 +332,6 @@ public class FlinkClient extends AbsClient {
         String flinkJobId = clusterSpecification.getJobGraph().getJobID().toString();
 
         delFilesFromDir(tmpdir, applicationId);
-        clusterSpecification.getProgram().deleteExtractedLibraries();
 
         clusterClientCache.put(applicationId, clusterClient);
 
