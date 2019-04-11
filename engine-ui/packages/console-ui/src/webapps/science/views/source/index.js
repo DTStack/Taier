@@ -145,7 +145,7 @@ class Source extends PureComponent {
                 >
                     <Table
                         rowKey="id"
-                        className='science-table'
+                        className='m-table'
                         loading={loading}
                         columns={this.initCol()}
                         onChange={this.handleTableChange}

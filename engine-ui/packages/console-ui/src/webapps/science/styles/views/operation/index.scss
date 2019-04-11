@@ -130,7 +130,18 @@
     .ant-card-body {
         padding: 11px 20px;
 
-        .science-table {
+        .m-table {
+            table {
+                border: 1px solid #DDDDDD;
+                border-bottom: 0;
+            }
+
+            .ant-table-placeholder {
+                border: 1px solid #DDDDDD;
+                border-top: 0;
+                margin-top: -1px;
+            }
+
             .ant-table-thead .ant-table-selection-column span {
                 visibility: visible;
             }

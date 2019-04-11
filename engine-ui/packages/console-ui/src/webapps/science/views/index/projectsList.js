@@ -131,7 +131,7 @@ class ProjectsList extends Component {
                     extra={<Button type="primary" onClick={this.handleNewProject}>创建项目</Button>}>
                     <Table
                         rowKey="id"
-                        className='science-table'
+                        className='m-table'
                         loading={loading}
                         onChange={this.handleTableChange}
                         columns={this.initCol()}
