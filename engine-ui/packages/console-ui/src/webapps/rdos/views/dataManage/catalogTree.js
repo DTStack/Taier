@@ -248,7 +248,7 @@ class CatalogueTree extends Component {
                     data={data}
                     className={isTable && 's-table'}
                 >
-                    {isFolder && data.children.length > 0 && loopTree(data.children)}
+                    {isFolder && loopTree(data.children)}
                 </TreeNode >)
             })
         }
