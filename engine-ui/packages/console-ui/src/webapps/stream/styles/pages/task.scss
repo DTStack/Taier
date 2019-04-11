@@ -1102,3 +1102,9 @@
 .click-icon:hover{
     color:#000;
 }
+.ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 450px
+}

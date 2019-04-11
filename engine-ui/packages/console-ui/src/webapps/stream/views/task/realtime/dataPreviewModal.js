@@ -1,99 +1,45 @@
 import React, { Component } from 'react'
-import { Modal, Button, Collapse, Input } from 'antd';
-/* eslint-disable */
+import { Modal, Button, Collapse, Input, Icon } from 'antd';
+import { assign } from 'lodash'
+import Api from '../../../api';
 const Panel = Collapse.Panel;
 const TextArea = Input.TextArea;
 class DataPreviewModal extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            // mock
-            previewData: [{
-                "Config": {
-                    "ha_rm_id1": {
-                        "Default": "rm1",
-                        "Desc": "internal",
-                        "Type": "internal",
-                        "Value": "rm1"
-                    },
-                    "ha_rm_id2": {
-                        "Default": "rm2",
-                        "Desc": "internal",
-                        "Type": "internal",
-                        "Value": "rm2"
-                    },
-                    "jobhistory_ip": {
-                        "Default": {
-                            "Host": ["172-16-10-107"],
-                            "IP": ["172.16.10.107"],
-                            "NodeId": 1,
-                            "SingleIndex": 0
-                        },
-                        "Desc": "internal",
-                        "Type": "internal",
-                        "Value": {
-                            "Host": ["172-16-10-107"],
-                            "IP": ["172.16.10.107"],
-                            "NodeId": 1,
-                            "SingleIndex": 0
-                        }
-                    },
-                    "resourcemanager_ip": {
-                        "Default": {
-                            "Host": ["172-16-10-107", "172-16-10-16"],
-                            "IP": ["172.16.10.107", "172.16.10.16"],
-                            "NodeId": 2,
-                            "SingleIndex": 1
-                        },
-                        "Desc": "internal",
-                        "Type": "internal",
-                        "Value": {
-                            "Host": ["172-16-10-107", "172-16-10-16"],
-                            "IP": ["172.16.10.107", "172.16.10.16"],
-                            "NodeId": 2,
-                            "SingleIndex": 1
-                        }
-                    },
-                    "zk_ip": {
-                        "Default": {
-                            "Host": ["172-16-10-107", "172-16-10-108", "172-16-10-16"],
-                            "IP": ["172.16.10.107", "172.16.10.108", "172.16.10.16"],
-                            "NodeId": 1,
-                            "SingleIndex": 0
-                        },
-                        "Desc": "internal",
-                        "Type": "internal",
-                        "Value": {
-                            "Host": ["172-16-10-107", "172-16-10-108", "172-16-10-16"],
-                            "IP": ["172.16.10.107", "172.16.10.108", "172.16.10.16"],
-                            "NodeId": 1,
-                            "SingleIndex": 0
-                        }
-                    }
-                }
-            }, {
-                "resourcemanager_ip": {
-                    "Default": {
-                        "Host": ["172-16-10-107", "172-16-10-16"],
-                        "IP": ["172.16.10.107", "172.16.10.16"],
-                        "NodeId": 2,
-                        "SingleIndex": 1
-                    },
-                    "Desc": "internal",
-                    "Type": "internal",
-                    "Value": {
-                        "Host": ["172-16-10-107", "172-16-10-16"],
-                        "IP": ["172.16.10.107", "172.16.10.16"],
-                        "NodeId": 2,
-                        "SingleIndex": 1
-                    }
-                }
-            }]
+            previewData: [] // panel数据，若props传入dataSource，数据则为dataSource
         };
     }
+    /* eslint-disable-next-line */
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        const params = nextProps.params
+        if (this.props.visible != nextProps.visible && nextProps.visible && params) {
+            this.setState({
+                previewData: []
+            })
+            this.getDataPreviewList(params);
+        }
+    }
+    getDataPreviewList = (params) => {
+        Api.getDataPreview(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    previewData: res.data || []
+                })
+            }
+        })
+    }
     render () {
-        const { visible, onCancel } = this.props;
+        const { visible, onCancel, className, style, dataSource } = this.props;
         const { previewData } = this.state;
+        let defaultStyle = {
+            maxHeight: '300px',
+            minHeight: '200px'
+        }
+        let defaultClass = 'ellipsis';
+        if (style) defaultStyle = assign(defaultStyle, style)
+        if (className) defaultClass = `${defaultClass} ${className}`
         return (
             <Modal
                 visible={visible}
@@ -104,24 +50,29 @@ class DataPreviewModal extends Component {
                     <Button key='back' type="primary" onClick={onCancel}>关闭</Button>
                 ]}
             >
-                <Collapse accordion>
-                    {
-                        previewData.map((item, index) => {
-                            console.log(item)
-                            return (
-                                <Panel
-                                    header={<div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '450px' }}>{JSON.stringify(item)}</div>}
-                                    key={index + 1 + ''}
-                                >
-                                    <TextArea
-                                        style={{maxHeight: '300px', minHeight: '200px' }}
-                                        value={JSON.stringify(item, null, 4)}
-                                    />
-                                </Panel>
-                            )
-                        })
-                    }
-                </Collapse>
+                {
+                    ((dataSource && dataSource.length > 0) || previewData.length > 0) ? (
+                        <Collapse accordion>
+                            {
+                                (dataSource || previewData).map((item, index) => {
+                                    return (
+                                        <Panel
+                                            header={<div className={defaultClass}>{JSON.stringify(item)}</div>}
+                                            key={index + 1 + ''}
+                                        >
+                                            <TextArea
+                                                style={defaultStyle}
+                                                value={JSON.stringify(item, null, 4)}
+                                            />
+                                        </Panel>
+                                    )
+                                })
+                            }
+                        </Collapse>
+                    ) : (
+                        <div style={{ textAlign: 'center' }}><Icon type="frown-o" />  暂无数据</div>
+                    )
+                }
             </Modal>
         )
     }
