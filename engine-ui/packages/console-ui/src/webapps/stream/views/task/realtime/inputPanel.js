@@ -243,7 +243,7 @@ class InputOrigin extends Component {
                                     style={{ minHeight: 202 }}
                                     className="bd"
                                     sync={sync}
-                                    placeholder="字段 类型, 比如 id int 一行一个字段"
+                                    placeholder={'字段 类型, 比如 id int 一行一个字段\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya int \nkey1.keyb int'}
                                     value={panelColumn[index].columnsText}
                                     onChange={this.debounceEditorChange.bind(this, 'columnsText')}
                                     editorRef={(ref) => {
@@ -893,14 +893,14 @@ export default class InputPanel extends Component {
     panelHeader = (index) => {
         const { popoverVisible } = this.state;
         const popoverContent = <div className="input-panel-title">
-            <div style={{ padding: '8 0 12' }}> <Icon type="exclamation-circle" style={{ color: '#faad14' }} />  你确定要删除此输入源吗？</div>
+            <div style={{ padding: '8 0 12' }}> <Icon type="exclamation-circle" style={{ color: '#faad14' }} />  你确定要删除此源表吗？</div>
             <div style={{ textAlign: 'right', padding: '0 0 8' }}>
                 <Button style={{ marginRight: 8 }} size="small" onClick={() => { this.handlePopoverVisibleChange(null, index, false) }}>取消</Button>
                 <Button type="primary" size="small" onClick={() => { this.changeInputTabs('delete', index) }}>确定</Button>
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输入源 ${index + 1} `}</span>
+            <span>{` 源表 ${index + 1} `}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"
@@ -954,7 +954,7 @@ export default class InputPanel extends Component {
                         })
                     }
                 </Collapse>
-                <Button className="stream-btn" onClick={() => { this.changeInputTabs('add') }} style={{ borderRadius: 5 }}><Icon type="plus" /><span> 添加输入</span></Button>
+                <Button className="stream-btn" onClick={() => { this.changeInputTabs('add') }} style={{ borderRadius: 5 }}><Icon type="plus" /><span> 添加源表</span></Button>
             </div>
         )
     }
