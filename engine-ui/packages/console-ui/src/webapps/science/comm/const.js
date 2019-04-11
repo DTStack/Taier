@@ -119,3 +119,10 @@ export const dataSourceFilter = [{
     text: 'CSV',
     value: 2
 }]
+
+export const UPLOAD_STATUS = {
+    SUCCES: 'success',
+    PROGRESSING: 'progressing',
+    READY: 'ready',
+    FAIL: 'fail'
+}

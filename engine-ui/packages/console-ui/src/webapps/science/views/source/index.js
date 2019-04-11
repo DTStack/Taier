@@ -1,12 +1,18 @@
 import React, { PureComponent } from 'react'
+import { connect } from 'react-redux';
 import { Card, Table, Button, Input, Modal } from 'antd';
 import '../../styles/views/source/index.scss';
 import { dataSourceFilter } from '../../comm/const.js'
 import Edit from './edit';
-// import DataImport from './dataImport/index'
-import DataImport from 'rdos/views/task/offline/dataImport'
+import DataImport from './dataImport'
+import UploaderProgressBar from '../../components/uploader-progress';
 const confirm = Modal.confirm;
 const Search = Input.Search;
+@connect(state => {
+    return {
+        uploader: state.dataManage.uploader
+    }
+})
 class Source extends PureComponent {
     state = {
         loading: false,
@@ -52,6 +58,12 @@ class Source extends PureComponent {
             visible: false,
             editRecord: {}
         });
+    }
+    handleUpload = () => {
+        const upload = document.getElementById('JS_importFile')
+        if (upload) {
+            upload.click();
+        }
     }
     getTableData = () => {
         // TODO
@@ -111,6 +123,7 @@ class Source extends PureComponent {
     }
     render () {
         const { loading, data, pagination, visible, editRecord } = this.state;
+        const { uploader } = this.props;
         return (
             <div className="inner-container source">
                 <div className="source-title">数据源</div>
@@ -123,7 +136,13 @@ class Source extends PureComponent {
                             placeholder='按项目名称、项目显示名搜索'
                             style={{ width: 267, height: 30 }} />
                     }
-                    extra={<Button type="primary" className="upload-button">上传数据</Button>}>
+                    extra={
+                        <>
+                            <UploaderProgressBar key={uploader.status} uploader={uploader} />
+                            <Button type="primary" className="upload-button" onClick={() => this.handleUpload()}>上传数据</Button>
+                        </>
+                    }
+                >
                     <Table
                         rowKey="id"
                         className='science-table'
