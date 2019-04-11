@@ -23,7 +23,8 @@ class InputOrigin extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            visible: false
+            visible: false,
+            params: {} // 数据预览请求参数
         };
     }
     componentDidMount () {
@@ -397,6 +398,7 @@ class InputOrigin extends Component {
                 <DataPreviewModal
                     visible={this.state.visible}
                     onCancel={() => { this.setState({ visible: false }) }}
+                    params={this.state.params}
                 />
             </Row>
         )

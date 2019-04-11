@@ -217,6 +217,9 @@ export default {
     getTaskMetrics(params){
         return http.post(req.GET_TASK_METRICS,params)
     },
+    getDataPreview(params) {
+        return http.post(req.GET_DATA_PREVIEW,params)
+    },
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
         return http.post(req.GET_CATALOGUE, params)
