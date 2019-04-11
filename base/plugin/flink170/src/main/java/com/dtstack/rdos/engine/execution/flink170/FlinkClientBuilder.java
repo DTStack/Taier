@@ -1,9 +1,12 @@
 package com.dtstack.rdos.engine.execution.flink170;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.engine.execution.base.JarFileInfo;
+import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
 import com.dtstack.rdos.engine.execution.flink170.enums.Deploy;
 import com.google.common.base.Strings;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
 import org.apache.flink.client.deployment.StandaloneClusterDescriptor;
@@ -269,9 +272,9 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, String taskId) throws MalformedURLException {
+    public AbstractYarnClusterDescriptor createPerJobClusterDescriptor(FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient) throws MalformedURLException {
         Configuration newConf = new Configuration(flinkConfiguration);
-        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, taskId);
+        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
         perJobMetricConfigConfig(newConf, metricConfig);
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
@@ -304,6 +307,12 @@ public class FlinkClientBuilder {
 
         } else {
             throw new RdosException("The Flink jar path is null");
+        }
+
+        if (CollectionUtils.isNotEmpty(jobClient.getAttachJarInfos())) {
+            for (JarFileInfo jarFileInfo : jobClient.getAttachJarInfos()) {
+                classpaths.add(new File(jarFileInfo.getJarPath()).toURI().toURL());
+            }
         }
 
         clusterDescriptor.setProvidedUserJarFiles(classpaths);
