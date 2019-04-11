@@ -103,7 +103,7 @@ public class SyncPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return dir.isFile() && name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
                 }
             });
 
