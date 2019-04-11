@@ -64,6 +64,7 @@ class Header extends Component {
             customItems.push(
                 <SubMenu
                     className="my-menu-item"
+                    key='sub-menu-item'
                     title={
                         <Dropdown
                             overlay={menu}

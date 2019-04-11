@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './style.scss';
 
-const imgBase = 'public/analyticsEngine/img/icon';
+const imgBase = 'public/science/img/icon';
 
 export default class Icon extends Component {
     render () {

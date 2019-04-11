@@ -2,16 +2,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
-import { message, Icon } from 'antd';
 
-import utils from 'utils';
-import CopyUtils from 'utils/copy';
-
-import MyIcon from '../../../../../components/icon';
+import Loading from '../loading'
 import ToolBar from '../../toolbar';
 import FolderTree from '../../folderTree';
-import workbenchActions from '../../../../../actions/workbenchActions';
-import { CATALOGUE_TYPE } from '../../../../../consts';
+import NewNotebookFolder from './newFolder';
+import * as fileTreeActions from '../../../../../actions/base/fileTree';
+
+import { siderBarType } from '../../../../../consts';
 
 // const Search = Input.Search;
 
@@ -23,93 +21,33 @@ import { CATALOGUE_TYPE } from '../../../../../consts';
         }
     },
     dispatch => {
-        const actions = bindActionCreators(workbenchActions, dispatch);
+        const actions = bindActionCreators(fileTreeActions, dispatch);
         return actions;
     })
 class NotebookSidebar extends Component {
-    constructor (props) {
-        super(props)
-    }
-
     state = {
         expandedKeys: [],
-        selectedKeys: [],
-        catalogueContent: 'database'
+        newFolderVisible: false,
+        newFolderData: null
     }
 
     componentDidMount () {
-        this.props.loadCatalogue();
+        this.props.loadTreeData();
     }
-
-    refresh = () => {
+    newFolder (folder) {
         this.setState({
-            expandedKeys: [],
-            selectedKeys: [],
-            catalogueContent: 'database'
+            newFolderVisible: true,
+            newFolderData: folder
         })
-        this.props.loadCatalogue();
     }
-
-    searchTable = (value) => {
-        const query = utils.trim(value);
+    closeNewFolder = () => {
         this.setState({
-            catalogueContent: 'search'
+            newFolderVisible: false,
+            newFolderData: null
         })
-
-        if (!query) {
-            this.refresh();
-            return;
-        };
-
-        this.props.loadCatalogue({
-            tableName: query
-        }, CATALOGUE_TYPE.SEARCH_TABLE);
     }
-
-    copyName = () => {
-        const activeNode = this.state.activeNode;
-        if (activeNode) {
-            const copyValue = activeNode.name || activeNode.tableName;
-            const copyUtil = new CopyUtils();
-            copyUtil.copy(copyValue, (success) => {
-                if (success) {
-                    message.success('复制成功！');
-                }
-            })
-        }
-    }
-
     asynLoadCatalogue = (treeNode) => {
-        const ctx = this;
-        const { data, fileType } = treeNode.props;
-        return new Promise(async (resolve) => {
-            ctx.props.loadCatalogue(data, fileType);
-            resolve();
-        });
-    }
-
-    onNodeSelect = (selectedKeys, { node }) => {
-        const { expandedKeys } = this.state;
-        const { eventKey, fileType, data } = node.props;
-        this.setState({
-            selectedKeys
-        });
-
-        if (fileType === CATALOGUE_TYPE.DATA_MAP) {
-            this.props.onGetDataMap({ id: data.id })
-            return false;
-        }
-
-        const eventKeyIndex = expandedKeys.indexOf(eventKey);
-        this.asynLoadCatalogue(node);
-
-        if (eventKeyIndex > -1) {
-            expandedKeys.splice(eventKeyIndex, 1);
-            this.onExpand(expandedKeys, { expanded: false });
-        } else {
-            expandedKeys.push(eventKey);
-            this.onExpand(expandedKeys, { expanded: true });
-        }
+        return this.props.loadTreeData(siderBarType.notebook, treeNode.props.data.id)
     }
 
     onExpand = (expandedKeys, { expanded }) => {
@@ -128,60 +66,21 @@ class NotebookSidebar extends Component {
         } = this.props;
         return (
             <div>
-                {!files.length ? (
+                {files.length ? (
                     <FolderTree
                         loadData={this.asynLoadCatalogue}
-                        onSelect={this.onNodeSelect}
                         onExpand={this.onExpand}
                         expandedKeys={this.state.expandedKeys}
-                        selectedKeys={this.state.selectedKeys}
-                        renderNodeHoverButton={(item) => {
-                            if (item.type == 'file') {
-                                return (
-                                    <span className="tree-node-hover-items">
-                                        <MyIcon type="btn_sql_query" className="tree-node-hover-item"
-                                            title="SQL查询"
-                                            style={{ width: 15, height: 15 }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                console.log(item);
-                                            }}
-                                        />
-                                        <Icon className="tree-node-hover-item" title="查看详情" type="exclamation-circle-o"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                console.log({ databaseId: item.id });
-                                            }
-                                            }
-                                        />
-                                    </span>
-                                )
-                            }
-                            return null;
-                        }}
-                        treeData={[{
-                            id: 1,
-                            name: 'folder1',
-                            type: 'folder',
-                            children: [{
-                                id: 11,
-                                name: 'file1',
-                                type: 'file'
-                            }, {
-                                id: 12,
-                                name: 'file2',
-                                type: 'file'
-                            }]
-                        }]}
+                        treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
-                                return 'anchor-file o-tree-icon--normal'
+                                return 'anchor-notebook-file o-tree-icon--normal'
                             }
-                            return 'anchor-folder'
+                            return 'anchor-notebook-folder'
                         }}
                         contextMenus={[
                             {
-                                targetClassName: 'anchor-folder',
+                                targetClassName: 'anchor-notebook-folder',
                                 menuItems: [{
                                     text: '新建任务',
                                     onClick: (activeNode) => {
@@ -190,7 +89,7 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '新建文件夹',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.newFolder(activeNode);
                                     }
                                 }, {
                                     text: '重命名',
@@ -205,7 +104,7 @@ class NotebookSidebar extends Component {
                                 }]
                             },
                             {
-                                targetClassName: 'anchor-file',
+                                targetClassName: 'anchor-notebook-file',
                                 menuItems: [{
                                     text: '属性',
                                     onClick: (activeNode) => {
@@ -219,33 +118,59 @@ class NotebookSidebar extends Component {
                                 }]
                             }]}
                     />
-                ) : <span>暂无数据</span>}
+                ) : <Loading />}
             </div>
         )
     }
 
     render () {
-        const {
-            onCreateDB,
-            onCreateTable,
-            onSQLQuery,
-            onEditTable,
-            onTableDetail
-        } = this.props;
-
+        const { newFolderVisible, newFolderData } = this.state;
         return (
             <div className="sidebar">
                 <ToolBar
-                    onRefresh={this.refresh}
-                    onCreateDB={() => onCreateDB()}
-                    onSQLQuery={() => onSQLQuery()}
-                    onEditTable={() => onEditTable()}
-                    onCreateTable={() => onCreateTable()}
-                    onTableDetail={() => onTableDetail()}
+                    toolbarItems={[
+                        {
+                            title: '新建Notebook',
+                            type: 'file-add',
+                            onClick: () => {
+                                console.log(1)
+                            }
+                        },
+                        {
+                            title: '新建文件夹',
+                            type: 'folder-add',
+                            onClick: () => {
+                                this.newFolder();
+                            }
+                        },
+                        {
+                            title: '上传本地文件',
+                            type: 'upload',
+                            onClick: () => {
+                                console.log(3)
+                            }
+                        },
+                        {
+                            title: '搜索并打开Notebook',
+                            type: 'search',
+                            onClick: () => {
+                                console.log(11)
+                            }
+                        }
+                    ]}
                 />
                 {
                     this.renderFolderContent()
                 }
+                <NewNotebookFolder
+                    data={newFolderData}
+                    visible={newFolderVisible}
+                    onOk={(values) => {
+                        console.dir(values);
+                        this.closeNewFolder();
+                    }}
+                    onCancel={this.closeNewFolder}
+                />
             </div>
         )
     }
