@@ -38,6 +38,8 @@ public class SyncPluginInfo {
 
     private static final String syncPluginDirName = "syncplugin";
 
+    private static final String coreJarNamePrefix = "flinkx";
+
     private static final String FILE_PROTOCOL = "file://";
 
     //同步模块在flink集群加载插件
@@ -101,7 +103,7 @@ public class SyncPluginInfo {
             File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return dir.isFile() && name.toLowerCase().endsWith(".jar");
+                    return dir.isFile() && name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
                 }
             });
 
