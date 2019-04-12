@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
 
 import Loading from '../loading';
-import FolderTree from '../../folderTree';
+import FolderTree from '../../../../../components/folderTree';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 
 import { siderBarType } from '../../../../../consts';

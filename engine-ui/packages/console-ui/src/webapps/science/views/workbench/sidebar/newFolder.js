@@ -4,35 +4,39 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { Modal, Form, Input } from 'antd';
 
-import { formItemLayout, siderBarType } from '../../../../../consts';
-import FolderTree from '../../folderTree';
-import * as fileTreeActions from '../../../../../actions/base/fileTree';
+import { formItemLayout, siderBarType } from '../../../consts';
+import FolderTree from '../../../components/folderTree';
+import * as fileTreeActions from '../../../actions/base/fileTree';
 
 const FormItem = Form.Item;
 
 @connect(state => {
     return {
-        files: state.notebook.files
+        [siderBarType.notebook]: state.notebook.files,
+        [siderBarType.experiment]: state.experiment.files
     }
 }, dispatch => {
     const actions = bindActionCreators(fileTreeActions, dispatch);
     return actions;
 })
-class NewNotebookFolder extends React.Component {
+class NewFolder extends React.Component {
     state = {
         modalKey: null
     }
     loadData (node) {
-        return this.props.loadTreeData(siderBarType.notebook, node.props.data.id);
+        return this.props.loadTreeData(this.props.type, node.props.data.id);
     }
     onOk = () => {
-        const { form } = this.props;
+        const { form, type } = this.props;
         const { validateFields } = form;
-        validateFields((err, values) => {
+        validateFields(async (err, values) => {
             if (!err) {
                 console.log(values);
-                this.props.onOk(values);
-                this.resetForm();
+                let res = await this.props.addFolder(type, values.folderName, values.nodePid);
+                if (res) {
+                    this.props.onOk();
+                    this.resetForm();
+                }
             }
         })
     }
@@ -47,7 +51,8 @@ class NewNotebookFolder extends React.Component {
     }
     render () {
         const { modalKey } = this.state;
-        const { form, files, data } = this.props;
+        const { form, data, type } = this.props;
+        const files = this.props[type];
         const { getFieldDecorator } = form;
         return (
             <Modal
@@ -90,4 +95,4 @@ class NewNotebookFolder extends React.Component {
         )
     }
 }
-export default Form.create()(NewNotebookFolder);
+export default Form.create()(NewFolder);

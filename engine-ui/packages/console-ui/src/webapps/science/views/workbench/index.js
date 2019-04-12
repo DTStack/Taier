@@ -8,6 +8,8 @@ import '../../styles/views/workbench/index.scss'
 
 import Sidebar from './sidebar';
 import MainBench from './mainBench';
+import NewNotebookModal from '../../components/newNotebookModal';
+import NewExperimentModal from '../../components/newExperimentModal';
 
 import workbenchActions from '../../actions/workbenchActions';
 import { siderBarType } from '../../consts'
@@ -59,6 +61,8 @@ class Workbench extends Component {
                         <MainBench />
                     </Content>
                 </SplitPane>
+                <NewNotebookModal />
+                <NewExperimentModal />
             </Layout>
         );
     }

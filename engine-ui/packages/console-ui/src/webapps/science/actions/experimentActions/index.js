@@ -2,10 +2,10 @@ import { changeTab } from '../base/tab';
 import { message } from 'antd';
 import { siderBarType } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
-import api from '../../api/notebook';
+import api from '../../api/experiment';
 
 export function changeContent (newContent, tab, isDirty = true) {
-    return changeTab(siderBarType.notebook, {
+    return changeTab(siderBarType.experiment, {
         ...tab,
         ...newContent,
         isDirty
@@ -17,13 +17,13 @@ export function changeText (text, tab) {
     }, tab)
 }
 
-export function addNotebook (params) {
+export function addExperiment (params) {
     return dispatch => {
         return new Promise(async (resolve) => {
-            let res = await api.addNotebook(params);
+            let res = await api.addExperiment(params);
             if (res && res.code == 1) {
                 message.success('新建成功');
-                dispatch(loadTreeData(siderBarType.notebook, params.nodePid))
+                dispatch(loadTreeData(siderBarType.experiment, params.nodePid))
                 resolve(res);
             }
         })

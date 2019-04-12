@@ -5,8 +5,12 @@ import { union } from 'lodash';
 
 import Loading from '../loading';
 import ToolBar from '../../toolbar';
-import FolderTree from '../../folderTree';
+import FolderTree from '../../../../../components/folderTree';
+import NewFolder from '../../newFolder';
+import ExperimentSearch from '../../../../../components/searchModal/experimentSearch';
+
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
+import workbenchActions from '../../../../../actions/workbenchActions';
 
 import { siderBarType } from '../../../../../consts';
 
@@ -20,8 +24,10 @@ import { siderBarType } from '../../../../../consts';
         }
     },
     dispatch => {
-        const actions = bindActionCreators(fileTreeActions, dispatch);
-        return actions;
+        return {
+            ...bindActionCreators(fileTreeActions, dispatch),
+            ...bindActionCreators(workbenchActions, dispatch)
+        };
     })
 class ExperimentSidebar extends Component {
     constructor (props) {
@@ -29,9 +35,23 @@ class ExperimentSidebar extends Component {
     }
 
     state = {
-        expandedKeys: []
+        expandedKeys: [],
+        newFolderVisible: false,
+        experimentSearchVisible: false,
+        newFolderData: null
     }
-
+    newFolder (folder) {
+        this.setState({
+            newFolderVisible: true,
+            newFolderData: folder
+        })
+    }
+    closeNewFolder = () => {
+        this.setState({
+            newFolderVisible: false,
+            newFolderData: null
+        })
+    }
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;
         if (expanded) {
@@ -68,12 +88,12 @@ class ExperimentSidebar extends Component {
                                 menuItems: [{
                                     text: '新建实验',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.props.openNewExperiment(activeNode);
                                     }
                                 }, {
                                     text: '新建文件夹',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.newFolder(activeNode);
                                     }
                                 }, {
                                     text: '重命名',
@@ -108,6 +128,7 @@ class ExperimentSidebar extends Component {
     }
 
     render () {
+        const { experimentSearchVisible, newFolderData, newFolderVisible } = this.state;
         return (
             <div className="sidebar">
                 <ToolBar
@@ -116,21 +137,23 @@ class ExperimentSidebar extends Component {
                             title: '新建实验',
                             type: 'file-add',
                             onClick: () => {
-                                console.log(1)
+                                this.props.openNewExperiment();
                             }
                         },
                         {
                             title: '新建文件夹',
                             type: 'folder-add',
                             onClick: () => {
-                                console.log(2)
+                                this.newFolder();
                             }
                         },
                         {
                             title: '搜索并打开实验',
                             type: 'search',
                             onClick: () => {
-                                console.log(11)
+                                this.setState({
+                                    experimentSearchVisible: true
+                                })
                             }
                         }
                     ]}
@@ -138,6 +161,24 @@ class ExperimentSidebar extends Component {
                 {
                     this.renderFolderContent()
                 }
+                <NewFolder
+                    type={siderBarType.experiment}
+                    data={newFolderData}
+                    visible={newFolderVisible}
+                    onOk={(values) => {
+                        console.dir(values);
+                        this.closeNewFolder();
+                    }}
+                    onCancel={this.closeNewFolder}
+                />
+                <ExperimentSearch
+                    visible={experimentSearchVisible}
+                    onCancel={() => {
+                        this.setState({
+                            experimentSearchVisible: false
+                        })
+                    }}
+                />
             </div>
         )
     }

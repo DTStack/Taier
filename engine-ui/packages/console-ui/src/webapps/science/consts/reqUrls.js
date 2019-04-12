@@ -11,8 +11,10 @@ export default {
     GET_SQL_RESULT: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 获取SQL结果
 
     GET_CATALOGUES: `${SCIENCE_BASE_URL}/getCatalogue`, // 获取目录
-    GET_EXPERIMENT_CATALOGUES: `${SCIENCE_BASE_URL}/getCatalogue`, // 获取目录
-    GET_COMPONENT_CATALOGUES: `${SCIENCE_BASE_URL}/getCatalogue`, // 获取目录
+    ADD_FOLDER: `${SCIENCE_BASE_URL}/addCatalogue`, // 添加文件夹
 
-    GET_NOTEBOOK_TASK_BY_ID: `${SCIENCE_BASE_URL}/notebook/getTaskById` // 获取notebookTask
+    GET_NOTEBOOK_TASK_BY_ID: `${SCIENCE_BASE_URL}/notebook/getTaskById`, // 获取notebookTask
+    ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/addOrUpdateNotebook`, // 添加notebook
+
+    ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/addOrUpdateExperiment` // 添加实验
 }

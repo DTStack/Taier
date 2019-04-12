@@ -5,9 +5,11 @@ import { union } from 'lodash';
 
 import Loading from '../loading'
 import ToolBar from '../../toolbar';
-import FolderTree from '../../folderTree';
-import NewNotebookFolder from './newFolder';
+import FolderTree from '../../../../../components/folderTree';
+import NewFolder from '../../newFolder';
+import NotebookSearch from '../../../../../components/searchModal/notebookSearch';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
+import workbenchActions from '../../../../../actions/workbenchActions';
 
 import { siderBarType } from '../../../../../consts';
 
@@ -21,13 +23,16 @@ import { siderBarType } from '../../../../../consts';
         }
     },
     dispatch => {
-        const actions = bindActionCreators(fileTreeActions, dispatch);
-        return actions;
+        return {
+            ...bindActionCreators(fileTreeActions, dispatch),
+            ...bindActionCreators(workbenchActions, dispatch)
+        };
     })
 class NotebookSidebar extends Component {
     state = {
         expandedKeys: [],
         newFolderVisible: false,
+        notebookSearchVisible: false,
         newFolderData: null
     }
 
@@ -81,7 +86,7 @@ class NotebookSidebar extends Component {
                                 menuItems: [{
                                     text: '新建任务',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.props.openNewNotebook(activeNode);
                                     }
                                 }, {
                                     text: '新建文件夹',
@@ -121,7 +126,7 @@ class NotebookSidebar extends Component {
     }
 
     render () {
-        const { newFolderVisible, newFolderData } = this.state;
+        const { newFolderVisible, notebookSearchVisible, newFolderData } = this.state;
         return (
             <div className="sidebar">
                 <ToolBar
@@ -130,7 +135,7 @@ class NotebookSidebar extends Component {
                             title: '新建Notebook',
                             type: 'file-add',
                             onClick: () => {
-                                console.log(1)
+                                this.props.openNewNotebook();
                             }
                         },
                         {
@@ -151,7 +156,9 @@ class NotebookSidebar extends Component {
                             title: '搜索并打开Notebook',
                             type: 'search',
                             onClick: () => {
-                                console.log(11)
+                                this.setState({
+                                    notebookSearchVisible: true
+                                })
                             }
                         }
                     ]}
@@ -159,7 +166,8 @@ class NotebookSidebar extends Component {
                 {
                     this.renderFolderContent()
                 }
-                <NewNotebookFolder
+                <NewFolder
+                    type={siderBarType.notebook}
                     data={newFolderData}
                     visible={newFolderVisible}
                     onOk={(values) => {
@@ -167,6 +175,14 @@ class NotebookSidebar extends Component {
                         this.closeNewFolder();
                     }}
                     onCancel={this.closeNewFolder}
+                />
+                <NotebookSearch
+                    visible={notebookSearchVisible}
+                    onCancel={() => {
+                        this.setState({
+                            notebookSearchVisible: false
+                        })
+                    }}
                 />
             </div>
         )

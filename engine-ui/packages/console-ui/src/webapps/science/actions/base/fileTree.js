@@ -1,4 +1,5 @@
 import { experimentFilesType, notebookFilesType, componentFilesType } from '../../consts/actionType/filesType'
+import { message } from 'antd';
 import api from '../../api';
 import { siderBarType } from '../../consts';
 
@@ -45,26 +46,27 @@ export function initLoadTreeNode () {
 export function loadTreeData (type, nodePid) {
     return dispatch => {
         return new Promise(async (resolve) => {
-            let res;
-            switch (type) {
-                case siderBarType.notebook: {
-                    res = await api.fileTree.loadTreeData({ isGetFile: true, nodePid });
-                    break;
-                }
-                case siderBarType.experiment: {
-                    res = await api.fileTree.loadTreeData({ isGetFile: true, nodePid });
-                    break;
-                }
-                case siderBarType.component: {
-                    res = await api.fileTree.loadTreeData({ isGetFile: true, nodePid });
-                    break;
-                }
-            }
+            let res = await api.fileTree.loadTreeData({ isGetFile: true, nodePid });
             if (res && res.code == 1) {
                 dispatch(replaceTreeNode(type, res.data));
             }
             setTimeout(resolve, 2000);
             // resolve();
+        })
+    }
+}
+export function addFolder (type, nodeName, nodePid) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.fileTree.addFolder({
+                nodeName,
+                nodePid
+            });
+            if (res && res.code == 1) {
+                message.success('添加成功');
+                dispatch(loadTreeData(type, nodePid))
+                resolve(res)
+            }
         })
     }
 }

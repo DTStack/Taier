@@ -7,5 +7,8 @@ export default {
     },
     getTaskById (params) {
         return http.post(req.GET_NOTEBOOK_TASK_BY_ID, params);
+    },
+    addFolder (params) {
+        return http.post(req.ADD_FOLDER, params);
     }
 }

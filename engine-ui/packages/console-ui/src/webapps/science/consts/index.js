@@ -31,7 +31,10 @@ export const dataMapStatus = {
     NORMAL: 1,
     FAIL: 2
 }
-
+export const modalType = {
+    newNotebook: 'NEW_NOTEBOOK',
+    newExperiment: 'NEW_EXPERIMENT'
+}
 export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },
