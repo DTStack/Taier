@@ -453,24 +453,13 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     public boolean remove(String sign) {
         if (StringUtils.isBlank(sign)) {return false;}
         try {
-            allLock.lockInterruptibly();
+            allLock.lock();
             for (Node<E> trail = head, p = trail.next;
                  p != null;
                  trail = p, p = p.next) {
                  OrderObject oo = (OrderObject)p.item;
                  if (sign.equals(oo.getId())) {
-                     Node<E> pre = p.pre;
-                     Node<E> next = p.next;
-                     if(next !=null){
-                        next.pre = pre;
-                     }
-                     pre.next = next;
-                     p.pre = null;
-                     p.next = null;
-                     p.item = null;
-                     if (count.getAndDecrement() == capacity){
-                        notFull.signal();
-                     }
+                     unlink(p);
                      return true;
                 }
             }
