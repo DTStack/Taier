@@ -1,4 +1,4 @@
-import { browserHistory } from 'react-router'
+import { hashHistory } from 'react-router'
 import { cloneDeep } from 'lodash';
 
 import localDb from 'utils/localDb'
@@ -46,8 +46,8 @@ export function openPage (params) {
             return page.id == id
         })
         if (existPage) {
-            if (location.href.indexOf('/realtime/task') === -1) {
-                browserHistory.push('stream.html#/realtime/task');
+            if (location.pathname !== '/realtime/task') {
+                hashHistory.push('/realtime/task')
             }
             return dispatch(setCurrentPage(existPage))
         }
@@ -55,7 +55,9 @@ export function openPage (params) {
         Api.getTask(params).then((res) => {
             if (res.code === 1 && res.data) {
                 dispatch(newPage(res.data));
-                browserHistory.push('stream.html#/realtime/task');
+                if (location.pathname !== '/realtime/task') {
+                    hashHistory.push('/realtime/task')
+                }
             }
         })
     }
