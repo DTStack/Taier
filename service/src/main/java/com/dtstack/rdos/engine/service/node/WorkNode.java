@@ -254,12 +254,6 @@ public class WorkNode {
         }
 
         boolean result = groupPriorityQueue.remove(groupName, jobId);
-        if (!result){
-            RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(jobId);
-            if (jobCache !=null && jobCache.getStage() == EJobCacheStage.IN_PRIORITY_QUEUE.getStage()){
-                result = true;
-            }
-        }
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
