@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import {
     Row, Col, Icon, Tooltip, Input, Select,
-    Collapse, Button, Radio, Popover, Form, InputNumber
+    Collapse, Button, Radio, Popover, Form, InputNumber, Cascader
 } from 'antd';
 import { debounce, cloneDeep } from 'lodash';
 
@@ -72,6 +72,39 @@ class InputOrigin extends Component {
                 return null;
         }
     }
+    /**
+     * 处理级联数据
+     */
+    getCascaderData = () => {
+        const { timeZoneOptionType } = this.props;
+        const cascaderData = [];
+        timeZoneOptionType.map(v => {
+            const option = {};
+            let subArr = v.split('/');
+            option.value = option.label = subArr[0];
+            if (subArr.length === 1) {
+                option.children = undefined;
+            }
+            if (subArr.length === 2) {
+                option.children = [];
+                const childOpt = {};
+                childOpt.value = childOpt.label = subArr[1];
+                option.children.push(childOpt)
+            }
+            if (subArr.length === 3) {
+                option.children = [];
+                option.children.children = [];
+                const childOpt = {};
+                const grandOpt = {};
+                childOpt.value = childOpt.label = subArr[1];
+                grandOpt.value = grandOpt.label = subArr[2];
+                option.children.push(childOpt)
+                option.children.children.push(grandOpt)
+            }
+            cascaderData.push(option);
+        })
+        return cascaderData
+    }
 
     editorParamsChange (type, a, b, c) {
         const { handleInputChange, textChange, index } = this.props;
@@ -82,7 +115,8 @@ class InputOrigin extends Component {
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
 
     render () {
-        const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [], topicOptionType = [], isShow } = this.props;
+        const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [],
+            topicOptionType = [], isShow } = this.props;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
         const eventTimeOptionType = this.originOption('eventTime', timeColumoption[index] || []);
@@ -374,6 +408,18 @@ class InputOrigin extends Component {
                             <InputNumber className="number-input" min={1} onChange={value => handleInputChange('parallelism', index, value)} />
                         )}
                     </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="时区"
+                    >
+                        {getFieldDecorator('timeZone')(
+                            <Cascader
+                                placeholder='请选择时区'
+                                showSearch
+                                options={this.getCascaderData()}
+                            />
+                        )}
+                    </FormItem>
                     <CustomParams
                         getFieldDecorator={getFieldDecorator}
                         formItemLayout={formItemLayout}
@@ -447,7 +493,8 @@ export default class InputPanel extends Component {
             checkFormParams: [], // 存储要检查的参数from
             timeColumoption: [], // 时间列选择数据
             topicOptionType: [], // topic选择数据
-            originOptionType: []// 数据源选择数据
+            originOptionType: [], // 数据源选择数据
+            timeZoneOptionType: [] // 时区下拉框数据
         };
     }
 
@@ -504,6 +551,31 @@ export default class InputPanel extends Component {
         })
     }
 
+    /**
+     * 时区
+    */
+    getTimeZoneList = (type) => {
+        const { timeZoneOptionType } = this.state;
+        Api.getTimeZoneList().then(res => {
+            if (type === 'add') {
+                if (res.code === 1) {
+                    timeZoneOptionType.push(res.data || [])
+                } else {
+                    timeZoneOptionType.push([])
+                }
+            } else {
+                if (res.code === 1) {
+                    timeZoneOptionType[type] = res.data;
+                } else {
+                    timeZoneOptionType[type] = [];
+                }
+            }
+            this.setCurrentSource({ timeZoneOptionType });
+            this.setState({
+                timeZoneOptionType
+            })
+        })
+    }
     getTypeOriginData = (index, type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({ type }).then(v => {
@@ -648,13 +720,15 @@ export default class InputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            topicOptionType
+            topicOptionType,
+            timeZoneOptionType
         } = this.state;
         if (type === 'add') {
             tabTemplate.push('InputForm');
             panelColumn.push(inputData);
             this.getTypeOriginData('add', inputData.type);
-            this.getTopicType('add', inputData.sourceId)
+            this.getTopicType('add', inputData.sourceId);
+            this.getTimeZoneList('add');
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         } else {
@@ -662,12 +736,13 @@ export default class InputPanel extends Component {
             panelColumn.splice(index, 1);
             originOptionType.splice(index, 1);
             topicOptionType.splice(index, 1);
+            timeZoneOptionType.splice(index, 1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
         this.props.tableParamsChange()// 添加数据改变标记
-        this.setCurrentSource({ tabTemplate, panelActiveKey, popoverVisible, panelColumn, originOptionType, topicOptionType });
+        this.setCurrentSource({ tabTemplate, panelActiveKey, popoverVisible, panelColumn, originOptionType, topicOptionType, timeZoneOptionType });
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -675,7 +750,8 @@ export default class InputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            topicOptionType
+            topicOptionType,
+            timeZoneOptionType
         })
     }
 
@@ -705,6 +781,7 @@ export default class InputPanel extends Component {
             panelActiveKey
         })
     }
+    // 时区不做处理
     handleInputChange = (type, index, value, subValue) => { // 监听数据改变
         let { panelColumn, timeColumoption, originOptionType, topicOptionType } = this.state;
         let shouldUpdateEditor = true;
@@ -906,7 +983,7 @@ export default class InputPanel extends Component {
     }
 
     render () {
-        const { tabTemplate, panelActiveKey, panelColumn, timeColumoption, topicOptionType, originOptionType, sync } = this.state;
+        const { tabTemplate, panelActiveKey, panelColumn, timeColumoption, topicOptionType, originOptionType, timeZoneOptionType, sync } = this.state;
         const { isShow } = this.props;
         return (
             <div className="m-taksdetail panel-content">
@@ -926,6 +1003,7 @@ export default class InputPanel extends Component {
                                         timeColumoption={timeColumoption}
                                         topicOptionType={topicOptionType}
                                         originOptionType={originOptionType}
+                                        timeZoneOptionType={timeZoneOptionType}
                                         textChange={() => {
                                             this.setState({
                                                 sync: false
