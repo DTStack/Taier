@@ -140,6 +140,7 @@ public class Client {
         YarnClientApplication newAPP = yarnClient.createApplication();
         GetNewApplicationResponse newAppResponse = newAPP.getNewApplicationResponse();
         ApplicationId applicationId = newAppResponse.getApplicationId();
+        clientArguments.setApplicationId(applicationId.toString());
         LOG.info("Got new Application: " + applicationId.toString());
 
         Path jobConfPath = Utilities.getRemotePath(taskConf, applicationId, DtYarnConstants.LEARNING_JOB_CONFIGURATION);
