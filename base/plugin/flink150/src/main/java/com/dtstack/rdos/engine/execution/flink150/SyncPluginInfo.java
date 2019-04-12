@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
@@ -7,6 +8,7 @@ import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
@@ -36,8 +38,7 @@ public class SyncPluginInfo {
 
     private static final String syncPluginDirName = "syncplugin";
 
-    /**插件jar名称*/
-    private static final String syncJarFileName = "flinkx.jar";
+    private static final String coreJarNamePrefix = "flinkx";
 
     private static final String FILE_PROTOCOL = "file://";
 
@@ -89,9 +90,33 @@ public class SyncPluginInfo {
 
     public JarFileInfo createAddJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
-        String jarFilePath  = localSyncFileDir + fileSP + syncJarFileName;
+        String coreJarFileName = getCoreJarFileName();
+        String jarFilePath  = localSyncFileDir + fileSP + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
+    }
+
+    private String getCoreJarFileName (){
+        String coreJarFileName = null;
+        File pluginDir = new File(localSyncFileDir);
+        if (pluginDir.exists() && pluginDir.isDirectory()){
+            File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                }
+            });
+
+            if (jarFiles != null && jarFiles.length > 0){
+                coreJarFileName = jarFiles[0].getName();
+            }
+        }
+
+        if (StringUtils.isEmpty(coreJarFileName)){
+            throw new RdosException("Can not find core jar file in path:" + localSyncFileDir);
+        }
+
+        return coreJarFileName;
     }
 
     public String getSyncPluginDir(String pluginRoot){
