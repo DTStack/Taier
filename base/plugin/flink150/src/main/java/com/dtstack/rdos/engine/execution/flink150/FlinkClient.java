@@ -437,7 +437,7 @@ public class FlinkClient extends AbsClient {
 
         try {
             //构建args
-            List<String> args = sqlPluginInfo.buildExeArgs(jobClient);
+            List<String> args = sqlPluginInfo.buildExeArgs(jobClient, flinkExtProp);
             List<String> attachJarLists = cacheFile.get(jobClient.getTaskId());
 
             if(!CollectionUtils.isEmpty(attachJarLists)){
