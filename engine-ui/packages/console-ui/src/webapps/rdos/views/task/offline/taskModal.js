@@ -132,7 +132,9 @@ class TaskForm extends React.Component {
         } else if (isCreateNormal || isCreateFromMenu) {
             value = isValueEmpty ? (taskTypes.length > 0 && taskTypes[0].key) : taskTypeValue
         } else {
-            value = defaultData.taskType;
+            value = isValueEmpty ? defaultData.taskType : taskTypeValue;
+            // 当通过下拉框更改任务类型后，需要重置create源为normal
+            isCreateNormal = true;
         }
 
         const taskOptions = taskTypes.map(item =>
