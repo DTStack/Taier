@@ -1160,7 +1160,7 @@ export default class OutputPanel extends Component {
                         type="exclamation-circle"
                         style={{ color: '#faad14' }}
                     />{' '}
-                    你确定要删除此输出源吗？
+                    你确定要删除此维表吗？
                 </div>
                 <div style={{ textAlign: 'right', padding: '0 0 8' }}>
                     <Button
@@ -1277,7 +1277,7 @@ export default class OutputPanel extends Component {
                     style={{ borderRadius: 5 }}
                 >
                     <Icon type="plus" />
-                    <span> 添加输入</span>
+                    <span> 添加维表</span>
                 </Button>
             </div>
         );
