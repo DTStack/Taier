@@ -385,9 +385,9 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.SOURCE_INPUT_BPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'KB'
+                                            unit: 'bps 条/秒'
                                         }}
-                                        desc="对流式数据输入（Kafka）进行统计，单位是BPS(BytePer Second)。"
+                                        desc="对流式数据输入（Kafka）进行统计，单位是BPS(Byte Per Second)。"
                                         title="各Source的BPS数据输入" />
                                 </section>
                             </div>
