@@ -29,12 +29,19 @@ module.exports = {
         '/api/rdos': {
             target: 'http://172.16.10.86:9020', // test ser
             // target: 'http://172.16.0.157:9020', // temp ser
-            // target: 'http://172.16.8.104:9020', // formal test ser
+            // target: 'http://172.16.8.107:9020', // formal test ser
+            changeOrigin: true,
+            secure: false
+        },
+        '/api/streamapp': {
+            target: 'http://172.16.10.86:9021', // test ser
+            // target: 'http://172.16.0.157:9020', // temp ser
+            // target: 'http://172.16.8.107:9020', // formal test ser
             changeOrigin: true,
             secure: false
         },
         '/uic': { // UIC地址
-            target: 'http://dtuic.dtstack.net',
+            target: 'http://uic.dtstack.net',
             changeOrigin: true,
             secure: false
         },

@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 
-import { Form, Select, Radio, Checkbox, DatePicker, Input, Button } from 'antd';
+import { Form, Select, Radio, Checkbox, DatePicker, Input, Button, Icon } from 'antd';
 
 import { formItemLayout, DATA_SOURCE, CAT_TYPE, collectType } from '../../../../../comm/const'
 import HelpDoc from '../../../../helpDoc';
@@ -38,12 +38,6 @@ class CollectionSource extends React.Component {
         const { sourceMap } = collectionData;
         const { collectionData: oldCol } = this.props;
         const { sourceMap: oldSource } = oldCol;
-        // if (collectionData.id != oldCol.id) {
-        //     this.setState({
-        //         tableList: [],
-        //         binLogList: []
-        //     })
-        // }
         if (sourceMap.sourceId && oldSource.sourceId != sourceMap.sourceId) {
             this.getTableList(sourceMap.sourceId)
         }
@@ -125,6 +119,26 @@ class CollectionSource extends React.Component {
 }
 
 class CollectionSourceForm extends React.Component {
+    state = {
+        topicList: []
+    }
+
+    loadPreview = () => {
+
+    }
+
+    getTopicType (sourceId) {
+        ajax.getTopicType({
+            sourceId
+        }).then((res) => {
+            if (res.data) {
+                this.setState({
+                    topicList: res.data
+                })
+            }
+        })
+    }
+
     renderByCatType () {
         const { collectionData, form, binLogList } = this.props;
         const { getFieldDecorator } = form;
@@ -177,6 +191,7 @@ class CollectionSourceForm extends React.Component {
             }
         }
     }
+
     renderForm () {
         let { collectionData, tableList } = this.props;
         let { dataSourceList = [], sourceMap, isEdit } = collectionData;
@@ -319,11 +334,54 @@ class CollectionSourceForm extends React.Component {
                     </FormItem>
                 ]
             }
+            case DATA_SOURCE.HDFS: {
+                const { topicList } = this.state;
+                return [
+                    <FormItem
+                        key="topic"
+                        {...formItemLayout}
+                        label="Topic"
+                    >
+                        {getFieldDecorator('topic', {
+                            rules: [{
+                                required: true, message: '请选择topic'
+                            }]
+                        })(
+                            <Select
+                                disabled={isEdit}
+                                style={{ width: '100%' }}
+                                placeholder="请选择topic"
+
+                            >
+                                {topicList.map(
+                                    (topic) => {
+                                        return <Option key={`${topic}`} value={topic}>
+                                            {topic}
+                                        </Option>
+                                    }
+                                )}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem key="preview">
+                        <p className="txt-center">
+                            <a
+                                style={{ cursor: 'pointer' }}
+                                href="javascript:void(0)"
+                                onClick={this.loadPreview.bind(this)}
+                            >
+                                数据预览 <Icon type="down" />
+                            </a>
+                        </p>
+                    </FormItem>
+                ];
+            }
             default: {
                 return null;
             }
         }
     }
+
     render () {
         let { collectionData, dataSourceTypes = [] } = this.props;
         let { isEdit } = collectionData;
@@ -369,7 +427,6 @@ const WrapCollectionSourceForm = Form.create({
         /**
          * sourceId改变,则清空表
          */
-
         if (fields.sourceId != undefined) {
             clear = true
         }
