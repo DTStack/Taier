@@ -3,6 +3,7 @@ import { Table, Modal, Button } from 'antd';
 import { connect } from 'react-redux';
 
 import Api from '../../api'
+import * as ProjectAction from '../../store/modules/project';
 
 @connect((state) => {
     return {
@@ -71,7 +72,7 @@ class DataSourceTaskListModal extends React.Component {
             key: 'edit',
             width: '100px',
             render (t, record) {
-                return <a rel="noopener noreferrer" target="_blank" href={`${location.pathname}#/realtime?taskId=${record.id}`}>编辑</a>
+                return <a rel="noopener noreferrer" target="_blank" href={`${location.pathname}#/realtime/task?taskId=${record.id}`}>编辑</a>
             }
         }]
     }
