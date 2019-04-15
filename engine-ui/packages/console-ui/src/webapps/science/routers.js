@@ -25,6 +25,7 @@ import Source from './views/source';
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then(module => module.default), { name: 'testPage' })
+import GraphView from './views/workbench/mainBench/panelGroup/graphPanel'
 
 export default (
     <Route path="/" component={ Main }>
@@ -46,6 +47,7 @@ export default (
             <Route path='workbench' component={ Workbench } />
             <Route path='source' component={ Source } />
             <Route path='operation' component={ Operation } />
+            <Route path='test' component={ GraphView } />
         </Route>
         <Route path="/*" component={NotFund} />
     </Route>

@@ -11,6 +11,8 @@ import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
 import commActions from '../../../../../actions';
 
+import GraphContainer from './graphContainer';
+
 @connect(
     state => {
         const { workbench, editor } = state;
@@ -40,7 +42,7 @@ class GraphPanel extends Component {
     render () {
         const { editor, data } = this.props;
 
-        const currentTab = data.id;
+        const currentTab = data && data.id;
 
         const consoleData = editor.console[siderBarType.experiment];
         const resultData = consoleData[currentTab] && consoleData[currentTab].data
@@ -68,7 +70,7 @@ class GraphPanel extends Component {
                 console={consoleOpts}
                 toolbar={toolbarOpts}
             >
-                graphComponent
+                <GraphContainer />
             </CommonEditor>
         );
     }
