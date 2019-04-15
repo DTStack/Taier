@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.learning;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.util.PluginInfoUtil;
+import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.apache.directory.api.util.Strings;
 import sun.misc.BASE64Decoder;
@@ -43,8 +44,8 @@ public class LearningUtil {
         //pluginInfo --> --remote-dfs-config
         if(Strings.isNotEmpty(jobClient.getPluginInfo())){
             argList.add("--remote-dfs-config");
-            String hdfsConf = PluginInfoUtil.getSpecKeyConf(jobClient.getPluginInfo(), PluginInfoUtil.HADOOP_CONF_KEY);
-            argList.add(new String(decoder.decodeBuffer(hdfsConf)));
+            Object hdfsConf = PluginInfoUtil.getSpecKeyConf(jobClient.getPluginInfo(), PluginInfoUtil.HADOOP_CONF_KEY);
+            argList.add(new Gson().toJson(hdfsConf));
         }
 
         return argList.toArray(new String[argList.size()]);
