@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux';
 
 import {
     Tooltip, Icon
@@ -9,7 +11,8 @@ import Mx from 'widgets/mxGraph';
 
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
-
+import * as componentActions from '../../../../../actions/componentActions';
+import { VertexSize } from '../../../../../consts'
 const propType = {
     data: PropTypes.object,
     registerContextMenu: PropTypes.func,
@@ -38,14 +41,12 @@ const {
     mxHierarchicalLayout
 } = Mx;
 
-const VertexSize = { // vertex大小
-    width: 188,
-    height: 32
-}
-
 const BASE_COLOR = '#2491F7';
 
 /* eslint new-cap: ["error", { "newIsCap": false }] */
+@connect(null, (dispatch) => {
+    return bindActionCreators(componentActions, dispatch);
+})
 class GraphEditor extends Component {
     componentDidMount () {
         const data = this.props.data;
@@ -470,6 +471,7 @@ class GraphEditor extends Component {
 
         const graph = new mxGraph(container)
         this.graph = graph
+        this.props.saveGraph(graph);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
         graph.keepEdgesInBackground = false;

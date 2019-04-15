@@ -10,8 +10,9 @@ import { siderBarType } from '../../../../../consts';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
 import commActions from '../../../../../actions';
-
+import { Tabs } from 'antd';
 import GraphContainer from './graphContainer';
+import Description from './description';
 
 @connect(
     state => {
@@ -38,7 +39,28 @@ class GraphPanel extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab, siderBarType.experiment);
     };
-
+    renderSiderbarItems () {
+        return [
+            <Tabs.TabPane
+                tab='组件参数'
+                key='params'
+            >
+                123
+            </Tabs.TabPane>,
+            <Tabs.TabPane
+                tab='组件说明'
+                key='description'
+            >
+                <Description />
+            </Tabs.TabPane>,
+            <Tabs.TabPane
+                tab='调度周期'
+                key='key2'
+            >
+                1232
+            </Tabs.TabPane>
+        ]
+    }
     render () {
         const { editor, data } = this.props;
 
@@ -69,6 +91,7 @@ class GraphPanel extends Component {
             <CommonEditor
                 console={consoleOpts}
                 toolbar={toolbarOpts}
+                siderBarItems={this.renderSiderbarItems()}
             >
                 <GraphContainer />
             </CommonEditor>

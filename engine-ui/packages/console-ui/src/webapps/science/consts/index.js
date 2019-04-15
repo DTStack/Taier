@@ -187,3 +187,8 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
     ],
     series: []
 };
+// mxGraph的长方形框的长宽
+export const VertexSize = {
+    width: 188,
+    height: 32
+}
