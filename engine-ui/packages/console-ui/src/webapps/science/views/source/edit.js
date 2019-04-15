@@ -51,15 +51,15 @@ class Edit extends Component {
                             label="表名称"
                         >
                             {getFieldDecorator(FORM_ENUM['表名称'], {
-                                rules: [{
+                                /* rules: [{
                                     required: true, message: '请填写表名称'
                                 }, {
                                     max: 32, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }, {
                                     pattern: /^[A-Za-z0-9_]+$/, message: '不超过32个字符，只支持字母、数字、下划线'
-                                }]
+                                }] */
                             })(
-                                <Input placeholder="不超过32个字符，只支持字母、数字、下划线" />
+                                <Input placeholder="不超过32个字符，只支持字母、数字、下划线" disabled />
                             )}
                         </FormItem>
                         <FormItem

@@ -74,6 +74,7 @@ class Source extends PureComponent {
                 dataTable: true
             }, {
                 id: 2,
+                name: 'test',
                 dataTable: false
             }]
         });
@@ -110,12 +111,8 @@ class Source extends PureComponent {
                 return (
                     <span>
                         {edit && (
-                            <>
-                                <a href="javascript:void(0)" onClick={() => this.handleEdit(record)}>编辑</a>
-                                <span className="ant-divider"></span>
-                            </>
+                            <a href="javascript:void(0)" onClick={() => this.handleEdit(record)}>编辑</a>
                         )}
-                        <a href="javascript:void(0)" onClick={() => this.handleDelete(record)}>删除</a>
                     </span>
                 )
             }
