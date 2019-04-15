@@ -13,12 +13,11 @@ module.exports = {
                 changeOrigin: true,
                 secure: false
             },
-            '/api/rdos': {
-                // target: 'http://172.16.10.86:9020', // test
+            "/api/rdos": {
+                // target: "http://172.16.10.51:9020",
                 // target: "http://172.16.8.107:9020", // dev server
-                // target: "http://127.0.0.1:3001", // tmp server
-                target: "http://172.16.10.97:9020",
-                // ignorePath: true,
+                target: "http://127.0.0.1:3001", // tmp server
+                // ignorePath: true,  
                 // Mock
                 changeOrigin: true,
                 secure: false
@@ -27,17 +26,16 @@ module.exports = {
                 // target: "http://172.16.1.191:9021", // formal test ser
                 // target: "http://172.16.8.104:9020", // formal test ser
                 // target: "http://172.16.8.105:9021", // formal test ser
-                target: 'http://172.16.10.86:9021', // test
-                // ignorePath: true,
-                // Mock
-                // pathRewrite:{"^/api/streamapp":"/api/rdos"},
+                // target: 'http://172.16.10.86:9021', // test
+                target: "http://127.0.0.1:3001", // tmp server
                 changeOrigin: true,
                 secure: false
             },
             '/uic': { // UIC地址
-                target: 'http://dtuic.dtstack.net',
+                // target: 'http://uic.dtstack.net',
                 // target: "http://uic.insight.com",
                 // target: 'http://172.16.1.92:8668',
+                target: "http://127.0.0.1:3001", // tmp server
                 changeOrigin: true,
                 // pathRewrite:{"^/uic":"/"},
                 secure: false
