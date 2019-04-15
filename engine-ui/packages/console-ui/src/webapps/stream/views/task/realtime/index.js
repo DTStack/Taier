@@ -267,6 +267,7 @@ class TaskIndex extends Component {
         // 修改task配置时接口要求的标记位
         result.preSave = true;
         result.submitStatus = 1; // 1-提交，0-保存
+        result.checkSourceUrl = false; // 参数checkSourceUrl，false：不检查jdbc url改变状态。
 
         BrowserAction.publishTask(result)
             .then(
