@@ -3,7 +3,6 @@ import { Table, Modal, Button } from 'antd';
 import { connect } from 'react-redux';
 
 import Api from '../../api'
-import * as ProjectAction from '../../store/modules/project';
 
 @connect((state) => {
     return {
