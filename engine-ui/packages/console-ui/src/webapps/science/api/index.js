@@ -4,6 +4,7 @@ import notebook from './notebook';
 import experiment from './experiment';
 import component from './component';
 import fileTree from './fileTree';
+import table from './table';
 
 export default {
     comm,
@@ -11,5 +12,6 @@ export default {
     notebook,
     experiment,
     component,
-    fileTree
+    fileTree,
+    table
 };

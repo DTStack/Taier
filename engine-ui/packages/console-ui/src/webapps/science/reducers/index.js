@@ -12,6 +12,7 @@ import { editor } from './modules/editor';
 import modal from './modules/modal';
 import common from './modules/common';
 import project from './modules/project'
+import dataManage from './modules/dataManage'
 
 // 全局State
 const rootReducer = combineReducers({
@@ -27,7 +28,8 @@ const rootReducer = combineReducers({
     experiment,
     notebook,
     component,
-    model
+    model,
+    dataManage
 })
 
 export default rootReducer

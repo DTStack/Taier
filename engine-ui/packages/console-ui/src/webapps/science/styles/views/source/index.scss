@@ -1,0 +1,55 @@
+.source {
+    background: #fff;
+
+    .source-title {
+        font-size: 16px;
+        color: #333333;
+        margin-bottom: 16px;
+    }
+
+    .ant-card-head {
+        height: 30px;
+        padding: 0;
+        border-bottom: 0;
+
+        .upload-button {
+            height: 30px;
+            width: 104px;
+            background: #0099FF;
+            font-size: 14px;
+            font-weight: normal;
+        }
+    }
+
+    .ant-card-body {
+        padding: 10px 0;
+
+        table {
+            border: 1px solid #dddddd;
+            border-bottom: 0;
+        }
+        .ant-table-placeholder {
+            border: 1px solid #DDDDDD;
+            border-top: 0;
+            margin-top: -1px;
+        }
+    }
+
+}
+
+.datasource-edit-modal {
+    .ant-modal-body {
+        padding-top: 20px;
+    }
+
+    .ant-modal-footer {
+        border-top: 0;
+        padding: 20px;
+
+        button {
+            width: 86px;
+            height: 30px;
+            border-radius: 3px;
+        }
+    }
+}

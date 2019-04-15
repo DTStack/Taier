@@ -1,4 +1,11 @@
-
+/**
+ * 项目类型
+ */
+export const PROJECT_TYPE = {
+    COMMON: 0, // 普通
+    TEST: 1, // 测试
+    PRO: 2// 生产
+}
 /**
  * 目录类型
  */
@@ -37,6 +44,20 @@ export const taskStatus = {
     WAIT_COMPUTE: 17,
     FROZEN: 18
 }
+
+/**
+ * 组件类型
+ */
+export const COMPONENT_TYPE = {
+    DATA_SOURCE: 0, // 数据源
+    DATA_TOOLS: 1, // 数据工具
+    DATA_MERGE: 2, // 数据合并
+    DATA_PRE_HAND: 3, // 数据预处理
+    MACHINE_LEARNING: 4, // 机器学习
+    DATA_PREDICT: 5, // 数据预测
+    DATA_EVALUATE: 6 // 评估
+}
+
 /**
  * SQL执行状态
  */

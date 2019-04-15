@@ -1,15 +1,23 @@
 import React, { Component } from 'react'
-
-import '../../styles/views/index/index.scss';
-
-class Container extends Component {
+import { Tabs } from 'antd';
+import Overview from './mainBench/overview';
+import TaskManage from './mainBench/taskManage';
+import '../../styles/views/operation/index.scss';
+const TabPane = Tabs.TabPane;
+class Operation extends Component {
     render () {
-        const { children } = this.props
         return (
-            <div className="inner-container">
-                {children || 'operation'}
+            <div className="inner-container" style={{ padding: 0, backgroundColor: '#fff' }}>
+                <Tabs className='c-antd-tabs-sidebar' tabPosition='left'>
+                    <TabPane tab={<span>运维概括</span>} key="overview">
+                        <Overview />
+                    </TabPane>
+                    <TabPane tab={<span>任务管理</span>} key="taskManage">
+                        <TaskManage />
+                    </TabPane>
+                </Tabs>
             </div>
         )
     }
 }
-export default Container
+export default Operation

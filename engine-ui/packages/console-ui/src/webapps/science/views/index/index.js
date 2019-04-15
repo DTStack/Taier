@@ -1,14 +1,22 @@
-import React, { Component } from 'react'
-
+import React, { PureComponent } from 'react'
 import '../../styles/views/index/index.scss';
-
-class Container extends Component {
+import Welcome from './welcome';
+import ProjectsList from './projectsList';
+class Container extends PureComponent {
+    state = {
+        isProject: false
+    }
+    toggleProject = () => {
+        this.setState({
+            isProject: !this.state.isProject
+        })
+    }
     render () {
-        const { children } = this.props
+        const { isProject } = this.state;
         return (
-            <div className="inner-container">
-                {children || 'index'}
-            </div>
+            <>
+                {isProject ? <ProjectsList toggle={this.toggleProject} /> : <Welcome toggle={this.toggleProject} />}
+            </>
         )
     }
 }
