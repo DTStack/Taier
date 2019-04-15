@@ -117,7 +117,7 @@ public class SqlPluginInfo {
         Map<String, String> map = new HashMap<String, String>((Map) properties);
         for (String key : map.keySet()) {
             if (key.startsWith("taskparams.")){
-                newProperties.setProperty(key, map.get(key));
+                newProperties.setProperty(key.split("taskparams.")[1], map.get(key));
             }
         }
         String confPropStr = PublicUtil.objToString(newProperties);
