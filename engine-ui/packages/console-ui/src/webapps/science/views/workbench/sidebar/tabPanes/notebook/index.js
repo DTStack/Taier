@@ -10,6 +10,7 @@ import NewFolder from '../../newFolder';
 import NotebookSearch from '../../../../../components/searchModal/notebookSearch';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
+import * as notebookActions from '../../../../../actions/notebookActions'
 
 import { siderBarType } from '../../../../../consts';
 
@@ -25,7 +26,8 @@ import { siderBarType } from '../../../../../consts';
     dispatch => {
         return {
             ...bindActionCreators(fileTreeActions, dispatch),
-            ...bindActionCreators(workbenchActions, dispatch)
+            ...bindActionCreators(workbenchActions, dispatch),
+            ...bindActionCreators(notebookActions, dispatch)
         };
     })
 class NotebookSidebar extends Component {
@@ -61,7 +63,13 @@ class NotebookSidebar extends Component {
             expandedKeys: keys
         })
     }
-
+    onSelect = (selectedKeys, e) => {
+        const data = e.node.props.data;
+        if (data.type != 'file') {
+            return;
+        }
+        this.props.openNotebook(data.id);
+    }
     renderFolderContent = () => {
         const {
             files
@@ -72,6 +80,7 @@ class NotebookSidebar extends Component {
                     <FolderTree
                         loadData={this.asynLoadCatalogue}
                         onExpand={this.onExpand}
+                        onSelect={this.onSelect}
                         expandedKeys={this.state.expandedKeys}
                         treeData={files}
                         nodeClass={(item) => {

@@ -29,9 +29,11 @@ class Console extends Component {
         const { isDisEabledDownload } = this.props;
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
-                switch (tab.tabType) {
+                const { log, data, extData = {} } = tab;
+                const tabType = log ? 'log' : 'data';
+                switch (tabType) {
                     case 'log': {
-                        return <TabPane tab={tab.name} key={tab.id}>
+                        return <TabPane tab={extData.name} key={tab.id} closable={!extData.disableClose}>
                             <div style={{ position: 'relative' }}>
                                 <CodeEditor
                                     style={{ minHeight: 'auto' }}
@@ -41,7 +43,7 @@ class Console extends Component {
                                     options={{ ...defaultEditorOptions, mode: 'dtlog' }}
                                     key="output-log"
                                     sync={true}
-                                    value={tab.log}
+                                    value={log}
                                 />
                             </div>
                         </TabPane>
@@ -53,11 +55,12 @@ class Console extends Component {
                                 style={{ minHeight: '100%', position: 'relative' }}
                                 tab={title}
                                 key={`${index}`}
+                                closable={!extData.disableClose}
                             >
-                                <Result data={tab.data} extraView={!isDisEabledDownload && tab.jobId && tab.data ? (
+                                <Result r={Math.random()} data={data} extraView={!isDisEabledDownload && tab.id && data ? (
                                     <a
                                         href={`${this.props.downloadUri}?jobId=${
-                                            tab.jobId
+                                            tab.id
                                         }`}
                                         download
                                     >

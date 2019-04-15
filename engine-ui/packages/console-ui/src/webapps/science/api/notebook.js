@@ -7,5 +7,8 @@ export default {
     },
     addNotebook (params) {
         return http.post(req.ADD_NOTEBOOK, params);
+    },
+    openNotebook (params) {
+        return http.post(req.OPEN_NOTEBOOK, params);
     }
 }

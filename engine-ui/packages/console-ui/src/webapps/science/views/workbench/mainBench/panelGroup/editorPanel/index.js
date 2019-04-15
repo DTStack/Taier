@@ -13,7 +13,7 @@ import reqUrls from '../../../../../consts/reqUrls';
 import { siderBarType } from '../../../../../consts';
 
 import workbenchActions from '../../../../../actions/workbenchActions';
-import * as editorActions from '../../../../../actions/editorActions';
+import * as runTaskActions from '../../../../../actions/runTaskActions';
 import * as notebookActions from '../../../../../actions/notebookActions';
 import commActions from '../../../../../actions';
 
@@ -27,7 +27,7 @@ import commActions from '../../../../../actions';
     },
     dispatch => {
         const actionsOne = bindActionCreators(workbenchActions, dispatch);
-        const actionsTwo = bindActionCreators(editorActions, dispatch);
+        const actionsTwo = bindActionCreators(runTaskActions, dispatch);
         const actionsThree = bindActionCreators(commActions, dispatch);
         const notebookAction = bindActionCreators(notebookActions, dispatch);
         return Object.assign(actionsOne, actionsTwo, actionsThree, notebookAction);
@@ -42,36 +42,16 @@ class EditorPanel extends Component {
 
     execSQL = () => {
         const {
-            editor,
-            currentTab,
             data
         } = this.props;
 
-        const params = {
-            databaseId: this.state.selectedDatabase
-        };
-
-        const code =
-            editor.selection ||
-            data.sqlText;
-
-        const sqls = this.filterSql(code);
-
-        if (sqls && sqls.length > 0) {
-            let i = 0;
-            this.props.setOutput(currentTab, `正在提交...`);
-            this.props.addLoadingTab(currentTab);
-            this.reqExecSQL(data, params, sqls, i);
-        }
+        const code = data.sqlText;
+        this.reqExecSQL(data, {}, [code]);
     };
 
-    reqExecSQL = (task, params, sqls, index) => {
-        const { currentTab, execSql } = this.props;
-        execSql(currentTab, task, params, sqls).then(complete => {
-            if (complete) {
-                this._tableColumns = {};
-            }
-        });
+    reqExecSQL = (task, params, sqls) => {
+        const { exec } = this.props;
+        exec(task, params, sqls);
     };
 
     stopSQL = () => {
@@ -113,9 +93,6 @@ class EditorPanel extends Component {
     };
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, {
-        maxWait: 2000
-    });
-    debounceSelectionChange = debounce(this.props.setSelectionContent, 200, {
         maxWait: 2000
     });
     renderSiderbarItems () {

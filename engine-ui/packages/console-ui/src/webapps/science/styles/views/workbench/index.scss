@@ -4,7 +4,11 @@
 @import './defaultView.scss';
 @import './modelView.scss';
 .sidebar {
-    
+    &.c-component-siderbar{
+        .s-catalogue{
+            top: 10px;
+        }
+    }
    .s-catalogue {
 
         position: absolute;
