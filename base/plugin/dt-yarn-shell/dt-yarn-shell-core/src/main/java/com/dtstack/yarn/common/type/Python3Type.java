@@ -23,7 +23,11 @@ public class Python3Type extends AppType {
         String encodedOpts = "";
         if (StringUtils.isNotBlank(clientArguments.getCmdOpts())) {
             try {
-                encodedOpts = URLEncoder.encode(clientArguments.getCmdOpts(), "UTF-8");
+                String cmdOpts = clientArguments.getCmdOpts();
+                if (clientArguments.getLocalFile()){
+                    cmdOpts += clientArguments.getApplicationId();
+                }
+                encodedOpts = URLEncoder.encode(cmdOpts, "UTF-8");
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

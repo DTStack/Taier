@@ -57,6 +57,7 @@ public class ClientArguments {
     String cacheFiles;
     String uploadFiles;
     Boolean exclusive;
+    String applicationId;
 
 
 
@@ -326,6 +327,14 @@ public class ClientArguments {
 
     public void setExclusive(Boolean exclusive) {
         this.exclusive = exclusive;
+    }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
     }
 
     public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
