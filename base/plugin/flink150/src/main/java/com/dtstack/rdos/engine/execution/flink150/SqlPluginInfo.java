@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 
 /**
@@ -95,7 +98,7 @@ public class SqlPluginInfo {
         return pluginRoot + SP + sqlPluginDirName;
     }
 
-    public List<String> buildExeArgs(JobClient jobClient) throws IOException {
+    public List<String> buildExeArgs(JobClient jobClient, Properties properties) throws IOException {
         List<String> args = Lists.newArrayList();
         args.add("-sql");
         args.add(URLEncoder.encode(jobClient.getSql(), Charsets.UTF_8.name()));
@@ -110,7 +113,14 @@ public class SqlPluginInfo {
         args.add(remoteSqlRootDir);
 
         args.add("-confProp");
-        String confPropStr = PublicUtil.objToString(jobClient.getConfProperties());
+        Properties newProperties = jobClient.getConfProperties();
+        Map<String, String> map = new HashMap<String, String>((Map) properties);
+        for (String key : map.keySet()) {
+            if (key.startsWith("taskparams.")){
+                newProperties.setProperty(key.split("taskparams.")[1], map.get(key));
+            }
+        }
+        String confPropStr = PublicUtil.objToString(newProperties);
         confPropStr = URLEncoder.encode(confPropStr, Charsets.UTF_8.name());
         args.add(confPropStr);
         return args;
