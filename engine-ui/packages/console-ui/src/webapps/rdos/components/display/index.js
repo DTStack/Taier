@@ -73,7 +73,7 @@ export function taskStatusText (type) {
         case TASK_STATUS.FROZEN:
             return '冻结';
         default:
-            return '';
+            return '异常';
     }
 }
 
