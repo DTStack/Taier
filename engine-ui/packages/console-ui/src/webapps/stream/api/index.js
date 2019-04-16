@@ -196,6 +196,9 @@ export default {
     getTopicType(params) {
         return http.post(req.GET_TOPIC_TYPE, params)
     },
+    getTimeZoneList(params) {
+        return http.post(req.GET_TIMEZONE_LIST,params)
+    },
     getStremTableType(params) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },
