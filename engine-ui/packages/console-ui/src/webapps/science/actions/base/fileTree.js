@@ -50,7 +50,7 @@ export function loadTreeData (type, nodePid) {
             if (res && res.code == 1) {
                 dispatch(replaceTreeNode(type, res.data));
             }
-            setTimeout(resolve, 2000);
+            resolve();
             // resolve();
         })
     }

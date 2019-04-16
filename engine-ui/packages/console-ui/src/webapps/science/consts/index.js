@@ -23,6 +23,27 @@ export const siderBarType = {
     component: 'component',
     model: 'model'
 }
+export const taskStatus = {
+    ALL: null,
+    WAIT_SUBMIT: 0,
+    CREATED: 1,
+    INVOKED: 2,
+    DEPLOYING: 3,
+    RUNNING: 4,
+    FINISHED: 5,
+    STOPING: 6,
+    STOPED: 7,
+    RUN_FAILED: 8, // 运行失败
+    SUBMIT_FAILED: 9, // 提交失败
+    PARENT_FAILD: 21, // 上游失败
+    SUBMITTING: 10,
+    RESTARTING: 11,
+    SET_SUCCESS: 12,
+    KILLED: 13,
+    WAIT_RUN: 16,
+    WAIT_COMPUTE: 17,
+    FROZEN: 18
+}
 
 /**
  * 组件类型
@@ -72,6 +93,7 @@ export const modalType = {
     newNotebook: 'NEW_NOTEBOOK',
     newExperiment: 'NEW_EXPERIMENT'
 }
+export const consoleKey = 'console-log';
 export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },

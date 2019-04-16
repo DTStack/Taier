@@ -3,33 +3,17 @@ import { cloneDeep, assign } from 'lodash';
 import localDb from 'utils/localDb';
 
 import editorAction from '../../../consts/editorActionType';
-import { experimentTabType, notebookTabType } from '../../../consts/actionType/tabType';
 import { siderBarType } from '../../../consts/index'
+import { safeGetConsoleTab } from './helper';
 const KEY_EDITOR_OPTIONS = 'editor_options';
 
 const { experiment, notebook } = siderBarType;
 
 // Console Reducers
-const console = (state = { [experiment]: {}, [notebook]: {} }, action) => {
+const consoleReducer = (state = { [experiment]: {}, [notebook]: {} }, action) => {
     const { type, payload = {} } = action;
     const { siderType } = payload;
     switch (type) {
-        case experimentTabType.ADD_TAB: {
-            const oldData = cloneDeep(state[experiment]);
-            oldData[payload.tabId] = { data: [] };
-            return {
-                ...state,
-                [experiment]: oldData
-            }
-        }
-        case notebookTabType.ADD_TAB: {
-            const oldData = cloneDeep(state[notebook]);
-            oldData[payload.tabId] = { data: [] };
-            return {
-                ...state,
-                [notebook]: oldData
-            }
-        }
         case editorAction.RESET_CONSOLE: {
             // reset console
             const newState = cloneDeep(state);
@@ -37,57 +21,51 @@ const console = (state = { [experiment]: {}, [notebook]: {} }, action) => {
             origin[payload.tabId] = { data: [] };
             return newState;
         }
-        case editorAction.SET_TAB: {
-            // 设置Tab
-            const newState = cloneDeep(state);
-            const origin = newState[siderType];
-            if (payload) {
-                origin[payload.key] = payload.data;
-            }
-            return newState;
-        }
         case editorAction.APPEND_CONSOLE_LOG: {
             // 追加日志
             const { key, tabId, data } = payload;
             const newState = cloneDeep(state);
             const origin = newState[siderType];
-            const items = origin[tabId].data;
+            const items = safeGetConsoleTab(origin, tabId).data;
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 if (item.id == key) {
-                    items[i].log = items[i].log
-                        ? `${items[i].log} \n${data}`
+                    item.log = item.log
+                        ? `${item.log} \n${data}`
                         : `${data}`;
                 }
             }
             return newState;
         }
         case editorAction.SET_CONSOLE_LOG: {
-            const { key, tabId, data } = payload;
+            const { key, tabId, data, extData } = payload;
             const newState = cloneDeep(state);
             const origin = newState[siderType];
-            const items = origin[tabId].data;
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                if (item.id == key) {
-                    items[i].log = data;
-                }
+            const items = safeGetConsoleTab(origin, tabId).data;
+            const oldItem = items.find((item) => {
+                return item.id == key
+            });
+            if (oldItem) {
+                oldItem.log = data;
+            } else {
+                items.push({
+                    id: key,
+                    log: data,
+                    extData: extData
+                })
             }
             return newState;
         }
         case editorAction.UPDATE_RESULTS: {
-            // 更新结果
+            // 添加结果
             const { key, tabId, data } = payload;
             const newState = cloneDeep(state);
             const origin = newState[siderType];
-            const items = origin[tabId].data;
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                if (item.id == key) {
-                    items[i].data = items[i].data || [];
-                    items[i].data.push(data);
-                }
-            }
+            const items = safeGetConsoleTab(origin, tabId).data;
+            items.push({
+                id: key,
+                data: data
+            });
             return newState;
         }
         case editorAction.DELETE_RESULT: {
@@ -95,11 +73,12 @@ const console = (state = { [experiment]: {}, [notebook]: {} }, action) => {
             const { key, tabId } = payload;
             const newState = cloneDeep(state);
             const origin = newState[siderType];
-            const items = origin[tabId].data;
+            const items = safeGetConsoleTab(origin, tabId).data;
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 if (item.id == key) {
                     items.splice(i, 1);
+                    break;
                 }
             }
             return newState;
@@ -174,7 +153,7 @@ export const options = (state = initialEditorOptions(), action) => {
 };
 
 export const editor = combineReducers({
-    console,
+    console: consoleReducer,
     selection,
     running,
     options

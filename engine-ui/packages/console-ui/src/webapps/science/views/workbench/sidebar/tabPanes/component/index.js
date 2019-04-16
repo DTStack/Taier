@@ -148,7 +148,7 @@ class ComponentSidebar extends Component {
 
     render () {
         return (
-            <div className="sidebar">
+            <div className="sidebar c-component-siderbar">
                 {
                     this.renderFolderContent()
                 }

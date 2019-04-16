@@ -6,7 +6,11 @@
 @import './graph.scss';
 
 .sidebar {
-    
+    &.c-component-siderbar{
+        .s-catalogue{
+            top: 10px;
+        }
+    }
    .s-catalogue {
 
         position: absolute;

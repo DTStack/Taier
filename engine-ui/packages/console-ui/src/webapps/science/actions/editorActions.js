@@ -214,11 +214,12 @@ export function output (tabId, log, key, type) {
     }
 }
 
-export function setOutput (tabId, log, key, type) {
+export function setOutput (tabId, log, key, type, extData) {
     return {
         payload: {
             key,
             tabId,
+            extData,
             siderType: type,
             data: createLog(log, 'info')
         },
@@ -226,13 +227,13 @@ export function setOutput (tabId, log, key, type) {
     }
 }
 
-export function outputRes (tabId, item, jobId, key, type) {
+export function outputRes (tabId, data, key, type) {
     return {
         payload: {
             key,
             tabId,
             siderType: type,
-            data: { jobId: jobId, data: item }
+            data
         },
         type: editorAction.UPDATE_RESULTS
     }

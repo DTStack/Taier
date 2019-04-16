@@ -14,7 +14,12 @@ class Http {
     }
 
     post(url, body) { // POST请求
-        let options = { method: 'POST' }
+        let options = { 
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            }
+        }
         if (body) options.body = JSON.stringify(body)
         return this.request(url, options)
     }
