@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { message } from 'antd';
+import { bindActionCreators } from 'redux';
 
 import utils from 'utils';
 import Mx from 'widgets/mxGraph';
@@ -10,7 +11,7 @@ import SearchModal from 'widgets/searchModal';
 import API from '../../../../../api';
 import GraphEditor from './graphEditor';
 // import { isProjectCouldEdit } from '../../../../../comm';
-import * as graphActions from '../../../../../actions/workbenchActions/graph';
+import * as componentActions from '../../../../../actions/componentActions';
 
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
@@ -41,7 +42,9 @@ const applyCellStyle = (cellState, style) => {
         editor,
         project: project
     }
-}, graphActions)
+}, (dispatch) => {
+    return bindActionCreators(componentActions, dispatch);
+})
 class GraphContainer extends React.Component {
     state = {
         showSearch: false,
@@ -109,7 +112,7 @@ class GraphContainer extends React.Component {
 
     initGraphEvent = (graph) => {
         let selectedCell = null;
-        const { openTaskInDev } = this.props;
+        const { openTaskInDev, saveSelectedCell } = this.props;
         // let highlightEdges = [];
         this._graph = graph;
 
@@ -145,7 +148,7 @@ class GraphContainer extends React.Component {
                 style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
                 style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
                 applyCellStyle(cellState, style);
-
+                saveSelectedCell(cell)
                 // const outEdges = graph.getOutgoingEdges(cell);
                 // const inEdges = graph.getIncomingEdges(cell);
                 // const edges = outEdges.concat(inEdges);
@@ -159,6 +162,7 @@ class GraphContainer extends React.Component {
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
+                saveSelectedCell({})
             }
         });
 

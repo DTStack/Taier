@@ -140,45 +140,6 @@ class ComponentSidebar extends Component {
                             }
                             return 'anchor-folder'
                         }}
-                        contextMenus={[
-                            {
-                                targetClassName: 'anchor-folder',
-                                menuItems: [{
-                                    text: '新建实验',
-                                    onClick: (activeNode) => {
-                                        console.log(activeNode);
-                                    }
-                                }, {
-                                    text: '新建文件夹',
-                                    onClick: (activeNode) => {
-                                        console.log(activeNode);
-                                    }
-                                }, {
-                                    text: '重命名',
-                                    onClick: (activeNode) => {
-                                        console.log(activeNode);
-                                    }
-                                }, {
-                                    text: '删除',
-                                    onClick: (activeNode) => {
-                                        console.log(activeNode);
-                                    }
-                                }]
-                            },
-                            {
-                                targetClassName: 'anchor-file',
-                                menuItems: [{
-                                    text: '属性',
-                                    onClick: (activeNode) => {
-                                        console.log(activeNode);
-                                    }
-                                }, {
-                                    text: '删除',
-                                    onClick: (activeNode) => {
-                                        console.dir({ databaseId: activeNode.id })
-                                    }
-                                }]
-                            }]}
                     />
                 ) : <Loading />}
             </div>

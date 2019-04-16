@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 
 import { componentFilesType } from '../../../consts/actionType/filesType';
 import { updateTreeNode, replaceTreeNode } from '../../helper';
+import { graph, selectedCell } from './graph';
 function files (state = [], action) {
     const { type, payload } = action;
     switch (type) {
@@ -21,5 +22,7 @@ function files (state = [], action) {
 }
 
 export default combineReducers({
-    files
+    files,
+    graph,
+    selectedCell
 });

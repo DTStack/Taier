@@ -5,3 +5,9 @@ export function saveGraph (payload) {
         payload
     }
 }
+export function saveSelectedCell (payload) {
+    return {
+        type: componentActionType.SAVE_SELECTED_CELL,
+        payload
+    }
+}

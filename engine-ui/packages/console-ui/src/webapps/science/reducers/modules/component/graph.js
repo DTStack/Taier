@@ -1,5 +1,5 @@
 import componentActionType from '../../../consts/componentActionType';
-function graph (state = {}, action) {
+export function graph (state = {}, action) {
     const { type, payload } = action;
     switch (type) {
         case componentActionType.SAVE_GRAPH: {
@@ -11,4 +11,14 @@ function graph (state = {}, action) {
     }
 }
 
-export default graph
+export function selectedCell (state = {}, action) {
+    const { type, payload } = action;
+    switch (type) {
+        case componentActionType.SAVE_SELECTED_CELL: {
+            return payload;
+        }
+        default: {
+            return state;
+        }
+    }
+}

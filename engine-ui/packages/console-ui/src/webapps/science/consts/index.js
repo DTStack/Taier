@@ -28,13 +28,29 @@ export const siderBarType = {
  * 组件类型
  */
 export const COMPONENT_TYPE = {
-    DATA_SOURCE: 0, // 数据源
-    DATA_TOOLS: 1, // 数据工具
-    DATA_MERGE: 2, // 数据合并
-    DATA_PRE_HAND: 3, // 数据预处理
-    MACHINE_LEARNING: 4, // 机器学习
-    DATA_PREDICT: 5, // 数据预测
-    DATA_EVALUATE: 6 // 评估
+    DATA_SOURCE: {
+        READ_DATABASE: 0, // 读数据库
+        WRITE_DATABASE: 1 // 写数据库
+    },
+    DATA_TOOLS: {
+        SQL_SCRIPT: 2 // sql脚本
+    },
+    DATA_MERGE: {
+        TYPE_CHANGE: 3, // 类型转换
+        NORMALIZE: 4 // 归一化
+    },
+    DATA_PRE_HAND: {
+        DATA_SPLIT: 5 // 拆分
+    },
+    MACHINE_LEARNING: {
+        LOGISTIC_REGRESSION: 6 // 逻辑二分类
+    },
+    DATA_PREDICT: {
+        DATA_PREDICT: 7 // 数据预测
+    },
+    DATA_EVALUATE: {
+        BINARY_CLASSIFICATION: 8 // 二分类评估
+    }
 }
 
 /**

@@ -13,6 +13,7 @@ import commActions from '../../../../../actions';
 import { Tabs } from 'antd';
 import GraphContainer from './graphContainer';
 import Description from './description';
+import Params from './params/index';
 
 @connect(
     state => {
@@ -45,7 +46,7 @@ class GraphPanel extends Component {
                 tab='组件参数'
                 key='params'
             >
-                123
+                <Params />
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='组件说明'

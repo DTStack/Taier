@@ -46,3 +46,123 @@
         border-bottom: 1px solid rgba(255,255,255,0.2);
     }
 }
+// 右边的tabs
+.ant-tabs-vertical.ant-tabs-right {
+    >.ant-tabs-content {
+        padding-right: 0;
+
+        // 组件参数tab框
+        .tab-content {
+
+            .read-database {
+                >.ant-tabs-bar {
+
+                    .ant-tabs-nav {
+                        width: 100%;
+                    }
+
+                    .ant-tabs-tab {
+                        border: 0;
+                        background: transparent;
+                        width: 50%;
+                        text-align: center;
+                        font-size: 14px;
+                        color: #333333;
+                        margin: 0;
+
+                        &:nth-child(2) {
+                            border-right: 1px solid #dddddd;
+                        }
+                    }
+
+                    .ant-tabs-tab-active {
+                        color: #2491F7;
+                    }
+                }
+
+                >.ant-tabs-content {
+                    .ant-tabs-tabpane {
+                        background: #F5F5F5;
+                        padding: 9.5px 14px;
+                    }
+                }
+
+                // 表选择表单的style
+                .choose-table-form {
+                    .ant-form-item {
+                        margin-bottom: 20px;
+                    }
+
+                    .ant-form-item-label {
+                        >label {
+                            font-size: 14px;
+                            color: #333333;
+                            line-height: 20px;
+
+                            .supplementary {
+                                font-size: 12px;
+                                color: #999999;
+                                margin-left: 5px;
+                            }
+                        }
+                    }
+                }
+
+                table.table-info {
+                    width: 100%;
+                    border: 1px solid #dddddd;
+                    background: #FFFFFF;
+                    border-collapse: collapse;
+                    line-height: 40px;
+
+                    .table-font {
+                        width: 50%;
+                        font-size: 13px;
+                        color: #333333;
+                        font-weight: normal;
+                        text-align: left;
+                        padding-left: 20px;
+                    }
+
+                    thead {
+                        th {
+                            @extend .table-font;
+                        }
+                    }
+
+                    tbody {
+                        th {
+                            @extend .table-font;
+                        }
+                    }
+                }
+            }
+
+            .write-database {
+                @extend .read-database;
+                width: 100%;
+
+                .write-database-head {
+                    font-size: 14px;
+                    color: #333333;
+                    line-height: 40px;
+                    border-bottom: 1px solid #DDDDDD;
+                    padding-left: 14px;
+                }
+                .write-database-content{
+                    padding: 9.5px 14px;
+                }
+            }
+        }
+    }
+
+    .panel-description {
+        margin: 9.5px 14px;
+        background: #fff;
+        border: 1px solid #DDDDDD;
+        padding: 16px;
+        min-height: 248px;
+        font-size: 13px;
+        color: #333333;
+    }
+}
