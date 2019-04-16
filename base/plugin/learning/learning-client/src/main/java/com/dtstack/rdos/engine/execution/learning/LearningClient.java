@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.learning;
 import com.dtstack.learning.conf.LearningConfiguration;
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
@@ -60,7 +61,8 @@ public class LearningClient extends AbsClient {
         conf.set("fs.hdfs.impl.disable.cache", "true");
         conf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
 
-        if(prop != null){
+        Boolean useLocalEnv = MathUtil.getBoolean(prop.get("use.local.env"), false);
+        if(useLocalEnv){
             //从本地环境变量读取
             String hadoopConfDir = System.getenv("HADOOP_CONF_DIR");
             conf.addResource(new URL("file://" + hadoopConfDir + "/" + "core-site.xml"));
