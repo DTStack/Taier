@@ -30,7 +30,7 @@ class ChangeResourceModal extends React.Component {
         selectHack: false, // select combobox自带bug
         switchQueueVisible: false,
         tenantInfo: {},
-        queueList: []
+        queueList: [] // 用于切换队列
     }
     componentDidMount () {
         const { resource } = this.props;
@@ -111,7 +111,7 @@ class ChangeResourceModal extends React.Component {
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
             if (!selectUserMap[user.tenantId]) {
-                result.push(<Option tenantid={user.tenantId} value={user.tenantName}>{user.tenantName}</Option>)
+                result.push(<Option key={user.tenantId} tenantid={user.tenantId} data-value={user}>{user.tenantName}</Option>)
             }
         }
         return result;

@@ -11,7 +11,7 @@ class SwitchQueue extends React.Component {
     }
     queueOption = () => {
         const { queueList } = this.props;
-        queueList && queueList.map(item => {
+        return queueList && queueList.map(item => {
             return (
                 <Option
                     key={item.id}
@@ -24,12 +24,11 @@ class SwitchQueue extends React.Component {
     }
     confirmSwitchQueue = () => {
         const { getFieldValue, validateFields } = this.props.form;
-        // const formData = getFieldsValue()
         validateFields(err => {
             if (!err) {
                 Api.confirmSwitchQueue({
-                    currentTenantId: getFieldValue('currentTenantId'),
-                    id: getFieldValue('id')
+                    tenantId: getFieldValue('tenantId'),
+                    queueId: getFieldValue('queueId')
                 }).then(res => {
                     if (res.code === 1) {
                         message.success('切换队列成功！')
@@ -53,7 +52,7 @@ class SwitchQueue extends React.Component {
                     <Form.Item
                         style={{ display: 'none' }}
                     >
-                        {getFieldDecorator('currentTenantId', {
+                        {getFieldDecorator('tenantId', {
                             initialValue: tenantInfo.id
                         })}
                     </Form.Item>
@@ -71,14 +70,17 @@ class SwitchQueue extends React.Component {
                         label="队列切换至"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('id', {
-
+                        {getFieldDecorator('queueId', {
+                            rules: [{
+                                required: true,
+                                message: '请选择要切换的队列'
+                            }]
                         })(
                             <Select
                                 allowClear
                                 placeholder='请选择切换的队列名称'
                             >
-                                {this.queueOption}
+                                {this.queueOption()}
                             </Select>
                         )}
                     </Form.Item>
