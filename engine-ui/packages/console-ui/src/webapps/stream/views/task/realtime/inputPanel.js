@@ -29,11 +29,7 @@ class InputOrigin extends Component {
             this._editorRef.refresh();
         }
     }
-    // componentDidUpdate() {
-    //     if (this.props.isShow) {
-    //         this.refreshEditor();
-    //     }
-    // }
+
     checkParams = () => {
         // 手动检测table参数
         let result = {};
@@ -72,39 +68,6 @@ class InputOrigin extends Component {
                 return null;
         }
     }
-    /**
-     * 处理级联数据
-     */
-    getCascaderData = () => {
-        const { timeZoneOptionType } = this.props;
-        const cascaderData = [];
-        timeZoneOptionType.map(v => {
-            const option = {};
-            let subArr = v.split('/');
-            option.value = option.label = subArr[0];
-            if (subArr.length === 1) {
-                option.children = undefined;
-            }
-            if (subArr.length === 2) {
-                option.children = [];
-                const childOpt = {};
-                childOpt.value = childOpt.label = subArr[1];
-                option.children.push(childOpt)
-            }
-            if (subArr.length === 3) {
-                option.children = [];
-                option.children.children = [];
-                const childOpt = {};
-                const grandOpt = {};
-                childOpt.value = childOpt.label = subArr[1];
-                grandOpt.value = grandOpt.label = subArr[2];
-                option.children.push(childOpt)
-                option.children.children.push(grandOpt)
-            }
-            cascaderData.push(option);
-        })
-        return cascaderData
-    }
 
     editorParamsChange (type, a, b, c) {
         const { handleInputChange, textChange, index } = this.props;
@@ -116,7 +79,7 @@ class InputOrigin extends Component {
 
     render () {
         const { handleInputChange, index, panelColumn, sync, timeColumoption = [], originOptionType = [],
-            topicOptionType = [], isShow } = this.props;
+            topicOptionType = [], isShow, timeZoneData } = this.props;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
         const eventTimeOptionType = this.originOption('eventTime', timeColumoption[index] || []);
@@ -177,46 +140,6 @@ class InputOrigin extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    {/* <FormItem
-                        {...formItemLayout}
-                        label="Topic类型"
-                    >
-                        {getFieldDecorator('topicIsPattern', {})(
-                            <RadioGroup className="right-select" onChange={(v) => { handleInputChange('topicIsPattern', index, v.target.value) }} >
-                                <Radio value={TOPIC_TYPE.NORMAL}>非正则</Radio>
-                                <Radio value={TOPIC_TYPE.REXGEP}>正则</Radio>
-                            </RadioGroup>
-                        )}
-                    </FormItem> */}
-                    {/* <FormItem
-                        {...formItemLayout}
-                        label="Topic"
-                    >
-                        {!topicIsPattern ? getFieldDecorator('topic', {
-                            rules: [
-                                { required: true, message: '请选择Topic' }
-                            ]
-                        })(
-                            <Select
-                                placeholder="请选择Topic"
-                                className="right-select"
-                                onChange={(v) => { handleInputChange('topic', index, v) }}
-                                showSearch
-                                mode='multiple'
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-                            >
-                                {
-                                    topicOptionTypes
-                                }
-                            </Select>
-                        ) : getFieldDecorator('topic_input', {
-                            rules: [
-                                { required: true, message: '请输入Topic' }
-                            ]
-                        })(
-                            <Input placeholder="请输入正则表达式" onChange={(v) => { handleInputChange('topic', index, [v.target.value]) }} />
-                        )}
-                    </FormItem> */}
                     <FormItem
                         {...formItemLayout}
                         label="Topic"
@@ -274,28 +197,6 @@ class InputOrigin extends Component {
                             )}
                         </Col>
                     </Row>
-                    {/* <FormItem
-                        {...formItemLayout}
-                        label={<span>
-                            <span style={{ paddingRight: '5px' }}>Offset</span>
-                            <Tooltip overlayClassName="big-tooltip" title={<div>
-                                <p>latest：从Kafka Topic内最新的数据开始消费</p>
-                                <p>earliest：从Kafka Topic内最老的数据开始消费</p>
-                            </div>}>
-                                <Icon type="question-circle-o" />
-                            </Tooltip>
-                        </span>}
-                    >
-                        {getFieldDecorator('offsetReset')(
-                            <RadioGroup className="right-select" onChange={(v) => { handleInputChange('offsetReset', index, v.target.value) }}>
-                                <Radio value='latest'>latest</Radio>
-                                <Radio value='earliest'>earliest</Radio>
-                                {topic.length < 2 && !topicIsPattern && (
-                                    <Radio value='custom'>自定义参数</Radio>
-                                )}
-                            </RadioGroup>
-                        )}
-                    </FormItem> */}
                     <FormItem
                         {...formItemLayout}
                         label={<span>
@@ -312,9 +213,6 @@ class InputOrigin extends Component {
                             <RadioGroup className="right-select" onChange={(v) => { handleInputChange('offsetReset', index, v.target.value) }}>
                                 <Radio value='latest'>latest</Radio>
                                 <Radio value='earliest'>earliest</Radio>
-                                {/* {topic.length < 2 && (
-                                    <Radio value='custom'>自定义参数</Radio>
-                                )} */}
                                 <Radio value='custom'>自定义参数</Radio>
                             </RadioGroup>
                         )}
@@ -412,11 +310,14 @@ class InputOrigin extends Component {
                         {...formItemLayout}
                         label="时区"
                     >
-                        {getFieldDecorator('timeZone')(
+                        {getFieldDecorator('timeZone', {
+                            initialValue: ['Asia', 'Shanghai']
+                        })(
                             <Cascader
+                                onChange={value => handleInputChange('timeZone', index, value)}
                                 placeholder='请选择时区'
                                 showSearch
-                                options={this.getCascaderData()}
+                                options={timeZoneData}
                             />
                         )}
                     </FormItem>
@@ -448,7 +349,7 @@ const InputForm = Form.create({
             columnsText,
             parallelism,
             offsetReset,
-            // topicIsPattern,
+            timeZone,
             customParams
         } = props.panelColumn[props.index];
         return {
@@ -460,13 +361,12 @@ const InputForm = Form.create({
             columns: { value: columns },
             timeType: { value: timeType },
             timeColumn: { value: timeColumn },
+            timeZone: { value: timeZone },
             offset: { value: offset },
             offsetReset: { value: offsetReset },
             columnsText: { value: columnsText },
             parallelism: { value: parallelism },
-            // topicIsPattern: { value: topicIsPattern },
             ...generateMapValues(customParams)
-            // alias: { value: alias },
         }
     }
 })(InputOrigin);
@@ -493,8 +393,7 @@ export default class InputPanel extends Component {
             checkFormParams: [], // 存储要检查的参数from
             timeColumoption: [], // 时间列选择数据
             topicOptionType: [], // topic选择数据
-            originOptionType: [], // 数据源选择数据
-            timeZoneOptionType: [] // 时区下拉框数据
+            originOptionType: [] // 数据源选择数据
         };
     }
 
@@ -551,31 +450,6 @@ export default class InputPanel extends Component {
         })
     }
 
-    /**
-     * 时区
-    */
-    getTimeZoneList = (type) => {
-        const { timeZoneOptionType } = this.state;
-        Api.getTimeZoneList().then(res => {
-            if (type === 'add') {
-                if (res.code === 1) {
-                    timeZoneOptionType.push(res.data || [])
-                } else {
-                    timeZoneOptionType.push([])
-                }
-            } else {
-                if (res.code === 1) {
-                    timeZoneOptionType[type] = res.data;
-                } else {
-                    timeZoneOptionType[type] = [];
-                }
-            }
-            this.setCurrentSource({ timeZoneOptionType });
-            this.setState({
-                timeZoneOptionType
-            })
-        })
-    }
     getTypeOriginData = (index, type) => {
         const { originOptionType } = this.state;
         Api.getTypeOriginData({ type }).then(v => {
@@ -695,6 +569,7 @@ export default class InputPanel extends Component {
             })
         }
     }
+
     changeInputTabs = (type, index) => {
         const inputData = {
             type: DATA_SOURCE.KAFKA,
@@ -720,15 +595,13 @@ export default class InputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            topicOptionType,
-            timeZoneOptionType
+            topicOptionType
         } = this.state;
         if (type === 'add') {
             tabTemplate.push('InputForm');
             panelColumn.push(inputData);
             this.getTypeOriginData('add', inputData.type);
             this.getTopicType('add', inputData.sourceId);
-            this.getTimeZoneList('add');
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
         } else {
@@ -736,13 +609,12 @@ export default class InputPanel extends Component {
             panelColumn.splice(index, 1);
             originOptionType.splice(index, 1);
             topicOptionType.splice(index, 1);
-            timeZoneOptionType.splice(index, 1);
             checkFormParams.pop();
             panelActiveKey = this.changeActiveKey(index);
             popoverVisible[index] = false;
         }
         this.props.tableParamsChange()// 添加数据改变标记
-        this.setCurrentSource({ tabTemplate, panelActiveKey, popoverVisible, panelColumn, originOptionType, topicOptionType, timeZoneOptionType });
+        this.setCurrentSource({ tabTemplate, panelActiveKey, popoverVisible, panelColumn, originOptionType, topicOptionType });
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -750,8 +622,7 @@ export default class InputPanel extends Component {
             panelColumn,
             checkFormParams,
             originOptionType,
-            topicOptionType,
-            timeZoneOptionType
+            topicOptionType
         })
     }
 
@@ -797,7 +668,6 @@ export default class InputPanel extends Component {
             'offsetReset',
             'columnsText',
             'parallelism',
-            // 'topicIsPattern',
             'offsetValue',
             'customParams'
         ]
@@ -873,27 +743,6 @@ export default class InputPanel extends Component {
                 })
                 break;
             }
-            // case 'topicIsPattern': {
-            //     timeColumoption[index] = [];
-            //     allParamsType.map(v => {
-            //         if (v != 'type' && v != 'sourceId' && v != 'topicIsPattern') {
-            //             if (v == 'columns') {
-            //                 panelColumn[index][v] = [];
-            //             } else if (v == 'timeType') {
-            //                 panelColumn[index][v] = 1
-            //             } else if (v == 'parallelism') {
-            //                 panelColumn[index][v] = 1
-            //             } else if (v == 'offsetReset') {
-            //                 panelColumn[index][v] = 'latest'
-            //             } else if (v == 'topic') {
-            //                 panelColumn[index][v] = [];
-            //             } else {
-            //                 panelColumn[index][v] = undefined
-            //             }
-            //         }
-            //     })
-            //     break;
-            // }
             default: {
                 shouldUpdateEditor = false;
             }
@@ -983,8 +832,8 @@ export default class InputPanel extends Component {
     }
 
     render () {
-        const { tabTemplate, panelActiveKey, panelColumn, timeColumoption, topicOptionType, originOptionType, timeZoneOptionType, sync } = this.state;
-        const { isShow } = this.props;
+        const { tabTemplate, panelActiveKey, panelColumn, timeColumoption, topicOptionType, originOptionType, sync } = this.state;
+        const { isShow, timeZoneData } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
@@ -1003,7 +852,7 @@ export default class InputPanel extends Component {
                                         timeColumoption={timeColumoption}
                                         topicOptionType={topicOptionType}
                                         originOptionType={originOptionType}
-                                        timeZoneOptionType={timeZoneOptionType}
+                                        timeZoneData={timeZoneData}
                                         textChange={() => {
                                             this.setState({
                                                 sync: false

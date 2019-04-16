@@ -34,6 +34,7 @@ const FormItem = Form.Item;
 class TaskIndex extends Component {
     state = {
         publishDesc: '',
+        timeZoneData: [],
         confirmSaveVisible: false,
         showPublish: false
     }
@@ -43,6 +44,55 @@ class TaskIndex extends Component {
         if (taskId) {
             this.props.dispatch(BrowserAction.openPage({ id: taskId }))
         }
+        this.getTimeZoneList();
+    }
+
+    getTimeZoneList = () => {
+        function mapToArray (data, dataMap) {
+            const names = Object.getOwnPropertyNames(dataMap);
+            for (let i = 0; i < names.length; i++) {
+                const name = names[i];
+                const item = {
+                    value: name,
+                    label: name,
+                    children: []
+                };
+                data.children.push(item);
+                if (dataMap[name]) {
+                    mapToArray(item, dataMap[name]);
+                }
+            }
+        }
+
+        const preHandData = (data) => {
+            if (!data.length === 0) return [];
+            const result = { children: [] };
+            const map = {};
+            for (let i = 0; i < data.length; i++) {
+                const keys = data[i].split('/');
+                const key1 = keys[0];
+                const key2 = keys[1];
+                const key3 = keys[2];
+
+                if (key1 && !map[key1]) {
+                    map[key1] = {};
+                } else if (key2 && !map[key1][key2]) {
+                    map[key1][key2] = {};
+                } else if (key3 && !map[key1][key2][key3]) {
+                    map[key1][key2][key3] = {};
+                }
+            }
+
+            mapToArray(result, map);
+            console.log('mapToArray:', result, map)
+            return result.children || [];
+        };
+        Api.getTimeZoneList().then(res => {
+            const timeZoneData = preHandData(res.data);
+            this.setState({
+                timeZoneData
+            })
+        })
     }
 
     saveTask = (saveMode) => {
@@ -430,6 +480,7 @@ class TaskIndex extends Component {
                 </header>
                 <TaskBrowser
                     {...this.props}
+                    timeZoneData={this.state.timeZoneData}
                     ayncTree={this.loadTreeData}
                     editorParamsChange={this.editorParamsChange}
                     editorChange={this.debounceChange}

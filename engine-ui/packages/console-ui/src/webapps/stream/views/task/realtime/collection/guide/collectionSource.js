@@ -405,6 +405,7 @@ const WrapCollectionSourceForm = Form.create({
     mapPropsToFields (props) {
         const { collectionData } = props;
         const sourceMap = collectionData.sourceMap;
+        if (!sourceMap) return {};
         return {
             type: {
                 value: sourceMap.type
