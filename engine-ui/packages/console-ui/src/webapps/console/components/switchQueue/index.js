@@ -12,11 +12,9 @@ class SwitchQueue extends React.Component {
     queueOption = () => {
         const { queueList } = this.props;
         return queueList && queueList.map(item => {
+            const id = `${item.id}`;
             return (
-                <Option
-                    key={item.id}
-                    value={item.id}
-                >
+                <Option key={id}>
                     {item.queueName}
                 </Option>
             )

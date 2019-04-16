@@ -49,7 +49,7 @@ class ChangeResourceModal extends React.Component {
             })
             this.resetValueByHack();
             this.props.getTenantList();
-            this.getQueueLists({ id: nextResource.id })
+            this.getQueueLists({ clusterId: nextResource.clusterId })
         }
     }
     /**
