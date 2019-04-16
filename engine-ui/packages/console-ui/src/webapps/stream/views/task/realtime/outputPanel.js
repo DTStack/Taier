@@ -842,14 +842,14 @@ export default class OutputPanel extends Component {
     panelHeader = (index) => {
         const { popoverVisible } = this.state;
         const popoverContent = <div className="input-panel-title">
-            <div style={{ padding: '8 0 12' }}> <Icon type="exclamation-circle" style={{ color: '#faad14' }} />  你确定要删除此输出源吗？</div>
+            <div style={{ padding: '8 0 12' }}> <Icon type="exclamation-circle" style={{ color: '#faad14' }} />  你确定要删除此结果表吗？</div>
             <div style={{ textAlign: 'right', padding: '0 0 8' }}>
                 <Button style={{ marginRight: 8 }} size="small" onClick={() => { this.handlePopoverVisibleChange(null, index, false) }}>取消</Button>
                 <Button type="primary" size="small" onClick={() => { this.changeInputTabs('delete', index) }}>确定</Button>
             </div>
         </div>
         return <div className="input-panel-title">
-            <span>{` 输出源 ${index + 1} `}</span>
+            <span>{` 结果表 ${index + 1} `}</span>
             <Popover
                 trigger="click"
                 placement="topLeft"
@@ -902,7 +902,7 @@ export default class OutputPanel extends Component {
                         })
                     }
                 </Collapse>
-                <Button className="stream-btn" onClick={() => { this.changeInputTabs('add') }} style={{ borderRadius: 5 }}><Icon type="plus" /><span> 添加输入</span></Button>
+                <Button className="stream-btn" onClick={() => { this.changeInputTabs('add') }} style={{ borderRadius: 5 }}><Icon type="plus" /><span> 添加结果表</span></Button>
             </div>
         )
     }
