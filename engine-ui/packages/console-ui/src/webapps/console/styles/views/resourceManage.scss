@@ -16,3 +16,16 @@
     padding-left: 130px;
     
 }
+.single-th-table {
+    .ant-table-thead > tr > th:first-child {
+        background: #f7f7f7;
+        font-weight: 500;
+        transition: background 0.3s ease;
+        text-align: center;
+        color: rgba(0, 0, 0, 0.85);
+        width: 100%;
+    }
+    .ant-table-thead > tr > th:nth-child(2) {
+        display: none;
+    }
+}
