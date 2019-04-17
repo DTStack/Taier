@@ -322,13 +322,20 @@ class InputOrigin extends Component {
                     </FormItem>
                     <FormItem
                         {...formItemLayout}
-                        label="时区"
+                        label={
+                            <span>
+                                <span style={{ paddingRight: '5px' }}>时区</span>
+                                <Tooltip overlayClassName="big-tooltip" title={<div>
+                                    <p>注意：目前【时区功能】只支持【时间特征】为 EventTime 的情况</p>
+                                </div>}>
+                                    <Icon type="question-circle-o" />
+                                </Tooltip>
+                            </span>
+                        }
                     >
-                        {getFieldDecorator('timeZone', {
-                            initialValue: ['Asia', 'Shanghai']
-                        })(
+                        {getFieldDecorator('timeZone')(
                             <Cascader
-                                onChange={value => handleInputChange('timeZone', index, value)}
+                                onChange={value => handleInputChange('timeZone', index, value.join('/'))}
                                 placeholder='请选择时区'
                                 showSearch
                                 options={timeZoneData}
@@ -371,6 +378,8 @@ const InputForm = Form.create({
             timeZone,
             customParams
         } = props.panelColumn[props.index];
+
+        const initialTimeZoneValue = timeZone ? timeZone.split('/') : ['Asia', 'Shanghai'];
         return {
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
@@ -380,7 +389,7 @@ const InputForm = Form.create({
             columns: { value: columns },
             timeType: { value: timeType },
             timeColumn: { value: timeColumn },
-            timeZone: { value: timeZone },
+            timeZone: { value: initialTimeZoneValue },
             offset: { value: offset },
             offsetReset: { value: offsetReset },
             columnsText: { value: columnsText },
