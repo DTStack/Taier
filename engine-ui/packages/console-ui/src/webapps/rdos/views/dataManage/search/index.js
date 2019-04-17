@@ -247,7 +247,7 @@ class SearchTable extends Component {
                             id="filter-catalogue"
                             isPicker
                             isFolderPicker
-                            value={queryParams.catalogueId && Number(queryParams.catalogueId)}
+                            value={queryParams.catalogueId}
                             placeholder="按数据类目查询"
                             onChange={(value) => this.changeParams('catalogueId', value)}
                             treeData={dataCatalogue && dataCatalogue[0].children}

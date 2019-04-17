@@ -40,12 +40,16 @@ const utils = {
     isWindows: function() {
         return navigator.userAgent.indexOf("Windows") > -1;
     },
+    isMobileDevice: function() {
+        return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+    },
     /**
      * @description 浏览器类型和版本检测
      * @returns {Boolean} `true`表示通过兼容性检测,`false`表示不通过兼容性检测
      */
     browserCheck() {
-        let Sys = {};  
+        let Sys = {};
+        if (this.isMobileDevice()) return true; // 忽略移动设备
         let ua = navigator.userAgent.toLowerCase();
         let s;
         (s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1] :

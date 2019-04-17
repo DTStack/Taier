@@ -6,7 +6,7 @@ import { cloneDeep, uniq } from 'lodash';
 import { formItemLayout } from '../../consts'
 import Api from '../../api/console';
 import { getUser } from '../../actions/console'
-
+import SwitchQueue from '../switchQueue';
 const Option = Select.Option;
 
 function mapStateToProps (state) {
@@ -27,7 +27,10 @@ class ChangeResourceModal extends React.Component {
         loading: false,
         selectUserMap: {},
         selectUser: '', // select输入value
-        selectHack: false// select combobox自带bug
+        selectHack: false, // select combobox自带bug
+        switchQueueVisible: false,
+        tenantInfo: {},
+        queueList: [] // 用于切换队列
     }
     componentDidMount () {
         const { resource } = this.props;
@@ -46,7 +49,20 @@ class ChangeResourceModal extends React.Component {
             })
             this.resetValueByHack();
             this.props.getTenantList();
+            this.getQueueLists({ clusterId: nextResource.clusterId })
         }
+    }
+    /**
+     * 获取当前队列集群下的队列列表
+    */
+    getQueueLists = (params) => {
+        Api.getQueueLists(params).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    queueList: res.data
+                })
+            }
+        })
     }
     exchangeSelectMap (userList = []) {
         let result = {};
@@ -95,10 +111,16 @@ class ChangeResourceModal extends React.Component {
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
             if (!selectUserMap[user.tenantId]) {
-                result.push(<Option tenantid={user.tenantId} value={user.tenantName}>{user.tenantName}</Option>)
+                result.push(<Option key={user.tenantId} tenantid={user.tenantId} data-value={user}>{user.tenantName}</Option>)
             }
         }
         return result;
+    }
+    switchQueue = (record) => {
+        this.setState({
+            tenantInfo: record,
+            switchQueueVisible: true
+        })
     }
     initColumns () {
         return [
@@ -106,24 +128,30 @@ class ChangeResourceModal extends React.Component {
                 title: '租户名称',
                 dataIndex: 'name',
                 className: 'text-middle',
-                render (text) {
-                    return <span className="text-middle">{text}</span>
+                render: (text, record) => {
+                    return <span className="text-right">{text}</span>
                 }
-                // width:"150px",
+            },
+            {
+                title: '',
+                className: 'text-left',
+                render: (text, record) => {
+                    return <a className="text-left" onClick={() => { this.switchQueue(record) }}>切换队列</a>
+                }
             }
-            // {
-            //     title:"操作",
-            //     dataIndex:"deal",
-            //     render:(text,record)=>{
-            //         return (<a  onClick={this.removeUser.bind(this,record.id)}>删除</a>)
-            //     }
-            // }
         ]
     }
     getTableDataSource () {
         const { selectUserMap } = this.state;
         const keyAndValue = Object.entries(selectUserMap);
-        return keyAndValue.map((item) => {
+        // 去空
+        let noEmptyTenant = [];
+        keyAndValue.map(item => {
+            if (item[1].tenantName != '') {
+                noEmptyTenant.push(item)
+            }
+        })
+        return noEmptyTenant.map((item) => {
             return {
                 id: item[0],
                 name: item[1].tenantName
@@ -170,8 +198,13 @@ class ChangeResourceModal extends React.Component {
             })
         })
     }
+    closeVisible () {
+        this.setState({
+            switchQueueVisible: false
+        })
+    }
     render () {
-        const { selectUser, loading, selectHack } = this.state;
+        const { selectUser, loading, selectHack, switchQueueVisible, tenantInfo, queueList } = this.state;
         const { visible, resource } = this.props;
         const columns = this.initColumns();
         const { queueName } = resource;
@@ -205,12 +238,20 @@ class ChangeResourceModal extends React.Component {
                     </Form.Item>
 
                     <Table
-                        className="m-table"
+                        className="m-table single-th-table"
                         style={{ margin: '0px 20px', marginTop: '30px' }}
                         columns={columns}
                         pagination={false}
                         dataSource={this.getTableDataSource()}
                         scroll={{ y: 300 }}
+                    />
+                    <SwitchQueue
+                        visible={switchQueueVisible}
+                        onCancel={this.closeVisible.bind(this)}
+                        closeResourceModal={this.props.onCancel}
+                        tenantInfo={tenantInfo}
+                        resource={this.props.resource}
+                        queueList={queueList}
                     />
                 </Modal>
             </div>

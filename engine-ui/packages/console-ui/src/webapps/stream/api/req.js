@@ -60,6 +60,7 @@ export default {
     GLOBAL_SEARCH_TASK: `${STREAM_BASE_URL}/streamTask/globalSearch`, // 全局搜索任务
     GET_TASK_TYPES: `${STREAM_BASE_URL}/streamTask/getSupportJobTypes`, // 获取任务类型
     PUBLISH_REALTIME_TASK: `${STREAM_BASE_URL}/streamTask/publishStreamTask`, // 发布任务
+    GET_TIMEZONE_LIST: `${STREAM_BASE_URL}/streamTask/getAllTimeZone`, // 获取源表中的时区列表
     GET_TYPE_ORIGIN_DATA: `${STREAM_BASE_URL}/streamDataSource/listDataSourceBaseInfo`, // 获取类型数据源
     GET_TOPIC_TYPE: `${STREAM_BASE_URL}/streamDataSource/getKafkaTopics`, // 获取Topic
     GET_STREM_TABLE_TYPE: `${STREAM_BASE_URL}/streamDataSource/tablelist`, // 获取数据源列表

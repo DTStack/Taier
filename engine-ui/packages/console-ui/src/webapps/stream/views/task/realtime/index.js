@@ -34,6 +34,7 @@ const FormItem = Form.Item;
 class TaskIndex extends Component {
     state = {
         publishDesc: '',
+        timeZoneData: [],
         confirmSaveVisible: false,
         showPublish: false
     }
@@ -43,6 +44,55 @@ class TaskIndex extends Component {
         if (taskId) {
             this.props.dispatch(BrowserAction.openPage({ id: taskId }))
         }
+        this.getTimeZoneList();
+    }
+
+    getTimeZoneList = () => {
+        function mapToArray (data, dataMap) {
+            const names = Object.getOwnPropertyNames(dataMap);
+            for (let i = 0; i < names.length; i++) {
+                const name = names[i];
+                const item = {
+                    value: name,
+                    label: name,
+                    children: []
+                };
+                data.children.push(item);
+                if (dataMap[name]) {
+                    mapToArray(item, dataMap[name]);
+                }
+            }
+        }
+
+        const preHandData = (data) => {
+            if (!data.length === 0) return [];
+            const result = { children: [] };
+            const map = {};
+            for (let i = 0; i < data.length; i++) {
+                const keys = data[i].split('/');
+                const key1 = keys[0];
+                const key2 = keys[1];
+                const key3 = keys[2];
+
+                if (key1 && !map[key1]) {
+                    map[key1] = {};
+                } else if (key2 && !map[key1][key2]) {
+                    map[key1][key2] = {};
+                } else if (key3 && !map[key1][key2][key3]) {
+                    map[key1][key2][key3] = {};
+                }
+            }
+
+            mapToArray(result, map);
+            console.log('mapToArray:', result, map)
+            return result.children || [];
+        };
+        Api.getTimeZoneList().then(res => {
+            const timeZoneData = preHandData(res.data);
+            this.setState({
+                timeZoneData
+            })
+        })
     }
 
     saveTask = (saveMode) => {
@@ -59,7 +109,7 @@ class TaskIndex extends Component {
             console.log('result', result);
 
             if (!result.status) {
-                return message.error(`源表--输入源${checkFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
+                return message.error(`源表${checkFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
             }
         }
 
@@ -67,7 +117,7 @@ class TaskIndex extends Component {
             for (let index = 0, len = outputCheckFormParams.length; index < len; index++) { // 检查出一个未填选项,不再检查其它的选项,只弹一次错误
                 const result = outputCheckFormParams[index].checkParams();
                 if (!result.status) {
-                    return message.error(`结果表--输出源${outputCheckFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
+                    return message.error(`结果表${outputCheckFormParams[index].props.index + 1}: ${result.message || '您还有未填选项'}`);
                 }
             }
         }
@@ -267,6 +317,7 @@ class TaskIndex extends Component {
         // 修改task配置时接口要求的标记位
         result.preSave = true;
         result.submitStatus = 1; // 1-提交，0-保存
+        result.checkSourceUrl = false; // 参数checkSourceUrl，false：不检查jdbc url改变状态。
 
         BrowserAction.publishTask(result)
             .then(
@@ -430,6 +481,7 @@ class TaskIndex extends Component {
                 </header>
                 <TaskBrowser
                     {...this.props}
+                    timeZoneData={this.state.timeZoneData}
                     ayncTree={this.loadTreeData}
                     editorParamsChange={this.editorParamsChange}
                     editorChange={this.debounceChange}

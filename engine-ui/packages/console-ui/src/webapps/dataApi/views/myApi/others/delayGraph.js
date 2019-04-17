@@ -147,7 +147,7 @@ class MyApiDelayGraph extends Component {
                     <Col span={8}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">{this.getDateText()}平均耗时</span>
-                            <span className="m-count-content font-black text-left">{(data && data.avgExecuteTime) || 0}<span style={{ fontSize: 12 }}>次</span></span>
+                            <span className="m-count-content font-black text-left">{(data && data.avgExecuteTime) || 0}<span style={{ fontSize: 12 }}>s</span></span>
                         </section>
                     </Col>
                 </Row>
