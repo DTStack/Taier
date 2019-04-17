@@ -2,7 +2,7 @@
 
 module.exports = {
     server: {
-        port: 8888,
+        port: 8080,
         host: '0.0.0.0',
         proxy: {
             '/uic': { // UIC地址

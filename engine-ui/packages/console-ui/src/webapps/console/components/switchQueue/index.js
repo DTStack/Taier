@@ -10,8 +10,9 @@ class SwitchQueue extends React.Component {
         this.props.closeResourceModal() // 关闭并刷新列表
     }
     queueOption = () => {
-        const { queueList } = this.props;
+        const { queueList, resource } = this.props;
         return queueList && queueList.map(item => {
+            if (resource.queueId === item.id) return null;
             const id = `${item.id}`;
             return (
                 <Option key={id}>
