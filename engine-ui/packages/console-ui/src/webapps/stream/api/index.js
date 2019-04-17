@@ -196,6 +196,9 @@ export default {
     getTopicType(params) {
         return http.post(req.GET_TOPIC_TYPE, params)
     },
+    getTimeZoneList(params) {
+        return http.post(req.GET_TIMEZONE_LIST,params)
+    },
     getStremTableType(params) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },
@@ -216,6 +219,9 @@ export default {
     },
     getTaskMetrics(params){
         return http.post(req.GET_TASK_METRICS,params)
+    },
+    getDataPreview(params) {
+        return http.post(req.GET_DATA_PREVIEW,params)
     },
     // ========== CATALOGUE ========== //
     getCatalogues(params) {
