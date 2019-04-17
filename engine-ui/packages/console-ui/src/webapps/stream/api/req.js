@@ -65,6 +65,8 @@ export default {
     GET_TOPIC_TYPE: `${STREAM_BASE_URL}/streamDataSource/getKafkaTopics`, // 获取Topic
     GET_STREM_TABLE_TYPE: `${STREAM_BASE_URL}/streamDataSource/tablelist`, // 获取数据源列表
     GET_BINLOG_LIST_BY_SOURCE: `${STREAM_BASE_URL}/streamDataSource/getBinLogListBySource`, // 获取binlog列表
+    GET_DATA_PREVIEW: `${STREAM_BASE_URL}/streamDataSource/getTopicData`, // 获取kafka topic预览数据
+
     GET_CATALOGUE: `${STREAM_BASE_URL}/streamCatalogue/getCatalogue`, // 获取目录
     UPDATE_CATALOGUE: `${STREAM_BASE_URL}/streamCatalogue/updateCatalogue`, // 更新目录
     ADD_CATALOGUE: `${STREAM_BASE_URL}/streamCatalogue/addCatalogue`, // 新增目录

@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Icon, Tooltip, Input, Select,
+    Row, Col, Icon, Tooltip, Input, Select, message,
     Collapse, Button, Radio, Popover, Form, InputNumber, Cascader
 } from 'antd';
+
 import { debounce, cloneDeep } from 'lodash';
 
 import Api from '../../../api';
@@ -12,7 +13,7 @@ import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 import Editor from 'widgets/code-editor'
-
+import DataPreviewModal from './dataPreviewModal'
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
@@ -20,12 +21,18 @@ const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 
 class InputOrigin extends Component {
+    constructor (props) {
+        super(props)
+        this.state = {
+            visible: false,
+            params: {} // 数据预览请求参数
+        };
+    }
     componentDidMount () {
         this.props.onRef(this);
     }
     refreshEditor () {
         if (this._editorRef) {
-            console.log('refresh')
             this._editorRef.refresh();
         }
     }
@@ -48,6 +55,23 @@ class InputOrigin extends Component {
             }
         });
         return result
+    }
+
+    showPreviewModal = () => {
+        const { index, panelColumn } = this.props;
+        const sourceId = panelColumn[index].sourceId;
+        const topic = panelColumn[index].topic;
+        if (!sourceId || !topic) {
+            message.error('数据预览需要选择数据源和Topic！')
+            return;
+        }
+        this.setState({
+            visible: true,
+            params: {
+                sourceId,
+                topic
+            }
+        })
     }
 
     originOption = (type, arrData) => {
@@ -84,6 +108,7 @@ class InputOrigin extends Component {
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
         const eventTimeOptionType = this.originOption('eventTime', timeColumoption[index] || []);
 
+        // TODO topic 支持数组时启用
         // const topicIsPattern = panelColumn[index].topicIsPattern;
         // const topic = panelColumn[index].topic || [];
         const offsetReset = panelColumn[index].offsetReset;
@@ -143,14 +168,19 @@ class InputOrigin extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="Topic"
+                        style={{ marginBottom: '10px' }}
                     >
                         {getFieldDecorator('topic', {
                             rules: [
                                 { required: true, message: '请选择Topic' }
                             ]
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange('topic', index, v) }}
-                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            <Select
+                                placeholder="请选择Topic"
+                                className="right-select"
+                                onChange={(v) => { handleInputChange('topic', index, v) }}
+                                showSearch
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {
                                     topicOptionTypes
@@ -158,6 +188,13 @@ class InputOrigin extends Component {
                             </Select>
                         )}
                     </FormItem>
+                    <Row>
+                        <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
+                        </div>
+                        <Col span="18" style={{ marginBottom: 12 }}>
+                            <a onClick={this.showPreviewModal}>数据预览</a>
+                        </Col>
+                    </Row>
                     <FormItem
                         {...formItemLayout}
                         label={(
@@ -335,6 +372,11 @@ class InputOrigin extends Component {
                         onChange={(type, id, value) => { handleInputChange('customParams', index, value, { id, type }) }}
                     />
                 </Form>
+                <DataPreviewModal
+                    visible={this.state.visible}
+                    onCancel={() => { this.setState({ visible: false }) }}
+                    params={this.state.params}
+                />
             </Row>
         )
     }
