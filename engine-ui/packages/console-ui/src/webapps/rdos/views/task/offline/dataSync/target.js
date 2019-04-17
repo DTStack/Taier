@@ -315,7 +315,7 @@ class TargetForm extends React.Component {
         })
     }
     showCreateModal = () => {
-        const { sourceMap } = this.props;
+        const { sourceMap, targetMap } = this.props;
         this.setState({
             loading: true
         })
@@ -323,7 +323,8 @@ class TargetForm extends React.Component {
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName: tableName,
-            partition: sourceMap.type.partition
+            partition: sourceMap.type.partition,
+            targetSourceId: targetMap.sourceId
         })
             .then(
                 (res) => {
