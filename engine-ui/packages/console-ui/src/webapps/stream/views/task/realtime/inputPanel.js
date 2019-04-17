@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {
-    Row, Col, Icon, Tooltip, Input, Select,
+    Row, Col, Icon, Tooltip, Input, Select, message,
     Collapse, Button, Radio, Popover, Form, InputNumber
 } from 'antd';
 import { debounce, cloneDeep } from 'lodash';
@@ -31,15 +31,10 @@ class InputOrigin extends Component {
     }
     refreshEditor () {
         if (this._editorRef) {
-            console.log('refresh')
             this._editorRef.refresh();
         }
     }
-    // componentDidUpdate() {
-    //     if (this.props.isShow) {
-    //         this.refreshEditor();
-    //     }
-    // }
+
     checkParams = () => {
         // 手动检测table参数
         let result = {};
@@ -58,6 +53,23 @@ class InputOrigin extends Component {
             }
         });
         return result
+    }
+
+    showPreviewModal = () => {
+        const { index, panelColumn } = this.props;
+        const sourceId = panelColumn[index].sourceId;
+        const topic = panelColumn[index].topic;
+        if (!sourceId || !topic) {
+            message.error('数据预览需要选择数据源和Topic！')
+            return;
+        }
+        this.setState({
+            visible: true,
+            params: {
+                sourceId,
+                topic
+            }
+        })
     }
 
     originOption = (type, arrData) => {
@@ -93,8 +105,9 @@ class InputOrigin extends Component {
         const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
         const eventTimeOptionType = this.originOption('eventTime', timeColumoption[index] || []);
 
-        const topicIsPattern = panelColumn[index].topicIsPattern;
-        const topic = panelColumn[index].topic || [];
+        // TODO topic 支持数组时启用
+        // const topicIsPattern = panelColumn[index].topicIsPattern;
+        // const topic = panelColumn[index].topic || [];
         const offsetReset = panelColumn[index].offsetReset;
         const customParams = panelColumn[index].customParams || [];
 
@@ -163,8 +176,9 @@ class InputOrigin extends Component {
                     <FormItem
                         {...formItemLayout}
                         label="Topic"
+                        style={{ marginBottom: '10px' }}
                     >
-                        {!topicIsPattern ? getFieldDecorator('topic', {
+                        {getFieldDecorator('topic', {
                             rules: [
                                 { required: true, message: '请选择Topic' }
                             ]
@@ -174,26 +188,19 @@ class InputOrigin extends Component {
                                 className="right-select"
                                 onChange={(v) => { handleInputChange('topic', index, v) }}
                                 showSearch
-                                mode='multiple'
                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {
                                     topicOptionTypes
                                 }
                             </Select>
-                        ) : getFieldDecorator('topic_input', {
-                            rules: [
-                                { required: true, message: '请输入Topic' }
-                            ]
-                        })(
-                            <Input placeholder="请输入正则表达式" onChange={(v) => { handleInputChange('topic', index, [v.target.value]) }} />
                         )}
                     </FormItem>
                     <Row>
                         <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
                         </div>
                         <Col span="18" style={{ marginBottom: 12 }}>
-                            <a onClick={() => { this.setState({ visible: true }) }}>数据预览</a>
+                            <a onClick={this.showPreviewModal}>数据预览</a>
                         </Col>
                     </Row>
                     <FormItem
@@ -251,9 +258,7 @@ class InputOrigin extends Component {
                             <RadioGroup className="right-select" onChange={(v) => { handleInputChange('offsetReset', index, v.target.value) }}>
                                 <Radio value='latest'>latest</Radio>
                                 <Radio value='earliest'>earliest</Radio>
-                                {topic.length < 2 && !topicIsPattern && (
-                                    <Radio value='custom'>自定义参数</Radio>
-                                )}
+                                <Radio value='custom'>自定义参数</Radio>
                             </RadioGroup>
                         )}
                     </FormItem>

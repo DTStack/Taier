@@ -64,6 +64,7 @@ export default {
     GET_TOPIC_TYPE: `${STREAM_BASE_URL}/streamDataSource/getKafkaTopics`, // 获取Topic
     GET_STREM_TABLE_TYPE: `${STREAM_BASE_URL}/streamDataSource/tablelist`, // 获取数据源列表
     GET_BINLOG_LIST_BY_SOURCE: `${STREAM_BASE_URL}/streamDataSource/getBinLogListBySource`, // 获取binlog列表
+    GET_DATA_PREVIEW: `${STREAM_BASE_URL}/streamDataSource/getTopicData`, // 获取kafka topic预览数据
 
     GET_CATALOGUE: `${STREAM_BASE_URL}/streamCatalogue/getCatalogue`, // 获取目录
     UPDATE_CATALOGUE: `${STREAM_BASE_URL}/streamCatalogue/updateCatalogue`, // 更新目录
@@ -78,7 +79,6 @@ export default {
     GET_SYS_FUNC: `${STREAM_BASE_URL}/streamFunction/getSystemFunctions`, // 获取系统函数
 
     UNLOCK_FILE: `${STREAM_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
-    GET_DATA_PREVIEW: `${STREAM_BASE_URL}/streamTask/getDataPreview`, // 数据预览 (暂缺)
     // ===== resource资源模块 ===== //
     UPLOAD_RES: `${STREAM_BASE_URL_NOT_SERVICE}/upload/streamResource/addResource`, // 资源上传
     GET_RES_LIST: `${STREAM_BASE_URL}/streamResource/getResources`, // 资源列表
