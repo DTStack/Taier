@@ -75,7 +75,7 @@ public class MysqlDataConnPool {
     private void init(){
         Map<String,String> pluginStore = ConfigParse.getPluginStoreInfo();
         if(pluginStore==null) {
-            LOG.error("插件存储配置信息不能为空");
+            LOG.error("pluginStore can not be null");
             System.exit(-1);
         }
             dbUrl = pluginStore.get("url");

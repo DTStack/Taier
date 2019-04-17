@@ -193,7 +193,7 @@ public class WorkNode {
             } catch (Exception e) {
                 //数据转换异常--打日志
                 LOG.error("", e);
-                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
             }
         }
 
@@ -375,7 +375,7 @@ public class WorkNode {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }
@@ -411,7 +411,7 @@ public class WorkNode {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }

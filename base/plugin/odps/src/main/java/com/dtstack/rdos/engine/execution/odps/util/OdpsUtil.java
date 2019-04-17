@@ -49,7 +49,7 @@ public class OdpsUtil {
         if (accountType.equalsIgnoreCase(DEFAULT_ACCOUNT_TYPE)) {
             account = new AliyunAccount(accessId, accessKey);
         } else {
-            throw new RdosException(String.format("不支持的账号类型:[%s]. 账号类型目前仅支持aliyun, taobao.", accountType));
+            throw new RdosException(String.format("unsupported account type:[%s]. Current only support aliyun, taobao.", accountType));
         }
 
         Odps odps = new Odps(account);

@@ -155,7 +155,7 @@ public class HttpTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
-            System.out.println("线程" + Thread.currentThread().getName() + "," + System.currentTimeMillis() + ", 所有线程已完成，开始进入下一步！");
+            System.out.println("thread " + Thread.currentThread().getName() + "," + System.currentTimeMillis() + ", 所有线程已完成，开始进入下一步！");
         }
 
         long end = System.currentTimeMillis();

@@ -52,7 +52,7 @@ public class FileUtil {
             }
 
             if (!fs.isDirectory(path)) {
-                throw new RuntimeException("传输目的路径必须为目录");
+                throw new RuntimeException("transfer must be directory");
             }
 
             Map<String, String> downFileInfo = Maps.newHashMap();

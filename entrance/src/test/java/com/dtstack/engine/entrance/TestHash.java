@@ -60,7 +60,7 @@ public class TestHash {
 
         // 打印每台真实机器节点保存的记录条数
         for (int i = 1; i <= 11; i++) {
-            System.out.println(IP_PREFIX + i + "节点记录条数："
+            System.out.println(IP_PREFIX + i + "node record num："
                     + map.get("shard" + i));
         }
         }

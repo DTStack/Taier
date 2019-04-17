@@ -162,7 +162,7 @@ public class MasterNode {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                        workNode.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
                 distributeQueueJobs(priorityEngineTypes);

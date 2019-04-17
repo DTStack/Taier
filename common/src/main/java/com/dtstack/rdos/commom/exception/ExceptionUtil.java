@@ -22,7 +22,7 @@ public class ExceptionUtil {
      * @return
      */
     public static String getTaskLogError(){
-        return "{\"engineLogErr\":\"获取任务日志异常\"}";
+        return "{\"engineLogErr\":\"Gets the task log exception\"}";
     }
 
     public static String getErrorMessage(Throwable e) {

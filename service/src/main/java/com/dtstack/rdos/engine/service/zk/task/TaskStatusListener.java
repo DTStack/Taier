@@ -55,7 +55,7 @@ public class TaskStatusListener implements Runnable{
     /**最大允许查询不到的任务信息最久时间*/
     public final static int NOT_FOUND_LIMIT_INTERVAL = 3 * 60 * 1000;
 
-    public final static String SYS_CANCLED_LOG = "{\"root-exception\":\"系统查询不到任务状态,主动设置为取消状态\"}";
+    public final static String SYS_CANCLED_LOG = "{\"root-exception\":\"The system could not query the task state, so it is set to cancel state actively\"}";
 
     public final static String FLINK_CP_HISTORY_KEY = "history";
 

@@ -61,7 +61,7 @@ public enum EngineType {
             case "hive":
                 return EngineType.Hive;
             default:
-                throw new UnsupportedOperationException("不支持的操作类型");
+                throw new UnsupportedOperationException("unsupported operation exception");
         }
     }
 
@@ -71,7 +71,7 @@ public enum EngineType {
                 return type;
             }
         }
-        throw new UnsupportedOperationException("不支持的操作类型");
+        throw new UnsupportedOperationException("unsupported operation exception");
     }
 
     public static boolean isFlink(String engineType) {

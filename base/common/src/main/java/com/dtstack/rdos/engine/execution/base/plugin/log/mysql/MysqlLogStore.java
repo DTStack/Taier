@@ -35,7 +35,7 @@ public class MysqlLogStore extends LogStore{
 
     private static final String GET_LOG_BY_JOB_ID = "select log_info from rdos_plugin_job_info where job_id = ?";
 
-    private static final String TIME_OUT_ERR_INFO = "任务失去连接(可能原因:执行引擎挂掉)";
+    private static final String TIME_OUT_ERR_INFO = "task lose connect(maybe: engine shutdown)";
 
     /**未完成的任务在60s内没有任务更新操作---认为任务已经挂了*/
     private static final String TIME_OUT_TO_FAIL_SQL = String.format("update rdos_plugin_job_info set status = 8, log_info = '%s', " +

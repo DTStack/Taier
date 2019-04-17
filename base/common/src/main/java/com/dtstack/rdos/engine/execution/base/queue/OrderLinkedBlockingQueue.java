@@ -145,12 +145,12 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public E peek() {
-        throw new UnsupportedOperationException("不支持peek方法");
+        throw new UnsupportedOperationException("unsupported peek method");
     }
 
     @Override
     public boolean offer(E e) {
-        throw new UnsupportedOperationException("不支持offer方法");
+        throw new UnsupportedOperationException("unsupported offer method");
     }
 
     @Override
@@ -192,7 +192,7 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
     @Override
     public boolean offer(E e, long timeout, TimeUnit unit)
             throws InterruptedException {
-        throw new UnsupportedOperationException("不支持offer方法");
+        throw new UnsupportedOperationException("unsupported offer method");
     }
 
     @Override
@@ -223,7 +223,7 @@ public class OrderLinkedBlockingQueue<E> extends AbstractQueue<E>
 
     @Override
     public E poll(long timeout, TimeUnit unit) throws InterruptedException {
-        throw new UnsupportedOperationException("不支持 poll 方法");
+        throw new UnsupportedOperationException("unsupported poll method");
     }
 
     @Override
