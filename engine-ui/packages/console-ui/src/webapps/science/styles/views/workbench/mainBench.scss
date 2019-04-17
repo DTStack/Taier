@@ -99,5 +99,22 @@
         position: absolute;
         right: 0px;
         height: 100%;
+        .c-panel__siderbar__header {
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333333;
+            line-height: 20px;
+            border-bottom: 1px solid #DDDDDD;
+        }
+        .c-panel__siderbar__form {
+            padding: 20px 15px;
+            .ant-form-item {
+                margin-bottom: 10px;
+            }
+            .ant-form-item-label label {
+                font-size: 14px;
+            }
+        }
     }
 }
