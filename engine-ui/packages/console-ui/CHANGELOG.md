@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 * **data sync:** add parameter sourceId when create table by DDL ([eec9345](http://git.dtstack.cn/dtstack/data-stack-web/commits/eec9345)), closes [#15303](http://redmine.prod.dtstack.cn/issues/15303)
+* **data sync:** add targetSourceId to getCreateTargetTable ([dffdb9a](http://git.dtstack.cn/dtstack/data-stack-web/commits/dffdb9a))
 
 
 
