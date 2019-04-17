@@ -23,13 +23,17 @@ module.exports = {
     'proxyTable': {
         '/api/dq': {
             target: 'http://172.16.8.104:8089',
+            // target: "http://172.16.6.135:8089", // tmp server
+            // target: 'http://172.16.10.45:8089', // test
+            // ignorePath: true,
             changeOrigin: true,
             secure: false
         },
         '/api/rdos': {
+            // target: "http://172.16.8.107:9020", // dev server
             target: 'http://172.16.10.86:9020', // test ser
-            // target: 'http://172.16.0.157:9020', // temp ser
-            // target: 'http://172.16.8.107:9020', // formal test ser
+            // ignorePath: true,
+            // Mock
             changeOrigin: true,
             secure: false
         },
@@ -37,29 +41,33 @@ module.exports = {
             target: 'http://172.16.10.86:9021', // test ser
             // target: 'http://172.16.0.157:9020', // temp ser
             // target: 'http://172.16.8.107:9020', // formal test ser
-            changeOrigin: true,
-            secure: false
-        },
-        '/uic': { // UIC地址
-            target: 'http://uic.dtstack.net',
-            changeOrigin: true,
             secure: false
         },
         '/api/da': { // da地址
-            target: 'http://172.16.8.107:8087', // 测试环境
+            target: 'http://172.16.10.45:8087',
+            // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
             changeOrigin: true,
             secure: false
         },
         '/api/tag': { // 数据标签
-            target: 'http://172.16.8.107:8085', // 测试环境
+            target: 'http://172.16.8.107:8085', // 开发环境
+            // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+            changeOrigin: true,
+            secure: false
+        },
+        '/api/console': { // 控制台
+            target: 'http://172.16.8.109:8084', // 开发环境
+            // target: "http://172.16.10.34:8084",   // 测试环境
+            // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+            changeOrigin: true,
+            secure: false
+        },
+        '/api/analysis': { // 分析引擎
+            target: 'http://172.16.8.105:9022', // 开发环境
+            // target: "http://172.16.10.45:9022", // 测试环境
+            // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
             changeOrigin: true,
             secure: false
         }
-        // ,
-        // '/api/analysis': { // 数据标签
-        //     target: 'http://172.16.10.45:9022', // 测试环境
-        //     changeOrigin: true,
-        //     secure: false
-        // }
     }
 }

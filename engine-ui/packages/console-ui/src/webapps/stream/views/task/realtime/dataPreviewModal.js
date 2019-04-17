@@ -1,9 +1,12 @@
 import React, { Component } from 'react'
 import { Modal, Button, Collapse, Input, Icon } from 'antd';
-import { assign } from 'lodash'
+import { assign } from 'lodash';
+
 import Api from '../../../api';
+
 const Panel = Collapse.Panel;
 const TextArea = Input.TextArea;
+
 class DataPreviewModal extends Component {
     constructor (props) {
         super(props)
@@ -45,7 +48,7 @@ class DataPreviewModal extends Component {
                 visible={visible}
                 title='数据预览'
                 onCancel={onCancel}
-                maskClosable={false}
+                maskClosable={true}
                 footer={[
                     <Button key='back' type="primary" onClick={onCancel}>关闭</Button>
                 ]}
@@ -58,7 +61,7 @@ class DataPreviewModal extends Component {
                                     return (
                                         <Panel
                                             header={<div className={defaultClass}>{JSON.stringify(item)}</div>}
-                                            key={index + 1 + ''}
+                                            key={`preview-${index + 1}`}
                                         >
                                             <TextArea
                                                 style={defaultStyle}
