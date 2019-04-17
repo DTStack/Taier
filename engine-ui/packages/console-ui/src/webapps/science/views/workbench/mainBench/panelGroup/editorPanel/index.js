@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Tabs } from 'antd';
-import { debounce } from 'lodash';
+import { debounce, get } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { commonFileEditDelegator } from 'widgets/editor/utils';
 
 import CommonEditor from '../../../../../components/commonEditor';
 import Editor from 'widgets/editor/index'
+import SchedulingConfig from '../../../../../components/schedulingConfig';
 
 import API from '../../../../../api';
 import reqUrls from '../../../../../consts/reqUrls';
@@ -49,9 +50,9 @@ class EditorPanel extends Component {
         this.reqExecSQL(data, {}, [code]);
     };
 
-    reqExecSQL = (task, params, sqls) => {
+    reqExecSQL = (tabData, params, sqls) => {
         const { exec } = this.props;
-        exec(task, params, sqls);
+        exec(tabData, params, sqls);
     };
 
     stopSQL = () => {
@@ -84,24 +85,36 @@ class EditorPanel extends Component {
 
     removeConsoleTab = targetKey => {
         const { currentTab } = this.props;
-        this.props.removeRes(currentTab, parseInt(targetKey, 10));
+        this.props.removeNotebookRes(currentTab, targetKey);
     };
 
     closeConsole = () => {
         const { currentTab } = this.props;
-        this.props.resetConsole(currentTab, siderBarType.notebook);
+        this.props.resetNotebookConsole(currentTab);
     };
 
     debounceChange = debounce(this.handleEditorTxtChange, 300, {
         maxWait: 2000
     });
+    debounceChangeContent = debounce(this.changeContent, 200, {
+        maxWait: 2000
+    });
+    changeContent (key, value) {
+        const { data } = this.props;
+        this.props.changeContent({
+            [key]: value
+        }, data);
+    }
     renderSiderbarItems () {
+        const { data } = this.props;
         return [
             <Tabs.TabPane
                 tab='调度参数'
                 key='key'
             >
-                123
+                <SchedulingConfig formData={JSON.parse(data.scheduleConf)} onChange={(newFormData) => {
+                    this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
+                }} />
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='任务参数'
@@ -117,15 +130,18 @@ class EditorPanel extends Component {
             </Tabs.TabPane>
         ]
     }
+    changeConsoleTab = (avtiveKay) => {
+        const { data } = this.props;
+        this.props.changeConsoleKey(data.id, avtiveKay);
+    }
     render () {
         const { editor, data } = this.props;
 
         const currentTab = data.id;
 
         const consoleData = editor.console[siderBarType.notebook];
-        const resultData = consoleData[currentTab] && consoleData[currentTab].data
-            ? consoleData[currentTab].data
-            : [];
+        const resultData = get(consoleData[currentTab], 'data', []);
+        const consoleActivekey = get(consoleData[currentTab], 'activeKey', null);
 
         const editorOpts = {
             value: data.sqlText,
@@ -152,7 +168,12 @@ class EditorPanel extends Component {
             data: resultData,
             onConsoleClose: this.closeConsole,
             onRemoveTab: this.removeConsoleTab,
-            downloadUri: reqUrls.DOWNLOAD_SQL_RESULT
+            downloadUri: reqUrls.DOWNLOAD_SQL_RESULT,
+            tabOptions: {
+                activeKey: consoleActivekey,
+                onChange: this.changeConsoleTab
+
+            }
         };
 
         return (
@@ -165,6 +186,7 @@ class EditorPanel extends Component {
                     {...editorOpts}
                     editorInstanceRef={instance => {
                         this._editor = instance;
+                        this.forceUpdate();
                     }}
                 />
             </CommonEditor>

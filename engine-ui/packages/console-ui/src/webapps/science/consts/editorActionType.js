@@ -8,6 +8,7 @@ const editorAction = mc([
     'DELETE_RESULT',
     'GET_TAB',
     'SET_TAB',
+    'CHANGE_TABS_KEY',
     'SET_SELECTION_CONTENT',
     'ADD_LOADING_TAB', // 添加指定的的tab loading
     'REMOVE_LOADING_TAB', // 移除指定的tab loading

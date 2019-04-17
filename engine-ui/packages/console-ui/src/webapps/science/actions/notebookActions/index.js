@@ -1,6 +1,7 @@
 import { message } from 'antd';
 
-import { setOutput, output } from '../editorActions';
+import { setOutput, output, outputRes, removeRes, resetConsole } from '../editorActions';
+import editorAction from '../../consts/editorActionType';
 import { changeTab, addTab, setCurrentTab } from '../base/tab';
 import { siderBarType, consoleKey } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
@@ -17,6 +18,22 @@ export function changeText (text, tab) {
     return changeContent({
         sqlText: text
     }, tab)
+}
+export function removeNotebookRes (tabId, key) {
+    return removeRes(tabId, key, siderBarType.notebook);
+}
+export function changeConsoleKey (tabId, activeKey) {
+    return {
+        type: editorAction.CHANGE_TABS_KEY,
+        payload: {
+            tabId,
+            activeKey,
+            siderType: siderBarType.notebook
+        }
+    }
+}
+export function resetNotebookConsole (tabId) {
+    return resetConsole(tabId, siderBarType.notebook);
 }
 export function openNotebook (id) {
     return dispatch => {
@@ -42,6 +59,9 @@ export function addNotebook (params) {
         })
     }
 }
+export function showNotebookLog (tabId) {
+    return changeConsoleKey(tabId, consoleKey);
+}
 export function setNotebookLog (tabId, log) {
     return setOutput(tabId, log, consoleKey, siderBarType.notebook, {
         name: '日志',
@@ -50,4 +70,9 @@ export function setNotebookLog (tabId, log) {
 }
 export function appendNotebookLog (tabId, log) {
     return output(tabId, log, consoleKey, siderBarType.notebook);
+}
+export function setNotebookResult (tabId, jobId, data) {
+    return outputRes(tabId, data, jobId, siderBarType.notebook, {
+        name: '执行结果'
+    })
 }

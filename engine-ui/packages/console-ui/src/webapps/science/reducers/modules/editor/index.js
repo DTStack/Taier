@@ -18,7 +18,7 @@ const consoleReducer = (state = { [experiment]: {}, [notebook]: {} }, action) =>
             // reset console
             const newState = cloneDeep(state);
             const origin = newState[siderType];
-            origin[payload.tabId] = { data: [] };
+            origin[payload.tabId] = { data: [], activeKey: null };
             return newState;
         }
         case editorAction.APPEND_CONSOLE_LOG: {
@@ -58,13 +58,14 @@ const consoleReducer = (state = { [experiment]: {}, [notebook]: {} }, action) =>
         }
         case editorAction.UPDATE_RESULTS: {
             // 添加结果
-            const { key, tabId, data } = payload;
+            const { key, tabId, data, extData } = payload;
             const newState = cloneDeep(state);
             const origin = newState[siderType];
             const items = safeGetConsoleTab(origin, tabId).data;
             items.push({
                 id: key,
-                data: data
+                data: data,
+                extData
             });
             return newState;
         }
@@ -81,6 +82,15 @@ const consoleReducer = (state = { [experiment]: {}, [notebook]: {} }, action) =>
                     break;
                 }
             }
+            return newState;
+        }
+        case editorAction.CHANGE_TABS_KEY: {
+            // 删除结果
+            const { activeKey, tabId } = payload;
+            const newState = cloneDeep(state);
+            const origin = newState[siderType];
+            const tabs = safeGetConsoleTab(origin, tabId);
+            tabs.activeKey = activeKey;
             return newState;
         }
         default:

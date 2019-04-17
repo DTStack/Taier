@@ -20,20 +20,29 @@ class Console extends Component {
     };
 
     remove = targetKey => {
-        const { onRemoveTab } = this.props;
-
-        if (onRemoveTab) onRemoveTab(parseInt(targetKey, 10));
+        const { onRemoveTab, tabOptions, data } = this.props;
+        const { activeKey, onChange } = tabOptions;
+        if (onRemoveTab) {
+            if (activeKey == targetKey && data.length > 1) {
+                onChange(data.filter((tab) => {
+                    return tab.id != targetKey
+                }).slice(-1)[0].id);
+            }
+            onRemoveTab(targetKey);
+        }
     };
 
     renderTabs (tabs) {
-        const { isDisEabledDownload } = this.props;
+        const { isDisEabledDownload, tabOptions } = this.props;
+        const { activeKey } = tabOptions;
         if (tabs && tabs.length > 0) {
             return tabs.map((tab, index) => {
                 const { log, data, extData = {} } = tab;
                 const tabType = log ? 'log' : 'data';
+                const isShow = activeKey == tab.id;
                 switch (tabType) {
                     case 'log': {
-                        return <TabPane tab={extData.name} key={tab.id} closable={!extData.disableClose}>
+                        return <TabPane isShow={isShow} tab={extData.name} key={tab.id} closable={!extData.disableClose}>
                             <div style={{ position: 'relative' }}>
                                 <CodeEditor
                                     style={{ minHeight: 'auto' }}
@@ -49,15 +58,15 @@ class Console extends Component {
                         </TabPane>
                     }
                     default: {
-                        const title = <span>结果{tab.id ? tab.id : (index + 1)}</span>;
+                        const title = <span>{extData.name}</span>;
                         return (
                             <TabPane
                                 style={{ minHeight: '100%', position: 'relative' }}
                                 tab={title}
-                                key={`${index}`}
+                                key={tab.id}
                                 closable={!extData.disableClose}
                             >
-                                <Result r={Math.random()} data={data} extraView={!isDisEabledDownload && tab.id && data ? (
+                                <Result isShow={isShow} data={data} extraView={!isDisEabledDownload && tab.id && data ? (
                                     <a
                                         href={`${this.props.downloadUri}?jobId=${
                                             tab.id
@@ -92,8 +101,10 @@ class Console extends Component {
         return (
             <div className="ide-console" style={{ zIndex: 10 }}>
                 <Tabs
+                    forceRender={true}
                     hideAdd
                     type="editable-card"
+                    onEdit={this.onEdit}
                     {...tabOptions}
                 >
                     {this.renderTabs(data)}

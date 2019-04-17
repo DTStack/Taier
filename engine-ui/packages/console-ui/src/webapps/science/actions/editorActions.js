@@ -1,12 +1,10 @@
-import moment from 'moment'
 import {
     message
 } from 'antd';
 
-import { createLinkMark, createLog } from 'widgets/code-editor/utils'
+import { createLog } from 'widgets/code-editor/utils'
 
 import API from '../api';
-import { sqlExecStatus } from '../consts';
 import editorAction from '../consts/editorActionType';
 
 // const INTERVALS = 1500;
@@ -17,146 +15,6 @@ const intervalsStore = {}
 const stopSign = {}
 // 正在运行中的sql key，调用stop接口的时候需要使用
 const runningSql = {}
-
-function getUniqueKey (id) {
-    return `${id}_${moment().valueOf()}`
-}
-
-// async function doSelect (resolve, dispatch, jobId, currentTab) {
-//     const res = await API.getSQLResultData({ jobId: jobId });
-//     if (res && res.code) {
-//         // 获取到返回值
-//         if (res && res.message) dispatch(output(currentTab, `请求结果:\n ${res.message}`))
-//         if (res && res.data && res.data.msg) dispatch(output(currentTab, `请求结果: ${res.data.msg}`))
-//     }
-//     // 状态正常
-//     if (res && res.code === 1) {
-//         switch (res.data.status) {
-//         case sqlExecStatus.FINISHED: {
-//             // 成功
-//             getDataOver(dispatch, currentTab, res, jobId)
-//             resolve(true);
-//             return;
-//         }
-//         case sqlExecStatus.FAILED:
-//         case sqlExecStatus.CANCELED: {
-//             if (res.data && res.data.download) {
-//                 dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-//             }
-//             dispatch(removeLoadingTab(currentTab))
-//             resolve(false)
-//             return;
-//         }
-//         default: {
-//             // 正常运行，则再次请求,并记录定时器id
-//             intervalsStore[currentTab] = setTimeout(
-//                 () => {
-//                     if (stopSign[currentTab]) {
-//                         console.log('find stop sign in doSelect')
-//                         stopSign[currentTab] = false;
-//                         return;
-//                     }
-//                     doSelect(resolve, dispatch, jobId, currentTab)
-//                 }, INTERVALS
-//             )
-//         }
-//         }
-//     } else {
-//         dispatch(output(currentTab, `请求异常！`))
-//         dispatch(removeLoadingTab(currentTab))
-//         // 不正常，则直接终止执行
-//         resolve(false)
-//     }
-// }
-function getLogStatus (status) {
-    switch (status) {
-        case sqlExecStatus.FINISHED: {
-            return 'info';
-        }
-        case sqlExecStatus.FAILED: {
-            return 'error';
-        }
-        case sqlExecStatus.CANCELED: {
-            return 'warning';
-        }
-        default: {
-            return 'info'
-        }
-    }
-}
-/**
- * 输出SQL执行结果
- */
-function getDataOver (dispatch, currentTab, res, jobId) {
-    dispatch(output(currentTab, createLog('执行完成!', 'info')));
-    if (res.data.result) {
-        dispatch(outputRes(currentTab, res.data.result, jobId))
-    }
-    if (res.data && res.data.download) {
-        dispatch(output(currentTab, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-    }
-}
-
-async function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject) {
-    const key = getUniqueKey(task.id);
-
-    params.sql = `${sqls[index]}`;
-    params.uniqueKey = key;
-    runningSql[currentTab] = key; // 默认的运行 Key
-
-    dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')));
-
-    function execContinue () {
-        if (stopSign[currentTab]) {
-            console.log('find stop sign in exec')
-            stopSign[currentTab] = false;
-            return;
-        }
-        exec(dispatch, currentTab, task, params, sqls, index + 1, resolve, reject)
-    }
-
-    // 开始执行
-    const res = await API.execSQL(params);
-
-    // 假如已经是停止状态，则弃用结果
-    if (stopSign[currentTab]) {
-        console.log('find stop sign in succCall')
-        stopSign[currentTab] = false;
-        return;
-    }
-
-    if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
-    // 执行结束
-    if (!res || (res && res.code != 1)) {
-        dispatch(output(currentTab, createLog(`请求异常！`, 'error')))
-        dispatch(removeLoadingTab(currentTab))
-    }
-    if (res && res.code === 1) {
-        // dispatch(output(currentTab, '执行完成'));
-        if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, getLogStatus(res.data.status))))
-        // 直接打印结果
-        getDataOver(dispatch, currentTab, res, res.data.jobId);
-
-        if (index < sqls.length - 1) {
-            // 剩余任务，则继续执行
-            execContinue();
-        } else {
-            dispatch(removeLoadingTab(currentTab));
-            resolve(true);
-        }
-    }
-}
-
-// 执行sql
-export function execSql (currentTab, task, params, sqls) {
-    return (dispatch) => {
-        stopSign[currentTab] = false;
-        return new Promise((resolve, reject) => {
-            exec(dispatch, currentTab, task, params, sqls, 0, resolve, reject);
-        })
-    }
-}
-
 // 停止sql
 export function stopSql (currentTab, currentTabData, isSilent) {
     return async (dispatch, getState) => {
@@ -227,11 +85,12 @@ export function setOutput (tabId, log, key, type, extData) {
     }
 }
 
-export function outputRes (tabId, data, key, type) {
+export function outputRes (tabId, data, key, type, extData) {
     return {
         payload: {
             key,
             tabId,
+            extData,
             siderType: type,
             data
         },
@@ -239,13 +98,12 @@ export function outputRes (tabId, data, key, type) {
     }
 }
 
-export function removeRes (tabId, index, key, type) {
+export function removeRes (tabId, key, type) {
     return {
         payload: {
             key,
             tabId,
-            siderType: type,
-            data: index
+            siderType: type
         },
         type: editorAction.DELETE_RESULT
     }

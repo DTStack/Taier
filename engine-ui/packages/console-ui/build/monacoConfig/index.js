@@ -39,10 +39,10 @@ exports.features = [
     'wordOperations',
     'wordPartOperations'];
 
-exports.languages=[
+exports.languages = [
     'ini',
     'json',
     'sql',
     'shell',
     'python'
-]
+];

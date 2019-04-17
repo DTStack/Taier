@@ -1,8 +1,8 @@
 import API from '../api';
-import { sqlExecStatus, siderBarType, taskStatus } from '../consts';
+import { sqlExecStatus, taskStatus } from '../consts';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
-import { setNotebookLog, appendNotebookLog } from './notebookActions';
-import { addLoadingTab, removeLoadingTab, outputRes } from './editorActions';
+import { setNotebookLog, appendNotebookLog, setNotebookResult, showNotebookLog } from './notebookActions';
+import { addLoadingTab, removeLoadingTab } from './editorActions';
 
 function getLogStatus (status) {
     switch (status) {
@@ -43,6 +43,7 @@ export function exec (tabData, serverParams = {}, tasks) {
         resetTaskStatus(tabId);
         dispatch(addLoadingTab(tabId));
         dispatch(setNotebookLog(tabId, `正在提交...`));
+        dispatch(showNotebookLog(tabId));
         let res = await execTasks(tabData, serverParams, tasks, dispatch);
         dispatch(removeLoadingTab(tabId));
         return res;
@@ -66,7 +67,7 @@ async function execTask (tabData, serverParams, task, dispatch) {
     const tabId = tabData.id;
     const params = {
         ...serverParams,
-        sql: task.sqlText,
+        sql: task,
         taskId: tabId,
         uniqueKey: tabId + '_' + ~~(Math.random() * 10000)
     };
@@ -165,7 +166,7 @@ function resolveMsg (tabId, res, dispatch) {
 function resolveData (tabId, data, key, dispatch) {
     dispatch(appendNotebookLog(tabId, createLog('执行完成!', 'info')));
     if (data.result) {
-        dispatch(outputRes(tabId, data.result, key, siderBarType.notebook))
+        dispatch(setNotebookResult(tabId, key, data.result))
     }
     if (data && data.download) {
         dispatch(appendNotebookLog(tabId, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
