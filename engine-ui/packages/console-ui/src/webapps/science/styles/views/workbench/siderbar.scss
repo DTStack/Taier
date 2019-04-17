@@ -48,13 +48,52 @@
 }
 // 右边的tabs
 .ant-tabs-vertical.ant-tabs-right {
+    &.c-panel-siderbar{
+        width: 329px;
+    }
     >.ant-tabs-content {
         padding-right: 0;
-
         // 组件参数tab框
         .tab-content {
+            // 参数
 
-            .read-database {
+            // 补充说明解释的文字
+            .supplementary {
+                font-size: 12px;
+                color: #999999;
+                margin-left: 5px;
+            }
+            // 表格组件
+            table.params-table {
+                width: 100%;
+                border: 1px solid #dddddd;
+                background: #FFFFFF;
+                border-collapse: collapse;
+                line-height: 40px;
+
+                .table-font {
+                    width: 50%;
+                    font-size: 13px;
+                    color: #333333;
+                    font-weight: normal;
+                    text-align: left;
+                    padding-left: 20px;
+                }
+
+                thead {
+                    th {
+                        @extend .table-font;
+                    }
+                }
+
+                tbody {
+                    th {
+                        @extend .table-font;
+                    }
+                }
+            }
+
+            .params-tabs {
                 >.ant-tabs-bar {
 
                     .ant-tabs-nav {
@@ -88,7 +127,7 @@
                 }
 
                 // 表选择表单的style
-                .choose-table-form {
+                .params-form {
                     .ant-form-item {
                         margin-bottom: 20px;
                     }
@@ -98,64 +137,71 @@
                             font-size: 14px;
                             color: #333333;
                             line-height: 20px;
-
-                            .supplementary {
-                                font-size: 12px;
-                                color: #999999;
-                                margin-left: 5px;
-                            }
                         }
                     }
                 }
 
-                table.table-info {
-                    width: 100%;
-                    border: 1px solid #dddddd;
-                    background: #FFFFFF;
-                    border-collapse: collapse;
-                    line-height: 40px;
-
-                    .table-font {
-                        width: 50%;
-                        font-size: 13px;
-                        color: #333333;
-                        font-weight: normal;
-                        text-align: left;
-                        padding-left: 20px;
-                    }
-
-                    thead {
-                        th {
-                            @extend .table-font;
-                        }
-                    }
-
-                    tbody {
-                        th {
-                            @extend .table-font;
-                        }
-                    }
-                }
             }
 
-            .write-database {
-                @extend .read-database;
+            .params-single-tab {
+                @extend .params-tabs;
                 width: 100%;
 
-                .write-database-head {
+                .params-single-tab-head {
                     font-size: 14px;
                     color: #333333;
                     line-height: 40px;
                     border-bottom: 1px solid #DDDDDD;
                     padding-left: 14px;
                 }
-                .write-database-content{
+
+                .params-single-tab-content {
                     padding: 9.5px 14px;
+                }
+            }
+
+            .params-collapse {
+                background-color: transparent;
+
+                .ant-collapse-item {
+                    border-bottom: 0;
+
+                    .ant-collapse-header {
+                        line-height: 20px;
+                        padding: 0;
+                        font-size: 14px;
+                        color: #333333;
+                        padding-left: 15px;
+
+                        i.arrow {
+                            top: -10px;
+                            left: 0;
+                            font-size: inherit;
+                            color: inherit;
+                        }
+                    }
+
+                    .ant-collapse-content {
+                        border-top: 0;
+                        padding: 0;
+
+                        >.ant-collapse-content-box {
+                            padding: 10px 0;
+                        }
+                        .toolbar {
+                            background: #fff;
+
+                            button {
+                                border: 0;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
+    // 组件说明
     .panel-description {
         margin: 9.5px 14px;
         background: #fff;

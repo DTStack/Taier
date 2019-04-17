@@ -31,7 +31,7 @@ class ChooseTable extends PureComponent {
         const { getFieldDecorator } = this.props.form;
         const { tables, partitionCheck } = this.state;
         return (
-            <Form className="choose-table-form">
+            <Form className="params-form">
                 <FormItem
                     label="表名"
                     colon={false}
@@ -88,7 +88,7 @@ class TableInfo extends PureComponent {
             ISBN: 'String'
         }
         return (
-            <table border="1" className="table-info">
+            <table border="1" className="params-table">
                 <thead>
                     <tr>
                         <th>字段</th>
@@ -107,7 +107,7 @@ class ReadDatabase extends PureComponent {
     render () {
         const WrapChooseTable = Form.create()(ChooseTable);
         return (
-            <Tabs type="card" className="read-database">
+            <Tabs type="card" className="params-tabs">
                 <TabPane tab="表选择" key="1">
                     <WrapChooseTable />
                 </TabPane>

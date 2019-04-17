@@ -30,7 +30,7 @@ class ChooseTable extends PureComponent {
         const { getFieldDecorator } = this.props.form;
         const { tables, partitionCheck } = this.state;
         return (
-            <Form className="choose-table-form">
+            <Form className="params-form">
                 <FormItem
                     label={
                         <div style={{ display: 'inline-block' }}>
@@ -79,11 +79,11 @@ class WriteDatabase extends PureComponent {
     render () {
         const WrapChooseTable = Form.create()(ChooseTable);
         return (
-            <div className="write-database">
-                <div className="write-database-head">
+            <div className="params-single-tab">
+                <div className="c-panel__siderbar__header">
                     表选择
                 </div>
-                <div className="write-database-content">
+                <div className="params-single-tab-content">
                     <WrapChooseTable />
                 </div>
             </div>
