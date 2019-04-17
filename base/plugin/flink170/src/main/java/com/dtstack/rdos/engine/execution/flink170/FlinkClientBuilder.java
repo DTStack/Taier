@@ -344,7 +344,7 @@ public class FlinkClientBuilder {
             int maxCores = -1;
             ApplicationId applicationId = null;
             for (ApplicationReport report : reportList) {
-                if (!report.getName().startsWith("Flink session")) {
+                if (!report.getName().startsWith(flinkConfig.getFlinkSessionName())) {
                     continue;
                 }
 

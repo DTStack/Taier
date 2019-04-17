@@ -77,6 +77,8 @@ public class FlinkConfig {
 
     private String zkLoginName;
 
+    private String flinkSessionName = "Flink session";
+
     public String getZkLoginName() {
         return zkLoginName;
     }
@@ -319,5 +321,13 @@ public class FlinkConfig {
 
     public void setFlinkKrb5ConfPath(String flinkKrb5ConfPath) {
         this.flinkKrb5ConfPath = flinkKrb5ConfPath;
+    }
+
+    public String getFlinkSessionName() {
+        return flinkSessionName;
+    }
+
+    public void setFlinkSessionName(String flinkSessionName) {
+        this.flinkSessionName = flinkSessionName;
     }
 }

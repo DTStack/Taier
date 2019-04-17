@@ -79,6 +79,8 @@ public class FlinkConfig {
 
     private int flinkSessionSlotCount;
 
+    private String flinkSessionName = "Flink session";
+
     public String getZkLoginName() {
         return zkLoginName;
     }
@@ -329,5 +331,13 @@ public class FlinkConfig {
 
     public void setFlinkSessionSlotCount(int flinkSessionSlotCount) {
         this.flinkSessionSlotCount = flinkSessionSlotCount;
+    }
+
+    public String getFlinkSessionName() {
+        return flinkSessionName;
+    }
+
+    public void setFlinkSessionName(String flinkSessionName) {
+        this.flinkSessionName = flinkSessionName;
     }
 }
