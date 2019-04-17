@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.5.3"></a>
+## [3.5.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.5.2...3.5.3) (2019-04-17)
+
+
+### Bug Fixes
+
+* **data sync:** add parameter sourceId when create table by DDL ([eec9345](http://git.dtstack.cn/dtstack/data-stack-web/commits/eec9345)), closes [#15303](http://redmine.prod.dtstack.cn/issues/15303)
+
+
+
 <a name="3.5.2"></a>
 ## [3.5.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.3.11...3.5.2) (2019-04-01)
 
