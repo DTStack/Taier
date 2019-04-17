@@ -5,6 +5,7 @@ import { Form, Select, Radio, Checkbox, DatePicker, Input, Button, Icon } from '
 
 import { formItemLayout, DATA_SOURCE, CAT_TYPE, collectType } from '../../../../../comm/const'
 import HelpDoc from '../../../../helpDoc';
+import { isKafka } from '../../../../../comm';
 
 import ajax from '../../../../../api/index'
 
@@ -27,8 +28,12 @@ class CollectionSource extends React.Component {
         const { sourceMap = {} } = collectionData;
         this.getSupportDaTypes();
         if (sourceMap.sourceId) {
-            this.getTableList(sourceMap.sourceId)
-            this.getBinLogList(sourceMap.sourceId);
+            if (sourceMap.type === DATA_SOURCE.MYSQL) {
+                this.getTableList(sourceMap.sourceId);
+            }
+            if (sourceMap.collectType == collectType.FILE) {
+                this.getBinLogList(sourceMap.sourceId);
+            }
         }
     }
 
@@ -39,7 +44,9 @@ class CollectionSource extends React.Component {
         const { collectionData: oldCol } = this.props;
         const { sourceMap: oldSource } = oldCol;
         if (sourceMap.sourceId && oldSource.sourceId != sourceMap.sourceId) {
-            this.getTableList(sourceMap.sourceId)
+            if (sourceMap.type === DATA_SOURCE.MYSQL) {
+                this.getTableList(sourceMap.sourceId);
+            }
         }
         /**
          * 当collectType是File，并且此时collectType发生过改变或者tab的id发生了改变，则去请求binlog列表
@@ -120,11 +127,39 @@ class CollectionSource extends React.Component {
 
 class CollectionSourceForm extends React.Component {
     state = {
+        sourceList: [], // TODO 此处 sourceList 跟 MySQL 的并未共用
         topicList: []
+    }
+
+    componentDidMount () {
+        const { collectionData } = this.props;
+        if (isKafka(collectionData.sourceMap.type)) {
+            this.loadSourceList();
+        }
     }
 
     loadPreview = () => {
 
+    }
+
+    onSourceChange = (sourceId) => {
+        this.getTopicType(sourceId);
+    }
+
+    onSourceTypeChange = (sourceType) => {
+        if (isKafka(sourceType)) {
+            this.loadSourceList(sourceType);
+        }
+    }
+
+    loadSourceList = (sourceType) => {
+        ajax.getTypeOriginData({ type: sourceType }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    sourceList: res.data
+                })
+            }
+        });
     }
 
     getTopicType (sourceId) {
@@ -198,7 +233,7 @@ class CollectionSourceForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const allTable = sourceMap.allTable;
         const { type, sourceId } = sourceMap;
-        const isCollectTypeEdit = !!sourceId
+        const isCollectTypeEdit = !!sourceId;
 
         switch (type) {
             case DATA_SOURCE.MYSQL: {
@@ -334,9 +369,36 @@ class CollectionSourceForm extends React.Component {
                     </FormItem>
                 ]
             }
-            case DATA_SOURCE.HDFS: {
-                const { topicList } = this.state;
+            case DATA_SOURCE.KAFKA_09:
+            case DATA_SOURCE.KAFKA_10: {
+                const { topicList, sourceList } = this.state;
+                const sourceOptions = sourceList.map(o => {
+                    return <Option key={o.id} value={o.id}>{o.name}</Option>
+                })
                 return [
+                    <FormItem
+                        {...formItemLayout}
+                        key="sourceId"
+                        label="数据源"
+                    >
+                        {getFieldDecorator('sourceId', {
+                            rules: [
+                                { required: true, message: '请选择数据源' }
+                            ]
+                        })(
+                            <Select
+                                showSearch
+                                placeholder="请选择数据源"
+                                className="right-select"
+                                onChange={this.onSourceChange}
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            >
+                                {
+                                    sourceOptions
+                                }
+                            </Select>
+                        )}
+                    </FormItem>,
                     <FormItem
                         key="topic"
                         {...formItemLayout}
@@ -351,7 +413,6 @@ class CollectionSourceForm extends React.Component {
                                 disabled={isEdit}
                                 style={{ width: '100%' }}
                                 placeholder="请选择topic"
-
                             >
                                 {topicList.map(
                                     (topic) => {
@@ -397,7 +458,9 @@ class CollectionSourceForm extends React.Component {
                             rules: [{ required: true, message: '请选择数据源类型' }]
                         })(
                             <Select
+                                allowClear
                                 disabled={isEdit}
+                                onChange={this.onSourceTypeChange}
                                 placeholder="请选择数据源类型"
                                 style={{ width: '100%' }}
                             >
@@ -472,6 +535,9 @@ const WrapCollectionSourceForm = Form.create({
             },
             sourceId: {
                 value: sourceMap.sourceId
+            },
+            topic: {
+                value: sourceMap.topic
             },
             table: {
                 value: sourceMap.allTable ? -1 : sourceMap.table

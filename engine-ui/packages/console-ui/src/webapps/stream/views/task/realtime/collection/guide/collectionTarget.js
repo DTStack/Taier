@@ -9,7 +9,7 @@ import {
 
 import ajax from '../../../../../api/index'
 import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
-import { isKafka } from '../../../../../comm'
+import { isSupportedTargetSource, isKafka } from '../../../../../comm'
 import HelpDoc from '../../../../helpDoc';
 
 const FormItem = Form.Item;
@@ -41,7 +41,7 @@ class CollectionTarget extends React.Component {
     componentDidMount () {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
-        if (targetMap.sourceId) {
+        if (targetMap.sourceId && isKafka(targetMap.type)) {
             this.getTopicType(targetMap.sourceId)
         }
     }
@@ -52,7 +52,7 @@ class CollectionTarget extends React.Component {
         const { targetMap } = collectionData;
         const { collectionData: oldCol } = this.props;
         const { targetMap: oldTarget } = oldCol;
-        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId) {
+        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId && isKafka(targetMap.type)) {
             this.getTopicType(targetMap.sourceId)
         }
     }
@@ -101,7 +101,11 @@ class CollectionTargetForm extends React.Component {
     onSelectSource = (value, option) => {
         const sourceType = option.props.data.type;
         const initialFields = getSourceInitialField(sourceType);
-        this.props.updateTargetMap(initialFields, true);
+        /**
+         * sourceId 改变,则清空表
+         */
+        let clearTargetData = false;
+        this.props.updateTargetMap(initialFields, clearTargetData);
     }
 
     dynamicRender () {
@@ -251,7 +255,7 @@ class CollectionTargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const disableOption = (targetSourceType) => {
             // 源类型为Kafka时，目标仅能选择HDFS类型
-            return sourceMap.type === DATA_SOURCE.KAFKA && targetSourceType !== DATA_SOURCE.HDFS;
+            return (sourceMap.type === DATA_SOURCE.KAFKA_09 || sourceMap.type === DATA_SOURCE.KAFKA_10) && targetSourceType !== DATA_SOURCE.HDFS;
         }
         return (
             <div>
@@ -268,9 +272,10 @@ class CollectionTargetForm extends React.Component {
                                 placeholder="请选择数据源"
                                 onSelect={this.onSelectSource}
                                 style={{ width: '100%' }}
+                                allowClear
                             >
                                 {dataSourceList.map((item) => {
-                                    if (!isKafka(item.type)) {
+                                    if (!isSupportedTargetSource(item.type)) {
                                         return null
                                     }
                                     return <Option
@@ -294,14 +299,7 @@ class CollectionTargetForm extends React.Component {
 
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
-        /**
-         * sourceId改变,则清空表
-         */
-        let clear = false;
-        if (fields.sourceId != undefined) {
-            clear = true
-        }
-        props.updateTargetMap(fields, clear);
+        props.updateTargetMap(fields, false);
     },
     mapPropsToFields (props) {
         const { collectionData } = props;
