@@ -32,16 +32,15 @@ module.exports = {
         '/api/rdos': {
             // target: "http://172.16.8.107:9020", // dev server
             target: 'http://172.16.10.86:9020', // test ser
-            // ignorePath: true,
-            // Mock
+            // target: 'http://172.16.0.157:9020', // temp ser
+            // target: 'http://172.16.8.107:9020', // formal test ser
             changeOrigin: true,
             secure: false
         },
         '/api/streamapp': {
-            // target: "http://172.16.1.191:9021", // formal test ser
-            // target: "http://172.16.8.104:9020", // formal test ser
-            // target: "http://172.16.8.105:9021", // formal test ser
-            target: 'http://172.16.10.86:9021', // test
+            target: 'http://172.16.10.86:9021', // test ser
+            // target: 'http://172.16.0.157:9020', // temp ser
+            // target: 'http://172.16.8.107:9020', // formal test ser
             changeOrigin: true,
             secure: false
         },
