@@ -7,7 +7,9 @@ import { formItemLayout, DATA_SOURCE, CAT_TYPE, collectType } from '../../../../
 import HelpDoc from '../../../../helpDoc';
 import { isKafka } from '../../../../../comm';
 
-import ajax from '../../../../../api/index'
+import ajax from '../../../../../api/index';
+
+import DataPreviewModal from '../../dataPreviewModal';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -128,7 +130,9 @@ class CollectionSource extends React.Component {
 class CollectionSourceForm extends React.Component {
     state = {
         sourceList: [], // TODO 此处 sourceList 跟 MySQL 的并未共用
-        topicList: []
+        topicList: [],
+        previewParams: {},
+        previewVisible: false
     }
 
     componentDidMount () {
@@ -139,7 +143,15 @@ class CollectionSourceForm extends React.Component {
     }
 
     loadPreview = () => {
-
+        const { collectionData } = this.props;
+        const { sourceMap } = collectionData;
+        this.setState({
+            previewParams: {
+                sourceId: sourceMap.sourceId,
+                topic: sourceMap.topic
+            },
+            previewVisible: true
+        })
     }
 
     onSourceChange = (sourceId) => {
@@ -472,6 +484,11 @@ class CollectionSourceForm extends React.Component {
                     </FormItem>
                     {this.renderForm()}
                 </Form>
+                <DataPreviewModal
+                    visible={this.state.previewVisible}
+                    onCancel={() => { this.setState({ previewVisible: false, previewParams: {} }) }}
+                    params={this.state.previewParams}
+                />
             </div>
         )
     }
