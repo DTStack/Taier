@@ -181,6 +181,7 @@ class InputOrigin extends Component {
                                 onChange={(v) => { handleInputChange('topic', index, v) }}
                                 showSearch
                                 filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+
                             >
                                 {
                                     topicOptionTypes
