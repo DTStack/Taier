@@ -321,6 +321,7 @@ class InputOrigin extends Component {
                     >
                         {getFieldDecorator('timeZone')(
                             <Cascader
+                                allowClear={false}
                                 onChange={value => handleInputChange('timeZone', index, value.join('/'))}
                                 placeholder='请选择时区'
                                 showSearch
