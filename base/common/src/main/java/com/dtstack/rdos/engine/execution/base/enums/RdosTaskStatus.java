@@ -24,15 +24,21 @@ public enum RdosTaskStatus {
 	
 	private int status;
 
-    private static List<Integer> canStopStatus = Lists.newArrayList(
+    private final static List<Integer> CAN_STOP_STATUS = Lists.newArrayList(
             UNSUBMIT.getStatus(),
             CREATED.getStatus(), SCHEDULED.getStatus(),
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-//            ENGINEACCEPTED.getStatus(),
-//            ENGINEDISTRIBUTE.getStatus(),
             WAITCOMPUTE.getStatus()
+    );
+
+    private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
+            RdosTaskStatus.FAILED.getStatus(),
+            RdosTaskStatus.CANCELED.getStatus(),
+            RdosTaskStatus.SUBMITFAILD.getStatus(),
+            RdosTaskStatus.KILLED.getStatus(),
+            RdosTaskStatus.FINISHED.getStatus()
     );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
@@ -106,7 +112,11 @@ public enum RdosTaskStatus {
     }
 
     public static List<Integer> getCanStopStatus(){
-        return canStopStatus;
+        return CAN_STOP_STATUS;
+    }
+
+    public static boolean isStopped(Byte status) {
+        return STOPPED_STATUS.contains(status.intValue());
     }
     
 }
