@@ -144,7 +144,7 @@ public class ConfigParse {
 
     public static int getJobStoppedRetry(){
         Object retry = configs.get("jobStoppedRetry");
-        return retry == null ? 0 : Integer.parseInt(retry.toString());
+        return retry == null ? 10 : Integer.parseInt(retry.toString());
     }
     public static long getJobStoppedDelay(){
         Object delay = configs.get("jobStoppedDelay");
