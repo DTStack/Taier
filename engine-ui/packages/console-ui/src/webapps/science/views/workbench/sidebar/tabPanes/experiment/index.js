@@ -78,7 +78,7 @@ class ExperimentSidebar extends Component {
                         treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
-                                return 'anchor-experiment-file o-tree-icon--normal'
+                                return 'anchor-experiment-file o-tree-icon--experiment'
                             }
                             return 'anchor-experiment-folder'
                         }}

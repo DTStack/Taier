@@ -3,7 +3,7 @@
         margin-bottom: 0px;
     }
     .ant-tabs-content{
-        height: calc(100% - 32px);
+        height: calc(100% - 36px);
     }
     .c-group-tabs__tab--dirty::after {
         content:'';
@@ -14,5 +14,10 @@
         height: 8px;
         border-radius: 50%;
         background: rgba(242, 81, 30, 0.7);
+    }
+    .c-group-tabs__icon{
+        position: absolute;
+        top: 9px;
+        left: 10px;
     }
 }

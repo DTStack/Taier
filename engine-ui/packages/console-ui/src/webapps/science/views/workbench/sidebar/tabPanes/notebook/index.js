@@ -85,7 +85,7 @@ class NotebookSidebar extends Component {
                         treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
-                                return 'anchor-notebook-file o-tree-icon--normal'
+                                return 'anchor-notebook-file o-tree-icon--notebook'
                             }
                             return 'anchor-notebook-folder'
                         }}

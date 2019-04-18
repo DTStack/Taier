@@ -106,7 +106,7 @@ export function submitNotebook (tabData) {
             let res = await api.submitNotebook(tabData);
             if (res && res.code == 1) {
                 message.success('提交作业成功！')
-                resolve(true)
+                resolve(res)
             }
             resolve(false);
         })
@@ -119,7 +119,7 @@ export function submitNotebookModel (tabData) {
             let res = await api.submitNotebookModel(tabData);
             if (res && res.code == 1) {
                 message.success('提交模型成功！')
-                resolve(true)
+                resolve(res);
             }
             resolve(false);
         })

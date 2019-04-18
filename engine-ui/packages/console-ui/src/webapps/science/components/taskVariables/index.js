@@ -6,7 +6,7 @@ const FormItem = Form.Item;
 
 class TaskVariables extends React.Component {
     render () {
-        const { data } = this.props;
+        const { data = [] } = this.props;
         const customParams = data.filter((param) => {
             return param.type == 1;
         })
