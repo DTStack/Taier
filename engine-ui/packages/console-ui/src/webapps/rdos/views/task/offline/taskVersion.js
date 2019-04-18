@@ -1,11 +1,30 @@
 import React from 'react';
-import { Table, Modal, message } from 'antd';
+import { Table, Modal, Button } from 'antd';
 
 import utils from 'utils';
 
 import DiffCodeEditor from 'widgets/editor/diff';
 import { TASK_TYPE, DEAL_MODEL_TYPE } from '../../../comm/const';
 import DiffParams from './diffParams';
+
+const confirm = Modal.confirm;
+
+const getLanguage = (type) => {
+    switch (type) {
+        case TASK_TYPE.SYNC: {
+            return 'json';
+        }
+        case TASK_TYPE.PYTHON_23: {
+            return 'python';
+        }
+        case TASK_TYPE.SQL: {
+            return 'dtsql';
+        }
+        default: {
+            return 'dtsql';
+        }
+    }
+}
 
 export default class TaskVersion extends React.Component {
     state = {
@@ -58,14 +77,17 @@ export default class TaskVersion extends React.Component {
         this.props.changeSql(newVal);
     };
 
-    getFomatedJSON = (jsonText) => {
-        if (!jsonText) return '';
-        const output = utils.jsonFormat(jsonText);
-        if (!output) {
-            message.error('您的数据同步JSON配置格式有误');
-            return jsonText;
-        }
-        return output;
+    codeRollsBack = () => {
+        confirm({
+            title: '确认对当前版本的代码执行回滚操作吗？',
+            content: '回滚操作是一种将历史版本代码覆盖当前版本代码的操作。',
+            onOk () {
+                console.log('OK');
+            },
+            onCancel () {
+                console.log('Cancel');
+            }
+        });
     }
 
     render () {
@@ -74,24 +96,11 @@ export default class TaskVersion extends React.Component {
 
         let sqlTextJSON = taskInfo.sqlText;
         let compareToText = campareTo.sqlText;
-        let language;
-        switch (taskInfo.taskType) {
-            case TASK_TYPE.SYNC: {
-                language = 'json';
-                break;
-            }
-            case TASK_TYPE.PYTHON_23: {
-                language = 'python';
-                break;
-            }
-            case TASK_TYPE.SQL: {
-                language = 'dtsql';
-                break;
-            }
-            default: {
-                language = 'dtsql';
-            }
-        }
+        const language = getLanguage(taskInfo.taskType);
+        const footer = <div style={{ marginRight: 30 }}>
+            <Button type="primary" onClick={this.codeRollsBack}>回滚代码</Button>
+            <Button type="primary" onClick={this.close}>关闭</Button>
+        </div>
 
         return (
             <div style={{ marginBottom: 16 }}>
@@ -110,8 +119,7 @@ export default class TaskVersion extends React.Component {
                     bodyStyle={{ height: '500px' }}
                     visible={showDiff}
                     onCancel={this.close}
-                    cancelText="关闭"
-                    footer={null}
+                    footer={footer}
                 >
                     <DiffCodeEditor
                         className="merge-text"
