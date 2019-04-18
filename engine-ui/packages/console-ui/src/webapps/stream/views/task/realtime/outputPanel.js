@@ -9,7 +9,7 @@ import { debounce, isEmpty } from 'lodash';
 import Api from '../../../api'
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
 import { DATA_SOURCE } from '../../../comm/const';
-import { haveTableList, haveCustomParams, haveTableColumn, havePrimaryKey } from './sidePanel/panelCommonUtil';
+import { haveTableList, haveCustomParams, haveTableColumn, havePrimaryKey, haveTopic } from './sidePanel/panelCommonUtil';
 
 import Editor from 'widgets/code-editor'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
@@ -82,10 +82,15 @@ class OutputOrigin extends Component {
     debounceEditorChange = debounce(this.editorParamsChange, 300, { 'maxWait': 2000 })
 
     render () {
-        const { handleInputChange, index, sync, originOptionType, tableOptionType, panelColumn, tableColumnOptionType, isShow } = this.props;
+        const {
+            handleInputChange, index, sync, originOptionType,
+            tableOptionType, panelColumn, tableColumnOptionType, isShow,
+            topicOptionType
+        } = this.props;
         const { getFieldDecorator } = this.props.form;
         const originOptionTypes = this.originOption('originType', originOptionType[index] || []);
         const tableOptionTypes = this.originOption('currencyType', tableOptionType[index] || []);
+        const topicOptionTypes = this.originOption('currencyType', topicOptionType[index] || []);
         const tableColumnOptionTypes = this.originOption('columnType', tableColumnOptionType[index] || []);
         const primaryKeyOptionTypes = this.originOption('primaryType', panelColumn[index].columns || []);
         const customParams = panelColumn[index].customParams || [];
@@ -119,6 +124,8 @@ class OutputOrigin extends Component {
                             <Option value={DATA_SOURCE.ES}>ElasticSearch</Option>
                             <Option value={DATA_SOURCE.REDIS}>Redis</Option>
                             <Option value={DATA_SOURCE.MONGODB}>MongoDB</Option>
+                            <Option value={DATA_SOURCE.KAFKA_09}>Kafka09</Option>
+                            <Option value={DATA_SOURCE.KAFKA_10}>Kafka10</Option>
                         </Select>
                     )}
                 </FormItem>
@@ -132,8 +139,12 @@ class OutputOrigin extends Component {
                             { required: true, message: '请选择数据源' }
                         ]
                     })(
-                        <Select className="right-select" onChange={(v) => { handleInputChange('sourceId', index, v) }}
-                            showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                        <Select
+                            showSearch
+                            placeholder="请选择数据源"
+                            className="right-select"
+                            onChange={(v) => { handleInputChange('sourceId', index, v) }}
+                            filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                         >
                             {
                                 originOptionTypes
@@ -141,6 +152,33 @@ class OutputOrigin extends Component {
                         </Select>
                     )}
                 </FormItem>
+                {
+                    haveTopic(panelColumn[index].type)
+                        ? <FormItem
+                            {...formItemLayout}
+                            label="Topic"
+                            style={{ marginBottom: '10px' }}
+                        >
+                            {getFieldDecorator('topic', {
+                                rules: [
+                                    { required: true, message: '请选择Topic' }
+                                ]
+                            })(
+                                <Select
+                                    placeholder="请选择Topic"
+                                    className="right-select"
+                                    onChange={(v) => { handleInputChange('topic', index, v) }}
+                                    showSearch
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+
+                                >
+                                    {
+                                        topicOptionTypes
+                                    }
+                                </Select>
+                            )}
+                        </FormItem> : ''
+                }
                 {haveTableList(panelColumn[index].type)
                     ? <FormItem
                         {...formItemLayout}
@@ -372,7 +410,7 @@ const OutputForm = Form.create({
             index, writePolicy,
             esId, esType,
             parallelism, tableName,
-            primaryKey, rowKey,
+            primaryKey, rowKey, topic,
             customParams
         } = props.panelColumn[props.index];
         return {
@@ -387,6 +425,7 @@ const OutputForm = Form.create({
             writePolicy: { value: writePolicy },
             esId: { value: esId },
             esType: { value: esType },
+            topic: { value: topic },
             parallelism: { value: parallelism },
             tableName: { value: tableName },
             primaryKey: { value: primaryKey },
@@ -404,9 +443,9 @@ const initialData = {
     panelColumn: [], // 存储数据
     checkFormParams: [], // 存储要检查的参数from
     originOptionType: [], // 数据源选择数据
+    topicOptionType: [], // topic 数据
     tableOptionType: [], // 表选择数据
     tableColumnOptionType: []// 表字段选择的类型
-
 }
 
 export default class OutputPanel extends Component {
@@ -420,6 +459,7 @@ export default class OutputPanel extends Component {
             checkFormParams: [], // 存储要检查的参数from
             originOptionType: [], // 数据源选择数据
             tableOptionType: [], // 表选择数据
+            topicOptionType: [], // topic 列表
             tableColumnOptionType: []// 表字段选择的类型
         }
     }
@@ -446,6 +486,9 @@ export default class OutputPanel extends Component {
                 if (v.type == DATA_SOURCE.MYSQL) {
                     this.getTableColumns(index, v.sourceId, v.table)
                 }
+            }
+            if (haveTopic(v.type)) {
+                this.getTopicType(index, v.sourceId)
             }
         })
         this.setOutputData({ tabTemplate, panelColumn })
@@ -476,13 +519,34 @@ export default class OutputPanel extends Component {
         const originOptionType = [];
         const tableOptionType = [];
         const tableColumnOptionType = [];
+        const topicOptionType = [];
+
         sink.map(v => {
             tabTemplate.push('OutputForm');
             panelColumn.push(v);
         })
-        dispatch(BrowserAction.setOutputData({ taskId, sink: { tabTemplate, panelColumn, panelActiveKey, popoverVisible, checkFormParams, originOptionType, tableOptionType, tableColumnOptionType } }));
+        dispatch(BrowserAction.setOutputData({ taskId,
+            sink: {
+                tabTemplate,
+                panelColumn,
+                panelActiveKey,
+                popoverVisible,
+                checkFormParams,
+                originOptionType,
+                tableOptionType,
+                tableColumnOptionType,
+                topicOptionType
+            } }));
         this.setState({
-            tabTemplate, panelColumn, panelActiveKey, popoverVisible, checkFormParams, originOptionType, tableOptionType, tableColumnOptionType
+            tabTemplate,
+            panelColumn,
+            panelActiveKey,
+            popoverVisible,
+            checkFormParams,
+            originOptionType,
+            tableOptionType,
+            tableColumnOptionType,
+            topicOptionType
         }, () => {
             sink.map((v, index) => {
                 this.getTypeOriginData(index, v.type)
@@ -491,6 +555,9 @@ export default class OutputPanel extends Component {
                     if (v.type == DATA_SOURCE.MYSQL) {
                         this.getTableColumns(index, v.sourceId, v.table)
                     }
+                }
+                if (haveTopic(v.type)) {
+                    this.getTopicType(index, v.sourceId)
                 }
             })
         })
@@ -581,6 +648,41 @@ export default class OutputPanel extends Component {
         })
     }
 
+    getTopicType = (index, sourceId) => {
+        const { topicOptionType } = this.state;
+        if (sourceId) {
+            Api.getTopicType({ sourceId }).then(v => {
+                if (index === 'add') {
+                    if (v.code === 1) {
+                        topicOptionType.push(v.data)
+                    } else {
+                        topicOptionType.push([])
+                    }
+                } else {
+                    if (v.code === 1) {
+                        topicOptionType[index] = v.data;
+                    } else {
+                        topicOptionType[index] = [];
+                    }
+                }
+                // this.setOutputData({ topicOptionType });
+                this.setState({
+                    topicOptionType
+                })
+            })
+        } else {
+            if (index === 'add') {
+                topicOptionType.push([]);
+            } else {
+                topicOptionType[index] = [];
+            }
+            // this.setOutputData({ topicOptionType });
+            this.setState({
+                topicOptionType
+            })
+        }
+    }
+
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
         const currentPage = nextProps.currentPage
@@ -610,12 +712,17 @@ export default class OutputPanel extends Component {
             primaryKey: undefined,
             rowKey: undefined
         }
-        let { tabTemplate, panelActiveKey, popoverVisible, panelColumn, checkFormParams, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
+        let {
+            tabTemplate, panelActiveKey, popoverVisible,
+            panelColumn, checkFormParams, originOptionType,
+            tableOptionType, tableColumnOptionType, topicOptionType
+        } = this.state;
         if (type === 'add') {
             tabTemplate.push('OutputForm');
             panelColumn.push(inputData);
             this.getTypeOriginData('add', inputData.type);
-            this.getTableType('add', inputData.table)
+            this.getTableType('add', inputData.table);
+            this.getTopicType('add', inputData.sourceId);
             tableColumnOptionType.push([]);
             let pushIndex = `${tabTemplate.length}`;
             panelActiveKey.push(pushIndex)
@@ -623,6 +730,7 @@ export default class OutputPanel extends Component {
             tabTemplate.splice(index, 1);
             panelColumn.splice(index, 1);
             originOptionType.splice(index, 1);
+            topicOptionType.splice(index, 1);
             tableOptionType.splice(index, 1);
             tableColumnOptionType.splice(index, 1);
             checkFormParams.pop();
@@ -630,7 +738,14 @@ export default class OutputPanel extends Component {
             popoverVisible[index] = false;
         }
         this.props.tableParamsChange()// 添加数据改变标记
-        this.setOutputData({ tabTemplate, panelActiveKey, popoverVisible, panelColumn, tableColumnOptionType });
+        this.setOutputData({
+            tabTemplate,
+            panelActiveKey,
+            popoverVisible,
+            panelColumn,
+            tableColumnOptionType,
+            topicOptionType
+        });
         this.setState({
             tabTemplate,
             panelActiveKey,
@@ -639,6 +754,7 @@ export default class OutputPanel extends Component {
             checkFormParams,
             originOptionType,
             tableOptionType,
+            topicOptionType,
             tableColumnOptionType
         })
     }
@@ -689,13 +805,17 @@ export default class OutputPanel extends Component {
             return flag;
         })
     }
+
     /**
      * 监听数据改变
      * @param {String} type 改变的属性
      * @param {String} index 改变的panel序号
      */
     handleInputChange = (type, index, value, subValue) => {
-        const { panelColumn, originOptionType, tableOptionType, tableColumnOptionType } = this.state;
+        const {
+            panelColumn, originOptionType, tableOptionType,
+            tableColumnOptionType, topicOptionType
+        } = this.state;
         let shouldUpdateEditor = true;
         if (type === 'columns') {
             panelColumn[index][type].push(value);
@@ -720,9 +840,11 @@ export default class OutputPanel extends Component {
             'table', 'columns',
             'columnsText', 'id',
             'index', 'writePolicy',
-            'esId', 'esType',
+            'esId', 'esType', 'topic',
             'parallelism', 'tableName',
-            'primaryKey', 'rowKey', 'customParams'];
+            'primaryKey', 'rowKey', 'customParams'
+        ];
+        const sourceType = panelColumn[index].type;
         /**
          * 这里开始处理改变操作，比如数据源改变要改变重置表名等
          */
@@ -730,6 +852,7 @@ export default class OutputPanel extends Component {
             originOptionType[index] = [];
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
+            topicOptionType[index] = [];
             allParamsType.map(v => {
                 if (v === 'type') {
                     panelColumn[index][v] = value;
@@ -746,21 +869,23 @@ export default class OutputPanel extends Component {
         } else if (type === 'sourceId') {
             tableOptionType[index] = [];
             tableColumnOptionType[index] = [];
+            topicOptionType[index] = []; // 清空topic列表
             allParamsType.map(v => {
                 if (v !== 'type' && v != 'sourceId' && v != 'customParams') {
-                    if (v == 'columns') {
+                    if (v == 'columns' || v == 'topic') {
                         panelColumn[index][v] = [];
                     } else if (v == 'parallelism') {
                         panelColumn[index][v] = 1
                     } else {
                         panelColumn[index][v] = undefined
                     }
-                } else {
-
                 }
             })
-            if (haveTableList(panelColumn[index].type)) {
+            if (haveTableList(sourceType)) {
                 this.getTableType(index, value)
+            }
+            if (haveTopic(sourceType)) {
+                this.getTopicType(index, value)
             }
         } else if (type === 'table') {
             tableColumnOptionType[index] = [];
@@ -792,7 +917,7 @@ export default class OutputPanel extends Component {
     }
 
     clearCurrentInfo = (type, index, value) => {
-        const { panelColumn, tableOptionType, originOptionType } = this.state;
+        const { panelColumn, tableOptionType, originOptionType, topicOptionType } = this.state;
         const inputData = {
             type: undefined,
             columns: [],
@@ -805,6 +930,7 @@ export default class OutputPanel extends Component {
             index: undefined,
             id: undefined,
             parallelism: 1,
+            topic: undefined,
             tableName: undefined,
             rowKey: undefined,
             primaryKey: undefined
@@ -813,15 +939,17 @@ export default class OutputPanel extends Component {
             inputData.type = value;
             originOptionType[index] = [];
             tableOptionType[index] = [];
+            topicOptionType[index] = [];
             panelColumn[index] = inputData;
         } else if (type === 'sourceId') {
             inputData.type = panelColumn[index]['type']
             inputData.sourceId = value;
             tableOptionType[index] = [];
+            topicOptionType[index] = [];
             panelColumn[index] = inputData;
         }
-        this.setOutputData({ panelColumn, tableOptionType, originOptionType })
-        this.setState({ panelColumn, tableOptionType, originOptionType });
+        this.setOutputData({ panelColumn, topicOptionType, tableOptionType, originOptionType })
+        this.setState({ panelColumn, topicOptionType, tableOptionType, originOptionType });
     }
 
     handlePopoverVisibleChange = (e, index, visible) => {
@@ -872,7 +1000,10 @@ export default class OutputPanel extends Component {
     }
 
     render () {
-        const { tabTemplate, panelActiveKey, panelColumn, originOptionType, tableOptionType, tableColumnOptionType, sync } = this.state;
+        const {
+            tabTemplate, panelActiveKey, panelColumn, originOptionType,
+            tableOptionType, tableColumnOptionType, topicOptionType, sync
+        } = this.state;
         const { isShow } = this.props;
         return (
             <div className="m-taksdetail panel-content">
@@ -889,6 +1020,7 @@ export default class OutputPanel extends Component {
                                         panelColumn={panelColumn} originOptionType={originOptionType}
                                         tableOptionType={tableOptionType}
                                         tableColumnOptionType={tableColumnOptionType}
+                                        topicOptionType={topicOptionType}
                                         onRef={this.recordForm}
                                         editorParamsChange={this.props.editorParamsChange}
                                         textChange={() => {
