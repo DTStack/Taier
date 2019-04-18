@@ -274,6 +274,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_RPS],
                                             color: CHARTS_COLOR,
+                                            unit: 'rps 条/秒',
                                             legend: ['输入RPS', '输出RPS']
                                         }}
                                         desc="输入/输出数据量，单位是RecordPerSecond。"
@@ -285,6 +286,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_BPS],
                                             color: CHARTS_COLOR,
+                                            unit: 'bps 条/秒',
                                             legend: ['输入BPS', '输出BPS']
                                         }}
                                         desc="输入/输出数据量，单位是BytePerSecond。"
@@ -298,6 +300,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_RPS],
                                             color: CHARTS_COLOR,
+                                            unit: 'rps 条/秒',
                                             legend: ['累计输入RPS', '累计输出RPS']
                                         }}
                                         desc="累计输入/输出数据量，单位是RecordPerSecond。"
@@ -309,7 +312,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'KB',
+                                            unit: 'bps 条/秒',
                                             legend: ['累计输入BPS', '累计输出BPS']
                                         }}
                                         desc="累计输入/输出数据量，单位是BytePerSecond。"
@@ -350,7 +353,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             color: CHARTS_COLOR,
                                             ...lineDatas[metricsType.SOURCE_TPS],
-                                            unit: '条/秒'
+                                            unit: 'tps 条/秒'
                                         }}
                                         desc="对流式数据输入（Kafka）进行统计，单位是TPS(Transaction Per Second)。"
                                         title="各Source的TPS数据输入" />
@@ -361,7 +364,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.SINK_OUTPUT_RPS],
                                             color: CHARTS_COLOR,
-                                            unit: '条/秒'
+                                            unit: 'rps 条/秒'
                                         }}
                                         desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
                                         title="各Sink的数据输出" />
