@@ -86,6 +86,7 @@ public class JobStopQueue {
                             break;
                         case STOPPING:
                             if (!stoppedJob.isRetry()) {
+                                LOG.warn("job:{} retry limited!", stoppedJob.job.getTaskId());
                                 break;
                             }
                             stoppedJob.incrCount();
