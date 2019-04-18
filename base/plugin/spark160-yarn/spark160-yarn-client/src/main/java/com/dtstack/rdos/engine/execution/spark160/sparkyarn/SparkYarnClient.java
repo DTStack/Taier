@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SparkYarnClient extends AbsClient {
 
@@ -535,7 +536,8 @@ public class SparkYarnClient extends AbsClient {
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report->report.getQueue().endsWith(sparkYarnConfig.getQueue())).collect(Collectors.toList());
             if (acceptedApps.size() > sparkYarnConfig.getYarnAccepterTaskNumber()){
                 logger.warn("yarn insufficient resources, pending task submission");
                 return resourceInfo;

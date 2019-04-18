@@ -56,6 +56,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * Created by softfly on 17/8/10.
@@ -584,7 +585,8 @@ public class SparkYarnClient extends AbsClient {
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report->report.getQueue().endsWith(sparkYarnConfig.getQueue())).collect(Collectors.toList());
             if (acceptedApps.size() > sparkYarnConfig.getYarnAccepterTaskNumber()){
                 logger.warn("yarn insufficient resources, pending task submission");
                 return resourceInfo;

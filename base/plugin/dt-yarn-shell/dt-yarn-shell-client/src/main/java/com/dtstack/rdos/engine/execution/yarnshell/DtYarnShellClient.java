@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * dt-yarn-shell客户端
@@ -94,6 +95,7 @@ public class DtYarnShellClient extends AbsClient {
         }
         String queue = prop.getProperty(DtYarnConfiguration.DT_APP_QUEUE);
         if (StringUtils.isNotBlank(queue)){
+            LOG.warn("curr queue is {}", queue);
             conf.set(DtYarnConfiguration.DT_APP_QUEUE, queue);
         }
 
@@ -198,9 +200,11 @@ public class DtYarnShellClient extends AbsClient {
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet);
+            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet).stream().
+                    filter(report->report.getQueue().endsWith(conf.get(DtYarnConfiguration.DT_APP_QUEUE))).collect(Collectors.toList());
             if (acceptedApps.size() > conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1)){
-                LOG.warn("yarn insufficient resources, pending task submission");
+                LOG.warn("curr conf is :{}", conf);
+                LOG.warn("yarn curr queue has accept app, num is {} max then {}, waiting to submit.", acceptedApps.size(), conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1));
                 return resourceInfo;
             }
             List<NodeReport> nodeReports = client.getNodeReports();

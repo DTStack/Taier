@@ -9,8 +9,8 @@ import com.dtstack.yarn.common.LocalRemotePath;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
-import com.dtstack.yarn.util.KerberosUtils;
 import com.dtstack.yarn.util.Utilities;
+import com.google.common.base.Strings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -28,8 +28,11 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -162,10 +165,15 @@ public class DtContainer {
         appType.env(envList);
 
         String[] env = envList.toArray(new String[envList.size()]);
-        String logDir = envs.get(ApplicationConstants.Environment.LOG_DIRS.name());
+        String logDirs = envs.get(ApplicationConstants.Environment.LOG_DIRS.name());
+
+        String logDir = getFirstLogFile(logDirs);
+
+        //LOG_DIRS 是可以配置多个路径的,并且以逗号分隔
         String command = envs.get(DtYarnConstants.Environment.DT_EXEC_CMD.toString())
                 + " 1>" +logDir
                 + "/dtstdout.log 2>"+logDir+"/dterror.log";
+
         command = appType.cmdContainerExtra(command, containerInfo);
 
         String[] cmd = {"bash", "-c", command};
@@ -190,13 +198,49 @@ public class DtContainer {
         printContainerInfo();
 
         LOG.info("container_wait_for_begin");
-
         process.waitFor();
-
         LOG.info("container_wait_for_end exitValue: " + process.exitValue());
 
         return process.exitValue() == 0;
 
+    }
+
+    private void printInfo(InputStream inputStream){
+
+        InputStreamReader isr = new InputStreamReader(inputStream);
+        //用缓冲器读行
+        BufferedReader br = new BufferedReader(isr);
+        String line;
+        //直到读完为止
+
+        try{
+            while((line = br.readLine()) != null) {
+                LOG.info(line);
+            }
+
+        }catch (Exception e){
+            LOG.warn("exception:", e);
+        }finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                LOG.warn("exception:", e);
+            }
+        }
+    }
+
+    private String getFirstLogFile(String logFile){
+
+        if(Strings.isNullOrEmpty(logFile)){
+            return logFile;
+        }
+
+        String[] splitStr = logFile.split(",");
+        if(splitStr.length == 0){
+            return logFile;
+        }
+
+        return splitStr[0];
     }
 
 
