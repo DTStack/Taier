@@ -49,7 +49,6 @@ const BASE_COLOR = '#2491F7';
 })
 class GraphEditor extends Component {
     componentDidMount () {
-        this.props.onRef(this)
         const data = this.props.data;
         this.initGraph(data);
     }
@@ -119,6 +118,8 @@ class GraphEditor extends Component {
             let state = graph.view.getState(edges[i]);
             // debugger; // eslint-disable-line
             if (state && this.isFlowLine(edges[i])) {
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#2491F7');
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#2491F7');
                 state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
             }
         }
@@ -128,7 +129,8 @@ class GraphEditor extends Component {
         const graph = this.graph;
         const rootCell = this.graph.getDefaultParent();
         const cellMap = this._cacheCells;
-        // const cellStyle = this.getStyles();
+        const model = graph.getModel();
+        model.beginUpdate();
         console.log('data:', data);
         if (data) {
             for (let i = 0; i < data.length; i++) {
@@ -154,6 +156,7 @@ class GraphEditor extends Component {
 
             this.executeLayout();
         }
+        model.endUpdate();
     }
 
     /**
@@ -171,10 +174,6 @@ class GraphEditor extends Component {
         } else {
             this.layoutCenter();
         }
-    }
-
-    getStyles = () => {
-        return 'whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#C5C5C5;'
     }
 
     getEdgeStyles = (status) => {
@@ -256,26 +255,21 @@ class GraphEditor extends Component {
 
     initGraphLayout = () => {
         const graph = this.graph;
-        const edgeStyle = this.getDefaultEdgeStyle();
-        const model = graph.getModel();
-        const layout = new mxHierarchicalLayout(graph, 'north');
-        layout.disableEdgeStyle = false;
-        layout.interRankCellSpacing = 60;
-        layout.intraCellSpacing = 60;
-        layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
 
-        this.executeLayout = function (layoutTarget, change, post) {
-            const parent = layoutTarget || graph.getDefaultParent();
-            model.beginUpdate();
+        this.executeLayout = function (change, post) {
+            const parent = graph.getDefaultParent();
             try {
-                console.log('layout:', layout, edgeStyle);
                 if (change != null) { change(); }
+                const layout = new mxHierarchicalLayout(graph, 'north');
+                layout.disableEdgeStyle = false;
+                layout.interRankCellSpacing = 60;
+                layout.intraCellSpacing = 60;
+                layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
                 layout.execute(parent);
             } catch (e) {
                 throw e;
             } finally {
                 if (post != null) { post(); }
-                graph.getModel().endUpdate();
             }
         }
     }

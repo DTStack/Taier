@@ -99,8 +99,9 @@
     }
 
     .flow {
-        stroke-width: 2;
-        stroke-dasharray: 8;
+        stroke-width: 1;
+        stroke: #2491F7;
+        stroke-dasharray: 4;
         animation: dash 0.5s linear;
         animation-iteration-count: infinite;
     }

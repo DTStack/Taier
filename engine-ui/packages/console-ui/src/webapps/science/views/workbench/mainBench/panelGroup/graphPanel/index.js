@@ -9,6 +9,7 @@ import { siderBarType } from '../../../../../consts';
 
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
+import * as runTaskActions from '../../../../../actions/runTaskActions';
 import commActions from '../../../../../actions';
 import { Tabs } from 'antd';
 import GraphContainer from './graphContainer';
@@ -27,7 +28,8 @@ import Params from './params/index';
         const actionsOne = bindActionCreators(workbenchActions, dispatch);
         const actionsTwo = bindActionCreators(editorActions, dispatch);
         const actionsThree = bindActionCreators(commActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree);
+        const actionsFour = bindActionCreators(runTaskActions, dispatch);
+        return Object.assign(actionsOne, actionsTwo, actionsThree, actionsFour);
     }
 )
 class GraphPanel extends Component {
@@ -40,6 +42,10 @@ class GraphPanel extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab, siderBarType.experiment);
     };
+    execConfirm = () => {
+        const { data } = this.props;
+        this.props.execExperiment(data);
+    }
     renderSiderbarItems () {
         return [
             <Tabs.TabPane
@@ -87,7 +93,7 @@ class GraphPanel extends Component {
             onRemoveTab: this.removeConsoleTab,
             downloadUri: reqUrls.DOWNLOAD_SQL_RESULT
         };
-
+        debugger; // eslint-disable-line
         return (
             <CommonEditor
                 console={consoleOpts}

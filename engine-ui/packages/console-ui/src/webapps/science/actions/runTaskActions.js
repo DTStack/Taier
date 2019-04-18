@@ -49,7 +49,6 @@ export function exec (tabData, serverParams = {}, tasks) {
         return res;
     }
 }
-
 async function execTasks (tabData, serverParams, tasks, dispatch) {
     const tabId = tabData.id;
     for (let i = 0; i < tasks.length; i++) {
@@ -172,3 +171,19 @@ function resolveData (tabId, data, key, dispatch) {
         dispatch(appendNotebookLog(tabId, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
     }
 }
+// 运行实验task
+// export function execExperiment (tabData) {
+//     return async (dispatch) => {
+//         const tabId = tabData.id;
+//         dispatch(addLoadingTab(tabId));
+//         dispatch(setNotebookLog(tabId, `正在运行...`));
+//         dispatch(showNotebookLog(tabId));
+//         let res = await runExperiment(tabData, dispatch);
+//         // dispatch(removeLoadingTab(tabId));
+//         // return res;
+//     }
+// }
+
+// async function runExperiment (tabData, dispatch) {
+
+// }

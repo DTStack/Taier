@@ -117,11 +117,11 @@ class GraphContainer extends React.Component {
     }
 
     initGraphEvent = (graph) => {
+        const ctx = this;
         let selectedCell = null;
         const { openTaskInDev, saveSelectedCell } = this.props;
         // let highlightEdges = [];
         this._graph = graph;
-
         graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
             const event = evt.getProperty('event');
             const editInputClassName = get(event, 'target.className', '')
@@ -155,15 +155,6 @@ class GraphContainer extends React.Component {
                 style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
                 applyCellStyle(cellState, style);
                 saveSelectedCell(cell)
-                // const outEdges = graph.getOutgoingEdges(cell);
-                // const inEdges = graph.getIncomingEdges(cell);
-                // const edges = outEdges.concat(inEdges);
-                // for (let i = 0; i < edges.length; i++) {
-                //     const highlight = new mxCellHighlight(graph, '#2491F7', 1);
-                //     const state = graph.view.getState(edges[i]);
-                //     highlight.highlight(state);
-                //     highlightEdges.push(highlight);
-                // }
                 selectedCell = cell;
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
@@ -179,16 +170,14 @@ class GraphContainer extends React.Component {
                 style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
                 style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
                 applyCellStyle(cellState, style);
-
-                // for (let i = 0; i < highlightEdges.length; i++) {
-                //     highlightEdges[i].hide();
-                // }
-
                 selectedCell = null;
             }
         };
 
-        graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData);
+        graph.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
+            const graphData = ctx.getGraphData();
+            ctx.props.updateTaskData(graphData);
+        });
         graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData);
         graph.addListener(mxEvent.CELL_CONNECTED, () => {
             // console.log('CELL_CONNECTED.')
@@ -358,7 +347,6 @@ class GraphContainer extends React.Component {
         const { graphData } = this.props;
         return <div className="exp-graph-view">
             <GraphEditor
-                onRef={(editor) => this.editorRef = editor}
                 data={graphData}
                 onSearchNode={this.initShowSearch}
                 registerContextMenu={this.initContextMenu}

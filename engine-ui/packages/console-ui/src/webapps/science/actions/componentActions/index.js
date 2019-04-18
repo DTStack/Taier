@@ -1,4 +1,5 @@
 import componentActionType from '../../consts/componentActionType';
+import { isEqual } from 'lodash'
 const mockData = require('./mocks/data.json');
 const graphData = mockData.data ? JSON.parse(mockData.data.sqlText) : [];
 export function getTaskData () {
@@ -10,6 +11,12 @@ export function getTaskData () {
         })
     }
 }
+export function updateTaskData (graphData) {
+    return {
+        type: componentActionType.UPDATE_TASK_DATA,
+        payload: graphData
+    }
+}
 export function saveGraph (payload) {
     return {
         type: componentActionType.SAVE_GRAPH,
@@ -17,9 +24,14 @@ export function saveGraph (payload) {
     }
 }
 export function saveSelectedCell (payload) {
-    return {
-        type: componentActionType.SAVE_SELECTED_CELL,
-        payload
+    return (dispatch, getState) => {
+        const cell = getState().component.selectedCell;
+        if (!isEqual(cell, payload)) {
+            dispatch({
+                type: componentActionType.SAVE_SELECTED_CELL,
+                payload
+            })
+        }
     }
 }
 

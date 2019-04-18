@@ -5,6 +5,18 @@ export function task (state = [], action) {
         case componentActionType.GET_TASK_DATA: {
             return payload;
         }
+        case componentActionType.UPDATE_TASK_DATA: {
+            for (let index = 0; index < payload.length; index++) {
+                const element = payload[index];
+                const object = state.find(o => o.id == element.id);
+                if (object) {
+                    object.x = element.x;
+                    object.y = element.y;
+                    object.data = element.data;
+                }
+            }
+            return state;
+        }
         case componentActionType.ADD_JOBID : {
             for (const key in payload) {
                 if (payload.hasOwnProperty(key)) {
