@@ -60,9 +60,6 @@ export default class Toolbar extends Component {
                     this.renderRun()
                 }
                 {
-                    leftCustomButton
-                }
-                {
                     enableFormat &&
                     <Button
                         icon="appstore-o"
@@ -77,6 +74,9 @@ export default class Toolbar extends Component {
                         编辑<Icon type="down" />
                     </Button>
                 </Dropdown>}
+                {
+                    leftCustomButton
+                }
                 <span style={{ float: 'right', position: 'relative', marginRight: '18px', lineHeight: '28px', zIndex: '901' }}>
                     {rightCustomButton}
                 </span>

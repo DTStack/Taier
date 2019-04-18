@@ -68,7 +68,7 @@ async function execTask (tabData, serverParams, task, dispatch) {
         ...serverParams,
         sql: task,
         taskId: tabId,
-        uniqueKey: tabId + '_' + ~~(Math.random() * 10000)
+        uniqueKey: tabId + '_' + Date.now() + '_' + ~~(Math.random() * 10000)
     };
     let res;
     try {

@@ -112,8 +112,14 @@
             .ant-form-item {
                 margin-bottom: 10px;
             }
+            .ant-input-disabled{
+                background-color: #e5e5e5;
+            }
             .ant-form-item-label label {
                 font-size: 14px;
+            }
+            .ant-radio-wrapper{
+                white-space: normal;
             }
         }
     }

@@ -6,7 +6,8 @@ import { siderBarType } from '../../consts/index'
 const initialState = {
     userList: [],
     allDict: {},
-    siderBarKey: siderBarType.notebook
+    siderBarKey: siderBarType.notebook,
+    sysParams: null
 }
 
 export default function comm (state = initialState, action) {
@@ -28,6 +29,12 @@ export default function comm (state = initialState, action) {
                 ...state,
                 siderBarKey: payload
             };
+        }
+        case commonActionType.SET_SYS_PARAMS: {
+            return {
+                ...state,
+                sysParams: payload
+            }
         }
         default:
             return state;

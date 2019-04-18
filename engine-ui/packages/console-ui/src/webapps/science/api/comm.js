@@ -17,5 +17,8 @@ export default {
     },
     getSQLResultData (params) {
         return http.post(req.GET_SQL_RESULT, params);
+    },
+    getSysParams (params) {
+        return http.post(req.GET_SYS_PARAMS, params);
     }
 }
