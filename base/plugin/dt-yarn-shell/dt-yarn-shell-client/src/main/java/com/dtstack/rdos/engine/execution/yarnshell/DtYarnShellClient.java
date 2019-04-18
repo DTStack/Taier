@@ -200,7 +200,7 @@ public class DtYarnShellClient extends AbsClient {
             enumSet.add(YarnApplicationState.ACCEPTED);
             List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet);
             if (acceptedApps.size() > conf.getInt(DtYarnConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1)){
-                LOG.warn("yarn 资源不足，任务等待提交");
+                LOG.warn("yarn insufficient resources, pending task submission");
                 return resourceInfo;
             }
             List<NodeReport> nodeReports = client.getNodeReports();

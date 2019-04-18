@@ -82,7 +82,7 @@ public class ActionServiceImpl {
                 workNode.addStartJob(jobClient);
                 return true;
             }
-            logger.warn("任务 taskId：" + paramAction.getTaskId() + " 不允许被重复提交");
+            logger.warn("Job taskId：" + paramAction.getTaskId() + " duplicate submissions are not allowed");
         }catch (Exception e){
             logger.error("", e);
         }

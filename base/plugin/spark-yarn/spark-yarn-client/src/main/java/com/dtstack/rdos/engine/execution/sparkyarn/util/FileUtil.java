@@ -48,7 +48,7 @@ public class FileUtil {
         try (FileSystem fs = FileSystem.get(hadoopConf)) {
             Path path = new Path(uriStr);
             if (!fs.exists(path)) {
-                throw new RuntimeException("hdfs不存在" + path);
+                throw new RuntimeException("hdfs not exists" + path);
             }
 
             if (!fs.isDirectory(path)) {
