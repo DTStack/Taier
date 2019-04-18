@@ -58,14 +58,15 @@ class DataPreviewModal extends Component {
                         <Collapse accordion>
                             {
                                 (dataSource || previewData).map((item, index) => {
+                                    const jsonStr = JSON.stringify(JSON.parse(item), null, 4);
                                     return (
                                         <Panel
-                                            header={<div className={defaultClass}>{JSON.stringify(item)}</div>}
+                                            header={<div className={defaultClass}>{item}</div>}
                                             key={`preview-${index + 1}`}
                                         >
                                             <TextArea
                                                 style={defaultStyle}
-                                                value={JSON.stringify(item, null, 4)}
+                                                value={jsonStr}
                                             />
                                         </Panel>
                                     )
