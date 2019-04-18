@@ -64,7 +64,7 @@ public class BaseVerticle {
 		logger.info("receive http request:{}:{}",path,rbody);
 		String[] paths = path.split("/");
 		if(paths.length < 2){
-			throw new RdosException("请求地址异常", ErrorCode.SERVICE_NOT_EXIST);
+			throw new RdosException("request address error", ErrorCode.SERVICE_NOT_EXIST);
 		}
 
 		String name = paths[paths.length-2];

@@ -11,27 +11,27 @@ public enum ErrorCode {
 
     /***----------------start 公共模块错误码 0 ~ 100 start----------------------------------------****/
 
-    NOT_LOGIN(0, "未登录"),
-    SUCCESS(1, "执行成功"),
-    PERMISSION_LIMIT(3, "没有权限"),
+    NOT_LOGIN(0, "not login"),
+    SUCCESS(1, "success"),
+    PERMISSION_LIMIT(3, "permission limit"),
 
-    UNKNOWN_ERROR(10, "未定义异常"),
-    SERVER_EXCEPTION(11, "服务内部错误"),
+    UNKNOWN_ERROR(10, "unknown error"),
+    SERVER_EXCEPTION(11, "server exception"),
 
-    UNSUPPORTED_OPERATION(12, "不支持的操作"),
-    INVALID_PARAMETERS(13, "参数不正确"),
-    NAME_ALREADY_EXIST(14, "名称已经存在"),
-    NAME_FORMAT_ERROR(15, "名称格式错误"),
-    NAME_ILLEGAL(16, "名称非法"),
-    NO_MASTER_NODE(17, "master节点未生成"),
+    UNSUPPORTED_OPERATION(12, "unsupported operation"),
+    INVALID_PARAMETERS(13, "invalid parameters"),
+    NAME_ALREADY_EXIST(14, "name alread exist"),
+    NAME_FORMAT_ERROR(15, "name format error"),
+    NAME_ILLEGAL(16, "name illegal"),
+    NO_MASTER_NODE(17, "no master node"),
 
-    SERVICE_NOT_EXIST(47, "该服务不存在"),
-    SERVICE_FORBIDDEN(48, "该服务禁止请求"),
-    METHOD_NOT_EXIST(49, "方法不存在"),
-    METHOD_FORBIDDEN(50, "该方法禁止被调用"),
-    CALL_UNLAWFUL(51, "请求非法"),
+    SERVICE_NOT_EXIST(47, "service not exist"),
+    SERVICE_FORBIDDEN(48, "service forbidden"),
+    METHOD_NOT_EXIST(49, "method not exist"),
+    METHOD_FORBIDDEN(50, "method forbidden"),
+    CALL_UNLAWFUL(51, "call unlawful"),
 
-    HTTP_CALL_ERROR(60, "http 调用失败"),
+    HTTP_CALL_ERROR(60, "http call error"),
 
 
     /***----------------end 公共模块错误码 end ----------------------------------------****/

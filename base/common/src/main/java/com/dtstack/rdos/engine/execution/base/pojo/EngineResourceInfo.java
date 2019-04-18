@@ -29,7 +29,7 @@ public abstract class EngineResourceInfo {
 
     public boolean judgeFlinkResource(int sqlEnvParallel, int mrParallel) {
         if (sqlEnvParallel == 0 && mrParallel == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务资源配置错误，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task resource configuration error，sqlEnvParallel：" + sqlEnvParallel + ", mrParallel：" + mrParallel);
         }
         int availableSlots = 0;
         int totalSlots = 0;
@@ -43,7 +43,7 @@ public abstract class EngineResourceInfo {
         }
         int maxParallel = Math.max(sqlEnvParallel, mrParallel);
         if (totalSlots < maxParallel) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink任务配置资源超过集群最大资源, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Flink task allocation resource exceeds the maximum resource of the cluster, totalSlots:" + totalSlots + ",maxParallel:" + maxParallel);
         }
         return availableSlots >= maxParallel;
     }
@@ -67,7 +67,7 @@ public abstract class EngineResourceInfo {
 
     public boolean judgeYarnResource(int instances, int coresPerInstance, int memPerInstance) {
         if (instances == 0 || coresPerInstance == 0 || memPerInstance == 0) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务资源配置错误，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn task resource configuration error，instance：" + instances + ", coresPerInstance：" + coresPerInstance + ", memPerInstance：" + memPerInstance);
         }
         calc();
         if (totalFreeCore == 0 || totalFreeMem == 0) {
@@ -105,7 +105,7 @@ public abstract class EngineResourceInfo {
     protected boolean judgeCores(int instances, int coresPerInstance, int freeCore, int totalCore) {
         int needCores = instances * coresPerInstance;
         if (needCores > (totalCore * capacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务设置的core 大于 分配的最大的core");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to a core larger than the maximum allocated core");
         }
         return needCores <= (freeCore * capacity);
     }
@@ -113,7 +113,7 @@ public abstract class EngineResourceInfo {
     protected boolean judgeMem(int instances, int memPerInstance, int freeMem, int totalMem) {
         int needTotal = instances * memPerInstance;
         if (needTotal > (totalMem * capacity)) {
-            throw new RdosException(LIMIT_RESOURCE_ERROR + "Yarn任务设置的MEM 大于 集群最大的MEM");
+            throw new RdosException(LIMIT_RESOURCE_ERROR + "The Yarn task is set to MEM larger than the maximum for the cluster");
         }
         if (needTotal > (freeMem * capacity)) {
             return false;

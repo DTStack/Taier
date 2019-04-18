@@ -48,11 +48,11 @@ public class FileUtil {
         try (FileSystem fs = FileSystem.get(hadoopConf)) {
             Path path = new Path(uriStr);
             if (!fs.exists(path)) {
-                throw new RuntimeException("hdfs不存在" + path);
+                throw new RuntimeException("hdfs not exists" + path);
             }
 
             if (!fs.isDirectory(path)) {
-                throw new RuntimeException("传输目的路径必须为目录");
+                throw new RuntimeException("transfer must be directory");
             }
 
             Map<String, String> downFileInfo = Maps.newHashMap();

@@ -67,7 +67,7 @@ public class SqlPluginInfo {
         File jarFile = new File(jarPath);
 
         if(!jarFile.exists()){
-            throw new RdosException("不存在路径: " + jarPath);
+            throw new RdosException("don't exists path: " + jarPath);
         }
 
         return jarPath;

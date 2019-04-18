@@ -193,7 +193,7 @@ public class WorkNode {
             } catch (Exception e) {
                 //数据转换异常--打日志
                 LOG.error("", e);
-                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                this.dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
             }
         }
 
@@ -293,7 +293,7 @@ public class WorkNode {
             }else{
                 //处理发送失败的情况(比如网络失败,或者slave主动返回失败)
                 if(retryNum >= DISPATCH_RETRY_LIMIT){
-                    String errorInfo = String.format("任务 taskId:%s 网络失败超过3次，DISPATCH_RETRY_LIMIT >= 3 ", paramAction.getTaskId());
+                    String errorInfo = String.format("Job taskId:%s the network failed more than 3 times，DISPATCH_RETRY_LIMIT >= 3 ", paramAction.getTaskId());
                     LOG.error(errorInfo);
                     result.put("result",false);
                     result.put("errorInfo",errorInfo);
@@ -306,9 +306,9 @@ public class WorkNode {
 
         } catch (Exception e) {
             //只有json 解析的异常才会抛出到这个地方,这应该是不可能发生的
-            LOG.error("任务 taskId:{} ---not impossible,please check your program ----,{}", jobClient.getTaskId(), e);
+            LOG.error("Job taskId:{} ---not impossible,please check your program ----,{}", jobClient.getTaskId(), e);
             result.put("result",false);
-            result.put("errorInfo",String.format("任务 taskId:%s ---not impossible,please check your program ----,%s",jobClient.getTaskId(),e));
+            result.put("errorInfo",String.format("Job taskId:%s ---not impossible,please check your program ----,%s",jobClient.getTaskId(),e));
             return result;
         }
     }
@@ -375,7 +375,7 @@ public class WorkNode {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }
@@ -411,7 +411,7 @@ public class WorkNode {
                     } catch (Exception e) {
                         //数据转换异常--打日志
                         LOG.error("", e);
-                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "该任务存储信息异常,无法转换." + e.toString());
+                        dealSubmitFailJob(jobCache.getJobId(), jobCache.getComputeType(), "This task stores information exception and cannot be converted." + e.toString());
                     }
                 }
             }

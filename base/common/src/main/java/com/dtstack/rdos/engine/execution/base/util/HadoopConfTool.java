@@ -46,7 +46,7 @@ public class HadoopConfTool {
 
     public static String getFSDefaults(Map<String, Object> conf){
         String defaultFs = MathUtil.getString(conf.get(FS_DEFAULTFS));
-        Preconditions.checkNotNull(defaultFs, FS_DEFAULTFS + "不能为空");
+        Preconditions.checkNotNull(defaultFs, FS_DEFAULTFS + "can not empty");
         return defaultFs;
     }
 
@@ -57,7 +57,7 @@ public class HadoopConfTool {
 
     public static String getDfsHaNameNodes(Map<String, Object> conf, String key){
         String dfsHaNameNodes = MathUtil.getString(conf.get(key));
-        Preconditions.checkNotNull(dfsHaNameNodes, key + "不能为空");
+        Preconditions.checkNotNull(dfsHaNameNodes, key + "can not empty");
         return dfsHaNameNodes;
     }
 
@@ -66,7 +66,7 @@ public class HadoopConfTool {
         String nameServices = getDfsNameServices(conf);
         String dfsHaNameNodesKey = String.format(DFS_HA_NAMENODES, nameServices);
         String dfsHaNameNodes = MathUtil.getString(conf.get(dfsHaNameNodesKey));
-        Preconditions.checkNotNull(dfsHaNameNodes, "dfs.ha.namenodes 不能为空");
+        Preconditions.checkNotNull(dfsHaNameNodes, "dfs.ha.namenodes can not empty");
         String[] nameNodeArr = dfsHaNameNodes.split(",");
 
         List<String> nameNodeRpcAddressKeys = Lists.newArrayList();
@@ -80,7 +80,7 @@ public class HadoopConfTool {
 
     public static String getDfsNameNodeRpcAddress(Map<String, Object> conf, String key){
         String nnRpcAddress = MathUtil.getString(conf.get(key));
-        Preconditions.checkNotNull(nnRpcAddress, key + "不能为空");
+        Preconditions.checkNotNull(nnRpcAddress, key + "can not empty");
         return nnRpcAddress;
     }
 
