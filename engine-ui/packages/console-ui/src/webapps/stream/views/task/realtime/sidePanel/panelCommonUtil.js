@@ -18,3 +18,9 @@ export function havePrimaryKey (type) {
     const list = [DATA_SOURCE.MYSQL, DATA_SOURCE.ORACLE]
     return list.indexOf(type) > -1;
 }
+
+// 是否拥有Topic
+export function haveTopic (type) {
+    const list = [DATA_SOURCE.KAFKA, DATA_SOURCE.KAFKA_09, DATA_SOURCE.KAFKA_10]
+    return list.indexOf(type) > -1;
+}
