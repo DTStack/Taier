@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * xlearning客户端
@@ -198,9 +199,10 @@ public class LearningClient extends AbsClient {
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet);
+            List<ApplicationReport> acceptedApps = client.getYarnClient().getApplications(enumSet).stream().
+                    filter(report->report.getQueue().endsWith(conf.get(LearningConfiguration.LEARNING_APP_QUEUE))).collect(Collectors.toList());
             if (acceptedApps.size() > conf.getInt(LearningConfiguration.DT_APP_YARN_ACCEPTER_TASK_NUMBER,1)){
-                LOG.warn("yarn 资源不足，任务等待提交");
+                LOG.warn("yarn insufficient resources, pending task submission");
                 return resourceInfo;
             }
             List<NodeReport> nodeReports = client.getNodeReports();
