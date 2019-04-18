@@ -230,6 +230,10 @@ public class WorkNode {
         }
     }
 
+    public void workSendStop(ParamAction paramAction){
+        jobStopQueue.addJob(paramAction);
+    }
+
 
     /**
      * 判断任务是否可停止
