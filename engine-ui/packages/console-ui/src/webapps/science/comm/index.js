@@ -22,3 +22,34 @@ export function isProjectCouldEdit (project, user) {
     }
     return false;
 }
+
+/**
+ * 匹配自定义任务参数
+ * @param {Array} taskCustomParams
+ * @param {String} sqlText
+ */
+export function matchTaskParams (taskCustomParams, sqlText) {
+    const regx = /\$\{([.\w]+)\}/g;
+    const data = [];
+    let res = null;
+    while ((res = regx.exec(sqlText)) !== null) {
+        const name = res[1];
+        const param = {
+            paramName: name,
+            paramCommand: ''
+        };
+        const sysParam = taskCustomParams.find(item => item.paramName === name);
+        if (sysParam) {
+            param.type = 0;
+            param.paramCommand = sysParam.paramCommand;
+        } else {
+            param.type = 1;
+        }
+        // 去重
+        const exist = data.find(item => name === item.paramName);
+        if (!exist) {
+            data.push(param);
+        }
+    }
+    return data;
+}

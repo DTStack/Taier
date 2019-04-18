@@ -9,6 +9,7 @@ import DefaultNotebookView from '../../default/defaultNoteBookView';
 
 import * as tabActions from '../../../../../actions/base/tab';
 import { siderBarType } from '../../../../../consts';
+import * as commActions from '../../../../../actions/base';
 
 const TabPane = Tabs.TabPane;
 
@@ -18,10 +19,15 @@ const TabPane = Tabs.TabPane;
         currentTabIndex: state.notebook.currentTabIndex
     }
 }, (dispatch) => {
-    const actions = bindActionCreators(tabActions, dispatch);
-    return actions;
+    return {
+        ...bindActionCreators(commActions, dispatch),
+        ...bindActionCreators(tabActions, dispatch)
+    };
 })
 class NoteBookGroup extends React.Component {
+    componentDidMount () {
+        this.props.getSysParams();
+    }
     switchTab (key) {
         this.props.setCurrentTab(siderBarType.notebook, key)
     }

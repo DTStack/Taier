@@ -10,5 +10,11 @@ export default {
     },
     openNotebook (params) {
         return http.post(req.OPEN_NOTEBOOK, params);
+    },
+    submitNotebook (params) {
+        return http.post(req.SUBMIT_NOTEBOOK, params);
+    },
+    submitNotebookModel (params) {
+        return http.post(req.SUBMIT_NOTEBOOK_MODEL, params);
     }
 }

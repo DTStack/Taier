@@ -1,12 +1,13 @@
 import React from 'react';
 import moment from 'moment';
 
-import { Form, Checkbox, Select, Col, DatePicker } from 'antd';
+import { Form, Checkbox, Select, Col, DatePicker, Radio } from 'antd';
 
 // import { formItemLayout } from '../../consts'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const RadioGroup = Radio.Group;
 
 class SchedulingConfig extends React.Component {
     generateHours (disabledInvokeTime) {
@@ -203,15 +204,14 @@ class SchedulingConfig extends React.Component {
                     <FormItem
                         label="选择时间"
                     >
-                        <Col span="13">
-                            {getFieldDecorator('weekDay', {
-                                rules: [{
-                                    required: true
-                                }]
-                            })(
-                                this.generateDays()
-                            )}
-                        </Col>
+                        {getFieldDecorator('weekDay', {
+                            rules: [{
+                                required: true,
+                                message: '请选择weekDay'
+                            }]
+                        })(
+                            this.generateDays()
+                        )}
                     </FormItem>
                     {hourView}
                 </React.Fragment>
@@ -221,15 +221,13 @@ class SchedulingConfig extends React.Component {
                     <FormItem
                         label="选择时间"
                     >
-                        <Col span="13">
-                            {getFieldDecorator('day', {
-                                rules: [{
-                                    required: true
-                                }]
-                            })(
-                                this.generateDate()
-                            )}
-                        </Col>
+                        {getFieldDecorator('day', {
+                            rules: [{
+                                required: true
+                            }]
+                        })(
+                            this.generateDate()
+                        )}
                     </FormItem>
                     {hourView}
                 </React.Fragment>
@@ -318,6 +316,17 @@ class SchedulingConfig extends React.Component {
                         )}
                     </FormItem>
                     {this.renderPeriod()}
+                    <FormItem
+                        label='跨周期依赖'
+                    >
+                        {getFieldDecorator('selfReliance')(
+                            <RadioGroup>
+                                <Radio value={false}>不依赖上一调度周期</Radio>
+                                <Radio value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
+                                <Radio value={3}>自依赖，等待上一调度周期结束，才能继续运行</Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
                 </Form>
             </div>
         );
@@ -331,19 +340,32 @@ export const PERIOD_TYPE = {
     MONTH: '4'
 }
 const dateType = ['beginDate', 'endDate']
+function setFormDataValueAndMetadata (key, value, formData) {
+    formData[key] = value;
+    if (formData._metaData) {
+        formData._metaData[key] = undefined;
+    }
+}
 export default Form.create({
     mapPropsToFields (props) {
         const { formData = {} } = props;
+        const mateData = formData._metaData || {};
         const keyAndValues = Object.entries(formData);
         return (() => {
             let result = {};
             keyAndValues.forEach(([key, value]) => {
-                if (dateType.indexOf(key) > -1) {
+                if (key == '_metaData') {
+                    return;
+                }
+                const baseParam = mateData[key] || {};
+                if (dateType.indexOf(key) > -1 && value) {
                     result[key] = {
+                        ...baseParam,
                         value: moment(value)
                     }
                 } else {
                     result[key] = {
+                        ...baseParam,
                         value: value
                     }
                 }
@@ -351,34 +373,41 @@ export default Form.create({
             return result;
         })()
     },
-    onValuesChange (props, values) {
+    onFieldsChange (props, values) {
         const { formData = {} } = props;
+        let newFormData = { ...formData };
+        newFormData._metaData = newFormData._metaData || {};
+        newFormData._metaData = { ...newFormData._metaData, ...values };
         const keys = Object.keys(values);
+        /**
+         * 转化时间格式
+         */
         keys.forEach((key) => {
-            if (dateType.indexOf(key) > -1 && values[key] instanceof moment) {
-                values[key] = values[keys].format('YYYY-MM-DD');
+            const value = values[key].value;
+            if (dateType.indexOf(key) > -1 && value instanceof moment) {
+                values[key].value = value.format('YYYY-MM-DD');
             }
-        })
-        let newFormData = { ...formData, ...values };
+            newFormData[key] = value;
+        });
         if (values.hasOwnProperty('periodType')) {
-            newFormData.beginHour = undefined;
-            newFormData.beginMin = undefined;
-            newFormData.endHour = undefined;
-            newFormData.endMin = undefined;
-            newFormData.gapHour = undefined;
-            newFormData.gapMin = undefined;
-            newFormData.hour = undefined;
-            newFormData.min = undefined;
-            newFormData.day = undefined;
-            newFormData.weekDay = undefined;
-            switch (values.periodType) {
+            setFormDataValueAndMetadata('beginHour', undefined, newFormData);
+            setFormDataValueAndMetadata('beginMin', undefined, newFormData);
+            setFormDataValueAndMetadata('endHour', undefined, newFormData);
+            setFormDataValueAndMetadata('endMin', undefined, newFormData);
+            setFormDataValueAndMetadata('gapHour', undefined, newFormData);
+            setFormDataValueAndMetadata('gapMin', undefined, newFormData);
+            setFormDataValueAndMetadata('hour', undefined, newFormData);
+            setFormDataValueAndMetadata('min', undefined, newFormData);
+            setFormDataValueAndMetadata('day', undefined, newFormData);
+            setFormDataValueAndMetadata('weekDay', undefined, newFormData);
+            switch (values.periodType.value) {
                 case PERIOD_TYPE.MIN:
                 case PERIOD_TYPE.HOUR: {
                     newFormData.beginHour = '0';
                     newFormData.beginMin = '0';
                     newFormData.endHour = '23';
                     newFormData.endMin = '59';
-                    if (values.periodType == PERIOD_TYPE.HOUR) {
+                    if (values.periodType.value == PERIOD_TYPE.HOUR) {
                         newFormData.gapHour = '5';
                     } else {
                         newFormData.gapMin = '5';
@@ -394,7 +423,7 @@ export default Form.create({
                 case PERIOD_TYPE.MONTH: {
                     newFormData.hour = '0';
                     newFormData.min = '0';
-                    if (values.periodType == PERIOD_TYPE.WEEK) {
+                    if (values.periodType.value == PERIOD_TYPE.WEEK) {
                         newFormData.gapHour = '5';
                         newFormData.weekDay = ['3'];
                     } else {
@@ -405,7 +434,7 @@ export default Form.create({
             }
         }
         if (values.hasOwnProperty('isFailRetry')) {
-            newFormData.maxRetryNum = 3;
+            newFormData.maxRetryNum = '3';
         }
         console.log(values);
         return props.onChange(newFormData, values);
