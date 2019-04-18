@@ -141,4 +141,13 @@ public class ConfigParse {
         Object queueSize = configs.get("queueSize");
         return queueSize == null ? 500 : MathUtil.getIntegerVal(queueSize);
     }
+
+    public static int getJobStoppedRetry(){
+        Object retry = configs.get("jobStoppedRetry");
+        return retry == null ? 10 : Integer.parseInt(retry.toString());
+    }
+    public static long getJobStoppedDelay(){
+        Object delay = configs.get("jobStoppedDelay");
+        return delay == null ? 3000 : Long.parseLong(delay.toString());
+    }
 }

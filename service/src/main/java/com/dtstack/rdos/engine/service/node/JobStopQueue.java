@@ -1,24 +1,14 @@
 package com.dtstack.rdos.engine.service.node;
 
+import com.dtstack.rdos.common.config.ConfigParse;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.enums.RequestStart;
-import com.dtstack.rdos.engine.service.zk.ZkDistributed;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.service.send.HttpSendClient;
-import com.dtstack.rdos.engine.service.util.TaskIdUtil;
-import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
-import com.google.common.collect.Queues;
+import com.dtstack.rdos.engine.service.enums.StoppedStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.DelayQueue;
+import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -36,27 +26,25 @@ public class JobStopQueue {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobStopQueue.class);
 
-    private BlockingQueue<ParamAction> queue = Queues.newLinkedBlockingQueue();
-
-    private WorkNode workNode;
-
-    private ZkDistributed zkDistributed = ZkDistributed.getZkDistributed();
-    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
-
-    private RdosEngineBatchJobDAO engineBatchJobDAO = new RdosEngineBatchJobDAO();
-
-    private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
+    private DelayQueue<StoppedJob<ParamAction>> queue = new DelayQueue<StoppedJob<ParamAction>>();
 
     private JobStopAction jobStopAction;
+
+    private final int jobStoppedRetry;
+    /**
+     * delay 3 second
+     */
+    private final long jobStoppedDelay;
 
     private ExecutorService simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
 
     private StopProcessor stopProcessor = new StopProcessor();
 
-    public JobStopQueue(WorkNode workNode){
-        this.workNode = workNode;
+    public JobStopQueue(WorkNode workNode) {
         this.jobStopAction = new JobStopAction(workNode);
+        this.jobStoppedRetry = ConfigParse.getJobStoppedRetry();
+        this.jobStoppedDelay = ConfigParse.getJobStoppedDelay();
     }
 
     public void start(){
@@ -74,8 +62,8 @@ public class JobStopQueue {
         simpleES.shutdownNow();
     }
 
-    public void addJob(ParamAction paramAction){
-        queue.add(paramAction);
+    public void addJob(ParamAction paramAction) {
+        queue.add(new StoppedJob<ParamAction>(paramAction));
     }
 
 
@@ -90,30 +78,22 @@ public class JobStopQueue {
 
             while (run){
                 try {
-                    ParamAction paramAction = queue.take();
-                    String jobId = paramAction.getTaskId();
-
-                    if(!checkCanStop(jobId, paramAction.getComputeType())){
-                        continue;
+                    StoppedJob<ParamAction> stoppedJob = queue.take();
+                    StoppedStatus stoppedStatus = jobStopAction.stopJob(stoppedJob.job);
+                    switch (stoppedStatus) {
+                        case STOPPED:
+                        case MISSED:
+                            break;
+                        case STOPPING:
+                            if (!stoppedJob.isRetry()) {
+                                LOG.warn("job:{} retry limited!", stoppedJob.job.getTaskId());
+                                break;
+                            }
+                            stoppedJob.incrCount();
+                            stoppedJob.reset();
+                            queue.add(stoppedJob);
+                        default:
                     }
-
-                    //在zk上查找任务所在的worker-address
-                    Integer computeType  = paramAction.getComputeType();
-                    String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
-                    String addr = zkLocalCache.getJobLocationAddr(zkTaskId);
-                    if(addr == null){
-                        LOG.info("can't get info from engine zk for jobId" + jobId);
-                        continue;
-                    }
-
-                    if (!addr.equals(zkDistributed.getLocalAddress())){
-                        paramAction.setRequestStart(RequestStart.NODE.getStart());
-                        HttpSendClient.actionStopJobToWorker(addr, paramAction);
-                        LOG.info("action stop job:{} to worker node addr:{}." + paramAction.getTaskId(), addr);
-                        continue;
-                    }
-
-                    jobStopAction.stopJob(paramAction);
                 } catch (Exception e) {
                     LOG.error("", e);
                 }
@@ -123,36 +103,44 @@ public class JobStopQueue {
 
         }
 
-        /**
-         * 判断任务是否可停止
-         * @param taskId
-         * @param computeType
-         * @return
-         */
-        private boolean checkCanStop(String taskId, Integer computeType){
-
-            Integer sta;
-            if(ComputeType.BATCH.getType().equals(computeType)){
-                RdosEngineBatchJob rdosEngineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(taskId);
-                sta = rdosEngineBatchJob.getStatus().intValue();
-            }else if(ComputeType.STREAM.getType().equals(computeType)){
-                RdosEngineStreamJob rdosEngineStreamJob = engineStreamJobDAO.getRdosTaskByTaskId(taskId);
-                sta = rdosEngineStreamJob.getStatus().intValue();
-            }else{
-                LOG.error("invalid compute type:{}", computeType);
-                return false;
-            }
-
-            return RdosTaskStatus.getCanStopStatus().contains(sta);
-        }
-
-
-        public void stop(){
+        public void stop() {
             this.run = false;
         }
 
-        public void reStart(){
+        public void reStart() {
             this.run = true;
+        }
+    }
+
+    private class StoppedJob<T> implements Delayed {
+        private int count;
+        private T job;
+        private int retry;
+        private long now;
+        private long expired;
+        private StoppedJob(T job) {
+            this.job = job;
+            this.retry = jobStoppedRetry;
+            this.now = System.currentTimeMillis();
+            this.expired = now + jobStoppedDelay;
+        }
+        private void incrCount() {
+            count += 1;
+        }
+        private boolean isRetry() {
+            return retry == 0 || count <= retry;
+        }
+        private void reset() {
+            this.now = System.currentTimeMillis();
+            this.expired = now + jobStoppedDelay;
+        }
+        @Override
+        public long getDelay(TimeUnit unit) {
+            return unit.convert(this.expired - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        }
+        @Override
+        public int compareTo(Delayed o) {
+            return (int) (this.getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS));
         }
     }
 }
