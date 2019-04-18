@@ -41,6 +41,12 @@ module.exports = {
             target: 'http://172.16.10.86:9021', // test ser
             // target: 'http://172.16.0.157:9020', // temp ser
             // target: 'http://172.16.8.107:9020', // formal test ser
+            changeOrigin: true,
+            secure: false
+        },
+        '/uic': { // UIC地址
+            target: 'http://dtuic.dtstack.net',
+            changeOrigin: true,
             secure: false
         },
         '/api/da': { // da地址
