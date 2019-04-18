@@ -126,6 +126,7 @@ class OutputOrigin extends Component {
                             <Option value={DATA_SOURCE.MONGODB}>MongoDB</Option>
                             <Option value={DATA_SOURCE.KAFKA_09}>Kafka09</Option>
                             <Option value={DATA_SOURCE.KAFKA_10}>Kafka10</Option>
+                            <Option value={DATA_SOURCE.KAFKA}>Kafka11</Option>
                         </Select>
                     )}
                 </FormItem>
