@@ -50,6 +50,7 @@ class TaskIndex extends Component {
     getTimeZoneList = () => {
         function mapToArray (data, dataMap) {
             const names = Object.getOwnPropertyNames(dataMap);
+            if (names.length === 0) { data.children = undefined; }
             for (let i = 0; i < names.length; i++) {
                 const name = names[i];
                 const item = {
