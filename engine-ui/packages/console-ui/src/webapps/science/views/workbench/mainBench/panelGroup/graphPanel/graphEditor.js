@@ -12,7 +12,7 @@ import Mx from 'widgets/mxGraph';
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
 import * as componentActions from '../../../../../actions/componentActions';
-import { VertexSize } from '../../../../../consts'
+import { VertexSize, TASK_STATUS } from '../../../../../consts'
 const propType = {
     data: PropTypes.object,
     registerContextMenu: PropTypes.func,
@@ -49,6 +49,7 @@ const BASE_COLOR = '#2491F7';
 })
 class GraphEditor extends Component {
     componentDidMount () {
+        this.props.onRef(this)
         const data = this.props.data;
         this.initGraph(data);
     }
@@ -86,6 +87,7 @@ class GraphEditor extends Component {
         this._cacheCells = {};
         const graph = this.graph;
         graph.getModel().clear();
+        this._edges = []; // 清空
         const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
         graph.removeCells(cells);
@@ -95,15 +97,28 @@ class GraphEditor extends Component {
         this.initGraphLayout();
 
         this.renderData(data);
-        // this.renderAnimation();
+        this.renderAnimation();
     }
 
+    /**
+     * @param {mxCell} edge
+     */
+    isFlowLine = (edge) => {
+        const target = edge.target;
+        const source = edge.source;
+        if (source.data.status === TASK_STATUS.success && target.data.status === TASK_STATUS.runnning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     renderAnimation = () => {
         const graph = this.graph;
         const edges = this._edges;
         for (let i = 0; i < edges.length; i++) {
-            var state = graph.view.getState(edges[i]);
-            if (state) {
+            let state = graph.view.getState(edges[i]);
+            // debugger; // eslint-disable-line
+            if (state && this.isFlowLine(edges[i])) {
                 state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
             }
         }
@@ -114,7 +129,7 @@ class GraphEditor extends Component {
         const rootCell = this.graph.getDefaultParent();
         const cellMap = this._cacheCells;
         // const cellStyle = this.getStyles();
-
+        console.log('data:', data);
         if (data) {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i];
@@ -132,8 +147,7 @@ class GraphEditor extends Component {
                 } else if (item.edge) {
                     const source = cellMap[item.source.id];
                     const target = cellMap[item.target.id];
-                    const edgeStyle = this.getEdgeStyles(item.source);
-                    const edge = graph.insertEdge(rootCell, item.id, '', source, target, edgeStyle);
+                    const edge = graph.insertEdge(rootCell, item.id, '', source, target);
                     this._edges.push(edge);
                 }
             }
@@ -164,7 +178,7 @@ class GraphEditor extends Component {
     }
 
     getEdgeStyles = (status) => {
-        return 'strokeWidth=1;endArrow=block;endSize=6;endFill=1;strokeColor=#2491F7;;rounded=1;class=flow;'
+        return 'strokeWidth=1;endArrow=block;endSize=6;endFill=1;strokeColor=#2491F7;;rounded=1;'
     }
 
     formatTooltip = (cell) => {
@@ -180,7 +194,7 @@ class GraphEditor extends Component {
             const task = cell.data;
             if (task) {
                 let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
-                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}${nodeStatus(task.status)}</span>
+                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(task.status)}
                 <input class="vertex-input" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
                 </div>`
             }
@@ -194,7 +208,7 @@ class GraphEditor extends Component {
             if (cellState.cell) {
                 cellState.cell.id = cellData.id;
                 cellState.cell.data = cellData;
-                this.graph.refresh();
+                this.graph.refresh(cell);
             }
         }
     }
@@ -405,7 +419,7 @@ class GraphEditor extends Component {
     getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#666666';
+        style[mxConstants.STYLE_STROKECOLOR] = '#999999';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;

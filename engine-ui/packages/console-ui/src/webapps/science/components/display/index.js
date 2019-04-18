@@ -1,6 +1,6 @@
 // import React from 'react';
 // import { Circle } from 'widgets/circle';
-// import { Icon, Tooltip } from 'antd';
+// import { Icon } from 'antd';
 
 import { COMPONENT_TYPE } from '../../consts';
 
@@ -39,6 +39,15 @@ export function nodeTypeIcon (type) {
 
 export function nodeStatus (status) {
     switch (status) {
+        case 1: {
+            return `<i style="float:right;line-height:18px" class="anticon anticon-ellipsis"></i>`;
+        }
+        case 2: {
+            return `<i style="float:right;line-height:18px" class="anticon anticon-check"></i>`;
+        }
+        case 3: {
+            return `<i style="float:right;line-height:18px" class="anticon anticon-close"></i>`;
+        }
         default: {
             return `<span></span>`
         }

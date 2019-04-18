@@ -48,7 +48,7 @@
 }
 // 右边的tabs
 .ant-tabs-vertical.ant-tabs-right {
-    &.c-panel-siderbar{
+    &.c-panel-siderbar.c-panel-siderbar--open{
         width: 329px;
     }
     >.ant-tabs-content {

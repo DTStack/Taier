@@ -31,7 +31,11 @@ function localTabs (state = [], action) {
             return [];
         }
         default: {
-            return state;
+            return [{
+                id: 1,
+                name: 'test'
+            }];
+            // return state;
         }
     }
 }

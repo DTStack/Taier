@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
-
 import utils from 'utils';
 import Mx from 'widgets/mxGraph';
 import SearchModal from 'widgets/searchModal';
@@ -15,7 +14,6 @@ import * as componentActions from '../../../../../actions/componentActions';
 
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
-const mockData = require('./mocks/data.json');
 
 const {
     mxEvent,
@@ -40,6 +38,8 @@ const applyCellStyle = (cellState, style) => {
     return {
         user,
         editor,
+        runTasks: state.component.taskLists, // 即将执行的任务列表
+        graphData: state.component.task,
         project: project
     }
 }, (dispatch) => {
@@ -53,7 +53,12 @@ class GraphContainer extends React.Component {
     }
 
     _graph = null;
-
+    componentDidMount () {
+        this.props.getTaskData();
+    }
+    shouldComponentUpdate (nextProps) {
+        return true;
+    }
     initContextMenu = (graph) => {
         const ctx = this;
 
@@ -80,6 +85,7 @@ class GraphContainer extends React.Component {
                 }, null, null, true);
                 menu.addSeparator();
                 menu.addItem('从此处开始执行', null, function () {
+                    ctx.startHandlerFromHere(cell)
                 }, null, null, true);
                 menu.addItem('执行到此节点', null, function () {
                 }, null, null, true);
@@ -185,17 +191,14 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.CELLS_MOVED, this.updateGraphData);
         graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData);
         graph.addListener(mxEvent.CELL_CONNECTED, () => {
-            console.log('CELL_CONNECTED.')
+            // console.log('CELL_CONNECTED.')
         });
     }
-
-    animateEdge (edge) {
-        const graph = this.graph;
-        var state = graph.view.getState(edge);
-        graph.orderCells(true, [edge]);
-        state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
+    startHandlerFromHere = (cell) => {
+        const taskId = cell.data.id;
+        const type = 0;
+        this.props.getRunTaskList(taskId, type);
     }
-
     initEditTaskCell = (cell, task) => {
         const ctx = this;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
@@ -253,7 +256,7 @@ class GraphContainer extends React.Component {
         // } = this.props;
 
         // const workflow = this.getGraphData();
-        // const view = this.graph.getView();
+        // const view = this._graph.getView();
         // const graph = {
         //     translate: view.getTranslate(),
         //     scale: view.getScale()
@@ -352,12 +355,10 @@ class GraphContainer extends React.Component {
 
     render () {
         const { showSearch, searchResult } = this.state;
-
-        const data = mockData.data;
-        const graphData = data ? JSON.parse(data.sqlText) : [];
-
+        const { graphData } = this.props;
         return <div className="exp-graph-view">
             <GraphEditor
+                onRef={(editor) => this.editorRef = editor}
                 data={graphData}
                 onSearchNode={this.initShowSearch}
                 registerContextMenu={this.initContextMenu}

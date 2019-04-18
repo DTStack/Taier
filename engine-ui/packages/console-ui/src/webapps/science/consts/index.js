@@ -230,3 +230,9 @@ export const VertexSize = {
     width: 188,
     height: 32
 }
+export const TASK_STATUS = {
+    waiting: 0,
+    runnning: 1,
+    success: 2,
+    failure: 3
+}
