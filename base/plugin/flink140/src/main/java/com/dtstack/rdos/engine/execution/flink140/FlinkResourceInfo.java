@@ -16,6 +16,7 @@ import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用于存储从flink上获取的资源信息
@@ -62,7 +63,8 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         try {
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.ACCEPTED);
-            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet);
+            List<ApplicationReport> acceptedApps = yarnClient.getApplications(enumSet).stream().
+                    filter(report->report.getQueue().endsWith(queue)).collect(Collectors.toList());
             if (acceptedApps.size() > yarnAccepterTaskNumber) {
                 return false;
             }
