@@ -200,13 +200,6 @@ class NotebookSidebar extends Component {
                             }
                         },
                         {
-                            title: '上传本地文件',
-                            type: 'upload',
-                            onClick: () => {
-                                console.log(3)
-                            }
-                        },
-                        {
                             title: '搜索并打开Notebook',
                             type: 'search',
                             onClick: () => {
