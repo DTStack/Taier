@@ -12,6 +12,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -517,11 +518,7 @@ public class ClientArguments {
 
         if (commandLine.hasOption("priority")) {
             String priorityStr = commandLine.getOptionValue("priority");
-            for (JobPriority e : JobPriority.values()) {
-                if (priorityStr.equals(e.toString())) {
-                    priority = e.ordinal();
-                }
-            }
+            priority = NumberUtils.toInt(priorityStr, priority);
         }
 
         if (commandLine.hasOption("queue")) {
