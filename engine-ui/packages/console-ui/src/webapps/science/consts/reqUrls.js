@@ -14,14 +14,19 @@ export default {
 
     GET_CATALOGUES: `${SCIENCE_BASE_URL}/getCatalogue`, // 获取目录
     ADD_FOLDER: `${SCIENCE_BASE_URL}/addCatalogue`, // 添加文件夹
+    DELETE_FOLDER: `${SCIENCE_BASE_URL}/deleteCatalogue`, // 删除文件夹
 
     GET_NOTEBOOK_TASK_BY_ID: `${SCIENCE_BASE_URL}/notebook/getTaskById`, // 获取notebookTask
     ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/addOrUpdateNotebook`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
     SUBMIT_NOTEBOOK: `${SCIENCE_BASE_URL}/publishNotebookTask`, // 提交notebook
     SUBMIT_NOTEBOOK_MODEL: `${SCIENCE_BASE_URL}/publishNotebookModel`, // 提交notebook
+    SEARCH_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/globalSearch`, // 搜索notebook
+    DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/deleteTask`, // 删除notebook
 
     ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/addOrUpdateExperiment`, // 添加实验
+    SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/globalSearch`, // 搜索实验
+    DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/deleteTask`, // 删除实验
 
     // ================== table ================== //
     GET_TABLE: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/getTable`,

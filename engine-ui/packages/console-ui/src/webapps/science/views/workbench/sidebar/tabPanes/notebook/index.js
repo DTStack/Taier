@@ -110,7 +110,7 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.props.deleteNotebookFolder(activeNode);
                                     }
                                 }]
                             },
@@ -124,7 +124,7 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        console.dir({ databaseId: activeNode.id })
+                                        this.props.deleteNotebook(activeNode)
                                     }
                                 }]
                             }]}

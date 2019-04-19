@@ -6,6 +6,7 @@ import { changeTab, addTab, setCurrentTab } from '../base/tab';
 import { siderBarType, consoleKey } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
 import api from '../../api/notebook';
+import fileApi from '../../api/fileTree';
 
 export function changeContent (newContent, tab, isDirty = true) {
     return changeTab(siderBarType.notebook, {
@@ -60,6 +61,31 @@ export function addNotebook (params) {
             if (res && res.code == 1) {
                 message.success('新建成功');
                 dispatch(loadTreeData(siderBarType.notebook, params.nodePid))
+                resolve(res);
+            }
+        })
+    }
+}
+export function deleteNotebook (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.deleteNotebook(params);
+            if (res && res.code == 1) {
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.notebook, params.parentId))
+                resolve(res);
+            }
+        })
+    }
+}
+
+export function deleteNotebookFolder (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await fileApi.deleteFolder(params);
+            if (res && res.code == 1) {
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.notebook, params.parentId))
                 resolve(res);
             }
         })

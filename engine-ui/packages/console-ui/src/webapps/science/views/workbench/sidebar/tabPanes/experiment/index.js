@@ -10,6 +10,7 @@ import NewFolder from '../../newFolder';
 import ExperimentSearch from '../../../../../components/searchModal/experimentSearch';
 
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
+import * as experimentActions from '../../../../../actions/experimentActions';
 import workbenchActions from '../../../../../actions/workbenchActions';
 
 import { siderBarType } from '../../../../../consts';
@@ -26,7 +27,8 @@ import { siderBarType } from '../../../../../consts';
     dispatch => {
         return {
             ...bindActionCreators(fileTreeActions, dispatch),
-            ...bindActionCreators(workbenchActions, dispatch)
+            ...bindActionCreators(workbenchActions, dispatch),
+            ...bindActionCreators(experimentActions, dispatch)
         };
     })
 class ExperimentSidebar extends Component {
@@ -64,6 +66,13 @@ class ExperimentSidebar extends Component {
     asynLoadCatalogue = (treeNode) => {
         return this.props.loadTreeData(siderBarType.experiment, treeNode.props.data.id)
     }
+    onSelect = (selectedKeys, e) => {
+        const data = e.node.props.data;
+        if (data.type != 'file') {
+            return;
+        }
+        this.props.openExperiment(data.id);
+    }
     renderFolderContent = () => {
         const {
             files
@@ -74,6 +83,7 @@ class ExperimentSidebar extends Component {
                     <FolderTree
                         loadData={this.asynLoadCatalogue}
                         onExpand={this.onExpand}
+                        onSelect={this.onSelect}
                         expandedKeys={this.state.expandedKeys}
                         treeData={files}
                         nodeClass={(item) => {
@@ -103,7 +113,7 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.props.deleteExperimentFolder(activeNode);
                                     }
                                 }]
                             },
@@ -117,7 +127,7 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        console.dir({ databaseId: activeNode.id })
+                                        this.props.deleteExperiment(activeNode);
                                     }
                                 }]
                             }]}

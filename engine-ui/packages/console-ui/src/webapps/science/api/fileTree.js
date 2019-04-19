@@ -10,5 +10,8 @@ export default {
     },
     addFolder (params) {
         return http.post(req.ADD_FOLDER, params);
+    },
+    deleteFolder (params) {
+        return http.post(req.DELETE_FOLDER, params);
     }
 }

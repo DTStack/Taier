@@ -48,7 +48,7 @@ export function loadTreeData (type, nodePid) {
         return new Promise(async (resolve) => {
             let res = await api.fileTree.loadTreeData({ isGetFile: true, nodePid });
             if (res && res.code == 1) {
-                dispatch(replaceTreeNode(type, res.data));
+                dispatch(updateTreeNode(type, res.data));
             }
             resolve();
             // resolve();

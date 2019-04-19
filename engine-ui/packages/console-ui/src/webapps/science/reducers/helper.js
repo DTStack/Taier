@@ -18,7 +18,7 @@ export function updateTreeNode (origin, replaceNode) {
                 (node.children || []).forEach((childNode) => {
                     tmpMap[childNode.id] = childNode;
                 });
-                replaceNode = replaceNode.children.map((childNode) => {
+                replaceNode.children = replaceNode.children.map((childNode) => {
                     return tmpMap[childNode.id] || childNode;
                 });
             }
