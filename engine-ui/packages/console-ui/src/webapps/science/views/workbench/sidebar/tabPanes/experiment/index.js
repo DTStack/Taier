@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
@@ -8,12 +9,14 @@ import ToolBar from '../../toolbar';
 import FolderTree from '../../../../../components/folderTree';
 import NewFolder from '../../newFolder';
 import ExperimentSearch from '../../../../../components/searchModal/experimentSearch';
+import TaskParamsModal from '../../../../../components/taskParamsModal';
 
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import workbenchActions from '../../../../../actions/workbenchActions';
 
 import { siderBarType } from '../../../../../consts';
+import { Modal } from 'antd';
 
 // const Search = Input.Search;
 
@@ -40,7 +43,9 @@ class ExperimentSidebar extends Component {
         expandedKeys: [],
         newFolderVisible: false,
         experimentSearchVisible: false,
-        newFolderData: null
+        editParamsVisible: false,
+        newFolderData: null,
+        editParamsData: null
     }
     newFolder (folder) {
         this.setState({
@@ -90,9 +95,28 @@ class ExperimentSidebar extends Component {
                             if (item.type == 'file') {
                                 return 'anchor-experiment-file o-tree-icon--experiment'
                             }
+                            if (item.level == 1) {
+                                return 'anchor-experiment-root'
+                            }
                             return 'anchor-experiment-folder'
                         }}
                         contextMenus={[
+                            {
+                                targetClassName: 'anchor-experiment-root',
+                                menuItems: [{
+                                    text: '新建实验',
+                                    onClick: (activeNode) => {
+                                        this.props.openNewExperiment(activeNode);
+                                    }
+                                }, {
+                                    text: '新建文件夹',
+                                    onClick: (activeNode) => {
+                                        this.newFolder({
+                                            nodePid: activeNode.id
+                                        });
+                                    }
+                                }]
+                            },
                             {
                                 targetClassName: 'anchor-experiment-folder',
                                 menuItems: [{
@@ -103,17 +127,29 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '新建文件夹',
                                     onClick: (activeNode) => {
-                                        this.newFolder(activeNode);
+                                        this.newFolder({
+                                            nodePid: activeNode.id
+                                        });
                                     }
                                 }, {
                                     text: '重命名',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.newFolder({
+                                            nodePid: activeNode.parentId,
+                                            name: activeNode.name,
+                                            id: activeNode.id
+                                        });
                                     }
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        this.props.deleteExperimentFolder(activeNode);
+                                        Modal.confirm({
+                                            title: '确认删除',
+                                            content: '确认删除文件夹？',
+                                            onOk: () => {
+                                                this.props.deleteExperimentFolder(activeNode);
+                                            }
+                                        })
                                     }
                                 }]
                             },
@@ -122,12 +158,21 @@ class ExperimentSidebar extends Component {
                                 menuItems: [{
                                     text: '属性',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.setState({
+                                            editParamsData: activeNode,
+                                            editParamsVisible: true
+                                        })
                                     }
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        this.props.deleteExperiment(activeNode);
+                                        Modal.confirm({
+                                            title: '确认删除',
+                                            content: `确认删除实验 ${activeNode.name}？`,
+                                            onOk: () => {
+                                                this.props.deleteExperiment(activeNode);
+                                            }
+                                        })
                                     }
                                 }]
                             }]}
@@ -138,7 +183,7 @@ class ExperimentSidebar extends Component {
     }
 
     render () {
-        const { experimentSearchVisible, newFolderData, newFolderVisible } = this.state;
+        const { experimentSearchVisible, newFolderData, newFolderVisible, editParamsData, editParamsVisible } = this.state;
         return (
             <div className="sidebar">
                 <ToolBar
@@ -188,6 +233,54 @@ class ExperimentSidebar extends Component {
                             experimentSearchVisible: false
                         })
                     }}
+                />
+                <TaskParamsModal
+                    key={editParamsData && editParamsData.id}
+                    title='实验属性'
+                    visible={editParamsVisible}
+                    onCancel={() => {
+                        this.setState({
+                            editParamsVisible: false,
+                            editParamsData: null
+                        })
+                    }}
+                    onEdit={(editKey, editValue, callback) => {
+                        this.props.saveExperiment({
+                            ...editParamsData,
+                            [editKey]: editValue
+                        }).then((res) => {
+                            if (res) {
+                                this.setState({
+                                    editParamsData: res.data
+                                })
+                                callback();
+                            }
+                        });
+                    }}
+                    data={editParamsData && [{
+                        key: 'name',
+                        label: '实验名称',
+                        value: editParamsData.name,
+                        edit: true
+                    }, {
+                        key: 'taskDesc',
+                        label: '实验描述',
+                        value: editParamsData.taskDesc,
+                        editType: 'textarea',
+                        edit: true
+                    }, {
+                        label: '创建人',
+                        value: editParamsData.ownerUser.userName
+                    }, {
+                        label: '创建时间',
+                        value: moment(editParamsData.ownerUser.gmtCreate).format('YYYY-MM-DD HH:mm:ss')
+                    }, {
+                        label: '最近修改人',
+                        value: editParamsData.modifyUser.userName
+                    }, {
+                        label: '最近修改时间',
+                        value: moment(editParamsData.modifyUser.gmtModified).format('YYYY-MM-DD HH:mm:ss')
+                    }]}
                 />
             </div>
         )

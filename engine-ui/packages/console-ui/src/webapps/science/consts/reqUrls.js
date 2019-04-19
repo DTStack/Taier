@@ -14,6 +14,7 @@ export default {
 
     GET_CATALOGUES: `${SCIENCE_BASE_URL}/getCatalogue`, // 获取目录
     ADD_FOLDER: `${SCIENCE_BASE_URL}/addCatalogue`, // 添加文件夹
+    UPDATE_FOLDER: `${SCIENCE_BASE_URL}/updateCatalogue`, // 更新文件夹
     DELETE_FOLDER: `${SCIENCE_BASE_URL}/deleteCatalogue`, // 删除文件夹
 
     GET_NOTEBOOK_TASK_BY_ID: `${SCIENCE_BASE_URL}/notebook/getTaskById`, // 获取notebookTask

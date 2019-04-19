@@ -70,3 +70,19 @@ export function addFolder (type, nodeName, nodePid) {
         })
     }
 }
+export function updateFolder (id, type, nodeName, nodePid) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.fileTree.updateFolder({
+                nodeName,
+                nodePid,
+                id
+            });
+            if (res && res.code == 1) {
+                message.success('修改成功');
+                dispatch(loadTreeData(type, nodePid))
+                resolve(res)
+            }
+        })
+    }
+}

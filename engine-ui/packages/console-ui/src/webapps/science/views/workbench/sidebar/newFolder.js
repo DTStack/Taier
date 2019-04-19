@@ -27,12 +27,17 @@ class NewFolder extends React.Component {
         return this.props.loadTreeData(this.props.type, node.props.data.id);
     }
     onOk = () => {
-        const { form, type } = this.props;
+        const { form, type, data } = this.props;
         const { validateFields } = form;
         validateFields(async (err, values) => {
             if (!err) {
-                console.log(values);
-                let res = await this.props.addFolder(type, values.folderName, values.nodePid);
+                let res;
+                const isEdit = !!get(data, 'id');
+                if (isEdit) {
+                    res = await this.props.updateFolder(data.id, type, values.folderName, values.nodePid);
+                } else {
+                    res = await this.props.addFolder(type, values.folderName, values.nodePid);
+                }
                 if (res) {
                     this.props.onOk();
                     this.resetForm();
@@ -54,9 +59,10 @@ class NewFolder extends React.Component {
         const { form, data, type } = this.props;
         const files = this.props[type];
         const { getFieldDecorator } = form;
+        const isEdit = !!get(data, 'id');
         return (
             <Modal
-                title="新建文件夹"
+                title={isEdit ? '编辑文件夹' : '新建文件夹'}
                 visible={this.props.visible}
                 onOk={this.onOk}
                 key={modalKey}
@@ -71,7 +77,8 @@ class NewFolder extends React.Component {
                             rules: [{
                                 required: true,
                                 message: '请输入文件夹名称'
-                            }]
+                            }],
+                            initialValue: get(data, 'name')
                         })(
                             <Input placeholder='名称不超过32个字符' />
                         )}
@@ -85,7 +92,7 @@ class NewFolder extends React.Component {
                                 required: true,
                                 message: '请选择父节点'
                             }],
-                            initialValue: get(data, 'id')
+                            initialValue: get(data, 'nodePid')
                         })(
                             <FolderTree loadData={this.loadData.bind(this)} treeData={files} isSelect={true} hideFiles={true} />
                         )}

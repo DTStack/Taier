@@ -11,6 +11,9 @@ export default {
     addFolder (params) {
         return http.post(req.ADD_FOLDER, params);
     },
+    updateFolder (params) {
+        return http.post(req.UPDATE_FOLDER, params);
+    },
     deleteFolder (params) {
         return http.post(req.DELETE_FOLDER, params);
     }

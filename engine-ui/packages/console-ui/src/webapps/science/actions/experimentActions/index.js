@@ -68,3 +68,15 @@ export function openExperiment (id) {
         })
     }
 }
+export function saveExperiment (tabData) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.addExperiment(tabData);
+            if (res && res.code == 1) {
+                dispatch(changeContent(res.data, tabData, false));
+                message.success('保存成功！')
+                resolve(res);
+            }
+        })
+    }
+}

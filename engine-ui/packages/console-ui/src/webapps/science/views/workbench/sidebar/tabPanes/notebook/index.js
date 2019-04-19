@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import { connect } from 'react-redux';
+import { Modal } from 'antd';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
 
@@ -8,6 +10,7 @@ import ToolBar from '../../toolbar';
 import FolderTree from '../../../../../components/folderTree';
 import NewFolder from '../../newFolder';
 import NotebookSearch from '../../../../../components/searchModal/notebookSearch';
+import TaskParamsModal from '../../../../../components/taskParamsModal';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as notebookActions from '../../../../../actions/notebookActions'
@@ -35,7 +38,9 @@ class NotebookSidebar extends Component {
         expandedKeys: [],
         newFolderVisible: false,
         notebookSearchVisible: false,
-        newFolderData: null
+        editParamsVisible: false,
+        newFolderData: null,
+        editParamsData: null
     }
 
     newFolder (folder) {
@@ -87,9 +92,28 @@ class NotebookSidebar extends Component {
                             if (item.type == 'file') {
                                 return 'anchor-notebook-file o-tree-icon--notebook'
                             }
+                            if (item.level == 1) {
+                                return 'anchor-notebook-root'
+                            }
                             return 'anchor-notebook-folder'
                         }}
                         contextMenus={[
+                            {
+                                targetClassName: 'anchor-notebook-root',
+                                menuItems: [{
+                                    text: '新建任务',
+                                    onClick: (activeNode) => {
+                                        this.props.openNewNotebook(activeNode);
+                                    }
+                                }, {
+                                    text: '新建文件夹',
+                                    onClick: (activeNode) => {
+                                        this.newFolder({
+                                            nodePid: activeNode.id
+                                        });
+                                    }
+                                }]
+                            },
                             {
                                 targetClassName: 'anchor-notebook-folder',
                                 menuItems: [{
@@ -100,17 +124,29 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '新建文件夹',
                                     onClick: (activeNode) => {
-                                        this.newFolder(activeNode);
+                                        this.newFolder({
+                                            nodePid: activeNode.id
+                                        });
                                     }
                                 }, {
                                     text: '重命名',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.newFolder({
+                                            nodePid: activeNode.parentId,
+                                            name: activeNode.name,
+                                            id: activeNode.id
+                                        });
                                     }
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        this.props.deleteNotebookFolder(activeNode);
+                                        Modal.confirm({
+                                            title: '确认删除',
+                                            content: `确认删除文件夹？`,
+                                            onOk: () => {
+                                                this.props.deleteNotebookFolder(activeNode);
+                                            }
+                                        })
                                     }
                                 }]
                             },
@@ -119,12 +155,21 @@ class NotebookSidebar extends Component {
                                 menuItems: [{
                                     text: '属性',
                                     onClick: (activeNode) => {
-                                        console.log(activeNode);
+                                        this.setState({
+                                            editParamsVisible: true,
+                                            editParamsData: activeNode
+                                        })
                                     }
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
-                                        this.props.deleteNotebook(activeNode)
+                                        Modal.confirm({
+                                            title: '确认删除',
+                                            content: `确认删除Notebook ${activeNode.name} ？`,
+                                            onOk: () => {
+                                                this.props.deleteNotebook(activeNode)
+                                            }
+                                        })
                                     }
                                 }]
                             }]}
@@ -135,7 +180,7 @@ class NotebookSidebar extends Component {
     }
 
     render () {
-        const { newFolderVisible, notebookSearchVisible, newFolderData } = this.state;
+        const { newFolderVisible, notebookSearchVisible, newFolderData, editParamsData, editParamsVisible } = this.state;
         return (
             <div className="sidebar">
                 <ToolBar
@@ -192,6 +237,57 @@ class NotebookSidebar extends Component {
                             notebookSearchVisible: false
                         })
                     }}
+                />
+                <TaskParamsModal
+                    key={editParamsData && editParamsData.id}
+                    title='Notebook属性'
+                    visible={editParamsVisible}
+                    onCancel={() => {
+                        this.setState({
+                            editParamsVisible: false,
+                            editParamsData: null
+                        })
+                    }}
+                    onEdit={(editKey, editValue, callback) => {
+                        this.props.saveNotebook({
+                            ...editParamsData,
+                            [editKey]: editValue
+                        }).then((res) => {
+                            if (res) {
+                                this.setState({
+                                    editParamsData: res.data
+                                })
+                                callback();
+                            }
+                        });
+                    }}
+                    data={editParamsData && [{
+                        key: 'name',
+                        label: 'Notebook名称',
+                        value: editParamsData.name,
+                        edit: true
+                    }, {
+                        key: 'taskDesc',
+                        label: 'Notebook描述',
+                        value: editParamsData.taskDesc,
+                        editType: 'textarea',
+                        edit: true
+                    }, {
+                        label: '作业类型',
+                        value: 'Python3'
+                    }, {
+                        label: '创建人',
+                        value: editParamsData.ownerUser.userName
+                    }, {
+                        label: '创建时间',
+                        value: moment(editParamsData.ownerUser.gmtCreate).format('YYYY-MM-DD HH:mm:ss')
+                    }, {
+                        label: '最近修改人',
+                        value: editParamsData.modifyUser.userName
+                    }, {
+                        label: '最近修改时间',
+                        value: moment(editParamsData.modifyUser.gmtModified).format('YYYY-MM-DD HH:mm:ss')
+                    }]}
                 />
             </div>
         )

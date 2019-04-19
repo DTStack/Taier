@@ -120,8 +120,8 @@ export function saveNotebook (tabData) {
             if (res && res.code == 1) {
                 dispatch(changeContent(res.data, tabData, false));
                 message.success('保存成功！')
+                resolve(res);
             }
-            resolve(res);
         })
     }
 }
