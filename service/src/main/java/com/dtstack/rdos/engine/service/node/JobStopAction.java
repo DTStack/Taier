@@ -54,7 +54,7 @@ public class JobStopAction {
 
         //job如果少会缓存在内存，如果超过 GroupPriorityQueue.QUEUE_SIZE_LIMITED 大小则会存在数据库中
         //如果存在数据库中必须判断jobcache表不为空并stage=1 并且 jobstatus=WAITENGINE
-        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId();
+        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId());
         if(jobCache == null){
             return jobStopStatus(jobClient);
         } else if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()){
