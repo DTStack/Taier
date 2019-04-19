@@ -72,13 +72,13 @@ public class JobStopAction {
     private StoppedStatus jobStopStatus(JobClient jobClient){
         if(ComputeType.STREAM == jobClient.getComputeType()){
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (RdosTaskStatus.isStopped(batchJob.getStatus())){
+            if (batchJob != null && RdosTaskStatus.isStopped(batchJob.getStatus())){
                 LOG.info("job:{} stopped success.", jobClient.getTaskId());
                 return StoppedStatus.STOPPED;
             }
         } else if (ComputeType.BATCH == jobClient.getComputeType()) {
             RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (RdosTaskStatus.isStopped(streamJob.getStatus())){
+            if (streamJob != null && RdosTaskStatus.isStopped(streamJob.getStatus())){
                 LOG.info("job:{} stopped success.", jobClient.getTaskId());
                 return StoppedStatus.STOPPED;
             }
