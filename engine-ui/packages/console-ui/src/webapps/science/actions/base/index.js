@@ -19,3 +19,9 @@ export function getSysParams () {
         })
     }
 }
+export function changeSiderBar (key) {
+    return {
+        type: commonActionType.CHANGE_SIDERBAR_KEY,
+        payload: key
+    }
+}

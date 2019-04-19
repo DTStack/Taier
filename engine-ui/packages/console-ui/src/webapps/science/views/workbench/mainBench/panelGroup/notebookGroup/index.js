@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Tabs } from 'antd';
+import { Tabs, Icon } from 'antd';
 
 import PanelGroup from '../index';
 import EditorPanel from '../editorPanel';
@@ -63,7 +63,12 @@ class NoteBookGroup extends React.Component {
                         tabs.map((tab) => {
                             return (
                                 <TabPane
-                                    tab={<span className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}>{tab.name}</span>}
+                                    tab={(
+                                        <span className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}>
+                                            <Icon className='c-group-tabs__icon' type="book" />
+                                            {tab.name}
+                                        </span>
+                                    )}
                                     key={tab.id}
                                 >
                                     <EditorPanel currentTab={tab.id} data={tab} />

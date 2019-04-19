@@ -9,10 +9,10 @@ class SearchModal extends React.Component {
     onCancel = () => {
         this.props.onCancel();
     }
-    onChange = () => {
+    onChange = (value) => {
         const { onChange } = this.props;
         if (onChange) {
-            onChange(this.changeValue)
+            onChange(value, this.changeValue)
         }
     }
     onSelect = (value) => {
@@ -37,7 +37,7 @@ class SearchModal extends React.Component {
                     dataSource={data}
                     style={{ width: '100%', height: '28px', margin: '8px 0px' }}
                     onSelect={this.onSelect}
-                    onChange={this.onChange}
+                    onSearch={this.onChange}
                 >
                     <Input.Search />
                 </AutoComplete>

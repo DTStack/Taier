@@ -1,8 +1,14 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
-import { Modal, Form, Input, Radio, Select } from 'antd';
+import { Modal, Form, Input, Radio, Select, Icon } from 'antd';
 
-import { formItemLayout } from '../../consts';
+import CopyIcon from 'main/components/copy-icon';
+import './modelSubmitModal.scss';
+
+import * as baseActions from '../../actions/base'
+import { formItemLayout, siderBarType } from '../../consts';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
@@ -12,24 +18,35 @@ const PUBLISH_TYPE = {
     NEW: '0',
     UPDATE: '1'
 };
+@connect(null, dispatch => {
+    return {
+        ...bindActionCreators(baseActions, dispatch)
+    }
+})
 class ModelSubmitModalForm extends React.Component {
     state = {
-        key: null
-    }
-    onCancel = () => {
-        this.props.onClose();
-        this.setState({
-            key: Math.random()
-        })
+        isSuccess: false,
+        successData: {}
     }
     onOk = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
-                this.props.onOk(values).then((success) => {
-                    if (success) {
-                        this.onCancel();
+                Modal.confirm({
+                    title: '确认部署',
+                    content: '确认部署此模型吗？',
+                    okText: '确定',
+                    cancelText: '取消',
+                    onOk: () => {
+                        this.props.onOk(values).then((res) => {
+                            if (res) {
+                                this.setState({
+                                    isSuccess: true,
+                                    successData: res.data
+                                })
+                            }
+                        })
                     }
-                })
+                });
             }
         });
     }
@@ -89,19 +106,50 @@ class ModelSubmitModalForm extends React.Component {
             }
         }
     }
+    renderSuccess () {
+        const { successData } = this.state;
+        return (
+            <div className='c-modelSubmitModal'>
+                <div className='c-modelSubmitModal__sign'>
+                    <Icon type='check-circle' className='c-modelSubmitModal__sign__logo' />
+                    <span className='c-modelSubmitModal__sign__txt'>部署成功</span>
+                </div>
+                <div className='c-modelSubmitModal__content'>
+                    <Form>
+                        <FormItem
+                            label='调用API地址'
+                        >
+                            <Input
+                                addonBefore="API URL"
+                                disabled
+                                value={successData.url}
+                                addonAfter={<CopyIcon copyText={successData.url} />}
+                            />
+                        </FormItem>
+                        <p>前往 <a onClick={() => {
+                            this.props.onClose();
+                            this.props.changeSiderBar(siderBarType.model)
+                        }}>模型</a> 页面查看部署结果</p>
+                    </Form>
+                </div>
+            </div>
+        )
+    }
     render () {
-        const { key } = this.state;
-        const { visible, form, isNotebook, data } = this.props;
+        const { isSuccess } = this.state;
+        const { visible, form, isNotebook, data, onClose } = this.props;
         const { getFieldDecorator } = form;
         return (
             <Modal
-                key={key}
                 visible={visible}
-                onCancel={this.onCancel}
+                onCancel={onClose}
                 onOk={this.onOk}
+                footer={isSuccess ? null : undefined}
                 title='模型在线部署'
             >
-                <Form>
+                {isSuccess ? (
+                    this.renderSuccess()
+                ) : (<Form>
                     {isNotebook && (
                         <FormItem
                             {...formItemLayout}
@@ -134,7 +182,7 @@ class ModelSubmitModalForm extends React.Component {
                         )}
                     </FormItem>
                     {this.renderDetail()}
-                </Form>
+                </Form>)}
             </Modal>
         )
     }
@@ -173,7 +221,8 @@ class ModelSubmitModal extends React.Component {
             publishType: {
                 value: PUBLISH_TYPE.NEW
             }
-        }
+        },
+        key: null
     }
     onFieldsChange = (fields) => {
         this.setState({
@@ -184,18 +233,20 @@ class ModelSubmitModal extends React.Component {
         })
     }
     onClose = () => {
+        this.props.onClose();
         this.setState({
             _formData: {
                 publishType: {
                     value: PUBLISH_TYPE.NEW
                 }
-            }
+            },
+            key: Math.random()
         })
-        return this.props.onClose();
     }
     render () {
         return (
             <WrapModelSubmitModalForm
+                key={this.state.key}
                 _formData={this.state._formData}
                 onFieldsChange={this.onFieldsChange}
                 {...this.props}

@@ -16,5 +16,11 @@ export default {
     },
     submitNotebookModel (params) {
         return http.post(req.SUBMIT_NOTEBOOK_MODEL, params);
+    },
+    searchGlobal (params) {
+        return http.post(req.SEARCH_NOTEBOOK, params);
+    },
+    deleteNotebook (params) {
+        return http.post(req.DELETE_NOTEBOOK, params);
     }
 }

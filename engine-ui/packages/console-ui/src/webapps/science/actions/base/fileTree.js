@@ -48,7 +48,7 @@ export function loadTreeData (type, nodePid) {
         return new Promise(async (resolve) => {
             let res = await api.fileTree.loadTreeData({ isGetFile: true, nodePid });
             if (res && res.code == 1) {
-                dispatch(replaceTreeNode(type, res.data));
+                dispatch(updateTreeNode(type, res.data));
             }
             resolve();
             // resolve();
@@ -64,6 +64,22 @@ export function addFolder (type, nodeName, nodePid) {
             });
             if (res && res.code == 1) {
                 message.success('添加成功');
+                dispatch(loadTreeData(type, nodePid))
+                resolve(res)
+            }
+        })
+    }
+}
+export function updateFolder (id, type, nodeName, nodePid) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.fileTree.updateFolder({
+                nodeName,
+                nodePid,
+                id
+            });
+            if (res && res.code == 1) {
+                message.success('修改成功');
                 dispatch(loadTreeData(type, nodePid))
                 resolve(res)
             }

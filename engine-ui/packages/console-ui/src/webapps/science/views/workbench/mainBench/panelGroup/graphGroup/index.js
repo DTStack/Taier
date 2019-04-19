@@ -38,15 +38,19 @@ class GraphGroup extends React.Component {
             }
         }
     }
+    closeTab (tabId) {
+        this.props.deleteTab(siderBarType.experiment, tabId);
+    }
     render () {
-        const { tabs = [] } = this.props;
+        const { tabs = [], currentTabIndex } = this.props;
         return !tabs || !tabs.length ? (
             <DefaultExperimentView />
         ) : (
             <PanelGroup
                 switchTab={this.switchTab.bind(this)}
                 closeTabs={this.closeTabs.bind(this)}
-                currentTabIndex={1}
+                closeTab={this.closeTab.bind(this)}
+                currentTabIndex={currentTabIndex}
             >
                 {tabs.map((tab) => {
                     return (

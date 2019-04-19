@@ -1,7 +1,17 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import SearchModal from './index';
 
+import API from '../../api/notebook'
+import * as notebookActions from '../../actions/notebookActions'
+
+@connect(null, dispatch => {
+    return {
+        ...bindActionCreators(notebookActions, dispatch)
+    }
+})
 class NotebookSearch extends React.Component {
     state = {
         key: Math.random()
@@ -13,14 +23,23 @@ class NotebookSearch extends React.Component {
         this.props.onCancel();
     }
     onSelect (value) {
-        console.log(value);
+        this.props.openNotebook(value);
         this.close();
     }
-    onChange (searchCallBack) {
-        searchCallBack([{
-            text: 'hh',
-            value: 1
-        }])
+    async onChange (value, searchCallBack) {
+        searchCallBack([]);
+        let res = await API.searchGlobal({
+            value
+        })
+        if (res && res.code == 1 && res.data) {
+            searchCallBack(res.data.map((item) => {
+                return {
+                    ...item,
+                    text: item.name,
+                    value: item.id
+                }
+            }))
+        }
     }
     render () {
         const { key } = this.state;

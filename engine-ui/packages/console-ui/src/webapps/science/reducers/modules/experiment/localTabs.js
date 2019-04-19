@@ -2,10 +2,18 @@
 import { experimentTabType } from '../../../consts/actionType/tabType';
 import { saveReducer } from '../../helper'
 function localTabs (state = [], action) {
+    state = state || [];
     const { type, payload } = action;
     switch (type) {
         case experimentTabType.ADD_TAB: {
-            return [...state, payload];
+            const tab = state.filter((tab) => {
+                return tab.id == payload.id
+            });
+            if (tab.length) {
+                return state;
+            } else {
+                return [...state, payload];
+            }
         }
         case experimentTabType.DELETE_TAB: {
             return state.filter((tab) => {

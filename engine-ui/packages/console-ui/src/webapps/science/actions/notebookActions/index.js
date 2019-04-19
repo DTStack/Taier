@@ -6,6 +6,7 @@ import { changeTab, addTab, setCurrentTab } from '../base/tab';
 import { siderBarType, consoleKey } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
 import api from '../../api/notebook';
+import fileApi from '../../api/fileTree';
 
 export function changeContent (newContent, tab, isDirty = true) {
     return changeTab(siderBarType.notebook, {
@@ -65,6 +66,31 @@ export function addNotebook (params) {
         })
     }
 }
+export function deleteNotebook (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.deleteNotebook(params);
+            if (res && res.code == 1) {
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.notebook, params.parentId))
+                resolve(res);
+            }
+        })
+    }
+}
+
+export function deleteNotebookFolder (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await fileApi.deleteFolder(params);
+            if (res && res.code == 1) {
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.notebook, params.parentId))
+                resolve(res);
+            }
+        })
+    }
+}
 
 export function showNotebookLog (tabId) {
     return changeConsoleKey(tabId, consoleKey);
@@ -94,8 +120,8 @@ export function saveNotebook (tabData) {
             if (res && res.code == 1) {
                 dispatch(changeContent(res.data, tabData, false));
                 message.success('保存成功！')
+                resolve(res);
             }
-            resolve(res);
         })
     }
 }
@@ -106,7 +132,7 @@ export function submitNotebook (tabData) {
             let res = await api.submitNotebook(tabData);
             if (res && res.code == 1) {
                 message.success('提交作业成功！')
-                resolve(true)
+                resolve(res)
             }
             resolve(false);
         })
@@ -119,7 +145,7 @@ export function submitNotebookModel (tabData) {
             let res = await api.submitNotebookModel(tabData);
             if (res && res.code == 1) {
                 message.success('提交模型成功！')
-                resolve(true)
+                resolve(res);
             }
             resolve(false);
         })

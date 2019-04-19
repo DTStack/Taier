@@ -1,7 +1,13 @@
 import React from 'react';
 import { Table, Dropdown, Menu, Input, Icon } from 'antd';
 
+import ModelDetailModal from './detailModal';
+
 class ModelView extends React.Component {
+    state = {
+        detailModalVisible: false,
+        detailData: null
+    }
     initColumns () {
         return [{
             title: '模型名称',
@@ -28,9 +34,9 @@ class ModelView extends React.Component {
             title: '模型操作',
             dataIndex: 'deal',
             width: '240px',
-            render: () => {
+            render: (t, record) => {
                 return <React.Fragment>
-                    <a>模型属性</a>
+                    <a onClick={this.showDetailModal.bind(this, record)}>模型属性</a>
                     <span className="ant-divider" />
                     <a>更新模型</a>
                     <span className="ant-divider" />
@@ -52,7 +58,14 @@ class ModelView extends React.Component {
             }
         }]
     }
+    showDetailModal = (data) => {
+        this.setState({
+            detailModalVisible: true,
+            detailData: data
+        })
+    }
     render () {
+        const { detailModalVisible, detailData } = this.state;
         return (
             <div className='c-model-view'>
                 <header className='c-model-view__header'>已部署模型</header>
@@ -63,6 +76,17 @@ class ModelView extends React.Component {
                     className="m-table border-table"
                     columns={this.initColumns()}
                     dataSource={[{}]}
+                />
+                <ModelDetailModal
+                    visible={detailModalVisible}
+                    key={detailData && detailData.id}
+                    data={detailData}
+                    onCancel={() => {
+                        this.setState({
+                            detailModalVisible: false,
+                            detailData: null
+                        })
+                    }}
                 />
             </div>
         )
