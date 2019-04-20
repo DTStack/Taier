@@ -311,7 +311,9 @@ public class FlinkClient extends AbsClient {
         }catch (Exception e){
             return JobResult.createErrorResult(e);
         }finally {
-            packagedProgram.deleteExtractedLibraries();
+            if (packagedProgram!=null && packagedProgram.getAllLibraries().size()>1){
+                packagedProgram.deleteExtractedLibraries();
+            }
             jobClientThreadLocal.remove();
         }
     }
