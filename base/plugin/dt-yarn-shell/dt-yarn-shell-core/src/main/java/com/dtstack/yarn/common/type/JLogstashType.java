@@ -54,7 +54,7 @@ public class JLogstashType extends AppType {
         jlogstashArgs.add(javaHome + "/java");
         jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
-        jlogstashArgs.add("-cp " + root + "/jlogstash.jar");
+        jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");
         jlogstashArgs.add("-vvv");

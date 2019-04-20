@@ -36,6 +36,10 @@ public class LearningUtil {
             for(int i = 0; i < taskParam.length; ++i) {
                 String[] pair = taskParam[i].split("=");
                 pair[0] = pair[0].replaceAll("\\.", "-");
+                if (pair[0].contains("priority")){
+                    pair[0] = "priority";
+                    pair[1] = String.valueOf(jobClient.getPriority());
+                }
                 argList.add("--" + pair[0]);
                 argList.add(pair[1]);
             }

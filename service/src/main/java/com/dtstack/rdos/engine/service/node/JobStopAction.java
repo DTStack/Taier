@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.service.node;
 
+import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
@@ -8,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.enums.StoppedStatus;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
@@ -50,8 +52,17 @@ public class JobStopAction {
             return StoppedStatus.STOPPED;
         }
 
-        if(engineJobCacheDao.getJobById(paramAction.getTaskId()) == null){
+        //job如果少会缓存在内存，如果超过 GroupPriorityQueue.QUEUE_SIZE_LIMITED 大小则会存在数据库中
+        //如果存在数据库中必须判断jobcache表不为空并stage=1 并且 jobstatus=WAITENGINE
+        RdosEngineJobCache jobCache = engineJobCacheDao.getJobById(paramAction.getTaskId());
+        if(jobCache == null){
             return jobStopStatus(jobClient);
+        } else if (EJobCacheStage.IN_PRIORITY_QUEUE.getStage() == jobCache.getStage()){
+            Byte status = getJobStatus(jobClient);
+            if (status !=null && RdosTaskStatus.WAITENGINE.getStatus() == status.intValue()){
+                //删除
+                removeJob(jobClient);
+            }
         }
 
         String jobId = paramAction.getTaskId();
@@ -70,21 +81,38 @@ public class JobStopAction {
     }
 
     private StoppedStatus jobStopStatus(JobClient jobClient){
-        if(ComputeType.STREAM == jobClient.getComputeType()){
-            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (RdosTaskStatus.isStopped(batchJob.getStatus())){
-                LOG.info("job:{} stopped success.", jobClient.getTaskId());
-                return StoppedStatus.STOPPED;
-            }
-        } else if (ComputeType.BATCH == jobClient.getComputeType()) {
-            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
-            if (RdosTaskStatus.isStopped(streamJob.getStatus())){
-                LOG.info("job:{} stopped success.", jobClient.getTaskId());
-                return StoppedStatus.STOPPED;
-            }
+        Byte status = getJobStatus(jobClient);
+        if (status != null && RdosTaskStatus.isStopped(status)){
+            LOG.info("job:{} stopped success.", jobClient.getTaskId());
+            return StoppedStatus.STOPPED;
         }
         LOG.info("job:{} cache is missed, stop interrupt.", jobClient.getTaskId());
         return StoppedStatus.MISSED;
+    }
+
+    private Byte getJobStatus(JobClient jobClient) {
+        if(ComputeType.STREAM == jobClient.getComputeType()){
+            RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+            if (batchJob != null) {
+                return batchJob.getStatus();
+            }
+        } else if (ComputeType.BATCH == jobClient.getComputeType()) {
+            RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
+            if (streamJob != null){
+                return streamJob.getStatus();
+            }
+        }
+        return null;
+    }
+
+    private void removeJob(JobClient jobClient) {
+        engineJobCacheDao.deleteJob(jobClient.getTaskId());
+        //修改任务状态
+        if(ComputeType.BATCH == jobClient.getComputeType()){
+            batchJobDAO.updateJobStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+        }else if(ComputeType.STREAM == jobClient.getComputeType()){
+            streamTaskDAO.updateTaskStatus(jobClient.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
+        }
     }
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
