@@ -63,7 +63,7 @@ class DataPreviewModal extends Component {
                                     const jsonStr = utils.isJSONStr(item) ? utils.jsonFormat(item, 4) : item;
                                     return (
                                         <Panel
-                                            header={<div className={defaultClass}>{item}</div>}
+                                            header={<div className={defaultClass}>{item || '无数据'}</div>}
                                             key={`preview-${index + 1}`}
                                         >
                                             <TextArea
