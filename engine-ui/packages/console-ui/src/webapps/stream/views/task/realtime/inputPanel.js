@@ -156,8 +156,12 @@ class InputOrigin extends Component {
                                 { required: true, message: '请选择数据源' }
                             ]
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange('sourceId', index, v) }}
-                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            <Select
+                                showSearch
+                                placeholder="请选择"
+                                className="right-select"
+                                onChange={(v) => { handleInputChange('sourceId', index, v) }}
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {
                                     originOptionTypes
@@ -728,7 +732,7 @@ export default class InputPanel extends Component {
             this.parseColumnsText(index, value, 'changeText')
         }
         panelColumn = cloneDeep(panelColumn);
-        if (type == 'customParams') {
+        if (type == 'customParams') { // customParams暂时不会执行
             changeCustomParams(panelColumn[index], value, subValue);
         } else {
             panelColumn[index][type] = value;
