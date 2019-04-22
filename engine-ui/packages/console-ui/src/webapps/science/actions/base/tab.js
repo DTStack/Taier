@@ -22,6 +22,12 @@ export function changeTab (type, tab) {
         payload: tab
     }
 }
+export function changeTabSlient (type, tab) {
+    return {
+        type: typeMap[type].CHANGE_TAB_SLIENT,
+        payload: tab
+    }
+}
 export function deleteAllTab (type) {
     return {
         type: typeMap[type].DELETE_ALL_TAB

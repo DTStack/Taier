@@ -1,6 +1,7 @@
+/* eslint-disable no-unreachable */
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, get } from 'lodash';
+import { debounce, get, cloneDeep } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
@@ -9,15 +10,15 @@ import SearchModal from 'widgets/searchModal';
 
 import API from '../../../../../api';
 import GraphEditor from './graphEditor';
-// import { isProjectCouldEdit } from '../../../../../comm';
+import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-
+import { COMPONENT_TYPE } from '../../../../../consts'
+import ModelDetailModal from './detailModal';
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
 
 const {
     mxEvent,
-    // mxCellHighlight,
     mxPopupMenu,
     mxConstants,
     mxEventObject
@@ -34,34 +35,31 @@ const applyCellStyle = (cellState, style) => {
 /* eslint new-cap: ["error", { "newIsCap": false }] */
 @connect(state => {
     const { project, user, editor } = state;
-
     return {
         user,
         editor,
         runTasks: state.component.taskLists, // 即将执行的任务列表
-        graphData: state.component.task,
         project: project
     }
 }, (dispatch) => {
-    return bindActionCreators(componentActions, dispatch);
+    return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
 })
 class GraphContainer extends React.Component {
     state = {
         showSearch: false,
         searchResult: null,
-        searchText: null
+        searchText: null,
+        detailModalVisible: false,
+        detailData: null
     }
 
     _graph = null;
-    componentDidMount () {
-        this.props.getTaskData();
-    }
     shouldComponentUpdate (nextProps) {
         return true;
     }
     initContextMenu = (graph) => {
         const ctx = this;
-
+        const { isRunning } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
@@ -69,7 +67,6 @@ class GraphContainer extends React.Component {
                 mxPopupMenuShowMenu.apply(this, arguments);
             } else return false
         };
-
         graph.popupMenuHandler.autoExpand = true
         graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
             if (!cell) return;
@@ -80,47 +77,77 @@ class GraphContainer extends React.Component {
                     ctx.initEditTaskCell(cell, currentNode);
                 }, null, null, true);
                 menu.addItem('删除', null, function () {
+                    ctx.removeCell(cell);
                 }, null, null, true);
                 menu.addItem('复制', null, function () {
+                    ctx.copyCell(cell);
                 }, null, null, true);
                 menu.addSeparator();
                 menu.addItem('从此处开始执行', null, function () {
-                    ctx.startHandlerFromHere(cell)
-                }, null, null, true);
+                    ctx.startHandlerFromHere(cell);
+                }, null, null, !isRunning);
                 menu.addItem('执行到此节点', null, function () {
-                }, null, null, true);
+                    ctx.handlerToHere(cell)
+                }, null, null, !isRunning);
                 menu.addItem('执行此节点', null, function () {
-                    ctx.deleteTask(cell);
-                }, null, null, true);
+                    ctx.handlerThisCell(cell);
+                }, null, null, !isRunning);
                 menu.addSeparator();
+                const menuModal = menu.addItem('模型选项', null, function () {
+                }, null, null, true);
+                menu.addItem('导出PMML', null, function () {
+                    ctx.handleExportPMML(cell);
+                }, menuModal, null, true);
+                menu.addItem('模型描述', null, function () {
+                    ctx.handleOpenDescription(cell);
+                }, menuModal, null, true);
                 const menuLookData = menu.addItem('查看数据', null, function () {
                 }, null, null, true);
                 menu.addItem('查看数据输出1', null, function () {
                 }, menuLookData, null, true);
                 menu.addItem('查看数据输出2', null, function () {
                 }, menuLookData, null, true);
-                const menuModal = menu.addItem('模型选项', null, function () {
+                cell.data.taskType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION && menu.addItem('查看评估报告', null, function () {
                 }, null, null, true);
-                menu.addItem('导出PMML', null, function () {
-                }, menuModal, null, true);
-                menu.addItem('模型描述', null, function () {
-                }, menuModal, null, true);
                 menu.addItem('查看日志', null, function () {
                     ctx.deleteTask(cell);
                 }, null, null, true);
             } else {
                 menu.addItem('删除依赖关系', null, function () {
-                    ctx.deleteTask(cell);
+                    ctx.removeCell(cell);
                 }, null, null, true);
             }
         }
     }
-
+    mxTitleContent = (state) => {
+        const data = state.cell.data;
+        const div = document.createElement('div');
+        div.id = 'titleContent'
+        div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${data.name}`;
+        div.style.padding = '20px 10px';
+        div.style.position = 'absolute';
+        div.style.cursor = 'default';
+        div.style.width = '188px';
+        div.style.left = (state.x) + 'px';
+        div.style.top = (state.y + 32) + 'px';
+        div.style.background = '#FFFFFF';
+        div.style.boxShadow = '0 0 6px 0 rgba(0,0,0,0.15)';
+        div.style.borderRadius = '2px';
+        div.style.color = '#666666';
+        div.style.fontSize = '12px';
+        state.view.graph.container.appendChild(div);
+        return {
+            destroy: () => {
+                if (document.getElementById('titleContent')) {
+                    div.parentNode.removeChild(div)
+                }
+            }
+        }
+    }
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
-        const { openTaskInDev, saveSelectedCell } = this.props;
-        // let highlightEdges = [];
+        const { openTaskInDev, saveSelectedCell, data, changeSiderbar } = this.props;
         this._graph = graph;
         graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
             const event = evt.getProperty('event');
@@ -135,7 +162,47 @@ class GraphContainer extends React.Component {
                 openTaskInDev(data.id);
             }
         });
-
+        graph.addMouseListener({
+            currentState: null,
+            currentTitleContent: null,
+            mouseDown: function (sender, me) {
+                // Hides on mouse down
+                if (this.currentState != null) {
+                    this.dragLeave(me.getEvent(), this.currentState);
+                    this.currentState = null;
+                }
+            },
+            mouseMove: function (sender, me) {
+                if (this.currentState == null && me.getState() == null) {
+                    return;
+                }
+                const temp = graph.view.getState(me.getCell());
+                if (temp != null && !graph.getModel().isVertex(temp.cell)) {
+                    // edge
+                } else {
+                    // vertex
+                    if (this.currentState == null) {
+                        this.dragEnter(me.getEvent(), temp);
+                        this.currentState = temp;
+                    } else if (temp != this.currentState) {
+                        this.dragLeave(me.getEvent(), this.currentState);
+                        this.currentState = null;
+                    }
+                }
+            },
+            mouseUp: function (sender, me) { },
+            dragEnter: function (evt, state) {
+                if (this.currentTitleContent == null) {
+                    this.currentTitleContent = new ctx.mxTitleContent(state);
+                }
+            },
+            dragLeave: function (evt, state) {
+                if (this.currentTitleContent != null) {
+                    this.currentTitleContent.destroy();
+                    this.currentTitleContent = null;
+                }
+            }
+        });
         graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
             // const event = evt.getProperty('event');
@@ -156,6 +223,7 @@ class GraphContainer extends React.Component {
                 applyCellStyle(cellState, style);
                 saveSelectedCell(cell)
                 selectedCell = cell;
+                changeSiderbar('params', true);
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
@@ -176,17 +244,69 @@ class GraphContainer extends React.Component {
 
         graph.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
             const graphData = ctx.getGraphData();
-            ctx.props.updateTaskData(graphData);
+            const oldData = Object.assign({}, data);
+            const newData = Object.assign({}, data);
+            newData.graphData = graphData;
+            ctx.props.updateTaskData(oldData, newData);
         });
-        graph.addListener(mxEvent.CELLS_REMOVED, this.updateGraphData);
         graph.addListener(mxEvent.CELL_CONNECTED, () => {
             // console.log('CELL_CONNECTED.')
         });
     }
+    /* 复制节点 */
+    copyCell = (cell) => {
+        const { data } = this.props;
+        const cellData = this.getCellData(cell);
+        this.props.copyCell(data, cellData);
+    }
+    /* 删除节点 */
+    removeCell = (cell) => {
+        const { data } = this.props;
+        const removeCells = [cell];
+        const copyData = cloneDeep(data);
+        const graphData = copyData.graphData;
+        if (cell.edges && cell.edges.length > 0) {
+            removeCells.concat(cell.edges);
+        }
+        removeCells.forEach((item) => {
+            let index = graphData.findIndex(o => o.id == item.id);
+            if (index > -1) {
+                graphData.splice(index, 1);
+            }
+        })
+        this.props.changeContent(copyData, data, true)
+    }
+    /* 从这里开始执行 */
     startHandlerFromHere = (cell) => {
         const taskId = cell.data.id;
         const type = 0;
-        this.props.getRunTaskList(taskId, type);
+        this.handleRunTask(taskId, type);
+    }
+    /* 执行到这里 */
+    handlerToHere = (cell) => {
+        const taskId = cell.data.id;
+        const type = 1;
+        this.handleRunTask(taskId, type);
+    }
+    handlerThisCell = (cell) => {
+        const taskId = cell.data.id;
+        const type = 2;
+        this.handleRunTask(taskId, type);
+    }
+    handleRunTask = (taskId, type) => {
+        const { data, currentTab } = this.props;
+        this.props.getRunTaskList(data, taskId, type, currentTab);
+    }
+    /* 导出PMML */
+    handleExportPMML = (cell) => {
+        console.log(cell);
+    }
+    /* 模型描述 */
+    handleOpenDescription = (cell) => {
+        this.setState({
+            detailModalVisible: true,
+            detailData: cell
+        });
     }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
@@ -258,28 +378,27 @@ class GraphContainer extends React.Component {
         // })
         // updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks, graph });
     }
-
+    getCellData = (cell) => {
+        return cell && {
+            vertex: cell.vertex,
+            edge: cell.edge,
+            data: cell.data,
+            x: cell.geometry.x,
+            y: cell.geometry.y,
+            value: cell.value,
+            id: cell.id
+        }
+    }
     getGraphData = () => {
         const rootCell = this._graph.getDefaultParent();
         const cells = this._graph.getChildCells(rootCell);
         const cellData = [];
-        const getCellData = (cell) => {
-            return cell && {
-                vertex: cell.vertex,
-                edge: cell.edge,
-                data: cell.data,
-                x: cell.geometry.x,
-                y: cell.geometry.y,
-                value: cell.value,
-                id: cell.id
-            }
-        }
         for (let i = 0; i < cells.length; i++) {
             const cell = cells[i];
-            const cellItem = getCellData(cell);
+            const cellItem = this.getCellData(cell);
             if (cell.edge) {
-                cellItem.source = getCellData(cell.source);
-                cellItem.target = getCellData(cell.target);
+                cellItem.source = this.getCellData(cell.source);
+                cellItem.target = this.getCellData(cell.target);
             }
             cellData.push(cellItem);
         }
@@ -343,9 +462,10 @@ class GraphContainer extends React.Component {
     }
 
     render () {
-        const { showSearch, searchResult } = this.state;
-        const { graphData } = this.props;
-        return <div className="exp-graph-view">
+        const { showSearch, searchResult, detailModalVisible, detailData } = this.state;
+        const { data } = this.props;
+        const graphData = cloneDeep(data.graphData);
+        return <div className="exp-graph-view" style={{ width: '100%' }}>
             <GraphEditor
                 data={graphData}
                 onSearchNode={this.initShowSearch}
@@ -360,6 +480,17 @@ class GraphContainer extends React.Component {
                 onCancel={this.closeSearch}
                 onChange={this.debounceSearch}
                 onSelect={this.onSelectResult}
+            />
+            <ModelDetailModal
+                visible={detailModalVisible}
+                key={detailData && detailData.id}
+                data={detailData}
+                onCancel={() => {
+                    this.setState({
+                        detailModalVisible: false,
+                        detailData: null
+                    })
+                }}
             />
         </div>
     }

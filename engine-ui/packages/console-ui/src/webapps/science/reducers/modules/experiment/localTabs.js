@@ -30,6 +30,15 @@ function localTabs (state = [], action) {
             }
             return state;
         }
+        case experimentTabType.CHANGE_TAB_SLIENT: {
+            const object = state.find((tab) => {
+                return tab.id == payload.id
+            });
+            if (object) {
+                Object.assign(object, payload)
+            }
+            return state;
+        }
         case experimentTabType.DELETE_OTHER_TAB: {
             return state.filter((tab) => {
                 return tab.id == payload
@@ -38,12 +47,21 @@ function localTabs (state = [], action) {
         case experimentTabType.DELETE_ALL_TAB: {
             return [];
         }
+        case experimentTabType.CHANGE_TASK_STATUS: {
+            const tab = state.find(tab => {
+                return tab.id == payload.tabId
+            })
+            for (const key in payload) {
+                if (payload.hasOwnProperty(key)) {
+                    const element = payload.status[key];
+                    const object = tab.payload.find(o => o.data.id == key);
+                    object.data.status = element;
+                }
+            }
+            return [].concat(state);
+        }
         default: {
-            return [{
-                id: 1,
-                name: 'test'
-            }];
-            // return state;
+            return state;
         }
     }
 }

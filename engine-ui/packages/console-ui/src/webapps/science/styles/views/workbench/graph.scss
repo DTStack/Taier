@@ -232,14 +232,14 @@ table.mxPopupMenu tr {
 
     .vertex-input {
         border: 0;
-        padding: 0;
-        height: 16px;
-        margin: 0;
+        height: 31px;
+        font-size: 14px;
+        color: #333333;
         position: absolute;
-        background: #F5F5F5;
-        left: 0;
-        top: 3;
-        width: 100%;
+        background: rgb(222, 239, 255);
+        left: -13px;
+        top: -8px;
+        width: 187px;
         display: none;
     }
 

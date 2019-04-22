@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import { get } from 'lodash'
 import CommonEditor from '../../../../../components/commonEditor';
 
 import reqUrls from '../../../../../consts/reqUrls';
@@ -10,6 +10,7 @@ import { siderBarType } from '../../../../../consts';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
 import * as runTaskActions from '../../../../../actions/runTaskActions';
+import * as experimentActions from '../../../../../actions/experimentActions';
 import commActions from '../../../../../actions';
 import { Tabs } from 'antd';
 import GraphContainer from './graphContainer';
@@ -29,10 +30,16 @@ import Params from './params/index';
         const actionsTwo = bindActionCreators(editorActions, dispatch);
         const actionsThree = bindActionCreators(commActions, dispatch);
         const actionsFour = bindActionCreators(runTaskActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree, actionsFour);
+        const actionsFive = bindActionCreators(experimentActions, dispatch);
+        return Object.assign(actionsOne, actionsTwo, actionsThree, actionsFour, actionsFive);
     }
 )
 class GraphPanel extends Component {
+    componentDidMount () {
+        const { data, currentTab } = this.props;
+        this.props.getTaskData(data, currentTab);
+    }
+
     removeConsoleTab = targetKey => {
         const { currentTab } = this.props;
         this.props.removeRes(currentTab, parseInt(targetKey, 10));
@@ -45,6 +52,9 @@ class GraphPanel extends Component {
     execConfirm = () => {
         const { data } = this.props;
         this.props.execExperiment(data);
+    }
+    changeSiderbar = (key, source) => {
+        this.SiderBarRef.onTabClick(key, source)
     }
     renderSiderbarItems () {
         return [
@@ -69,38 +79,43 @@ class GraphPanel extends Component {
         ]
     }
     render () {
-        const { editor, data } = this.props;
+        const { editor, data, currentTab } = this.props;
 
-        const currentTab = data && data.id;
+        const currentTabId = data && data.id;
 
         const consoleData = editor.console[siderBarType.experiment];
-        const resultData = consoleData[currentTab] && consoleData[currentTab].data
-            ? consoleData[currentTab].data
+        const resultData = consoleData[currentTabId] && consoleData[currentTabId].data
+            ? consoleData[currentTabId].data
             : [];
+        const consoleActivekey = get(consoleData[currentTabId], 'activeKey', null);
 
         const toolbarOpts = {
             enable: true,
             enableRun: true,
             disableEdit: true,
-            isRunning: editor.running.indexOf(currentTab) > -1,
+            isRunning: editor.running.indexOf(currentTabId) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL
         };
-
         const consoleOpts = {
             data: resultData,
             onConsoleClose: this.closeConsole,
             onRemoveTab: this.removeConsoleTab,
-            downloadUri: reqUrls.DOWNLOAD_SQL_RESULT
+            downloadUri: reqUrls.DOWNLOAD_SQL_RESULT,
+            tabOptions: {
+                activeKey: consoleActivekey,
+                onChange: this.changeConsoleTab
+
+            }
         };
-        debugger; // eslint-disable-line
         return (
             <CommonEditor
                 console={consoleOpts}
                 toolbar={toolbarOpts}
                 siderBarItems={this.renderSiderbarItems()}
+                SiderBarRef={(SiderBarRef) => this.SiderBarRef = SiderBarRef}
             >
-                <GraphContainer />
+                <GraphContainer isRunning={toolbarOpts.isRunning} changeSiderbar={this.changeSiderbar} currentTab={currentTab} data={data} />
             </CommonEditor>
         );
     }

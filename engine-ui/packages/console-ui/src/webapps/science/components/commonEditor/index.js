@@ -20,6 +20,9 @@ class CommonEditor extends Component {
         size: undefined,
         editorSize: undefined
     };
+    componentDidMount () {
+        this.props.SiderBarRef(this.SiderBar);
+    }
 
     changeTab = state => {
         let { changeTab } = this.state;
@@ -125,7 +128,7 @@ class CommonEditor extends Component {
                     </div>
                 </div>
                 <div className='c-panel__siderbar'>
-                    <SiderBar>
+                    <SiderBar onRef={(siderBar) => { this.SiderBar = siderBar }}>
                         {siderBarItems}
                     </SiderBar>
                 </div>
