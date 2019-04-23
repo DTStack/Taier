@@ -71,34 +71,14 @@ class StepOne extends Component {
             sortScopeList: [],
             downIcon: false,
             short: false,
-            customLifeCycle: ''
+            customLifeCycle: '',
+            databaseId: undefined
         }
     }
-
-    handleCancel = () => {
-
-    }
-
-    componentDidMount () {
-        // this.getDataBases();
-    }
-
-    // getDataBases = async (params) => {
-    //   const result = await API.getDatabases();
-    //   if (result.code === 1) {
-    //       this.setState({
-    //           databaseList: result.data,
-    //       })
-    //   }
-    // }
 
     next = () => {
         const { form } = this.props;
         form.validateFields((err, values) => {
-            console.log(values)
-            // if(values.life_cycle === -1){
-            //   values.life_cycle = this.state.customLifeCycle;
-            // }
             if (!err) {
                 this.props.handleNextStep();
             }
@@ -124,16 +104,23 @@ class StepOne extends Component {
     handleDdlChange (value) {
         this._DDL = value;
     }
+
+    handleDataBaseChange = (value) => {
+        this.setState({
+            databaseId: value
+        })
+    }
     handleDDLCreateTable = () => {
-        const { tabData } = this.props;
-        let formData = tabData.tableItem;
-        if (!formData.databaseId) {
+        // const { tabData } = this.props;
+        // let formData = tabData.tableItem;
+        const databaseId = this.state.databaseId;
+        if (!databaseId) {
             message.error('请选择数据库')
             return;
         }
-        console.log({ sql: this._DDL, databaseId: formData.databaseId })
+        console.log({ sql: this._DDL, databaseId: databaseId })
         if (this._DDL) {
-            API.createTableByDDL({ sql: this._DDL, databaseId: formData.databaseId }).then(res => {
+            API.createTableByDDL({ sql: this._DDL, databaseId: databaseId }).then(res => {
                 if (res.code === 1) {
                     this._DDL = undefined;
                     // 设置值
@@ -142,7 +129,7 @@ class StepOne extends Component {
                         showDDL: false
                     });
                     message.success('创建成功');
-                    this.props.loadCatalogue({ id: formData.databaseId }, CATALOGUE_TYPE.DATA_BASE);
+                    this.props.loadCatalogue({ id: databaseId }, CATALOGUE_TYPE.DATA_BASE);
                     this.props.toTableDetail({ databaseId: res.data.databaseId, id: res.data.id });
                 }
             })
@@ -408,6 +395,40 @@ class StepOne extends Component {
                         <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DdlPlaceholderAnly} /></span>
                     )}
                     maskClosable={false}>
+                    <FormItem
+                        labelCol={
+                            {
+                                xs: { span: 24 },
+                                sm: { span: 4 }
+                            }
+                        }
+                        wrapperCol={{
+                            xs: { span: 24 },
+                            sm: { span: 16 }
+                        }
+                        }
+                        label="数据库">
+                        {
+                            getFieldDecorator('databaseId', {
+                                rules: [
+                                    { required: true, message: '数据库不可为空' }
+                                ]
+                            })(
+                                <Select
+                                    placeholder="请选择数据库"
+                                    style={{ width: '100%' }}
+                                    onSelect={this.handleDataBaseChange}
+                                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                                >
+                                    {
+                                        databaseList.map(o => (
+                                            <Option key={o.id} value={o.id}>{o.name}</Option>
+                                        ))
+                                    }
+                                </Select>
+                            )
+                        }
+                    </FormItem>
                     <Editor
                         style={{ height: '400px' }}
                         disabledSyntaxCheck={true}
