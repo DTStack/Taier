@@ -29,6 +29,11 @@ export default {
     SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/globalSearch`, // 搜索实验
     DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/deleteTask`, // 删除实验
 
+    GET_MODEL_LIST: `${SCIENCE_BASE_URL}/model/list`, // 获取mode列表
+    GET_MODEL_VERSIONS: `${SCIENCE_BASE_URL}/model/versions`, // 获取model版本列表
+    GET_MODEL_PARAMS_LIST: `${SCIENCE_BASE_URL}/model/getParamsList`, // 获取model 参数列表
+    LOAD_MODEL: `${SCIENCE_BASE_URL}/model/load`, // load Model
+
     // ================== table ================== //
     GET_TABLE: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/getTable`,
     CHECK_TABLE_PARTITION: `${SCIENCE_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区

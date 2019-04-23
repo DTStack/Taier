@@ -11,23 +11,19 @@ class ModelDetailModal extends React.Component {
                 {...this.props}
                 title='模型属性'
                 data={data && [{
-                    label: '实验名称',
-                    value: data.name
+                    label: '模型名称',
+                    value: data.modelName
                 }, {
                     label: '模型来源',
-                    value: data.taskDesc
+                    value: data.origin
                 }, {
                     label: '调用API',
                     value: data.url
                 }, {
-                    label: '特征列',
-                    value: data.tzl
-                }, {
-                    label: '目标列',
-                    value: data.targetColumn
-                }, {
-                    label: '参数',
-                    value: data.params
+                    label: '封装算法',
+                    value: data.codeName && data.codeName.map((m) => {
+                        return m.name
+                    }).join(', ')
                 }, {
                     label: '部署人',
                     value: data.deployName
@@ -36,7 +32,7 @@ class ModelDetailModal extends React.Component {
                     value: moment(data.gmtModified).format('YYYY-MM-DD HH:mm:ss')
                 }, {
                     label: '更新时间',
-                    value: moment(data.gmtModified).format('YYYY-MM-DD HH:mm:ss')
+                    value: moment(data.updateDate).format('YYYY-MM-DD HH:mm:ss')
                 }]}
             />
         )

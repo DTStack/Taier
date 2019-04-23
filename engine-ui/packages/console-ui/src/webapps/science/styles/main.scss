@@ -30,3 +30,34 @@ table {
     float: left;
     padding: 0px 5px;
 }
+
+.u-table__tag__margin ~ .u-table__tag__margin {
+    margin-top: 5px;
+}
+.u-helpdox--table {
+    position: relative;
+}
+
+@mixin state-icon-base ($color) {
+    &:before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        position: absolute;
+        top: 50%;
+        border-radius: 50%;
+        background: $color;
+        left: -16px;
+        transform: translateY(-50%);
+    }
+    position: relative;
+}
+.state-running{
+    @include state-icon-base(#00A755);
+}
+.state-failed{
+    @include state-icon-base(#E64933);
+}
+.state-disabled{
+    @include state-icon-base(#94a8c6);
+}

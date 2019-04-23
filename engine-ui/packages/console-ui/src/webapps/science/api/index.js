@@ -5,6 +5,7 @@ import experiment from './experiment';
 import component from './component';
 import fileTree from './fileTree';
 import table from './table';
+import model from './model';
 
 export default {
     comm,
@@ -13,5 +14,6 @@ export default {
     experiment,
     component,
     fileTree,
-    table
+    table,
+    model
 };
