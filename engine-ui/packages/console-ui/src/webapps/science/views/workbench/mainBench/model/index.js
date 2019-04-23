@@ -103,6 +103,10 @@ class ModelView extends React.Component {
             title: '算法名称',
             dataIndex: 'codeName',
             width: '150px',
+            filters: [{
+                text: '算法1',
+                value: 0
+            }],
             render: (codeName) => {
                 return codeName.map((m) => {
                     return <Tag onClick={this.showAlgorithm.bind(null, m)} className='u-table__tag__margin' key={m.name} color='pink'>{m.name}</Tag>;
@@ -114,16 +118,24 @@ class ModelView extends React.Component {
         }, {
             title: '运行状态',
             dataIndex: 'status',
+            filters: Object.entries(dic).map(([key, value]) => {
+                return {
+                    text: value.text,
+                    value: key
+                }
+            }),
             render (t) {
                 return <span className={dic[t].className}>{dic[t].text}</span>;
             }
         }, {
             title: '占用内存(MB)',
-            dataIndex: 'memory'
+            dataIndex: 'memory',
+            sorter: true
         }, {
             title: '更新时间',
             dataIndex: 'updateDate',
             width: '150px',
+            sorter: true,
             render (t) {
                 return utils.formatDateTime(t);
             }
