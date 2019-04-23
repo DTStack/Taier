@@ -427,3 +427,17 @@ export const removeToolTips = () => {
     }
     setTimeout(remove, 500);
 }
+/**
+ * 把running:{ value: 0, text '运行中' } 结构的数据，转换为 0: { symbol: 'running', text: '运行中' }
+ */
+export function generateValueDic (dic) {
+    let newDic = {};
+    Object.keys(dic).forEach((key) => {
+        let v = dic[key];
+        newDic[v.value] = {
+            symbol: key,
+            ...v
+        }
+    });
+    return newDic;
+}

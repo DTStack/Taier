@@ -23,6 +23,25 @@ export const siderBarType = {
     component: 'component',
     model: 'model'
 }
+
+export const MODEL_STATUS = {
+    RUNNING: {
+        value: 0,
+        text: '运行中',
+        className: 'state-running'
+    },
+    FAILED: {
+        value: 1,
+        text: '运行失败',
+        className: 'state-failed'
+    },
+    DISABLED: {
+        value: 2,
+        text: '已禁用',
+        className: 'state-disabled'
+    }
+}
+
 export const taskStatus = {
     ALL: null,
     WAIT_SUBMIT: 0,

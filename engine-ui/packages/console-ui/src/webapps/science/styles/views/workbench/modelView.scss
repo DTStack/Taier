@@ -1,5 +1,7 @@
 .c-model-view{
     padding: 20px;
+    height: 100%;
+    overflow: auto;
     .c-model-view__header{
         line-height: 22px;
         font-size: 16px;
