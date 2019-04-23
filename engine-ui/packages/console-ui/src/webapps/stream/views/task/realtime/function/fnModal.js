@@ -114,6 +114,8 @@ class FnForm extends React.Component {
                 >
                     {getFieldDecorator('commandFormat', {
                         rules: [{
+                            required: true, message: '命令格式不能为空'
+                        }, {
                             max: 200,
                             message: '描述请控制在200个字符以内！'
                         }]
