@@ -24,6 +24,7 @@ import { haveTableList, haveCustomParams, haveTableColumn } from './sidePanel/pa
 import Editor from 'widgets/code-editor';
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 import { switchPartition } from '../../../views/helpDoc/docs';
+import LockPanel from '../../../components/lockPanel';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -1228,7 +1229,7 @@ export default class OutputPanel extends Component {
             tableColumnOptionType,
             sync
         } = this.state;
-        const { isShow } = this.props;
+        const { isShow, currentPage } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse
@@ -1265,6 +1266,7 @@ export default class OutputPanel extends Component {
                                         })
                                     }}
                                 />
+                                <LockPanel lockTarget={currentPage} />
                             </Panel>
                         );
                     })}

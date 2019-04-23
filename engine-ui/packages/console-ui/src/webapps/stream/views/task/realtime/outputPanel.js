@@ -13,6 +13,7 @@ import { haveTableList, haveCustomParams, haveTableColumn, havePrimaryKey, haveT
 
 import Editor from 'widgets/code-editor'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
+import LockPanel from '../../../components/lockPanel';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -1005,7 +1006,7 @@ export default class OutputPanel extends Component {
             tabTemplate, panelActiveKey, panelColumn, originOptionType,
             tableOptionType, tableColumnOptionType, topicOptionType, sync
         } = this.state;
-        const { isShow } = this.props;
+        const { isShow, currentPage } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
@@ -1030,6 +1031,7 @@ export default class OutputPanel extends Component {
                                             })
                                         }}
                                     />
+                                    <LockPanel lockTarget={currentPage} />
                                 </Panel>
                             )
                         })
