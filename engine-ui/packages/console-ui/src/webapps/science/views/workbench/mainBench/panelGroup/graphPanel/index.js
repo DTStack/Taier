@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get } from 'lodash'
+import { get, isEmpty } from 'lodash'
 import CommonEditor from '../../../../../components/commonEditor';
 
 import reqUrls from '../../../../../consts/reqUrls';
@@ -11,8 +11,9 @@ import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
 import * as runTaskActions from '../../../../../actions/runTaskActions';
 import * as experimentActions from '../../../../../actions/experimentActions';
+import PublishButtons from '../../../../../components/publishButtons';
 import commActions from '../../../../../actions';
-import { Tabs } from 'antd';
+import { Tabs, Button } from 'antd';
 import GraphContainer from './graphContainer';
 import Description from './description';
 import Params from './params/index';
@@ -22,7 +23,8 @@ import Params from './params/index';
         const { workbench, editor } = state;
         return {
             editor,
-            workbench
+            workbench,
+            selectedCell: state.component.selectedCell
         };
     },
     dispatch => {
@@ -57,16 +59,19 @@ class GraphPanel extends Component {
         this.SiderBarRef.onTabClick(key, source)
     }
     renderSiderbarItems () {
+        const { selectedCell } = this.props;
         return [
             <Tabs.TabPane
                 tab='组件参数'
                 key='params'
+                // disabled={isEmpty(selectedCell)}
             >
                 <Params />
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='组件说明'
                 key='description'
+                disabled={isEmpty(selectedCell)}
             >
                 <Description />
             </Tabs.TabPane>,
@@ -77,6 +82,36 @@ class GraphPanel extends Component {
                 1232
             </Tabs.TabPane>
         ]
+    }
+    handleRenderToolbarOptions = () => {
+        return <Button
+            icon="save"
+            title="保存"
+            onClick={this.saveTab}
+        >
+            保存
+        </Button>
+    }
+    renderPublishButton () {
+        const { data } = this.props;
+        return <PublishButtons
+            data={data}
+            name='作业'
+            isNotebook={true}
+            disabled={data.isDirty}
+            onSubmit={(values) => {
+                return this.props.submitNotebook({
+                    ...data,
+                    ...values
+                })
+            }}
+            onSubmitModel={(values) => {
+                return this.props.submitNotebookModel({
+                    id: data.id,
+                    ...values
+                })
+            }}
+        />
     }
     render () {
         const { editor, data, currentTab } = this.props;
@@ -93,6 +128,8 @@ class GraphPanel extends Component {
             enable: true,
             enableRun: true,
             disableEdit: true,
+            customToobar: this.handleRenderToolbarOptions(),
+            leftCustomButton: this.renderPublishButton(),
             isRunning: editor.running.indexOf(currentTabId) > -1,
             onRun: this.execConfirm,
             onStop: this.stopSQL

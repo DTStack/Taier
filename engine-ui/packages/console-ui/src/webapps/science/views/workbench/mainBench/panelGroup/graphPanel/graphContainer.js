@@ -161,7 +161,7 @@ class GraphContainer extends React.Component {
                 const data = cell.data;
                 openTaskInDev(data.id);
             }
-        });
+        }, true);
         graph.addMouseListener({
             currentState: null,
             currentTitleContent: null,
@@ -227,9 +227,10 @@ class GraphContainer extends React.Component {
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
+                changeSiderbar(null, false);
                 saveSelectedCell({})
             }
-        });
+        }, true);
 
         graph.clearSelection = function (evt) {
             if (selectedCell) {
@@ -248,10 +249,10 @@ class GraphContainer extends React.Component {
             const newData = Object.assign({}, data);
             newData.graphData = graphData;
             ctx.props.updateTaskData(oldData, newData);
-        });
+        }, true);
         graph.addListener(mxEvent.CELL_CONNECTED, () => {
             // console.log('CELL_CONNECTED.')
-        });
+        }, true);
     }
     /* 复制节点 */
     copyCell = (cell) => {

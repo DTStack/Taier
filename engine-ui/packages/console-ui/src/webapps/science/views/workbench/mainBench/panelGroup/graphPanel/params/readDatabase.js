@@ -1,5 +1,6 @@
+/* eslint-disable no-template-curly-in-string */
 import React, { PureComponent } from 'react';
-import { Tabs, Form, Select, Checkbox, Input } from 'antd';
+import { Tabs, Form, Select, Checkbox, Input, Tooltip, Icon } from 'antd';
 const formItemLayout = {
     labelCol: {
         span: 24
@@ -26,6 +27,12 @@ class ChooseTable extends PureComponent {
                 name: '11111'
             }]
         })
+    }
+    renderTooltips = () => {
+        const title = '分区配置支持填写动态分区，如下：\n${bdp.system.premonth}，表示yymm-1\n${bdp.system.cyctime}，表示运行时间数据\n${bdp.system.bizdate}，表示yymmdd-1\n${bdp.system.currmonth}，表示当前月数据';
+        return <Tooltip overlayClassName="big-tooltip" title={title}>
+            <Icon type="question-circle-o" className="supplementary" />
+        </Tooltip>
     }
     render () {
         const { getFieldDecorator } = this.props.form;
@@ -55,15 +62,15 @@ class ChooseTable extends PureComponent {
                     )}
                     <Checkbox disabled checked={partitionCheck}>分区</Checkbox>
                 </FormItem>
-                <FormItem
+                {partitionCheck && <FormItem
                     colon={false}
-                    label={<div>分区参数<span className="supplementary">{`例如 dt=@@{yyyymmdd - 1d}`}</span></div>}
+                    label={<div>分区参数{this.renderTooltips()}</div>}
                     {...formItemLayout}
                 >
                     {getFieldDecorator('partitionParam', {})(
-                        <Input placeholder="如：dt=20190328， dt=@@{yyyymmdd-1d}" />
+                        <Input placeholder='如：ds=20190328， ds=${bdp.system.bizdate}' />
                     )}
-                </FormItem>
+                </FormItem>}
             </Form>
         );
     }
@@ -75,7 +82,7 @@ class TableInfo extends PureComponent {
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
                 const element = data[key];
-                str.push(<tr><th>{key}</th><th>{element}</th></tr>);
+                str.push(<tr key={key}><th>{key}</th><th>{element}</th></tr>);
             }
         }
         return str;
@@ -109,7 +116,7 @@ class ReadDatabase extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="表选择" key="1">
-                    <WrapChooseTable />
+                    <WrapChooseTable/>
                 </TabPane>
                 <TabPane tab="字段信息" key="2">
                     <TableInfo />

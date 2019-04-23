@@ -30,3 +30,6 @@ table {
     float: left;
     padding: 0px 5px;
 }
+.big-tooltip .ant-tooltip-inner{
+    max-width: 350px;
+}

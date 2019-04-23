@@ -31,6 +31,7 @@ const {
     mxGraphHandler,
     mxConstraintHandler,
     mxHierarchicalLayout,
+    // eslint-disable-next-line no-unused-vars
     mxEventSource
 } = Mx;
 
@@ -65,16 +66,21 @@ class GraphEditor extends Component {
     initGraphEvent = (graph) => {
         const { registerEvent } = this.props;
         if (registerEvent) {
-            mxEventSource.prototype.addListener = function (name, funct) {
+            mxEventSource.prototype.addListener = function (name, funct, isUpdate = false) {
                 if (this.eventListeners == null) {
                     this.eventListeners = [];
                 }
-                let index = this.eventListeners.findIndex(o => o === name);
-                if (index === -1) {
+                if (isUpdate) {
+                    let index = this.eventListeners.findIndex(o => o === name);
+                    if (index === -1) {
+                        this.eventListeners.push(name);
+                        this.eventListeners.push(funct);
+                    } else {
+                        this.eventListeners[index + 1] = funct
+                    }
+                } else {
                     this.eventListeners.push(name);
                     this.eventListeners.push(funct);
-                } else {
-                    this.eventListeners[index + 1] = funct
                 }
             };
             registerEvent(graph);
@@ -135,9 +141,11 @@ class GraphEditor extends Component {
     renderData = (data) => {
         const graph = this.graph;
         const rootCell = this.graph.getDefaultParent();
+        const model = graph.getModel();
         const cellMap = this._cacheCells;
         console.log('data:', data);
         if (data) {
+            model.beginUpdate();
             for (let i = 0; i < data.length; i++) {
                 const item = data[i];
                 if (item.vertex) {
@@ -158,8 +166,8 @@ class GraphEditor extends Component {
                     this._edges.push(edge);
                 }
             }
-
             this.executeLayout();
+            model.endUpdate();
         }
     }
 
@@ -178,11 +186,9 @@ class GraphEditor extends Component {
 
     initGraphLayout = () => {
         const graph = this.graph;
-        const model = graph.getModel();
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
             try {
-                model.beginUpdate();
                 if (change != null) { change(); }
                 const layout = new mxHierarchicalLayout(graph, 'north');
                 layout.disableEdgeStyle = false;
@@ -193,7 +199,6 @@ class GraphEditor extends Component {
             } catch (e) {
                 throw e;
             } finally {
-                model.endUpdate();
                 if (post != null) { post(); }
             }
         }

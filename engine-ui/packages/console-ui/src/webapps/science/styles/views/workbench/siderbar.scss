@@ -95,22 +95,27 @@
 
             .params-tabs {
                 >.ant-tabs-bar {
-
+                    .ant-tabs-nav-container{
+                        height: 40px;
+                    }
                     .ant-tabs-nav {
                         width: 100%;
+                        display: flex;
                     }
 
                     .ant-tabs-tab {
                         border: 0;
+                        flex-grow: 1;
                         background: transparent;
-                        width: 50%;
                         text-align: center;
                         font-size: 14px;
                         color: #333333;
                         margin: 0;
+                        line-height: 2;
+                        border-right: 1px solid #dddddd;
 
-                        &:nth-child(2) {
-                            border-right: 1px solid #dddddd;
+                        &:last-child {
+                            border-right: 0
                         }
                     }
 
@@ -118,7 +123,6 @@
                         color: #2491F7;
                     }
                 }
-
                 >.ant-tabs-content {
                     .ant-tabs-tabpane {
                         background: #F5F5F5;
@@ -196,6 +200,26 @@
                             }
                         }
                     }
+                }
+            }
+
+            /* 穿梭框 */
+            .params-transfer{
+                display: grid;
+                grid-template-columns: 220px auto 220px;
+                grid-gap: 10px;
+                justify-items: center;
+                align-items: center;
+
+                .ant-transfer-list{
+                    width: 100%;
+                    .ant-transfer-list-search-action > i {
+                        line-height: inherit;
+                    }
+                }
+
+                .ant-transfer-operation{
+                    margin: 0;
                 }
             }
         }

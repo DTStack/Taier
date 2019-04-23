@@ -75,6 +75,7 @@ class ChooseTable extends PureComponent {
     }
 }
 
+/* main页面 */
 class WriteDatabase extends PureComponent {
     render () {
         const WrapChooseTable = Form.create()(ChooseTable);
