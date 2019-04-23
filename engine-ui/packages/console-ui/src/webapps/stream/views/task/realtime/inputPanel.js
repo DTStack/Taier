@@ -13,7 +13,9 @@ import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 import Editor from 'widgets/code-editor'
-import DataPreviewModal from './dataPreviewModal'
+import DataPreviewModal from './dataPreviewModal';
+import LockPanel from '../../../components/lockPanel';
+
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
@@ -890,7 +892,7 @@ export default class InputPanel extends Component {
 
     render () {
         const { tabTemplate, panelActiveKey, panelColumn, timeColumoption, topicOptionType, originOptionType, sync } = this.state;
-        const { isShow, timeZoneData } = this.props;
+        const { isShow, timeZoneData, currentPage } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
@@ -916,6 +918,7 @@ export default class InputPanel extends Component {
                                             })
                                         }}
                                     />
+                                    <LockPanel lockTarget={currentPage} />
                                 </Panel>
                             )
                         })

@@ -420,6 +420,8 @@ class TaskIndex extends Component {
         const { dispatch, currentPage, editor } = this.props
         const isModify = currentPage.notSynced; // 是否修改
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
+        const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
+        const isDisableSave = currentPage.invalid || isLocked;
 
         return (
             <Row className="task-editor">
@@ -435,7 +437,7 @@ class TaskIndex extends Component {
                                 <MyIcon className="my-icon" type="focus" themeDark={themeDark} /> 新建任务
                             </Button>
                             <Button
-                                disabled={currentPage.invalid}
+                                disabled={isDisableSave}
                                 onClick={this.saveTask.bind(this, false)}
                                 title="保存任务"
                             >
