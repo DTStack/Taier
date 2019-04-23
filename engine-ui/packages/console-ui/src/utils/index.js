@@ -322,6 +322,7 @@ const utils = {
      * @return {Boolean}   是否是JSON字符串
      */
     isJSONStr (str) {
+        str = this.trimlr(str);
         return (
             (str.charAt(0) === '{' && str.charAt(str.length - 1) === '}') ||
             (str.charAt(0) === '[' && str.charAt(str.length - 1) === ']')
