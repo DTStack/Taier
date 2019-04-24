@@ -111,8 +111,6 @@ class StepOne extends Component {
         })
     }
     handleDDLCreateTable = () => {
-        // const { tabData } = this.props;
-        // let formData = tabData.tableItem;
         const databaseId = this.state.databaseId;
         if (!databaseId) {
             message.error('请选择数据库')
@@ -126,7 +124,8 @@ class StepOne extends Component {
                     // 设置值
                     this.DDLEditor.setValue('');
                     this.setState({
-                        showDDL: false
+                        showDDL: false,
+                        databaseId: ''
                     });
                     message.success('创建成功');
                     this.props.loadCatalogue({ id: databaseId }, CATALOGUE_TYPE.DATA_BASE);
@@ -396,6 +395,7 @@ class StepOne extends Component {
                     )}
                     maskClosable={false}>
                     <FormItem
+                        label="数据库"
                         labelCol={
                             {
                                 xs: { span: 24 },
@@ -406,10 +406,9 @@ class StepOne extends Component {
                             xs: { span: 24 },
                             sm: { span: 16 }
                         }
-                        }
-                        label="数据库">
+                        }>
                         {
-                            getFieldDecorator('databaseId', {
+                            getFieldDecorator('databaseId_ddl', {
                                 rules: [
                                     { required: true, message: '数据库不可为空' }
                                 ]
