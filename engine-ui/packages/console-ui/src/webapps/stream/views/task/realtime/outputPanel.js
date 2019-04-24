@@ -1013,7 +1013,7 @@ export default class OutputPanel extends Component {
                     {
                         tabTemplate.map((OutputPutOrigin, index) => {
                             return (
-                                <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5 }} className="input-panel">
+                                <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5, position: 'relative' }} className="input-panel">
                                     <OutputForm
                                         isShow={panelActiveKey.indexOf(index + 1 + '') > -1 && isShow}
                                         sync={sync}
