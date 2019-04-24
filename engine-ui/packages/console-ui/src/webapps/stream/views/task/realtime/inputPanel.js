@@ -899,7 +899,7 @@ export default class InputPanel extends Component {
                     {
                         tabTemplate.map((InputPutOrigin, index) => {
                             return (
-                                <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5 }} className="input-panel">
+                                <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5, position: 'relative' }} className="input-panel">
                                     <InputForm
                                         isShow={panelActiveKey.indexOf(index + 1 + '') > -1 && isShow}
                                         sync={sync}

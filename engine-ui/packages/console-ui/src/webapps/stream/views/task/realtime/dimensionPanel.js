@@ -1242,7 +1242,7 @@ export default class OutputPanel extends Component {
                             <Panel
                                 header={this.panelHeader(index)}
                                 key={index + 1}
-                                style={{ borderRadius: 5 }}
+                                style={{ borderRadius: 5, position: 'relative' }}
                                 className="input-panel"
                             >
                                 <OutputForm
