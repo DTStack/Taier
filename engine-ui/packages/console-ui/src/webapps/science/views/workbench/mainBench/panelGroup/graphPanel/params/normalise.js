@@ -1,87 +1,35 @@
 /* eslint-disable no-unused-vars */
 import React, { PureComponent } from 'react';
-import { Form, Tabs, Button, Checkbox, Modal, Transfer } from 'antd';
-import { isEmpty } from 'lodash';
-import { MemorySetting as BaseMemorySetting } from './typeChange';
+import { Form, Tabs, Button, Checkbox, Modal, Transfer, message } from 'antd';
+import { formItemLayout } from './index';
+import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
+import { isEmpty, cloneDeep, debounce } from 'lodash';
+import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
-const formItemLayout = {
-    labelCol: {
-        span: 24
-    },
-    wrapperCol: {
-        span: 24
-    }
-};
 /* 选择字段弹出框 */
-class ChooseModal extends PureComponent {
-    state = {
-        sourceData: [],
-        targetKeys: []
+class ChooseModal extends BaseChooseModal {
+    constructor (props) {
+        super(props);
+        this.disabledType = 'string';
     }
-    componentDidMount () {
-        this.getSourceData();
-    }
-    getSourceData = () => {
-        const { data } = this.props;
-        const res = {
-            code: 1,
-            data: [{
-                title: 'name',
-                type: 'string'
-            }, {
-                title: 'age',
-                type: 'int'
-            }]
-        }
-        const sourceData = [].concat(res.data).map((item) => {
-            item.disabled = item.type !== 'int';
-            return item;
+    initTargetKeys = () => {
+        const { data, transferField } = this.props;
+        const { backupSource } = this.state;
+        const chooseData = data.col || [];
+        const targetKeys = chooseData.map((item) => {
+            return item.key;
         });
-        const targetKeys = sourceData
-            .filter(
-                o => isEmpty(data) ? false : data.chooseData.findIndex(title => title === o.title) > -1
-            ).map(
-                item => item.title
-            );
-        if (res.code == 1) {
-            this.setState({
-                sourceData,
-                targetKeys
-            })
-        }
-    }
-    handleCancel = () => {
-        this.props.onCancel();
-    }
-    filterOption = (inputValue, option) => {
-        return option.title.indexOf(inputValue) > -1;
-    }
-    handleChange = (targetKeys) => {
-        this.setState({ targetKeys });
-    }
-    render () {
-        const { visible } = this.props;
-        return (
-            <Modal
-                title="选择字段"
-                visible={visible}
-                onOk={this.handleOk}
-                onCancel={this.handleCancel}
-                getContainer={() => document.querySelector('.chooseWrap')}
-            >
-                <Transfer
-                    className="params-transfer"
-                    rowKey={record => record.title}
-                    dataSource={this.state.sourceData}
-                    showSearch
-                    filterOption={this.filterOption}
-                    targetKeys={this.state.targetKeys}
-                    onChange={this.handleChange}
-                    render={item => item.title}
-                />
-            </Modal>
-        );
+        const sourceData = cloneDeep(backupSource);
+        sourceData.forEach((item) => {
+            if (targetKeys.findIndex(o => o === item.key) > -1) {
+                item.type = transferField;
+            }
+        });
+        this.setState({
+            targetKeys,
+            sourceData
+        });
     }
 }
 /* 字段设置 */
@@ -94,6 +42,9 @@ class FieldSetting extends PureComponent {
             chooseModalVisible: true
         });
     }
+    handelOk = (targetObjects) => {
+        this.props.handleSaveComponent('col', targetObjects);
+    }
     handleCancel = () => {
         this.setState({
             chooseModalVisible: false
@@ -101,28 +52,42 @@ class FieldSetting extends PureComponent {
     }
     render () {
         const { chooseModalVisible } = this.state;
+        const { getFieldDecorator } = this.props.form;
         const { data } = this.props;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = isEmpty(data) ? '选择字段' : `已选择${data.chooseData.length}个字段`
+        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
         return (
             <Form className="params-form">
-                {<FormItem
+                <FormItem
                     label="默认全选"
                     colon={false}
                     {...formItemLayout}
                 >
                     <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
                     <div style={{ display: 'grid', gridTemplateColumns: '78px auto' }}>
-                        <Checkbox>保留原列</Checkbox>
-                        <div className="supplementary" style={{ paddingTop: 5, lineHeight: 1.5 }}>{'若保留，原列名不变，处理过的列增加"nornalized_"前缀。'}</div>
+                        {getFieldDecorator('is_save_old', {
+                            valuePropName: 'checked',
+                            getValueFromEvent: (e) => {
+                                if (!e || !e.target) {
+                                    return e;
+                                }
+                                const { target } = e;
+                                return target.type === 'checkbox' ? (target.checked ? 1 : 0) : target.value;
+                            }
+                        })(
+                            <Checkbox>保留原列</Checkbox>
+                        )}
+                        <div className="supplementary" style={{ paddingTop: 5, lineHeight: 1.5 }}>{'若保留，原列名不变，处理过的列增加"nornalized_"前缀'}</div>
                     </div>
-                </FormItem>}
-                {<div className="chooseWrap">
+                </FormItem>
+                <div className="chooseWrap">
                     <ChooseModal
                         data={data}
+                        transferField='double'
                         visible={chooseModalVisible}
+                        onOK={this.handelOk}
                         onCancel={this.handleCancel} />
-                </div>}
+                </div>
             </Form>
         )
     }
@@ -133,20 +98,74 @@ class MemorySetting extends BaseMemorySetting {
         super(props)
     }
 }
+/* main页面 */
 class Normalise extends PureComponent {
-    state = {
-        data: {}
+    constructor (props) {
+        super(props);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+    }
+    handleSaveComponent = (field, filedValue) => {
+        const { data } = this.props;
+        const params = cloneDeep(data);
+        if (field) {
+            params[field] = filedValue
+        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code == 1) {
+                message.success('保存成功!');
+            } else {
+                message.warning('保存失败');
+            }
+        })
     }
     render () {
-        const { data } = this.state;
-        const WrapMemorySetting = Form.create()(MemorySetting);
+        const { data } = this.props;
+        const WrapFieldSetting = Form.create({
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty) {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            },
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    is_save_old: { value: data.is_save_old === 1 }
+                }
+                return values;
+            }
+        })(FieldSetting)
+        const WrapMemorySetting = Form.create({
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty) {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            },
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    workerMemory: { value: data.workerMemory },
+                    workerCores: { value: data.workerCores }
+                }
+                return values;
+            }
+        })(MemorySetting);
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="字段设置" key="1">
-                    <FieldSetting data={data} />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
-                    <WrapMemorySetting />
+                    <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />
                 </TabPane>
             </Tabs>
         );

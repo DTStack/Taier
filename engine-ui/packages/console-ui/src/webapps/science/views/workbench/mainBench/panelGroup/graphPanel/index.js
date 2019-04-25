@@ -31,9 +31,9 @@ import Params from './params/index';
         const actionsOne = bindActionCreators(workbenchActions, dispatch);
         const actionsTwo = bindActionCreators(editorActions, dispatch);
         const actionsThree = bindActionCreators(commActions, dispatch);
-        const actionsFour = bindActionCreators(runTaskActions, dispatch);
-        const actionsFive = bindActionCreators(experimentActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree, actionsFour, actionsFive);
+        const runTask = bindActionCreators(runTaskActions, dispatch);
+        const experiment = bindActionCreators(experimentActions, dispatch);
+        return Object.assign(actionsOne, actionsTwo, actionsThree, runTask, experiment);
     }
 )
 class GraphPanel extends Component {
@@ -51,22 +51,28 @@ class GraphPanel extends Component {
         const { currentTab } = this.props;
         this.props.resetConsole(currentTab, siderBarType.experiment);
     };
+    /* 运行 */
     execConfirm = () => {
         const { data } = this.props;
         this.props.execExperiment(data);
+    }
+    /* 停止 */
+    stopTask = () => {
+        // const { data } = this.props;
+        // this.props.execExperiment(data);
     }
     changeSiderbar = (key, source) => {
         this.SiderBarRef.onTabClick(key, source)
     }
     renderSiderbarItems () {
-        const { selectedCell } = this.props;
+        const { selectedCell, data } = this.props;
         return [
             <Tabs.TabPane
                 tab='组件参数'
                 key='params'
-                // disabled={isEmpty(selectedCell)}
+                disabled={isEmpty(selectedCell)}
             >
-                <Params />
+                <Params data={data.detailData} taskId={data.id} />
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='组件说明'
@@ -132,7 +138,7 @@ class GraphPanel extends Component {
             leftCustomButton: this.renderPublishButton(),
             isRunning: editor.running.indexOf(currentTabId) > -1,
             onRun: this.execConfirm,
-            onStop: this.stopSQL
+            onStop: this.stopTask
         };
         const consoleOpts = {
             data: resultData,

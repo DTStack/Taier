@@ -1,109 +1,70 @@
 import React, { PureComponent } from 'react';
-import { Form, Tabs, Button, Modal, Transfer, Input } from 'antd';
-import { isEmpty } from 'lodash';
-import { MemorySetting as BaseMemorySetting } from './typeChange';
+import { Form, Tabs, Button, Input, message } from 'antd';
+import { formItemLayout } from './index';
+import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
+import { isEmpty, cloneDeep, debounce } from 'lodash';
+import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
-const formItemLayout = {
-    labelCol: {
-        span: 24
-    },
-    wrapperCol: {
-        span: 24
-    }
-};
 /* 选择字段弹出框 */
-class ChooseModal extends PureComponent {
-    state = {
-        sourceData: [],
-        targetKeys: []
+class ChooseModal extends BaseChooseModal {
+    constructor (props) {
+        super(props);
+        this.warpClassName = props.wrapContanier || '.chooseWrap';
     }
-    componentDidMount () {
-        this.getSourceData();
-    }
-    getSourceData = () => {
-        const { data } = this.props;
-        const res = {
-            code: 1,
-            data: [{
-                title: 'name',
-                type: 'string'
-            }, {
-                title: 'age',
-                type: 'int'
-            }]
-        }
-        const sourceData = [].concat(res.data).map((item) => {
-            item.disabled = item.type !== 'int';
-            return item;
+    initTargetKeys = () => {
+        const { data, transferField } = this.props;
+        const { backupSource } = this.state;
+        const chooseData = data || [];
+        const targetKeys = chooseData.map((item) => {
+            return item.key;
         });
-        const targetKeys = sourceData
-            .filter(
-                o => isEmpty(data) ? false : data.chooseData.findIndex(title => title === o.title) > -1
-            ).map(
-                item => item.title
-            );
-        if (res.code == 1) {
-            this.setState({
-                sourceData,
-                targetKeys
-            })
-        }
-    }
-    handleCancel = () => {
-        this.props.onCancel();
-    }
-    filterOption = (inputValue, option) => {
-        return option.title.indexOf(inputValue) > -1;
-    }
-    handleChange = (targetKeys) => {
-        this.setState({ targetKeys });
-    }
-    render () {
-        const { visible } = this.props;
-        return (
-            <Modal
-                title="选择字段"
-                visible={visible}
-                onOk={this.handleOk}
-                onCancel={this.handleCancel}
-                getContainer={() => document.querySelector('.chooseWrap')}
-            >
-                <Transfer
-                    className="params-transfer"
-                    rowKey={record => record.title}
-                    dataSource={this.state.sourceData}
-                    showSearch
-                    filterOption={this.filterOption}
-                    targetKeys={this.state.targetKeys}
-                    onChange={this.handleChange}
-                    render={item => item.title}
-                />
-            </Modal>
-        );
+        const sourceData = cloneDeep(backupSource);
+        sourceData.forEach((item) => {
+            if (targetKeys.findIndex(o => o === item.key) > -1) {
+                item.type = transferField;
+            }
+        });
+        this.setState({
+            targetKeys,
+            sourceData
+        });
     }
 }
 /* 字段设置 */
 class FieldSetting extends PureComponent {
     state = {
-        chooseModalVisible: false
+        chooseModalVisible: false,
+        labelModalVisible: false
     }
-    handleChoose = () => {
-        this.setState({
-            chooseModalVisible: true
-        });
+    handleChoose = (flag) => {
+        if (flag === 'append') {
+            this.setState({
+                labelModalVisible: true
+            })
+        } else {
+            this.setState({
+                chooseModalVisible: true
+            });
+        }
+    }
+    handelOk = (targetObjects) => {
+        this.props.handleSaveComponent('col', targetObjects);
     }
     handleCancel = () => {
         this.setState({
-            chooseModalVisible: false
+            chooseModalVisible: false,
+            labelModalVisible: false
         });
     }
+    getBtnContent (data) {
+        return (isEmpty(data) || data.length === 0) ? '选择字段' : `已选择${data.length}个字段`;
+    }
     render () {
-        const { chooseModalVisible } = this.state;
+        const { chooseModalVisible, labelModalVisible } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { data } = this.props;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = isEmpty(data) ? '选择字段' : `已选择${data.chooseData.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem
@@ -112,7 +73,7 @@ class FieldSetting extends PureComponent {
                     required
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
+                    <Button style={btnStyle} onClick={() => this.handleChoose('col')}>{this.getBtnContent(data.col)}</Button>
                 </FormItem>
                 <FormItem
                     label={<div style={{ display: 'inline-block' }}>原样输出列<span className="supplementary">推荐添加label列，方便评估</span></div>}
@@ -120,19 +81,18 @@ class FieldSetting extends PureComponent {
                     required
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
+                    <Button style={btnStyle} onClick={() => this.handleChoose('append')}>{this.getBtnContent(data.append)}</Button>
                 </FormItem>
                 <FormItem
                     colon={false}
                     label='输出结果列名'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('outputResult', {
-                        initialvalue: 'forecast_result',
+                    {getFieldDecorator('result_col', {
                         rules: [
                             { required: true, message: '请输入输出结果列名' },
                             {
-                                pattern: /^(\w)$/,
+                                pattern: /^(\w){0,}$/,
                                 message: '表名称只能由字母、数字、下划线组成!'
                             }
                         ]
@@ -145,12 +105,11 @@ class FieldSetting extends PureComponent {
                     label='输出分数列名'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('outputScore', {
-                        initialvalue: 'forecast_score',
+                    {getFieldDecorator('score_col', {
                         rules: [
                             { required: true, message: '请输入输出分数列名' },
                             {
-                                pattern: /^(\w)$/,
+                                pattern: /^(\w){0,}$/,
                                 message: '表名称只能由字母、数字、下划线组成!'
                             }
                         ]
@@ -163,12 +122,11 @@ class FieldSetting extends PureComponent {
                     label='输出详细列名'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('outputDetail', {
-                        initialvalue: 'forecast_detail',
+                    {getFieldDecorator('detail_col', {
                         rules: [
                             { required: true, message: '请输入输出详细列名' },
                             {
-                                pattern: /^(\w)$/,
+                                pattern: /^(\w){0,}$/,
                                 message: '表名称只能由字母、数字、下划线组成!'
                             }
                         ]
@@ -178,8 +136,19 @@ class FieldSetting extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
-                        data={data}
+                        data={data.col}
+                        transferField='double'
                         visible={chooseModalVisible}
+                        onOK={this.handelOk}
+                        onCancel={this.handleCancel} />
+                </div>
+                <div className="labelWrap">
+                    <ChooseModal
+                        wrapContanier='.labelWrap'
+                        data={data.append}
+                        transferField='double'
+                        visible={labelModalVisible}
+                        onOK={this.handelOk}
                         onCancel={this.handleCancel} />
                 </div>
             </Form>
@@ -192,21 +161,76 @@ class MemorySetting extends BaseMemorySetting {
         super(props)
     }
 }
+/* main页面 */
 class DataPredict extends PureComponent {
-    state = {
-        data: {}
+    constructor (props) {
+        super(props);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+    }
+    handleSaveComponent = (field, filedValue) => {
+        const { data } = this.props;
+        const params = cloneDeep(data);
+        if (field) {
+            params[field] = filedValue
+        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code == 1) {
+                message.success('保存成功!');
+            } else {
+                message.warning('保存失败');
+            }
+        })
     }
     render () {
-        const { data } = this.state;
-        const WrapFieldSetting = Form.create()(FieldSetting);
-        const WrapMemorySetting = Form.create()(MemorySetting);
+        const { data } = this.props;
+        const WrapFieldSetting = Form.create({
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    result_col: { value: data.result_col },
+                    score_col: { value: data.score_col },
+                    detail_col: { value: data.detail_col }
+                }
+                return values;
+            },
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty) {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            }
+        })(FieldSetting);
+        const WrapMemorySetting = Form.create({
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty) {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            },
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    workerMemory: { value: data.workerMemory },
+                    workerCores: { value: data.workerCores }
+                }
+                return values;
+            }
+        })(MemorySetting);
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="字段设置" key="1">
-                    <WrapFieldSetting data={data} />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
-                    <WrapMemorySetting />
+                    <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />
                 </TabPane>
             </Tabs>
         );

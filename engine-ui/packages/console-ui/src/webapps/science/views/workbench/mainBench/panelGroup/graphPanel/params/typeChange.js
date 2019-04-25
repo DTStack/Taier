@@ -1,64 +1,140 @@
 import React, { PureComponent } from 'react';
-import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer } from 'antd';
-import { isEmpty } from 'lodash';
+import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer, message } from 'antd';
+import { formItemLayout } from './index';
+import { isEmpty, cloneDeep, debounce } from 'lodash';
+import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const formItemLayout = {
-    labelCol: {
-        span: 24
-    },
-    wrapperCol: {
-        span: 24
-    }
-};
+const TYPE_ENUM = {
+    double: 'Double类型',
+    int: 'Int类型',
+    string: 'String类型'
+}
+const KEY_VALUE_ENUM = {
+    double: 'double',
+    int: 'int',
+    string: 'str'
+}
 /* 选择字段弹出框 */
-class ChooseModal extends PureComponent {
+export class ChooseModal extends PureComponent {
+    constructor (props) {
+        super(props);
+        this.warpClassName = '.chooseWrap';
+    }
     state = {
         sourceData: [],
+        backupSource: [],
         targetKeys: []
     }
     componentDidMount () {
         this.getSourceData();
     }
-    getSourceData = () => {
-        const { data } = this.props;
-        const res = {
-            code: 1,
-            data: [{
-                title: 'name',
-                type: 'string'
-            }, {
-                title: 'age',
-                type: 'int'
-            }]
-        }
-        const sourceData = [].concat(res.data).map((item) => {
-            item.disabled = item.type !== 'int'
-            return item;
-        });
-        const targetKeys = sourceData
-            .filter(
-                o => isEmpty(data) ? false : data.chooseData.findIndex(title => title === o.title) > -1
-            ).map(
-                item => item.title
-            );
-        if (res.code == 1) {
-            this.setState({
-                sourceData,
-                targetKeys
-            })
+    componentDidUpdate (prevProps, prevState, snapshot) {
+        if (this.props.visible && !prevProps.visible) {
+            this.initTargetKeys();
         }
     }
+    initTargetKeys () {
+        const { data, transferField } = this.props;
+        const { backupSource } = this.state;
+        const chooseData = data[KEY_VALUE_ENUM[transferField]] || [];
+        const targetKeys = chooseData.map((item) => {
+            return item.key;
+        });
+        const sourceData = cloneDeep(backupSource);
+        sourceData.forEach((item) => {
+            if (targetKeys.findIndex(o => o === item.key) > -1) {
+                item.type = transferField;
+            }
+        });
+        this.setState({
+            targetKeys,
+            sourceData
+        });
+    }
+    getSourceData = () => {
+        const res = {
+            code: 1,
+            'data': {
+                'id': 'int',
+                'name': 'string',
+                a: 'int',
+                b: 'string',
+                c: 'double',
+                d: 'int'
+            }
+        }
+        let sourceData = [];
+        for (const key in res.data) {
+            if (res.data.hasOwnProperty(key)) {
+                const element = res.data[key];
+                if (this.disabledType) {
+                    sourceData.push({
+                        key,
+                        type: element,
+                        disabled: element === this.disabledType
+                    })
+                } else {
+                    sourceData.push({
+                        key,
+                        type: element
+                    })
+                }
+            }
+        }
+        this.setState({
+            sourceData,
+            backupSource: cloneDeep(sourceData)
+        })
+    }
     handleCancel = () => {
+        this.initTargetKeys();
         this.props.onCancel();
+    }
+    handleOk = () => {
+        const { targetKeys } = this.state;
+        const { transferField } = this.props;
+        const keyTypes = targetKeys.map((item) => {
+            return { key: item, type: transferField }
+        })
+        this.props.onOK(keyTypes)
+        this.handleCancel();
     }
     filterOption = (inputValue, option) => {
         return option.title.indexOf(inputValue) > -1;
     }
-    handleChange = (targetKeys) => {
-        this.setState({ targetKeys });
+    handleChange = (targetKeys, direction, moveKeys) => {
+        const { sourceData, backupSource } = this.state;
+        const { transferField } = this.props;
+        if (direction === 'right') {
+            moveKeys.forEach(item => {
+                let object = sourceData.find(o => o.key === item);
+                if (object) {
+                    object.type = transferField
+                }
+            })
+        } else {
+            // 用替补数据源替换掉当前的数据源
+            moveKeys.forEach(item => {
+                let sourecObject = backupSource.find(o => o.key === item);
+                let index = sourceData.findIndex(o => o.key === item);
+                if (sourecObject && index > -1) {
+                    sourceData[index] = cloneDeep(sourecObject);
+                }
+            })
+        }
+        this.setState({ targetKeys, sourceData });
     }
+    renderItem = (item) => {
+        return (
+            <span style={{ display: 'inline-grid', gridTemplateColumns: '1fr 1fr', width: '90%' }}>
+                <span>{item.key}</span>
+                <span>{item.type}</span>
+            </span>
+        );
+    }
+
     render () {
         const { visible } = this.props;
         return (
@@ -67,17 +143,17 @@ class ChooseModal extends PureComponent {
                 visible={visible}
                 onOk={this.handleOk}
                 onCancel={this.handleCancel}
-                getContainer={() => document.querySelector('.chooseWrap')}
+                getContainer={() => document.querySelector(this.warpClassName)}
             >
                 <Transfer
                     className="params-transfer"
-                    rowKey={record => record.title}
+                    rowKey={record => record.key}
                     dataSource={this.state.sourceData}
                     showSearch
                     filterOption={this.filterOption}
                     targetKeys={this.state.targetKeys}
                     onChange={this.handleChange}
-                    render={item => item.title}
+                    render={this.renderItem}
                 />
             </Modal>
         );
@@ -94,17 +170,85 @@ class Transform extends PureComponent {
             chooseModalVisible: true
         });
     }
+    handleOK = (targetObjects) => {
+        const transferField = this.props.form.getFieldValue('transferField');
+        const field = KEY_VALUE_ENUM[transferField];
+        this.props.handleSaveComponent(field, targetObjects);
+    }
     handleCancel = () => {
         this.setState({
             chooseModalVisible: false
         });
     }
-    render () {
-        const { chooseModalVisible } = this.state;
+    renderPartition = () => {
+        const { getFieldDecorator } = this.props.form;
         const { data } = this.props;
+        const transferField = this.props.form.getFieldValue('transferField');
+        switch (transferField) {
+            case 'int':return (
+                <>
+                    <FormItem
+                        style={{ marginBottom: 0 }}
+                        colon={false}
+                        label={`转化成Int异常时，默认填充值`}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('int_error', {
+                            initialValue: data[`${KEY_VALUE_ENUM[transferField]}_error`]
+                        })(
+                            <Input />
+                        )}
+                    </FormItem>
+                </>
+            )
+            case 'string': return (
+                <>
+                    <FormItem
+                        style={{ marginBottom: 0 }}
+                        colon={false}
+                        label={`转化成String异常时，默认填充值`}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('str_error', {
+                            initialValue: data[`${KEY_VALUE_ENUM[transferField]}_error`]
+                        })(
+                            <Input />
+                        )}
+                    </FormItem>
+                </>
+            )
+            case 'double':
+            default: return (
+                <>
+                    <FormItem
+                        style={{ marginBottom: 0 }}
+                        colon={false}
+                        label={`转化成Double异常时，默认填充值`}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('double_error', {
+                            initialValue: data[`${KEY_VALUE_ENUM[transferField]}_error`]
+                        })(
+                            <Input />
+                        )}
+                    </FormItem>
+                </>
+            )
+        }
+    }
+    renderBtnContent = () => {
+        const { data } = this.props;
+        const transferField = this.props.form.getFieldValue('transferField');
+        const chooseData = KEY_VALUE_ENUM[transferField];
+        const btnContent = (isEmpty(data) || data[chooseData].length === 0) ? '选择字段' : `已选择${data[chooseData].length}个字段`
+        return btnContent;
+    }
+    render () {
+        const { data } = this.props;
+        const transferField = this.props.form.getFieldValue('transferField');
+        const { chooseModalVisible } = this.state;
         const { getFieldDecorator } = this.props.form;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = isEmpty(data) ? '选择字段' : `已选择${data.chooseData.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem
@@ -112,35 +256,47 @@ class Transform extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('tableName', {
+                    {getFieldDecorator('transferField', {
                         initialValue: 'double',
                         rules: [{ required: false }]
                     })(
                         <RadioGroup>
-                            <Radio value={'double'}>Double类型</Radio>
-                            <Radio value={'int'}>Int类型</Radio>
-                            <Radio style={{ marginRight: 0 }} value={'string'}>String类型</Radio>
+                            <Radio style={{ marginRight: 4 }} value={'double'}>{TYPE_ENUM.double}</Radio>
+                            <Radio style={{ marginRight: 4 }} value={'int'}>{TYPE_ENUM.int}</Radio>
+                            <Radio style={{ marginRight: 0 }} value={'string'}>{TYPE_ENUM.string}</Radio>
                         </RadioGroup>
                     )}
-                    <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose}>{this.renderBtnContent()}</Button>
                 </FormItem>
+                {this.renderPartition()}
                 <FormItem
                     colon={false}
-                    label="转化成Double类型异常时，默认填充值"
+                    label=""
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('partitionParam', {})(
-                        <Input />
-                    )}
                     <div style={{ display: 'grid', gridTemplateColumns: '78px auto' }}>
-                        <Checkbox>保留原列</Checkbox>
+                        {getFieldDecorator('is_save_old', {
+                            initialValue: data.is_save_old === 1,
+                            valuePropName: 'checked',
+                            getValueFromEvent: (e) => {
+                                if (!e || !e.target) {
+                                    return e;
+                                }
+                                const { target } = e;
+                                return target.type === 'checkbox' ? (target.checked ? 1 : 0) : target.value;
+                            }
+                        })(
+                            <Checkbox>保留原列</Checkbox>
+                        )}
                         <div className="supplementary" style={{ paddingTop: 5, lineHeight: 1.5 }}>{'若保留，原列名不变，处理过的列增加"typed_"前缀'}</div>
                     </div>
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
                         data={data}
+                        transferField={transferField}
                         visible={chooseModalVisible}
+                        onOK={this.handleOK}
                         onCancel={this.handleCancel} />
                 </div>
             </Form>
@@ -169,7 +325,7 @@ export class MemorySetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('memorySize', {
+                    {getFieldDecorator('workerMemory', {
                         initialValue: '512',
                         rules: [
                             { required: false },
@@ -177,8 +333,8 @@ export class MemorySetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
-                            parser={value => parseInt(value)}
-                            formatter={value => parseInt(value)}
+                            parser={value => value ? parseInt(value) : value}
+                            formatter={value => value ? parseInt(value) : value}
                             style={inputStyle} />
                     )}
                 </FormItem>
@@ -187,7 +343,7 @@ export class MemorySetting extends PureComponent {
                     label={this.renderTooltips('并发数', '可选项。正整数，范围[1, 9999]，默认并发数为1，单线程运行')}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('channel', {
+                    {getFieldDecorator('workerCores', {
                         initialValue: '1',
                         rules: [
                             { required: false },
@@ -195,8 +351,8 @@ export class MemorySetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
-                            parser={value => parseInt(value)}
-                            formatter={value => parseInt(value)}
+                            parser={value => value ? parseInt(value) : value}
+                            formatter={value => value ? parseInt(value) : value}
                             style={inputStyle} />
                     )}
                 </FormItem>
@@ -206,36 +362,65 @@ export class MemorySetting extends PureComponent {
 }
 /* main页面 */
 class TypeChange extends PureComponent {
-    state = {
-        data: {}
+    constructor (props) {
+        super(props);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
-    componentDidMount () {
-        this.getRenderData();
-    }
-    getRenderData = () => {
-        const res = {
-            code: 1,
-            data: {
-                chooseData: ['name']
+    handleSaveComponent = (field, filedValue) => {
+        const { data } = this.props;
+        const params = cloneDeep(data);
+        if (field) {
+            params[field] = filedValue
+        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code == 1) {
+                message.success('保存成功!');
+            } else {
+                message.warning('保存失败');
             }
-        }
-        if (res.code == 1) {
-            this.setState({
-                data: res.data
-            });
-        }
+        })
     }
     render () {
-        const { data } = this.state;
-        const WrapTransform = Form.create()(Transform);
-        const WrapMemorySetting = Form.create()(MemorySetting);
+        const { data } = this.props;
+        const WrapTransform = Form.create({
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty && element.name !== 'transferField') {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            }
+        })(Transform);
+        const WrapMemorySetting = Form.create({
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty) {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            },
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    workerMemory: { value: data.workerMemory },
+                    workerCores: { value: data.workerCores }
+                }
+                return values;
+            }
+        })(MemorySetting);
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="转化字段" key="1">
-                    <WrapTransform data={data} />
+                    <WrapTransform data={data} handleSaveComponent={this.handleSaveComponent} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
-                    <WrapMemorySetting />
+                    <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />
                 </TabPane>
             </Tabs>
         );

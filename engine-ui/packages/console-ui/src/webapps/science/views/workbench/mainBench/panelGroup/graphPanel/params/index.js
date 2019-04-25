@@ -10,6 +10,26 @@ import DataSplit from './dataSplit';
 import LogisticRegression from './logisticRegression';
 import DataPredict from './dataPredict';
 import BinaryClassfication from './binaryClassfication';
+import { isEmpty } from 'lodash';
+export const formItemLayout = {
+    labelCol: {
+        span: 24
+    },
+    wrapperCol: {
+        span: 24
+    }
+};
+const TASK_ENUM = {
+    [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: 'readTableComponent',
+    [COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE]: 'writeTableComponent',
+    [COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT]: 'sqlComponent',
+    [COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE]: 'transTypeComponent',
+    [COMPONENT_TYPE.DATA_MERGE.NORMALIZE]: 'normalizationComponent',
+    [COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT]: 'dataSplitComponent',
+    [COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION]: 'logisticComponent',
+    [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: 'predictComponent',
+    [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent'
+}
 @connect(state => {
     return {
         selectedCell: state.component.selectedCell
@@ -18,40 +38,38 @@ import BinaryClassfication from './binaryClassfication';
 class Params extends Component {
     shouldComponentUpdate (nextProps, nextState) {
         const selectedCell = nextProps.selectedCell;
-        if (!this.isEmptyObejct(selectedCell) && selectedCell.mxObjectId !== this.props.selectedCell.mxObjectId) {
+        if (!isEmpty(selectedCell) && selectedCell.mxObjectId !== this.props.selectedCell.mxObjectId) {
             return true
         }
         return false;
     }
-    isEmptyObejct = (obejct) => {
-        return Object.keys(obejct).length === 0
-    }
     initRender = () => {
-        const { selectedCell } = this.props;
-        if (this.isEmptyObejct(selectedCell)) return <BinaryClassfication />;
+        const { selectedCell, data, taskId } = this.props;
+        if (isEmpty(selectedCell)) return '';
+        const componentData = data[TASK_ENUM[selectedCell.data.taskType]] || {};
         switch (selectedCell.data.taskType) {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:
                 return (
-                    <ReadDatabase />
+                    <ReadDatabase data={componentData} />
                 )
             case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE:
                 return (
-                    <WriteDatabase />
+                    <WriteDatabase data={componentData} />
                 )
             case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
-                return <SqlScript />
+                return <SqlScript data={componentData} />
             case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-                return <TypeChange />
+                return <TypeChange data={componentData} />
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
-                return <Normalise />
+                return <Normalise data={componentData} />
             case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
-                return <DataSplit />
+                return <DataSplit data={componentData} taskId={taskId} />
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
-                return <LogisticRegression />
+                return <LogisticRegression data={componentData} taskId={taskId} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
-                return <DataPredict />
+                return <DataPredict data={componentData} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
-                return <BinaryClassfication />
+                return <BinaryClassfication data={componentData} taskId={taskId} />
             default:
                 return ''
         }

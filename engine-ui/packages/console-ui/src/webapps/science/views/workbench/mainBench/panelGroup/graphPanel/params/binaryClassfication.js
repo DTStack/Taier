@@ -1,28 +1,48 @@
 import React, { PureComponent } from 'react';
-import { Form, Select, Input, InputNumber } from 'antd';
+import { Form, Select, Input, InputNumber, message } from 'antd';
+import { cloneDeep, debounce, isEmpty } from 'lodash';
+import api from '../../../../../../api/experiment';
+import { formItemLayout } from './index';
 const FormItem = Form.Item;
 const Option = Select.Option;
-const formItemLayout = {
-    labelCol: {
-        span: 24
-    },
-    wrapperCol: {
-        span: 24
-    }
-};
 // 表选择
 class FieldSetting extends PureComponent {
     state = {
-        originalColumns: [{
-            name: 'model_test_temp',
-            id: 1
-        }],
-        sampleTags: [],
-        columns: []
+        originalColumns: []
+    }
+    componentDidMount () {
+        this.getColumns()
+    }
+    getColumns = () => {
+        const { taskId } = this.props;
+        api.getInputTableColumns({ taskId }).then((res) => {
+            if (res.code === 1) {
+                let originalColumns = [];
+                for (const key in res.data) {
+                    if (res.data.hasOwnProperty(key)) {
+                        const element = res.data[key];
+                        originalColumns.push({
+                            key,
+                            type: element
+                        })
+                    }
+                }
+                this.setState({
+                    originalColumns
+                })
+            }
+        })
+    }
+    handleChange = (value) => {
+        const { originalColumns } = this.state;
+        const object = originalColumns.find(o => o.key === value);
+        if (object) {
+            this.props.handleSaveComponent('old_label', object);
+        }
     }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { originalColumns, sampleTags, columns } = this.state;
+        const { originalColumns } = this.state;
         return (
             <Form className="params-form">
                 <FormItem
@@ -30,12 +50,12 @@ class FieldSetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('originalColumn', {
+                    {getFieldDecorator('old_label', {
                         rules: [{ required: true, message: '请选择原始标签列列名' }]
                     })(
-                        <Select>
+                        <Select onChange={this.handleChange}>
                             {originalColumns.map((item, index) => {
-                                return <Option key={item.id} value={String(item.id)}>{item.name}</Option>
+                                return <Option key={item.key} value={String(item.key)}>{item.key}</Option>
                             })}
                         </Select>
                     )}
@@ -45,7 +65,7 @@ class FieldSetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('scoreColumn', {
+                    {getFieldDecorator('score_col', {
                         rules: [{ required: true, message: '请输入分数列列名' }]
                     })(
                         <Input placeholder="请输入分数列列名" />
@@ -56,14 +76,10 @@ class FieldSetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('sampleTags', {
+                    {getFieldDecorator('pos', {
                         rules: [{ required: true, message: '请输入正样本的标签值' }]
                     })(
-                        <Select>
-                            {sampleTags.map((item, index) => {
-                                return <Option key={item.id} value={item.id}>{item.name}</Option>
-                            })}
-                        </Select>
+                        <Input placeholder="请输入正样本的标签值" />
                     )}
                 </FormItem>
                 <FormItem
@@ -71,32 +87,17 @@ class FieldSetting extends PureComponent {
                     label='计算KS,PR等指标时按等频分成多少个桶'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('barrelCount', {
+                    {getFieldDecorator('bin', {
                         initialValue: 100,
                         rules: [
-                            { required: true },
+                            { required: true, message: '请填写桶数' },
                             { max: 1000, message: '不可超过1000个桶', type: 'number' }
                         ]
                     })(
                         <InputNumber
-                            parser={value => parseInt(value)}
-                            formatter={value => parseInt(value)}
+                            parser={value => value ? parseInt(value) : value}
+                            formatter={value => value ? parseInt(value) : value}
                             style={{ width: '100%' }} />
-                    )}
-                </FormItem>
-                <FormItem
-                    label={<div>分组列列名<span className="supplementary">仅支持string类型</span></div>}
-                    colon={false}
-                    {...formItemLayout}
-                >
-                    {getFieldDecorator('columns', {
-                        rules: [{ required: true, message: '请选择分组列列名' }]
-                    })(
-                        <Select>
-                            {columns.filter(o => o.type === 'string').map((item, index) => {
-                                return <Option key={item.id} value={item.id}>{item.name}</Option>
-                            })}
-                        </Select>
                     )}
                 </FormItem>
             </Form>
@@ -106,15 +107,59 @@ class FieldSetting extends PureComponent {
 
 /* main页面 */
 class BinaryClassfication extends PureComponent {
+    constructor (props) {
+        super(props);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+    }
+    handleSaveComponent = (field, filedValue) => {
+        const { data } = this.props;
+        const params = cloneDeep(data);
+        if (field) {
+            params[field] = filedValue
+        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code == 1) {
+                message.success('保存成功!');
+            } else {
+                message.warning('保存失败');
+            }
+        })
+    }
     render () {
-        const WrapFieldSetting = Form.create()(FieldSetting);
+        const { data, taskId } = this.props;
+        const WrapFieldSetting = Form.create({
+            onFieldsChange: (props, changedFields) => {
+                for (const key in changedFields) {
+                    if (changedFields.hasOwnProperty(key)) {
+                        if (key === 'old_label') {
+                            // label是下拉菜单，在组件里自己触发onChange函数,对数据封装过后再请求
+                            continue;
+                        }
+                        const element = changedFields[key];
+                        if (!element.validating && !element.dirty && !element.errors) {
+                            props.handleSaveComponent(key, element.value)
+                        }
+                    }
+                }
+            },
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    old_label: { value: isEmpty(data.old_label) ? '' : data.old_label.key },
+                    score_col: { value: data.score_col },
+                    pos: { value: data.pos },
+                    bin: { value: data.bin }
+                }
+                return values;
+            }
+        })(FieldSetting);
         return (
             <div className="params-single-tab">
                 <div className="c-panel__siderbar__header">
                     字段设置
                 </div>
                 <div className="params-single-tab-content">
-                    <WrapFieldSetting />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} taskId={taskId} />
                 </div>
             </div>
         );

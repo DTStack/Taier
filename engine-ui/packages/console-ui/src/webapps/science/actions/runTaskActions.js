@@ -1,9 +1,7 @@
-/* eslint-disable no-unused-vars */
 import API from '../api';
-import { sqlExecStatus, taskStatus, TASK_STATUS } from '../consts';
+import { sqlExecStatus, taskStatus } from '../consts';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 import { setNotebookLog, appendNotebookLog, setNotebookResult, showNotebookLog } from './notebookActions';
-import { setExperimentLog, appendExperimentLog, setExperimentResult, showExperimentLog } from './experimentActions';
 import { addLoadingTab, removeLoadingTab } from './editorActions';
 
 function getLogStatus (status) {
@@ -172,114 +170,4 @@ function resolveData (tabId, data, key, dispatch) {
     if (data && data.download) {
         dispatch(appendNotebookLog(tabId, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
     }
-}
-
-// 运行实验task
-export function execExperiment (tabData) {
-    return async (dispatch) => {
-        const tabId = tabData.id;
-        dispatch(addLoadingTab(tabId));
-        dispatch(setExperimentLog(tabId, `正在运行...`));
-        dispatch(showExperimentLog(tabId));
-        setTimeout(() => {
-            runExperiment(tabData, dispatch);
-            dispatch(removeLoadingTab(tabId));
-        }, 1000)
-    }
-}
-
-async function runExperiment (tabData, dispatch) {
-    const tabId = tabData.id;
-    const params = {
-        taskId: tabId,
-        uniqueKey: tabId + '_' + Date.now() + '_' + ~~(Math.random() * 10000)
-    };
-    let res;
-    // TODO 模拟请求
-    res = {
-        code: 1,
-        data: {
-            jobId: '111111'
-        },
-        message: null
-    };
-    resolveMsgExperiment(tabId, res, dispatch);
-    if (res && res.code == 1) {
-        if (res.data.jobId) {
-            let selectRes = await pollExperimentTask(tabId, res.data.jobId, dispatch);
-            return selectRes;
-        } else {
-            resolveDataExperiment(tabId, res.data, params.uniqueKey, dispatch);
-            return true;
-        }
-    } else {
-        dispatch(appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
-        return false;
-    }
-}
-
-function resolveMsgExperiment (tabId, res, dispatch) {
-    if (res && res.message) {
-        dispatch(appendExperimentLog(tabId, createLog(`${res.message}`, 'error')))
-    }
-    if (res && res.code == 1) {
-        if (res.data && res.data.msg) {
-            dispatch(
-                appendExperimentLog(
-                    tabId,
-                    createLog(`${res.data.msg}`, getLogStatus(res.data.status))
-                )
-            )
-        }
-    }
-}
-function resolveDataExperiment (tabId, data, key, dispatch) {
-    dispatch(appendExperimentLog(tabId, createLog('执行完成!', 'info')));
-    if (data.result) {
-        dispatch(setExperimentResult(tabId, key, data.result))
-    }
-    if (data && data.download) {
-        dispatch(appendExperimentLog(tabId, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
-    }
-}
-
-async function pollExperimentTask (tabId, jobId, dispatch) {
-    let res;
-    if (isTaskStoped(tabId)) {
-        return false;
-    }
-    try {
-        res = await API.comm.pollTask({ jobId });
-    } catch (e) {
-        return false;
-    }
-    resolveMsgExperiment(tabId, res, dispatch);
-    if (res && res.code == 1) {
-        const status = res.data.status;
-        switch (status) {
-            case TASK_STATUS.success: {
-                // 成功
-                resolveDataExperiment(tabId, res.data, jobId, dispatch);
-                return true;
-            }
-            case TASK_STATUS.failure: {
-                outputExperimentStatus(tabId, status, dispatch);
-                if (res.data && res.data.download) {
-                    dispatch(appendExperimentLog(tabId, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-                }
-                return false;
-            }
-            default: {
-                outputExperimentStatus(res.data.status, '.....', dispatch)
-                let pollRes = await pollExperimentTask(tabId, jobId, dispatch);
-                return pollRes;
-            }
-        }
-    } else {
-        dispatch(appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
-        return false;
-    }
-}
-function outputExperimentStatus (tabId, status, dispatch) {
-    dispatch(appendNotebookLog(tabId, createLog(`${status}.....`, 'info')))
 }

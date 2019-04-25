@@ -147,7 +147,7 @@ class GraphContainer extends React.Component {
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
-        const { openTaskInDev, saveSelectedCell, data, changeSiderbar } = this.props;
+        const { openTaskInDev, saveSelectedCell, data, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
         graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
             const event = evt.getProperty('event');
@@ -221,13 +221,14 @@ class GraphContainer extends React.Component {
                 style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
                 style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
                 applyCellStyle(cellState, style);
-                saveSelectedCell(cell)
                 selectedCell = cell;
-                changeSiderbar('params', true);
+                saveSelectedCell(cell) // 保存已选择的cell
+                getTaskDetailData(data, cell.data.id); // 获取已选择的cell的详细数据
+                changeSiderbar('params', true); // 选择cell会打开组件参数的侧边栏
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
-                changeSiderbar(null, false);
+                changeSiderbar(null, false); // 没有选择cell会关闭侧边栏
                 saveSelectedCell({})
             }
         }, true);

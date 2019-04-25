@@ -11,10 +11,15 @@ class SqlScript extends Component {
             tableName: 'table1'
         }, {
             tableName: 'table2'
+        }, {
+            tableName: 'table3'
+        }, {
+            tableName: 'table4'
         }],
         code: ''
     }
     renderSource = () => {
+        const { data } = this.props;
         const { source } = this.state;
         return (
             <>
@@ -22,7 +27,7 @@ class SqlScript extends Component {
                     return (
                         <InputGroup compact key={index} style={{ marginTop: -1 }}>
                             <Input style={{ width: '20%' }} defaultValue={item.tableName} disabled />
-                            <Input style={{ width: '80%' }} />
+                            <Input style={{ width: '80%' }} disabled value={data.nodeList[index]} />
                         </InputGroup>
                     )
                 })}

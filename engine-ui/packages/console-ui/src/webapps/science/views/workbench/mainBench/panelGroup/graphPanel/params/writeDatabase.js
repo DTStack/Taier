@@ -1,20 +1,18 @@
 import React, { PureComponent } from 'react';
-import { Form, Select, Checkbox, InputNumber } from 'antd';
+import { formItemLayout } from './index';
+import { debounce } from 'lodash';
+import { Form, Select, Checkbox, InputNumber, message } from 'antd';
+import api from '../../../../../../api/experiment';
 const FormItem = Form.Item;
 const Option = Select.Option;
-const formItemLayout = {
-    labelCol: {
-        span: 24
-    },
-    wrapperCol: {
-        span: 24
-    }
-};
 // 表选择
 class ChooseTable extends PureComponent {
     state = {
-        tables: [],
-        partitionCheck: false // 选择的数据表是否为分区表
+        tables: []
+    }
+    constructor (props) {
+        super(props);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleChange = (value) => {
         this.props.form.setFieldsValue({
@@ -26,9 +24,25 @@ class ChooseTable extends PureComponent {
             }]
         })
     }
+    handleSaveComponent = () => {
+        const form = this.props.form;
+        const params = {
+            writeTableComponent: {
+                table: form.getFieldValue('tableName'),
+                partitions: form.getFieldValue('lifeDay')
+            }
+        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code === 1) {
+                message.success('保存成功');
+            } else {
+                message.warning('保存失败');
+            }
+        })
+    }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { tables, partitionCheck } = this.state;
+        const { tables } = this.state;
         return (
             <Form className="params-form">
                 <FormItem
@@ -56,7 +70,11 @@ class ChooseTable extends PureComponent {
                             })}
                         </Select>
                     )}
-                    <Checkbox disabled checked={partitionCheck}>分区</Checkbox>
+                    {getFieldDecorator('partitionCheck', {
+                        valuePropName: 'checked'
+                    })(
+                        <Checkbox>分区</Checkbox>
+                    )}
                 </FormItem>
                 <FormItem
                     colon={false}
@@ -67,7 +85,7 @@ class ChooseTable extends PureComponent {
                         initialValue: 28,
                         rules: [{ required: true, message: '请填写表生命周期' }]
                     })(
-                        <InputNumber style={{ width: '100%' }} />
+                        <InputNumber style={{ width: '100%' }} onChange={this.handleSaveComponent} />
                     )}
                 </FormItem>
             </Form>
