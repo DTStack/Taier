@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+
 import { Modal, Form, Input, Icon } from 'antd';
 import './index.scss';
+
+import * as baseActions from '../../actions/base'
+import { bindActionCreators } from 'redux';
+
 const FormItem = Form.Item;
 const formItemLayout = {
     labelCol: {
@@ -12,17 +18,39 @@ const formItemLayout = {
         sm: { span: 14 }
     }
 };
-class Index extends Component {
+
+@connect(null, dispatch => {
+    return {
+        ...bindActionCreators(baseActions, dispatch)
+    }
+})
+class NewProject extends Component {
+    state = {
+        loading: false
+    }
     handleOk = () => {
-        this.props.form.validateFieldsAndScroll((err, values) => {
+        this.props.form.validateFieldsAndScroll(async (err, values) => {
             if (!err) {
-                console.log('Received values of form: ', values);
-                this.handleCancel();
+                this.setState({
+                    loading: true
+                })
+                let res = await this.props.createProject(values);
+                if (res && res.code == 1) {
+                    this.props.onOk(res.data);
+                    this.handleCancel();
+                } else {
+                    this.setState({
+                        loading: false
+                    })
+                }
             }
         });
     }
     handleCancel = () => {
         this.props.form.resetFields();
+        this.setState({
+            loading: false
+        })
         this.props.onCancel();
     }
     alert () {
@@ -30,6 +58,7 @@ class Index extends Component {
         return values.projectName && values.projectAliaName && <div className="alert"><Icon type="question-circle-o" />项目创建后，项目显示名支持修改，项目名称将不能再修改</div>;
     }
     render () {
+        const { loading } = this.state;
         const { visible } = this.props;
         const { getFieldDecorator } = this.props.form;
         return (
@@ -39,6 +68,7 @@ class Index extends Component {
                     title="创建项目"
                     visible={visible}
                     onOk={this.handleOk}
+                    confirmLoading={loading}
                     wrapClassName='projects-modal'
                     okText="创建"
                     onCancel={this.handleCancel}
@@ -56,17 +86,17 @@ class Index extends Component {
                                 }, {
                                     max: 32, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }, {
-                                    pattern: /^[A-Za-z0-9_]+$/, message: '不超过32个字符，只支持字母、数字、下划线'
+                                    pattern: /^\w+$/, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }]
                             })(
-                                <Input placeholder="不超过32个字符，只支持字母、数字、下划线" />
+                                <Input placeholder="项目创建后，项目显示名支持修改，项目名称将不能再修改" />
                             )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="项目显示名"
                         >
-                            {getFieldDecorator('projectAliaName', {
+                            {getFieldDecorator('projectAlias', {
                                 rules: [{
                                     required: true, message: '请填写项目显示名'
                                 }, {
@@ -95,4 +125,4 @@ class Index extends Component {
         );
     }
 }
-export default Form.create()(Index);
+export default Form.create()(NewProject);

@@ -4,6 +4,13 @@ import { SCIENCE_BASE_URL } from 'config/base';
 export default {
 
     // ================== Common ================== //
+    GET_ALL_PROJECTS: `${SCIENCE_BASE_URL}/project/getProjects`, // 获取所有的项目列表
+    GET_PROJECT_LIST: `${SCIENCE_BASE_URL}/common/project/listProject`, // 获取项目列表
+    GET_PROJECT_DETAIL: `${SCIENCE_BASE_URL}/common/project/getProject`, // 项目详情
+    CREATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/createProject`, // 创建项目
+    GET_TOP_PROJECT: `${SCIENCE_BASE_URL}/common/project/listProjectTop5`, // 项目TOP5列表
+    UPDATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/updateProject`, // 更新项目
+    GET_ALL_JOB_STATUS: `${SCIENCE_BASE_URL}/service/maintain/queryAllJobStatusStatistics`, // 项目指标统计
     EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/startSqlImmediately`, // 开始执行SQL
     POLL_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 开始轮询执行状态
     STOP_EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/stopSql`, // 停止执行SQL
@@ -12,20 +19,20 @@ export default {
     GET_SQL_RESULT: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 获取SQL结果
     GET_SYS_PARAMS: `${SCIENCE_BASE_URL}/batchTask/getSysParams`, // 获取系统参数
 
-    GET_CATALOGUES: `${SCIENCE_BASE_URL}/getCatalogue`, // 获取目录
-    ADD_FOLDER: `${SCIENCE_BASE_URL}/addCatalogue`, // 添加文件夹
-    UPDATE_FOLDER: `${SCIENCE_BASE_URL}/updateCatalogue`, // 更新文件夹
-    DELETE_FOLDER: `${SCIENCE_BASE_URL}/deleteCatalogue`, // 删除文件夹
+    GET_CATALOGUES: `${SCIENCE_BASE_URL}/service/scienceCatalogue/getCatalogue`, // 获取目录
+    ADD_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/addCatalogue`, // 添加文件夹
+    UPDATE_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/updateCatalogue`, // 更新文件夹
+    DELETE_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/deleteCatalogue`, // 删除文件夹
 
     GET_NOTEBOOK_TASK_BY_ID: `${SCIENCE_BASE_URL}/notebook/getTaskById`, // 获取notebookTask
-    ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/addOrUpdateNotebook`, // 添加notebook
+    ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
     SUBMIT_NOTEBOOK: `${SCIENCE_BASE_URL}/publishNotebookTask`, // 提交notebook
     SUBMIT_NOTEBOOK_MODEL: `${SCIENCE_BASE_URL}/publishNotebookModel`, // 提交notebook
     SEARCH_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/globalSearch`, // 搜索notebook
     DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/deleteTask`, // 删除notebook
 
-    ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/addOrUpdateExperiment`, // 添加实验
+    ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加实验
     SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/globalSearch`, // 搜索实验
     DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/deleteTask`, // 删除实验
 

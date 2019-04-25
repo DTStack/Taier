@@ -1,8 +1,23 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { withRouter } from 'react-router'
+
 import { Icon, Card, Input, Table, Button } from 'antd';
 import NewProject from '../../components/newProject';
 import ProjectDetail from './projectDetail';
+
+import utils from 'utils';
+import * as baseActions from '../../actions/base'
+import Api from '../../api';
+
 const Search = Input.Search;
+
+@connect(null, dispatch => {
+    return {
+        ...bindActionCreators(baseActions, dispatch)
+    }
+})
 class ProjectsList extends Component {
     state = {
         loading: false,
@@ -14,7 +29,8 @@ class ProjectsList extends Component {
         },
         pagination: {
             current: 1,
-            total: 0
+            total: 0,
+            pageSize: 10
         },
         checkProject: undefined,
         visible: false,
@@ -45,15 +61,15 @@ class ProjectsList extends Component {
         });
     }
     handleSearch = (value) => {
-        const params = Object.assign(this.state.params)
+        const params = Object.assign({}, this.state.params)
         params.search = value;
         this.setState({
             params
-        });
+        }, this.getTableData);
     }
     handleTableChange = (paginations, filters, sorter) => {
-        const params = Object.assign(this.state.params)
-        const pagination = Object.assign(this.state.pagination)
+        const params = Object.assign({}, this.state.params)
+        const pagination = Object.assign({}, this.state.pagination)
         pagination.current = paginations.current;
         if (sorter.field) {
             params.filed = sorter.field;
@@ -67,24 +83,36 @@ class ProjectsList extends Component {
             pagination
         }, this.getTableData)
     }
-    getTableData = () => {
+    getTableData = async () => {
         this.setState({
-            data: [{
-                id: 1,
-                projectAliaName: '1',
-                projectName: '1',
-                mb: '1',
-                creator: '1',
-                createTime: '1'
-            }]
+            loading: true
+        })
+        const { pagination, params } = this.state;
+        let res = await Api.comm.getProjectList({
+            currentPage: pagination.current,
+            pageSize: pagination.pageSize,
+            searchName: params.search,
+            orderBy: params.filed,
+            sort: params.sort
         });
+        this.setState({
+            loading: false
+        })
+        if (res && res.code == 1) {
+            this.setState({
+                data: res.data.data,
+                pagination: {
+                    ...this.state.pagination,
+                    total: res.data.totalCount
+                }
+            })
+        }
     }
     initCol = () => {
         return [{
             title: '项目显示名',
-            dataIndex: 'projectAliaName',
-            key: 'projectAliaName',
-            sorter: true,
+            dataIndex: 'projectAlias',
+            key: 'projectAlias',
             render: (text, record) => {
                 return <a href="javascript:void(0)" onClick={() => this.handleCheckProject(record)}>{text}</a>
             }
@@ -93,9 +121,9 @@ class ProjectsList extends Component {
             dataIndex: 'projectName',
             key: 'projectName'
         }, {
-            title: '项目占用存储（MB）',
-            dataIndex: 'mb',
-            key: 'mb',
+            title: '项目占用存储',
+            dataIndex: 'totalSize',
+            key: 'totalSize',
             sorter: true
         }, {
             title: '创建人',
@@ -103,22 +131,35 @@ class ProjectsList extends Component {
             key: 'creator'
         }, {
             title: '创建时间',
-            dataIndex: 'createTime',
-            key: 'createTime'
+            dataIndex: 'gmtCreate',
+            key: 'gmtCreate',
+            render (t) {
+                return utils.formatDateTime(t)
+            }
         }, {
             title: '操作',
             dataIndex: 'o',
             key: 'o',
             render: (text, record) => {
-                return <a href="javascript:void(0)">开始数据探索</a>
+                return <a onClick={ () => {
+                    this.props.setProject(record);
+                    setTimeout(() => {
+                        this.props.router.push('/science/workbench');
+                    })
+                }}>
+                    开始数据探索
+                </a>
             }
         }]
+    }
+    gotoWelcome = () => {
+        this.props.router.push('/science/index')
     }
     render () {
         const { loading, data, pagination, visible, visibleSlidePane, checkProject } = this.state;
         return (
             <div className="projects-list">
-                <header className="projects-header"><Icon type="rollback" onClick={() => this.props.toggle()} />项目列表</header>
+                <header className="projects-header"><Icon type="rollback" onClick={this.gotoWelcome} />项目列表</header>
                 <Card
                     noHovering
                     bordered={false}
@@ -141,7 +182,9 @@ class ProjectsList extends Component {
                 </Card>
                 <NewProject
                     onCancel={this.handleCancel}
-                    visible={visible} />
+                    visible={visible}
+                    onOk={this.getTableData}
+                />
                 <ProjectDetail
                     checkProject={checkProject || {}}
                     onCancel={this.closeSlidePane}
@@ -151,4 +194,4 @@ class ProjectsList extends Component {
     }
 }
 
-export default ProjectsList;
+export default withRouter(ProjectsList);

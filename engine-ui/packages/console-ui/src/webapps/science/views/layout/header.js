@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
 import { get } from 'lodash';
 import { connect } from 'react-redux'
-import { Menu, Dropdown, Icon } from 'antd';
 
+import { Menu, Dropdown, Icon } from 'antd';
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
+
+import { setProject } from '../../actions/base'
+
 const SubMenu = Menu.SubMenu;
 @connect(state => {
     return {
@@ -12,7 +15,15 @@ const SubMenu = Menu.SubMenu;
         apps: state.apps,
         routing: state.routing,
         app: state.app,
-        licenseApps: state.licenseApps
+        licenseApps: state.licenseApps,
+        projects: state.project.projectList,
+        project: state.project.currentProject
+    }
+}, dispatch => {
+    return {
+        setProject (project) {
+            return dispatch(setProject(project))
+        }
     }
 })
 class Header extends Component {
@@ -36,8 +47,11 @@ class Header extends Component {
             );
         })
     }
-    selectedProject (e) {
-        console.log(e.key)
+    selectedProject = (e) => {
+        const { projects } = this.props;
+        this.props.setProject(projects.find((project) => {
+            return e.key == project.id;
+        }));
     }
     render () {
         const { app, licenseApps } = this.props;
@@ -47,7 +61,7 @@ class Header extends Component {
         const path = location.hash.split('/');
         let menuItems = [];
         let customItems = []
-        if (path.length > 2) {
+        if (path.length > 2 && path[2] !== 'index') {
             const menu = <Menu
                 onClick={this.selectedProject}
                 selectedKeys={

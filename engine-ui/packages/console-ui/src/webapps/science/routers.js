@@ -16,9 +16,11 @@ import RoleAdd from 'main/views/admin/role/add'
 import RoleEdit from 'main/views/admin/role/edit'
 
 // 数据质量
-import Container from './views'
-import Workbench from './views/workbench'
-import Index from './views/index/index';
+import Container from './views';
+import Workbench from './views/workbench';
+import Index from './views/index/';
+import Welcome from './views/index/welcome';
+import ProjectList from './views/index/projectsList';
 import Operation from './views/operation';
 import Source from './views/source';
 
@@ -28,26 +30,31 @@ import Source from './views/source';
 import GraphView from './views/workbench/mainBench/panelGroup/graphPanel'
 
 export default (
-    <Route path="/" component={ Main }>
+    <Route path="/" component={Main}>
         <IndexRedirect to="/science" />
-        <Route path="/message" component={ MsgCenter }>
-            <IndexRoute component={ MsgList } />
-            <Route path="list" component={ MsgList } />
-            <Route path="detail/:msgId" component={ MsgDetail } />
+        <Route path="/message" component={MsgCenter}>
+            <IndexRoute component={MsgList} />
+            <Route path="list" component={MsgList} />
+            <Route path="detail/:msgId" component={MsgDetail} />
         </Route>
-        <Route path="/admin" component={ SysAdmin }>
-            <IndexRoute component={ AdminUser } />
-            <Route path="user" component={ AdminUser } />
-            <Route path="role" component={ AdminRole } />
-            <Route path="role/add" component={ RoleAdd } />
-            <Route path="role/edit/:roleId" component={ RoleEdit } />
+        <Route path="/admin" component={SysAdmin}>
+            <IndexRoute component={AdminUser} />
+            <Route path="user" component={AdminUser} />
+            <Route path="role" component={AdminRole} />
+            <Route path="role/add" component={RoleAdd} />
+            <Route path="role/edit/:roleId" component={RoleEdit} />
         </Route>
-        <Route path="/science" component={ Container }>
-            <IndexRoute component={ Index } />
-            <Route path='workbench' component={ Workbench } />
-            <Route path='source' component={ Source } />
-            <Route path='operation' component={ Operation } />
-            <Route path='test' component={ GraphView } />
+        <Route path="/science" component={Container}>
+            <IndexRedirect to='index' />
+            <Route path='index' component={Index}>
+                <IndexRoute component={Welcome} />
+                <Route path='welcome' component={Welcome} />
+                <Route path='projectList' component={ProjectList} />
+            </Route>
+            <Route path='workbench' component={Workbench} />
+            <Route path='source' component={Source} />
+            <Route path='operation' component={Operation} />
+            <Route path='test' component={GraphView} />
         </Route>
         <Route path="/*" component={NotFund} />
     </Route>

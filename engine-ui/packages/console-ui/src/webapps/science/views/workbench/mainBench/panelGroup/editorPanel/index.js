@@ -45,7 +45,7 @@ class EditorPanel extends Component {
         /**
          * 处理一下自定义和系统参数
          */
-        let { taskVariables } = this.props.data;
+        let { taskVariables = [] } = this.props.data;
         let variables = matchTaskParams(this.props.common.sysParams, newVal);
         const newKeys = variables.map((v) => {
             return v.paramName;

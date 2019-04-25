@@ -1,12 +1,16 @@
 import http from './http'
 import req from '../consts/reqUrls'
+import { taskType } from '../consts'
 
 export default {
     loadTreeData (params) {
         return http.post(req.GET_EXPERIMENT_CATALOGUES, params);
     },
     addExperiment (params) {
-        return http.post(req.ADD_EXPERIMENT, params);
+        return http.post(req.ADD_EXPERIMENT, {
+            ...params,
+            taskType: taskType.EXPERIMENT
+        });
     },
     searchGlobal (params) {
         return http.post(req.SEARCH_EXPERIMENT, params);

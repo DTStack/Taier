@@ -5,7 +5,8 @@ import {
     RDOS_BASE_URL,
     DQ_BASE_URL,
     DL_BASE_URL,
-    CONSOLE_BASE_URL
+    CONSOLE_BASE_URL,
+    SCIENCE_BASE_URL
 } from 'config/base';
 
 export default {
@@ -83,5 +84,25 @@ export default {
     STREAM_ROLE_PERMISSION: `${STREAM_BASE_URL}/permission/getPermissionIdsByRoleId`, // 获取角色的权限
     STREAM_ROLE_PERMISSION_ADD_OR_EDIT: `${STREAM_BASE_URL}/role/addOrUpdateRole`, // 更新或添加角色权限
     STREAM_REMOVE_ROLE: `${STREAM_BASE_URL}/role/deleteRole`, // 删除角色
-    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/project/getUicUsersNotInProject` // 获取UIC用户列表
+    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/project/getUicUsersNotInProject`, // 获取UIC用户列表
+
+    //= ==== 算法平台 ====//
+    //* *消息**//
+    SCIENCE_MASSAGE_QUERY: `${SCIENCE_BASE_URL}/notify/pageQuery`,
+    SCIENCE_GET_MASSAGE_BY_ID: `${SCIENCE_BASE_URL}/notify/getOne`,
+    SCIENCE_MASSAGE_MARK_AS_READ: `${SCIENCE_BASE_URL}/notify/tabRead`,
+    SCIENCE_MASSAGE_MARK_AS_ALL_READ: `${SCIENCE_BASE_URL}/notify/allRead`,
+    SCIENCE_MASSAGE_DELETE: `${SCIENCE_BASE_URL}/notify/delete`,
+
+    //* * 用户角色 *//
+    SCIENCE_QUERY_USER: `${SCIENCE_BASE_URL}/user/pageQuery`, // 查询系统用户信息
+    SCIENCE_REMOVE_USER: `${SCIENCE_BASE_URL}/roleUser/remove`, // 删除用户
+    SCIENCE_UPDATE_USER_ROLE: `${SCIENCE_BASE_URL}/roleUser/updateUserRole`, // 更改用户角色
+    SCIENCE_ADD_USER: `${SCIENCE_BASE_URL}/roleUser/addRoleUserNew`, // 添加用户
+    SCIENCE_ROLE_QUERY: `${SCIENCE_BASE_URL}/role/pageQuery`, // 角色列表
+    SCIENCE_GET_ROLE_TREE: `${SCIENCE_BASE_URL}/permission/tree`, // 获取权限树
+    SCIENCE_ROLE_PERMISSION: `${SCIENCE_BASE_URL}/permission/getPermissionIdsByRoleId`, // 获取角色的权限
+    SCIENCE_ROLE_PERMISSION_ADD_OR_EDIT: `${SCIENCE_BASE_URL}/role/addOrUpdateRole`, // 更新或添加角色权限
+    SCIENCE_REMOVE_ROLE: `${SCIENCE_BASE_URL}/role/deleteRole`, // 删除角色
+    SCIENCE_SEARCH_UIC_USERS: `${SCIENCE_BASE_URL}/user/getUicUsersNotInProject` // 获取UIC用户列表
 }
