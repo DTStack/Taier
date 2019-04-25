@@ -1006,7 +1006,7 @@ export default class OutputPanel extends Component {
             tabTemplate, panelActiveKey, panelColumn, originOptionType,
             tableOptionType, tableColumnOptionType, topicOptionType, sync
         } = this.state;
-        const { isShow, currentPage } = this.props;
+        const { isShow, currentPage, isLocked } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
@@ -1037,7 +1037,7 @@ export default class OutputPanel extends Component {
                         })
                     }
                 </Collapse>
-                <Button className="stream-btn" onClick={() => { this.changeInputTabs('add') }} style={{ borderRadius: 5 }}><Icon type="plus" /><span> 添加结果表</span></Button>
+                <Button disabled={isLocked} className="stream-btn" onClick={() => { this.changeInputTabs('add') }} style={{ borderRadius: 5 }}><Icon type="plus" /><span> 添加结果表</span></Button>
             </div>
         )
     }
