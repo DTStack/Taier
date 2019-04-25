@@ -1,11 +1,11 @@
 import React from 'react';
-import { Table, Modal, Button } from 'antd';
+import { Table, Modal, Button, message } from 'antd';
 
 import utils from 'utils';
 
-import DiffCodeEditor from 'widgets/editor/diff';
-import { TASK_TYPE, DEAL_MODEL_TYPE } from '../../../comm/const';
-import DiffParams from './diffParams';
+import { TASK_TYPE, DEAL_MODEL_TYPE } from '../../../../comm/const';
+import DiffTask from './diffTask';
+import ajax from '../../../../api/index';
 
 const confirm = Modal.confirm;
 
@@ -29,47 +29,51 @@ const getLanguage = (type) => {
 export default class TaskVersion extends React.Component {
     state = {
         showDiff: false,
-        campareTo: '',
-        diffParams: {
-            showDiffparams: false,
-            tableInfo: ''
-        }
+        haveCode: false,
+        compareTo: '',
+        historyValue: '' // 历史数据
     };
+
+    _modalKey = 0;
 
     constructor (props) {
         super(props);
     }
 
-    diffCode = target => {
+    /**
+     * 加载调度配置
+     */
+    getScheduleConfData = (id) => {
+        this.setState({
+            historyValue: {}
+        })
+        ajax.taskVersionScheduleConf({ versionId: id }).then(res => {
+            if (res.code == 1) {
+                this.setState({
+                    historyValue: res.data || {}
+                })
+            } else {
+                this.setState({
+                    historyValue: {}
+                })
+            }
+        })
+    }
+
+    diffParams = (target, haveCode) => {
         this.setState({
             showDiff: true,
-            campareTo: target
+            compareTo: target,
+            haveCode: haveCode
         });
+        this.getScheduleConfData(target.id);
     };
 
-    diffParams = data => {
-        const { diffParams } = this.state;
-        diffParams.showDiffparams = true;
-        diffParams.tableInfo = data;
-        this.setState({
-            diffParams
-        });
-    };
-
-    close = () => {
+    closeDiffModal = () => {
         this.setState({
             showDiff: false,
-            campareTo: {}
-        });
-        this._modalKey = ~~(Math.random() * 10000)
-    };
-
-    closeParamsModal = () => {
-        const { diffParams } = this.state;
-        diffParams.showDiffparams = false;
-        diffParams.tableInfo = '';
-        this.setState({
-            diffParams
+            compareTo: {},
+            hoveCode: false
         });
     };
 
@@ -77,12 +81,22 @@ export default class TaskVersion extends React.Component {
         this.props.changeSql(newVal);
     };
 
-    codeRollsBack = () => {
+    taskRollsBack = () => {
+        const { updateTaskField } = this.props;
+        const { historyValue, compareTo } = this.state;
+        const ctx = this;
         confirm({
-            title: '确认对当前版本的代码执行回滚操作吗？',
-            content: '回滚操作是一种将历史版本代码覆盖当前版本代码的操作。',
+            title: '确认执行任务回滚操作吗？',
+            content: '任务回滚可帮助您恢复历史版本的任务数据！',
             onOk () {
-                console.log('OK');
+                message.success('回滚成功！');
+                updateTaskField({
+                    sqlText: compareTo.sqlText,
+                    scheduleConf: historyValue.scheduleConf,
+                    taskParams: historyValue.taskParams,
+                    merged: true
+                });
+                ctx._modalKey++;
             },
             onCancel () {
                 console.log('Cancel');
@@ -92,15 +106,26 @@ export default class TaskVersion extends React.Component {
 
     render () {
         const { taskInfo, taskType, editor } = this.props;
-        const { showDiff, campareTo, diffParams } = this.state;
+        const { showDiff, compareTo, haveCode, historyValue } = this.state;
 
-        let sqlTextJSON = taskInfo.sqlText;
-        let compareToText = campareTo.sqlText;
+        let sqlTextJSON = taskInfo.sqlText || '';
+        let compareToText = compareTo.sqlText || '';
         const language = getLanguage(taskInfo.taskType);
-        const footer = <div style={{ marginRight: 30 }}>
-            <Button type="primary" onClick={this.codeRollsBack}>回滚代码</Button>
-            <Button type="primary" onClick={this.close}>关闭</Button>
-        </div>
+
+        const diffCode = {
+            original: { value: sqlTextJSON },
+            modified: { value: compareToText },
+            options: { readOnly: true },
+            theme: editor.options.theme,
+            onChange: this.codeChange,
+            language: language
+        }
+
+        // 目前暂时只支持有代码的任务类型进行回滚操作
+        const footer = haveCode ? <div style={{ marginRight: 30 }}>
+            <Button type="primary" onClick={this.taskRollsBack}>版本回滚</Button>
+            <Button type="primary" onClick={this.closeDiffModal}>关闭</Button>
+        </div> : null;
 
         return (
             <div style={{ marginBottom: 16 }}>
@@ -112,39 +137,24 @@ export default class TaskVersion extends React.Component {
                     pagination={false}
                 />
                 <Modal
-                    key={this._modalKey}
                     wrapClassName="vertical-center-modal modal-body-nopadding"
-                    title="代码对比"
-                    width="900px"
-                    bodyStyle={{ height: '500px' }}
-                    visible={showDiff}
-                    onCancel={this.close}
-                    footer={footer}
-                >
-                    <DiffCodeEditor
-                        className="merge-text"
-                        original={{ value: sqlTextJSON }}
-                        modified={{ value: compareToText }}
-                        options={{ readOnly: true }}
-                        theme={ editor.options.theme }
-                        onChange={this.codeChange}
-                        language={language}
-                    />
-                </Modal>
-                <Modal
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
-                    title="参数对比"
+                    title="版本对比"
                     width="900px"
                     bodyStyle={{ minHeight: '500px', paddingBottom: 20 }}
-                    visible={diffParams.showDiffparams}
-                    onCancel={this.closeParamsModal}
+                    visible={showDiff}
+                    onCancel={this.closeDiffModal}
                     cancelText="关闭"
-                    footer={null}
+                    footer={footer}
                 >
-                    <DiffParams
-                        value={taskInfo}
-                        diffParams={diffParams.tableInfo}
+                    <DiffTask
+                        key={`${taskInfo.id}-${compareTo.id}-${this._modalKey}`}
+                        currentTabData={taskInfo}
+                        diffParams={compareTo}
                         taskType={taskType}
+                        diffCode={diffCode}
+                        editor={editor}
+                        showDiffCode={haveCode}
+                        historyValue={historyValue}
                     />
                 </Modal>
             </div>
@@ -153,12 +163,10 @@ export default class TaskVersion extends React.Component {
 
     renderTaskOperation = (taskInfo, record) => {
         const showCodeAndConfig = <div>
-            <a onClick={() => this.diffCode(record)}>代码</a>
-            <span className="ant-divider" />
-            <a onClick={() => this.diffParams(record)}>参数</a>
+            <a onClick={() => this.diffParams(record, true)}>版本对比</a>
         </div>;
         const showConfig = <div>
-            <a onClick={() => this.diffParams(record)}>参数</a>
+            <a onClick={() => this.diffParams(record, false)}>版本对比</a>
         </div>;
 
         switch (taskInfo.taskType) {
