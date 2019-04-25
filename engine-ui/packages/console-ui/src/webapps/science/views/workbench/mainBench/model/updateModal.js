@@ -9,12 +9,7 @@ import utils from 'utils';
 class ModelUpdateModal extends React.Component {
     state = {
         updateList: [],
-        loading: false,
-        pagination: {
-            total: 0,
-            pageSize: 5,
-            current: 1
-        }
+        loading: false
     }
     componentDidMount () {
         this.loadData();
@@ -27,19 +22,12 @@ class ModelUpdateModal extends React.Component {
         this.setState({
             loading: true
         })
-        const { pagination } = this.state;
         let res = await api.getModelParamsList({
-            currentPage: pagination.current,
-            pageSize: pagination.pageSize,
             id: data.id
         });
         if (res && res.code == 1) {
             this.setState({
-                updateList: res.data.data,
-                pagination: {
-                    ...pagination,
-                    total: res.data.totalCount
-                }
+                updateList: res.data
             })
         }
         this.setState({
@@ -56,14 +44,6 @@ class ModelUpdateModal extends React.Component {
             message.success('操作成功');
             this.loadData();
         }
-    }
-    onTableChange = (pagination, filters, sorter) => {
-        this.setState({
-            pagination: {
-                ...this.state.pagination,
-                ...pagination
-            }
-        }, this.loadData)
     }
     initColumns () {
         return [{
@@ -93,7 +73,7 @@ class ModelUpdateModal extends React.Component {
         }]
     }
     render () {
-        const { updateList, pagination, loading } = this.state;
+        const { updateList, loading } = this.state;
         const { visible, onCancel } = this.props;
         return (
             <Modal
@@ -104,11 +84,13 @@ class ModelUpdateModal extends React.Component {
                 title='更新模型'
             >
                 <Table
+                    className='m-table'
                     columns={this.initColumns()}
                     dataSource={updateList}
-                    pagination={pagination}
                     loading={loading}
                     onChange={this.onTableChange}
+                    scroll={{ y: '550px' }}
+                    pagination={false}
                 />
             </Modal>
         )

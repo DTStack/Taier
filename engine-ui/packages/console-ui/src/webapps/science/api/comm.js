@@ -20,5 +20,26 @@ export default {
     },
     getSysParams (params) {
         return http.post(req.GET_SYS_PARAMS, params);
+    },
+    getAllProject (params) {
+        return http.post(req.GET_ALL_PROJECTS, params);
+    },
+    getProjectList (params) {
+        return http.post(req.GET_PROJECT_LIST, params);
+    },
+    createProject (params) {
+        return http.post(req.CREATE_PROJECT, params);
+    },
+    updateProject (params) {
+        return http.post(req.UPDATE_PROJECT, params);
+    },
+    getTopProject (params) {
+        return http.post(req.GET_TOP_PROJECT, params);
+    },
+    getAllJobStatus (params) {
+        return http.post(req.GET_ALL_JOB_STATUS, params);
+    },
+    getProjectDetail (params) {
+        return http.post(req.GET_PROJECT_DETAIL, params);
     }
 }

@@ -1,6 +1,20 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
+import { bindActionCreators } from 'redux';
+
 import { Row, Col, Icon, Card, Button } from 'antd';
 import NewProject from '../../components/newProject';
+
+import * as baseActions from '../../actions/base'
+
+import Api from '../../api'
+
+@connect(null, dispatch => {
+    return {
+        ...bindActionCreators(baseActions, dispatch)
+    }
+})
 class Welcome extends Component {
     state = {
         projects: [],
@@ -21,36 +35,24 @@ class Welcome extends Component {
             visible: false
         });
     }
-    getProjects = () => {
-        this.setState({
-            projects: [{
-                projectId: 1,
-                projectName: '中金易云项目'
-            }, {
-                projectId: 2,
-                projectName: 'SG航空项目'
-            }, {
-                projectId: 3,
-                projectName: '中原银行项目'
-            }, {
-                projectId: 4,
-                projectName: '北京国网项目'
-            }, {
-                projectId: 5,
-                projectName: '京东方项目'
-            }]
-        })
+    getProjects = async () => {
+        let res = await Api.comm.getTopProject();
+        if (res && res.code == 1) {
+            this.setState({
+                projects: res.data
+            })
+        }
     }
-    getStatistic = () => {
-        this.setState({
-            statistic: {
-                projects: 1,
-                experiments: 2,
-                notebook: 3,
-                experimenting: 4,
-                notebooking: 5
-            }
-        })
+    getStatistic = async () => {
+        let res = await Api.comm.getAllJobStatus();
+        if (res && res.code == 1) {
+            this.setState({
+                statistic: res.data
+            })
+        }
+    }
+    gotoProjectList = () => {
+        this.props.router.push('/science/index/projectList')
     }
     render () {
         const { projects, statistic, visible } = this.state;
@@ -66,7 +68,7 @@ class Welcome extends Component {
                                 <div className="info-box blue">
                                     <div className="info-box-left">
                                         <p><Icon type="appstore-o" /><span>总项目数</span></p>
-                                        <p className="number">{statistic.projects || 0}</p>
+                                        <p className="number">{(statistic.totalLabCount + statistic.totalNotebookCount) || 0}</p>
                                     </div>
                                 </div>
                             </Col>
@@ -74,7 +76,7 @@ class Welcome extends Component {
                                 <div className="info-box purple">
                                     <div className="info-box-left">
                                         <p><Icon type="usb" /><span>总实验数</span></p>
-                                        <p className="number">{statistic.experiments || 0}</p>
+                                        <p className="number">{statistic.totalLabCount || 0}</p>
                                     </div>
                                 </div>
                             </Col>
@@ -82,7 +84,7 @@ class Welcome extends Component {
                                 <div className="info-box green">
                                     <div className="info-box-left">
                                         <p><Icon type="book" /><span>总Notebook作业数</span></p>
-                                        <p className="number">{statistic.notebook || 0}</p>
+                                        <p className="number">{statistic.totalNotebookCount || 0}</p>
                                     </div>
                                 </div>
                             </Col>
@@ -90,7 +92,7 @@ class Welcome extends Component {
                                 <div className="info-box orange">
                                     <div className="info-box-left">
                                         <p><Icon type="usb" /><span>正在运行的实验</span></p>
-                                        <p className="number">{statistic.experimenting || 0}</p>
+                                        <p className="number">{statistic.deployLabCount || 0}</p>
                                     </div>
                                 </div>
                             </Col>
@@ -98,7 +100,7 @@ class Welcome extends Component {
                                 <div className="info-box yellow">
                                     <div className="info-box-left">
                                         <p><Icon type="book" /><span>正在运行的Notebook作业</span></p>
-                                        <p className="number">{statistic.notebooking || 0}</p>
+                                        <p className="number">{statistic.deployNotebookCount || 0}</p>
                                     </div>
                                 </div>
                             </Col>
@@ -110,7 +112,7 @@ class Welcome extends Component {
                             title={<div>欢迎使用DTInsight.Science数据科学平台</div>}
                             extra={<>
                                 <Button ghost type="primary" onClick={this.handleNewProject}>创建项目</Button>
-                                <Button ghost type="primary" onClick={() => this.props.toggle()}>项目列表</Button>
+                                <Button ghost type="primary" onClick={this.gotoProjectList}>项目列表</Button>
                             </>}>
                             <img src='public/science/img/welcome.png' />,
                         </Card>
@@ -121,7 +123,10 @@ class Welcome extends Component {
                         <div className="title">常用项目</div>
                         {
                             projects.map((item) => {
-                                return <a className="project" key={item.projectId} href="javascript:void(0)">{item.projectName}</a>
+                                return <a className="project" key={item.projectId} onClick={() => {
+                                    this.props.router.push('/science/workbench');
+                                    this.props.setProject(item);
+                                }}>{item.projectAlias}</a>
                             })
                         }
                     </div>
@@ -140,4 +145,4 @@ class Welcome extends Component {
     }
 }
 
-export default Welcome;
+export default withRouter(Welcome);

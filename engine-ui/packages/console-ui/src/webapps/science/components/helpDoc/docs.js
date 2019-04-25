@@ -15,3 +15,10 @@ export const updateModelDeal = () => {
         </p>
     </div>)
 }
+export const modelPath = () => {
+    return (<div>
+        <p>
+            填写模型部署的 HDFS 路径，需与代码中的 HDFS 路径地址保持一致。
+        </p>
+    </div>)
+}

@@ -23,7 +23,10 @@ export const siderBarType = {
     component: 'component',
     model: 'model'
 }
-
+export const taskType = {
+    NOTEBOOK: 13,
+    EXPERIMENT: 14
+}
 export const MODEL_STATUS = {
     RUNNING: {
         value: 0,

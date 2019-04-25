@@ -13,6 +13,9 @@ function files (state = [], action) {
         case experimentFilesType.INIT_TREE: {
             return payload;
         }
+        case experimentFilesType.CLEAR_TREE: {
+            return [];
+        }
         default: {
             return state;
         }

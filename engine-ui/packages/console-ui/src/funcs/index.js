@@ -1,6 +1,7 @@
 import { debounce, endsWith } from 'lodash';
 import { notification, Modal } from 'antd'
 import React from 'react';
+import { MY_APPS } from 'main/consts';
 
 /**
  * 存放一些零碎的公共方法
@@ -112,7 +113,7 @@ export function openNewWindow (url, target) {
  * @param {s} app
  */
 export function hasProject (app) {
-    return app === 'rdos' || app === 'stream'
+    return app === MY_APPS.RDOS || app === MY_APPS.STREAM || app === MY_APPS.SCIENCE
 }
 
 /**

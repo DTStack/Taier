@@ -14,6 +14,9 @@ function files (state = [], action) {
         case componentFilesType.INIT_TREE: {
             return payload;
         }
+        case componentFilesType.CLEAR_TREE: {
+            return [];
+        }
         default: {
             return state;
         }
