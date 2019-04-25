@@ -395,6 +395,7 @@ class StepOne extends Component {
                     )}
                     maskClosable={false}>
                     <FormItem
+                        required
                         label="数据库"
                         labelCol={
                             {
@@ -405,28 +406,19 @@ class StepOne extends Component {
                         wrapperCol={{
                             xs: { span: 24 },
                             sm: { span: 16 }
-                        }
-                        }>
-                        {
-                            getFieldDecorator('databaseId_ddl', {
-                                rules: [
-                                    { required: true, message: '数据库不可为空' }
-                                ]
-                            })(
-                                <Select
-                                    placeholder="请选择数据库"
-                                    style={{ width: '100%' }}
-                                    onSelect={this.handleDataBaseChange}
-                                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                                >
-                                    {
-                                        databaseList.map(o => (
-                                            <Option key={o.id} value={o.id}>{o.name}</Option>
-                                        ))
-                                    }
-                                </Select>
-                            )
-                        }
+                        }}>
+                        <Select
+                            placeholder="请选择数据库"
+                            style={{ width: '100%' }}
+                            onSelect={this.handleDataBaseChange}
+                            getPopupContainer={triggerNode => triggerNode.parentNode}
+                        >
+                            {
+                                databaseList.map(o => (
+                                    <Option key={o.id} value={o.id}>{o.name}</Option>
+                                ))
+                            }
+                        </Select>
                     </FormItem>
                     <Editor
                         style={{ height: '400px' }}
