@@ -1229,7 +1229,7 @@ export default class OutputPanel extends Component {
             tableColumnOptionType,
             sync
         } = this.state;
-        const { isShow, currentPage } = this.props;
+        const { isShow, currentPage, isLocked } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse
@@ -1272,6 +1272,7 @@ export default class OutputPanel extends Component {
                     })}
                 </Collapse>
                 <Button
+                    disabled={isLocked}
                     className="stream-btn"
                     onClick={() => {
                         this.changeInputTabs('add');
@@ -1279,7 +1280,7 @@ export default class OutputPanel extends Component {
                     style={{ borderRadius: 5 }}
                 >
                     <Icon type="plus" />
-                    <span> 添加维表</span>
+                    <span>添加维表</span>
                 </Button>
             </div>
         );
