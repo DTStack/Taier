@@ -309,7 +309,7 @@ class TargetForm extends React.Component {
         this.setState({
             modalLoading: true
         })
-        ajax.createDdlTable({ sql: textSql }).then((res) => {
+        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId }).then((res) => {
             this.setState({
                 modalLoading: false
             })
@@ -325,7 +325,7 @@ class TargetForm extends React.Component {
         })
     }
     showCreateModal = () => {
-        const { sourceMap } = this.props;
+        const { sourceMap, targetMap } = this.props;
         this.setState({
             loading: true
         })
@@ -333,7 +333,8 @@ class TargetForm extends React.Component {
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName: tableName,
-            partition: sourceMap.type.partition
+            partition: sourceMap.type.partition,
+            targetSourceId: targetMap.sourceId
         })
             .then(
                 (res) => {

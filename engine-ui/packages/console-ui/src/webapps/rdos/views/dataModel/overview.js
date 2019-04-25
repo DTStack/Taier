@@ -325,7 +325,7 @@ class Overview extends Component {
                                 noHovering
                                 bordered={false}
                                 loading={false}
-                                title="今日任务完成情况"
+                                title="今日模型建立情况"
                             >
                                 <Row className="m-count" style={{ display: 'flex' }}>
                                     <Col style={flex}>

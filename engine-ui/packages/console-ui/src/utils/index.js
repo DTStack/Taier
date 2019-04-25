@@ -1,17 +1,20 @@
+/* eslint-disable no-cond-assign */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-useless-escape */
+
 import moment from 'moment';
 /**
  * utils
  */
-/* eslint-disable */
 
-moment.locale("zh-cn");
+moment.locale('zh-cn');
 
 const utils = {
     /**
      * 获取页面宽度
      * @return {[type]} [description]
      */
-    pageWidth: function() {
+    pageWidth: function () {
         return Math.max(
             document.documentElement.clientWidth,
             window.innerWidth || 0
@@ -22,45 +25,45 @@ const utils = {
      * 获取页面高度
      * @return {[type]} [description]
      */
-    pageHeight: function() {
+    pageHeight: function () {
         return Math.max(
             document.documentElement.clientHeight,
             window.innerHeight || 0
         );
     },
 
-    checkExist: function(prop) {
+    checkExist: function (prop) {
         return prop !== undefined && prop !== null && prop !== '';
     },
 
-    isMacOs: function() {
-        return navigator.userAgent.indexOf("Macintosh") > -1;
+    isMacOs: function () {
+        return navigator.userAgent.indexOf('Macintosh') > -1;
     },
 
-    isWindows: function() {
-        return navigator.userAgent.indexOf("Windows") > -1;
+    isWindows: function () {
+        return navigator.userAgent.indexOf('Windows') > -1;
     },
-    isMobileDevice: function() {
-        return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+    isMobileDevice: function () {
+        return (typeof window.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
     },
     /**
      * @description 浏览器类型和版本检测
      * @returns {Boolean} `true`表示通过兼容性检测,`false`表示不通过兼容性检测
      */
-    browserCheck() {
+    browserCheck () {
         let Sys = {};
         if (this.isMobileDevice()) return true; // 忽略移动设备
         let ua = navigator.userAgent.toLowerCase();
         let s;
-        (s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1] :
-            (s = ua.match(/msie ([\d\.]+)/)) ? Sys.ie = s[1] :
-                (s = ua.match(/edge\/([\d\.]+)/)) ? Sys.edge = s[1] :
-                    (s = ua.match(/firefox\/([\d\.]+)/)) ? Sys.firefox = s[1] :
-                        (s = ua.match(/(?:opera|opr).([\d\.]+)/)) ? Sys.opera = s[1] :
-                            (s = ua.match(/chrome\/([\d\.]+)/)) ? Sys.chrome = s[1] :
-                                (s = ua.match(/version\/([\d\.]+).*safari/)) ? Sys.safari = s[1] : 0;
+        (s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1]
+            : (s = ua.match(/msie ([\d\.]+)/)) ? Sys.ie = s[1]
+                : (s = ua.match(/edge\/([\d\.]+)/)) ? Sys.edge = s[1]
+                    : (s = ua.match(/firefox\/([\d\.]+)/)) ? Sys.firefox = s[1]
+                        : (s = ua.match(/(?:opera|opr).([\d\.]+)/)) ? Sys.opera = s[1]
+                            : (s = ua.match(/chrome\/([\d\.]+)/)) ? Sys.chrome = s[1]
+                                : (s = ua.match(/version\/([\d\.]+).*safari/)) ? Sys.safari = s[1] : 0;
         if (
-            (Sys.chrome && parseInt(Sys.chrome.split('.'[0])) >= 66) || 
+            (Sys.chrome && parseInt(Sys.chrome.split('.'[0])) >= 66) ||
             Sys.firefox
         ) return true
         return false;
@@ -71,14 +74,15 @@ const utils = {
      * @param  {[type]} url  [description]
      * @return {[type]}      [description]
      */
-    getParameterByName: function(name, url) {
+    getParameterByName: function (name, url) {
         if (!url) url = window.location.href;
-        name = name.replace(/[\[\]]/g, "\\$&");
-        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+
+        var results = regex.exec(url);
         if (!results) return null;
-        if (!results[2]) return "";
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
     },
 
     /**
@@ -87,9 +91,9 @@ const utils = {
      * @param  {Function} callback [description]
      * @return {[type]}            [description]
      */
-    getBase64: function(img, callback) {
+    getBase64: function (img, callback) {
         const reader = new FileReader();
-        reader.addEventListener("load", () => callback(reader.result));
+        reader.addEventListener('load', () => callback(reader.result));
         reader.readAsDataURL(img);
     },
 
@@ -99,93 +103,94 @@ const utils = {
      * @param  {[type]} precision [description]
      * @return {[type]}           [description]
      */
-    percent: function(num, precision) {
-        if (!num || num === Infinity) return 0 + "%";
+    percent: function (num, precision) {
+        if (!num || num === Infinity) return 0 + '%';
         if (num > 1) num = 1;
-        precision = precision ? precision : 2;
+        precision = precision || 2;
         precision = Math.pow(10, precision);
-        return Math.round(num * precision * 100) / precision + "%";
+        return Math.round(num * precision * 100) / precision + '%';
     },
 
-    getCssText: function(object) {
-        var str = "";
+    getCssText: function (object) {
+        var str = '';
         for (var attr in object) {
-            str += attr + ":" + object[attr] + ";";
+            str += attr + ':' + object[attr] + ';';
         }
         return str;
     },
 
-    formatDateTime: function(timestap) {
-        return moment(timestap).format("YYYY-MM-DD HH:mm:ss");
+    formatDateTime: function (timestap) {
+        return moment(timestap).format('YYYY-MM-DD HH:mm:ss');
     },
 
-    formatDate: function(timestap) {
-        return moment(timestap).format("YYYY-MM-DD");
+    formatDate: function (timestap) {
+        return moment(timestap).format('YYYY-MM-DD');
     },
-    formatDateHours: function(timestap) {
-        return moment(timestap).format("YYYY-MM-DD HH:mm");
+    formatDateHours: function (timestap) {
+        return moment(timestap).format('YYYY-MM-DD HH:mm');
     },
-    formatDayHours: function(timestap) {
-        return moment(timestap).format("MM-DD HH:mm");
+    formatDayHours: function (timestap) {
+        return moment(timestap).format('MM-DD HH:mm');
     },
-    formatHours: function(timestap) {
-        return moment(timestap).format("HH:mm");
+    formatHours: function (timestap) {
+        return moment(timestap).format('HH:mm');
     },
-    formatMinute: function(timestap) {
-        return moment(timestap).format("HH:mm:ss");
+    formatMinute: function (timestap) {
+        return moment(timestap).format('HH:mm:ss');
     },
 
     /**
      * 去除空串
      */
-    trim: function(str) {
-        return typeof str === "string"
-            ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "")
+    trim: function (str) {
+        return typeof str === 'string'
+            ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
             : str;
     },
 
-    trimlr: function(str) {
-        const res = str.replace(/^\s*/, ""); // 去左边
-        return res.replace(/\s*$/, ""); // 去右边
+    trimlr: function (str) {
+        const res = str.replace(/^\s*/, ''); // 去左边
+        return res.replace(/\s*$/, ''); // 去右边
     },
 
     // 原生 JavaScript 获取 cookie 值
-    getCookie: function(name) {
+    getCookie: function (name) {
         const arr = document.cookie.match(
-            new RegExp("(^| )" + name + "=([^;]*)(;|$)")
+            new RegExp('(^| )' + name + '=([^;]*)(;|$)')
         );
         if (arr != null) return unescape(decodeURI(arr[2]));
         return null;
     },
 
-    deleteCookie: function(name, domain, path) {
+    deleteCookie: function (name, domain, path) {
         var d = new Date(0);
-        var domain = domain?`; domain=${domain}`:'';
-        var path = path || "/";
+        domain = domain ? `; domain=${domain}` : '';
+        path = path || '/';
         document.cookie =
-            name + "=; expires=" + d.toUTCString() + domain + "; path=" + path;
+            name + '=; expires=' + d.toUTCString() + domain + '; path=' + path;
     },
 
-    deleteAllCookies: function(domain, path) {
-        var cookies = document.cookie.split(";");
-        for (var i = 0; i < cookies.length; i++)
+    deleteAllCookies: function (domain, path) {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
             if (cookies[i]) {
-                this.deleteCookie(cookies[i].split("=")[0], path, domain);
+                this.deleteCookie(cookies[i].split('=')[0], path, domain);
             }
+        }
     },
 
-    setCookie: function(name, value, days) {
-        var expires = "";
+    setCookie: function (name, value, days) {
+        var expires = '';
         if (days) {
             var date = new Date();
             date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-            expires = "; expires=" + date.toUTCString();
+            expires = '; expires=' + date.toUTCString();
         }
-        document.cookie = name + "=" + value + expires + "; path=/";
+        document.cookie = name + '=' + value + expires + '; path=/';
     },
 
     // TODO, 可以修改为递归算法
-    convertBytes: function(value) {
+    convertBytes: function (value) {
         if (value >= 1024) {
             const val0 = (value / 1024).toFixed(2);
 
@@ -205,7 +210,6 @@ const utils = {
                     } else {
                         return `${val2} GB`;
                     }
-
                 } else {
                     return `${val1} MB`;
                 }
@@ -219,40 +223,40 @@ const utils = {
     /**
      * 时间转换 3661s--->1小时1分钟1秒
      */
-    formatTime(time=0){
-        let second=0;
-        let minute=0;
-        let hour=0;
-        
-        function _formatHour(time){
-            hour = Math.floor(time/3600);
-            return time-hour*3600;
+    formatTime (time = 0) {
+        let second = 0;
+        let minute = 0;
+        let hour = 0;
+
+        function _formatHour (time) {
+            hour = Math.floor(time / 3600);
+            return time - hour * 3600;
         }
-        function _formatMinute(time){
-            minute = Math.floor(time/60);
-            return time-minute*60;
+        function _formatMinute (time) {
+            minute = Math.floor(time / 60);
+            return time - minute * 60;
         }
-        function _formatSecond(time){
-            second =  time;
+        function _formatSecond (time) {
+            second = time;
             return second;
         }
         _formatSecond(_formatMinute(_formatHour(time)))
-        return `${hour?hour+'h':''}${minute?minute+'m':''}${second?second+'s':''}`||"0s"
+        return `${hour ? hour + 'h' : ''}${minute ? minute + 'm' : ''}${second ? second + 's' : ''}` || '0s'
     },
-    //千位分割
-    toQfw: function(str) {
+    // 千位分割
+    toQfw: function (str) {
         if (!str) {
             return 0;
         }
         str = str.toString ? str.toString() : str;
         let re = /(?=(?!(\b))(\d{3})+$)/g;
-        str = str.replace(re, ",");
+        str = str.replace(re, ',');
         return str;
     },
-    //文字溢出转换
-    textOverflowExchange(text, length) {
+    // 文字溢出转换
+    textOverflowExchange (text, length) {
         if (text && text.length > length) {
-            return text.substring(0, length) + "...";
+            return text.substring(0, length) + '...';
         }
         return text;
     },
@@ -261,7 +265,7 @@ const utils = {
      * @param {格式化内容} text
      * @param {格式化占位符} space
      */
-    jsonFormat(text, space) {
+    jsonFormat (text, space) {
         if (!text) {
             return text;
         }
@@ -277,7 +281,7 @@ const utils = {
     /**
      * 多函数排序，匹配到0为止
      */
-    sortByCompareFunctions(arr, ...compareFunctions) {
+    sortByCompareFunctions (arr, ...compareFunctions) {
         arr.sort((a, b) => {
             let result = 0;
             for (let func of compareFunctions) {
@@ -292,13 +296,13 @@ const utils = {
     /**
      * 转换排序字段
      */
-    exchangeOrder(order) {
+    exchangeOrder (order) {
         switch (order) {
-            case "ascend": {
-                return "asc";
+            case 'ascend': {
+                return 'asc';
             }
-            case "descend": {
-                return "desc";
+            case 'descend': {
+                return 'desc';
             }
             default: {
                 return undefined;
@@ -308,10 +312,22 @@ const utils = {
     /**
      * 生成一个key
      */
-    generateAKey(){
-        return ''+new Date().getTime()+~~(Math.random()*1000000)
+    generateAKey () {
+        return '' + new Date().getTime() + ~~(Math.random() * 1000000)
+    },
+
+    /**
+     * 判断是否是JSON string
+     * @param  {String}  str 所要验证的字符串
+     * @return {Boolean}   是否是JSON字符串
+     */
+    isJSONStr (str) {
+        str = this.trimlr(str);
+        return (
+            (str.charAt(0) === '{' && str.charAt(str.length - 1) === '}') ||
+            (str.charAt(0) === '[' && str.charAt(str.length - 1) === ']')
+        )
     }
 };
 
 export default utils;
-/* eslint-disable */

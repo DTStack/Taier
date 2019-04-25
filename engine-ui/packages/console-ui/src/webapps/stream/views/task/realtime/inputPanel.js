@@ -13,7 +13,9 @@ import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
 import Editor from 'widgets/code-editor'
-import DataPreviewModal from './dataPreviewModal'
+import DataPreviewModal from './dataPreviewModal';
+import LockPanel from '../../../components/lockPanel';
+
 const Option = Select.Option;
 const Panel = Collapse.Panel;
 const RadioGroup = Radio.Group;
@@ -156,8 +158,12 @@ class InputOrigin extends Component {
                                 { required: true, message: '请选择数据源' }
                             ]
                         })(
-                            <Select placeholder="请选择" className="right-select" onChange={(v) => { handleInputChange('sourceId', index, v) }}
-                                showSearch filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                            <Select
+                                showSearch
+                                placeholder="请选择"
+                                className="right-select"
+                                onChange={(v) => { handleInputChange('sourceId', index, v) }}
+                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {
                                     originOptionTypes
@@ -359,6 +365,7 @@ class InputOrigin extends Component {
                     >
                         {getFieldDecorator('timeZone')(
                             <Cascader
+                                allowClear={false}
                                 onChange={value => handleInputChange('timeZone', index, value.join('/'))}
                                 placeholder='请选择时区'
                                 showSearch
@@ -727,7 +734,7 @@ export default class InputPanel extends Component {
             this.parseColumnsText(index, value, 'changeText')
         }
         panelColumn = cloneDeep(panelColumn);
-        if (type == 'customParams') {
+        if (type == 'customParams') { // customParams暂时不会执行
             changeCustomParams(panelColumn[index], value, subValue);
         } else {
             panelColumn[index][type] = value;
@@ -885,14 +892,14 @@ export default class InputPanel extends Component {
 
     render () {
         const { tabTemplate, panelActiveKey, panelColumn, timeColumoption, topicOptionType, originOptionType, sync } = this.state;
-        const { isShow, timeZoneData } = this.props;
+        const { isShow, timeZoneData, currentPage } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse activeKey={panelActiveKey} bordered={false} onChange={this.handleActiveKey} >
                     {
                         tabTemplate.map((InputPutOrigin, index) => {
                             return (
-                                <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5 }} className="input-panel">
+                                <Panel header={this.panelHeader(index)} key={index + 1} style={{ borderRadius: 5, position: 'relative' }} className="input-panel">
                                     <InputForm
                                         isShow={panelActiveKey.indexOf(index + 1 + '') > -1 && isShow}
                                         sync={sync}
@@ -911,6 +918,7 @@ export default class InputPanel extends Component {
                                             })
                                         }}
                                     />
+                                    <LockPanel lockTarget={currentPage} />
                                 </Panel>
                             )
                         })

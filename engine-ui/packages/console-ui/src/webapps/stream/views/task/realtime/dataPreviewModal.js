@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import { Modal, Button, Collapse, Input, Icon } from 'antd';
 import { assign } from 'lodash';
 
+import utils from 'utils';
+
 import Api from '../../../api';
 
 const Panel = Collapse.Panel;
@@ -58,14 +60,15 @@ class DataPreviewModal extends Component {
                         <Collapse accordion>
                             {
                                 (dataSource || previewData).map((item, index) => {
+                                    const jsonStr = utils.isJSONStr(item) ? utils.jsonFormat(item, 4) : item;
                                     return (
                                         <Panel
-                                            header={<div className={defaultClass}>{JSON.stringify(item)}</div>}
+                                            header={<div className={defaultClass}>{item || '无数据'}</div>}
                                             key={`preview-${index + 1}`}
                                         >
                                             <TextArea
                                                 style={defaultStyle}
-                                                value={JSON.stringify(item, null, 4)}
+                                                value={jsonStr}
                                             />
                                         </Panel>
                                     )

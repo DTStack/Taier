@@ -295,7 +295,8 @@ class TaskBrowser extends Component {
             currentPage, pages, editor
         } = this.props;
 
-        const panels = this.mapPanels(pages)
+        const panels = this.mapPanels(pages);
+        const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
 
         return (
             <Row className="task-browser">
@@ -368,12 +369,12 @@ class TaskBrowser extends Component {
                             }
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
                                 <Editor
-                                    editorInstanceRef={(ref) => { window.tttttp = ref }}
                                     key="params-editor"
                                     sync={this._syncEditor}
                                     value={currentPage.taskParams}
                                     onChange={this.editorParamsChange.bind(this)}
                                     language="ini"
+                                    options={{ readOnly: isLocked, minimap: { enabled: false } }}
                                     theme={editor.options.theme}
                                 />
                             </TabPane>

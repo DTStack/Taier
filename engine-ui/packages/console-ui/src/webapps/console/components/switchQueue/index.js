@@ -22,7 +22,7 @@ class SwitchQueue extends React.Component {
         })
     }
     confirmSwitchQueue = () => {
-        const { getFieldValue, validateFields } = this.props.form;
+        const { getFieldValue, validateFields, resetFields } = this.props.form;
         validateFields(err => {
             if (!err) {
                 Api.confirmSwitchQueue({
@@ -30,8 +30,11 @@ class SwitchQueue extends React.Component {
                     queueId: getFieldValue('queueId')
                 }).then(res => {
                     if (res.code === 1) {
-                        message.success('切换队列成功！')
-                        this.closeAllModal();
+                        message.success('切换队列成功！');
+                        resetFields();
+                        setTimeout(() => {
+                            this.closeAllModal();
+                        }, 10);
                     }
                 })
             }
