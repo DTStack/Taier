@@ -41,5 +41,17 @@ export default {
     },
     getProjectDetail (params) {
         return http.post(req.GET_PROJECT_DETAIL, params);
+    },
+    getProjectJobStatus (params) {
+        return http.post(req.GET_JOB_STATUS, params);
+    },
+    getProjectJobGraph (params) {
+        return http.post(req.GET_JOB_GRAPH, params);
+    },
+    queryTask (params) {
+        return http.post(req.QUERY_TASK, params);
+    },
+    frozenTask (params) {
+        return http.post(req.FROZEN_TASK, params);
     }
 }

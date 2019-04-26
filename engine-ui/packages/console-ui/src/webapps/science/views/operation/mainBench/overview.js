@@ -3,6 +3,7 @@ import { Row, Col, Icon, Tabs } from 'antd';
 import { cloneDeep } from 'lodash';
 import Resize from 'widgets/resize';
 import { lineChartOptions } from '../../../comm/const.js';
+import { taskType } from '../../../consts';
 import Api from '../../../api/index';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -16,18 +17,43 @@ const TabPane = Tabs.TabPane;
 class Overview extends React.PureComponent {
     state = {
         experimentData: {},
-        activeKey: 'experiment'
+        notebookData: {},
+        activeKey: `${taskType.EXPERIMENT}`,
+        status: {
+            deployNotebookCount: 0,
+            failLabCount: 0,
+            failNotebookCount: 0,
+            successLabCount: 0,
+            deployLabCount: 0,
+            totalLabCount: 0,
+            successNotebookCount: 0,
+            totalNotebookCount: 0
+        }
     }
     componentDidMount () {
-        // this.getStatistics();
-        this.getExperiment();
+        this.getStatistics();
+        this.initData();
     }
     componentDidUpdate (prevProps, prevState, snapshot) {
         if (prevState.activeKey !== this.state.activeKey) {
-            this.resizeChart();
+            this.initData();
+            // this.resizeChart();
         }
     }
     drawCharts = (chartDatas, id) => {
+        const { activeKey, experimentData, notebookData } = this.state;
+        switch (activeKey) {
+            case `${taskType.EXPERIMENT}`: {
+                chartDatas = experimentData;
+                id = 'experiment'
+                break;
+            }
+            case `${taskType.NOTEBOOK}`: {
+                chartDatas = notebookData;
+                id = 'notebook'
+                break;
+            }
+        }
         let myChart = echarts.init(document.getElementById(id));
         const option = cloneDeep(lineChartOptions);
         option.color = ['#2491F7', '#00A755', '#E64933'];
@@ -80,55 +106,62 @@ class Overview extends React.PureComponent {
         }) : []
         // 绘制图表
         myChart.setOption(option, { notMerge: true });
+        this._chart = myChart;
         return myChart;
     }
 
     resizeChart = () => {
-        this._chart1 && this._chart1.resize()
-        this._chart2 && this._chart2.resize()
+        this._chart && this._chart.resize()
     }
-    getExperiment = () => {
-        this.setState({
-            experimentData: {
-                type: null,
-                x: {
-                    name: 'time',
-                    data: ['01-2', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01', '01-01']
-                },
-                y: [{
-                    name: '总实例数',
-                    data: [1, 2, 3, 3, 31, 43, 3, 3, 3, 13, 33, 3, 224]
-                }, {
-                    name: '成功实例',
-                    data: [1, 2, 3, 3, 3, 23, 3, 3, 3, 3, 3, 3, 5]
-                }, {
-                    name: '失败实例',
-                    data: [1, 2, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 56]
-                }]
+    initData = async () => {
+        const { activeKey } = this.state;
+        let res = await Api.comm.getProjectJobGraph({
+            taskType: activeKey
+        });
+        if (res && res.code == 1) {
+            let params = {};
+            switch (activeKey) {
+                case `${taskType.EXPERIMENT}`: {
+                    params.experimentData = {
+                        ...res.data,
+                        type: null
+                    }
+                    break;
+                }
+                case `${taskType.NOTEBOOK}`: {
+                    params.notebookData = {
+                        ...res.data,
+                        type: null
+                    }
+                    break;
+                }
             }
-        }, () => {
-            this._chart1 = this.drawCharts(this.state.experimentData, 'experiment');
-            this._chart2 = this.drawCharts(this.state.experimentData, 'notebook');
-        })
+            this.setState({
+                ...params
+            }, this.drawCharts)
+        }
     }
     getStatistics = () => {
-        Api.getStatistics().then(res => {
-            if (res.code === 1) {
-
+        Api.comm.getProjectJobStatus().then(res => {
+            if (res && res.code === 1) {
+                this.setState({
+                    status: res.data
+                })
             }
         })
     }
     renderOverview = () => {
+        const { status } = this.state;
         return <Row gutter={20} style={{ marginBottom: 30 }}>
             <Col span={6}>
                 <div className="info-box blue">
                     <div className="info-box-left">
                         <p><Icon type="appstore-o" /><span>总任务</span></p>
-                        <p className="number">222</p>
+                        <p className="number">{status.totalNotebookCount}</p>
                     </div>
                     <div className="info-box-right">
-                        <p>实验数：222</p>
-                        <p>Notebook作业数：4</p>
+                        <p>实验数：{status.totalLabCount}</p>
+                        <p>Notebook作业数：{status.totalNotebookCount}</p>
                     </div>
                 </div>
             </Col>
@@ -136,11 +169,11 @@ class Overview extends React.PureComponent {
                 <div className="info-box green">
                     <div className="info-box-left">
                         <p><Icon type="appstore-o" /><span>已部署任务</span></p>
-                        <p className="number">222</p>
+                        <p className="number">{status.deployLabCount + status.deployNotebookCount}</p>
                     </div>
                     <div className="info-box-right">
-                        <p>实验数：222</p>
-                        <p>Notebook作业数：4</p>
+                        <p>实验数：{status.deployLabCount}</p>
+                        <p>Notebook作业数：{status.deployNotebookCount}</p>
                     </div>
                 </div>
             </Col>
@@ -148,11 +181,11 @@ class Overview extends React.PureComponent {
                 <div className="info-box purple">
                     <div className="info-box-left">
                         <p><Icon type="appstore-o" /><span>运行失败实例</span></p>
-                        <p className="number">222</p>
+                        <p className="number">{status.failLabCount + status.failNotebookCount}</p>
                     </div>
                     <div className="info-box-right">
-                        <p>实验数：222</p>
-                        <p>Notebook作业数：4</p>
+                        <p>实验数：{status.failLabCount}</p>
+                        <p>Notebook作业数：{status.failNotebookCount}</p>
                     </div>
                 </div>
             </Col>
@@ -160,11 +193,11 @@ class Overview extends React.PureComponent {
                 <div className="info-box yellow">
                     <div className="info-box-left">
                         <p><Icon type="appstore-o" /><span>运行成功实例</span></p>
-                        <p className="number">222</p>
+                        <p className="number">{status.successLabCount + status.successNotebookCount}</p>
                     </div>
                     <div className="info-box-right">
-                        <p>实验数：222</p>
-                        <p>Notebook作业数：4</p>
+                        <p>实验数：{status.successLabCount}</p>
+                        <p>Notebook作业数：{status.successNotebookCount}</p>
                     </div>
                 </div>
             </Col>
@@ -177,7 +210,7 @@ class Overview extends React.PureComponent {
                 <div className="title">项目任务执行汇总</div>
                 {this.renderOverview()}
                 <Tabs type="card" activeKey={activeKey} onChange={(activeKey) => this.setState({ activeKey })}>
-                    <TabPane tab="实验" key="experiment" forceRender={true}>
+                    <TabPane tab="实验" key={`${taskType.EXPERIMENT}`} forceRender={true}>
                         <Resize onResize={this.resizeChart}>
                             <div id="experiment" style={{
                                 width: '100%',
@@ -185,7 +218,7 @@ class Overview extends React.PureComponent {
                             }}></div>
                         </Resize>
                     </TabPane>
-                    <TabPane tab="NoteBook作业" key="notebook" forceRender={true}>
+                    <TabPane tab="NoteBook作业" key={`${taskType.NOTEBOOK}`} forceRender={true}>
                         <Resize onResize={this.resizeChart}>
                             <div id="notebook" style={{
                                 width: '100%',

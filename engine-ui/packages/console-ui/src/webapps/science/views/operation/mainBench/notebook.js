@@ -1,6 +1,12 @@
 import React, { PureComponent } from 'react';
-import { Card, Input, Table, Row, Col, Button, Pagination } from 'antd';
+import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd';
+
+import Api from '../../../api'
 import { offlineTaskPeriodFilter } from '../../../comm/const.js'
+import { taskType } from '../../../consts';
+
+import utils from 'utils';
+
 const Search = Input.Search;
 class Notebook extends PureComponent {
     state = {
@@ -8,7 +14,8 @@ class Notebook extends PureComponent {
         loading: false,
         pagination: {
             current: 1,
-            total: 20
+            total: 20,
+            pageSize: 20
         },
         selectedRowKeys: [],
         params: {
@@ -28,7 +35,7 @@ class Notebook extends PureComponent {
         }, this.getTableData)
     }
     handleTableChange = (pagination, filters, sorter) => {
-        const params = Object.assign(this.state.params);
+        const params = Object.assign({}, this.state.params);
         params.filter = filters.taskPeriodId.length ? filters.taskPeriodId.join(',') : '';
         this.setState({
             params
@@ -42,44 +49,55 @@ class Notebook extends PureComponent {
             }
         }, this.getTableData)
     }
-    handleForzenTasks = (flag) => {
-        if (flag === 0) {
-            // 冻结实验
-        } else if (flag === 1) {
-            // 解冻实验
+    handleForzenTasks = async (flag) => {
+        const { selectedRowKeys } = this.state;
+        let res = await Api.comm.frozenTask({
+            scheduleStatus: flag,
+            taskIdList: selectedRowKeys
+        })
+        if (res && res.code == 1) {
+            message.success('操作成功！');
+            this.getTableData();
         }
     }
-    getTableData = () => {
-        console.log('getTableData');
+    getTableData = async () => {
+        const { params, pagination } = this.state;
         this.setState({
-            data: [{
-                id: 1,
-                experiment: 1,
-                submitTime: 1,
-                taskPeriodId: 1,
-                creator: 1
-            }, {
-                id: 2,
-                experiment: 1,
-                submitTime: 1,
-                taskPeriodId: 1,
-                creator: 1
-            }],
-            loading: false,
-            selectedRowKeys: [] // 重置选中的条数
+            loading: true,
+            selectedRowKeys: []
         })
+        let res = await Api.comm.queryTask({
+            taskType: taskType.NOTEBOOK,
+            name: params.search,
+            currentPage: pagination.current,
+            pageSize: pagination.pageSize
+        });
+        if (res && res.code == 1) {
+            this.setState({
+                pagination: {
+                    ...pagination,
+                    total: res.data.totalCount
+                },
+                data: res.data.data
+            });
+        }
+        this.setState({
+            loading: false
+        });
     }
     initCol = () => {
         return [{
             width: '25%',
             title: 'Notebook名称',
-            dataIndex: 'notebook',
-            key: 'notebook'
+            dataIndex: 'name'
         }, {
             width: '25%',
             title: '提交时间',
-            dataIndex: 'submitTime',
-            key: 'submitTime'
+            dataIndex: 'gmtCreate',
+            key: 'gmtCreate',
+            render (t) {
+                return utils.formatDateTime(t);
+            }
         }, {
             width: '25%',
             title: '调度周期',
@@ -104,8 +122,7 @@ class Notebook extends PureComponent {
         }, {
             width: '25%',
             title: '创建人',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'ownerUser.userName'
         }]
     }
     tableFooter = () => {
@@ -114,7 +131,7 @@ class Notebook extends PureComponent {
                 <Col span={12}>
                     <Button
                         style={{ marginRight: 10 }}
-                        onClick={this.handleForzenTasks(0)}
+                        onClick={this.handleForzenTasks.bind(this, 0)}
                         size="small"
                         type="primary"
                     >
@@ -122,7 +139,7 @@ class Notebook extends PureComponent {
                     </Button>
                     <Button
                         size="small"
-                        onClick={this.handleForzenTasks(1)}
+                        onClick={this.handleForzenTasks.bind(this, 1)}
                     >
                         解冻实验
                     </Button>
@@ -130,8 +147,7 @@ class Notebook extends PureComponent {
                 <Col span={12}>
                     <Pagination
                         onChange={this.handlePaginationChange}
-                        current={this.state.pagination.current}
-                        total={this.state.pagination.total} />
+                        {...this.state.pagination} />
                 </Col>
             </Row>
         )

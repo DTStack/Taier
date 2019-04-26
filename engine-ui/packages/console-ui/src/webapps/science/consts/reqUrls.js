@@ -10,7 +10,11 @@ export default {
     CREATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/createProject`, // 创建项目
     GET_TOP_PROJECT: `${SCIENCE_BASE_URL}/common/project/listProjectTop5`, // 项目TOP5列表
     UPDATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/updateProject`, // 更新项目
-    GET_ALL_JOB_STATUS: `${SCIENCE_BASE_URL}/service/maintain/queryAllJobStatusStatistics`, // 项目指标统计
+    GET_ALL_JOB_STATUS: `${SCIENCE_BASE_URL}/service/maintain/queryAllJobStatusStatistics`, // 所有项目指标统计
+    GET_JOB_STATUS: `${SCIENCE_BASE_URL}/service/maintain/queryJobStatusStatistics`, // 获取项目任务执行情况
+    GET_JOB_GRAPH: `${SCIENCE_BASE_URL}/service/maintain/getJobGraph`, // 获取项目实例运行情况
+    QUERY_TASK: `${SCIENCE_BASE_URL}/service/maintain/queryTask`, // 查询任务接口
+    FROZEN_TASK: `${SCIENCE_BASE_URL}/service/maintain/frozenTask`, // 冻结/解冻实验或者作业
     EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/startSqlImmediately`, // 开始执行SQL
     POLL_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 开始轮询执行状态
     STOP_EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/stopSql`, // 停止执行SQL
