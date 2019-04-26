@@ -47,7 +47,7 @@ class DataSource extends Component {
 
     searchDataSources = (name) => {
         let params = { ...this.state.params, name };
-
+        params.currentPage = 1;
         this.setState({ params });
         this.props.getDataSources(params);
     }

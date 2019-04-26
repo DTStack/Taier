@@ -76,7 +76,8 @@ class DataSourceManaStream extends Component {
 
     searchDataSources = (query) => {
         this.setState({
-            name: query
+            name: query,
+            currentPage: 1
         }, this.loadDataSources)
     }
 
