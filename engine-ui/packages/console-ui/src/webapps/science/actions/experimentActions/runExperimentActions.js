@@ -1,5 +1,6 @@
+/* eslint-disable no-unreachable */
 import { changeTab, changeTabSlient } from '../base/tab';
-import { siderBarType, TASK_STATUS, sqlExecStatus } from '../../consts';
+import { siderBarType, taskStatus, sqlExecStatus } from '../../consts';
 import { addLoadingTab, removeLoadingTab } from '../editorActions';
 import experimentLog from './experimentLog';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
@@ -21,7 +22,25 @@ function getLogStatus (status) {
         }
     }
 }
-
+/**
+ * 当前正在执行的任务列表
+ */
+class RunnningTask {
+    _runnningTask = {};
+    addRunningTaskList = (id) => {
+        this._runnningTask[`_runnningTask_${id}`] = {};
+    }
+    get = (id) => {
+        return this._runnningTask[`_runnningTask${id}`];
+    }
+    set = (id, value) => {
+        this._runnningTask[`_runnningTask${id}`] = value;
+    }
+    reset = (id) => {
+        this._runnningTask[`_runnningTask${id}`] = {}
+    }
+}
+const runnningTask = new RunnningTask();
 /**
  * 修改tab内容
  * @param {*} newContent
@@ -37,7 +56,43 @@ export function changeContent (newContent, tab, isDirty = true, slient = false) 
         isDirty
     })
 }
-
+/**
+ * @description 用于判断是否任务状态是否全部执行完毕，并且区分成功和失败
+ * @param {Array} arrayList 数组
+ * @returns compeletedFinish标志是否完全执行完毕，handlerStatus标志是否成功
+ */
+function isCompeletedFinish (arrayList) {
+    const arr = [].concat(arrayList);
+    let status = {
+        handlerStatus: true,
+        compeletedFinish: true
+    }
+    for (let index = 0; index < arr.length; index++) {
+        const element = arr[index];
+        switch (element.status) {
+            case taskStatus.FINISHED:
+            case taskStatus.SET_SUCCESS: {
+                // 成功
+                continue;
+            }
+            case taskStatus.STOPED:
+            case taskStatus.RUN_FAILED:
+            case taskStatus.SUBMIT_FAILED:
+            case taskStatus.KILLED:
+            case taskStatus.FROZEN:
+            case taskStatus.PARENT_FAILD:
+            case taskStatus.FAILING: {
+                status.handlerStatus = false;
+                break;
+            }
+            default: {
+                status.compeletedFinish = false;
+                break;
+            }
+        }
+    }
+    return status;
+}
 function outputExperimentStatus (tabId, status, dispatch) {
     dispatch(experimentLog.appendExperimentLog(tabId, createLog(`${status}.....`, 'info')))
 }
@@ -65,38 +120,59 @@ function resolveDataExperiment (tabId, data, key, dispatch) {
         dispatch(experimentLog.appendExperimentLog(tabId, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
     }
 }
-/* 执行部分的任务 */
+/**
+ *  运行任务
+ *  @param tabData-当前打开的tab的值，包括了detailData，graphData等数据
+ *  @param taskId-需要执行的任务id
+ *  @param type-运行任务的类型，0表示运行，1表示从此处开始执行，2表示执行到此节点，3表示执行此节点
+ *  @param currentTab-表示当前tab的值
+ *  */
 export function getRunTaskList (tabData, taskId, type, currentTab) {
     return async (dispatch, getState) => {
-        console.log(currentTab, 'currentTab')
+        runnningTask.reset(currentTab);
         dispatch(addLoadingTab(currentTab));
         dispatch(experimentLog.setExperimentLog(currentTab, `正在运行...`));
         dispatch(experimentLog.showExperimentLog(currentTab));
-        // TODO 请求接口
-        const response = {
-            code: 1,
-            data: {
-                jobIds: { 2510: 2510, 2511: 2511, 2512: 2512, 2513: 2513 },
-                result: null
+        let res;
+        try {
+            res = await api.getTaskJobId({ taskId, executeOrder: type });
+            res = {
+                code: 1,
+                data: {
+                    2510: 2510,
+                    2511: 2511,
+                    2512: 2512,
+                    2513: 2513
+                }
             }
+        } catch (e) {
+            return false;
         }
-        const jobs = [];
-        for (const key in response.data.jobIds) {
-            if (response.data.jobIds.hasOwnProperty(key)) {
-                const element = response.data.jobIds[key];
-                jobs.push(element);
-            }
+        if (res.code === 1) {
+            runnningTask.set(currentTab, res.data);
+            tabData.graphData.forEach((item) => {
+                if (item.vertex) {
+                    item.data.jobId = res.data[item.id]
+                }
+            })
+            dispatch(changeContent(tabData, {}, false));
+            await dispatch(getRunningTaskStatus(currentTab, tabData));
+            dispatch(removeLoadingTab(currentTab));
+            runnningTask.reset(currentTab);
+        } else {
+            dispatch(experimentLog.appendExperimentLog(currentTab, createLog(`请求异常！`, 'error')))
+            return false;
         }
-        tabData.graphData.forEach((item) => {
-            item.jobId = response.data.jobIds[item.id]
-        })
-        dispatch(changeContent(tabData, {}, false))
-        await dispatch(getRunningTaskStatus(jobs, currentTab, tabData));
-        dispatch(removeLoadingTab(currentTab));
     }
 }
-let index = 0;
-function getRunningTaskStatus (jobIds, tabId, tabData) {
+/* 停止 */
+export function stopRunningTask (data) {
+    return (dispatch) => {
+        const jobIdList = runnningTask.get(data.id);
+        api.stopJobList({ jobIdList })
+    }
+}
+function getRunningTaskStatus (tabId, tabData) {
     return async (dispatch, getState) => {
         if (!tabId) {
             tabId = parseInt(getState().experiment.currentTabIndex);
@@ -104,132 +180,52 @@ function getRunningTaskStatus (jobIds, tabId, tabData) {
         // TODO 请求接口
         const response = {
             code: 1,
-            data: {
-                joobStatus: {
-                    2510: index <= 2 ? index : 2,
-                    2511: index <= 2 ? index - 1 : 2,
-                    2512: index <= 2 ? index - 1 : 2,
-                    2513: index <= 2 ? index - 1 : 2
-                },
-                status: index - 1
-            }
+            data: [{
+                'taskId': 2510,
+                'jobId': '2510',
+                'status': 5
+            }, {
+                'taskId': 2511,
+                'jobId': '2511',
+                'status': 5
+            }, {
+                'taskId': 1,
+                'jobId': '2512',
+                'status': 8
+            }, {
+                'taskId': 1,
+                'jobId': '2513',
+                'status': 8
+            }]
         }
         tabData.graphData.forEach((item) => {
             if (item.vertex) {
-                item.data.status = response.data.joobStatus[item.jobId]
+                const jobStatus = response.data.find(o => o.jobId == item.data.jobId);
+                if (jobStatus) {
+                    item.data.status = jobStatus.status
+                }
             }
         })
         dispatch(changeContent(tabData, {}, false))
         // TODO 模拟的轮训
         resolveMsgExperiment(tabId, response, dispatch);
-        if (response && response.code == 1) {
-            const status = response.data.status;
-            switch (status) {
-                case TASK_STATUS.success: {
-                    // 成功
-                    index = 0;
-                    resolveDataExperiment(tabId, response.data, null, dispatch);
-                    return true;
-                }
-                case TASK_STATUS.failure: {
-                    index = 0;
-                    outputExperimentStatus(tabId, status, dispatch);
-                    if (response.data && response.data.download) {
-                        dispatch(experimentLog.appendExperimentLog(tabId, `完整日志下载地址：${createLinkMark({ href: response.data.download, download: '' })}\n`))
-                    }
-                    return false;
-                }
-                default: {
-                    index += 1;
-                    outputExperimentStatus(response.data.status, '.....', dispatch)
-                    setTimeout(() => {
-                        let pollRes = dispatch(getRunningTaskStatus(jobIds, tabId, tabData));
-                        return pollRes;
-                    }, 1000)
-                }
+        if (response && response.code === 1) {
+            let status = isCompeletedFinish(response.data);
+            if (status.compeletedFinish && status.handlerStatus) {
+                // 成功
+                resolveDataExperiment(tabId, response.data, null, dispatch);
+            } else if (status.compeletedFinish && !status.handlerStatus) {
+                // 失败
+                dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')))
+                resolveDataExperiment(tabId, response.data, null, dispatch);
+            } else if (!status.compeletedFinish) {
+                // 继续轮训
+                outputExperimentStatus(response.data.status, '.....', dispatch)
+                dispatch(getRunningTaskStatus(tabId, tabData));
             }
         } else {
             dispatch(experimentLog.appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
             return false;
         }
-    }
-}
-
-// 运行实验task
-export function execExperiment (tabData) {
-    return async (dispatch) => {
-        const tabId = tabData.id;
-        dispatch(addLoadingTab(tabId));
-        dispatch(experimentLog.setExperimentLog(tabId, `正在运行...`));
-        dispatch(experimentLog.showExperimentLog(tabId));
-        setTimeout(() => {
-            runExperiment(tabData, dispatch);
-            dispatch(removeLoadingTab(tabId));
-        }, 1000)
-    }
-}
-
-async function runExperiment (tabData, dispatch) {
-    const tabId = tabData.id;
-    const params = {
-        taskId: tabId,
-        uniqueKey: tabId + '_' + Date.now() + '_' + ~~(Math.random() * 10000)
-    };
-    let res;
-    // TODO 模拟请求
-    res = {
-        code: 1,
-        data: {
-            jobId: '111111',
-            msg: '执行中'
-        },
-        message: null
-    };
-    resolveMsgExperiment(tabId, res, dispatch);
-    if (res && res.code == 1) {
-        if (res.data.jobId) {
-            await pollExperimentTask(tabId, res.data.jobId, dispatch);
-        } else {
-            resolveDataExperiment(tabId, res.data, params.uniqueKey, dispatch);
-            return true;
-        }
-    } else {
-        dispatch(experimentLog.appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
-        return false;
-    }
-}
-async function pollExperimentTask (tabId, jobId, dispatch) {
-    let res;
-    try {
-        res = await api.submitExperiment({ jobId });
-    } catch (e) {
-        return false;
-    }
-    console.log('res:', res);
-    resolveMsgExperiment(tabId, res, dispatch);
-    if (res && res.code == 1) {
-        const status = res.data.status;
-        switch (status) {
-            case TASK_STATUS.success: {
-                // 成功
-                resolveDataExperiment(tabId, res.data, jobId, dispatch);
-                return true;
-            }
-            case TASK_STATUS.failure: {
-                outputExperimentStatus(tabId, status, dispatch);
-                if (res.data && res.data.download) {
-                    dispatch(experimentLog.appendExperimentLog(tabId, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))
-                }
-                return false;
-            }
-            default: {
-                outputExperimentStatus(res.data.status, '.....', dispatch)
-                let pollRes = await pollExperimentTask(tabId, jobId, dispatch);
-                return pollRes;
-            }
-        }
-    } else {
-        dispatch(experimentLog.appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
-        return false;
     }
 }

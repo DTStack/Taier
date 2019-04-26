@@ -57,13 +57,13 @@ class GraphPanel extends Component {
     };
     /* 运行 */
     execConfirm = () => {
-        const { data } = this.props;
-        this.props.execExperiment(data);
+        const { data, currentTab } = this.props;
+        this.props.getRunTaskList(data, data.id, 0, currentTab);
     }
     /* 停止 */
     stopTask = () => {
-        // const { data } = this.props;
-        // this.props.execExperiment(data);
+        const { data } = this.props;
+        this.props.stopRunningTask(data);
     }
     changeSiderbar = (key, source) => {
         this.SiderBarRef.onTabClick(key, source)
@@ -103,7 +103,7 @@ class GraphPanel extends Component {
                 key='scheduleConf'
             >
                 <SchedulingConfig
-                    formData={JSON.parse(data.scheduleConf)}
+                    formData={data.scheduleConf ? JSON.parse(data.scheduleConf) : ''}
                     onChange={(newFormData) => {
                         this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
                     }}

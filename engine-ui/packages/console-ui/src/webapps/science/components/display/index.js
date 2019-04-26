@@ -39,13 +39,13 @@ export function nodeTypeIcon (type) {
 
 export function nodeStatus (status) {
     switch (status) {
-        case 1: {
+        case 0: {
             return `<i style="float:right;line-height:18px" class="anticon anticon-ellipsis"></i>`;
         }
-        case 2: {
+        case 1: {
             return `<i style="float:right;line-height:18px" class="anticon anticon-check"></i>`;
         }
-        case 3: {
+        case 2: {
             return `<i style="float:right;line-height:18px" class="anticon anticon-close"></i>`;
         }
         default: {

@@ -47,6 +47,9 @@ export default {
     GET_TABLENAME_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableNameList`, // 获取表名列表(模糊查询)
     IS_PARTITION_TABLE: `${SCIENCE_BASE_URL}/service/dataManager/isPartitionTable`, // 校验是否是分区表
     GET_COLUMNS_BY_NAMES: `${SCIENCE_BASE_URL}/service/dataManager/getColumnsByName`, // 获取表的列名
+    GET_JOB_ID_BY_TASK: `${SCIENCE_BASE_URL}/service/scienceJob/startAlgorithm`, // 获取执行的任务的jobid
+    STOP_TASK_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/stopJobList`, // 获取执行的任务的jobid
+    GET_TASK_STATUS_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/checkAlgorithmRunState`, // 获取执行的任务的状态
 
     // ================== table ================== //
     GET_TABLE: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/getTable`,

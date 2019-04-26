@@ -110,7 +110,7 @@ export function copyCell (tabData, copyCell) {
 }
 export function getTaskDetailData (data, taskId) {
     return (dispatch) => {
-        api.getExperimentTask(taskId).then((res) => {
+        api.getExperimentTask({ taskId }).then((res) => {
             if (res.code === 1) {
                 data.detailData = res.data;
                 dispatch(changeContent(data, {}, false));

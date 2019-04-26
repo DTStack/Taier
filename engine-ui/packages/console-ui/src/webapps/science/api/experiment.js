@@ -44,5 +44,14 @@ export default {
     },
     addOrUpdateTask (params) {
         return http.post(req.UPDATE_TASK, params);
+    },
+    getTaskJobId (params) {
+        return http.post(req.GET_JOB_ID_BY_TASK, params);
+    },
+    stopJobList (params) {
+        return http.post(req.STOP_TASK_BY_JOB_ID, params);
+    },
+    getRunTaskStatus (params) {
+        return http.post(req.GET_TASK_STATUS_BY_JOB_ID, params);
     }
 }

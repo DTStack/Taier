@@ -110,6 +110,30 @@
             stroke-dashoffset: -16;
         }
     }
+    /* 悬浮框的css */
+    #titleContent {
+        position: absolute;
+        cursor: default;
+        padding:20px 10px;
+        width: 188px;
+        background: #ffffff;
+        box-shadow:0 0 6px 0 rgba(0, 0, 0, 0.15);
+        border-radius:2px;
+        color: #666666;
+        font-size: 12px;
+
+        &::after {
+            border-color: #fff transparent;
+            border-style: solid;
+            border-width: 0px 5 5 5;
+            height: 0px;
+            width: 0px;
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: 94px;
+        }
+    }
 }
 
 @media (max-height: 700px) {

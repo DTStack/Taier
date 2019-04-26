@@ -119,22 +119,14 @@ class GraphContainer extends React.Component {
             }
         }
     }
+    /* 初始化hover生成的div的效果 */
     mxTitleContent = (state) => {
         const data = state.cell.data;
         const div = document.createElement('div');
         div.id = 'titleContent'
         div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${data.name}`;
-        div.style.padding = '20px 10px';
-        div.style.position = 'absolute';
-        div.style.cursor = 'default';
-        div.style.width = '188px';
         div.style.left = (state.x) + 'px';
         div.style.top = (state.y + 32) + 'px';
-        div.style.background = '#FFFFFF';
-        div.style.boxShadow = '0 0 6px 0 rgba(0,0,0,0.15)';
-        div.style.borderRadius = '2px';
-        div.style.color = '#666666';
-        div.style.fontSize = '12px';
         state.view.graph.container.appendChild(div);
         return {
             destroy: () => {
@@ -163,6 +155,7 @@ class GraphContainer extends React.Component {
             }
         }, true);
         graph.addMouseListener({
+            id: 'hoverTitle', // 事件的唯一id，用于update事件
             currentState: null,
             currentTitleContent: null,
             mouseDown: function (sender, me) {
@@ -192,7 +185,7 @@ class GraphContainer extends React.Component {
             },
             mouseUp: function (sender, me) { },
             dragEnter: function (evt, state) {
-                if (this.currentTitleContent == null) {
+                if (this.currentTitleContent == null && !graph.popupMenuHandler.isMenuShowing()) {
                     this.currentTitleContent = new ctx.mxTitleContent(state);
                 }
             },
@@ -202,7 +195,7 @@ class GraphContainer extends React.Component {
                     this.currentTitleContent = null;
                 }
             }
-        });
+        }, true);
         graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
             // const event = evt.getProperty('event');
@@ -254,6 +247,7 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.CELL_CONNECTED, () => {
             // console.log('CELL_CONNECTED.')
         }, true);
+        console.log('graph:', graph);
     }
     /* 复制节点 */
     copyCell = (cell) => {
@@ -281,18 +275,18 @@ class GraphContainer extends React.Component {
     /* 从这里开始执行 */
     startHandlerFromHere = (cell) => {
         const taskId = cell.data.id;
-        const type = 0;
+        const type = 1;
         this.handleRunTask(taskId, type);
     }
     /* 执行到这里 */
     handlerToHere = (cell) => {
         const taskId = cell.data.id;
-        const type = 1;
+        const type = 2;
         this.handleRunTask(taskId, type);
     }
     handlerThisCell = (cell) => {
         const taskId = cell.data.id;
-        const type = 2;
+        const type = 3;
         this.handleRunTask(taskId, type);
     }
     handleRunTask = (taskId, type) => {

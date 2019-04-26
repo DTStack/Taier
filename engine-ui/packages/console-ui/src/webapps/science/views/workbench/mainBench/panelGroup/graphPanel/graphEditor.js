@@ -12,7 +12,7 @@ import Mx from 'widgets/mxGraph';
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
 import * as componentActions from '../../../../../actions/componentActions';
-import { VertexSize, TASK_STATUS } from '../../../../../consts'
+import { VertexSize, taskStatus } from '../../../../../consts'
 const propType = {
     data: PropTypes.object,
     registerContextMenu: PropTypes.func,
@@ -55,48 +55,116 @@ class GraphEditor extends Component {
             this.initRender(data);
         }
     }
-
-    initContextMenu = (graph) => {
-        const { registerContextMenu } = this.props;
-        if (registerContextMenu) {
-            registerContextMenu(graph);
-        }
-    }
-
-    initGraphEvent = (graph) => {
-        const { registerEvent } = this.props;
-        if (registerEvent) {
-            mxEventSource.prototype.addListener = function (name, funct, isUpdate = false) {
-                if (this.eventListeners == null) {
-                    this.eventListeners = [];
-                }
-                if (isUpdate) {
-                    let index = this.eventListeners.findIndex(o => o === name);
-                    if (index === -1) {
-                        this.eventListeners.push(name);
-                        this.eventListeners.push(funct);
-                    } else {
-                        this.eventListeners[index + 1] = funct
-                    }
-                } else {
-                    this.eventListeners.push(name);
-                    this.eventListeners.push(funct);
-                }
-            };
-            registerEvent(graph);
-        }
-    }
-
+    /* 初始化整个graph */
     initGraph = (data) => {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = '';
         const graphContainer = this.Container;
         this.initGraphEditor(graphContainer);
-        this.initGraphLayout();
+        this.initListener();
         this.initRender(data);
         this.hideMenu();
     }
+    /*  初始化graph的editor */
+    initGraphEditor = (container) => {
+        mxConstants.DEFAULT_VALID_COLOR = 'none';
+        mxConstants.HANDLE_STROKECOLOR = '#C5C5C5';
+        mxConstants.CONSTRAINT_HIGHLIGHT_SIZE = 4;
+        mxConstants.GUIDE_COLOR = BASE_COLOR;
+        mxConstants.EDGE_SELECTION_COLOR = BASE_COLOR;
+        mxConstants.VERTEX_SELECTION_COLOR = BASE_COLOR;
+        mxConstants.HANDLE_FILLCOLOR = BASE_COLOR;
+        mxConstants.VALID_COLOR = BASE_COLOR;
+        mxConstants.HIGHLIGHT_COLOR = BASE_COLOR;
+        mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
+        mxConstants.CONNECT_HANDLE_FILLCOLOR = BASE_COLOR;
 
+        // Constraint highlight color
+        mxConstraintHandler.prototype.highlightColor = BASE_COLOR;
+
+        mxGraphView.prototype.optimizeVmlReflows = false;
+        mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
+
+        // Disable default context menu
+        mxEvent.disableContextMenu(container);
+
+        // 启用辅助线
+        mxGraphHandler.prototype.guidesEnabled = true;
+
+        const graph = new mxGraph(container)
+        this.graph = graph
+        this.props.saveGraph(graph);
+        // 允许鼠标移动画布
+        graph.panningHandler.useLeftButtonForPanning = true;
+        graph.keepEdgesInBackground = false;
+        graph.allowLoops = false;
+        // // Enable cell resize
+        graph.cellsResizable = false;
+        // 启用绘制
+        graph.setPanning(true);
+        graph.setConnectable(true);
+        graph.setTooltips(false);
+        // // Enables HTML labels
+        graph.setHtmlLabels(true)
+        graph.setAllowDanglingEdges(false)
+        // // 启用/禁止连接
+
+        // 禁止Edge对象移动
+        graph.isCellsMovable = function () {
+            var cell = graph.getSelectionCell()
+            return !(cell && cell.edge)
+        }
+        // 禁止cell编辑
+        graph.isCellEditable = function () {
+            return false
+        }
+
+        // 默认边界样式
+        let edgeStyle = this.getDefaultEdgeStyle();
+        graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
+
+        // 设置Vertex样式
+        const vertexStyle = this.getDefaultVertexStyle()
+        graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
+        // 转换value显示的内容
+        graph.convertValueToString = this.corvertValueToString
+    }
+    /* 重置一些添加事件的方法 */
+    initListener= () => {
+        mxEventSource.prototype.addListener = function (name, funct, isUpdate = false) {
+            if (this.eventListeners == null) {
+                this.eventListeners = [];
+            }
+            if (isUpdate) {
+                let index = this.eventListeners.findIndex(o => o === name);
+                if (index === -1) {
+                    this.eventListeners.push(name);
+                    this.eventListeners.push(funct);
+                } else {
+                    this.eventListeners[index + 1] = funct
+                }
+            } else {
+                this.eventListeners.push(name);
+                this.eventListeners.push(funct);
+            }
+        };
+        mxGraph.prototype.addMouseListener = function (listener, isUpdate = false) {
+            if (this.mouseListeners == null) {
+                this.mouseListeners = [];
+            }
+            if (isUpdate) {
+                let index = this.mouseListeners.findIndex(o => o.id === listener.id);
+                if (index === -1) {
+                    this.mouseListeners.push(listener);
+                } else {
+                    this.mouseListeners[index] = listener;
+                }
+            } else {
+                this.mouseListeners.push(listener);
+            }
+        }
+    }
+    /* 初始化渲染数据 */
     initRender = (data) => {
         if (!data) return;
         this._cacheCells = {};
@@ -107,37 +175,22 @@ class GraphEditor extends Component {
         // Clean data;
         graph.removeCells(cells);
 
+        this.initGraphLayout();
         this.initContextMenu(graph);
         this.initGraphEvent(graph);
         this.renderData(data);
         this.renderAnimation();
     }
-
-    /**
-     * @param {mxCell} edge
-     */
-    isFlowLine = (edge) => {
-        const target = edge.target;
-        const source = edge.source;
-        if (source.data.status === TASK_STATUS.success && target.data.status === TASK_STATUS.runnning) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    renderAnimation = () => {
-        const graph = this.graph;
-        const edges = this._edges;
-        for (let i = 0; i < edges.length; i++) {
-            let state = graph.view.getState(edges[i]);
-            if (state && this.isFlowLine(edges[i])) {
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#2491F7');
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#2491F7');
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
+    /* 初始化隐藏右键的菜单 */
+    hideMenu = () => {
+        document.addEventListener('click', (e) => {
+            const graph = this.graph
+            if (graph.popupMenuHandler.isMenuShowing()) {
+                graph.popupMenuHandler.hideMenu()
             }
-        }
+        })
     }
-
+    /* 渲染graph上的edge和vertex */
     renderData = (data) => {
         const graph = this.graph;
         const rootCell = this.graph.getDefaultParent();
@@ -170,20 +223,7 @@ class GraphEditor extends Component {
             model.endUpdate();
         }
     }
-
-    corvertValueToString = (cell) => {
-        if (cell && cell.vertex) {
-            const task = cell.data;
-            if (task) {
-                let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
-                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(task.status)}
-                <input class="vertex-input ant-input" type="text" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
-                </div>`
-            }
-            return '';
-        }
-    }
-
+    /* 初始化layout */
     initGraphLayout = () => {
         const graph = this.graph;
         this.executeLayout = function (layoutTarget, change, post) {
@@ -203,7 +243,85 @@ class GraphEditor extends Component {
             }
         }
     }
-
+    /* 初始化右键菜单 */
+    initContextMenu = (graph) => {
+        const { registerContextMenu } = this.props;
+        if (registerContextMenu) {
+            registerContextMenu(graph);
+        }
+    }
+    /* 初始化事件 */
+    initGraphEvent = (graph) => {
+        const { registerEvent } = this.props;
+        if (registerEvent) {
+            registerEvent(graph);
+        }
+    }
+    /**
+     * @param {mxCell} edge
+     */
+    isFlowEdge = (edge) => {
+        const target = edge.target;
+        const source = edge.source;
+        if (this.vertexStatus(source.data.status) === 1 && this.vertexStatus(target.data.status) === 0) {
+            return true
+        } else {
+            return false
+        }
+    }
+    /**
+     * @param {} status-vertex的状态
+     * @returns 1 === 成功；2 === 失败； 0 === 中间状态；
+     */
+    vertexStatus = (status) => {
+        if (!status) return;
+        switch (status) {
+            case taskStatus.FINISHED:
+            case taskStatus.SET_SUCCESS: {
+                // 成功
+                return 1
+            }
+            case taskStatus.STOPED:
+            case taskStatus.RUN_FAILED:
+            case taskStatus.SUBMIT_FAILED:
+            case taskStatus.KILLED:
+            case taskStatus.FROZEN:
+            case taskStatus.PARENT_FAILD:
+            case taskStatus.FAILING: {
+                // 失败
+                return 2;
+            }
+            default: {
+                // 中间状态，进行中
+                return 0
+            }
+        }
+    }
+    /* 初始化edge的动画效果 */
+    renderAnimation = () => {
+        const graph = this.graph;
+        const edges = this._edges;
+        for (let i = 0; i < edges.length; i++) {
+            let state = graph.view.getState(edges[i]);
+            if (state && this.isFlowEdge(edges[i])) {
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#2491F7');
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#2491F7');
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
+            }
+        }
+    }
+    corvertValueToString = (cell) => {
+        if (cell && cell.vertex) {
+            const task = cell.data;
+            if (task) {
+                let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
+                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(this.vertexStatus(task.status))}
+                <input class="vertex-input ant-input" type="text" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
+                </div>`
+            }
+            return '';
+        }
+    }
     listenConnection () { // 仅仅限制有效的链接
         const graph = this.graph
 
@@ -273,15 +391,6 @@ class GraphEditor extends Component {
         )
     }
 
-    hideMenu = () => {
-        document.addEventListener('click', (e) => {
-            const graph = this.graph
-            if (graph.popupMenuHandler.isMenuShowing()) {
-                graph.popupMenuHandler.hideMenu()
-            }
-        })
-    }
-
     refresh = () => {
         this.graph.refresh()
     }
@@ -343,96 +452,6 @@ class GraphEditor extends Component {
         style[mxConstants.STYLE_ARCSIZE] = 90;
 
         return style
-    }
-
-    initEditor () {
-        // Overridden to define per-shape connection points
-        // mxGraph.prototype.getAllConnectionConstraints = function (terminal, source) {
-        //     if (terminal != null && terminal.shape != null) {
-        //         if (terminal.shape.stencil != null) {
-        //             if (terminal.shape.stencil != null) {
-        //                 return terminal.shape.stencil.constraints;
-        //             }
-        //         } else if (terminal.shape.constraints != null) {
-        //             return terminal.shape.constraints;
-        //         }
-        //     }
-        //     return null;
-        // };
-
-        // Defines the default constraints for all shapes
-        // mxShape.prototype.constraints = [
-        //     new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-        //     new mxConnectionConstraint(new mxPoint(0, 0.5), true),
-        //     new mxConnectionConstraint(new mxPoint(1, 0.5), true),
-        //     new mxConnectionConstraint(new mxPoint(0.5, 1), true)
-        // ];
-        // // Edges have no connection points
-        // mxPolyline.prototype.constraints = null;
-    }
-
-    initGraphEditor = (container) => {
-        mxConstants.DEFAULT_VALID_COLOR = 'none';
-        mxConstants.HANDLE_STROKECOLOR = '#C5C5C5';
-        mxConstants.CONSTRAINT_HIGHLIGHT_SIZE = 4;
-        mxConstants.GUIDE_COLOR = BASE_COLOR;
-        mxConstants.EDGE_SELECTION_COLOR = BASE_COLOR;
-        mxConstants.VERTEX_SELECTION_COLOR = BASE_COLOR;
-        mxConstants.HANDLE_FILLCOLOR = BASE_COLOR;
-        mxConstants.VALID_COLOR = BASE_COLOR;
-        mxConstants.HIGHLIGHT_COLOR = BASE_COLOR;
-        mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
-        mxConstants.CONNECT_HANDLE_FILLCOLOR = BASE_COLOR;
-
-        // Constraint highlight color
-        mxConstraintHandler.prototype.highlightColor = BASE_COLOR;
-
-        mxGraphView.prototype.optimizeVmlReflows = false;
-        mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
-
-        // Disable default context menu
-        mxEvent.disableContextMenu(container);
-
-        // 启用辅助线
-        mxGraphHandler.prototype.guidesEnabled = true;
-
-        const graph = new mxGraph(container)
-        this.graph = graph
-        this.props.saveGraph(graph);
-        // 允许鼠标移动画布
-        graph.panningHandler.useLeftButtonForPanning = true;
-        graph.keepEdgesInBackground = false;
-        graph.allowLoops = false;
-        // // Enable cell resize
-        graph.cellsResizable = false;
-        // 启用绘制
-        graph.setPanning(true);
-        graph.setConnectable(true);
-        graph.setTooltips(false);
-        // // Enables HTML labels
-        graph.setHtmlLabels(true)
-        graph.setAllowDanglingEdges(false)
-        // // 启用/禁止连接
-
-        // 禁止Edge对象移动
-        graph.isCellsMovable = function () {
-            var cell = graph.getSelectionCell()
-            return !(cell && cell.edge)
-        }
-        // 禁止cell编辑
-        graph.isCellEditable = function () {
-            return false
-        }
-
-        // 默认边界样式
-        let edgeStyle = this.getDefaultEdgeStyle();
-        graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
-
-        // 设置Vertex样式
-        const vertexStyle = this.getDefaultVertexStyle()
-        graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
-        // 转换value显示的内容
-        graph.convertValueToString = this.corvertValueToString
     }
 }
 

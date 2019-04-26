@@ -64,7 +64,8 @@ export const taskStatus = {
     KILLED: 13,
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
-    FROZEN: 18
+    FROZEN: 18,
+    FAILING: 22 // 失败中，中间状态
 }
 
 /**
@@ -251,10 +252,4 @@ export const lineAreaChartOptions = {// 堆叠折现图默认选项
 export const VertexSize = {
     width: 188,
     height: 32
-}
-export const TASK_STATUS = {
-    waiting: 0,
-    runnning: 1,
-    success: 2,
-    failure: 3
 }
