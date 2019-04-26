@@ -38,6 +38,9 @@ public class ContainerEnvBuilder {
 
         LOG.info("Setting environments for the Container");
         Map<String, String> containerEnv = new HashMap<>();
+        if (conf.get("hadoopUserName")!=null){
+            System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoopUserName"));
+        }
         containerEnv.put(DtYarnConstants.Environment.DT_EXEC_CMD.toString(), cmd);
         containerEnv.put("CLASSPATH", System.getenv("CLASSPATH"));
         containerEnv.put(DtYarnConstants.Environment.APP_ATTEMPTID.toString(), applicationAttemptID.toString());

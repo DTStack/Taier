@@ -79,6 +79,9 @@ public class AppArguments {
         LOG.info("job conf path: " + jobConfPath);
 
         conf.addResource(jobConfPath);
+        if (conf.get("hadoopUserName")!=null){
+            System.setProperty(DtYarnConstants.Environment.HADOOP_USER_NAME.toString(), conf.get("hadoopUserName"));
+        }
 
         if (envs.containsKey(ApplicationConstants.Environment.CONTAINER_ID.toString())) {
             ContainerId containerId = ConverterUtils

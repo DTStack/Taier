@@ -511,14 +511,18 @@ public class FlinkClient extends AbsClient {
         } catch (RdosException e){
             return RdosTaskStatus.NOTFOUND;
         } catch (IOException e) {
-            return null;
+            return RdosTaskStatus.NOTFOUND;
+        }
+
+        if (response == null) {
+            return RdosTaskStatus.NOTFOUND;
         }
 
         try{
             Map<String, Object> statusMap = PublicUtil.jsonStrToObject(response, Map.class);
             Object stateObj = statusMap.get("state");
             if(stateObj == null){
-                return null;
+                return RdosTaskStatus.NOTFOUND;
             }
 
             String state = (String) stateObj;
