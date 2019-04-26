@@ -16,7 +16,7 @@ class SwitchQueue extends React.Component {
             const id = `${item.id}`;
             return (
                 <Option key={id}>
-                    {item.queueName}
+                    {item.queuePath}
                 </Option>
             )
         })
