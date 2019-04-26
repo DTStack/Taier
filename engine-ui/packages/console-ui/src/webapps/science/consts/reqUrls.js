@@ -4,7 +4,7 @@ import { SCIENCE_BASE_URL } from 'config/base';
 export default {
 
     // ================== Common ================== //
-    GET_ALL_PROJECTS: `${SCIENCE_BASE_URL}/project/getProjects`, // 获取所有的项目列表
+    GET_ALL_PROJECTS: `${SCIENCE_BASE_URL}/service/project/getProjects`, // 获取所有的项目列表
     GET_PROJECT_LIST: `${SCIENCE_BASE_URL}/common/project/listProject`, // 获取项目列表
     GET_PROJECT_DETAIL: `${SCIENCE_BASE_URL}/common/project/getProject`, // 项目详情
     CREATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/createProject`, // 创建项目

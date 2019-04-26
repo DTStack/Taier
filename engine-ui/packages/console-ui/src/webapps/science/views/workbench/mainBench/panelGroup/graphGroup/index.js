@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Tabs } from 'antd';
+import { Tabs, Icon } from 'antd';
 
 import PanelGroup from '../index';
 import GraphPanel from '../graphPanel';
@@ -55,8 +55,12 @@ class GraphGroup extends React.Component {
                 {tabs.map((tab) => {
                     return (
                         <TabPane
-                            className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}
-                            tab={tab.name}
+                            tab={(
+                                <span className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}>
+                                    <Icon className='c-group-tabs__icon' type="usb" />
+                                    {tab.name}
+                                </span>
+                            )}
                             key={tab.id}
                         >
                             <GraphPanel currentTab={tab.id} data={tab} />

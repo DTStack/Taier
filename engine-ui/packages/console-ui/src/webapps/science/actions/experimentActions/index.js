@@ -12,7 +12,6 @@ export function changeText (text, tab) {
         sqlText: text
     }, tab)
 }
-
 export function addExperiment (params) {
     return dispatch => {
         return new Promise(async (resolve) => {

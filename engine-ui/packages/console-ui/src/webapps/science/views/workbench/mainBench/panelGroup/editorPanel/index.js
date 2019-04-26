@@ -132,8 +132,8 @@ class EditorPanel extends Component {
         const { data } = this.props;
         return [
             <Tabs.TabPane
-                tab='调度参数'
-                key='key'
+                tab='调度周期'
+                key='scheduleConf'
             >
                 <SchedulingConfig
                     formData={JSON.parse(data.scheduleConf)}
@@ -144,7 +144,7 @@ class EditorPanel extends Component {
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='任务参数'
-                key='key1'
+                key='taskParams'
             >
                 <TaskVariables
                     data={data.taskVariables}
@@ -153,7 +153,7 @@ class EditorPanel extends Component {
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='环境参数'
-                key='key2'
+                key='envParams'
             >
                 <EnvConfig
                     value={data.taskParams}

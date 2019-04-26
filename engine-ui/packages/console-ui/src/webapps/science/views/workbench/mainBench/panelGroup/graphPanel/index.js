@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get, isEmpty } from 'lodash'
+import { get, isEmpty, debounce } from 'lodash'
 import CommonEditor from '../../../../../components/commonEditor';
 
 import reqUrls from '../../../../../consts/reqUrls';
@@ -11,12 +11,14 @@ import workbenchActions from '../../../../../actions/workbenchActions';
 import * as editorActions from '../../../../../actions/editorActions';
 import * as runTaskActions from '../../../../../actions/runTaskActions';
 import * as experimentActions from '../../../../../actions/experimentActions';
+import { changeContent } from '../../../../../actions/experimentActions/runExperimentActions';
 import PublishButtons from '../../../../../components/publishButtons';
 import commActions from '../../../../../actions';
 import { Tabs, Button } from 'antd';
 import GraphContainer from './graphContainer';
 import Description from './description';
 import Params from './params/index';
+import SchedulingConfig from '../../../../../components/schedulingConfig';
 
 @connect(
     state => {
@@ -28,12 +30,14 @@ import Params from './params/index';
         };
     },
     dispatch => {
-        const actionsOne = bindActionCreators(workbenchActions, dispatch);
-        const actionsTwo = bindActionCreators(editorActions, dispatch);
-        const actionsThree = bindActionCreators(commActions, dispatch);
-        const runTask = bindActionCreators(runTaskActions, dispatch);
-        const experiment = bindActionCreators(experimentActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree, runTask, experiment);
+        return {
+            ...bindActionCreators(workbenchActions, dispatch),
+            ...bindActionCreators(editorActions, dispatch),
+            ...bindActionCreators(commActions, dispatch),
+            ...bindActionCreators(runTaskActions, dispatch),
+            ...bindActionCreators(experimentActions, dispatch),
+            ...bindActionCreators({ changeContent }, dispatch)
+        }
     }
 )
 class GraphPanel extends Component {
@@ -64,6 +68,19 @@ class GraphPanel extends Component {
     changeSiderbar = (key, source) => {
         this.SiderBarRef.onTabClick(key, source)
     }
+    saveTab = () => {
+        const { data } = this.props;
+        this.props.saveExperiment(data);
+    }
+    changeContent (key, value) {
+        const { data } = this.props;
+        this.props.changeContent({
+            [key]: value
+        }, data);
+    }
+    debounceChangeContent = debounce(this.changeContent, 100, {
+        maxWait: 2000
+    });
     renderSiderbarItems () {
         const { selectedCell, data } = this.props;
         return [
@@ -83,9 +100,14 @@ class GraphPanel extends Component {
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='调度周期'
-                key='key2'
+                key='scheduleConf'
             >
-                1232
+                <SchedulingConfig
+                    formData={JSON.parse(data.scheduleConf)}
+                    onChange={(newFormData) => {
+                        this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
+                    }}
+                />
             </Tabs.TabPane>
         ]
     }

@@ -21,7 +21,9 @@ class CommonEditor extends Component {
         editorSize: undefined
     };
     componentDidMount () {
-        this.props.SiderBarRef(this.SiderBar);
+        if (this.props.SiderBarRef) {
+            this.props.SiderBarRef(this.SiderBar);
+        }
     }
 
     changeTab = state => {
