@@ -157,7 +157,6 @@ class CollectionTargetForm extends React.Component {
                             <Select>
                                 <Option value="orc">orc</Option>
                                 <Option value="text">text</Option>
-                                <Option value="parquet">parquet</Option>
                             </Select>
                         )}
                     </FormItem>,
