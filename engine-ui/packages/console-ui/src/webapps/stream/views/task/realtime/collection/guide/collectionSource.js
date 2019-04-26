@@ -137,9 +137,7 @@ class CollectionSourceForm extends React.Component {
 
     componentDidMount () {
         const { collectionData } = this.props;
-        if (isKafka(collectionData.sourceMap.type)) {
-            this.loadSourceList();
-        }
+        this.loadKafkaSourceList(collectionData.sourceMap.type);
     }
 
     loadPreview = () => {
@@ -159,19 +157,19 @@ class CollectionSourceForm extends React.Component {
     }
 
     onSourceTypeChange = (sourceType) => {
-        if (isKafka(sourceType)) {
-            this.loadSourceList(sourceType);
-        }
+        this.loadKafkaSourceList(sourceType);
     }
 
-    loadSourceList = (sourceType) => {
-        ajax.getTypeOriginData({ type: sourceType }).then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    sourceList: res.data
-                })
-            }
-        });
+    loadKafkaSourceList = (sourceType) => {
+        if (isKafka(sourceType)) {
+            ajax.getTypeOriginData({ type: sourceType }).then(res => {
+                if (res.code === 1) {
+                    this.setState({
+                        sourceList: res.data
+                    })
+                }
+            });
+        }
     }
 
     getTopicType (sourceId) {
