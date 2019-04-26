@@ -44,7 +44,7 @@ export function resetNotebookConsole (tabId) {
 export function openNotebook (id) {
     return dispatch => {
         return new Promise(async (resolve) => {
-            let res = await api.openNotebook({ id });
+            let res = await api.getTaskById({ id });
             if (res && res.code == 1) {
                 dispatch(addTab(siderBarType.notebook, res.data));
                 dispatch(setCurrentTab(siderBarType.notebook, id));

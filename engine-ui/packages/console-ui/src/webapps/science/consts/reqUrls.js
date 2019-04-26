@@ -24,7 +24,7 @@ export default {
     UPDATE_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/updateCatalogue`, // 更新文件夹
     DELETE_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/deleteCatalogue`, // 删除文件夹
 
-    GET_NOTEBOOK_TASK_BY_ID: `${SCIENCE_BASE_URL}/notebook/getTaskById`, // 获取notebookTask
+    GET_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取Task
     ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
     SUBMIT_NOTEBOOK: `${SCIENCE_BASE_URL}/publishNotebookTask`, // 提交notebook

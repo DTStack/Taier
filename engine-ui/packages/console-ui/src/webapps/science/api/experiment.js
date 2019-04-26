@@ -16,7 +16,7 @@ export default {
         return http.post(req.SEARCH_EXPERIMENT, params);
     },
     openExperiment (params) {
-        return http.post(req.OPEN_NOTEBOOK, params);
+        return http.post(req.GET_TASK_BY_ID, params);
     },
     submitExperiment (params) {
         return http.post(req.SUBMIT_NOTEBOOK, params);
