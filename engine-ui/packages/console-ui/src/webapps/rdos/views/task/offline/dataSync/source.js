@@ -781,7 +781,6 @@ class SourceForm extends React.Component {
         const { sourceMap, isIncrementMode } = this.props;
         const { incrementColumns } = this.state;
         const { getFieldDecorator } = this.props.form;
-        console.log('renderIncrementColumns:', isIncrementMode, incrementColumns);
         const columnsOpts = incrementColumns.map(o => <Option key={o.key}>{o.key}（{o.type}）</Option>);
         return isIncrementMode
             ? <FormItem
