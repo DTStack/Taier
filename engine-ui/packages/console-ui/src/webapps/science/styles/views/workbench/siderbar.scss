@@ -46,3 +46,193 @@
         border-bottom: 1px solid rgba(255,255,255,0.2);
     }
 }
+// 右边的tabs
+.ant-tabs-vertical.ant-tabs-right {
+    &.c-panel-siderbar.c-panel-siderbar--open{
+        width: 329px;
+    }
+    >.ant-tabs-content {
+        padding-right: 0;
+        // 组件参数tab框
+        .tab-content {
+            // 参数
+
+            // 补充说明解释的文字
+            .supplementary {
+                font-size: 12px;
+                color: #999999;
+                margin-left: 5px;
+            }
+            // 表格组件
+            table.params-table {
+                width: 100%;
+                border: 1px solid #dddddd;
+                background: #FFFFFF;
+                border-collapse: collapse;
+                line-height: 40px;
+
+                .table-font {
+                    width: 50%;
+                    font-size: 13px;
+                    color: #333333;
+                    font-weight: normal;
+                    text-align: left;
+                    padding-left: 20px;
+                }
+
+                thead {
+                    th {
+                        @extend .table-font;
+                    }
+                }
+
+                tbody {
+                    th {
+                        @extend .table-font;
+                    }
+                }
+            }
+
+            .params-tabs {
+                >.ant-tabs-bar {
+                    .ant-tabs-nav-container{
+                        height: 40px;
+                    }
+                    .ant-tabs-nav {
+                        width: 100%;
+                        display: flex;
+                    }
+
+                    .ant-tabs-tab {
+                        border: 0;
+                        flex-grow: 1;
+                        background: transparent;
+                        text-align: center;
+                        font-size: 14px;
+                        color: #333333;
+                        margin: 0;
+                        line-height: 2;
+                        border-right: 1px solid #dddddd;
+
+                        &:last-child {
+                            border-right: 0
+                        }
+                    }
+
+                    .ant-tabs-tab-active {
+                        color: #2491F7;
+                    }
+                }
+                >.ant-tabs-content {
+                    .ant-tabs-tabpane {
+                        background: #F5F5F5;
+                        padding: 9.5px 14px;
+                    }
+                }
+
+                // 表选择表单的style
+                .params-form {
+                    .ant-form-item {
+                        margin-bottom: 20px;
+                    }
+
+                    .ant-form-item-label {
+                        >label {
+                            font-size: 14px;
+                            color: #333333;
+                            line-height: 20px;
+                        }
+                    }
+                }
+
+            }
+
+            .params-single-tab {
+                @extend .params-tabs;
+                width: 100%;
+
+                .params-single-tab-head {
+                    font-size: 14px;
+                    color: #333333;
+                    line-height: 40px;
+                    border-bottom: 1px solid #DDDDDD;
+                    padding-left: 14px;
+                }
+
+                .params-single-tab-content {
+                    padding: 9.5px 14px;
+                }
+            }
+
+            .params-collapse {
+                background-color: transparent;
+
+                .ant-collapse-item {
+                    border-bottom: 0;
+
+                    .ant-collapse-header {
+                        line-height: 20px;
+                        padding: 0;
+                        font-size: 14px;
+                        color: #333333;
+                        padding-left: 15px;
+
+                        i.arrow {
+                            top: -10px;
+                            left: 0;
+                            font-size: inherit;
+                            color: inherit;
+                        }
+                    }
+
+                    .ant-collapse-content {
+                        border-top: 0;
+                        padding: 0;
+
+                        >.ant-collapse-content-box {
+                            padding: 10px 0;
+                        }
+                        .toolbar {
+                            background: #fff;
+
+                            button {
+                                border: 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            /* 穿梭框 */
+            .params-transfer{
+                display: grid;
+                grid-template-columns: 220px auto 220px;
+                grid-gap: 10px;
+                justify-items: center;
+                align-items: center;
+
+                .ant-transfer-list{
+                    width: 100%;
+                    .ant-transfer-list-search-action > i {
+                        line-height: inherit;
+                    }
+                }
+
+                .ant-transfer-operation{
+                    margin: 0;
+                }
+            }
+        }
+    }
+
+    // 组件说明
+    .panel-description {
+        margin: 9.5px 14px;
+        background: #fff;
+        border: 1px solid #DDDDDD;
+        padding: 16px;
+        min-height: 248px;
+        font-size: 13px;
+        color: #333333;
+    }
+}

@@ -1,17 +1,12 @@
-import { changeTab, addTab, setCurrentTab } from '../base/tab';
+import { addTab, setCurrentTab } from '../base/tab';
 import { message } from 'antd';
-import { siderBarType } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
+import { siderBarType } from '../../consts';
 import api from '../../api/experiment';
 import fileApi from '../../api/fileTree';
-
-export function changeContent (newContent, tab, isDirty = true) {
-    return changeTab(siderBarType.experiment, {
-        ...tab,
-        ...newContent,
-        isDirty
-    })
-}
+import { cloneDeep } from 'lodash';
+import { changeContent } from './runExperimentActions';
+const mockData = require('./mocks/data.json');
 export function changeText (text, tab) {
     return changeContent({
         sqlText: text
@@ -55,6 +50,22 @@ export function deleteExperimentFolder (params) {
         })
     }
 }
+export function getTaskData (data, currentTab) {
+    return (dispatch, getState) => {
+        // TODO 请求接口
+        const res = mockData;
+        if (res && res.code == 1) {
+            const graphData = res.data ? JSON.parse(res.data.sqlText) : [];
+            data.graphData = graphData;
+            dispatch(changeContent(data, {}, false))
+        }
+    }
+}
+export function updateTaskData (oldData, newData) {
+    return (dispatch, getState) => {
+        dispatch(changeContent(oldData, newData, true, true))
+    }
+}
 
 export function openExperiment (id) {
     return dispatch => {
@@ -80,3 +91,32 @@ export function saveExperiment (tabData) {
         })
     }
 }
+
+export function copyCell (tabData, copyCell) {
+    return (dispatch) => {
+        const data = cloneDeep(tabData);
+        // TODO
+        const res = {
+            code: 1,
+            data: {
+                ...copyCell,
+                id: 1111
+            }
+        }
+        if (res.code == 1) {
+            data.graphData.push(res.data);
+            dispatch(changeContent(data, {}, true));
+        }
+    }
+}
+export function getTaskDetailData (data, taskId) {
+    return (dispatch) => {
+        api.getExperimentTask(taskId).then((res) => {
+            if (res.code === 1) {
+                data.detailData = res.data;
+                dispatch(changeContent(data, {}, false));
+            }
+        })
+    }
+}
+export * from './runExperimentActions';

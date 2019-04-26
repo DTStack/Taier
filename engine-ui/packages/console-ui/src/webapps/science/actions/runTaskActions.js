@@ -49,7 +49,6 @@ export function exec (tabData, serverParams = {}, tasks) {
         return res;
     }
 }
-
 async function execTasks (tabData, serverParams, tasks, dispatch) {
     const tabId = tabData.id;
     for (let i = 0; i < tasks.length; i++) {

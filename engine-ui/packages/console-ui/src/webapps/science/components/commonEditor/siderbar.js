@@ -1,20 +1,29 @@
 import React from 'react';
 import { Tabs } from 'antd';
-
 class EditorSiderBar extends React.Component {
     state = {
         activeKey: null
     }
-    onTabClick (key) {
-        const { activeKey } = this.state;
-        if (key == activeKey) {
+    componentDidMount () {
+        this.props.onRef(this);
+    }
+
+    onTabClick (key, source = false) {
+        if (source) {
             this.setState({
-                activeKey: null
+                activeKey: this.state.activeKey ? this.state.activeKey : key
             })
         } else {
-            this.setState({
-                activeKey: key
-            })
+            const { activeKey } = this.state;
+            if (key == activeKey) {
+                this.setState({
+                    activeKey: null
+                })
+            } else {
+                this.setState({
+                    activeKey: key
+                })
+            }
         }
     }
     render () {

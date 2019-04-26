@@ -26,5 +26,23 @@ export default {
     },
     deleteExperiment (params) {
         return http.post(req.DELETE_EXPERIMENT, params);
+    },
+    getTableByName (params) {
+        return http.post(req.GET_TABLENAME_BY_NAME, params);
+    },
+    getExperimentTask (params) {
+        return http.post(req.GET_EXPERIMENT_TASK_BY_ID, params);
+    },
+    isPartitionTable (params) {
+        return http.post(req.IS_PARTITION_TABLE, params);
+    },
+    getColumnsByTableName (params) {
+        return http.post(req.GET_COLUMNS_BY_NAMES, params);
+    },
+    getInputTableColumns (params) {
+        return http.post(req.GET_INPUT_TABLE_COLUMNS, params)
+    },
+    addOrUpdateTask (params) {
+        return http.post(req.UPDATE_TASK, params);
     }
 }

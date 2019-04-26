@@ -30,6 +30,9 @@ table {
     float: left;
     padding: 0px 5px;
 }
+.big-tooltip .ant-tooltip-inner{
+    max-width: 350px;
+}
 
 .u-table__tag__margin ~ .u-table__tag__margin {
     margin-top: 5px;

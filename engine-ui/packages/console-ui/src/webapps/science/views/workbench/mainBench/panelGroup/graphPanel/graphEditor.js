@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux'
+import { bindActionCreators } from 'redux';
 
 import {
     Tooltip, Icon
@@ -9,7 +11,8 @@ import Mx from 'widgets/mxGraph';
 
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
-
+import * as componentActions from '../../../../../actions/componentActions';
+import { VertexSize, TASK_STATUS } from '../../../../../consts'
 const propType = {
     data: PropTypes.object,
     registerContextMenu: PropTypes.func,
@@ -19,33 +22,25 @@ const propType = {
 
 const {
     mxGraph,
-    mxCell,
     mxText,
-    mxGeometry,
-    mxUtils,
     mxEvent,
     mxConstants,
     mxEdgeStyle,
     mxPerimeter,
-    // mxRubberband,
     mxGraphView,
     mxGraphHandler,
     mxConstraintHandler,
-    // mxShape,
-    // mxPoint,
-    // mxPolyline,
-    // mxConnectionConstraint,
-    mxHierarchicalLayout
+    mxHierarchicalLayout,
+    // eslint-disable-next-line no-unused-vars
+    mxEventSource
 } = Mx;
-
-const VertexSize = { // vertex大小
-    width: 188,
-    height: 32
-}
 
 const BASE_COLOR = '#2491F7';
 
 /* eslint new-cap: ["error", { "newIsCap": false }] */
+@connect(null, (dispatch) => {
+    return bindActionCreators(componentActions, dispatch);
+})
 class GraphEditor extends Component {
     componentDidMount () {
         const data = this.props.data;
@@ -63,12 +58,33 @@ class GraphEditor extends Component {
 
     initContextMenu = (graph) => {
         const { registerContextMenu } = this.props;
-        if (registerContextMenu) registerContextMenu(graph);
+        if (registerContextMenu) {
+            registerContextMenu(graph);
+        }
     }
 
     initGraphEvent = (graph) => {
         const { registerEvent } = this.props;
-        if (registerEvent) registerEvent(graph);
+        if (registerEvent) {
+            mxEventSource.prototype.addListener = function (name, funct, isUpdate = false) {
+                if (this.eventListeners == null) {
+                    this.eventListeners = [];
+                }
+                if (isUpdate) {
+                    let index = this.eventListeners.findIndex(o => o === name);
+                    if (index === -1) {
+                        this.eventListeners.push(name);
+                        this.eventListeners.push(funct);
+                    } else {
+                        this.eventListeners[index + 1] = funct
+                    }
+                } else {
+                    this.eventListeners.push(name);
+                    this.eventListeners.push(funct);
+                }
+            };
+            registerEvent(graph);
+        }
     }
 
     initGraph = (data) => {
@@ -76,6 +92,7 @@ class GraphEditor extends Component {
         this.graph = '';
         const graphContainer = this.Container;
         this.initGraphEditor(graphContainer);
+        this.initGraphLayout();
         this.initRender(data);
         this.hideMenu();
     }
@@ -85,24 +102,37 @@ class GraphEditor extends Component {
         this._cacheCells = {};
         const graph = this.graph;
         graph.getModel().clear();
+        this._edges = []; // 清空
         const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
         graph.removeCells(cells);
 
         this.initContextMenu(graph);
         this.initGraphEvent(graph);
-        this.initGraphLayout();
-
         this.renderData(data);
-        // this.renderAnimation();
+        this.renderAnimation();
     }
 
+    /**
+     * @param {mxCell} edge
+     */
+    isFlowLine = (edge) => {
+        const target = edge.target;
+        const source = edge.source;
+        if (source.data.status === TASK_STATUS.success && target.data.status === TASK_STATUS.runnning) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     renderAnimation = () => {
         const graph = this.graph;
         const edges = this._edges;
         for (let i = 0; i < edges.length; i++) {
-            var state = graph.view.getState(edges[i]);
-            if (state) {
+            let state = graph.view.getState(edges[i]);
+            if (state && this.isFlowLine(edges[i])) {
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#2491F7');
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#2491F7');
                 state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
             }
         }
@@ -111,10 +141,11 @@ class GraphEditor extends Component {
     renderData = (data) => {
         const graph = this.graph;
         const rootCell = this.graph.getDefaultParent();
+        const model = graph.getModel();
         const cellMap = this._cacheCells;
-        // const cellStyle = this.getStyles();
-
+        console.log('data:', data);
         if (data) {
+            model.beginUpdate();
             for (let i = 0; i < data.length; i++) {
                 const item = data[i];
                 if (item.vertex) {
@@ -131,46 +162,12 @@ class GraphEditor extends Component {
                 } else if (item.edge) {
                     const source = cellMap[item.source.id];
                     const target = cellMap[item.target.id];
-                    const edgeStyle = this.getEdgeStyles(item.source);
-                    const edge = graph.insertEdge(rootCell, item.id, '', source, target, edgeStyle);
+                    const edge = graph.insertEdge(rootCell, item.id, '', source, target);
                     this._edges.push(edge);
                 }
             }
-
             this.executeLayout();
-        }
-    }
-
-    /**
-     * 初始化视图
-     */
-    initGraphView = () => {
-        const graph = this.graph;
-        const { data } = this.props;
-        if (data.graph) {
-            const scale = data.graph.scale;
-            const dx = data.graph.translate.x;
-            const dy = data.graph.translate.y;
-            graph.view.setScale(scale);
-            graph.view.setTranslate(dx, dy);
-        } else {
-            this.layoutCenter();
-        }
-    }
-
-    getStyles = () => {
-        return 'whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#C5C5C5;'
-    }
-
-    getEdgeStyles = (status) => {
-        return 'strokeWidth=1;endArrow=block;endSize=6;endFill=1;strokeColor=#2491F7;;rounded=1;class=flow;'
-    }
-
-    formatTooltip = (cell) => {
-        if (this.Container) {
-            const data = cell.data || '';
-            const tips = data ? `${data.name}${data.notSynced ? ' (未保存) ' : ''}` : '';
-            return tips
+            model.endUpdate();
         }
     }
 
@@ -179,101 +176,32 @@ class GraphEditor extends Component {
             const task = cell.data;
             if (task) {
                 let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
-                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}${nodeStatus(task.status)}</span>
-                <input class="vertex-input" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
+                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(task.status)}
+                <input class="vertex-input ant-input" type="text" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
                 </div>`
             }
             return '';
         }
     }
 
-    updateCellData = (cell, cellData) => {
-        if (cell) {
-            const cellState = this.graph.view.getState(cell);
-            if (cellState.cell) {
-                cellState.cell.id = cellData.id;
-                cellState.cell.data = cellData;
-                this.graph.refresh();
-            }
-        }
-    }
-
-    insertItemVertex = (graph, evt, target, x, y) => {
-        const taskType = this._currentSourceType.key;
-        const newCell = new mxCell(
-            '新节点',
-            new mxGeometry(0, 0, VertexSize.width, VertexSize.height)
-        );
-        newCell.vertex = true;
-        newCell.data = {
-            taskType: taskType,
-            name: '新节点'
-        }
-
-        const cells = graph.importCells([newCell], x, y, target);
-        if (cells != null && cells.length > 0) {
-            this.toggleCreate(taskType);
-            this._currentNewVertex = cells[0];
-            graph.scrollCellToVisible(cells[0]);
-            graph.setSelectionCells(cells);
-        }
-    }
-
-    getUnderMouseGraph = (evt) => {
-        const x = mxEvent.getClientX(evt);
-        const y = mxEvent.getClientY(evt);
-
-        const elt = document.elementFromPoint(x, y);
-        if (mxUtils.isAncestorNode(this.graph.container, elt)) {
-            return this.graph;
-        }
-        return null;
-    }
-
-    removeCell (cells) {
-        const ctx = this;
-        // 获取选中的Cell
-        const cell = cells || this.graph.getSelectionCells() // getSelectionCell
-        if (cell && cell.length > 0) {
-            ctx.graph.removeCells(cell)
-        }
-    }
-
     initGraphLayout = () => {
         const graph = this.graph;
-        const edgeStyle = this.getDefaultEdgeStyle();
-        const model = graph.getModel();
-        const layout = new mxHierarchicalLayout(graph, 'north');
-        layout.disableEdgeStyle = false;
-        layout.interRankCellSpacing = 60;
-        layout.intraCellSpacing = 60;
-        layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
-
         this.executeLayout = function (layoutTarget, change, post) {
             const parent = layoutTarget || graph.getDefaultParent();
-            model.beginUpdate();
             try {
-                console.log('layout:', layout, edgeStyle);
                 if (change != null) { change(); }
+                const layout = new mxHierarchicalLayout(graph, 'north');
+                layout.disableEdgeStyle = false;
+                layout.interRankCellSpacing = 60;
+                layout.intraCellSpacing = 60;
+                layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
                 layout.execute(parent);
             } catch (e) {
                 throw e;
             } finally {
                 if (post != null) { post(); }
-                graph.getModel().endUpdate();
             }
         }
-    }
-
-    getPreviewEle = (taskType) => {
-        const typeText = nodeTypeIcon(taskType);
-        const previewDragTarget = document.createElement('div');
-        previewDragTarget.style.width = VertexSize.width + 'px';
-        previewDragTarget.style.height = VertexSize.height + 'px';
-        previewDragTarget.className = 'preview-drag-vertex';
-        previewDragTarget.innerHTML = `<span class="preview-title">新节点</span>
-        <span class="preview-desc">${typeText}</span>`;
-        return previewDragTarget;
     }
 
     listenConnection () { // 仅仅限制有效的链接
@@ -404,7 +332,7 @@ class GraphEditor extends Component {
     getDefaultEdgeStyle () {
         let style = [];
         style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_CONNECTOR;
-        style[mxConstants.STYLE_STROKECOLOR] = '#666666';
+        style[mxConstants.STYLE_STROKECOLOR] = '#999999';
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
@@ -470,6 +398,7 @@ class GraphEditor extends Component {
 
         const graph = new mxGraph(container)
         this.graph = graph
+        this.props.saveGraph(graph);
         // 允许鼠标移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
         graph.keepEdgesInBackground = false;
@@ -479,7 +408,7 @@ class GraphEditor extends Component {
         // 启用绘制
         graph.setPanning(true);
         graph.setConnectable(true);
-        graph.setTooltips(true);
+        graph.setTooltips(false);
         // // Enables HTML labels
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
@@ -504,8 +433,6 @@ class GraphEditor extends Component {
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
         // 转换value显示的内容
         graph.convertValueToString = this.corvertValueToString
-        // 重置tooltip
-        graph.getTooltipForCell = this.formatTooltip;
     }
 }
 
