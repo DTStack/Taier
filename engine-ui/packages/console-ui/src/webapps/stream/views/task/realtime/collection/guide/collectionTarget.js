@@ -113,6 +113,37 @@ class CollectionTargetForm extends React.Component {
         const { isEdit, targetMap } = collectionData;
         const { getFieldDecorator } = this.props.form;
         switch (targetMap.type) {
+            case DATA_SOURCE.KAFKA_09:
+            case DATA_SOURCE.KAFKA_10:
+            case DATA_SOURCE.KAFKA : {
+                return (
+                    <FormItem
+                        {...formItemLayout}
+                        label="Topic"
+                    >
+                        {getFieldDecorator('topic', {
+                            rules: [{
+                                required: true, message: '请选择topic'
+                            }]
+                        })(
+                            <Select
+                                disabled={isEdit}
+                                style={{ width: '100%' }}
+                                placeholder="请选择topic"
+
+                            >
+                                {topicList.map(
+                                    (topic) => {
+                                        return <Option key={`${topic}`} value={topic}>
+                                            {topic}
+                                        </Option>
+                                    }
+                                )}
+                            </Select>
+                        )}
+                    </FormItem>
+                )
+            }
             case DATA_SOURCE.HDFS: {
                 return [
                     <FormItem
@@ -217,33 +248,7 @@ class CollectionTargetForm extends React.Component {
                 ];
             }
             default: {
-                return (
-                    <FormItem
-                        {...formItemLayout}
-                        label="Topic"
-                    >
-                        {getFieldDecorator('topic', {
-                            rules: [{
-                                required: true, message: '请选择topic'
-                            }]
-                        })(
-                            <Select
-                                disabled={isEdit}
-                                style={{ width: '100%' }}
-                                placeholder="请选择topic"
-
-                            >
-                                {topicList.map(
-                                    (topic) => {
-                                        return <Option key={`${topic}`} value={topic}>
-                                            {topic}
-                                        </Option>
-                                    }
-                                )}
-                            </Select>
-                        )}
-                    </FormItem>
-                )
+                return null;
             }
         }
     }
