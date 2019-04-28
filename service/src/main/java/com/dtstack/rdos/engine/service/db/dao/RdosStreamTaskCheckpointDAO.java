@@ -53,4 +53,13 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
+    public Integer update(String taskId, String checkpoint){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>() {
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
+                return taskCheckpointMapper.updateCheckpoint(taskId, checkpoint);
+            }
+        });
+    }
 }

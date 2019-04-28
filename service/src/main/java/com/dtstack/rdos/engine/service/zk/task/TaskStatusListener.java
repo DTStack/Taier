@@ -9,13 +9,10 @@ import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosPluginInfoDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
+import com.dtstack.rdos.engine.service.db.dao.*;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
@@ -24,6 +21,8 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -78,7 +77,7 @@ public class TaskStatusListener implements Runnable{
 
 	private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
-	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
+    /**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
     private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS,
@@ -116,10 +115,13 @@ public class TaskStatusListener implements Runnable{
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
                 //flink任务在失败或者取消情况下多次更新checkpoint
-                if(failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()
-                        && EngineType.isFlink(failedTaskInfo.getEngineType())){
+                if(EngineType.isFlink(failedTaskInfo.getEngineType())){
                     //更新checkpoint
-                    updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
+                    if(failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()){
+                        updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
+                    } else if(failedTaskInfo.getComputeType() == ComputeType.BATCH.getType()){
+                        updateBatchTaskCheckpoint(failedTaskInfo.getPluginInfo(),failedTaskInfo.getJobIdentifier());
+                    }
                 }
 
                 failedTaskInfo.tryLog();
@@ -257,7 +259,7 @@ public class TaskStatusListener implements Runnable{
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                     updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
-                    dealBatchJobAfterGetStatus(status, taskId);
+                    dealBatchJobAfterGetStatus(status, pluginInfoStr, jobIdentifier);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
@@ -375,11 +377,65 @@ public class TaskStatusListener implements Runnable{
 
     }
 
-    private void dealBatchJobAfterGetStatus(Integer status, String jobId){
-        if(RdosTaskStatus.needClean(status)){
-            jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
+    private void dealBatchJobAfterGetStatus(Integer status,String pluginInfo,JobIdentifier jobIdentifier) throws ExecutionException{
+
+        //运行中的stream任务需要更新checkpoint 并且 控制频率
+        Integer checkpointCallNum = checkpointGetTotalNumCache.get(jobIdentifier.getEngineJobId(), () -> 0);
+        if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
+            if(checkpointCallNum%checkpointGetRate == 0){
+                updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
+            }
+
+            checkpointGetTotalNumCache.put(jobIdentifier.getEngineJobId(), checkpointCallNum + 1);
         }
+
+        if(RdosTaskStatus.needClean(status)){
+            jobStatusFrequency.remove(jobIdentifier.getTaskId());
+            rdosEngineJobCacheDao.deleteJob(jobIdentifier.getTaskId());
+
+            updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
+        }
+    }
+
+    private void updateBatchTaskCheckpoint(String pluginInfo,JobIdentifier jobIdentifier){
+        String lastExternalPath = getLastExternalPath(pluginInfo, jobIdentifier);
+        if (StringUtils.isEmpty(lastExternalPath)){
+            return;
+        }
+
+        RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskIdAndEngineTaskId(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId());
+        if(taskCheckpoint == null){
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), lastExternalPath, now, now);
+        } else {
+            rdosStreamTaskCheckpointDAO.update(jobIdentifier.getTaskId(), lastExternalPath);
+        }
+    }
+
+    private String getLastExternalPath(String pluginInfo,JobIdentifier jobIdentifier){
+        String checkpointJson = JobClient.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
+        if(org.apache.commons.lang.StringUtils.isEmpty(checkpointJson)){
+            return null;
+        }
+
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(checkpointJson).getAsJsonObject();
+        JsonObject latest = json.getAsJsonObject("latest");
+        if(latest == null){
+            return null;
+        }
+
+        JsonObject completed = latest.getAsJsonObject("completed");
+        if(completed == null){
+            return null;
+        }
+
+        String externalPath = completed.getAsJsonObject("external_path").getAsString();
+        if(org.apache.commons.lang.StringUtils.isEmpty(externalPath)){
+            return null;
+        }
+
+        return externalPath;
     }
 
     /**

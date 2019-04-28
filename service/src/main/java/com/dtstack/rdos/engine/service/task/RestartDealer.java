@@ -4,35 +4,18 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.*;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobRetryDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
-import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobRetryDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
+import com.dtstack.rdos.engine.service.db.dao.*;
+import com.dtstack.rdos.engine.service.db.dataobject.*;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 
 /**
@@ -57,6 +40,8 @@ public class RestartDealer {
     private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineStreamJobRetryDAO engineStreamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
+
+    private RdosStreamTaskCheckpointDAO streamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -204,58 +189,10 @@ public class RestartDealer {
             return;
         }
 
-        String externalPath = null;
-
-        List<RdosEngineBatchJobRetry> retries = engineBatchJobRetryDAO.getJobRetryByJobId(jobId);
-        if (CollectionUtils.isEmpty(retries)){
-            // 还没有重试过
-            RdosEngineBatchJob engineBatchJob = engineBatchJobDAO.getRdosTaskByTaskId(jobId);
-            String engineJobId = engineBatchJob.getEngineJobId();
-            String appId =  engineBatchJob.getApplicationId();
-
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
-            externalPath = getLatestChk(jobIdentifier, jobClient.getPluginInfo());
-        } else {
-            retries.sort((r1, r2) -> Integer.compare(r2.getRetryNum(), r1.getRetryNum()));
-
-            for (RdosEngineBatchJobRetry retry : retries) {
-                JobIdentifier jobIdentifier = JobIdentifier.createInstance(retry.getEngineJobId(), retry.getApplicationId(), jobId);
-                externalPath = getLatestChk(jobIdentifier, jobClient.getPluginInfo());
-                if(StringUtils.isNotEmpty(externalPath)){
-                    break;
-                }
-            }
+        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskIdAndEngineTaskId(jobId, jobClient.getEngineTaskId());
+        if(taskCheckpoint != null){
+            jobClient.setExternalPath(taskCheckpoint.getCheckpoint());
         }
-
-        if(externalPath != null){
-            jobClient.setExternalPath(externalPath);
-        }
-    }
-
-    private String getLatestChk(JobIdentifier jobIdentifier,String pluginInfo){
-        String checkpointJson = JobClient.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
-        if(StringUtils.isEmpty(checkpointJson)){
-            return null;
-        }
-
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(checkpointJson).getAsJsonObject();
-        JsonObject latest = json.getAsJsonObject("latest");
-        if(latest == null){
-            return null;
-        }
-
-        JsonObject completed = latest.getAsJsonObject("completed");
-        if(completed == null){
-            return null;
-        }
-
-        String externalPath = completed.getAsJsonObject("external_path").getAsString();
-        if(StringUtils.isEmpty(externalPath)){
-            return null;
-        }
-
-        return externalPath;
     }
 
     private boolean checkNeedResubmit(String jobId,
