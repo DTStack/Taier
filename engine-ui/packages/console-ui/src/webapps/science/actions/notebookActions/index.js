@@ -114,11 +114,14 @@ export function setNotebookResult (tabId, jobId, data) {
 }
 
 export function saveNotebook (tabData) {
-    return dispatch => {
+    return (dispatch, getState) => {
         return new Promise(async (resolve) => {
             let res = await api.addNotebook(tabData);
             if (res && res.code == 1) {
-                dispatch(changeContent(res.data, tabData, false));
+                const tabs = getState().notebook.localTabs;
+                dispatch(changeContent(res.data, tabs.find((tab) => {
+                    return tab.id == tabData.id
+                }), false));
                 message.success('保存成功！')
                 resolve(res);
             }
@@ -132,6 +135,7 @@ export function submitNotebook (tabData) {
             let res = await api.submitNotebook(tabData);
             if (res && res.code == 1) {
                 message.success('提交作业成功！')
+                dispatch(changeContent(res.data, tabData, false));
                 resolve(res)
             }
             resolve(false);
@@ -139,10 +143,10 @@ export function submitNotebook (tabData) {
     }
 }
 
-export function submitNotebookModel (tabData) {
+export function submitNotebookModel (params) {
     return dispatch => {
         return new Promise(async (resolve) => {
-            let res = await api.submitNotebookModel(tabData);
+            let res = await api.submitNotebookModel(params);
             if (res && res.code == 1) {
                 message.success('提交模型成功！')
                 resolve(res);

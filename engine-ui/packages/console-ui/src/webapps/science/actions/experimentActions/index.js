@@ -79,11 +79,14 @@ export function openExperiment (id) {
     }
 }
 export function saveExperiment (tabData) {
-    return dispatch => {
+    return (dispatch, getState) => {
         return new Promise(async (resolve) => {
             let res = await api.addExperiment(tabData);
             if (res && res.code == 1) {
-                dispatch(changeContent(res.data, tabData, false));
+                const tabs = getState().notebook.localTabs;
+                dispatch(changeContent(res.data, tabs.find((tab) => {
+                    return tab.id == tabData.id
+                }), false));
                 message.success('保存成功！')
                 resolve(res);
             }
@@ -118,4 +121,32 @@ export function getTaskDetailData (data, taskId) {
         })
     }
 }
+
+export function submitExperimentModel (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.submitExperimentModel(params);
+            if (res && res.code == 1) {
+                message.success('提交模型成功！')
+                resolve(res);
+            }
+            resolve(false);
+        })
+    }
+}
+
+export function submitExperiment (tabData) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.submitExperiment(tabData);
+            if (res && res.code == 1) {
+                message.success('提交实验成功！')
+                dispatch(changeContent(res.data, tabData, false));
+                resolve(res)
+            }
+            resolve(false);
+        })
+    }
+}
+
 export * from './runExperimentActions';

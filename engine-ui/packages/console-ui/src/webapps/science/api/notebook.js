@@ -13,10 +13,10 @@ export default {
         });
     },
     submitNotebook (params) {
-        return http.post(req.SUBMIT_NOTEBOOK, params);
+        return http.post(req.SUBMIT_TASK, params);
     },
     submitNotebookModel (params) {
-        return http.post(req.SUBMIT_NOTEBOOK_MODEL, params);
+        return http.post(req.SAVE_MODEL, params);
     },
     searchGlobal (params) {
         return http.post(req.SEARCH_NOTEBOOK, params);

@@ -91,9 +91,9 @@ class ProjectsList extends Component {
         let res = await Api.comm.getProjectList({
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
-            searchName: params.search,
-            orderBy: params.filed,
-            sort: params.sort
+            searchName: params.search || undefined,
+            orderBy: params.filed || undefined,
+            sort: params.sort || undefined
         });
         this.setState({
             loading: false

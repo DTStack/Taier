@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs } from 'antd';
+import { Tabs, Icon } from 'antd';
 import { connect } from 'react-redux';
 
 import NotebookSiderBar from './tabPanes/notebook';
@@ -42,16 +42,16 @@ class SiderBarContainer extends React.Component {
         const { changeSiderBar, siderBarKey } = this.props;
         return (
             <Tabs activeKey={siderBarKey} onChange={changeSiderBar} className={`c-antd-tabs-sidebar ${siderBarKey == siderBarType.model ? 'u-pane--hidden' : ''}`} tabPosition='left'>
-                <TabPane tab="notebook" key={siderBarType.notebook}>
+                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='book' />notebook</span>} key={siderBarType.notebook}>
                     <NotebookSiderBar />
                 </TabPane>
-                <TabPane tab="实验" key={siderBarType.experiment}>
+                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />实验</span>} key={siderBarType.experiment}>
                     <ExperimentSiderBar />
                 </TabPane>
-                <TabPane tab="组件" key={siderBarType.component}>
+                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />组件</span>} key={siderBarType.component}>
                     <ComponentSiderBar />
                 </TabPane>
-                <TabPane tab="模型" key={siderBarType.model}>model</TabPane>
+                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />模型</span>} key={siderBarType.model}>model</TabPane>
             </Tabs>
         )
     }
