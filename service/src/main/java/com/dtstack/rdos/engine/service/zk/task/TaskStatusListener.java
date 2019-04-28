@@ -235,7 +235,7 @@ public class TaskStatusListener implements Runnable{
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
             String appId = rdosBatchJob.getApplicationId();
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, null);
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, taskId);
 
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
