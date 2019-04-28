@@ -23,5 +23,14 @@ export default {
     },
     deleteNotebook (params) {
         return http.post(req.DELETE_NOTEBOOK, params);
+    },
+    execTask (params) {
+        return http.post(req.EXEC_NOTEBOOK, params);
+    },
+    pollTask (params) {
+        return http.post(req.POLL_NOTEBOOK, params);
+    },
+    stopExecSQL (params) {
+        return http.post(req.STOP_EXEC_NOTEBOOK, params);
     }
 }

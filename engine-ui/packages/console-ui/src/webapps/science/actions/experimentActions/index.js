@@ -27,7 +27,7 @@ export function addExperiment (params) {
 export function deleteExperiment (params) {
     return dispatch => {
         return new Promise(async (resolve) => {
-            let res = await api.deleteExperiment(params);
+            let res = await api.deleteExperiment({ taskId: params.id });
             if (res && res.code == 1) {
                 message.success('删除成功');
                 dispatch(loadTreeData(siderBarType.experiment, params.parentId))

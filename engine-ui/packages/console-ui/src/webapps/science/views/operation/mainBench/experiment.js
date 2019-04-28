@@ -75,7 +75,8 @@ class Experiment extends PureComponent {
             taskType: taskType.EXPERIMENT,
             name: params.search,
             currentPage: pagination.current,
-            pageSize: pagination.pageSize
+            pageSize: pagination.pageSize,
+            taskPeriodId: params.filter || undefined
         });
         if (res && res.code == 1) {
             this.setState({

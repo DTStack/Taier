@@ -15,9 +15,9 @@ export default {
     GET_JOB_GRAPH: `${SCIENCE_BASE_URL}/service/maintain/getJobGraph`, // 获取项目实例运行情况
     QUERY_TASK: `${SCIENCE_BASE_URL}/service/maintain/queryTask`, // 查询任务接口
     FROZEN_TASK: `${SCIENCE_BASE_URL}/service/maintain/frozenTask`, // 冻结/解冻实验或者作业
-    EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/startSqlImmediately`, // 开始执行SQL
-    POLL_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 开始轮询执行状态
-    STOP_EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/stopSql`, // 停止执行SQL
+    EXEC_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceJob/startSqlImmediately`, // 开始执行nb
+    POLL_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceJob/selectData`, // 开始轮询执行状态
+    STOP_EXEC_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceJob/stopJob`, // 停止执行nb
     FORMAT_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/formatSql`, // 格式化SQL
     DOWNLOAD_SQL_RESULT: `${SCIENCE_BASE_URL}/download/dataBaseManagement/downloadSqlExeResult`, // 下载执行结果
     GET_SQL_RESULT: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 获取SQL结果
@@ -32,11 +32,11 @@ export default {
     ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
     SEARCH_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/globalSearch`, // 搜索notebook
-    DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/deleteTask`, // 删除notebook
+    DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除notebook
 
     ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加实验
     SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/globalSearch`, // 搜索实验
-    DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/deleteTask`, // 删除实验
+    DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除实验
 
     SUBMIT_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/publishTask`, // 提交任务
 

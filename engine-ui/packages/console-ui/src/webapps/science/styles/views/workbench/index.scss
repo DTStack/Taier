@@ -28,10 +28,6 @@
                 .ant-tree-node-content-wrapper {
                     padding: 5px 5px;
 
-                    &:hover, &.ant-tree-node-selected {
-                        background-color: #F1F5FF;
-                    }
-
                     .tree-node-hover-items {
                         display: none;
                         position: absolute;

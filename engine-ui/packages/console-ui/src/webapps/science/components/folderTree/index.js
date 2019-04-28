@@ -47,7 +47,7 @@ class FolderTree extends React.PureComponent {
                     <TreeNode
                         title={nodeTitle}
                         name={name}
-                        key={`${item.type}-${id}`}
+                        key={item.key}
                         value={id}
                         isLeaf={isLeaf}
                         data={item}

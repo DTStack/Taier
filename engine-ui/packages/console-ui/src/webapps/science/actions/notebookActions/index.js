@@ -69,7 +69,7 @@ export function addNotebook (params) {
 export function deleteNotebook (params) {
     return dispatch => {
         return new Promise(async (resolve) => {
-            let res = await api.deleteNotebook(params);
+            let res = await api.deleteNotebook({ taskId: params.id });
             if (res && res.code == 1) {
                 message.success('删除成功');
                 dispatch(loadTreeData(siderBarType.notebook, params.parentId))
