@@ -135,7 +135,7 @@ class Content extends Component {
                             </div>
                         )}
                         <p data-title="备注：" className="pseudo-title p-line">
-                            {apiVersionCode && token ? <span>API-TOKEN（{token}）<HelpDoc doc="tokenSpecification" /></span> : null }
+                            {apiVersionCode && apiVersionCode === 'API_WITH_TOKEN' ? <span>API-TOKEN（{token}）<HelpDoc doc="tokenSpecification" /></span> : null }
                         </p>
                     </div>
                 </section>
