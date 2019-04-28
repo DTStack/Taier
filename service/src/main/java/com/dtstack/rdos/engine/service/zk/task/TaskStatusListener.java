@@ -431,7 +431,7 @@ public class TaskStatusListener implements Runnable{
             return null;
         }
 
-        String externalPath = completed.getAsJsonObject("external_path").getAsString();
+        String externalPath = completed.getAsJsonPrimitive("external_path").getAsString();
         if(org.apache.commons.lang.StringUtils.isEmpty(externalPath)){
             return null;
         }
