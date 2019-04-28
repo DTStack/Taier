@@ -206,7 +206,7 @@ class CollectionTargetForm extends React.Component {
                             initialValue: get(targetMap, 'writeMode', 'APPEND')
                         })(
                             <RadioGroup>
-                                <Radio value="NONCONFLICT" style={{ float: 'left' }}>
+                                <Radio disabled value="NONCONFLICT" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
