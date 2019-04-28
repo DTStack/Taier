@@ -120,9 +120,12 @@ export default class TaskVersion extends React.Component {
             onChange: this.codeChange,
             language: language
         }
-
+        let isSupportRollback = false;
+        if (haveCode && taskInfo.taskType !== TASK_TYPE.SYNC) {
+            isSupportRollback = true;
+        }
         // 目前暂时只支持有代码的任务类型进行回滚操作
-        const footer = haveCode ? <div style={{ marginRight: 30 }}>
+        const footer = isSupportRollback ? <div style={{ marginRight: 30 }}>
             <Button type="primary" onClick={this.taskRollsBack}>版本回滚</Button>
             <Button type="primary" onClick={this.closeDiffModal}>关闭</Button>
         </div> : null;
