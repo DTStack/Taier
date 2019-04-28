@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Button, Select, Form, Table, message } from 'antd';
 
+import utils from 'utils';
+
 import ColumnsConfig from './container'
 import ColumnsModel from '../../../../model/columnsModel'
 import ApiSqlEditor from './sql'
@@ -310,8 +312,8 @@ class ManageParamsConfig extends Component {
         const { InputColumns, OutputColums, editor } = this.state;
         this.setPassLoading(true)
         if (mode == API_MODE.SQL) {
-            if (!editor.sql) {
-                message.warning('sql不能为空')
+            if (!utils.trim(editor.sql)) {
+                message.warning('SQL 不能为空')
                 this.setPassLoading(false)
                 return
             }
@@ -363,7 +365,8 @@ class ManageParamsConfig extends Component {
         isHide = typeof isHide == 'boolean' ? isHide : false;
         const { sqlModeShow, editor } = this.state;
         const dataSource = this.props.form.getFieldValue('dataSource');
-        const sql = editor.sql;
+        const sql = utils.trim(editor.sql);
+
         /**
          * 是否在参数编辑页面
          */
@@ -382,7 +385,7 @@ class ManageParamsConfig extends Component {
             return;
         }
         if (!sql) {
-            message.warning('sql不能为空!');
+            message.warning('SQL 不能为空');
             return;
         }
         this.setState({
