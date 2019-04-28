@@ -8,6 +8,7 @@ import { showAdminMsg } from '../../components/adminMsgModal';
 
 import { API_METHOD, API_METHOD_KEY } from '../../consts';
 import { getApiMarketValue } from '../../utils';
+import HelpDoc from '../../views/helpDoc'
 
 class Content extends Component {
     state = {
@@ -57,7 +58,9 @@ class Content extends Component {
             endTime,
             mode, // 管理模式/用户模式
             isRegister,
+            apiVersionCode, // 是否使用TOKEN
             showRecord,
+            token, // token
             showMarketInfo, // 是否显示订购情况
             showUserInfo, // 是否显示用户个人的调用信息
             showReqLimit, // 是否显示调用限制
@@ -131,6 +134,9 @@ class Content extends Component {
                                 <p data-title="最近修改时间：" className="pseudo-title p-line">{moment(showRecord.gmtModified).format('YYYY-MM-DD HH:mm:ss')}</p>
                             </div>
                         )}
+                        <p data-title="备注：" className="pseudo-title p-line">
+                            {apiVersionCode && token ? <span>API-TOKEN（{token}）<HelpDoc doc="tokenSpecification" /></span> : null }
+                        </p>
                     </div>
                 </section>
                 {showMarketInfo && <section style={{ marginTop: 19.3 }}>
