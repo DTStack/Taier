@@ -12,7 +12,7 @@ import Mx from 'widgets/mxGraph';
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
 import * as componentActions from '../../../../../actions/componentActions';
-import { VertexSize, taskStatus } from '../../../../../consts'
+import { VertexSize, taskStatus, COMPONENT_TYPE } from '../../../../../consts'
 const propType = {
     data: PropTypes.object,
     registerContextMenu: PropTypes.func,
@@ -31,8 +31,11 @@ const {
     mxGraphHandler,
     mxConstraintHandler,
     mxHierarchicalLayout,
-    // eslint-disable-next-line no-unused-vars
-    mxEventSource
+    mxPoint,
+    mxEventSource,
+    mxConnectionHandler,
+    mxConnectionConstraint,
+    mxUtils
 } = Mx;
 
 const BASE_COLOR = '#2491F7';
@@ -62,6 +65,9 @@ class GraphEditor extends Component {
         const graphContainer = this.Container;
         this.initGraphEditor(graphContainer);
         this.initListener();
+        this.initEdgeInsert();
+        this.initConnector();
+        this.listenConnection();
         this.initRender(data);
         this.hideMenu();
     }
@@ -94,7 +100,7 @@ class GraphEditor extends Component {
         const graph = new mxGraph(container)
         this.graph = graph
         this.props.saveGraph(graph);
-        // 允许鼠标移动画布
+        // 允许鼠标右键移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
         graph.keepEdgesInBackground = false;
         graph.allowLoops = false;
@@ -108,7 +114,7 @@ class GraphEditor extends Component {
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
         // // 启用/禁止连接
-
+        graph.foldingEnabled = false;
         // 禁止Edge对象移动
         graph.isCellsMovable = function () {
             var cell = graph.getSelectionCell()
@@ -174,7 +180,6 @@ class GraphEditor extends Component {
         const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
         graph.removeCells(cells);
-
         this.initGraphLayout();
         this.initContextMenu(graph);
         this.initGraphEvent(graph);
@@ -219,7 +224,7 @@ class GraphEditor extends Component {
                     this._edges.push(edge);
                 }
             }
-            this.executeLayout();
+            // this.executeLayout();
             model.endUpdate();
         }
     }
@@ -227,7 +232,7 @@ class GraphEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         this.executeLayout = function (layoutTarget, change, post) {
-            const parent = layoutTarget || graph.getDefaultParent();
+            // const parent = layoutTarget || graph.getDefaultParent();
             try {
                 if (change != null) { change(); }
                 const layout = new mxHierarchicalLayout(graph, 'north');
@@ -235,7 +240,7 @@ class GraphEditor extends Component {
                 layout.interRankCellSpacing = 60;
                 layout.intraCellSpacing = 60;
                 layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
-                layout.execute(parent);
+                // layout.execute(parent);
             } catch (e) {
                 throw e;
             } finally {
@@ -322,17 +327,137 @@ class GraphEditor extends Component {
             return '';
         }
     }
-    listenConnection () { // 仅仅限制有效的链接
-        const graph = this.graph
+    /* 自定义插入edge时的样式 */
+    initEdgeInsert = () => {
+        const graph = this.graph;
+        mxConnectionHandler.prototype.insertEdge = function (parent, id, value, source, target, style) {
+            const sourceConstraint = graph.connectionHandler.sourceConstraint;
+            const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
+            if (sourceConstraint && sourceConstraint.id === 'outputs') {
+                value = `${sourceConstraint.name}_${targetConstraint.name}`
+            }
+            if (this.factoryMethod == null) {
+                return graph.insertEdge(parent, id, value, source, target, style);
+            } else {
+                var edge = this.createEdge(value, source, target, style);
+                edge = graph.addEdge(edge, parent, source, target);
 
+                return edge;
+            }
+        };
+    }
+    /* 初始化各个组件类型的可连接数 */
+    initConnector = () => {
+        const graph = this.graph;
+        graph.getAllConnectionConstraints = function (terminal) {
+            if (terminal != null && this.model.isVertex(terminal.cell)) {
+                const type = terminal.cell.data.taskType;
+                const perimeter = true;
+                switch (type) {
+                    case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, 'HDFS数据源输出')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return outputs;
+                    }
+                    case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE: {
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '写数据表输入1')
+                        ];
+                    }
+                    case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, 'SQL结果输出')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.2, 0), perimeter, 'sql脚本表1'),
+                            new mxConnectionConstraint(new mxPoint(0.4, 0), perimeter, 'sql脚本表2'),
+                            new mxConnectionConstraint(new mxPoint(0.6, 0), perimeter, 'sql脚本表3'),
+                            new mxConnectionConstraint(new mxPoint(0.8, 0), perimeter, 'sql脚本表4')
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '转化结果输出')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '类型转换输入1')
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '输出结果表'),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '输出参数表')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '归一化输入1')
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '输出表1'),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '输出表2')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '拆分输入1')
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '模型输出')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '逻辑回归二分类输入1')
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '预测结果输出')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, '模型'),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, '预测数据')
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
+                        const outputs = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '综合指标表'),
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '等频详细数据表'),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '等宽详细数据表')
+                        ].map(item => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '二分类评估输入1')
+                        ].concat(outputs);
+                    }
+                    default:
+                        break;
+                }
+            }
+            return null;
+        };
+    }
+    /* 自定义有效的连接 */
+    listenConnection () {
+        const graph = this.graph
+        // mxConstraintHandler.prototype.pointImage = new mxImage('images/dot.gif', 10, 10);
+        // 限制，只能连接contraint
+        mxConstraintHandler.prototype.intersects = function (icon, point, source, existingEdge) {
+            return (!source || existingEdge) || mxUtils.intersects(icon.bounds, point);
+        };
         graph.isValidConnection = (source, target) => {
+            const sourceConstraint = graph.connectionHandler.sourceConstraint;
+            const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
+            console.log(sourceConstraint)
+            // 限制，必须从输出点开始连线
+            if (sourceConstraint && sourceConstraint.id !== 'outputs') return false;
+            // 限制，禁止连接输出点
+            if (targetConstraint && targetConstraint.id === 'outputs') return false;
+            // 限制，输出点的contransint只能有一条线
+            if (sourceConstraint && source.edges && source.edges.length > 0 && source.edges.findIndex(o => o.value.indexOf(sourceConstraint.name) !== -1) !== -1) return false;
+            // 限制，输入点的contransint只能有一条线
+            if (targetConstraint && target.edges && target.edges.length > 0 && target.edges.findIndex(o => o.value.indexOf(targetConstraint.name) !== -1) !== -1) return false;
             // 限制，只能vertex可连接
             if (!source.vertex || !target.vertex) return false;
-
-            // 限制连接线条数
-            const edges = graph.getEdgesBetween(source, target);
-            if (edges.length > 0) return false;
-
             // 限制循环依赖
             let isLoop = false;
             graph.traverse(target, true, function (vertex, edge) {
@@ -342,8 +467,7 @@ class GraphEditor extends Component {
                 }
             });
             if (isLoop) return false;
-
-            return true;
+            return graph.isValidSource(source) && graph.isValidTarget(target);
         }
     }
 

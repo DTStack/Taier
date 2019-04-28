@@ -62,7 +62,7 @@ export function getTaskData (data, currentTab) {
 }
 export function updateTaskData (oldData, newData) {
     return (dispatch, getState) => {
-        dispatch(changeContent(oldData, newData, true, true))
+        dispatch(changeContent(newData, oldData, true, true))
     }
 }
 

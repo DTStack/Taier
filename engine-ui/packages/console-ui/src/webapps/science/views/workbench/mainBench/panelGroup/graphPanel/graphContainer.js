@@ -120,13 +120,19 @@ class GraphContainer extends React.Component {
         }
     }
     /* 初始化hover生成的div的效果 */
-    mxTitleContent = (state) => {
+    mxTitleContent = (state, isVertex) => {
         const data = state.cell.data;
         const div = document.createElement('div');
         div.id = 'titleContent'
-        div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${data.name}`;
-        div.style.left = (state.x) + 'px';
-        div.style.top = (state.y + 32) + 'px';
+        if (isVertex) {
+            div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${data.name}`;
+            div.style.left = (state.x) + 'px';
+            div.style.top = (state.y + 32 + 10) + 'px';
+        } else {
+            div.innerHTML = `输出参数：${state.cell.value} <br />`;
+            div.style.left = (state.getCenterX()) + 'px';
+            div.style.top = (state.getCenterY()) + 'px';
+        }
         state.view.graph.container.appendChild(div);
         return {
             destroy: () => {
@@ -149,6 +155,7 @@ class GraphContainer extends React.Component {
             }
 
             const cell = evt.getProperty('cell')
+            if (cell && cell.inputOrOutput) return;
             if (cell && cell.vertex) {
                 const data = cell.data;
                 openTaskInDev(data.id);
@@ -158,8 +165,10 @@ class GraphContainer extends React.Component {
             id: 'hoverTitle', // 事件的唯一id，用于update事件
             currentState: null,
             currentTitleContent: null,
+            isClick: false, // 是否点击了
             mouseDown: function (sender, me) {
                 // Hides on mouse down
+                this.isClick = true;
                 if (this.currentState != null) {
                     this.dragLeave(me.getEvent(), this.currentState);
                     this.currentState = null;
@@ -170,23 +179,22 @@ class GraphContainer extends React.Component {
                     return;
                 }
                 const temp = graph.view.getState(me.getCell());
-                if (temp != null && !graph.getModel().isVertex(temp.cell)) {
-                    // edge
-                } else {
-                    // vertex
-                    if (this.currentState == null) {
-                        this.dragEnter(me.getEvent(), temp);
-                        this.currentState = temp;
-                    } else if (temp != this.currentState) {
-                        this.dragLeave(me.getEvent(), this.currentState);
-                        this.currentState = null;
-                    }
+                if (me.getState() && me.getState().cell.inputOrOutput) return; // 这种情况是因为输入输出的小圈也是vertex
+                if (this.currentState == null) {
+                    this.dragEnter(me.getEvent(), temp, graph.getModel().isVertex(temp.cell));
+                    this.currentState = temp;
+                } else if (temp != this.currentState) {
+                    this.dragLeave(me.getEvent(), this.currentState);
+                    this.currentState = null;
                 }
             },
-            mouseUp: function (sender, me) { },
-            dragEnter: function (evt, state) {
-                if (this.currentTitleContent == null && !graph.popupMenuHandler.isMenuShowing()) {
-                    this.currentTitleContent = new ctx.mxTitleContent(state);
+            mouseUp: function (sender, me) {
+                this.isClick = false;
+            },
+            dragEnter: function (evt, state, isVertex) {
+                if (this.currentTitleContent == null && !this.isClick && !graph.popupMenuHandler.isMenuShowing()) {
+                    // 当前没有右键点击弹出菜单 并且 没有左键点击 并且 当前没有currentTitleContent
+                    this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
                 }
             },
             dragLeave: function (evt, state) {
@@ -238,16 +246,14 @@ class GraphContainer extends React.Component {
         };
 
         graph.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
-            const graphData = ctx.getGraphData();
-            const oldData = Object.assign({}, data);
-            const newData = Object.assign({}, data);
-            newData.graphData = graphData;
-            ctx.props.updateTaskData(oldData, newData);
+            ctx.handleUpdateTaskData();
         }, true);
-        graph.addListener(mxEvent.CELL_CONNECTED, () => {
-            // console.log('CELL_CONNECTED.')
+        graph.addListener(mxEvent.CELL_CONNECTED, (sender, evt) => {
+            ctx.handleUpdateTaskData();
         }, true);
-        console.log('graph:', graph);
+        graph.addListener(mxEvent.MOVE, (sender, evt) => {
+            console.log(123)
+        }, true);
     }
     /* 复制节点 */
     copyCell = (cell) => {
@@ -262,6 +268,7 @@ class GraphContainer extends React.Component {
         const copyData = cloneDeep(data);
         const graphData = copyData.graphData;
         if (cell.edges && cell.edges.length > 0) {
+            // 如果删除的是有边的vertex，连带边一起删除
             removeCells.concat(cell.edges);
         }
         removeCells.forEach((item) => {
@@ -303,6 +310,15 @@ class GraphContainer extends React.Component {
             detailModalVisible: true,
             detailData: cell
         });
+    }
+    /* 更新task的data */
+    handleUpdateTaskData = () => {
+        const { data } = this.props;
+        const graphData = this.getGraphData();
+        const oldData = Object.assign({}, data);
+        const newData = Object.assign({}, data);
+        newData.graphData = graphData;
+        this.props.updateTaskData(oldData, newData);
     }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
