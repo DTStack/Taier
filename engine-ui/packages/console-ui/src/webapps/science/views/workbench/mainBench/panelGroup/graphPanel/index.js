@@ -126,7 +126,7 @@ class GraphPanel extends Component {
             data={data}
             name='作业'
             isNotebook={true}
-            disabled={data.isDirty}
+            disabled={data && data.isDirty}
             onSubmit={(values) => {
                 return this.props.submitNotebook({
                     ...data,
@@ -135,7 +135,7 @@ class GraphPanel extends Component {
             }}
             onSubmitModel={(values) => {
                 return this.props.submitNotebookModel({
-                    id: data.id,
+                    id: data && data.id,
                     ...values
                 })
             }}

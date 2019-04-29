@@ -15,7 +15,10 @@ import * as componentActions from '../../../../../actions/componentActions';
 import { COMPONENT_TYPE } from '../../../../../consts';
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
+import EvaluateReportModal from './evaluateReport';
+
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
+
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
 
 const {
@@ -53,13 +56,16 @@ class GraphContainer extends React.Component {
         detailModalVisible: false,
         detailData: null,
         selectedData: null,
+        evaluateReportVisible: true,
         runningLogVisible: false
     }
 
     _graph = null;
+
     shouldComponentUpdate (nextProps) {
         return true;
     }
+
     initContextMenu = (graph) => {
         const ctx = this;
         const { isRunning } = this.props;
@@ -110,10 +116,14 @@ class GraphContainer extends React.Component {
                 }, menuLookData, null, true);
                 menu.addItem('查看数据输出2', null, function () {
                 }, menuLookData, null, true);
-                cell.data.taskType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION && menu.addItem('查看评估报告', null, function () {
-                }, null, null, true);
+                if (cell.data.taskType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION) {
+                    menu.addItem('查看评估报告', null, function () {
+                        // 查看评估报告
+                        ctx.showHideEvaluateReport(cell.data);
+                    }, null, null, true);
+                }
                 menu.addItem('查看日志', null, function () {
-                    ctx.deleteTask(cell);
+                    // 查看日志
                 }, null, null, true);
             } else {
                 menu.addItem('删除依赖关系', null, function () {
@@ -122,6 +132,7 @@ class GraphContainer extends React.Component {
             }
         }
     }
+
     mxTitleContent = (state) => {
         const data = state.cell.data;
         const div = document.createElement('div');
@@ -147,6 +158,7 @@ class GraphContainer extends React.Component {
             }
         }
     }
+
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
@@ -258,6 +270,7 @@ class GraphContainer extends React.Component {
             // console.log('CELL_CONNECTED.')
         }, true);
     }
+
     /* 复制节点 */
     copyCell = (cell) => {
         const { data } = this.props;
@@ -383,6 +396,7 @@ class GraphContainer extends React.Component {
         // })
         // updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks, graph });
     }
+
     getCellData = (cell) => {
         return cell && {
             vertex: cell.vertex,
@@ -394,6 +408,7 @@ class GraphContainer extends React.Component {
             id: cell.id
         }
     }
+
     getGraphData = () => {
         const rootCell = this._graph.getDefaultParent();
         const cells = this._graph.getChildCells(rootCell);
@@ -449,6 +464,13 @@ class GraphContainer extends React.Component {
         })
     }
 
+    showHideEvaluateReport = (data) => {
+        this.setState({
+            evaluateReportVisible: !!data,
+            selectedData: data
+        })
+    }
+
     closeSearch = () => {
         this.setState({ showSearch: false, searchResult: '' });
     }
@@ -468,8 +490,9 @@ class GraphContainer extends React.Component {
 
     render () {
         const {
-            showSearch, searchResult, detailModalVisible, detailData,
-            selectedData, runningLogVisible
+            detailData, evaluateReportVisible, selectedData,
+            showSearch, searchResult, detailModalVisible,
+            runningLogVisible
         } = this.state;
         const { data } = this.props;
         const graphData = cloneDeep(data.graphData);
@@ -509,6 +532,11 @@ class GraphContainer extends React.Component {
                         runningLog: { logData: null, indexData: null }
                     })
                 }}
+            />
+            <EvaluateReportModal
+                data={selectedData}
+                visible={evaluateReportVisible}
+                onCancel={() => this.showHideEvaluateReport() }
             />
         </div>
     }

@@ -27,7 +27,7 @@ import Source from './views/source';
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then(module => module.default), { name: 'testPage' })
-import GraphView from './views/workbench/mainBench/panelGroup/graphPanel'
+import GraphView from './views/workbench/mainBench/panelGroup/graphPanel/graphContainer'
 
 export default (
     <Route path="/" component={Main}>
