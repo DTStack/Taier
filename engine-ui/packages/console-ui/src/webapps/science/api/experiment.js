@@ -44,5 +44,8 @@ export default {
     },
     addOrUpdateTask (params) {
         return http.post(req.UPDATE_TASK, params);
+    },
+    getComponentRunningLog (params) {
+        return http.post(req.GET_COMPONENT_RUNNING_LOG, params);
     }
 }

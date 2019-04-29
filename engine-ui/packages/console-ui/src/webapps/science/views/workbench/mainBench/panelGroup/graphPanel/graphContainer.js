@@ -12,8 +12,9 @@ import API from '../../../../../api';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE } from '../../../../../consts'
+import { COMPONENT_TYPE } from '../../../../../consts';
 import ModelDetailModal from './detailModal';
+import RunningLogModal from './runningLog';
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
 
@@ -50,7 +51,9 @@ class GraphContainer extends React.Component {
         searchResult: null,
         searchText: null,
         detailModalVisible: false,
-        detailData: null
+        detailData: null,
+        selectedData: null,
+        runningLogVisible: false
     }
 
     _graph = null;
@@ -464,7 +467,10 @@ class GraphContainer extends React.Component {
     }
 
     render () {
-        const { showSearch, searchResult, detailModalVisible, detailData } = this.state;
+        const {
+            showSearch, searchResult, detailModalVisible, detailData,
+            selectedData, runningLogVisible
+        } = this.state;
         const { data } = this.props;
         const graphData = cloneDeep(data.graphData);
         return <div className="exp-graph-view" style={{ width: '100%' }}>
@@ -491,6 +497,16 @@ class GraphContainer extends React.Component {
                     this.setState({
                         detailModalVisible: false,
                         detailData: null
+                    })
+                }}
+            />
+            <RunningLogModal
+                visible={runningLogVisible}
+                data={selectedData}
+                onCancel={() => {
+                    this.setState({
+                        runningLogVisible: false,
+                        runningLog: { logData: null, indexData: null }
                     })
                 }}
             />
