@@ -240,6 +240,7 @@ class CollectionSourceForm extends React.Component {
     renderForm () {
         let { collectionData, tableList } = this.props;
         let { dataSourceList = [], sourceMap, isEdit } = collectionData;
+        if (!sourceMap) return [];
         const { getFieldDecorator } = this.props.form;
         const allTable = sourceMap.allTable;
         const { type, sourceId } = sourceMap;

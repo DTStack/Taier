@@ -112,6 +112,8 @@ class CollectionTargetForm extends React.Component {
         const { collectionData, topicList } = this.props;
         const { isEdit, targetMap } = collectionData;
         const { getFieldDecorator } = this.props.form;
+        if (!targetMap) return [];
+
         switch (targetMap.type) {
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10:
@@ -308,6 +310,8 @@ const WrapCollectionTargetForm = Form.create({
     mapPropsToFields (props) {
         const { collectionData } = props;
         const targetMap = collectionData.targetMap;
+        if (!targetMap) return {};
+
         return {
             sourceId: {
                 value: targetMap.sourceId
