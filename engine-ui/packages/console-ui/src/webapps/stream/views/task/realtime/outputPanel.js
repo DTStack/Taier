@@ -485,7 +485,7 @@ export default class OutputPanel extends Component {
             this.getTypeOriginData(index, v.type);
             if (haveTableList(v.type)) {
                 this.getTableType(index, v.sourceId)
-                if (v.type == DATA_SOURCE.MYSQL) {
+                if (haveTableColumn(v.type)) {
                     this.getTableColumns(index, v.sourceId, v.table)
                 }
             }
@@ -554,7 +554,7 @@ export default class OutputPanel extends Component {
                 this.getTypeOriginData(index, v.type)
                 if (haveTableList(v.type)) {
                     this.getTableType(index, v.sourceId)
-                    if (v.type == DATA_SOURCE.MYSQL) {
+                    if (haveTableColumn(v.type)) {
                         this.getTableColumns(index, v.sourceId, v.table)
                     }
                 }
