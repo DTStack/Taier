@@ -272,7 +272,7 @@ class CollectionTargetForm extends React.Component {
 
     render () {
         const { collectionData } = this.props;
-        const { dataSourceList = [], isEdit, sourceMap } = collectionData;
+        const { dataSourceList = [], isEdit, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const disableOption = (targetSourceType) => {
             // 源类型为Kafka时，目标仅能选择HDFS类型

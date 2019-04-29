@@ -103,7 +103,7 @@ export const actions = {
     updateSourceMap (params = {}, clear, notDirty) {
         return dispatch => {
             const page = getCurrentPage();
-            let { sourceMap } = page;
+            let { sourceMap = {} } = page;
             if (clear) {
                 sourceMap = {
                     ...initState.sourceMap,
