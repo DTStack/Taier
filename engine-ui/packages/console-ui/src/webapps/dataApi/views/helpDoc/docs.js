@@ -35,3 +35,14 @@ export const registerApiPath = (
         <p>若后端服务path中包含请求参数中的入参，放在{'{}'}中，如/user/{'{'}userid{'}'}。</p>
     </div>
 )
+
+export const tokenSpecification = (
+    <div>
+        <p>
+            API的调用方式自 v3.6.0 版本后，已修改为AK/SK的加密调用方式，
+            但是仍可兼容之前版本的API-TOKEN调用方式，不影响老API的使用。
+            对于老API, 用户可继续使用原有Token加密方式，也可切换至AK/SK的加密调用方式，
+            但是建议用户使用API签名的方法，可更好的保障数据的安全性。
+        </p>
+    </div>
+)

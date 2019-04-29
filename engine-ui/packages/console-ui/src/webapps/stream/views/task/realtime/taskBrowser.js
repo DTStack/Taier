@@ -354,17 +354,17 @@ class TaskBrowser extends Component {
                             </TabPane>
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>源表</span>} key="params3">
-                                    <InputPanel isShow={this.state.selected == 'params3'} {...this.props} tableParamsChange={this.tableParamsChange} />
+                                    <InputPanel isLocked={isLocked} isShow={this.state.selected == 'params3'} {...this.props} tableParamsChange={this.tableParamsChange} />
                                 </TabPane> : ''
                             }
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 5, paddingBottom: 3 }}>结果表</span>} key="params4">
-                                    <OutputPanel isShow={this.state.selected == 'params4'} {...this.props} tableParamsChange={this.tableParamsChange} />
+                                    <OutputPanel isLocked={isLocked} isShow={this.state.selected == 'params4'} {...this.props} tableParamsChange={this.tableParamsChange} />
                                 </TabPane> : ''
                             }
                             {
                                 currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>维表</span>} key="params5">
-                                    <DimensionPanel isShow={this.state.selected == 'params5'} {...this.props} tableParamsChange={this.tableParamsChange} />
+                                    <DimensionPanel isLocked={isLocked} isShow={this.state.selected == 'params5'} {...this.props} tableParamsChange={this.tableParamsChange} />
                                 </TabPane> : ''
                             }
                             <TabPane tab={<span className="title-vertical">环境参数</span>} key="params2">
