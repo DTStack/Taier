@@ -1,4 +1,5 @@
 import localDb from 'utils/localDb';
+import { cloneDeep } from 'lodash';
 
 /**
  * 替换节点，但是保留children信息
@@ -18,16 +19,29 @@ export function updateTreeNode (origin, replaceNode) {
                 (node.children || []).forEach((childNode) => {
                     tmpMap[childNode.id] = childNode;
                 });
+                replaceNode = cloneDeep(replaceNode);
                 replaceNode.children = replaceNode.children.map((childNode) => {
+                    if (tmpMap[childNode.id]) {
+                        return {
+                            ...childNode,
+                            children: tmpMap[childNode.id].children
+                        }
+                    }
                     return tmpMap[childNode.id] || childNode;
                 });
             }
+            origin = [...origin];
             origin.splice(i, 1, replaceNode)
-            return [...origin];
+            return origin;
         } else if (node.children) {
-            const tree = updateTreeNode(node.children, replaceNode);
-            if (tree) {
-                return [...origin];
+            const newChildren = updateTreeNode(node.children, replaceNode);
+            if (newChildren) {
+                origin = [...origin];
+                origin.splice(i, 1, {
+                    ...node,
+                    children: newChildren
+                })
+                return origin;
             }
         }
     }

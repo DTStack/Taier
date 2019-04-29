@@ -19,10 +19,10 @@ export default {
         return http.post(req.GET_TASK_BY_ID, params);
     },
     submitExperiment (params) {
-        return http.post(req.SUBMIT_NOTEBOOK, params);
+        return http.post(req.SUBMIT_TASK, params);
     },
     submitExperimentModel (params) {
-        return http.post(req.SUBMIT_NOTEBOOK_MODEL, params);
+        return http.post(req.SAVE_MODEL, params);
     },
     deleteExperiment (params) {
         return http.post(req.DELETE_EXPERIMENT, params);

@@ -23,7 +23,9 @@ import { siderBarType } from '../../../../../consts';
     state => {
         return {
             routing: state.routing,
-            files: state.notebook.files
+            files: state.notebook.files,
+            currentTabIndex: state.notebook.currentTabIndex,
+            tabs: state.notebook.localTabs
         }
     },
     dispatch => {
@@ -77,8 +79,15 @@ class NotebookSidebar extends Component {
     }
     renderFolderContent = () => {
         const {
-            files
+            files,
+            currentTabIndex,
+            tabs
         } = this.props;
+        const selectedKeys = tabs.filter((tab) => {
+            return tab.id == currentTabIndex
+        }).map((tab) => {
+            return tab.key
+        });
         return (
             <div>
                 {files.length ? (
@@ -87,6 +96,7 @@ class NotebookSidebar extends Component {
                         onExpand={this.onExpand}
                         onSelect={this.onSelect}
                         expandedKeys={this.state.expandedKeys}
+                        selectedKeys={selectedKeys}
                         treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
@@ -243,13 +253,18 @@ class NotebookSidebar extends Component {
                     }}
                     onEdit={(editKey, editValue, callback) => {
                         this.props.saveNotebook({
-                            ...editParamsData,
-                            [editKey]: editValue
+                            id: editParamsData.id,
+                            name: editParamsData.name,
+                            taskDesc: editParamsData.taskDesc,
+                            [editKey]: editValue,
+                            version: editParamsData.version,
+                            isEditBaseInfo: true
                         }).then((res) => {
                             if (res) {
                                 this.setState({
                                     editParamsData: res.data
                                 })
+                                this.props.loadTreeData(siderBarType.notebook, editParamsData.parentId);
                                 callback();
                             }
                         });
@@ -270,16 +285,16 @@ class NotebookSidebar extends Component {
                         value: 'Python3'
                     }, {
                         label: '创建人',
-                        value: editParamsData.ownerUser.userName
+                        value: editParamsData.createUser
                     }, {
                         label: '创建时间',
-                        value: moment(editParamsData.ownerUser.gmtCreate).format('YYYY-MM-DD HH:mm:ss')
+                        value: moment(editParamsData.gmtCreate).format('YYYY-MM-DD HH:mm:ss')
                     }, {
                         label: '最近修改人',
-                        value: editParamsData.modifyUser.userName
+                        value: editParamsData.modifyUser
                     }, {
                         label: '最近修改时间',
-                        value: moment(editParamsData.modifyUser.gmtModified).format('YYYY-MM-DD HH:mm:ss')
+                        value: moment(editParamsData.gmtModified).format('YYYY-MM-DD HH:mm:ss')
                     }]}
                 />
             </div>

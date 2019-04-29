@@ -72,7 +72,7 @@ async function execTask (tabData, serverParams, task, dispatch) {
     };
     let res;
     try {
-        res = await API.comm.execTask(params);
+        res = await API.notebook.execTask(params);
     } catch (e) {
         return false;
     }
@@ -105,7 +105,7 @@ async function pollTask (tabId, jobId, dispatch) {
         return false;
     }
     try {
-        res = await API.comm.pollTask({ jobId });
+        res = await API.notebook.pollTask({ jobId });
     } catch (e) {
         return false;
     }

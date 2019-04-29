@@ -136,7 +136,7 @@ class EditorPanel extends Component {
                 key='scheduleConf'
             >
                 <SchedulingConfig
-                    formData={JSON.parse(data.scheduleConf)}
+                    formData={JSON.parse(data.scheduleConf || '{}')}
                     onChange={(newFormData) => {
                         this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
                     }}
@@ -192,7 +192,7 @@ class EditorPanel extends Component {
             }}
             onSubmitModel={(values) => {
                 return this.props.submitNotebookModel({
-                    id: data.id,
+                    taskId: data.id,
                     ...values
                 })
             }}

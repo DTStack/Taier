@@ -1,6 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import { Modal, Form, Input } from 'antd';
 import FolderTree from '../folderTree';
@@ -49,6 +50,7 @@ class NewExperimentModal extends React.Component {
             {visible && (
                 <WrapNewExperimentModalForm
                     loadTreeData={loadTreeData}
+                    modal={modal}
                     files={files}
                     wrappedComponentRef={(_form) => { this.form = _form }}
                 />
@@ -61,8 +63,9 @@ class NewExperimentModalForm extends React.Component {
         return this.props.loadTreeData(siderBarType.experiment, node.props.data.id);
     }
     render () {
-        const { files, form } = this.props;
+        const { files, form, modal } = this.props;
         const { getFieldDecorator } = form;
+        const { modalData = {} } = modal;
         return (
             <Form>
                 <FormItem
@@ -89,7 +92,8 @@ class NewExperimentModalForm extends React.Component {
                         rules: [{
                             required: true,
                             message: '请选择存储位置'
-                        }]
+                        }],
+                        initialValue: get(modalData, 'id')
                     })(
                         <FolderTree loadData={this.loadData.bind(this)} treeData={files} isSelect={true} hideFiles={true} />
                     )}

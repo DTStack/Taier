@@ -124,18 +124,17 @@ class GraphPanel extends Component {
         const { data } = this.props;
         return <PublishButtons
             data={data}
-            name='作业'
-            isNotebook={true}
+            name='实验'
             disabled={data.isDirty}
             onSubmit={(values) => {
-                return this.props.submitNotebook({
+                return this.props.submitExperiment({
                     ...data,
                     ...values
                 })
             }}
             onSubmitModel={(values) => {
-                return this.props.submitNotebookModel({
-                    id: data.id,
+                return this.props.submitExperimentModel({
+                    taskId: data.id,
                     ...values
                 })
             }}
