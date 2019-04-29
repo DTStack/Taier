@@ -23,9 +23,18 @@ class SiderBench extends React.Component {
         selected: '',
         expanded: false
     }
+    _updateKey = 0;
 
     constructor (props) {
         super(props);
+    }
+
+    componentDidUpdate (prevProps) {
+        const tabData = this.props.tabData
+        const { tabData: oldData } = prevProps
+        if (tabData && tabData !== oldData) {
+            this._updateKey++;
+        }
     }
 
     handleTaskParamChange (newVal) {
@@ -78,7 +87,7 @@ class SiderBench extends React.Component {
                         isPro={isPro}
                         couldEdit={couldEdit}
                         tabData={tabData}
-                        key={`schedule-${tabData && tabData.version}`}
+                        key={`schedule-${tabData && tabData.version}-${this._updateKey}`}
                         isIncrementMode={isIncrementMode}
                     >
                     </SchedulingConfig>
