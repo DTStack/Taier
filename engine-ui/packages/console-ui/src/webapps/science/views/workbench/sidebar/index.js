@@ -48,10 +48,10 @@ class SiderBarContainer extends React.Component {
                 <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />实验</span>} key={siderBarType.experiment}>
                     <ExperimentSiderBar />
                 </TabPane>
-                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />组件</span>} key={siderBarType.component}>
+                <TabPane tab={<span><img className='c-antd-tabs-sidebar__tab__img__icon' src='/public/science/img/icon/component.svg' />组件</span>} key={siderBarType.component}>
                     <ComponentSiderBar />
                 </TabPane>
-                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />模型</span>} key={siderBarType.model}>model</TabPane>
+                <TabPane tab={<span><img className='c-antd-tabs-sidebar__tab__img__icon' src='/public/science/img/icon/model.svg' />模型</span>} key={siderBarType.model}>model</TabPane>
             </Tabs>
         )
     }
