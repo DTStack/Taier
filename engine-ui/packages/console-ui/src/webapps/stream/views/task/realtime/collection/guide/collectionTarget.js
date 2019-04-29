@@ -49,7 +49,7 @@ class CollectionTarget extends React.Component {
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
-        const { targetMap } = collectionData;
+        const { targetMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
         const { targetMap: oldTarget } = oldCol;
         if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId && isKafka(targetMap.type)) {
@@ -125,7 +125,7 @@ class CollectionTargetForm extends React.Component {
 
     dynamicRender () {
         const { collectionData, topicList } = this.props;
-        const { isEdit, targetMap } = collectionData;
+        const { isEdit, targetMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap) return [];
 
