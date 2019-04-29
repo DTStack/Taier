@@ -421,7 +421,7 @@ class TaskIndex extends Component {
         const isModify = currentPage.notSynced; // 是否修改
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
-        const isDisableSave = currentPage.invalid || isLocked;
+        const isDisableSave = currentPage.invalid || isLocked || currentPage.invalidSubmit;
 
         return (
             <Row className="task-editor">
@@ -467,6 +467,7 @@ class TaskIndex extends Component {
                                 mouseLeaveDelay={0}
                             >
                                 <Button
+                                    disabled={isDisableSave}
                                     onClick={
                                         isModify ? this.showConfirmModal : this.showPublish
                                     }

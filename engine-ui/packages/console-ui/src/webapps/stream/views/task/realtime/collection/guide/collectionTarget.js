@@ -57,6 +57,21 @@ class CollectionTarget extends React.Component {
         }
     }
 
+    onFormValuesChange = () => {
+        const { updateCurrentPage } = this.props;
+        setTimeout(() => {
+            this._form.validateFields(null, {}, (err, values) => {
+                let invalidSubmit = false;
+                if (err) {
+                    invalidSubmit = true;
+                }
+                updateCurrentPage({
+                    invalidSubmit
+                });
+            });
+        }, 200)
+    }
+
     prev () {
         this.props.navtoStep(0)
     }
@@ -85,7 +100,7 @@ class CollectionTarget extends React.Component {
         const { topicList } = this.state;
         return (
             <div>
-                <WrapCollectionTargetForm ref={(f) => { this._form = f }} topicList={topicList} {...this.props} />
+                <WrapCollectionTargetForm ref={(f) => { this._form = f }} onFormValuesChange={this.onFormValuesChange} topicList={topicList} {...this.props} />
                 {!this.props.readonly && (
                     <div className="steps-action">
                         <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
@@ -200,7 +215,7 @@ class CollectionTargetForm extends React.Component {
                     >
                         {getFieldDecorator('fieldDelimiter', {
                             rules: [],
-                            initialValue: get(targetMap, 'fieldDelimiter', ',')
+                            initialValue: get(targetMap, 'fieldDelimiter')
                         })(
                             <Input
                                 /* eslint-disable-next-line */
@@ -217,7 +232,7 @@ class CollectionTargetForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: get(targetMap, 'encoding', 'utf-8')
+                            initialValue: get(targetMap, 'encoding')
                         })(
                             <Select>
                                 <Option value="utf-8">utf-8</Option>
@@ -306,6 +321,9 @@ class CollectionTargetForm extends React.Component {
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
         props.updateTargetMap(fields, false);
+        if (props.onFormValuesChange) {
+            props.onFormValuesChange(props, fields);
+        }
     },
     mapPropsToFields (props) {
         const { collectionData } = props;

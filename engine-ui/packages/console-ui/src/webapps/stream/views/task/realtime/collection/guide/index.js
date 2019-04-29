@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
+import { updateCurrentPage } from '../../../../../store/modules/realtimeTask/browser';
 
 import Source from './collectionSource';
 import Target from './collectionTarget';
@@ -15,7 +16,9 @@ class CollectionGuide extends React.Component {
     // eslint-disable-next-line
 	UNSAFE_componentWillMount () {
         this.props.getDataSource();
-        this.props.initCollectionTask(this.props.currentPage.id);
+        if (this.props.currentPage) {
+            this.props.initCollectionTask(this.props.currentPage.id);
+        }
     }
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
@@ -35,7 +38,7 @@ class CollectionGuide extends React.Component {
     }
 
     render () {
-        const { currentPage } = this.props;
+        const { currentPage, updateCurrentPage } = this.props;
         const collectionData = currentPage || {};
         const { currentStep } = collectionData;
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
@@ -46,6 +49,7 @@ class CollectionGuide extends React.Component {
                     updateSourceMap={this.props.updateSourceMap}
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
+                    updateCurrentPage={updateCurrentPage}
                 />
             },
             {
@@ -54,6 +58,7 @@ class CollectionGuide extends React.Component {
                     updateTargetMap={this.props.updateTargetMap}
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
+                    updateCurrentPage={updateCurrentPage}
                 />
             },
             {
@@ -92,7 +97,11 @@ const mapState = (state) => {
 
 const mapDispatch = dispatch => {
     const actions = bindActionCreators(collectionActions, dispatch);
-    return actions;
+    return Object.assign(actions, {
+        updateCurrentPage: function (data) {
+            dispatch(updateCurrentPage(data))
+        }
+    });
 }
 
 export default connect(mapState, mapDispatch)(CollectionGuide);

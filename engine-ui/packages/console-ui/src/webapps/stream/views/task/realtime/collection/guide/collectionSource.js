@@ -44,9 +44,9 @@ class CollectionSource extends React.Component {
         const { collectionData } = nextProps;
         const { sourceMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
-        const { sourceMap: oldSource } = oldCol;
+        const { sourceMap: oldSource = {} } = oldCol;
         if (sourceMap.sourceId && oldSource.sourceId != sourceMap.sourceId) {
-            if (sourceMap.type === DATA_SOURCE.MYSQL) {
+            if (sourceMap.type === DATA_SOURCE.MYSQL && sourceMap.sourceId) {
                 this.getTableList(sourceMap.sourceId);
             }
         }
@@ -56,7 +56,9 @@ class CollectionSource extends React.Component {
         if (
             (sourceMap.collectType != oldSource.collectType || collectionData.id != oldCol.id) &&
             sourceMap.collectType == collectType.FILE) {
-            this.getBinLogList(sourceMap.sourceId);
+            if (sourceMap.sourceId) {
+                this.getBinLogList(sourceMap.sourceId);
+            }
         }
     }
 
@@ -99,6 +101,20 @@ class CollectionSource extends React.Component {
             binLogList: []
         })
     }
+    onFormValuesChange = () => {
+        const { updateCurrentPage } = this.props;
+        setTimeout(() => {
+            this._form.validateFields(null, {}, (err, values) => {
+                let invalidSubmit = false;
+                if (err) {
+                    invalidSubmit = true;
+                }
+                updateCurrentPage({
+                    invalidSubmit
+                });
+            });
+        }, 200);
+    }
     next () {
         this._form.validateFields(null, {}, (err, values) => {
             if (!err) {
@@ -115,6 +131,7 @@ class CollectionSource extends React.Component {
                     dataSourceTypes={dataSourceTypes}
                     binLogList={binLogList}
                     tableList={tableList}
+                    onFormValuesChange={this.onFormValuesChange}
                     {...this.props}
                 />
                 {!this.props.readonly && (
@@ -540,6 +557,9 @@ const WrapCollectionSourceForm = Form.create({
             }
         }
         props.updateSourceMap(fields, clear);
+        if (props.onFormValuesChange) {
+            props.onFormValuesChange(props, fields);
+        }
     },
     mapPropsToFields (props) {
         const { collectionData } = props;

@@ -85,6 +85,10 @@ export function getCurrentPage () {
     return { type: browserAction.GET_CURRENT_PAGE }
 }
 
+export function updateCurrentPage (data) {
+    return { type: browserAction.UPDATE_CURRENT_PAGE, data }
+}
+
 export function setCurrentPage (value) {
     return dispatch => {
         /**
@@ -343,6 +347,14 @@ export function currentPage (state = defaultCurPage, action) {
         case browserAction.SET_CURRENT_PAGE: {
             const current = action.data || defaultCurPage
             localDb.set(key, current)
+            return current
+        }
+        case browserAction.UPDATE_CURRENT_PAGE: {
+            let current = state;
+            if (action.data) {
+                current = Object.assign({}, state, action.data);
+                localDb.set(key, current)
+            }
             return current
         }
         case browserAction.SET_INPUT_DATA: {
