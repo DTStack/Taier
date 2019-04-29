@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { Tabs } from 'antd';
-
+import { debounce } from 'lodash';
 import utils from 'utils'
 
 import SQLEditor from 'widgets/editor';
@@ -46,6 +46,8 @@ class SiderBench extends React.Component {
     handleCustomParamsChange = (params) => {
         this.props.setTaskParams(params)
     }
+
+    debounceChange = debounce(this.handleCustomParamsChange, 300, { 'maxWait': 2000 })
 
     tabClick = (activeKey) => {
         const { selected, expanded } = this.state
@@ -113,7 +115,7 @@ class SiderBench extends React.Component {
                         isPro={isPro}
                         couldEdit={couldEdit}
                         tabData={tabData}
-                        onChange={this.handleCustomParamsChange}
+                        onChange={this.debounceChange}
                     />
                 </TabPane>
             )
@@ -121,8 +123,8 @@ class SiderBench extends React.Component {
                 <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                     <SQLEditor
                         options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false }, theme: editor.options.theme }}
-                        key={`env-parmas-${tabData.id}-${editor.options.theme}`}
                         value={tabData.taskParams}
+                        sync={true}
                         onFocus={() => { }}
                         focusOut={() => { }}
                         language="ini"
