@@ -309,8 +309,33 @@ class ManageParamsConfig extends Component {
     }
     async pass () {
         const { mode } = this.props;
-        const { InputColumns, OutputColums, editor } = this.state;
-        this.setPassLoading(true)
+        this.setPassLoading(true);
+        const { editor } = this.state;
+
+        const nextStep = async () => {
+            const { InputColumns, OutputColums } = this.state;
+
+            if (!OutputColums || OutputColums.length == 0) {
+                message.warning('输出参数不能为空')
+                this.setPassLoading(false)
+                return;
+            }
+            let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
+            this.setPassLoading(false)
+            if (!isPass) {
+                return false;
+            }
+            if (!this.checkRepeat(InputColumns)) {
+                message.warning('输入参数不能相同')
+                return;
+            }
+            if (!this.checkRepeat(OutputColums)) {
+                message.warning('输出参数不能相同')
+                return;
+            }
+            this.props.dataChange(this.getSaveData())
+        }
+
         if (mode == API_MODE.SQL) {
             if (!utils.trim(editor.sql)) {
                 message.warning('SQL 不能为空')
@@ -322,26 +347,10 @@ class ManageParamsConfig extends Component {
                 this.setPassLoading(false)
                 return;
             }
+            nextStep();
+        } else {
+            nextStep();
         }
-        if (!OutputColums || OutputColums.length == 0) {
-            message.warning('输出参数不能为空')
-            this.setPassLoading(false)
-            return;
-        }
-        let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
-        this.setPassLoading(false)
-        if (!isPass) {
-            return false;
-        }
-        if (!this.checkRepeat(InputColumns)) {
-            message.warning('输入参数不能相同')
-            return;
-        }
-        if (!this.checkRepeat(OutputColums)) {
-            message.warning('输出参数不能相同')
-            return;
-        }
-        this.props.dataChange(this.getSaveData())
     }
     prev () {
         this.props.saveData(this.getSaveData());
