@@ -51,7 +51,7 @@ class CollectionTarget extends React.Component {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
-        const { targetMap: oldTarget } = oldCol;
+        const { targetMap: oldTarget = {} } = oldCol;
         if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId && isKafka(targetMap.type)) {
             this.getTopicType(targetMap.sourceId)
         }
