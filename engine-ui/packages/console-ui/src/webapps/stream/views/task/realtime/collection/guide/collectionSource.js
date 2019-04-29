@@ -42,7 +42,7 @@ class CollectionSource extends React.Component {
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
-        const { sourceMap } = collectionData;
+        const { sourceMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
         const { sourceMap: oldSource } = oldCol;
         if (sourceMap.sourceId && oldSource.sourceId != sourceMap.sourceId) {
@@ -137,7 +137,10 @@ class CollectionSourceForm extends React.Component {
 
     componentDidMount () {
         const { collectionData } = this.props;
-        this.loadKafkaSourceList(collectionData.sourceMap.type);
+        const { sourceMap = {} } = collectionData;
+        if (sourceMap.type) {
+            this.loadKafkaSourceList(collectionData.sourceMap.type);
+        }
     }
 
     loadPreview = () => {
