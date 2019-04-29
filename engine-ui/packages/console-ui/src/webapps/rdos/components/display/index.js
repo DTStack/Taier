@@ -47,6 +47,7 @@ export function taskStatusText (type) {
         case TASK_STATUS.DEPLOYING:
             return '部署中';
         case TASK_STATUS.RUNNING:
+        case TASK_STATUS.TASK_STATUS_NOT_FOUND:
             return '运行中';
         case TASK_STATUS.FINISHED:
             return '成功';

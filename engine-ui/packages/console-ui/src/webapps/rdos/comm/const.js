@@ -229,6 +229,7 @@ export const TASK_STATUS = { // 任务状态
     RESTARTING: 11,
     SET_SUCCESS: 12,
     KILLED: 13,
+    TASK_STATUS_NOT_FOUND: 15, // 暂时无法获取任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
     FROZEN: 18

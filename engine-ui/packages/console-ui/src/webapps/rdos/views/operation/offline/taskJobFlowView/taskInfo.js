@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { OfflineTaskStatus, TaskTimeType, TaskType } from '../../../../components/status'
+import { TaskStatus, TaskTimeType, TaskType } from '../../../../components/status'
 
 export function TaskInfo (props) {
     const { task, project } = props
@@ -16,7 +16,7 @@ export function TaskInfo (props) {
                         <td>任务类型：</td>
                         <td><TaskType value={task.batchTask.taskType} /></td>
                         <td>状态：</td>
-                        <td><OfflineTaskStatus value={task.status} /></td>
+                        <td><TaskStatus value={task.status} /></td>
                     </tr>
                     <tr>
                         <td>调度周期：</td><td><TaskTimeType value={task.taskPeriodId}/></td>
@@ -51,7 +51,7 @@ export function TaskOverView (props) {
             <table>
                 <tbody className="ant-table-tbody" >
                     <tr><td>任务名称：</td><td>{task.batchTask ? task.batchTask.name : '-'}</td></tr>
-                    <tr><td>运行状态：</td><td><OfflineTaskStatus value={task.status} /></td></tr>
+                    <tr><td>运行状态：</td><td><TaskStatus value={task.status} /></td></tr>
                     <tr><td>所属项目：</td><td>{project.projectName}</td></tr>
                     <tr><td>任务类型：</td><td><TaskType value={task.batchTask.taskType} /></td></tr>
                     <tr>
