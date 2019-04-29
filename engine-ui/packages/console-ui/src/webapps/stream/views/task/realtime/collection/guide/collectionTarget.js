@@ -215,7 +215,7 @@ class CollectionTargetForm extends React.Component {
                     >
                         {getFieldDecorator('fieldDelimiter', {
                             rules: [],
-                            initialValue: get(targetMap, 'fieldDelimiter')
+                            initialValue: get(targetMap, 'fieldDelimiter', undefined)
                         })(
                             <Input
                                 /* eslint-disable-next-line */
@@ -232,7 +232,7 @@ class CollectionTargetForm extends React.Component {
                             rules: [{
                                 required: true
                             }],
-                            initialValue: get(targetMap, 'encoding')
+                            initialValue: get(targetMap, 'encoding', undefined)
                         })(
                             <Select>
                                 <Option value="utf-8">utf-8</Option>
