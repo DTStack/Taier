@@ -162,7 +162,7 @@ class CollectionSourceForm extends React.Component {
 
     loadPreview = () => {
         const { collectionData } = this.props;
-        const { sourceMap } = collectionData;
+        const { sourceMap = {} } = collectionData;
         this.setState({
             previewParams: {
                 sourceId: sourceMap.sourceId,
@@ -207,7 +207,7 @@ class CollectionSourceForm extends React.Component {
     renderByCatType () {
         const { collectionData, form, binLogList } = this.props;
         const { getFieldDecorator } = form;
-        const { sourceMap, isEdit } = collectionData;
+        const { sourceMap = {}, isEdit } = collectionData;
         const collectTypeValue = sourceMap.collectType
         switch (collectTypeValue) {
             case collectType.ALL: {
