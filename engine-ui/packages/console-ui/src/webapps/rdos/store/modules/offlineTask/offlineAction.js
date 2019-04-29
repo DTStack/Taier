@@ -245,6 +245,9 @@ export const workbenchActions = (dispatch) => {
         }).then(res => {
             if (res.code === 1) {
                 dispatch({
+                    type: workbenchAction.MAKE_TAB_CLEAN
+                });
+                dispatch({
                     type: workbenchAction.UPDATE_TASK_TAB,
                     payload: res.data
                 });
@@ -624,10 +627,7 @@ export const workbenchActions = (dispatch) => {
                                 isSaveFInish(true);
                             }
                         }, 500)
-                        updateTaskInfo({
-                            version: fileData.version,
-                            readWriteLockVO: fileData.readWriteLockVO
-                        })
+                        reloadTaskTab(fileData.id);
                         // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                     } else if (lockStatus === 1) { // 2-被锁定
                         confirm({
