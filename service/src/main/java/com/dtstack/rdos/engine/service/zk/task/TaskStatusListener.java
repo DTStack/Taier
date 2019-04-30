@@ -404,7 +404,7 @@ public class TaskStatusListener implements Runnable{
         }
 
         logger.info("taskId:{}, external:{}", jobIdentifier.getTaskId(), lastExternalPath);
-        RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskIdAndEngineTaskId(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId());
+        RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskId(jobIdentifier.getTaskId());
         if(taskCheckpoint == null){
             Timestamp now = new Timestamp(System.currentTimeMillis());
             rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), lastExternalPath, now, now);

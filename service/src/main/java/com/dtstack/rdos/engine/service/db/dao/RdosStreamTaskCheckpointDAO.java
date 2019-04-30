@@ -62,4 +62,14 @@ public class RdosStreamTaskCheckpointDAO {
             }
         });
     }
+
+    public RdosStreamTaskCheckpoint getByTaskId(String taskId){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosStreamTaskCheckpoint>() {
+            @Override
+            public RdosStreamTaskCheckpoint execute(SqlSession sqlSession) throws Exception {
+                RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
+                return taskCheckpointMapper.getByTaskId(taskId);
+            }
+        });
+    }
 }

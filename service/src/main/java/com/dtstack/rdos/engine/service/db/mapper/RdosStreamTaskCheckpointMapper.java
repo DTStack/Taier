@@ -24,4 +24,6 @@ public interface RdosStreamTaskCheckpointMapper {
     RdosStreamTaskCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("taskEngineId") String taskEngineId);
 
     Integer updateCheckpoint(@Param("taskId") String taskId, @Param("checkpoint") String checkpoint);
+
+    RdosStreamTaskCheckpoint getByTaskId(@Param("taskId") String taskId);
 }
