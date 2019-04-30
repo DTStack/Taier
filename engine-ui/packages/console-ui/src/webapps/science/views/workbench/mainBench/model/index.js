@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Dropdown, Menu, Input, Icon, Tag } from 'antd';
+import { Table, Dropdown, Menu, Input, Icon, message } from 'antd';
 
 import ModelDetailModal from './detailModal';
 import AlgorithmModal from './algorithmModal';
@@ -23,10 +23,11 @@ class ModelView extends React.Component {
         versionData: null,
         searchName: null,
         modelList: [],
+        modelComponentsList: [],
         loading: false,
         table: {
-            filters: null,
-            sorter: null
+            filters: {},
+            sorter: {}
         },
         pagination: {
             total: 0,
@@ -36,17 +37,38 @@ class ModelView extends React.Component {
     }
     componentDidMount () {
         this.loadData();
+        this.getModelComponents();
+    }
+    getModelComponents = async () => {
+        let res = await api.getModelComopnentsList();
+        if (res && res.code == 1) {
+            this.setState({
+                modelComponentsList: res.data
+            })
+        }
     }
     loadData = async () => {
         this.setState({
             loading: true
         })
-        const { pagination, searchName } = this.state;
-        let res = await api.getModelList({
+        const { pagination, searchName, table } = this.state;
+        const { sorter, filters } = table;
+        const { columnKey, order } = sorter;
+        const params = {
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
-            searchName: searchName
-        });
+            modelName: searchName,
+            statuss: filters.status
+        }
+        if (columnKey) {
+            let dic = {
+                fileSize: 'memorySort',
+                modelName: 'nameSort',
+                gmtModified: 'gmtModifySort'
+            }
+            params[dic[columnKey]] = utils.exchangeOrder(order);
+        }
+        let res = await api.getModelList(params);
         if (res && res.code == 1) {
             this.setState({
                 modelList: res.data.data,
@@ -84,16 +106,35 @@ class ModelView extends React.Component {
             versionData: data
         })
     }
-    disableModel = (data) => {
-        console.log(data)
+    disableModel = async (data) => {
+        let res = await api.disableModel({
+            modelId: data.id
+        });
+        if (res && res.code == 1) {
+            message.success('禁用成功');
+            this.loadData();
+        }
     }
-    enableModel = (data) => {
-        console.log(data)
+    enableModel = async (data) => {
+        let res = await api.openModel({
+            modelId: data.id
+        });
+        if (res && res.code == 1) {
+            message.success('打开成功');
+            this.loadData();
+        }
     }
-    deleteModel = (data) => {
-        console.log(data)
+    deleteModel = async (data) => {
+        let res = await api.deleteModel({
+            modelId: data.id
+        });
+        if (res && res.code == 1) {
+            message.success('删除成功');
+            this.loadData();
+        }
     }
     initColumns () {
+        const { modelComponentsList } = this.state;
         const dic = generateValueDic(MODEL_STATUS);
         return [{
             title: '模型名称',
@@ -101,20 +142,20 @@ class ModelView extends React.Component {
             width: '150px'
         }, {
             title: '算法名称',
-            dataIndex: 'codeName',
+            dataIndex: 'componentName',
             width: '150px',
-            filters: [{
-                text: '算法1',
-                value: 0
-            }],
-            render: (codeName) => {
-                return codeName.map((m) => {
-                    return <Tag onClick={this.showAlgorithm.bind(null, m)} className='u-table__tag__margin' key={m.name} color='pink'>{m.name}</Tag>;
-                })
-            }
+            filters: modelComponentsList.map((m) => {
+                return {
+                    text: m.type,
+                    value: m.key
+                }
+            })
         }, {
             title: '当前版本',
-            dataIndex: 'version'
+            dataIndex: 'version',
+            render (value) {
+                return `v${value}`
+            }
         }, {
             title: '运行状态',
             dataIndex: 'status',
@@ -125,15 +166,18 @@ class ModelView extends React.Component {
                 }
             }),
             render (t) {
-                return <span className={dic[t].className}>{dic[t].text}</span>;
+                const item = dic[t];
+                const className = item && item.className;
+                const text = item && item.text;
+                return <span className={className}>{text}</span>;
             }
         }, {
             title: '占用内存(MB)',
-            dataIndex: 'memory',
+            dataIndex: 'fileSize',
             sorter: true
         }, {
             title: '更新时间',
-            dataIndex: 'updateDate',
+            dataIndex: 'gmtModified',
             width: '150px',
             sorter: true,
             render (t) {
@@ -277,6 +321,13 @@ class ModelView extends React.Component {
                     visible={selectVersionModalVisible}
                     data={versionData}
                     key={'version' + (versionData && versionData.id)}
+                    onOk={() => {
+                        this.loadData();
+                        this.setState({
+                            selectVersionModalVisible: false,
+                            versionData: null
+                        })
+                    }}
                     onCancel={() => {
                         this.setState({
                             selectVersionModalVisible: false,

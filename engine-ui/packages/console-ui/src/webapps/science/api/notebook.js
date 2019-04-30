@@ -19,7 +19,10 @@ export default {
         return http.post(req.SAVE_MODEL, params);
     },
     searchGlobal (params) {
-        return http.post(req.SEARCH_NOTEBOOK, params);
+        return http.post(req.SEARCH_NOTEBOOK, {
+            ...params,
+            taskType: taskType.NOTEBOOK
+        });
     },
     deleteNotebook (params) {
         return http.post(req.DELETE_NOTEBOOK, params);

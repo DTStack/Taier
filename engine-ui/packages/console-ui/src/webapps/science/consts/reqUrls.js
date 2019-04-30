@@ -31,16 +31,16 @@ export default {
     GET_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取Task
     ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
-    SEARCH_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/globalSearch`, // 搜索notebook
+    SEARCH_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/globalSearch`, // 搜索notebook
     DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除notebook
 
     ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加实验
-    SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/globalSearch`, // 搜索实验
+    SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/globalSearch`, // 搜索实验
     DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除实验
 
     SUBMIT_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/publishTask`, // 提交任务
 
-    GET_MODEL_PARAMS_LIST: `${SCIENCE_BASE_URL}/model/getParamsList`, // 获取model 参数列表
+    GET_MODEL_PARAMS_LIST: `${SCIENCE_BASE_URL}/service/scienceModel/listModel`, // 获取model 参数列表
     LOAD_MODEL: `${SCIENCE_BASE_URL}/model/load`, // load Model
 
     GET_EXPERIMENT_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取组件数据
@@ -56,11 +56,19 @@ export default {
     LIST_MODEL_TASK_FROM_LAB: `${SCIENCE_BASE_URL}/scienceModel/listModelTaskFromLab`, // 返回算法实验任务中的模型任务
     GET_MODEL_LIST: `${SCIENCE_BASE_URL}/service/scienceModel/pageQuery`, // pageQuery模型
     LIST_TASK_ALL_MODEL_AND_VERSION: `${SCIENCE_BASE_URL}/scienceModel/listWithTopVersion`, // 查询全部model（包含最高的version）
-
+    GET_MODEL_COMPONENTS_LIST: `${SCIENCE_BASE_URL}/service/scienceTask/getModelComponentList`, // 模型组件列表
+    SWITCH_MODEL_VERSION: `${SCIENCE_BASE_URL}/service/scienceModel/switchVersion`, // 切换mode版本
+    DELETE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/deleteModel`, // 删除model
+    OPEN_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/openModel`, // 开启model
+    DISABLE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/disableModel`, // 禁用model
     // ================== table ================== //
-    GET_TABLE: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/getTable`,
+    GET_TABLE: `${SCIENCE_BASE_URL}/service/dataManager/getTable`,
     CHECK_TABLE_PARTITION: `${SCIENCE_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
-    UPLOAD_TABLE_DATA: `${SCIENCE_BASE_URL}/upload/batch/batchHiveDataImport/importData`, //
     TABLE_CREATE_BY_DDL: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/ddlCreateTable`, // ddl建表
-    GET_TABLES_BY_NAME: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/getTableList` // 查询指定名称表信息(支持模糊查询)
+    GET_TABLES_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableList`, // 查询指定名称表信息(支持模糊查询)
+    // ==== 数据源 ==== //
+    LIST_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/listDataSource`, // 数据源列表
+    UPLOAD_TABLE_DATA: `${SCIENCE_BASE_URL}/service/dataManager/importData`, // 创建数据源(上传文件)
+    GET_DATA_SOURCE_DETAIL: `${SCIENCE_BASE_URL}/service/dataManager/getDataSourceDetail`, // 数据源详细信息
+    UPDATE_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/updateDataSource` // 更新数据源
 }

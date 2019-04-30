@@ -37,7 +37,7 @@ export function initLoadTreeNode () {
                 for (let i = 0; i < res.data.children.length; i++) {
                     const tree = res.data.children[i];
                     const treeType = tree.catalogueType;
-                    dispatch(initTreeNode(treeType, tree.children));
+                    typeMap[treeType] && dispatch(initTreeNode(treeType, tree.children));
                 }
             }
         })

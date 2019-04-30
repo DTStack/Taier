@@ -108,7 +108,7 @@ export const offlineTaskPeriodFilter = [{
 
 export const dataSourceFilter = [{
     id: 1,
-    text: 'HDFS',
+    text: 'HIVE',
     value: 0
 }, {
     id: 2,

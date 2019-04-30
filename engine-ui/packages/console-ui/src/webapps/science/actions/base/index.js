@@ -55,6 +55,23 @@ export function getProjectList () {
         })()
     }
 }
+export function initCurrentProject () {
+    return async (dispatch, getState) => {
+        const state = getState();
+        const currentProject = state.project.currentProject;
+        if (currentProject) {
+            let res = await Api.comm.getProjectDetail({
+                projectId: currentProject.id
+            });
+            if (res && res.code == 1) {
+                dispatch({
+                    type: projectType.SET_CURRENT_PROJECT,
+                    payload: res.data
+                });
+            }
+        }
+    }
+}
 export function setProject (project) {
     return dispatch => {
         const projectKey = 'science_project_id';
@@ -79,6 +96,7 @@ export function setProject (project) {
                 type: projectType.SET_CURRENT_PROJECT,
                 payload: project
             });
+            dispatch(initCurrentProject());
         }
     }
 }

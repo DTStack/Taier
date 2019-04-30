@@ -23,23 +23,34 @@ export const siderBarType = {
     component: 'component',
     model: 'model'
 }
+export const modelComponentType = {
+    NOTEBOOK: {
+        value: 0,
+        text: 'notebook'
+    }
+}
 export const taskType = {
     NOTEBOOK: 13,
     EXPERIMENT: 14
 }
 export const MODEL_STATUS = {
     RUNNING: {
-        value: 0,
+        value: 1,
         text: '运行中',
         className: 'state-running'
     },
     FAILED: {
-        value: 1,
+        value: 4,
         text: '运行失败',
         className: 'state-failed'
     },
     DISABLED: {
         value: 2,
+        text: '已禁用',
+        className: 'state-disabled'
+    },
+    LOADING: {
+        value: 5,
         text: '已禁用',
         className: 'state-disabled'
     }

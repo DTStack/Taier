@@ -44,5 +44,17 @@ export default {
     },
     frozenTask (params) {
         return http.post(req.FROZEN_TASK, params);
+    },
+    listDataSource (params) {
+        return http.post(req.LIST_DATA_SOURCE, params);
+    },
+    importData (params) {
+        return http.post(req.IMPORT_DATA, params);
+    },
+    getDataSourceDetail (params) {
+        return http.post(req.GET_DATA_SOURCE_DETAIL, params);
+    },
+    updateDataSource (params) {
+        return http.post(req.UPDATE_DATA_SOURCE, params);
     }
 }

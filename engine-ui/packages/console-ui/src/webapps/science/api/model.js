@@ -22,5 +22,20 @@ export default {
     },
     saveModel (params) {
         return http.post(req.SAVE_MODEL, params);
+    },
+    getModelComopnentsList (params) {
+        return http.post(req.GET_MODEL_COMPONENTS_LIST, params);
+    },
+    switchVersion (params) {
+        return http.post(req.SWITCH_MODEL_VERSION, params);
+    },
+    deleteModel (params) {
+        return http.post(req.DELETE_MODEL, params);
+    },
+    openModel (params) {
+        return http.post(req.OPEN_MODEL, params);
+    },
+    disableModel (params) {
+        return http.post(req.DISABLE_MODEL, params);
     }
 }
