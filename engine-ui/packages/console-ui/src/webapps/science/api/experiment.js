@@ -45,6 +45,9 @@ export default {
     addOrUpdateTask (params) {
         return http.post(req.UPDATE_TASK, params);
     },
+    cloneComponent (params) {
+        return http.post(req.CLONE_COMPONENT, params);
+    },
     getTaskJobId (params) {
         return http.post(req.GET_JOB_ID_BY_TASK, params);
     },

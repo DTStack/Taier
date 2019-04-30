@@ -4,9 +4,8 @@ import { loadTreeData } from '../base/fileTree';
 import { siderBarType } from '../../consts';
 import api from '../../api/experiment';
 import fileApi from '../../api/fileTree';
-import { cloneDeep } from 'lodash';
+// import { cloneDeep } from 'lodash';
 import { changeContent } from './runExperimentActions';
-const mockData = require('./mocks/data.json');
 export function changeText (text, tab) {
     return changeContent({
         sqlText: text
@@ -49,20 +48,9 @@ export function deleteExperimentFolder (params) {
         })
     }
 }
-export function getTaskData (data, currentTab) {
+export function updateTaskData (oldData, newData, isSilent = true) {
     return (dispatch, getState) => {
-        // TODO 请求接口
-        const res = mockData;
-        if (res && res.code == 1) {
-            const graphData = res.data ? JSON.parse(res.data.sqlText) : [];
-            data.graphData = graphData;
-            dispatch(changeContent(data, {}, false))
-        }
-    }
-}
-export function updateTaskData (oldData, newData) {
-    return (dispatch, getState) => {
-        dispatch(changeContent(newData, oldData, true, true))
+        dispatch(changeContent(newData, oldData, true, isSilent))
     }
 }
 
@@ -71,6 +59,11 @@ export function openExperiment (id) {
         return new Promise(async (resolve) => {
             let res = await api.openExperiment({ id });
             if (res && res.code == 1) {
+                try {
+                    res.data.graphData = JSON.parse(res.data.sqlText)
+                } catch (error) {
+                    res.data.graphData = []
+                }
                 dispatch(addTab(siderBarType.experiment, res.data));
                 dispatch(setCurrentTab(siderBarType.experiment, id));
                 resolve(res);
@@ -81,6 +74,7 @@ export function openExperiment (id) {
 export function saveExperiment (tabData) {
     return (dispatch, getState) => {
         return new Promise(async (resolve) => {
+            tabData.sqlText = JSON.stringify(tabData.graphData);
             let res = await api.addExperiment(tabData);
             if (res && res.code == 1) {
                 const tabs = getState().notebook.localTabs;
@@ -96,27 +90,25 @@ export function saveExperiment (tabData) {
 
 export function copyCell (tabData, copyCell) {
     return (dispatch) => {
-        const data = cloneDeep(tabData);
-        // TODO
-        const res = {
-            code: 1,
-            data: {
-                ...copyCell,
-                id: 1111
-            }
-        }
-        if (res.code == 1) {
-            data.graphData.push(res.data);
-            dispatch(changeContent(data, {}, true));
-        }
+        // const data = cloneDeep(tabData);
+        return new Promise((resolve) => {
+            api.cloneComponent({ taskId: copyCell.data.id }).then((res) => {
+                if (res.code == 1) {
+                    resolve(res.data);
+                }
+            })
+        })
     }
 }
-export function getTaskDetailData (data, taskId) {
+export function getTaskDetailData (data, taskId, cb) {
     return (dispatch) => {
-        api.getExperimentTask({ taskId }).then((res) => {
+        api.getExperimentTask({ id: taskId }).then((res) => {
             if (res.code === 1) {
-                data.detailData = res.data;
-                dispatch(changeContent(data, {}, false));
+                const graphData = data.graphData;
+                const object = graphData.find(o => o.vertex && o.data.id === taskId);
+                object.data = res.data;
+                dispatch(changeContent(data, {}, false, true));
+                cb && cb();
             }
         })
     }

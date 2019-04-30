@@ -18,6 +18,7 @@ class ParamSetting extends PureComponent {
             tableData: [],
             params: cloneDeep(props.data)
         }
+        this.handleChange = debounce(this.handleChange, 800);
     }
     componentDidMount () {
         this.getTableColumns()
@@ -44,7 +45,7 @@ class ParamSetting extends PureComponent {
     }
     handleChange = (field, value) => {
         const { params } = this.state;
-        if (field === 'split_type') {
+        if (field === 'splitType') {
             const mewParams = value === '1' ? {
                 split_type: 1,
                 split_percent: undefined,
@@ -87,7 +88,7 @@ class ParamSetting extends PureComponent {
     renderFormItme = () => {
         const { tableData } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const selectedValue = this.props.form.getFieldValue('split_type');
+        const selectedValue = this.props.form.getFieldValue('splitType');
         const prefixSelector = getFieldDecorator('operator', {
             initialValue: '>'
         })(
@@ -108,13 +109,13 @@ class ParamSetting extends PureComponent {
                             colon={false}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('split_percent', {
+                            {getFieldDecorator('splitPercent', {
                                 rules: [
                                     { required: true, message: '请输入拆分比例' },
                                     { validator: this.validatRate }
                                 ]
                             })(
-                                <InputNumber onChange={(value) => this.handleChange('split_percent', value)} style={inputStyle} />
+                                <InputNumber onChange={(value) => this.handleChange('splitPercent', value)} style={inputStyle} />
                             )}
                         </FormItem>
                         <FormItem
@@ -122,7 +123,7 @@ class ParamSetting extends PureComponent {
                             colon={false}
                             {...formItemLayout}
                         >
-                            {getFieldDecorator('random_seed', {
+                            {getFieldDecorator('randomSeed', {
                                 rules: [
                                     { required: false },
                                     {
@@ -131,7 +132,7 @@ class ParamSetting extends PureComponent {
                                 ]
                             })(
                                 <InputNumber
-                                    onChange={(value) => this.handleChange('random_seed', value)}
+                                    onChange={(value) => this.handleChange('randomSeed', value)}
                                     parser={value => value ? parseInt(value) : value}
                                     formatter={value => value ? parseInt(value) : value}
                                     style={inputStyle} />
@@ -191,11 +192,11 @@ class ParamSetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('split_type', {
+                    {getFieldDecorator('splitType', {
                         initialValue: '1',
                         rules: [{ required: true, message: '请选择拆分方式' }]
                     })(
-                        <Select onChange={(value) => this.handleChange('split_type', value)}>
+                        <Select onChange={(value) => this.handleChange('splitType', value)}>
                             <Option value='1'>按比例拆分</Option>
                             <Option value='2'>按阈值拆分</Option>
                         </Select>
@@ -217,11 +218,19 @@ class DataSplit extends PureComponent {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
-    handleSaveComponent = (params) => {
-        console.log('params:', params)
+    handleSaveComponent = (dataSplitComponent) => {
+        const { currentTab, componentId, changeContent } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            dataSplitComponent: {
+                ...dataSplitComponent
+            }
+        }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
-                message.success('保存成功!');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }
@@ -233,9 +242,9 @@ class DataSplit extends PureComponent {
             mapPropsToFields: (props) => {
                 const { data } = props;
                 const values = {
-                    split_type: { value: String(data.split_type) },
-                    split_percent: { value: data.split_percent },
-                    random_seed: { value: data.random_seed },
+                    splitType: { value: data.splitType ? data.splitType.toString() : '1' },
+                    splitPercent: { value: data.splitPercent },
+                    randomSeed: { value: data.randomSeed },
                     thresholdCol: { value: isEmpty(data.thresholdCol) ? '' : data.thresholdCol.key },
                     threshold: { value: data.threshold },
                     operator: { value: data.operator }

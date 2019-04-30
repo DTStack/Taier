@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { union } from 'lodash';
+import { union, cloneDeep } from 'lodash';
 
 import Loading from '../loading';
 import FolderTree from '../../../../../components/folderTree';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
+import * as experimentActions from '../../../../../actions/experimentActions';
 import Mx from 'widgets/mxGraph';
-import { siderBarType, VertexSize } from '../../../../../consts';
+import { siderBarType, VertexSize, TASK_ENUM } from '../../../../../consts';
+import api from '../../../../../api/experiment';
 const {
     mxUtils,
     mxEvent,
@@ -22,11 +24,13 @@ const {
         return {
             routing: state.routing,
             files: state.component.files,
-            graph: state.component.graph
+            graph: state.component.graph,
+            currentTabIndex: state.experiment.currentTabIndex,
+            tabs: state.experiment.localTabs
         }
     },
     dispatch => {
-        const actions = bindActionCreators(fileTreeActions, dispatch);
+        const actions = bindActionCreators({ ...fileTreeActions, ...experimentActions }, dispatch);
         return actions;
     })
 class ComponentSidebar extends Component {
@@ -41,13 +45,40 @@ class ComponentSidebar extends Component {
         this.initDragger();
     }
     componentDidUpdate (prevProps, prevState) {
-        if (this.props.graph !== prevProps.graph || this.state.expandedKeys.length !== prevState.expandedKeys.length) {
-            this.initDragger();
+        this.initDragger();
+    }
+    getCellData = (cell) => {
+        return cell && {
+            vertex: cell.vertex,
+            edge: cell.edge,
+            data: cell.data,
+            x: cell.geometry.x,
+            y: cell.geometry.y,
+            value: cell.value,
+            id: cell.id
         }
     }
     initDragger = () => {
-        const files = document.querySelectorAll('.anchor-file.o-tree-icon--normal');
-        const { graph = {} } = this.props;
+        const fileNodes = document.querySelectorAll('.anchor-file.o-tree-icon--normal');
+        const ctx = this;
+        const { graph = {}, files, currentTabIndex, tabs, changeContent } = this.props;
+        const currentTab = tabs.find(o => o.id == currentTabIndex);
+        const copyCurrentTab = cloneDeep(currentTab);
+        const findNameInLoop = (name, arr) => {
+            if (!name) return false;
+            for (let index = 0; index < arr.length; index++) {
+                const element = arr[index];
+                if (element.children) {
+                    if (findNameInLoop(name, element.children)) {
+                        return findNameInLoop(name, element.children)
+                    }
+                } else {
+                    if (element.name == name) {
+                        return element;
+                    }
+                }
+            }
+        }
         // Returns the graph under the mouse
         var graphF = function (evt) {
             var x = mxEvent.getClientX(evt);
@@ -60,50 +91,42 @@ class ComponentSidebar extends Component {
         };
         // Inserts a cell at the given location
         var funct = function (graph, evt, target, x, y) {
-            const values = {
-                'id': 11,
-                'name': 'startddddd_mx',
-                'type': 'file',
-                'taskType': 1,
-                'parentId': 1953,
-                'catalogueType': 'TaskDevelop',
-                'nodePid': 1953,
-                'submitStatus': 0,
-                'version': 0,
-                'readWriteLockVO': {
-                    'id': 2723,
-                    'gmtCreate': null,
-                    'gmtModified': 1553485670537,
-                    'isDeleted': 0,
-                    'lockName': '2510_120_BATCH_TASK',
-                    'modifyUserId': 221,
-                    'version': 1,
-                    'projectId': 120,
-                    'relationId': 2510,
-                    'type': 'BATCH_TASK',
-                    'lastKeepLockUserName': 'user_test@dtstack.com',
-                    'result': 0,
-                    'getLock': true
+            const data = this.sourceData;
+            const params = {
+                taskType: data.taskType,
+                componentType: data.componentType,
+                flowId: currentTabIndex,
+                [TASK_ENUM[data.componentType]]: {}
+            }
+            api.addOrUpdateTask(params).then(res => {
+                if (res.code === 1) {
+                    // eslint-disable-next-line new-cap
+                    let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
+                    cell.data = res.data;
+                    cell.vertex = true;
+                    let cells = graph.importCells([cell], x, y, target);
+                    if (copyCurrentTab.graphData) {
+                        copyCurrentTab.graphData.push(ctx.getCellData(cell));
+                    } else {
+                        copyCurrentTab.graphData = [ctx.getCellData(cell)]
+                    }
+                    changeContent(copyCurrentTab, currentTab, true)
+                    if (cells != null && cells.length > 0) {
+                        graph.scrollCellToVisible(cells[0]);
+                        graph.setSelectionCells(cells);
+                    }
                 }
-            }
-            // eslint-disable-next-line new-cap
-            var cell = new mxCell('', new mxGeometry(0, 0, VertexSize.width, VertexSize.height));
-            cell.data = values;
-            cell.vertex = true;
-            var cells = graph.importCells([cell], x, y, target);
-
-            if (cells != null && cells.length > 0) {
-                graph.scrollCellToVisible(cells[0]);
-                graph.setSelectionCells(cells);
-            }
+            })
         };
         // Creates the element that is being for the actual preview.
         var dragElt = document.createElement('div');
         dragElt.style.border = 'solid #90d5ff 1px';
         dragElt.style.width = VertexSize.width;
         dragElt.style.height = VertexSize.height;
-        files.forEach((element) => {
+        fileNodes.forEach((element) => {
+            const title = element.getElementsByClassName('ant-tree-title')[0].children[0].innerText;
             let md = mxUtils.makeDraggable(element, graphF, funct, dragElt, null, null, graph.autoscroll, true);
+            md.sourceData = findNameInLoop(title, files) ? findNameInLoop(title, files) : null;
             md.isGuidesEnabled = function () {
                 return graph.graphHandler.guidesEnabled;
             };

@@ -41,11 +41,6 @@ import SchedulingConfig from '../../../../../components/schedulingConfig';
     }
 )
 class GraphPanel extends Component {
-    componentDidMount () {
-        const { data, currentTab } = this.props;
-        this.props.getTaskData(data, currentTab);
-    }
-
     removeConsoleTab = targetKey => {
         const { currentTab } = this.props;
         this.props.removeRes(currentTab, parseInt(targetKey, 10));

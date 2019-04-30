@@ -46,11 +46,12 @@ export default {
     GET_EXPERIMENT_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取组件数据
     UPDATE_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 更新组件参数
     GET_INPUT_TABLE_COLUMNS: `${SCIENCE_BASE_URL}/service/scienceTask/getInputTableColumns`, // 获取组件相关的表数据
+    CLONE_COMPONENT: `${SCIENCE_BASE_URL}/service/scienceTask/cloneComponentTask`, // 复制组件
     GET_TABLENAME_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableNameList`, // 获取表名列表(模糊查询)
     IS_PARTITION_TABLE: `${SCIENCE_BASE_URL}/service/dataManager/isPartitionTable`, // 校验是否是分区表
     GET_COLUMNS_BY_NAMES: `${SCIENCE_BASE_URL}/service/dataManager/getColumnsByName`, // 获取表的列名
     GET_JOB_ID_BY_TASK: `${SCIENCE_BASE_URL}/service/scienceJob/startAlgorithm`, // 获取执行的任务的jobid
-    STOP_TASK_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/stopJobList`, // 获取执行的任务的jobid
+    STOP_TASK_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/stopJobList`, // 停止执行的任务的jobid
     GET_TASK_STATUS_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/checkAlgorithmRunState`, // 获取执行的任务的状态
 
     // === 模型 === //

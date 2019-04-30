@@ -73,30 +73,62 @@ export const taskStatus = {
  */
 export const COMPONENT_TYPE = {
     DATA_SOURCE: {
-        READ_DATABASE: 0, // 读数据库
-        WRITE_DATABASE: 1 // 写数据库
+        READ_DATABASE: 1, // 读数据库
+        WRITE_DATABASE: 2 // 写数据库
     },
     DATA_TOOLS: {
-        SQL_SCRIPT: 2 // sql脚本
+        SQL_SCRIPT: 3 // sql脚本
     },
     DATA_MERGE: {
-        TYPE_CHANGE: 3, // 类型转换
-        NORMALIZE: 4 // 归一化
+        TYPE_CHANGE: 4, // 类型转换
+        NORMALIZE: 5 // 归一化
     },
     DATA_PRE_HAND: {
-        DATA_SPLIT: 5 // 拆分
+        DATA_SPLIT: 6 // 拆分
     },
     MACHINE_LEARNING: {
-        LOGISTIC_REGRESSION: 6 // 逻辑二分类
+        LOGISTIC_REGRESSION: 7 // 逻辑二分类
     },
     DATA_PREDICT: {
-        DATA_PREDICT: 7 // 数据预测
+        DATA_PREDICT: 8 // 数据预测
     },
     DATA_EVALUATE: {
-        BINARY_CLASSIFICATION: 8 // 二分类评估
+        BINARY_CLASSIFICATION: 9 // 二分类评估
     }
 }
 
+// 组件对应的key值
+export const TASK_ENUM = {
+    [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: 'readTableComponent',
+    [COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE]: 'writeTableComponent',
+    [COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT]: 'sqlComponent',
+    [COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE]: 'transTypeComponent',
+    [COMPONENT_TYPE.DATA_MERGE.NORMALIZE]: 'normalizationComponent',
+    [COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT]: 'dataSplitComponent',
+    [COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION]: 'logisticComponent',
+    [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: 'predictComponent',
+    [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent'
+}
+/* 输入输出的类型 */
+export const INPUT_TYPE_ENUM = {
+    'HDFS数据源输出': 13,
+    'sql脚本表1': 14,
+    'sql脚本表2': 15,
+    'sql脚本表3': 16,
+    'sql脚本表4': 17,
+    '输出参数表': 9,
+    '输出结果表': 10,
+    '归一化输入参数表': 7,
+    '归一化输入结果表': 6,
+    '输出表1': 1,
+    '输出表2': 2,
+    '模型输出': 12,
+    '模型': 10,
+    '预测数据': 11,
+    '综合指标表': 3,
+    '等频详细数据表': 4,
+    '等宽详细数据表': 5
+}
 /**
  * SQL执行状态
  */

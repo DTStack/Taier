@@ -220,7 +220,7 @@ class GraphEditor extends Component {
                 } else if (item.edge) {
                     const source = cellMap[item.source.id];
                     const target = cellMap[item.target.id];
-                    const edge = graph.insertEdge(rootCell, item.id, '', source, target);
+                    const edge = graph.insertEdge(rootCell, item.id, item.value, source, target);
                     this._edges.push(edge);
                 }
             }
@@ -231,6 +231,7 @@ class GraphEditor extends Component {
     /* 初始化layout */
     initGraphLayout = () => {
         const graph = this.graph;
+        // const layoutMgr = new mxLayoutManager(graph);
         this.executeLayout = function (layoutTarget, change, post) {
             // const parent = layoutTarget || graph.getDefaultParent();
             try {
@@ -321,7 +322,7 @@ class GraphEditor extends Component {
             if (task) {
                 let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
                 return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(this.vertexStatus(task.status))}
-                <input class="vertex-input ant-input" type="text" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
+                <input class="vertex-input ant-input" placeholder="不超过12个字符" type="text" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
                 </div>`
             }
             return '';
@@ -336,14 +337,9 @@ class GraphEditor extends Component {
             if (sourceConstraint && sourceConstraint.id === 'outputs') {
                 value = `${sourceConstraint.name}_${targetConstraint.name}`
             }
-            if (this.factoryMethod == null) {
-                return graph.insertEdge(parent, id, value, source, target, style);
-            } else {
-                var edge = this.createEdge(value, source, target, style);
-                edge = graph.addEdge(edge, parent, source, target);
-
-                return edge;
-            }
+            var edge = this.createEdge(value, source, target, style);
+            edge = graph.addEdge(edge, parent, source, target);
+            return edge;
         };
     }
     /* 初始化各个组件类型的可连接数 */
@@ -351,7 +347,7 @@ class GraphEditor extends Component {
         const graph = this.graph;
         graph.getAllConnectionConstraints = function (terminal) {
             if (terminal != null && this.model.isVertex(terminal.cell)) {
-                const type = terminal.cell.data.taskType;
+                const type = terminal.cell.data.componentType;
                 const perimeter = true;
                 switch (type) {
                     case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: {
@@ -386,11 +382,12 @@ class GraphEditor extends Component {
                     }
                     case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '输出结果表'),
-                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '输出参数表')
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '输出参数表'),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '输出结果表')
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '归一化输入1')
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, '归一化输入参数表'),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, '归一化输入结果表')
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
@@ -447,7 +444,6 @@ class GraphEditor extends Component {
         graph.isValidConnection = (source, target) => {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;
             const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
-            console.log(sourceConstraint)
             // 限制，必须从输出点开始连线
             if (sourceConstraint && sourceConstraint.id !== 'outputs') return false;
             // 限制，禁止连接输出点

@@ -136,15 +136,6 @@ export function getRunTaskList (tabData, taskId, type, currentTab) {
         let res;
         try {
             res = await api.getTaskJobId({ taskId, executeOrder: type });
-            res = {
-                code: 1,
-                data: {
-                    2510: 2510,
-                    2511: 2511,
-                    2512: 2512,
-                    2513: 2513
-                }
-            }
         } catch (e) {
             return false;
         }
@@ -156,12 +147,13 @@ export function getRunTaskList (tabData, taskId, type, currentTab) {
                 }
             })
             dispatch(changeContent(tabData, {}, false));
-            await dispatch(getRunningTaskStatus(currentTab, tabData));
+            await dispatch(getRunningTaskStatus(currentTab, tabData, res.data, dispatch));
             dispatch(removeLoadingTab(currentTab));
             runnningTask.reset(currentTab);
         } else {
-            dispatch(experimentLog.appendExperimentLog(currentTab, createLog(`请求异常！`, 'error')))
-            return false;
+            dispatch(experimentLog.appendExperimentLog(currentTab, createLog(`请求异常！${res.message}`, 'error')));
+            dispatch(removeLoadingTab(currentTab));
+            runnningTask.reset(currentTab);
         }
     }
 }
@@ -172,60 +164,41 @@ export function stopRunningTask (data) {
         api.stopJobList({ jobIdList })
     }
 }
-function getRunningTaskStatus (tabId, tabData) {
-    return async (dispatch, getState) => {
-        if (!tabId) {
-            tabId = parseInt(getState().experiment.currentTabIndex);
-        }
-        // TODO 请求接口
-        const response = {
-            code: 1,
-            data: [{
-                'taskId': 2510,
-                'jobId': '2510',
-                'status': 5
-            }, {
-                'taskId': 2511,
-                'jobId': '2511',
-                'status': 5
-            }, {
-                'taskId': 1,
-                'jobId': '2512',
-                'status': 8
-            }, {
-                'taskId': 1,
-                'jobId': '2513',
-                'status': 8
-            }]
-        }
-        tabData.graphData.forEach((item) => {
-            if (item.vertex) {
-                const jobStatus = response.data.find(o => o.jobId == item.data.jobId);
-                if (jobStatus) {
-                    item.data.status = jobStatus.status
-                }
+async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
+    let response;
+    try {
+        response = await api.getRunTaskStatus({ values: jobIds });
+    } catch (e) {
+        return false;
+    }
+    tabData.graphData.forEach((item) => {
+        if (item.vertex) {
+            const jobStatus = response.data.find(o => o.jobId == item.data.jobId);
+            if (jobStatus) {
+                item.data.status = jobStatus.status
             }
-        })
-        dispatch(changeContent(tabData, {}, false))
-        // TODO 模拟的轮训
-        resolveMsgExperiment(tabId, response, dispatch);
-        if (response && response.code === 1) {
-            let status = isCompeletedFinish(response.data);
-            if (status.compeletedFinish && status.handlerStatus) {
-                // 成功
-                resolveDataExperiment(tabId, response.data, null, dispatch);
-            } else if (status.compeletedFinish && !status.handlerStatus) {
-                // 失败
-                dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')))
-                resolveDataExperiment(tabId, response.data, null, dispatch);
-            } else if (!status.compeletedFinish) {
-                // 继续轮训
-                outputExperimentStatus(response.data.status, '.....', dispatch)
-                dispatch(getRunningTaskStatus(tabId, tabData));
-            }
-        } else {
-            dispatch(experimentLog.appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
-            return false;
         }
+    })
+    dispatch(changeContent(tabData, {}, false))
+    resolveMsgExperiment(tabId, response, dispatch);
+    if (response && response.code === 1) {
+        let status = isCompeletedFinish(response.data);
+        if (status.compeletedFinish && status.handlerStatus) {
+            // 成功
+            resolveDataExperiment(tabId, response.data, null, dispatch);
+        } else if (status.compeletedFinish && !status.handlerStatus) {
+            // 失败
+            dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')))
+            resolveDataExperiment(tabId, response.data, null, dispatch);
+        } else if (!status.compeletedFinish) {
+            // 继续轮训
+            outputExperimentStatus(tabId, '.....', dispatch)
+            await setTimeout(async () => {
+                await dispatch(getRunningTaskStatus(tabId, tabData, jobIds, dispatch));
+            }, 1500)
+        }
+    } else {
+        dispatch(experimentLog.appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
+        return false;
     }
 }

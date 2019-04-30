@@ -1,18 +1,18 @@
 /* eslint-disable no-unreachable */
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, get, cloneDeep } from 'lodash';
+import { debounce, cloneDeep } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
 import Mx from 'widgets/mxGraph';
 import SearchModal from 'widgets/searchModal';
 
-import API from '../../../../../api';
+import api from '../../../../../api/experiment';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE } from '../../../../../consts'
+import { COMPONENT_TYPE, INPUT_TYPE_ENUM, VertexSize } from '../../../../../consts'
 import ModelDetailModal from './detailModal';
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
@@ -21,7 +21,9 @@ const {
     mxEvent,
     mxPopupMenu,
     mxConstants,
-    mxEventObject
+    mxEventObject,
+    mxCell,
+    mxGeometry
 } = Mx;
 
 const applyCellStyle = (cellState, style) => {
@@ -39,7 +41,8 @@ const applyCellStyle = (cellState, style) => {
         user,
         editor,
         runTasks: state.component.taskLists, // 即将执行的任务列表
-        project: project
+        project: project,
+        graph: state.component.graph
     }
 }, (dispatch) => {
     return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
@@ -129,7 +132,8 @@ class GraphContainer extends React.Component {
             div.style.left = (state.x) + 'px';
             div.style.top = (state.y + 32 + 10) + 'px';
         } else {
-            div.innerHTML = `输出参数：${state.cell.value} <br />`;
+            const values = state.cell.value.split('_');
+            div.innerHTML = `输入参数：${values[0]} <br /> 输出参数: ${values[1]}`;
             div.style.left = (state.getCenterX()) + 'px';
             div.style.top = (state.getCenterY()) + 'px';
         }
@@ -145,22 +149,9 @@ class GraphContainer extends React.Component {
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
-        const { openTaskInDev, saveSelectedCell, data, changeSiderbar, getTaskDetailData } = this.props;
+        // eslint-disable-next-line no-unused-vars
+        const { saveSelectedCell, data, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
-        graph.addListener(mxEvent.DOUBLE_CLICK, function (sender, evt) {
-            const event = evt.getProperty('event');
-            const editInputClassName = get(event, 'target.className', '')
-            if (typeof editInputClassName === 'string' && editInputClassName.indexOf('vertex-input') > -1) {
-                return;
-            }
-
-            const cell = evt.getProperty('cell')
-            if (cell && cell.inputOrOutput) return;
-            if (cell && cell.vertex) {
-                const data = cell.data;
-                openTaskInDev(data.id);
-            }
-        }, true);
         graph.addMouseListener({
             id: 'hoverTitle', // 事件的唯一id，用于update事件
             currentState: null,
@@ -206,7 +197,6 @@ class GraphContainer extends React.Component {
         }, true);
         graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
-            // const event = evt.getProperty('event');
 
             const activeElement = document.activeElement;
             // 当从编辑对象触发点击事件时，清除activeElement的焦点
@@ -224,8 +214,8 @@ class GraphContainer extends React.Component {
                 applyCellStyle(cellState, style);
                 selectedCell = cell;
                 saveSelectedCell(cell) // 保存已选择的cell
-                getTaskDetailData(data, cell.data.id); // 获取已选择的cell的详细数据
-                changeSiderbar('params', true); // 选择cell会打开组件参数的侧边栏
+                getTaskDetailData(data, cell.data.id);
+                changeSiderbar('params', true)
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
@@ -249,17 +239,35 @@ class GraphContainer extends React.Component {
             ctx.handleUpdateTaskData();
         }, true);
         graph.addListener(mxEvent.CELL_CONNECTED, (sender, evt) => {
-            ctx.handleUpdateTaskData();
-        }, true);
-        graph.addListener(mxEvent.MOVE, (sender, evt) => {
-            console.log(123)
+            // 一次连接会触发两次该事件，通过判断是否是source来区分
+            console.log('evt:', evt);
+            if (!evt.getProperty('source')) {
+                ctx.handleUpdateTaskData();
+            }
         }, true);
     }
     /* 复制节点 */
     copyCell = (cell) => {
-        const { data } = this.props;
+        const { data, changeContent } = this.props;
+        const rootCell = this._graph.getDefaultParent();
+        const graph = this._graph;
         const cellData = this.getCellData(cell);
-        this.props.copyCell(data, cellData);
+        this.props.copyCell(data, cellData).then((res) => {
+            let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
+            cell.data = res;
+            cell.vertex = true;
+            let cells = graph.importCells([cell], cellData.x + 10, cellData.y + 10, rootCell);
+            if (data.graphData) {
+                data.graphData.push(this.getCellData(cell));
+            } else {
+                data.graphData = [this.getCellData(cell)]
+            }
+            changeContent(data, {}, true)
+            if (cells != null && cells.length > 0) {
+                graph.scrollCellToVisible(cells[0]);
+                graph.setSelectionCells(cells);
+            }
+        })
     }
     /* 删除节点 */
     removeCell = (cell) => {
@@ -318,23 +326,20 @@ class GraphContainer extends React.Component {
         const oldData = Object.assign({}, data);
         const newData = Object.assign({}, data);
         newData.graphData = graphData;
-        this.props.updateTaskData(oldData, newData);
+        if (newData.graphData.length >= oldData.graphData.length) {
+            this.props.updateTaskData(oldData, newData);
+        }
     }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
-        // const { loadTreeNode } = this.props;
-
+        const { data } = this.props;
         const checkNodeName = function (name) {
-            const reg = /^[A-Za-z0-9_]+$/;
             if (name === '') {
                 message.error('子节点名称不可为空！')
                 return false;
-            } else if (name.length > 64) {
-                message.error('子节点名称不得超过64个字符！')
-                return false;
-            } else if (!reg.test(name)) {
-                message.error('子节点名称只能由字母、数字、下划线组成!')
+            } else if (name.length > 12) {
+                message.error('子节点名称不得超过12个字符！')
                 return false;
             }
             return true;
@@ -349,12 +354,24 @@ class GraphContainer extends React.Component {
                     const taskData = Object.assign({}, task, {
                         name: value
                     });
-                    API.renameTask({ taskId: task.id, taskName: value }).then(res => {
-                        if (res.code === 1) {
-                            // const pid = task.nodePid || task.parentId;
-                            // loadTreeNode(pid, MENU_TYPE.TASK_DEV);
+                    const object = data.graphData.find(o => o.id === cell.id);
+                    object.data.name = value
+                    data.sqlText = JSON.stringify(data.graphData);
+                    // 对整个tab保存一次，再对cellData保存一次
+                    Promise.all([
+                        new Promise((resolve, reject) => {
+                            api.addOrUpdateTask(data).then(res => {
+                                resolve(res)
+                            })
+                        }),
+                        new Promise((resolve, reject) => {
+                            api.addOrUpdateTask(taskData).then(res => {
+                                resolve(res)
+                            })
+                        })
+                    ]).then((res) => {
+                        if (res[0].code === 1 && res[1].code === 1) {
                             ctx.updateCellData(cell, taskData);
-                            ctx.updateGraphData();
                         }
                     })
                 }
@@ -370,25 +387,14 @@ class GraphContainer extends React.Component {
             editTarget.addEventListener('keypress', editSucc, false)
         }
     }
-
-    updateGraphData = () => {
-        // const {
-        //     updateTaskField
-        // } = this.props;
-
-        // const workflow = this.getGraphData();
-        // const view = this._graph.getView();
-        // const graph = {
-        //     translate: view.getTranslate(),
-        //     scale: view.getScale()
-        // }
-        // const toUpdateTasks = workflow.filter(item => {
-        //     return item.vertex && item.data && item.data.notSynced === true;
-        // });
-        // this.setState({
-        //     showGuidePic: !(workflow.length > 0)
-        // })
-        // updateTaskField({ sqlText: JSON.stringify(workflow), toUpdateTasks, graph });
+    updateCellData = (cell, taskData) => {
+        const { data } = this.props;
+        const object = data.graphData.find(o => o.id == cell.id);
+        if (object) {
+            object.data = taskData;
+            this.props.changeContent(data, {}, true, false);
+            this._graph.refresh();
+        }
     }
     getCellData = (cell) => {
         return cell && {
@@ -411,6 +417,9 @@ class GraphContainer extends React.Component {
             if (cell.edge) {
                 cellItem.source = this.getCellData(cell.source);
                 cellItem.target = this.getCellData(cell.target);
+                const valueArr = cell.value.split('_');
+                cellItem.inputType = INPUT_TYPE_ENUM[valueArr[0]] || 0;
+                cellItem.outputType = INPUT_TYPE_ENUM[valueArr[1]] || 0;
             }
             cellData.push(cellItem);
         }
