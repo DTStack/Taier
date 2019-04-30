@@ -98,7 +98,7 @@ class GraphPanel extends Component {
                 key='scheduleConf'
             >
                 <SchedulingConfig
-                    formData={data.scheduleConf ? JSON.parse(data.scheduleConf) : ''}
+                    formData={JSON.parse(data.scheduleConf || '{}')}
                     onChange={(newFormData) => {
                         this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
                     }}

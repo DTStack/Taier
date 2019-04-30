@@ -1,4 +1,5 @@
 import API from '../api';
+import { message } from 'antd';
 import { sqlExecStatus, taskStatus } from '../consts';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 import { setNotebookLog, appendNotebookLog, setNotebookResult, showNotebookLog } from './notebookActions';
@@ -27,12 +28,23 @@ const RUN_TASK_STATUS = {
 }
 const runTaskStatus = {};
 
+const jobData = {};
+
+function setJobData (tabId, jobId) {
+    jobData[tabId] = { jobId };
+}
+
+function getJobData (tabId) {
+    return jobData[tabId];
+}
+
 function isTaskStoped (tabId) {
     return runTaskStatus[tabId] == RUN_TASK_STATUS.STOP;
 }
-// function setTaskStop (tabId) {
-//     runTaskStatus[tabId] = RUN_TASK_STATUS.STOP;
-// }
+function setTaskStop (tabId) {
+    runTaskStatus[tabId] = RUN_TASK_STATUS.STOP;
+    setJobData(tabId, null);
+}
 function resetTaskStatus (tabId) {
     runTaskStatus[tabId] = RUN_TASK_STATUS.NONE;
 }
@@ -81,8 +93,10 @@ async function execTask (tabData, serverParams, task, dispatch) {
     }
     resolveMsg(tabId, res, dispatch);
     if (res && res.code == 1) {
-        if (res.data.jobId) {
-            let selectRes = await pollTask(tabId, res.data.jobId, dispatch);
+        const jobId = res.data.jobId;
+        if (jobId) {
+            setJobData(tabId, jobId)
+            let selectRes = await pollTask(tabId, jobId, dispatch);
             return selectRes;
         } else {
             resolveData(tabId, res.data, params.uniqueKey, dispatch);
@@ -135,6 +149,22 @@ async function pollTask (tabId, jobId, dispatch) {
     } else {
         dispatch(appendNotebookLog(tabId, createLog(`请求异常！`, 'error')))
         return false;
+    }
+}
+
+export function stopTask (tabId, isSilent = false) {
+    return async dispatch => {
+        if (isSilent) {
+            setTaskStop(tabId);
+        } else {
+            let res = await API.notebook.stopExecSQL({
+                taskId: tabId,
+                jobId: getJobData(tabId).jobId
+            });
+            if (res && res.code == 1) {
+                message.success('停止信号已发出');
+            }
+        }
     }
 }
 

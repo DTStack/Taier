@@ -31,11 +31,12 @@ import * as commActions from '../../../../../actions/base';
         };
     },
     dispatch => {
-        const actionsOne = bindActionCreators(workbenchActions, dispatch);
-        const actionsTwo = bindActionCreators(runTaskActions, dispatch);
-        const actionsThree = bindActionCreators(commActions, dispatch);
-        const notebookAction = bindActionCreators(notebookActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree, notebookAction);
+        return {
+            ...bindActionCreators(workbenchActions, dispatch),
+            ...bindActionCreators(runTaskActions, dispatch),
+            ...bindActionCreators(commActions, dispatch),
+            ...bindActionCreators(notebookActions, dispatch)
+        }
     }
 )
 class EditorPanel extends Component {
@@ -93,8 +94,8 @@ class EditorPanel extends Component {
     };
 
     stopSQL = () => {
-        const { data, currentTab, stopSql } = this.props;
-        stopSql(currentTab, data);
+        const { currentTab, stopTask } = this.props;
+        stopTask(currentTab);
     };
 
     // 执行确认

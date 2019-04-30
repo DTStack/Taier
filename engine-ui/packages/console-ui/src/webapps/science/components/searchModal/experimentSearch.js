@@ -23,7 +23,7 @@ class ExperimentSearch extends React.Component {
     async onChange (value, searchCallBack) {
         searchCallBack([]);
         let res = await API.searchGlobal({
-            value
+            taskName: value
         })
         if (res && res.code == 1 && res.data) {
             searchCallBack(res.data.map((item) => {

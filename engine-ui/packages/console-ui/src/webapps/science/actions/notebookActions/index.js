@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { setOutput, output, outputRes, removeRes, resetConsole } from '../editorActions';
 import editorAction from '../../consts/editorActionType';
 import { changeTab, addTab, setCurrentTab } from '../base/tab';
-import { siderBarType, consoleKey } from '../../consts';
+import { siderBarType, consoleKey, modelComponentType } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
 import api from '../../api/notebook';
 import fileApi from '../../api/fileTree';
@@ -116,7 +116,7 @@ export function setNotebookResult (tabId, jobId, data) {
 export function saveNotebook (tabData) {
     return (dispatch, getState) => {
         return new Promise(async (resolve) => {
-            let res = await api.addNotebook(tabData);
+            let res = await api.addNotebook({ ...tabData, componentType: modelComponentType.NOTEBOOK.value });
             if (res && res.code == 1) {
                 const tabs = getState().notebook.localTabs;
                 dispatch(changeContent(res.data, tabs.find((tab) => {

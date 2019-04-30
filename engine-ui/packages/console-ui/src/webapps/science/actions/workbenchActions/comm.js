@@ -1,4 +1,5 @@
 import modalAction from '../../consts/modalActionType';
+import commonActionType from '../../consts/commonActionType';
 import { modalType } from '../../consts';
 
 /**
@@ -28,4 +29,11 @@ export function openNewExperiment (data) {
         visibleModal: modalType.newExperiment,
         modalData: data
     })
+}
+
+export function changeSiderBar (id) {
+    return {
+        type: commonActionType.CHANGE_SIDERBAR_KEY,
+        payload: id
+    }
 }

@@ -13,7 +13,10 @@ export default {
         });
     },
     searchGlobal (params) {
-        return http.post(req.SEARCH_EXPERIMENT, params);
+        return http.post(req.SEARCH_EXPERIMENT, {
+            ...params,
+            taskType: taskType.EXPERIMENT
+        });
     },
     openExperiment (params) {
         return http.post(req.GET_TASK_BY_ID, params);

@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { Modal, Form, Input } from 'antd';
+import { Modal, Form, Input, message } from 'antd';
+
+import Api from '../../api';
+
 const FormItem = Form.Item;
 const formItemLayout = {
     labelCol: {
@@ -13,17 +16,23 @@ const formItemLayout = {
 };
 // TODO
 const FORM_ENUM = {
-    '表名称': 'projectName',
-    '表生命周期': 'projectAliaName',
-    '表描述': 'projectDesc'
+    '表名称': 'name',
+    '表生命周期': 'lifeDay',
+    '表描述': 'dataSourceDesc'
 }
 class Edit extends Component {
     handleOk = () => {
-        this.props.form.validateFieldsAndScroll((err, values) => {
+        this.props.form.validateFieldsAndScroll(async (err, values) => {
             if (!err) {
-                // TODO
-                console.log('Received values of form: ', values);
-                this.handleCancel();
+                const { record } = this.props;
+                let res = await Api.comm.updateDataSource({
+                    ...record,
+                    ...values
+                });
+                if (res && res.code == 1) {
+                    message.success('修改成功');
+                    this.handleCancel();
+                }
             }
         });
     }
@@ -42,7 +51,7 @@ class Edit extends Component {
                     visible={visible}
                     onOk={this.handleOk}
                     wrapClassName='datasource-edit-modal'
-                    okText="创建"
+                    okText="确定"
                     onCancel={this.handleCancel}
                 >
                     <Form>
@@ -99,13 +108,13 @@ export default Form.create({
         return {
             // TODO
             [FORM_ENUM['表名称']]: {
-                value: props.record.projectName || ''
+                value: props.record[FORM_ENUM['表名称']] || ''
             },
             [FORM_ENUM['表生命周期']]: {
-                value: props.record.projectName || ''
+                value: props.record[FORM_ENUM['表生命周期']] || ''
             },
             [FORM_ENUM['表描述']]: {
-                value: props.record.projectName || ''
+                value: props.record[FORM_ENUM['表描述']] || ''
             }
         };
     }

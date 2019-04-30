@@ -29,7 +29,7 @@ const PUBLISH_TYPE = {
 class ModelSubmitModalForm extends React.Component {
     state = {
         isSuccess: false,
-        successData: {},
+        successData: null,
         componentModelList: [],
         modelList: []
     }
@@ -143,9 +143,9 @@ class ModelSubmitModalForm extends React.Component {
                                 {...formItemLayout}
                                 label='模型版本号'
                             >
-                                <Input value={modelList.find((m) => {
+                                <Input value={`v${modelList.find((m) => {
                                     return m.id == modelId.value
-                                }).version + 1} disabled />
+                                }).version + 1}`} disabled />
                             </FormItem>
                         ) : null}
                     </React.Fragment>
@@ -169,8 +169,8 @@ class ModelSubmitModalForm extends React.Component {
                             <Input
                                 addonBefore="API URL"
                                 disabled
-                                value={successData.url}
-                                addonAfter={<CopyIcon copyText={successData.url} />}
+                                value={successData}
+                                addonAfter={<CopyIcon copyText={successData} />}
                             />
                         </FormItem>
                         <p>前往 <a onClick={() => {
