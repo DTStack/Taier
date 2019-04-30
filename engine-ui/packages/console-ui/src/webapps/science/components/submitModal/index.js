@@ -60,7 +60,7 @@ class SubmitModal extends React.Component {
                             <Input.TextArea />
                         )}
                     </FormItem>
-                    <p style={{ textAlign: 'center' }}>注：作业提交后才能进行任务离线调度及运维</p>
+                    <p style={{ textAlign: 'center' }}>注：{name}提交后才能进行任务离线调度及运维</p>
                 </Form>
             </Modal>
         )

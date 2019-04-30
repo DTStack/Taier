@@ -31,11 +31,12 @@ import * as commActions from '../../../../../actions/base';
         };
     },
     dispatch => {
-        const actionsOne = bindActionCreators(workbenchActions, dispatch);
-        const actionsTwo = bindActionCreators(runTaskActions, dispatch);
-        const actionsThree = bindActionCreators(commActions, dispatch);
-        const notebookAction = bindActionCreators(notebookActions, dispatch);
-        return Object.assign(actionsOne, actionsTwo, actionsThree, notebookAction);
+        return {
+            ...bindActionCreators(workbenchActions, dispatch),
+            ...bindActionCreators(runTaskActions, dispatch),
+            ...bindActionCreators(commActions, dispatch),
+            ...bindActionCreators(notebookActions, dispatch)
+        }
     }
 )
 class EditorPanel extends Component {
@@ -93,8 +94,8 @@ class EditorPanel extends Component {
     };
 
     stopSQL = () => {
-        const { data, currentTab, stopSql } = this.props;
-        stopSql(currentTab, data);
+        const { currentTab, stopTask } = this.props;
+        stopTask(currentTab);
     };
 
     // 执行确认
@@ -136,7 +137,7 @@ class EditorPanel extends Component {
                 key='scheduleConf'
             >
                 <SchedulingConfig
-                    formData={JSON.parse(data.scheduleConf)}
+                    formData={JSON.parse(data.scheduleConf || '{}')}
                     onChange={(newFormData) => {
                         this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
                     }}
@@ -192,7 +193,7 @@ class EditorPanel extends Component {
             }}
             onSubmitModel={(values) => {
                 return this.props.submitNotebookModel({
-                    id: data.id,
+                    taskId: data.id,
                     ...values
                 })
             }}

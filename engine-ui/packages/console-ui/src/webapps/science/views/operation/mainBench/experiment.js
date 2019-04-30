@@ -32,6 +32,10 @@ class Experiment extends PureComponent {
             params: {
                 ...this.state.params,
                 search: value
+            },
+            pagination: {
+                ...this.state.pagination,
+                current: 1
             }
         }, this.getTableData)
     }
@@ -71,7 +75,8 @@ class Experiment extends PureComponent {
             taskType: taskType.EXPERIMENT,
             name: params.search,
             currentPage: pagination.current,
-            pageSize: pagination.pageSize
+            pageSize: pagination.pageSize,
+            taskPeriodId: params.filter || undefined
         });
         if (res && res.code == 1) {
             this.setState({
@@ -90,7 +95,10 @@ class Experiment extends PureComponent {
         return [{
             width: '25%',
             title: '实验名称',
-            dataIndex: 'name'
+            dataIndex: 'name',
+            render (name, record) {
+                return record.scheduleStatus == 0 ? `${name}（已冻结）` : name
+            }
         }, {
             width: '25%',
             title: '提交时间',

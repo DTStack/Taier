@@ -8,20 +8,20 @@ export default {
     GET_PROJECT_LIST: `${SCIENCE_BASE_URL}/common/project/listProject`, // 获取项目列表
     GET_PROJECT_DETAIL: `${SCIENCE_BASE_URL}/common/project/getProject`, // 项目详情
     CREATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/createProject`, // 创建项目
-    GET_TOP_PROJECT: `${SCIENCE_BASE_URL}/common/project/listProjectTop5`, // 项目TOP5列表
+    GET_TOP_PROJECT: `${SCIENCE_BASE_URL}/common/projectHit/listProjectTop5`, // 项目TOP5列表
     UPDATE_PROJECT: `${SCIENCE_BASE_URL}/common/project/updateProject`, // 更新项目
     GET_ALL_JOB_STATUS: `${SCIENCE_BASE_URL}/service/maintain/queryAllJobStatusStatistics`, // 所有项目指标统计
     GET_JOB_STATUS: `${SCIENCE_BASE_URL}/service/maintain/queryJobStatusStatistics`, // 获取项目任务执行情况
     GET_JOB_GRAPH: `${SCIENCE_BASE_URL}/service/maintain/getJobGraph`, // 获取项目实例运行情况
     QUERY_TASK: `${SCIENCE_BASE_URL}/service/maintain/queryTask`, // 查询任务接口
     FROZEN_TASK: `${SCIENCE_BASE_URL}/service/maintain/frozenTask`, // 冻结/解冻实验或者作业
-    EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/startSqlImmediately`, // 开始执行SQL
-    POLL_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 开始轮询执行状态
-    STOP_EXEC_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/stopSql`, // 停止执行SQL
+    EXEC_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceJob/startSqlImmediately`, // 开始执行nb
+    POLL_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceJob/selectData`, // 开始轮询执行状态
+    STOP_EXEC_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceJob/stopJob`, // 停止执行nb
     FORMAT_SQL: `${SCIENCE_BASE_URL}/dataBaseManagement/formatSql`, // 格式化SQL
-    DOWNLOAD_SQL_RESULT: `/api/analysis/download/dataBaseManagement/downloadSqlExeResult`, // 下载执行结果
+    DOWNLOAD_SQL_RESULT: `${SCIENCE_BASE_URL}/download/dataBaseManagement/downloadSqlExeResult`, // 下载执行结果
     GET_SQL_RESULT: `${SCIENCE_BASE_URL}/dataBaseManagement/selectData`, // 获取SQL结果
-    GET_SYS_PARAMS: `${SCIENCE_BASE_URL}/batchTask/getSysParams`, // 获取系统参数
+    GET_SYS_PARAMS: `${SCIENCE_BASE_URL}/service/scienceTask/getSysParams`, // 获取系统参数
 
     GET_CATALOGUES: `${SCIENCE_BASE_URL}/service/scienceCatalogue/getCatalogue`, // 获取目录
     ADD_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/addCatalogue`, // 添加文件夹
@@ -31,17 +31,15 @@ export default {
     GET_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取Task
     ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
-    SUBMIT_NOTEBOOK: `${SCIENCE_BASE_URL}/publishNotebookTask`, // 提交notebook
-    SUBMIT_NOTEBOOK_MODEL: `${SCIENCE_BASE_URL}/publishNotebookModel`, // 提交notebook
     SEARCH_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/globalSearch`, // 搜索notebook
-    DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/notebook/deleteTask`, // 删除notebook
+    DELETE_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除notebook
 
     ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加实验
     SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/globalSearch`, // 搜索实验
-    DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/experiment/deleteTask`, // 删除实验
+    DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除实验
 
-    GET_MODEL_LIST: `${SCIENCE_BASE_URL}/model/list`, // 获取mode列表
-    GET_MODEL_VERSIONS: `${SCIENCE_BASE_URL}/model/versions`, // 获取model版本列表
+    SUBMIT_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/publishTask`, // 提交任务
+
     GET_MODEL_PARAMS_LIST: `${SCIENCE_BASE_URL}/model/getParamsList`, // 获取model 参数列表
     LOAD_MODEL: `${SCIENCE_BASE_URL}/model/load`, // load Model
 
@@ -52,6 +50,13 @@ export default {
     GET_TABLENAME_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableNameList`, // 获取表名列表(模糊查询)
     IS_PARTITION_TABLE: `${SCIENCE_BASE_URL}/service/dataManager/isPartitionTable`, // 校验是否是分区表
     GET_COLUMNS_BY_NAMES: `${SCIENCE_BASE_URL}/service/dataManager/getColumnsByName`, // 获取表的列名
+
+    // === 模型 === //
+    SAVE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/saveModel`, // 新增保存模型
+    GET_MODEL_VERSIONS: `${SCIENCE_BASE_URL}/service/scienceModel/listVersion`, // 查询模型的全部版本
+    LIST_MODEL_TASK_FROM_LAB: `${SCIENCE_BASE_URL}/scienceModel/listModelTaskFromLab`, // 返回算法实验任务中的模型任务
+    GET_MODEL_LIST: `${SCIENCE_BASE_URL}/service/scienceModel/pageQuery`, // pageQuery模型
+    LIST_TASK_ALL_MODEL_AND_VERSION: `${SCIENCE_BASE_URL}/scienceModel/listWithTopVersion`, // 查询全部model（包含最高的version）
 
     // ================== table ================== //
     GET_TABLE: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/getTable`,

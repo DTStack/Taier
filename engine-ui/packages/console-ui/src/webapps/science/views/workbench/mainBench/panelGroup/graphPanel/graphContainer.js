@@ -56,7 +56,7 @@ class GraphContainer extends React.Component {
         detailModalVisible: false,
         detailData: null,
         selectedData: null,
-        evaluateReportVisible: true,
+        evaluateReportVisible: false,
         runningLogVisible: false
     }
 

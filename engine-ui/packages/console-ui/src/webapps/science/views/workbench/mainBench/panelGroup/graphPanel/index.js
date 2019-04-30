@@ -103,7 +103,7 @@ class GraphPanel extends Component {
                 key='scheduleConf'
             >
                 <SchedulingConfig
-                    formData={JSON.parse(data.scheduleConf)}
+                    formData={JSON.parse(data.scheduleConf || '{}')}
                     onChange={(newFormData) => {
                         this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
                     }}
@@ -124,18 +124,17 @@ class GraphPanel extends Component {
         const { data } = this.props;
         return <PublishButtons
             data={data}
-            name='作业'
-            isNotebook={true}
-            disabled={data && data.isDirty}
+            name='实验'
+            disabled={data.isDirty}
             onSubmit={(values) => {
-                return this.props.submitNotebook({
+                return this.props.submitExperiment({
                     ...data,
                     ...values
                 })
             }}
             onSubmitModel={(values) => {
-                return this.props.submitNotebookModel({
-                    id: data && data.id,
+                return this.props.submitExperimentModel({
+                    taskId: data.id,
                     ...values
                 })
             }}

@@ -11,6 +11,8 @@ import HelpDoc from '../helpDoc';
 import * as baseActions from '../../actions/base'
 import { formItemLayout, siderBarType } from '../../consts';
 
+import Api from '../../api';
+
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option = Select.Option;
@@ -27,7 +29,46 @@ const PUBLISH_TYPE = {
 class ModelSubmitModalForm extends React.Component {
     state = {
         isSuccess: false,
-        successData: {}
+        successData: {},
+        componentModelList: [],
+        modelList: []
+    }
+    componentDidMount () {
+        const { visible } = this.props;
+        if (visible) {
+            this.initData();
+        }
+    }
+    componentDidUpdate (prevProps) {
+        if (!prevProps.visible && this.props.visible) {
+            this.initData();
+        }
+    }
+    initData () {
+        const { isNotebook } = this.props;
+        if (!isNotebook) {
+            this.getLabModels();
+        }
+        this.getModelList();
+    }
+    async getLabModels () {
+        const { data } = this.props;
+        let res = await Api.model.getModelListFromLab({
+            taskId: data.id
+        });
+        if (res && res.code == 1) {
+            this.setState({
+                componentModelList: res.data
+            })
+        }
+    }
+    async getModelList () {
+        let res = await Api.model.getTaskModels();
+        if (res && res.code == 1) {
+            this.setState({
+                modelList: res.data
+            })
+        }
     }
     onOk = () => {
         this.props.form.validateFields((err, values) => {
@@ -37,7 +78,7 @@ class ModelSubmitModalForm extends React.Component {
                     content: '确认部署此模型吗？',
                     okText: '确定',
                     cancelText: '取消',
-                    onOk: () => {
+                    onOk: async () => {
                         this.props.onOk(values).then((res) => {
                             if (res) {
                                 this.setState({
@@ -52,9 +93,10 @@ class ModelSubmitModalForm extends React.Component {
         });
     }
     renderDetail () {
+        const { modelList } = this.state;
         const { _formData, form } = this.props;
         const { getFieldDecorator } = form;
-        const { publishType, modelVersions } = _formData;
+        const { publishType, modelId } = _formData;
         switch (publishType.value) {
             case PUBLISH_TYPE.NEW: {
                 return (
@@ -83,23 +125,27 @@ class ModelSubmitModalForm extends React.Component {
                             {...formItemLayout}
                             label='选择模型名称'
                         >
-                            {getFieldDecorator('modelVersions', {
+                            {getFieldDecorator('modelId', {
                                 rules: [{
                                     required: true,
                                     message: '请选择模型名称'
                                 }]
                             })(
                                 <Select>
-                                    <Option key='1.0'>1.0</Option>
+                                    {modelList.map((m) => {
+                                        return <Option value={m.id} key={m.id} >{m.modelName}</Option>
+                                    })}
                                 </Select>
                             )}
                         </FormItem>
-                        {modelVersions && modelVersions.value ? (
+                        {modelId && modelId.value ? (
                             <FormItem
                                 {...formItemLayout}
                                 label='模型版本号'
                             >
-                                <Input disabled />
+                                <Input value={modelList.find((m) => {
+                                    return m.id == modelId.value
+                                }).version + 1} disabled />
                             </FormItem>
                         ) : null}
                     </React.Fragment>
@@ -137,7 +183,7 @@ class ModelSubmitModalForm extends React.Component {
         )
     }
     render () {
-        const { isSuccess } = this.state;
+        const { isSuccess, componentModelList } = this.state;
         const { visible, form, isNotebook, data, onClose } = this.props;
         const { getFieldDecorator } = form;
         return (
@@ -164,9 +210,16 @@ class ModelSubmitModalForm extends React.Component {
                             {...formItemLayout}
                             label='选择部署模型'
                         >
-                            {getFieldDecorator('modelId')(
+                            {getFieldDecorator('componentId', {
+                                rules: [{
+                                    required: true,
+                                    message: '请选择部署模型'
+                                }]
+                            })(
                                 <Select>
-                                    <Option key='1'>模型一</Option>
+                                    {componentModelList.map((c) => {
+                                        return <Option key={c.id} value={c.id} >{c.name}</Option>
+                                    })}
                                 </Select>
                             )}
                         </FormItem>
@@ -183,22 +236,24 @@ class ModelSubmitModalForm extends React.Component {
                         )}
                     </FormItem>
                     {this.renderDetail()}
-                    <FormItem
-                        {...formItemLayout}
-                        label='模型部署路径'
-                    >
-                        {getFieldDecorator('modelPath', {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '请填写模型部署路径'
-                                }
-                            ]
-                        })(
-                            <Input />
-                        )}
-                        <HelpDoc doc='modelPath' />
-                    </FormItem>
+                    {isNotebook && (
+                        <FormItem
+                            {...formItemLayout}
+                            label='模型部署路径'
+                        >
+                            {getFieldDecorator('modelPath', {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: '请填写模型部署路径'
+                                    }
+                                ]
+                            })(
+                                <Input />
+                            )}
+                            <HelpDoc doc='modelPath' />
+                        </FormItem>
+                    )}
                 </Form>)}
             </Modal>
         )
@@ -210,18 +265,18 @@ const WrapModelSubmitModalForm = Form.create({
     },
     onFieldsChange (props, fields) {
         if (fields.hasOwnProperty('publishType')) {
-            fields.modelVersions = {
+            fields.modelId = {
                 value: undefined
             }
             fields.modelName = {
                 value: undefined
             }
         }
-        if (fields.hasOwnProperty('modelId')) {
+        if (fields.hasOwnProperty('componentId')) {
             fields.modelName = {
                 value: undefined
             }
-            fields.modelVersions = {
+            fields.modelId = {
                 value: undefined
             }
             fields.publishType = {

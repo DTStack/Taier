@@ -39,6 +39,12 @@ class GraphGroup extends React.Component {
         }
     }
     closeTab (tabId) {
+        const { tabs = [], currentTabIndex } = this.props;
+        if (currentTabIndex == tabId && tabs.length > 1) {
+            this.switchTab(tabs.filter((tab) => {
+                return tab.id != currentTabIndex
+            }).pop().id);
+        }
         this.props.deleteTab(siderBarType.experiment, tabId);
     }
     render () {

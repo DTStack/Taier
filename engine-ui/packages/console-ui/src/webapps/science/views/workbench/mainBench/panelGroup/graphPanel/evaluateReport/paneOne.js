@@ -10,6 +10,12 @@ class TotalIndexData extends Component {
         loading: false
     };
 
+    componentDidMount () {
+        this.fetchData({
+            taskId: this.props.data.id
+        })
+    }
+
     handleTableChange = (pagination, filters, sorter) => {
         const pager = { ...this.state.pagination };
         pager.current = pagination.current;
