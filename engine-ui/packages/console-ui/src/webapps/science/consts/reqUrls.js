@@ -67,7 +67,7 @@ export default {
     DISABLE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/disableModel`, // 禁用model
     // ================== table ================== //
     GET_TABLE: `${SCIENCE_BASE_URL}/service/dataManager/getTable`,
-    CHECK_TABLE_PARTITION: `${SCIENCE_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
+    CHECK_TABLE_PARTITION: `${SCIENCE_BASE_URL}/service/dataManager/checkPartitionExists`, // 检查表分区
     TABLE_CREATE_BY_DDL: `${SCIENCE_BASE_URL}/service/dataManager/ddlCreateTable`, // ddl建表
     GET_TABLES_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableList`, // 查询指定名称表信息(支持模糊查询)
     // ==== 数据源 ==== //

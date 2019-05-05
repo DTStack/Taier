@@ -64,3 +64,9 @@ table {
 .state-disabled{
     @include state-icon-base(#94a8c6);
 }
+.state-not_run{
+    @include state-icon-base(#f5a623);
+}
+.state-loading{
+    @include state-icon-base(#f5a623);
+}

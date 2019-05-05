@@ -83,7 +83,6 @@
     "monaco-editor-webpack-plugin": "~1.4.0",
     "node-notifier": "^5.2.1",
     "node-sass": "4.11.0",
-    "postcss-loader": "0.9.1",
     "progress-bar-webpack-plugin": "1.11.0",
     "sass-loader": "^7.0.1",
     "strip-ansi": "3.0.1",
@@ -101,7 +100,7 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "webpack-dev-server --progress --inline --config build/dev.js --open",
+    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install --unsafe-perm=true --allow-root && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",

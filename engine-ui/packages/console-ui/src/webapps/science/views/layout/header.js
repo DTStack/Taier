@@ -125,16 +125,19 @@ class Header extends Component {
                 enable: true
             }];
         }
-        const logo = <a style={{ textDecoration: 'none' }} href={baseUrl}>
+        const logo = <React.Fragment>
             <img
-                className='c-header__logo c-header__logo--analytics'
+                className='c-header__logo'
                 alt="logo"
                 src={getHeaderLogo(app.id)}
             />
-            <span className='c-header__title c-header__title--analytics'>
-                {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
-            </span>
-        </a>
+            <a style={{ textDecoration: 'none' }} href={baseUrl}>
+                <span className='c-header__title'>
+                    {window.APP_CONF.prefix ? `${window.APP_CONF.prefix}.` : ''}{window.APP_CONF.name}
+                </span>
+            </a>
+        </React.Fragment >
+
         return <Navigator
             logo={logo}
             customItems={customItems}

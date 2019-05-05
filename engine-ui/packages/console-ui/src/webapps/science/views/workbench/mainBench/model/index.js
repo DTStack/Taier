@@ -205,12 +205,10 @@ class ModelView extends React.Component {
                     </Menu.Item>
                 );
                 switch (record.status) {
+                    case MODEL_STATUS.NOT_RUN.value:
+                    case MODEL_STATUS.FAILED.value:
                     case MODEL_STATUS.RUNNING.value: {
                         menuItems.push(disableItem);
-                        break;
-                    }
-                    case MODEL_STATUS.FAILED.value: {
-                        menuItems.push(disableItem)
                         break;
                     }
                     case MODEL_STATUS.DISABLED.value: {

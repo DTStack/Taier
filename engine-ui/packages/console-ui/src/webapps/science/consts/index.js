@@ -56,10 +56,15 @@ export const MODEL_STATUS = {
         text: '已禁用',
         className: 'state-disabled'
     },
+    NOT_RUN: {
+        value: 3,
+        text: '未运行',
+        className: 'state-not_run'
+    },
     LOADING: {
         value: 5,
-        text: '已禁用',
-        className: 'state-disabled'
+        text: '加载中',
+        className: 'state-loading'
     }
 }
 export const TASK_STATUS = {
