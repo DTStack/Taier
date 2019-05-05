@@ -45,6 +45,7 @@ class RunningLogModal extends Component {
 
     fetchData = async () => {
         const { data } = this.props;
+        if (!data) return;
         const res = await API.getComponentRunningLog({ taskId: data.id });
         if (res.code === 1) {
             this.setState({
@@ -88,6 +89,10 @@ class RunningLogModal extends Component {
                 onCancel={onCancel}
                 footer={null}
                 maskClosable={true}
+                bodyStyle={{
+                    padding: '0 0 0 0',
+                    position: 'relative'
+                }}
             >
                 {this.renderLogContent()}
             </Modal>

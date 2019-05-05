@@ -1,6 +1,8 @@
 
 import React, { Component } from 'react';
-import { Modal, Tabs } from 'antd';
+import { Modal, Tabs, Icon } from 'antd';
+
+import FullScreen from 'widgets/fullscreen';
 
 import PaneOne from './paneOne';
 import PaneTwo from './paneTwo';
@@ -14,12 +16,30 @@ class EvaluateReportModal extends Component {
         const { onOk, onCancel, visible, data } = this.props;
         return (
             <Modal
-                onOk={onOk}
+                bodyStyle={{
+                    padding: '0 0 0 0',
+                    position: 'relative'
+                }}
+                title="评估报告"
+                width={800}
+                style={{ height: '560px' }}
+                wrapClassName="vertical-center-modal m-log-modal"
                 visible={visible}
+                onOk={onOk}
                 onCancel={onCancel}
-                className="nopadding-modal"
-                title="评估报告">
-                <div className="m-tabs">
+            >
+                <FullScreen
+                    style={{
+                        position: 'absolute',
+                        right: '48px',
+                        top: '-30px'
+                    }}
+                    target="JS_evaluate_tab"
+                    fullIcon={<Icon className="alt" type="arrows-alt" />}
+                    exitFullIcon={<Icon className="alt" type="shrink" />}
+                    isShowTitle={false}
+                />
+                <div className="m-tabs" id="JS_evaluate_tab">
                     <Tabs>
                         <TabPane tab="综合指标数据" key="pane-1">
                             <PaneOne data={data}/>

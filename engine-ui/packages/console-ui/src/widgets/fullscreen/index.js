@@ -103,7 +103,7 @@ export default class FullScreenButton extends Component {
                 91: true,
                 16: true
             }}>
-                {customIcon ? <span onClick={this.fullScreen}>{customIcon}</span>
+                {customIcon ? <span {...other} onClick={this.fullScreen}>{customIcon}</span>
                     : <Button {...other} onClick={this.fullScreen}>
                         <MyIcon
                             className="my-icon"

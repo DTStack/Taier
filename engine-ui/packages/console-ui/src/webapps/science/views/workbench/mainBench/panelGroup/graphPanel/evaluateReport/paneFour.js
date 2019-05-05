@@ -50,6 +50,7 @@ class SameFrequencyData extends Component {
             title: '序号',
             dataIndex: 'id',
             key: 'id',
+            fixed: 'left',
             sorter: true
         }];
 
@@ -61,18 +62,21 @@ class SameFrequencyData extends Component {
                 sorter: true
             })
         });
-        return fields;
+        return columns;
     }
 
     render () {
         return (
             <Table
-                columns={this.initialCols()}
                 rowKey="index"
+                className="m-table"
+                style={{ height: '100%' }}
+                columns={this.initialCols()}
                 dataSource={this.state.data}
                 pagination={this.state.pagination}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}
+                scroll={{ x: '2000px' }}
             >
             </Table>
         )

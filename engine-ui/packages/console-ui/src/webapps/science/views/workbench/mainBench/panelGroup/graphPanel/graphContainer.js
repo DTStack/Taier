@@ -59,15 +59,19 @@ class GraphContainer extends React.Component {
         detailModalVisible: false,
         detailData: null,
         selectedData: null,
-        evaluateReportVisible: false,
+        evaluateReportVisible: true,
         runningLogVisible: false
     }
 
     _graph = null;
 
-    shouldComponentUpdate (nextProps) {
-        return true;
+    componentDidMount () {
+        console.log('graph did mount', this.props);
     }
+
+    // shouldComponentUpdate (nextProps) {
+    //     return true;
+    // }
 
     initContextMenu = (graph) => {
         const ctx = this;
@@ -122,11 +126,20 @@ class GraphContainer extends React.Component {
                 if (cell.data.taskType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION) {
                     menu.addItem('查看评估报告', null, function () {
                         // 查看评估报告
-                        ctx.showHideEvaluateReport(cell.data);
+                        // ctx.showHideEvaluateReport(true, cell.data);
+                        ctx.setState({
+                            evaluateReportVisible: true,
+                            selectedData: cell.data
+                        })
                     }, null, null, true);
                 }
                 menu.addItem('查看日志', null, function () {
                     // 查看日志
+                    // ctx.showHideRunningLog(true, cell.data);
+                    ctx.setState({
+                        runningLogVisible: true,
+                        selectedData: cell.data
+                    })
                 }, null, null, true);
             } else {
                 menu.addItem('删除依赖关系', null, function () {
@@ -135,13 +148,8 @@ class GraphContainer extends React.Component {
             }
         }
     }
-<<<<<<< HEAD
-
-    mxTitleContent = (state) => {
-=======
     /* 初始化hover生成的div的效果 */
     mxTitleContent = (state, isVertex) => {
->>>>>>> 496041ff834056d5775daa7f82f864ac36e6ff9d
         const data = state.cell.data;
         const div = document.createElement('div');
         div.id = 'titleContent'
@@ -487,9 +495,16 @@ class GraphContainer extends React.Component {
         })
     }
 
-    showHideEvaluateReport = (data) => {
+    showHideEvaluateReport = (visible, data) => {
         this.setState({
-            evaluateReportVisible: !!data,
+            evaluateReportVisible: visible,
+            selectedData: data
+        })
+    }
+
+    showHideRunningLog = (visible, data) => {
+        this.setState({
+            runningLogVisible: visible,
             selectedData: data
         })
     }
@@ -513,10 +528,11 @@ class GraphContainer extends React.Component {
 
     render () {
         const {
-            detailData, evaluateReportVisible, selectedData,
+            detailData, selectedData,
             showSearch, searchResult, detailModalVisible,
-            runningLogVisible
+            runningLogVisible, evaluateReportVisible
         } = this.state;
+        console.log('render:', this.state);
         const { data } = this.props;
         const graphData = cloneDeep(data.graphData);
         return <div className="exp-graph-view" style={{ width: '100%' }}>
@@ -549,17 +565,12 @@ class GraphContainer extends React.Component {
             <RunningLogModal
                 visible={runningLogVisible}
                 data={selectedData}
-                onCancel={() => {
-                    this.setState({
-                        runningLogVisible: false,
-                        runningLog: { logData: null, indexData: null }
-                    })
-                }}
+                onCancel={() => this.showHideRunningLog(false, null)}
             />
             <EvaluateReportModal
                 data={selectedData}
                 visible={evaluateReportVisible}
-                onCancel={() => this.showHideEvaluateReport() }
+                onCancel={() => this.showHideEvaluateReport(false, null) }
             />
         </div>
     }

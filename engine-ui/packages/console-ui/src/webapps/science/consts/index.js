@@ -17,6 +17,17 @@ export const CATALOGUE_TYPE = {
     SEARCH_TABLE: 'searchTable'
 }
 
+/**
+ * 评估报告图表类型
+ */
+export const EVALUATE_REPORT_CHART_TYPE = {
+    ROC: 1,
+    K_S: 2,
+    LIFT: 3,
+    GAIN: 4,
+    PRECISION_RECALL: 5
+}
+
 export const siderBarType = {
     notebook: 'notebook',
     experiment: 'laboratory',

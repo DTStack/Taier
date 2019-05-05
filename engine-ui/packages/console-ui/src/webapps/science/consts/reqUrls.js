@@ -54,6 +54,7 @@ export default {
     GET_JOB_ID_BY_TASK: `${SCIENCE_BASE_URL}/service/scienceJob/startAlgorithm`, // 获取执行的任务的jobid
     STOP_TASK_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/stopJobList`, // 停止执行的任务的jobid
     GET_TASK_STATUS_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/checkAlgorithmRunState`, // 获取执行的任务的状态
+    GET_EVALUATE_REPORT_CHART_DATA: `${SCIENCE_BASE_URL}/service/dataManager/graph`, // 评估报告图表数据
 
     // === 模型 === //
     SAVE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/saveModel`, // 新增保存模型

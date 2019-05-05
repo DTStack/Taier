@@ -48,30 +48,35 @@ class SameWidthData extends Component {
         const columns = [{
             title: '序号',
             dataIndex: 'id',
+            fixed: 'left',
             key: 'id',
             sorter: true
         }];
-
-        fields.forEach(field => {
+        for (let i = 0; i < fields.length; i++) {
+            const field = fields[i];
             columns.push({
                 title: field,
                 dataIndex: field,
                 key: field,
                 sorter: true
             })
-        });
-        return fields;
+        }
+        return columns;
     }
 
     render () {
+        const cols = this.initialCols();
         return (
             <Table
-                columns={this.initialCols()}
+                className="m-table"
+                columns={cols}
                 rowKey="index"
+                style={{ height: '100%' }}
                 dataSource={this.state.data}
                 pagination={this.state.pagination}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}
+                scroll={{ x: '2000px' }}
             >
             </Table>
         )

@@ -62,5 +62,8 @@ export default {
     },
     getRunTaskStatus (params) {
         return http.post(req.GET_TASK_STATUS_BY_JOB_ID, params);
+    },
+    getEvaluateReportChartData (params) {
+        return http.post(req.GET_EVALUATE_REPORT_CHART_DATA, params);
     }
 }

@@ -11,9 +11,25 @@ class TotalIndexData extends Component {
     };
 
     componentDidMount () {
+        const data = this.props.data;
+        if (!data) return;
         this.fetchData({
-            taskId: this.props.data.id
+            taskId: data.id
         })
+    }
+
+    fetchData = async (params = {}) => {
+        this.setState({ loading: true });
+        const res = await API.getTotalIndexData({
+            limit: 10,
+            ...params
+        });
+        if (res.code === 1) {
+            this.setState({
+                data: res.data
+            })
+        }
+        this.setState({ loading: false });
     }
 
     handleTableChange = (pagination, filters, sorter) => {
@@ -29,20 +45,6 @@ class TotalIndexData extends Component {
             sortOrder: sorter.order,
             ...filters
         });
-    }
-
-    fetchData = async (params = {}) => {
-        this.setState({ loading: true });
-        const res = await API.getTotalIndexData({
-            limit: 10,
-            ...params
-        });
-        if (res.code === 1) {
-            this.setState({
-                data: res.data
-            })
-        }
-        this.setState({ loading: false });
     }
 
     initialCols = () => {
@@ -63,8 +65,10 @@ class TotalIndexData extends Component {
     render () {
         return (
             <Table
-                columns={this.initialCols()}
+                className="m-table"
                 rowKey="index"
+                columns={this.initialCols()}
+                style={{ height: '100%' }}
                 dataSource={this.state.data}
                 pagination={this.state.pagination}
                 loading={this.state.loading}
