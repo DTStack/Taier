@@ -5,7 +5,7 @@ import { Tabs, Icon } from 'antd';
 
 import PanelGroup from '../index';
 import EditorPanel from '../editorPanel';
-import DefaultNotebookView from '../../default/defaultNoteBookView';
+import DefaultNotebookView from '../../default/defaultNotebookView';
 
 import * as tabActions from '../../../../../actions/base/tab';
 import { siderBarType } from '../../../../../consts';
