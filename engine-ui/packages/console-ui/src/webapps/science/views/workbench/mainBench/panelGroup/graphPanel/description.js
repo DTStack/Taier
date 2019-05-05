@@ -21,7 +21,7 @@ class Description extends Component {
         const { selectedCell } = this.props;
         let description = '';
         if (this.isEmptyObejct(selectedCell)) return '';
-        switch (selectedCell.data.taskType) {
+        switch (selectedCell.data.componentType) {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:
                 description = '读取数据表组件，数据科学平台的数据存储在HDFS中，在参数配置中输入表名即可，暂不支持跨项目读表。';
                 break;

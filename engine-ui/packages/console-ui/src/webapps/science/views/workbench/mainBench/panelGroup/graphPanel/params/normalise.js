@@ -55,7 +55,7 @@ class FieldSetting extends PureComponent {
         const { getFieldDecorator } = this.props.form;
         const { data } = this.props;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
+        const btnContent = (isEmpty(data) || data.colList.length == 0) ? '选择字段' : `已选择${data.colList.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem
@@ -105,14 +105,21 @@ class Normalise extends PureComponent {
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field, filedValue) => {
-        const { data } = this.props;
-        const params = cloneDeep(data);
+        const { currentTab, componentId, data, changeContent } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            normalizationComponent: {
+                ...data
+            }
+        }
         if (field) {
-            params[field] = filedValue
+            params.normalizationComponent[field] = filedValue
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
-                message.success('保存成功!');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }

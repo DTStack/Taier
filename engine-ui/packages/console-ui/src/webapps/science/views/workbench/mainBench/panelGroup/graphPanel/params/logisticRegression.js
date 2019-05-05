@@ -39,8 +39,8 @@ class ChooseModal extends BaseChooseModal {
 class paramSetting extends PureComponent {
     state = {
         regexDatas: [{
-            value: 'none',
-            name: 'none'
+            value: 'None',
+            name: 'None'
         }, {
             value: 'L1',
             name: 'L1'
@@ -50,10 +50,10 @@ class paramSetting extends PureComponent {
         }]
     }
     handleChange = (value) => {
-        const { columns } = this.state;
-        const object = columns.find(o => o.key === value);
+        const { regexDatas } = this.state;
+        const object = regexDatas.find(o => o.value === value);
         if (object) {
-            this.props.handleSaveComponent('label', object);
+            this.props.handleSaveComponent('penalty', value);
         }
     }
     render () {
@@ -188,10 +188,10 @@ class FieldSetting extends PureComponent {
     }
     render () {
         const { chooseModalVisible, columns } = this.state;
-        const { data } = this.props;
+        const { data, taskId } = this.props;
         const { getFieldDecorator } = this.props.form;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
+        const btnContent = (data || isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem
@@ -233,6 +233,7 @@ class FieldSetting extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
+                        taskId={taskId}
                         data={data}
                         transferField="double"
                         onOK={this.handelOk}
@@ -255,14 +256,21 @@ class LogisticRegression extends PureComponent {
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field, filedValue) => {
-        const { data } = this.props;
-        const params = cloneDeep(data);
+        const { data, currentTab, componentId, changeContent } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            logisticComponent: {
+                ...data
+            }
+        }
         if (field) {
-            params[field] = filedValue
+            params.logisticComponent[field] = filedValue
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
-                message.success('保存成功!');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }
@@ -274,8 +282,8 @@ class LogisticRegression extends PureComponent {
             mapPropsToFields: (props) => {
                 const { data } = props;
                 const values = {
-                    label: { value: isEmpty(data.label) ? '' : data.label.key },
-                    pos: { value: String(data.pos) }
+                    label: { value: (!data.label || isEmpty(data.label)) ? '' : data.label.key },
+                    pos: { value: data.pos ? String(data.pos) : '' }
                 }
                 return values;
             },

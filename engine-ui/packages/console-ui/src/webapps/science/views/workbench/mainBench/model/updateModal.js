@@ -23,7 +23,7 @@ class ModelUpdateModal extends React.Component {
             loading: true
         })
         let res = await api.getModelParamsList({
-            id: data.id
+            modelId: data.id
         });
         if (res && res.code == 1) {
             this.setState({

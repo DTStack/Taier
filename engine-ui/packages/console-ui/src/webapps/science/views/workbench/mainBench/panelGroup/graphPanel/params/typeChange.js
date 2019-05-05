@@ -12,9 +12,9 @@ const TYPE_ENUM = {
     string: 'String类型'
 }
 const KEY_VALUE_ENUM = {
-    double: 'double',
-    int: 'int',
-    string: 'str'
+    double: 'doubleTranColList',
+    int: 'intTranColList',
+    string: 'strTranColList'
 }
 /* 选择字段弹出框 */
 export class ChooseModal extends PureComponent {
@@ -54,38 +54,31 @@ export class ChooseModal extends PureComponent {
         });
     }
     getSourceData = () => {
-        const res = {
-            code: 1,
-            'data': {
-                'id': 'int',
-                'name': 'string',
-                a: 'int',
-                b: 'string',
-                c: 'double',
-                d: 'int'
-            }
-        }
-        let sourceData = [];
-        for (const key in res.data) {
-            if (res.data.hasOwnProperty(key)) {
-                const element = res.data[key];
-                if (this.disabledType) {
-                    sourceData.push({
-                        key,
-                        type: element,
-                        disabled: element === this.disabledType
-                    })
-                } else {
-                    sourceData.push({
-                        key,
-                        type: element
-                    })
+        api.getInputTableColumns({ taskId: this.props.taskId }).then(res => {
+            if (res.code === 1) {
+                let sourceData = [];
+                for (const key in res.data) {
+                    if (res.data.hasOwnProperty(key)) {
+                        const element = res.data[key];
+                        if (this.disabledType) {
+                            sourceData.push({
+                                key,
+                                type: element,
+                                disabled: element === this.disabledType
+                            })
+                        } else {
+                            sourceData.push({
+                                key,
+                                type: element
+                            })
+                        }
+                    }
                 }
+                this.setState({
+                    sourceData,
+                    backupSource: cloneDeep(sourceData)
+                })
             }
-        }
-        this.setState({
-            sourceData,
-            backupSource: cloneDeep(sourceData)
         })
     }
     handleCancel = () => {
@@ -240,7 +233,7 @@ class Transform extends PureComponent {
         const { data } = this.props;
         const transferField = this.props.form.getFieldValue('transferField');
         const chooseData = KEY_VALUE_ENUM[transferField];
-        const btnContent = (isEmpty(data) || data[chooseData].length === 0) ? '选择字段' : `已选择${data[chooseData].length}个字段`
+        const btnContent = (!data || isEmpty(data) || data[chooseData].length === 0) ? '选择字段' : `已选择${data[chooseData].length}个字段`
         return btnContent;
     }
     render () {
@@ -367,14 +360,21 @@ class TypeChange extends PureComponent {
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field, filedValue) => {
-        const { data } = this.props;
-        const params = cloneDeep(data);
+        const { data, currentTab, componentId, changeContent } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            transTypeComponent: {
+                ...data
+            }
+        }
         if (field) {
-            params[field] = filedValue
+            params.transTypeComponent[field] = filedValue
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
-                message.success('保存成功!');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }

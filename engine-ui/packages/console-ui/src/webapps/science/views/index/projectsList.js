@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router'
 
-import { Icon, Card, Input, Table, Button } from 'antd';
+import { Icon, Card, Input, Table, Button, message } from 'antd';
 import NewProject from '../../components/newProject';
-import ProjectDetail from './projectDetail';
+import TaskParamsModal from '../../components/taskParamsModal';
 
 import utils from 'utils';
 import * as baseActions from '../../actions/base'
@@ -13,7 +13,11 @@ import Api from '../../api';
 
 const Search = Input.Search;
 
-@connect(null, dispatch => {
+@connect(state => {
+    return {
+        currentProject: state.project.currentProject
+    }
+}, dispatch => {
     return {
         ...bindActionCreators(baseActions, dispatch)
     }
@@ -92,7 +96,7 @@ class ProjectsList extends Component {
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
             searchName: params.search || undefined,
-            orderBy: params.filed || undefined,
+            orderBy: params.filed ? params.filed.replace(/([A-Z])/g, '_$1').toLowerCase() : undefined,
             sort: params.sort || undefined
         });
         this.setState({
@@ -133,6 +137,7 @@ class ProjectsList extends Component {
             title: '创建时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
+            sorter: true,
             render (t) {
                 return utils.formatDateTime(t)
             }
@@ -154,6 +159,28 @@ class ProjectsList extends Component {
     }
     gotoWelcome = () => {
         this.props.router.push('/science/index')
+    }
+    changeProject = async (key, value, reset) => {
+        const { checkProject } = this.state;
+        const { currentProject } = this.props;
+        let res = await Api.comm.updateProject({
+            projectId: checkProject.id,
+            [key]: value
+        })
+        if (res && res.code == 1) {
+            this.setState({
+                checkProject: {
+                    ...checkProject,
+                    [key]: value
+                }
+            })
+            if (currentProject && currentProject.id == checkProject.id) {
+                this.props.initCurrentProject();
+            }
+            this.getTableData();
+            message.success('修改成功')
+            reset();
+        }
     }
     render () {
         const { loading, data, pagination, visible, visibleSlidePane, checkProject } = this.state;
@@ -185,10 +212,38 @@ class ProjectsList extends Component {
                     visible={visible}
                     onOk={this.getTableData}
                 />
-                <ProjectDetail
-                    checkProject={checkProject || {}}
+                <TaskParamsModal
+                    title='项目属性'
                     onCancel={this.closeSlidePane}
-                    visible={visibleSlidePane}/>
+                    visible={visibleSlidePane}
+                    onEdit={this.changeProject}
+                    data={checkProject && [{
+                        label: '项目名称',
+                        value: checkProject.projectName
+                    }, {
+                        label: '项目显示名',
+                        value: checkProject.projectAlias,
+                        key: 'projectAlias',
+                        edit: true
+                    }, {
+                        label: '项目描述',
+                        value: checkProject.projectDesc,
+                        key: 'projectDesc',
+                        edit: true
+                    }, {
+                        label: '关联离线计算中的项目',
+                        value: checkProject.refProjectName
+                    }, {
+                        label: '创建时间',
+                        value: utils.formatDateTime(checkProject.gmtCreate)
+                    }, {
+                        label: '创建人',
+                        value: checkProject.projectName
+                    }, {
+                        label: '管理员',
+                        value: checkProject.projectName
+                    }]}
+                />
             </div>
         );
     }

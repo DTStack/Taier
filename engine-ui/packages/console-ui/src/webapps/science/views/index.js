@@ -7,7 +7,7 @@ import { scienceApp } from 'config/base'
 import Header from './layout/header'
 
 import { updateApp } from 'main/actions/app'
-import { getProjectList } from '../actions/base'
+import { getProjectList, initCurrentProject } from '../actions/base'
 
 const propType = {
     children: PropTypes.node
@@ -26,6 +26,7 @@ class Main extends Component {
         const { dispatch } = this.props;
         dispatch(updateApp(scienceApp));
         dispatch(getProjectList());
+        dispatch(initCurrentProject())
     }
 
     render () {

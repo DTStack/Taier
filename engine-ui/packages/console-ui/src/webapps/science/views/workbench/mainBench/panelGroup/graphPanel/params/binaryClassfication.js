@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Form, Select, Input, InputNumber, message } from 'antd';
-import { cloneDeep, debounce, isEmpty } from 'lodash';
+import { debounce } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { formItemLayout } from './index';
 const FormItem = Form.Item;
@@ -37,7 +37,7 @@ class FieldSetting extends PureComponent {
         const { originalColumns } = this.state;
         const object = originalColumns.find(o => o.key === value);
         if (object) {
-            this.props.handleSaveComponent('old_label', object);
+            this.props.handleSaveComponent('oldLabel', object);
         }
     }
     render () {
@@ -50,7 +50,7 @@ class FieldSetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('old_label', {
+                    {getFieldDecorator('oldLabel', {
                         rules: [{ required: true, message: '请选择原始标签列列名' }]
                     })(
                         <Select onChange={this.handleChange}>
@@ -65,7 +65,7 @@ class FieldSetting extends PureComponent {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('score_col', {
+                    {getFieldDecorator('scoreCol', {
                         rules: [{ required: true, message: '请输入分数列列名' }]
                     })(
                         <Input placeholder="请输入分数列列名" />
@@ -112,14 +112,21 @@ class BinaryClassfication extends PureComponent {
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field, filedValue) => {
-        const { data } = this.props;
-        const params = cloneDeep(data);
+        const { data, currentTab, componentId, changeContent } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            eveluationComponent: {
+                ...data
+            }
+        }
         if (field) {
-            params[field] = filedValue
+            params.eveluationComponent[field] = filedValue
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
-                message.success('保存成功!');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }
@@ -131,7 +138,7 @@ class BinaryClassfication extends PureComponent {
             onFieldsChange: (props, changedFields) => {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
-                        if (key === 'old_label') {
+                        if (key === 'oldLabel') {
                             // label是下拉菜单，在组件里自己触发onChange函数,对数据封装过后再请求
                             continue;
                         }
@@ -145,8 +152,8 @@ class BinaryClassfication extends PureComponent {
             mapPropsToFields: (props) => {
                 const { data } = props;
                 const values = {
-                    old_label: { value: isEmpty(data.old_label) ? '' : data.old_label.key },
-                    score_col: { value: data.score_col },
+                    oldLabel: { value: !data.oldLabel ? '' : data.oldLabel.key },
+                    scoreCol: { value: data.scoreCol },
                     pos: { value: data.pos },
                     bin: { value: data.bin }
                 }

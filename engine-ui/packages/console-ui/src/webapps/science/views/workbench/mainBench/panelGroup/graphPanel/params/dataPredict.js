@@ -168,14 +168,21 @@ class DataPredict extends PureComponent {
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
     handleSaveComponent = (field, filedValue) => {
-        const { data } = this.props;
-        const params = cloneDeep(data);
+        const { data, currentTab, componentId, changeContent } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            predictComponent: {
+                ...data
+            }
+        }
         if (field) {
-            params[field] = filedValue
+            params.predictComponent[field] = filedValue
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
-                message.success('保存成功!');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }

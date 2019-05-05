@@ -1,6 +1,6 @@
 import componentActionType from '../../consts/componentActionType';
 import { isEqual } from 'lodash'
-export function saveSelectedCell (payload) {
+export function saveSelectedCell (payload, cb) {
     return (dispatch, getState) => {
         const cell = getState().component.selectedCell;
         if (!isEqual(cell, payload)) {
@@ -8,6 +8,7 @@ export function saveSelectedCell (payload) {
                 type: componentActionType.SAVE_SELECTED_CELL,
                 payload
             })
+            cb && cb();
         }
     }
 }

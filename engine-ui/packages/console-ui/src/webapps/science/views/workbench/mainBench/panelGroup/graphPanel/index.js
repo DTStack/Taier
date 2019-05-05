@@ -41,11 +41,6 @@ import SchedulingConfig from '../../../../../components/schedulingConfig';
     }
 )
 class GraphPanel extends Component {
-    componentDidMount () {
-        const { data, currentTab } = this.props;
-        this.props.getTaskData(data, currentTab);
-    }
-
     removeConsoleTab = targetKey => {
         const { currentTab } = this.props;
         this.props.removeRes(currentTab, parseInt(targetKey, 10));
@@ -57,13 +52,13 @@ class GraphPanel extends Component {
     };
     /* 运行 */
     execConfirm = () => {
-        const { data } = this.props;
-        this.props.execExperiment(data);
+        const { data, currentTab } = this.props;
+        this.props.getRunTaskList(data, data.id, 0, currentTab);
     }
     /* 停止 */
     stopTask = () => {
-        // const { data } = this.props;
-        // this.props.execExperiment(data);
+        const { data } = this.props;
+        this.props.stopRunningTask(data);
     }
     changeSiderbar = (key, source) => {
         this.SiderBarRef.onTabClick(key, source)

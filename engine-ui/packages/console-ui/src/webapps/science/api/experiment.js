@@ -13,7 +13,10 @@ export default {
         });
     },
     searchGlobal (params) {
-        return http.post(req.SEARCH_EXPERIMENT, params);
+        return http.post(req.SEARCH_EXPERIMENT, {
+            ...params,
+            taskType: taskType.EXPERIMENT
+        });
     },
     openExperiment (params) {
         return http.post(req.GET_TASK_BY_ID, params);
@@ -47,5 +50,17 @@ export default {
     },
     getComponentRunningLog (params) {
         return http.post(req.GET_COMPONENT_RUNNING_LOG, params);
+    },
+    cloneComponent (params) {
+        return http.post(req.CLONE_COMPONENT, params);
+    },
+    getTaskJobId (params) {
+        return http.post(req.GET_JOB_ID_BY_TASK, params);
+    },
+    stopJobList (params) {
+        return http.post(req.STOP_TASK_BY_JOB_ID, params);
+    },
+    getRunTaskStatus (params) {
+        return http.post(req.GET_TASK_STATUS_BY_JOB_ID, params);
     }
 }

@@ -13,28 +13,37 @@ class ChooseTable extends PureComponent {
     constructor (props) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+        this.handleChange = debounce(this.handleChange, 800);
     }
     handleChange = (value) => {
         this.props.form.setFieldsValue({
             tableName: String(value)
         })
-        this.setState({
-            tables: [{
-                name: '11111'
-            }]
+        this.handleSaveComponent();
+        api.getTableByName({ tableName: value }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tables: res.data
+                })
+            }
         })
     }
     handleSaveComponent = () => {
+        const { currentTab, componentId, changeContent } = this.props;
         const form = this.props.form;
+        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
         const params = {
+            ...currentComponentData.data,
             writeTableComponent: {
-                table: form.getFieldValue('tableName'),
-                partitions: form.getFieldValue('lifeDay')
+                ...currentComponentData.data.writeTableComponent,
+                tableName: form.getFieldValue('tableName'),
+                lifecycle: form.getFieldValue('lifeCycle')
             }
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code === 1) {
-                message.success('保存成功');
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
             } else {
                 message.warning('保存失败');
             }
@@ -66,7 +75,7 @@ class ChooseTable extends PureComponent {
                             onChange={this.handleChange}
                         >
                             {tables.map((item, index) => {
-                                return <Option key={index} value={item.name}>{item.name}</Option>
+                                return <Option key={index} value={item}>{item}</Option>
                             })}
                         </Select>
                     )}
@@ -81,7 +90,7 @@ class ChooseTable extends PureComponent {
                     label='设置表生命周期'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('lifeDay', {
+                    {getFieldDecorator('lifeCycle', {
                         initialValue: 28,
                         rules: [{ required: true, message: '请填写表生命周期' }]
                     })(
@@ -96,14 +105,23 @@ class ChooseTable extends PureComponent {
 /* main页面 */
 class WriteDatabase extends PureComponent {
     render () {
-        const WrapChooseTable = Form.create()(ChooseTable);
+        const WrapChooseTable = Form.create({
+            mapPropsToFields: (props) => {
+                const { data } = props;
+                const values = {
+                    tableName: { value: data.tableName || '' },
+                    lifeCycle: { value: data.lifecycle }
+                }
+                return values;
+            }
+        })(ChooseTable);
         return (
             <div className="params-single-tab">
                 <div className="c-panel__siderbar__header">
                     表选择
                 </div>
                 <div className="params-single-tab-content">
-                    <WrapChooseTable />
+                    <WrapChooseTable {...this.props} />
                 </div>
             </div>
         );
