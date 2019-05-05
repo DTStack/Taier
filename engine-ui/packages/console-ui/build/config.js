@@ -46,7 +46,7 @@ module.exports = {
             '/api/dataScience': { // 算法平台
                 // target: 'http://172.16.8.107:9029', // 开发环境
                 // target: 'http://127.0.0.1:3000', // 测试环境
-                target: 'http://172.16.1.206:9029', // 联调环境
+                target: 'http://172.16.3.30:9029', // 联调环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false
