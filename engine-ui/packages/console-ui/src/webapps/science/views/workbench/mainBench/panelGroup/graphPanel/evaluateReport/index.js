@@ -4,10 +4,10 @@ import { Modal, Tabs, Icon } from 'antd';
 
 import FullScreen from 'widgets/fullscreen';
 
-import PaneOne from './paneOne';
-import PaneTwo from './paneTwo';
-import PaneThree from './paneThree';
-import PaneFour from './paneFour';
+import { EVALUATION_INDEX_TYPE } from '../../../../../../consts';
+
+import ChartDetail from './chart';
+import TableDetail from './table';
 
 const TabPane = Tabs.TabPane;
 
@@ -42,16 +42,16 @@ class EvaluateReportModal extends Component {
                 <div className="m-tabs" id="JS_evaluate_tab">
                     <Tabs>
                         <TabPane tab="综合指标数据" key="pane-1">
-                            <PaneOne data={data}/>
+                            <TableDetail indexType={EVALUATION_INDEX_TYPE.OVERALL} data={data}/>
                         </TabPane>
                         <TabPane tab="图表曲线" key="pane-2">
-                            <PaneTwo data={data}/>
+                            <ChartDetail data={data}/>
                         </TabPane>
                         <TabPane tab="等宽详细数据" key="pane-3">
-                            <PaneThree data={data}/>
+                            <TableDetail indexType={EVALUATION_INDEX_TYPE.WIDTH_DATA} data={data}/>
                         </TabPane>
                         <TabPane tab="等频详细数据" key="pane-4">
-                            <PaneFour data={data}/>
+                            <TableDetail indexType={EVALUATION_INDEX_TYPE.FREQUENCY} data={data}/>
                         </TabPane>
                     </Tabs>
                 </div>

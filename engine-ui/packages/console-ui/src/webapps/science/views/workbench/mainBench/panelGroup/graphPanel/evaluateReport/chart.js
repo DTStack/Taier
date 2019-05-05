@@ -13,6 +13,8 @@ import API from '../../../../../../api/experiment';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
+require('echarts/lib/chart/bar');
+
 // 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
@@ -35,18 +37,41 @@ class CurveChart extends Component {
         this.renderChart('roc');
     }
 
+    componentWillUnmount () {
+        this._chart1 = null;
+        this.setState({
+            selectedBtn: 'roc',
+            chartData: null
+        })
+    }
+
     renderChart = async (chart) => {
         const myChart = this._chart1;
         const { data } = this.props;
         const option = cloneDeep(lineAreaChartOptions);
-        option.yAxis[0].nameLocation = 'start';
+        const reqParams = {};
+        option.toolbox = {
+            show: true,
+            feature: {
+                magicType: { type: ['line', 'bar'] },
+                saveAsImage: {}
+            }
+        }
+        option.yAxis[0].nameLocation = 'end';
         option.yAxis[0].nameTextStyle.fontSize = 13;
         option.yAxis[0].nameTextStyle.color = '#666666';
         option.title.textStyle = {
             fontSize: 14,
             color: '#333333'
         }
-        const reqParams = {};
+        option.dataZoom = [ // 数据过滤缩放
+            {
+                type: 'inside',
+                start: 0,
+                end: 10
+            }
+        ];
+
         switch (chart) {
             case 'roc': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.ROC;
@@ -83,7 +108,9 @@ class CurveChart extends Component {
             if (res.code === 1) {
                 const chartData = res.data;
                 option.xAxis[0].data = chartData.xAxis || [];
-                option.series[0] = chartData.xAxis || [];
+                const seriesData = chartData.series || [{ type: 'line' }];
+                seriesData[0].type = 'line';
+                option.series = seriesData;
             }
         }
         // 绘制图表

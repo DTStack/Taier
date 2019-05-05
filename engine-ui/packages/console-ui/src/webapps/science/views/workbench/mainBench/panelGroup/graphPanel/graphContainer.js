@@ -16,6 +16,7 @@ import { COMPONENT_TYPE, INPUT_TYPE_ENUM, VertexSize } from '../../../../../cons
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
 import EvaluateReportModal from './evaluateReport';
+import OutputDataModal from './evaluateReport/output';
 
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 
@@ -59,8 +60,10 @@ class GraphContainer extends React.Component {
         detailModalVisible: false,
         detailData: null,
         selectedData: null,
-        evaluateReportVisible: true,
-        runningLogVisible: false
+        selectedOutputData: null,
+        evaluateReportVisible: false,
+        runningLogVisible: false,
+        outputDataVisible: false
     }
 
     _graph = null;
@@ -69,9 +72,49 @@ class GraphContainer extends React.Component {
         console.log('graph did mount', this.props);
     }
 
-    // shouldComponentUpdate (nextProps) {
-    //     return true;
-    // }
+    shouldComponentUpdate (nextProps) {
+        return true;
+    }
+
+    initOutputMenuItems = (menu, data) => {
+        const ctx = this;
+        let menuCount = 0;
+        switch (data.componentType) {
+            case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
+            case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
+            case COMPONENT_TYPE.DATA_MERGE.DATA_PREDICT:
+            case COMPONENT_TYPE.DATA_PREDICT.LOGISTIC_REGRESSION:
+            case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: {
+                menuCount = 1;
+                break;
+            }
+            case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
+            case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
+                menuCount = 2; break;
+            }
+
+            case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
+                menuCount = 3; break;
+            }
+            default:
+                break;
+        }
+
+        if (menuCount === 1) {
+            menu.addItem('查看数据', null, function () {
+                ctx.showHideOutputData(data)
+            }, null, null, true);
+        } else if (menuCount > 1) {
+            const parentMenuItem = menu.addItem('查看数据');
+            let i = 1;
+            while (i < menuCount) {
+                menu.addItem(`查看数据输出${i}`, null, function () {
+                    ctx.showHideOutputData(data)
+                }, parentMenuItem, null, true);
+                i++;
+            }
+        }
+    }
 
     initContextMenu = (graph) => {
         const ctx = this;
@@ -117,29 +160,17 @@ class GraphContainer extends React.Component {
                 menu.addItem('模型描述', null, function () {
                     ctx.handleOpenDescription(cell);
                 }, menuModal, null, true);
-                const menuLookData = menu.addItem('查看数据', null, function () {
-                }, null, null, true);
-                menu.addItem('查看数据输出1', null, function () {
-                }, menuLookData, null, true);
-                menu.addItem('查看数据输出2', null, function () {
-                }, menuLookData, null, true);
+                // 初始化输出数据菜单项
+                ctx.initOutputMenuItems(menu, currentNode);
+                // 查看评估报告
                 if (cell.data.taskType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION) {
                     menu.addItem('查看评估报告', null, function () {
-                        // 查看评估报告
-                        // ctx.showHideEvaluateReport(true, cell.data);
-                        ctx.setState({
-                            evaluateReportVisible: true,
-                            selectedData: cell.data
-                        })
+                        ctx.showHideEvaluateReport(true, cell.data);
                     }, null, null, true);
                 }
                 menu.addItem('查看日志', null, function () {
                     // 查看日志
-                    // ctx.showHideRunningLog(true, cell.data);
-                    ctx.setState({
-                        runningLogVisible: true,
-                        selectedData: cell.data
-                    })
+                    ctx.showHideRunningLog(true, cell.data);
                 }, null, null, true);
             } else {
                 menu.addItem('删除依赖关系', null, function () {
@@ -339,6 +370,7 @@ class GraphContainer extends React.Component {
     /* 导出PMML */
     handleExportPMML = (cell) => {
         console.log(cell);
+        window.open(`/api/download?taskId=${cell.data.id}`, '_blank');
     }
     /* 模型描述 */
     handleOpenDescription = (cell) => {
@@ -502,6 +534,13 @@ class GraphContainer extends React.Component {
         })
     }
 
+    showHideOutputData = (visible, data) => {
+        this.setState({
+            outputDataVisible: visible,
+            selectedOutputData: data
+        })
+    }
+
     showHideRunningLog = (visible, data) => {
         this.setState({
             runningLogVisible: visible,
@@ -528,9 +567,9 @@ class GraphContainer extends React.Component {
 
     render () {
         const {
-            detailData, selectedData,
+            detailData, selectedData, selectedOutputData,
             showSearch, searchResult, detailModalVisible,
-            runningLogVisible, evaluateReportVisible
+            runningLogVisible, evaluateReportVisible, outputDataVisible
         } = this.state;
         console.log('render:', this.state);
         const { data } = this.props;
@@ -538,6 +577,7 @@ class GraphContainer extends React.Component {
         return <div className="exp-graph-view" style={{ width: '100%' }}>
             <GraphEditor
                 data={graphData}
+                key={data.id}
                 onSearchNode={this.initShowSearch}
                 registerContextMenu={this.initContextMenu}
                 registerEvent={this.initGraphEvent}
@@ -571,6 +611,11 @@ class GraphContainer extends React.Component {
                 data={selectedData}
                 visible={evaluateReportVisible}
                 onCancel={() => this.showHideEvaluateReport(false, null) }
+            />
+            <OutputDataModal
+                data={selectedOutputData}
+                visible={outputDataVisible}
+                onCancel={() => this.showHideOutputData(false, null) }
             />
         </div>
     }

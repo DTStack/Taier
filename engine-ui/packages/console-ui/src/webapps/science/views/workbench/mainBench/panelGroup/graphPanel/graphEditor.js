@@ -53,7 +53,8 @@ class GraphEditor extends Component {
 
     componentDidUpdate (prevProps) {
         const data = this.props.data
-        const { data: oldData } = prevProps
+        const { data: oldData } = prevProps;
+        // TODO 目前 data 更新太容易触发 didUpdate
         if (data && data !== oldData) {
             this.initRender(data);
         }
@@ -228,27 +229,7 @@ class GraphEditor extends Component {
             model.endUpdate();
         }
     }
-    /* 初始化layout */
-    initGraphLayout = () => {
-        const graph = this.graph;
-        // const layoutMgr = new mxLayoutManager(graph);
-        this.executeLayout = function (layoutTarget, change, post) {
-            // const parent = layoutTarget || graph.getDefaultParent();
-            try {
-                if (change != null) { change(); }
-                const layout = new mxHierarchicalLayout(graph, 'north');
-                layout.disableEdgeStyle = false;
-                layout.interRankCellSpacing = 60;
-                layout.intraCellSpacing = 60;
-                layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
-                // layout.execute(parent);
-            } catch (e) {
-                throw e;
-            } finally {
-                if (post != null) { post(); }
-            }
-        }
-    }
+
     /* 初始化右键菜单 */
     initContextMenu = (graph) => {
         const { registerContextMenu } = this.props;
@@ -528,8 +509,40 @@ class GraphEditor extends Component {
         this.graph.zoomOut()
     }
 
+     /* 初始化layout */
+     initGraphLayout = () => {
+         const graph = this.graph;
+         const { data } = this.props;
+         if (data.graph) {
+             const scale = data.graph.scale;
+             const dx = data.graph.translate.x;
+             const dy = data.graph.translate.y;
+             graph.view.setScale(scale);
+             graph.view.setTranslate(dx, dy);
+         } else {
+             this.layoutCenter();
+         }
+         // 注册执行布局
+         this.executeLayout = function (layoutTarget, change, post) {
+             const parent = layoutTarget || graph.getDefaultParent();
+             try {
+                 if (change != null) { change(); }
+                 const layout = new mxHierarchicalLayout(graph, 'north');
+                 layout.disableEdgeStyle = false;
+                 layout.interRankCellSpacing = 60;
+                 layout.intraCellSpacing = 60;
+                 layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
+                 layout.execute(parent);
+             } catch (e) {
+                 throw e;
+             } finally {
+                 if (post != null) { post(); }
+             }
+         }
+     }
+
     layoutCenter = () => {
-        this.graph.center(true, true, 0.55, 0.4);
+        this.graph.center(true, true, 0.3, 0.3);
     }
 
     layout = () => {

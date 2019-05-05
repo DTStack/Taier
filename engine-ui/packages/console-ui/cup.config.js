@@ -13,6 +13,7 @@ module.exports = {
     'listen': 3001,
     'root': 'dist',
     'location': {
+        '/api/dataScience/service/scienceTask/getData': `${base}/res/get_res.json`
         // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
         // "/api/analysis/getCatalogue": `${base}/catalogue/get_catalogues.json`,
@@ -77,8 +78,9 @@ module.exports = {
             secure: false
         },
         '/api/dataScience': { // 算法平台
-            target: 'http://172.16.8.107:9029', // 开发环境
+            // target: 'http://172.16.8.107:9029', // 开发环境
             // target: 'http://172.16.2.131:9029', // 联调环境
+            target: 'http://172.16.3.30:9029', // 联调环境
             changeOrigin: true,
             secure: false
         }

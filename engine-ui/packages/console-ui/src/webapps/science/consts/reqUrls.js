@@ -37,8 +37,8 @@ export default {
     ADD_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加实验
     SEARCH_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/globalSearch`, // 搜索实验
     DELETE_EXPERIMENT: `${SCIENCE_BASE_URL}/service/scienceTask/deleteTask`, // 删除实验
-
     SUBMIT_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/publishTask`, // 提交任务
+    GET_EVALUATE_REPORT_TABLE_DATA: `${SCIENCE_BASE_URL}/service/scienceTask/getData`, // 获取临时表数据
 
     GET_MODEL_PARAMS_LIST: `${SCIENCE_BASE_URL}/service/scienceModel/listModel`, // 获取model 参数列表
     LOAD_MODEL: `${SCIENCE_BASE_URL}/model/load`, // load Model

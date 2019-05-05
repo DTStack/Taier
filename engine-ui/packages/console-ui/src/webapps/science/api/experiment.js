@@ -65,5 +65,8 @@ export default {
     },
     getEvaluateReportChartData (params) {
         return http.post(req.GET_EVALUATE_REPORT_CHART_DATA, params);
+    },
+    getEvaluateReportTableData (params) {
+        return http.post(req.GET_EVALUATE_REPORT_TABLE_DATA, params);
     }
 }

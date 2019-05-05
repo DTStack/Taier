@@ -28,6 +28,15 @@ export const EVALUATE_REPORT_CHART_TYPE = {
     PRECISION_RECALL: 5
 }
 
+/**
+ * 评估报告表数据类型
+ */
+export const EVALUATION_INDEX_TYPE = {
+    OVERALL: 3, // 输出综合指标表
+    FREQUENCY: 4, // 输出等频详细数据表
+    WIDTH_DATA: 5 // 输出等宽详细数据表
+}
+
 export const siderBarType = {
     notebook: 'notebook',
     experiment: 'laboratory',
