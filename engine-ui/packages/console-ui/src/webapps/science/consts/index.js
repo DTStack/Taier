@@ -55,7 +55,48 @@ export const MODEL_STATUS = {
         className: 'state-disabled'
     }
 }
-
+export const TASK_STATUS = {
+    WAIT_SUBMIT: {
+        value: 0,
+        text: '等待提交'
+    },
+    SUBMITTING: {
+        value: 10,
+        text: '提交中'
+    },
+    WAIT_RUN: {
+        value: 16,
+        text: '等待运行'
+    },
+    RUNNING: {
+        value: 4,
+        text: '运行中'
+    },
+    FINISHED: {
+        value: 5,
+        text: '成功'
+    },
+    STOPED: {
+        value: 7,
+        text: '取消'
+    },
+    SUBMIT_FAILED: {
+        value: 9,
+        text: '提交失败'
+    },
+    RUN_FAILED: {
+        value: 8,
+        text: '运行失败'
+    },
+    PARENT_FAILD: {
+        value: 21,
+        text: '上游失败'
+    },
+    FROZEN: {
+        value: 18,
+        text: '冻结'
+    }
+}
 export const taskStatus = {
     ALL: null,
     WAIT_SUBMIT: 0,
