@@ -6,6 +6,13 @@ export const PROJECT_TYPE = {
     TEST: 1, // 测试
     PRO: 2// 生产
 }
+
+export const PROJECT_STATUS = {
+    CREATING: 0,
+    SUCCESS: 1,
+    FAILED: 2,
+    CANCEL: 3
+}
 /**
  * 目录类型
  */

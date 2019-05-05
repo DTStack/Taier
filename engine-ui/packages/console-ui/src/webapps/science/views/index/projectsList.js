@@ -9,6 +9,7 @@ import TaskParamsModal from '../../components/taskParamsModal';
 
 import utils from 'utils';
 import * as baseActions from '../../actions/base'
+import { PROJECT_STATUS } from '../../consts'
 import Api from '../../api';
 
 const Search = Input.Search;
@@ -118,7 +119,10 @@ class ProjectsList extends Component {
             dataIndex: 'projectAlias',
             key: 'projectAlias',
             render: (text, record) => {
-                return <a href="javascript:void(0)" onClick={() => this.handleCheckProject(record)}>{text}</a>
+                if (record.status == PROJECT_STATUS.SUCCESS) {
+                    return <a href="javascript:void(0)" onClick={() => this.handleCheckProject(record)}>{text}</a>
+                }
+                return text;
             }
         }, {
             title: '项目名称',
@@ -146,14 +150,25 @@ class ProjectsList extends Component {
             dataIndex: 'o',
             key: 'o',
             render: (text, record) => {
-                return <a onClick={ () => {
-                    this.props.setProject(record);
-                    setTimeout(() => {
-                        this.props.router.push('/science/workbench');
-                    })
-                }}>
-                    开始数据探索
-                </a>
+                switch (record.status) {
+                    case PROJECT_STATUS.CREATING: {
+                        return '项目创建中...'
+                    }
+                    case PROJECT_STATUS.CANCEL:
+                    case PROJECT_STATUS.FAILED: {
+                        return <a style={{ color: 'red' }}>项目创建失败</a>
+                    }
+                    default: {
+                        return <a onClick={ () => {
+                            this.props.setProject(record);
+                            setTimeout(() => {
+                                this.props.router.push('/science/workbench');
+                            })
+                        }}>
+                            开始数据探索
+                        </a>
+                    }
+                }
             }
         }]
     }

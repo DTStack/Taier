@@ -186,6 +186,7 @@ class Source extends PureComponent {
                 <DataImport />
                 <Edit
                     record={editRecord}
+                    onOk={this.getTableData}
                     onCancel={this.handleCancel}
                     visible={visible} />
             </div>

@@ -123,6 +123,9 @@ async function pollTask (tabId, jobId, dispatch) {
     }
     try {
         res = await API.notebook.pollTask({ jobId });
+        if (isTaskStoped(tabId)) {
+            return false;
+        }
     } catch (e) {
         return false;
     }
@@ -162,6 +165,7 @@ async function pollTask (tabId, jobId, dispatch) {
 export function stopTask (tabId, isSilent = false) {
     return async dispatch => {
         if (isSilent) {
+            dispatch(appendNotebookLog(tabId, createLog(`离开页面，执行已停止！`, 'error')))
             setTaskStop(tabId);
         } else {
             let res = await API.notebook.stopExecSQL({
@@ -169,7 +173,7 @@ export function stopTask (tabId, isSilent = false) {
                 jobId: getJobData(tabId).jobId
             });
             if (res && res.code == 1) {
-                message.success('停止信号已发出');
+                message.success('停止请求已发出');
             }
         }
     }
