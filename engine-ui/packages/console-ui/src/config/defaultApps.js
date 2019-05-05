@@ -22,7 +22,7 @@ module.exports = [
         default: true, // 是否为默认应用选项
         apiBase: '/rdos',
         icon: '/public/main/img/icon_1.png',
-        description: '一站式大数据开发平台，帮助企业快速完全数据中台搭建',
+        description: '一站式大数据开发平台，帮助企业快速完成数据中台搭建',
         className: 'icon_dropdown_offlin'
     }, {
         id: 'stream',
@@ -84,14 +84,14 @@ module.exports = [
         className: ''
     }, {
         id: 'science',
-        name: '算法平台',
+        name: '数据科学',
         link: 'science.html#/',
         filename: 'science.html',
         target: '_self',
         enable: true,
         apiBase: '/science',
         icon: '/public/main/img/icon_5.png',
-        description: '我的梦想是成为一个科学家',
+        description: '集可视化实验与交互式Notebook开发于一体的机器学习作业探索平台，帮助企业构建算法服务能力',
         className: 'icon_dropdown_api'
     }, {
         id: 'console',
