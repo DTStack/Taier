@@ -31,6 +31,7 @@ class Edit extends Component {
                 });
                 if (res && res.code == 1) {
                     message.success('修改成功');
+                    this.props.onOk(values);
                     this.handleCancel();
                 }
             }

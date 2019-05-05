@@ -1,9 +1,12 @@
 import API from '../api';
 import { message } from 'antd';
-import { sqlExecStatus, taskStatus } from '../consts';
+import { sqlExecStatus, taskStatus, TASK_STATUS } from '../consts';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
+import { generateValueDic } from 'funcs'
 import { setNotebookLog, appendNotebookLog, setNotebookResult, showNotebookLog } from './notebookActions';
 import { addLoadingTab, removeLoadingTab } from './editorActions';
+
+const statusTextDic = generateValueDic(TASK_STATUS);
 
 function getLogStatus (status) {
     switch (status) {
@@ -120,6 +123,9 @@ async function pollTask (tabId, jobId, dispatch) {
     }
     try {
         res = await API.notebook.pollTask({ jobId });
+        if (isTaskStoped(tabId)) {
+            return false;
+        }
     } catch (e) {
         return false;
     }
@@ -141,8 +147,12 @@ async function pollTask (tabId, jobId, dispatch) {
                 return false;
             }
             default: {
-                outputStatus(res.data.status, '.....')
-                let pollRes = await pollTask(tabId, jobId, dispatch);
+                outputStatus(tabId, res.data.status, dispatch)
+                let pollRes = await new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(pollTask(tabId, jobId, dispatch));
+                    }, 3000);
+                })
                 return pollRes;
             }
         }
@@ -155,6 +165,7 @@ async function pollTask (tabId, jobId, dispatch) {
 export function stopTask (tabId, isSilent = false) {
     return async dispatch => {
         if (isSilent) {
+            dispatch(appendNotebookLog(tabId, createLog(`离开页面，执行已停止！`, 'error')))
             setTaskStop(tabId);
         } else {
             let res = await API.notebook.stopExecSQL({
@@ -162,14 +173,15 @@ export function stopTask (tabId, isSilent = false) {
                 jobId: getJobData(tabId).jobId
             });
             if (res && res.code == 1) {
-                message.success('停止信号已发出');
+                message.success('停止请求已发出');
             }
         }
     }
 }
 
 function outputStatus (tabId, status, dispatch) {
-    dispatch(appendNotebookLog(tabId, createLog(`${status}.....`, 'info')))
+    const statusText = statusTextDic[status] && statusTextDic[status].text;
+    dispatch(appendNotebookLog(tabId, createLog(`${statusText || '未知状态'}.....`, 'info')))
 }
 /**
  * 处理打印消息

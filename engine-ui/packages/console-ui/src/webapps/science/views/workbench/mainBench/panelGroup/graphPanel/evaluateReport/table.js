@@ -40,6 +40,7 @@ class TableDetail extends PureComponent {
         this.setState({ loading: true });
         const res = await API.getEvaluateReportTableData({
             num: 100,
+            taskId: data.id,
             inputType: indexType,
             ...params,
             ...queryParams

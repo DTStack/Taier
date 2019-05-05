@@ -4,6 +4,7 @@ import { SCIENCE_BASE_URL } from 'config/base';
 export default {
 
     // ================== Common ================== //
+    DOWNLOAD_PMML: `/download/scienceDownload/downloadPmml`, // 下载模型 （导出pmml文件）
     GET_ALL_PROJECTS: `${SCIENCE_BASE_URL}/service/project/getProjects`, // 获取所有的项目列表
     GET_PROJECT_LIST: `${SCIENCE_BASE_URL}/common/project/listProject`, // 获取项目列表
     GET_PROJECT_DETAIL: `${SCIENCE_BASE_URL}/common/project/getProject`, // 项目详情
@@ -69,8 +70,8 @@ export default {
     DISABLE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/disableModel`, // 禁用model
     // ================== table ================== //
     GET_TABLE: `${SCIENCE_BASE_URL}/service/dataManager/getTable`,
-    CHECK_TABLE_PARTITION: `${SCIENCE_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
-    TABLE_CREATE_BY_DDL: `${SCIENCE_BASE_URL}/batch/batchHiveTableInfo/ddlCreateTable`, // ddl建表
+    CHECK_TABLE_PARTITION: `${SCIENCE_BASE_URL}/service/dataManager/checkPartitionExists`, // 检查表分区
+    TABLE_CREATE_BY_DDL: `${SCIENCE_BASE_URL}/service/dataManager/ddlCreateTable`, // ddl建表
     GET_TABLES_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableList`, // 查询指定名称表信息(支持模糊查询)
     // ==== 数据源 ==== //
     LIST_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/listDataSource`, // 数据源列表

@@ -7,7 +7,7 @@ import FullScreen from 'widgets/fullscreen';
 
 import TableDetail from './table';
 
-class OutputDataModal extends Component {
+class DataExploringModal extends Component {
     render () {
         const { onOk, onCancel, visible, data } = this.props;
         return (
@@ -36,13 +36,12 @@ class OutputDataModal extends Component {
                     isShowTitle={false}
                 />
                 <TableDetail
-                    queryParams={{
-                        indexType: get(data, 'type'),
-                        taskId: get(data, 'id')
-                    }}/>
+                    data={data}
+                    indexType={get(data, 'inputType', 0)}
+                />
             </Modal>
         )
     }
 }
 
-export default OutputDataModal;
+export default DataExploringModal;

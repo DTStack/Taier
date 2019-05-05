@@ -6,6 +6,13 @@ export const PROJECT_TYPE = {
     TEST: 1, // 测试
     PRO: 2// 生产
 }
+
+export const PROJECT_STATUS = {
+    CREATING: 0,
+    SUCCESS: 1,
+    FAILED: 2,
+    CANCEL: 3
+}
 /**
  * 目录类型
  */
@@ -69,13 +76,59 @@ export const MODEL_STATUS = {
         text: '已禁用',
         className: 'state-disabled'
     },
+    NOT_RUN: {
+        value: 3,
+        text: '未运行',
+        className: 'state-not_run'
+    },
     LOADING: {
         value: 5,
-        text: '已禁用',
-        className: 'state-disabled'
+        text: '加载中',
+        className: 'state-loading'
     }
 }
-
+export const TASK_STATUS = {
+    WAIT_SUBMIT: {
+        value: 0,
+        text: '等待提交'
+    },
+    SUBMITTING: {
+        value: 10,
+        text: '提交中'
+    },
+    WAIT_RUN: {
+        value: 16,
+        text: '等待运行'
+    },
+    RUNNING: {
+        value: 4,
+        text: '运行中'
+    },
+    FINISHED: {
+        value: 5,
+        text: '成功'
+    },
+    STOPED: {
+        value: 7,
+        text: '取消'
+    },
+    SUBMIT_FAILED: {
+        value: 9,
+        text: '提交失败'
+    },
+    RUN_FAILED: {
+        value: 8,
+        text: '运行失败'
+    },
+    PARENT_FAILD: {
+        value: 21,
+        text: '上游失败'
+    },
+    FROZEN: {
+        value: 18,
+        text: '冻结'
+    }
+}
 export const taskStatus = {
     ALL: null,
     WAIT_SUBMIT: 0,
@@ -141,24 +194,56 @@ export const TASK_ENUM = {
     [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent'
 }
 /* 输入输出的类型 */
+
+/**
+ * 输出类型
+ */
+export const INPUT_TYPE = {
+    NORMAL: 0,
+    // 拆分表
+    DATA_SPLIT_LEFT: 1,
+    DATA_SPLIT_RIGHT: 2,
+    // 二分类评估
+    EVALUATION_OVERALL_DATA: 3,
+    EVALUATION_FREQUENCY_DATA: 4,
+    EVALUATION_WIDTH_DATA: 5,
+    // 归一化
+    NORMALIZATION_INPUT_DATA: 6,
+    NORMALIZATION_INPUT_PARAM: 7,
+    NORMALIZATION_OUTPUT_DATA: 8,
+    NORMALIZATION_OUTPUT_PARAM: 9,
+    // 预测
+    PREDICT_INPUT_MODAL: 10,
+    PREDICT_INPUT_DATA: 11,
+    // 逻辑回归
+    MODEL: 12,
+    // 读数据源
+    SOURCE_READ: 13,
+    // SQL
+    SQL_1: 14,
+    SQL_2: 15,
+    SQL_3: 16,
+    SQL_4: 17
+}
+
 export const INPUT_TYPE_ENUM = {
-    'HDFS数据源输出': 13,
-    'sql脚本表1': 14,
-    'sql脚本表2': 15,
-    'sql脚本表3': 16,
-    'sql脚本表4': 17,
-    '输出参数表': 9,
-    '输出结果表': 10,
-    '归一化输入参数表': 7,
-    '归一化输入结果表': 6,
-    '输出表1': 1,
-    '输出表2': 2,
-    '模型输出': 12,
-    '模型': 10,
-    '预测数据': 11,
-    '综合指标表': 3,
-    '等频详细数据表': 4,
-    '等宽详细数据表': 5
+    'HDFS数据源输出': INPUT_TYPE.SOURCE_READ,
+    'sql脚本表1': INPUT_TYPE.SQL_1,
+    'sql脚本表2': INPUT_TYPE.SQL_2,
+    'sql脚本表3': INPUT_TYPE.SQL_3,
+    'sql脚本表4': INPUT_TYPE.SQL_4,
+    '输出参数表': INPUT_TYPE.NORMALIZATION_OUTPUT_PARAM,
+    '输出结果表': INPUT_TYPE.NORMALIZATION_OUTPUT_DATA,
+    '归一化输入参数表': INPUT_TYPE.NORMALIZATION_INPUT_PARAM,
+    '归一化输入结果表': INPUT_TYPE.NORMALIZATION_INPUT_DATA,
+    '输出表1': INPUT_TYPE.DATA_SPLIT_LEFT,
+    '输出表2': INPUT_TYPE.DATA_SPLIT_RIGHT,
+    '模型输出': INPUT_TYPE.MODEL,
+    '模型': INPUT_TYPE.PREDICT_INPUT_MODAL,
+    '预测数据': INPUT_TYPE.PREDICT_INPUT_DATA,
+    '综合指标表': INPUT_TYPE.EVALUATION_OVERALL_DATA,
+    '等频详细数据表': INPUT_TYPE.EVALUATION_FREQUENCY_DATA,
+    '等宽详细数据表': INPUT_TYPE.EVALUATION_WIDTH_DATA
 }
 /**
  * SQL执行状态

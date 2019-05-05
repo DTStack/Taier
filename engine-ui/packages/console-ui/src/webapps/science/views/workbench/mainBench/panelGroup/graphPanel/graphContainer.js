@@ -12,11 +12,13 @@ import api from '../../../../../api/experiment';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE, INPUT_TYPE_ENUM, VertexSize } from '../../../../../consts';
+import { COMPONENT_TYPE, INPUT_TYPE_ENUM, VertexSize, INPUT_TYPE } from '../../../../../consts';
+import { getInputTypeItems } from '../../../../../comm';
+import ReqUrls from '../../../../../consts/reqUrls';
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
 import EvaluateReportModal from './evaluateReport';
-import OutputDataModal from './evaluateReport/output';
+import DataExploringModal from './evaluateReport/dataExploring';
 
 // const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
 
@@ -78,38 +80,21 @@ class GraphContainer extends React.Component {
 
     initOutputMenuItems = (menu, data) => {
         const ctx = this;
-        let menuCount = 0;
-        switch (data.componentType) {
-            case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
-            case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-            case COMPONENT_TYPE.DATA_MERGE.DATA_PREDICT:
-            case COMPONENT_TYPE.DATA_PREDICT.LOGISTIC_REGRESSION:
-            case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: {
-                menuCount = 1;
-                break;
-            }
-            case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
-            case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
-                menuCount = 2; break;
-            }
-
-            case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
-                menuCount = 3; break;
-            }
-            default:
-                break;
-        }
-
-        if (menuCount === 1) {
+        const menuItemArr = getInputTypeItems(data.componentType);
+        // 逻辑回归没有【查看数据】功能
+        if (menuItemArr.length === 1) {
             menu.addItem('查看数据', null, function () {
-                ctx.showHideOutputData(data)
+                data.inputType = INPUT_TYPE.NORMAL;
+                ctx.showHideOutputData(true, data)
             }, null, null, true);
-        } else if (menuCount > 1) {
+        } else if (menuItemArr.length > 1) {
             const parentMenuItem = menu.addItem('查看数据');
             let i = 1;
-            while (i < menuCount) {
+            while (i < menuItemArr.length) {
+                const item = menuItemArr[i];
                 menu.addItem(`查看数据输出${i}`, null, function () {
-                    ctx.showHideOutputData(data)
+                    const selectedTarget = { inputType: item.inputType, ...data };
+                    ctx.showHideOutputData(true, selectedTarget)
                 }, parentMenuItem, null, true);
                 i++;
             }
@@ -370,7 +355,7 @@ class GraphContainer extends React.Component {
     /* 导出PMML */
     handleExportPMML = (cell) => {
         console.log(cell);
-        window.open(`/api/download?taskId=${cell.data.id}`, '_blank');
+        window.open(`${ReqUrls.DOWNLOAD_PMML}?taskId=${cell.data.id}`, '_blank');
     }
     /* 模型描述 */
     handleOpenDescription = (cell) => {
@@ -612,7 +597,7 @@ class GraphContainer extends React.Component {
                 visible={evaluateReportVisible}
                 onCancel={() => this.showHideEvaluateReport(false, null) }
             />
-            <OutputDataModal
+            <DataExploringModal
                 data={selectedOutputData}
                 visible={outputDataVisible}
                 onCancel={() => this.showHideOutputData(false, null) }

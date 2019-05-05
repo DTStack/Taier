@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { Modal, Form, Input, Icon } from 'antd';
+import { Modal, Form, Input, Icon, message } from 'antd';
 import './index.scss';
 
 import * as baseActions from '../../actions/base'
@@ -19,11 +19,6 @@ const formItemLayout = {
     }
 };
 
-@connect(null, dispatch => {
-    return {
-        ...bindActionCreators(baseActions, dispatch)
-    }
-})
 class NewProject extends Component {
     state = {
         loading: false
@@ -36,7 +31,10 @@ class NewProject extends Component {
                 })
                 let res = await this.props.createProject(values);
                 if (res && res.code == 1) {
-                    this.props.onOk(res.data);
+                    message.success('创建成功');
+                    if (typeof this.props.onOk === 'function') {
+                        this.props.onOk(res.data);
+                    }
                     this.handleCancel();
                 } else {
                     this.setState({
@@ -125,4 +123,9 @@ class NewProject extends Component {
         );
     }
 }
-export default Form.create()(NewProject);
+const WrapForm = Form.create()(NewProject);
+export default connect(null, dispatch => {
+    return {
+        ...bindActionCreators(baseActions, dispatch)
+    }
+})(WrapForm);

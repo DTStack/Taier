@@ -19,8 +19,10 @@ class AdminRole extends Component {
         data: '',
         projects: [],
         streamProjects: [],
+        scienceProjects: [],
         selectedProject: '',
         streamSelectedProject: '',
+        scienceSelectedProject: '',
         dataBase: [],
         selecteDatabase: undefined,
         currentPage: 1,
@@ -47,9 +49,9 @@ class AdminRole extends Component {
     loadData = () => {
         this.setState({ loading: 'loading' })
 
-        const { active, selectedProject, streamSelectedProject, selecteDatabase, currentPage } = this.state
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, selecteDatabase, currentPage } = this.state
         const app = active;
-        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject)
+        const haveSelected = (MY_APPS.RDOS == active && selectedProject) || (MY_APPS.STREAM == active && streamSelectedProject) || (MY_APPS.SCIENCE == active && scienceSelectedProject)
         const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && selecteDatabase);
         const params = {
             pageSize: 10,
@@ -70,6 +72,8 @@ class AdminRole extends Component {
                 params.projectId = selectedProject
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
+            } else if (MY_APPS.SCIENCE == active) {
+                params.projectId = scienceSelectedProject;
             }
             this.loadRoles(app, params)
         }
@@ -122,6 +126,11 @@ class AdminRole extends Component {
                     ctx.setState({
                         streamProjects: res.data,
                         streamSelectedProject: selectedProject
+                    }, this.loadData)
+                } else if (MY_APPS.SCIENCE == app) {
+                    ctx.setState({
+                        scienceProjects: res.data,
+                        scienceSelectedProject: selectedProject
                     }, this.loadData)
                 }
             }
@@ -176,7 +185,12 @@ class AdminRole extends Component {
             currentPage: 1
         }, this.loadData)
     }
-
+    onScienceProjectSelect = (value) => {
+        this.setState({
+            scienceSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initColums = () => {
         const { active } = this.state;
 
@@ -231,7 +245,8 @@ class AdminRole extends Component {
     renderPane = () => {
         const {
             data, loading, projects, streamProjects,
-            active, selectedProject, streamSelectedProject, dataBase, selecteDatabase
+            active, selectedProject, streamSelectedProject, dataBase, selecteDatabase,
+            scienceSelectedProject, scienceProjects
         } = this.state;
         let projectsOptions = [];
 
@@ -247,6 +262,10 @@ class AdminRole extends Component {
             selectValue = streamSelectedProject;
             projectsOptions = streamProjects;
             onSelectChange = this.onStreamProjectSelect
+        } else if (active == MY_APPS.SCIENCE) {
+            selectValue = scienceSelectedProject;
+            projectsOptions = scienceProjects;
+            onSelectChange = this.onScienceProjectSelect
         } else if (active == MY_APPS.ANALYTICS_ENGINE) {
             databaseOptions = dataBase;
             onSelectChange = this.onDatabaseSelect;
