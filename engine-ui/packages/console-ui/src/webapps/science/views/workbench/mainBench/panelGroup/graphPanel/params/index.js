@@ -36,7 +36,7 @@ class Params extends Component {
         return true;
     }
     initRender = () => {
-        const { selectedCell, taskId, changeContent, currentTabIndex, tabs } = this.props;
+        const { selectedCell, changeContent, currentTabIndex, tabs } = this.props;
         if (isEmpty(selectedCell)) return '';
         const currentTab = tabs.find(o => o.id == currentTabIndex);
         const componentId = selectedCell.data.id;
@@ -48,26 +48,26 @@ class Params extends Component {
         switch (selectedCell.data.componentType) {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:
                 return (
-                    <ReadDatabase data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                    <ReadDatabase data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
                 )
             case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE:
                 return (
-                    <WriteDatabase data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                    <WriteDatabase data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
                 )
             case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
-                return <SqlScript data={componentData} />
+                return <SqlScript data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-                return <TypeChange data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                return <TypeChange data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
-                return <Normalise data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                return <Normalise data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
-                return <DataSplit data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                return <DataSplit data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
-                return <LogisticRegression data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                return <LogisticRegression data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
-                return <DataPredict data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                return <DataPredict data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
-                return <BinaryClassfication data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} taskId={taskId} />
+                return <BinaryClassfication data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
             default:
                 return ''
         }

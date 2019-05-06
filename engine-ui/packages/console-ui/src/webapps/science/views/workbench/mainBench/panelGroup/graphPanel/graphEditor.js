@@ -35,7 +35,10 @@ const {
     mxEventSource,
     mxConnectionHandler,
     mxConnectionConstraint,
-    mxUtils
+    mxUtils,
+    mxImageShape,
+    mxRectangle,
+    mxClient
 } = Mx;
 
 const BASE_COLOR = '#2491F7';
@@ -214,14 +217,15 @@ class GraphEditor extends Component {
                         null,
                         item.x, item.y,
                         VertexSize.width,
-                        VertexSize.height
+                        VertexSize.height,
+                        item.style || ''
                     )
                     cell.data = item.data;
                     cellMap[item.id] = cell;
                 } else if (item.edge) {
                     const source = cellMap[item.source.id];
                     const target = cellMap[item.target.id];
-                    const edge = graph.insertEdge(rootCell, item.id, item.value, source, target);
+                    const edge = graph.insertEdge(rootCell, item.id, item.value, source, target, item.style || '');
                     this._edges.push(edge);
                 }
             }
@@ -302,7 +306,7 @@ class GraphEditor extends Component {
             const task = cell.data;
             if (task) {
                 let unSave = task.notSynced ? '<span style="color:red;display: inline-block;vertical-align: middle;">*</span>' : '';
-                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.taskType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(this.vertexStatus(task.status))}
+                return `<div class="vertex"><div class="vertex-title">${nodeTypeIcon(task.componentType)} ${unSave} <span style="display: inline-block;max-width: 90%;">${task.name || ''}</span>${nodeStatus(this.vertexStatus(task.status))}
                 <input class="vertex-input ant-input" placeholder="不超过12个字符" type="text" data-id="${task.id}" id="JS_cell_${task.id}" value="${task.name || ''}" /></div>
                 </div>`
             }
@@ -421,6 +425,78 @@ class GraphEditor extends Component {
         // 限制，只能连接contraint
         mxConstraintHandler.prototype.intersects = function (icon, point, source, existingEdge) {
             return (!source || existingEdge) || mxUtils.intersects(icon.bounds, point);
+        };
+        mxConstraintHandler.prototype.setFocus = function (me, state, source) {
+            this.constraints = (state != null && !this.isStateIgnored(state, source) &&
+                this.graph.isCellConnectable(state.cell)) ? ((this.isEnabled())
+                    ? (this.graph.getAllConnectionConstraints(state, source) || []) : []) : null;
+
+            // Only uses cells which have constraints
+            if (this.constraints != null) {
+                this.currentFocus = state;
+                this.currentFocusArea = new mxRectangle(state.x, state.y, state.width, state.height);
+
+                if (this.focusIcons != null) {
+                    for (let i = 0; i < this.focusIcons.length; i++) {
+                        this.focusIcons[i].destroy();
+                    }
+
+                    this.focusIcons = null;
+                    this.focusPoints = null;
+                }
+
+                this.focusPoints = [];
+                this.focusIcons = [];
+
+                for (let i = 0; i < this.constraints.length; i++) {
+                    // 这里是根据constraints来生成页面上的节点
+                    var cp = this.graph.getConnectionPoint(state, this.constraints[i]);
+                    var img = this.getImageForConstraint(state, this.constraints[i], cp);
+
+                    var src = img.src;
+                    var bounds = new mxRectangle(Math.round(cp.x - img.width / 2),
+                        Math.round(cp.y - img.height / 2), img.width, img.height);
+                    var icon = new mxImageShape(bounds, src);
+                    icon.dialect = (this.graph.dialect != mxConstants.DIALECT_SVG)
+                        ? mxConstants.DIALECT_MIXEDHTML : mxConstants.DIALECT_SVG;
+                    icon.preserveImageAspect = false;
+                    icon.init(this.graph.getView().getDecoratorPane());
+
+                    // Fixes lost event tracking for images in quirks / IE8 standards
+                    if (mxClient.IS_QUIRKS || document.documentMode == 8) {
+                        mxEvent.addListener(icon.node, 'dragstart', function (evt) {
+                            mxEvent.consume(evt);
+
+                            return false;
+                        });
+                    }
+
+                    // Move the icon behind all other overlays
+                    if (icon.node.previousSibling != null) {
+                        icon.node.parentNode.insertBefore(icon.node, icon.node.parentNode.firstChild);
+                    }
+
+                    var getState = mxUtils.bind(this, function () {
+                        return (this.currentFocus != null) ? this.currentFocus : state;
+                    });
+
+                    icon.redraw(); // icon在redraw之后 icon.node里面才有节点
+                    if (this.constraints[i].name) {
+                        let title = document.createElementNS(mxConstants.NS_SVG, 'title');
+                        title.innerHTML = this.constraints[i].name;
+                        icon.node.children[0].appendChild(title)
+                    }
+                    mxEvent.redirectMouseEvents(icon.node, this.graph, getState);
+                    this.currentFocusArea.add(icon.bounds);
+                    this.focusIcons.push(icon);
+                    this.focusPoints.push(cp);
+                }
+
+                this.currentFocusArea.grow(this.getTolerance(me));
+            } else {
+                this.destroyIcons();
+                this.destroyFocusHighlight();
+            }
         };
         graph.isValidConnection = (source, target) => {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;

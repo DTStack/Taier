@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Form, Tabs, Select, InputNumber, Input, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
-import { cloneDeep, debounce, isEmpty } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -21,11 +21,16 @@ class ParamSetting extends PureComponent {
         this.handleChange = debounce(this.handleChange, 800);
     }
     componentDidMount () {
-        this.getTableColumns()
+        if (this.props.form.getFieldValue('splitType') == '2') {
+            this.getTableColumns();
+        }
     }
     getTableColumns = () => {
-        const { taskId } = this.props;
-        api.getInputTableColumns({ taskId }).then(res => {
+        const { currentTab, componentId } = this.props;
+        const targetEdge = currentTab.graphData.find(o => {
+            return o.edge && o.target.data.id == componentId
+        })
+        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then(res => {
             if (res.code === 1) {
                 let tableData = [];
                 for (const key in res.data) {
@@ -46,19 +51,11 @@ class ParamSetting extends PureComponent {
     handleChange = (field, value) => {
         const { params } = this.state;
         if (field === 'splitType') {
-            const mewParams = value === '1' ? {
-                split_type: 1,
-                split_percent: undefined,
-                random_seed: undefined
-            } : {
-                split_type: 2,
-                thresholdCol: {},
-                operator: '>',
-                threshold: undefined
-            }
+            params[field] = value
             this.setState({
-                params: mewParams
+                params
             })
+            value === '2' && this.getTableColumns();
         } else {
             params[field] = value
             this.setState({
@@ -237,7 +234,7 @@ class DataSplit extends PureComponent {
         })
     }
     render () {
-        const { data, taskId } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const WrapParamSetting = Form.create({
             mapPropsToFields: (props) => {
                 const { data } = props;
@@ -245,7 +242,7 @@ class DataSplit extends PureComponent {
                     splitType: { value: data.splitType ? data.splitType.toString() : '1' },
                     splitPercent: { value: data.splitPercent },
                     randomSeed: { value: data.randomSeed },
-                    thresholdCol: { value: isEmpty(data.thresholdCol) ? '' : data.thresholdCol.key },
+                    thresholdCol: { value: data.thresholdCol },
                     threshold: { value: data.threshold },
                     operator: { value: data.operator }
                 }
@@ -277,7 +274,7 @@ class DataSplit extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="参数设置" key="1">
-                    <WrapParamSetting data={data} handleSaveComponent={this.handleSaveComponent} taskId={taskId} />
+                    <WrapParamSetting data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
                     <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />

@@ -14,8 +14,11 @@ class FieldSetting extends PureComponent {
         this.getColumns()
     }
     getColumns = () => {
-        const { taskId } = this.props;
-        api.getInputTableColumns({ taskId }).then((res) => {
+        const { currentTab, componentId } = this.props;
+        const targetEdge = currentTab.graphData.find(o => {
+            return o.edge && o.target.data.id == componentId
+        })
+        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res) => {
             if (res.code === 1) {
                 let originalColumns = [];
                 for (const key in res.data) {
@@ -133,7 +136,7 @@ class BinaryClassfication extends PureComponent {
         })
     }
     render () {
-        const { data, taskId } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const WrapFieldSetting = Form.create({
             onFieldsChange: (props, changedFields) => {
                 for (const key in changedFields) {
@@ -166,7 +169,7 @@ class BinaryClassfication extends PureComponent {
                     字段设置
                 </div>
                 <div className="params-single-tab-content">
-                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} taskId={taskId} />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
                 </div>
             </div>
         );

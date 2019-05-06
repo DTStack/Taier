@@ -170,7 +170,7 @@ class GraphContainer extends React.Component {
         const div = document.createElement('div');
         div.id = 'titleContent'
         if (isVertex) {
-            div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${data.name}`;
+            div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${this.componentType(data.componentType)}`;
             div.style.left = (state.x) + 'px';
             div.style.top = (state.y + 32 + 10) + 'px';
         } else {
@@ -188,7 +188,20 @@ class GraphContainer extends React.Component {
             }
         }
     }
-
+    componentType = (componentType) => {
+        switch (componentType) {
+            case 1: return '读数据表';
+            case 2: return '写数据表';
+            case 3: return 'sql脚本';
+            case 4: return '类型转换';
+            case 5: return '归一化';
+            case 6: return '拆分';
+            case 7: return '逻辑二分类';
+            case 8: return '数据预测';
+            case 9: return '二分类评估';
+            default: return '未知';
+        }
+    }
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
@@ -213,7 +226,6 @@ class GraphContainer extends React.Component {
                     return;
                 }
                 const temp = graph.view.getState(me.getCell());
-                if (me.getState() && me.getState().cell.inputOrOutput) return; // 这种情况是因为输入输出的小圈也是vertex
                 if (this.currentState == null) {
                     this.dragEnter(me.getEvent(), temp, graph.getModel().isVertex(temp.cell));
                     this.currentState = temp;
@@ -279,13 +291,19 @@ class GraphContainer extends React.Component {
         };
 
         graph.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
-            ctx.handleUpdateTaskData();
+            ctx.handleUpdateTaskData(evt.getName());
         }, true);
         graph.addListener(mxEvent.CELL_CONNECTED, (sender, evt) => {
             // 一次连接会触发两次该事件，通过判断是否是source来区分
-            console.log('evt:', evt);
             if (!evt.getProperty('source')) {
-                ctx.handleUpdateTaskData();
+                setTimeout(() => {
+                    /**
+                     * 这里延迟执行是因为这个事件监听的时候edge还只是一个previewState
+                     * 而需要的style来保存位置信息的style在真正生成的时候才有值
+                     * 故延迟执行，确保edge的style有值了
+                     *  */
+                    ctx.handleUpdateTaskData(evt.getName());
+                }, 500);
             }
         }, true);
     }
@@ -316,20 +334,21 @@ class GraphContainer extends React.Component {
     /* 删除节点 */
     removeCell = (cell) => {
         const { data } = this.props;
-        const removeCells = [cell];
+        let removeCells = [cell];
         const copyData = cloneDeep(data);
         const graphData = copyData.graphData;
         if (cell.edges && cell.edges.length > 0) {
             // 如果删除的是有边的vertex，连带边一起删除
-            removeCells.concat(cell.edges);
+            removeCells = removeCells.concat(cell.edges);
         }
         removeCells.forEach((item) => {
-            let index = graphData.findIndex(o => o.id == item.id);
+            let index = graphData.findIndex(o => { return o.id === item.id; });
             if (index > -1) {
                 graphData.splice(index, 1);
             }
         })
         this.props.changeContent(copyData, data, true)
+        this.props.saveExperiment(copyData); // 这里直接执行保存操作
     }
     /* 从这里开始执行 */
     startHandlerFromHere = (cell) => {
@@ -364,16 +383,22 @@ class GraphContainer extends React.Component {
             detailData: cell
         });
     }
-    /* 更新task的data */
-    handleUpdateTaskData = () => {
+    /**
+     *  更新task的data
+     *  @param eventName-事件名称
+     *  */
+    handleUpdateTaskData = (eventName) => {
         const { data } = this.props;
         const graphData = this.getGraphData();
         const oldData = Object.assign({}, data);
         const newData = Object.assign({}, data);
         newData.graphData = graphData;
-        if (newData.graphData.length >= oldData.graphData.length) {
-            this.props.updateTaskData(oldData, newData);
+        if (eventName === 'cellConnected' && newData.graphData.length <= oldData.graphData.length) {
+            //  在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
+            return;
         }
+        this.props.updateTaskData(oldData, newData);
+        this.props.saveExperiment(newData); // 这里直接执行保存操作
     }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
@@ -399,7 +424,7 @@ class GraphContainer extends React.Component {
                     const taskData = Object.assign({}, task, {
                         name: value
                     });
-                    const object = data.graphData.find(o => o.id === cell.id);
+                    const object = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
                     object.data.name = value
                     data.sqlText = JSON.stringify(data.graphData);
                     // 对整个tab保存一次，再对cellData保存一次
@@ -434,7 +459,7 @@ class GraphContainer extends React.Component {
     }
     updateCellData = (cell, taskData) => {
         const { data } = this.props;
-        const object = data.graphData.find(o => o.id == cell.id);
+        const object = data.graphData.find(o => o.vertex && o.data.id == cell.data.id);
         if (object) {
             object.data = taskData;
             this.props.changeContent(data, {}, true, false);
@@ -450,7 +475,8 @@ class GraphContainer extends React.Component {
             x: cell.geometry.x,
             y: cell.geometry.y,
             value: cell.value,
-            id: cell.id
+            id: cell.id,
+            style: cell.style
         }
     }
 

@@ -84,7 +84,7 @@ class GraphPanel extends Component {
                 key='params'
                 disabled={isEmpty(selectedCell)}
             >
-                <Params data={data.detailData} taskId={data.id} />
+                <Params data={data.detailData} />
             </Tabs.TabPane>,
             <Tabs.TabPane
                 tab='组件说明'

@@ -53,7 +53,7 @@ class FieldSetting extends PureComponent {
     render () {
         const { chooseModalVisible } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const { data } = this.props;
+        const { data, componentId, currentTab } = this.props;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
         const btnContent = (isEmpty(data) || data.colList.length == 0) ? '选择字段' : `已选择${data.colList.length}个字段`
         return (
@@ -82,6 +82,8 @@ class FieldSetting extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
+                        currentTab={currentTab}
+                        componentId={componentId}
                         data={data}
                         transferField='double'
                         visible={chooseModalVisible}
@@ -126,7 +128,7 @@ class Normalise extends PureComponent {
         })
     }
     render () {
-        const { data } = this.props;
+        const { data, componentId, currentTab } = this.props;
         const WrapFieldSetting = Form.create({
             onFieldsChange: (props, changedFields) => {
                 for (const key in changedFields) {
@@ -169,7 +171,7 @@ class Normalise extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="字段设置" key="1">
-                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
                     <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />

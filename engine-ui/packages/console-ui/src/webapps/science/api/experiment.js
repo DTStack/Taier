@@ -48,6 +48,9 @@ export default {
     addOrUpdateTask (params) {
         return http.post(req.UPDATE_TASK, params);
     },
+    formatSql (params) {
+        return http.post(req.COMPONENT_FORMAT_SQL, params);
+    },
     getComponentRunningLog (params) {
         return http.post(req.GET_COMPONENT_RUNNING_LOG, params);
     },

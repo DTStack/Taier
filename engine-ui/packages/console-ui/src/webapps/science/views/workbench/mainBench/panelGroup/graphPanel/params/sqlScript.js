@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Collapse, Input, Button } from 'antd';
+import { Collapse, Input, Button, message } from 'antd';
 import Editor from 'widgets/editor';
 import FullScreenButton from 'widgets/fullscreen';
+import api from '../../../../../../api/experiment';
 import MyIcon from '../../../../../../components/icon'
 const Panel = Collapse.Panel;
 const InputGroup = Input.Group;
@@ -15,8 +16,46 @@ class SqlScript extends Component {
             tableName: 'table3'
         }, {
             tableName: 'table4'
-        }],
-        code: ''
+        }]
+    }
+    static getDerivedStateFromProps (nextProps, prevState) {
+        console.log('nextProps', nextProps);
+        return {
+            code: nextProps.data.sql
+        }
+    }
+    handleDdlChange = (value) => {
+        this.setState({
+            code: value
+        })
+    }
+    handleFormat = () => {
+        api.formatSql({ sql: this.state.code }).then((res) => {
+            if (res.code === 1) {
+                this.setState({
+                    code: res.data
+                });
+            }
+        })
+    }
+    handleSaveSql = () => {
+        const { currentTab, componentId, changeContent, data } = this.props;
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
+        const params = {
+            ...currentComponentData.data,
+            sqlComponent: {
+                ...data,
+                sql: this.state.code
+            }
+        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code == 1) {
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
+            } else {
+                message.warning('保存失败');
+            }
+        })
     }
     renderSource = () => {
         const { data } = this.props;
@@ -27,7 +66,7 @@ class SqlScript extends Component {
                     return (
                         <InputGroup compact key={index} style={{ marginTop: -1 }}>
                             <Input style={{ width: '20%' }} defaultValue={item.tableName} disabled />
-                            <Input style={{ width: '80%' }} disabled value={data.nodeList[index]} />
+                            <Input style={{ width: '80%' }} disabled value={data.nodeList && data.nodeList[index]} />
                         </InputGroup>
                     )
                 })}
@@ -53,16 +92,16 @@ class SqlScript extends Component {
                         } key="2">
                             <div className="toolbar ide-toolbar clear-offset">
                                 <Button
-                                    // onClick={this.saveTab.bind(this, true, 'button')}
+                                    onClick={this.handleSaveSql}
                                     title="保存任务"
                                 >
-                                    <MyIcon className="my-icon" type="save" />保存
+                                    <MyIcon style={{ width: 11, height: 11, marginRight: 5 }} type="save" />保存
                                 </Button>
-                                <FullScreenButton />
+                                <FullScreenButton target="sql-editor" />
                                 <Button
                                     icon="appstore-o"
                                     title="格式化"
-                                    // onClick={onFormat}
+                                    onClick={this.handleFormat}
                                 >
                                     格式化
                                 </Button>
@@ -70,6 +109,7 @@ class SqlScript extends Component {
                             <Editor
                                 value={this.state.code}
                                 language="dtsql"
+                                onChange={this.handleDdlChange}
                                 options={{ readOnly: false, minimap: { enabled: false } }}
                             />
                         </Panel>

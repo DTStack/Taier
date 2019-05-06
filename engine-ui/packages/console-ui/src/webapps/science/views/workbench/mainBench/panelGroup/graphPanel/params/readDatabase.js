@@ -42,9 +42,7 @@ class ChooseTable extends PureComponent {
                     partitionCheck: res.data,
                     tableName: value
                 })
-                if (!res.data) {
-                    this.handleSaveComponent();
-                }
+                this.handleSaveComponent();
             }
             this.setState({
                 tables: [],
@@ -60,21 +58,18 @@ class ChooseTable extends PureComponent {
             ...currentComponentData.data,
             readTableComponent: {
                 table: form.getFieldValue('tableName'),
+                isPartition: form.getFieldValue('partitionCheck'),
                 partitions: form.getFieldValue('partitionParam')
             }
         }
-        if (form.getFieldValue('partitionCheck') && !params.readTableComponent.partitions) {
-            return null;
-        } else {
-            api.addOrUpdateTask(params).then((res) => {
-                if (res.code === 1) {
-                    currentComponentData.data = { ...params, ...res.data };
-                    changeContent({}, currentTab);
-                } else {
-                    message.warning('保存失败');
-                }
-            })
-        }
+        api.addOrUpdateTask(params).then((res) => {
+            if (res.code === 1) {
+                currentComponentData.data = { ...params, ...res.data };
+                changeContent({}, currentTab);
+            } else {
+                message.warning('保存失败');
+            }
+        })
     }
     renderTooltips = () => {
         const title = '分区配置支持填写动态分区，如下：\n${bdp.system.premonth}，表示yymm-1\n${bdp.system.cyctime}，表示运行时间数据\n${bdp.system.bizdate}，表示yymmdd-1\n${bdp.system.currmonth}，表示当前月数据';
@@ -135,7 +130,9 @@ class TableInfo extends PureComponent {
         columnsData: {}
     }
     componentDidUpdate (prevProps) {
-        this.getTableInfo();
+        if (prevProps.tableName !== this.props.tableName) {
+            this.getTableInfo();
+        }
     }
     componentDidMount () {
         this.getTableInfo();

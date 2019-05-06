@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer, message } from 'antd';
+import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer, message, Spin } from 'antd';
 import { formItemLayout } from './index';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
 import api from '../../../../../../api/experiment';
@@ -12,9 +12,9 @@ const TYPE_ENUM = {
     string: 'String类型'
 }
 const KEY_VALUE_ENUM = {
-    double: 'doubleTranColList',
-    int: 'intTranColList',
-    string: 'strTranColList'
+    double: 'doubleTrans',
+    int: 'intTrans',
+    string: 'stringTrans'
 }
 /* 选择字段弹出框 */
 export class ChooseModal extends PureComponent {
@@ -25,7 +25,8 @@ export class ChooseModal extends PureComponent {
     state = {
         sourceData: [],
         backupSource: [],
-        targetKeys: []
+        targetKeys: [],
+        loading: false
     }
     componentDidMount () {
         this.getSourceData();
@@ -54,7 +55,14 @@ export class ChooseModal extends PureComponent {
         });
     }
     getSourceData = () => {
-        api.getInputTableColumns({ taskId: this.props.taskId }).then(res => {
+        const { currentTab, componentId } = this.props;
+        const targetEdge = currentTab.graphData && currentTab.graphData.find(o => {
+            return o.edge && o.target.data.id == componentId
+        })
+        this.setState({
+            loading: true
+        });
+        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : undefined }).then(res => {
             if (res.code === 1) {
                 let sourceData = [];
                 for (const key in res.data) {
@@ -79,6 +87,9 @@ export class ChooseModal extends PureComponent {
                     backupSource: cloneDeep(sourceData)
                 })
             }
+            this.setState({
+                loading: false
+            })
         })
     }
     handleCancel = () => {
@@ -95,7 +106,7 @@ export class ChooseModal extends PureComponent {
         this.handleCancel();
     }
     filterOption = (inputValue, option) => {
-        return option.title.indexOf(inputValue) > -1;
+        return option.key.indexOf(inputValue) > -1;
     }
     handleChange = (targetKeys, direction, moveKeys) => {
         const { sourceData, backupSource } = this.state;
@@ -138,16 +149,18 @@ export class ChooseModal extends PureComponent {
                 onCancel={this.handleCancel}
                 getContainer={() => document.querySelector(this.warpClassName)}
             >
-                <Transfer
-                    className="params-transfer"
-                    rowKey={record => record.key}
-                    dataSource={this.state.sourceData}
-                    showSearch
-                    filterOption={this.filterOption}
-                    targetKeys={this.state.targetKeys}
-                    onChange={this.handleChange}
-                    render={this.renderItem}
-                />
+                <Spin spinning={this.state.loading}>
+                    <Transfer
+                        className="params-transfer"
+                        rowKey={record => record.key}
+                        dataSource={this.state.sourceData}
+                        showSearch
+                        filterOption={this.filterOption}
+                        targetKeys={this.state.targetKeys}
+                        onChange={this.handleChange}
+                        render={this.renderItem}
+                    />
+                </Spin>
             </Modal>
         );
     }
@@ -186,8 +199,8 @@ class Transform extends PureComponent {
                         label={`转化成Int异常时，默认填充值`}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('int_error', {
-                            initialValue: data[`${KEY_VALUE_ENUM[transferField]}_error`]
+                        {getFieldDecorator('intError', {
+                            initialValue: data.intError
                         })(
                             <Input />
                         )}
@@ -202,8 +215,8 @@ class Transform extends PureComponent {
                         label={`转化成String异常时，默认填充值`}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('str_error', {
-                            initialValue: data[`${KEY_VALUE_ENUM[transferField]}_error`]
+                        {getFieldDecorator('strError', {
+                            initialValue: data.strError
                         })(
                             <Input />
                         )}
@@ -219,8 +232,8 @@ class Transform extends PureComponent {
                         label={`转化成Double异常时，默认填充值`}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('double_error', {
-                            initialValue: data[`${KEY_VALUE_ENUM[transferField]}_error`]
+                        {getFieldDecorator('doubleError', {
+                            initialValue: data.doubleError
                         })(
                             <Input />
                         )}
@@ -237,7 +250,7 @@ class Transform extends PureComponent {
         return btnContent;
     }
     render () {
-        const { data } = this.props;
+        const { data, componentId, currentTab } = this.props;
         const transferField = this.props.form.getFieldValue('transferField');
         const { chooseModalVisible } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -268,8 +281,8 @@ class Transform extends PureComponent {
                     {...formItemLayout}
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: '78px auto' }}>
-                        {getFieldDecorator('is_save_old', {
-                            initialValue: data.is_save_old === 1,
+                        {getFieldDecorator('isSaveOld', {
+                            initialValue: data.isSaveOld === 1,
                             valuePropName: 'checked',
                             getValueFromEvent: (e) => {
                                 if (!e || !e.target) {
@@ -286,6 +299,8 @@ class Transform extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
+                        currentTab={currentTab}
+                        componentId={componentId}
                         data={data}
                         transferField={transferField}
                         visible={chooseModalVisible}
@@ -381,7 +396,7 @@ class TypeChange extends PureComponent {
         })
     }
     render () {
-        const { data } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const WrapTransform = Form.create({
             onFieldsChange: (props, changedFields) => {
                 for (const key in changedFields) {
@@ -417,7 +432,7 @@ class TypeChange extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="转化字段" key="1">
-                    <WrapTransform data={data} handleSaveComponent={this.handleSaveComponent} />
+                    <WrapTransform data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
                     <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />

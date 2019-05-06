@@ -77,7 +77,7 @@ export function saveExperiment (tabData) {
             tabData.sqlText = JSON.stringify(tabData.graphData);
             let res = await api.addExperiment(tabData);
             if (res && res.code == 1) {
-                const tabs = getState().notebook.localTabs;
+                const tabs = getState().experiment.localTabs;
                 dispatch(changeContent(res.data, tabs.find((tab) => {
                     return tab.id == tabData.id
                 }), false));
@@ -90,7 +90,6 @@ export function saveExperiment (tabData) {
 
 export function copyCell (tabData, copyCell) {
     return (dispatch) => {
-        // const data = cloneDeep(tabData);
         return new Promise((resolve) => {
             api.cloneComponent({ taskId: copyCell.data.id }).then((res) => {
                 if (res.code == 1) {

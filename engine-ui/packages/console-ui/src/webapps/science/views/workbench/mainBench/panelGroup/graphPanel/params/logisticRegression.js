@@ -147,8 +147,11 @@ class FieldSetting extends PureComponent {
         this.getColumns()
     }
     getColumns = () => {
-        const { taskId } = this.props;
-        api.getInputTableColumns({ taskId }).then(res => {
+        const { currentTab, componentId } = this.props;
+        const targetEdge = currentTab.graphData.find(o => {
+            return o.edge && o.target.data.id == componentId
+        })
+        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : '' }).then(res => {
             if (res.code === 1) {
                 let columns = [];
                 for (const key in res.data) {
@@ -188,10 +191,10 @@ class FieldSetting extends PureComponent {
     }
     render () {
         const { chooseModalVisible, columns } = this.state;
-        const { data, taskId } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const { getFieldDecorator } = this.props.form;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = (data || isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
+        const btnContent = (!data || isEmpty(data.col) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem
@@ -233,7 +236,8 @@ class FieldSetting extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
-                        taskId={taskId}
+                        currentTab={currentTab}
+                        componentId={componentId}
                         data={data}
                         transferField="double"
                         onOK={this.handelOk}
@@ -277,7 +281,7 @@ class LogisticRegression extends PureComponent {
         })
     }
     render () {
-        const { data, taskId } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const WrapFieldSetting = Form.create({
             mapPropsToFields: (props) => {
                 const { data } = props;
@@ -351,7 +355,7 @@ class LogisticRegression extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="字段设置" key="1">
-                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} taskId={taskId} />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
                 </TabPane>
                 <TabPane tab="参数设置" key="2">
                     <WrapParamSetting data={data} handleSaveComponent={this.handleSaveComponent} />

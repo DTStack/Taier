@@ -147,7 +147,7 @@ export function getRunTaskList (tabData, taskId, type, currentTab) {
                 }
             })
             dispatch(changeContent(tabData, {}, false));
-            await dispatch(getRunningTaskStatus(currentTab, tabData, res.data, dispatch));
+            await getRunningTaskStatus(currentTab, tabData, res.data, dispatch);
             dispatch(removeLoadingTab(currentTab));
             runnningTask.reset(currentTab);
         } else {
@@ -194,7 +194,7 @@ async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
             // 继续轮训
             outputExperimentStatus(tabId, '.....', dispatch)
             await setTimeout(async () => {
-                await dispatch(getRunningTaskStatus(tabId, tabData, jobIds, dispatch));
+                await getRunningTaskStatus(tabId, tabData, jobIds, dispatch)
             }, 1500)
         }
     } else {

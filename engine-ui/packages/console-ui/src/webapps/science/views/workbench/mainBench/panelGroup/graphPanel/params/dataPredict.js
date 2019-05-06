@@ -48,8 +48,8 @@ class FieldSetting extends PureComponent {
             });
         }
     }
-    handelOk = (targetObjects) => {
-        this.props.handleSaveComponent('col', targetObjects);
+    handelOk = (key, targetObjects) => {
+        this.props.handleSaveComponent(key, targetObjects);
     }
     handleCancel = () => {
         this.setState({
@@ -63,7 +63,7 @@ class FieldSetting extends PureComponent {
     render () {
         const { chooseModalVisible, labelModalVisible } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const { data } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
         return (
             <Form className="params-form">
@@ -136,19 +136,23 @@ class FieldSetting extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
+                        currentTab={currentTab}
+                        componentId={componentId}
                         data={data.col}
                         transferField='double'
                         visible={chooseModalVisible}
-                        onOK={this.handelOk}
+                        onOK={(value) => this.handelOk('col', value)}
                         onCancel={this.handleCancel} />
                 </div>
                 <div className="labelWrap">
                     <ChooseModal
+                        currentTab={currentTab}
+                        componentId={componentId}
                         wrapContanier='.labelWrap'
                         data={data.append}
                         transferField='double'
                         visible={labelModalVisible}
-                        onOK={this.handelOk}
+                        onOK={(value) => this.handelOk('append', value)}
                         onCancel={this.handleCancel} />
                 </div>
             </Form>
@@ -189,7 +193,7 @@ class DataPredict extends PureComponent {
         })
     }
     render () {
-        const { data } = this.props;
+        const { data, currentTab, componentId } = this.props;
         const WrapFieldSetting = Form.create({
             mapPropsToFields: (props) => {
                 const { data } = props;
@@ -234,7 +238,7 @@ class DataPredict extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="字段设置" key="1">
-                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} />
+                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
                     <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />
