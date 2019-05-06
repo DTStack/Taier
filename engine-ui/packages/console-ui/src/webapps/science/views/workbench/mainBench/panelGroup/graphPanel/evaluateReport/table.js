@@ -2,7 +2,6 @@ import React, { PureComponent } from 'react';
 import { Table } from 'antd';
 
 import API from '../../../../../../api/experiment';
-
 function getID (current, index) {
     return (current - 1) * 10 + (index + 1);
 }
@@ -57,9 +56,9 @@ class TableDetail extends PureComponent {
         const { pagination } = this.state;
         const columns = [{
             title: '序号',
-            dataIndex: 'id',
+            dataIndex: 'serialIndex',
             fixed: 'left',
-            key: 'id',
+            key: 'serialIndex',
             sorter: true,
             render: (text, item, index) => {
                 return getID(pagination.current, index);
@@ -93,7 +92,6 @@ class TableDetail extends PureComponent {
                 columns={cols}
                 rowKey={(record, index) => {
                     const rowKey = `${indexType}-${record[index]}-${index}`
-                    console.log('rowKey', rowKey);
                     return rowKey;
                 }}
                 style={{ height: '100%' }}

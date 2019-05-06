@@ -1,9 +1,8 @@
 
 import React, { Component } from 'react';
-import { Modal, Icon } from 'antd';
 import { get } from 'lodash';
 
-import FullScreen from 'widgets/fullscreen';
+import DTModal from 'widgets/dt-modal';
 
 import TableDetail from './table';
 
@@ -11,7 +10,7 @@ class DataExploringModal extends Component {
     render () {
         const { onOk, onCancel, visible, data } = this.props;
         return (
-            <Modal
+            <DTModal
                 bodyStyle={{
                     padding: '0 0 0 0',
                     position: 'relative'
@@ -24,22 +23,11 @@ class DataExploringModal extends Component {
                 onOk={onOk}
                 onCancel={onCancel}
             >
-                <FullScreen
-                    style={{
-                        position: 'absolute',
-                        right: '48px',
-                        top: '-30px'
-                    }}
-                    target="JS_evaluate_tab"
-                    fullIcon={<Icon className="alt" type="arrows-alt" />}
-                    exitFullIcon={<Icon className="alt" type="shrink" />}
-                    isShowTitle={false}
-                />
                 <TableDetail
                     data={data}
                     indexType={get(data, 'inputType', 0)}
                 />
-            </Modal>
+            </DTModal>
         )
     }
 }
