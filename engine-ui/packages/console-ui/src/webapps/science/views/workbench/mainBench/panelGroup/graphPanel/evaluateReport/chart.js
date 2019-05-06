@@ -50,6 +50,11 @@ class CurveChart extends Component {
         const { data } = this.props;
         const option = cloneDeep(lineAreaChartOptions);
         const reqParams = {};
+        option.grid = {
+            left: 20,
+            right: 20,
+            bottom: 10
+        }
         option.toolbox = {
             show: true,
             feature: {
@@ -60,10 +65,14 @@ class CurveChart extends Component {
         option.yAxis[0].nameLocation = 'end';
         option.yAxis[0].nameTextStyle.fontSize = 13;
         option.yAxis[0].nameTextStyle.color = '#666666';
+        option.yAxis[0].nameTextStyle.align = 'center';
+
         option.title.textStyle = {
             fontSize: 14,
-            color: '#333333'
+            color: '#333333',
+            textAlign: 'left'
         }
+        option.title.padding = [5, 10, 5, 0];
         option.dataZoom = [ // 数据过滤缩放
             {
                 type: 'inside',
