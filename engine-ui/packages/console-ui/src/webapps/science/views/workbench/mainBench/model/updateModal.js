@@ -5,6 +5,7 @@ import HelpDoc from '../../../../components/helpDoc';
 
 import api from '../../../../api/model'
 import utils from 'utils';
+import { MODEL_STATUS } from '../../../../consts';
 
 class ModelUpdateModal extends React.Component {
     state = {
@@ -37,8 +38,8 @@ class ModelUpdateModal extends React.Component {
     async loadParams (record) {
         const { data } = this.props;
         const res = await api.loadModel({
-            id: data.id,
-            modelId: record.id
+            modelId: data.id,
+            modelFile: record.modelFile
         });
         if (res && res.code == 1) {
             message.success('操作成功');
@@ -48,20 +49,20 @@ class ModelUpdateModal extends React.Component {
     initColumns () {
         return [{
             title: '运行时间',
-            dataIndex: 'runTime',
+            dataIndex: 'time',
             width: '150px',
             render (t) {
                 return utils.formatDateTime(t);
             }
         }, {
             title: <span>模型数据存储路径 <HelpDoc className='u-helpdox--table' doc='modelSavePath' /></span>,
-            dataIndex: 'savePath'
+            dataIndex: 'modelFile'
         }, {
             title: <span>操作 <HelpDoc className='u-helpdox--table' doc='updateModelDeal' /></span>,
             dataIndex: 'deal',
             width: '100px',
             render: (t, record) => {
-                if (record.id == this.props.data.id) {
+                if (record.status == MODEL_STATUS.RUNNING.value) {
                     return 'LOADED';
                 }
                 return <Popconfirm title="确定加载此组参数进行模型使用?" onConfirm={() => {
@@ -85,6 +86,7 @@ class ModelUpdateModal extends React.Component {
             >
                 <Table
                     className='m-table'
+                    rowkey='time'
                     columns={this.initColumns()}
                     dataSource={updateList}
                     loading={loading}

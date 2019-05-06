@@ -42,7 +42,7 @@ export default {
     GET_EVALUATE_REPORT_TABLE_DATA: `${SCIENCE_BASE_URL}/service/scienceTask/getData`, // 获取临时表数据
 
     GET_MODEL_PARAMS_LIST: `${SCIENCE_BASE_URL}/service/scienceModel/listModel`, // 获取model 参数列表
-    LOAD_MODEL: `${SCIENCE_BASE_URL}/model/load`, // load Model
+    LOAD_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/load`, // load Model
 
     GET_EXPERIMENT_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取组件数据
     UPDATE_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 更新组件参数
