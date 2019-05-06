@@ -75,7 +75,7 @@ export default {
     GET_TABLES_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableList`, // 查询指定名称表信息(支持模糊查询)
     // ==== 数据源 ==== //
     LIST_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/listDataSource`, // 数据源列表
-    UPLOAD_TABLE_DATA: `${SCIENCE_BASE_URL}/service/dataManager/importData`, // 创建数据源(上传文件)
+    UPLOAD_TABLE_DATA: `${SCIENCE_BASE_URL}/upload/dataManager/importData`, // 创建数据源(上传文件)
     GET_DATA_SOURCE_DETAIL: `${SCIENCE_BASE_URL}/service/dataManager/getDataSourceDetail`, // 数据源详细信息
     UPDATE_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/updateDataSource` // 更新数据源
 }
