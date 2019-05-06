@@ -104,5 +104,5 @@ export default {
     SCIENCE_ROLE_PERMISSION: `${SCIENCE_BASE_URL}/service/permission/getPermissionIdsByRoleId`, // 获取角色的权限
     SCIENCE_ROLE_PERMISSION_ADD_OR_EDIT: `${SCIENCE_BASE_URL}/service/roleUser/updateUserRole`, // 更新或添加角色权限
     SCIENCE_REMOVE_ROLE: `${SCIENCE_BASE_URL}/role/deleteRole`, // 删除角色
-    SCIENCE_SEARCH_UIC_USERS: `${SCIENCE_BASE_URL}/project/getUicUsersNotInProject` // 获取UIC用户列表
+    SCIENCE_SEARCH_UIC_USERS: `${SCIENCE_BASE_URL}/service/project/getUicUsersNotInProject` // 获取UIC用户列表
 }
