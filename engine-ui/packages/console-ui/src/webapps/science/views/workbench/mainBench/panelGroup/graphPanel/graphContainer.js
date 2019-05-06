@@ -148,14 +148,14 @@ class GraphContainer extends React.Component {
                 // 初始化输出数据菜单项
                 ctx.initOutputMenuItems(menu, currentNode);
                 // 查看评估报告
-                if (cell.data.taskType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION) {
+                if (currentNode.componentType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION) {
                     menu.addItem('查看评估报告', null, function () {
-                        ctx.showHideEvaluateReport(true, cell.data);
+                        ctx.showHideEvaluateReport(true, currentNode);
                     }, null, null, true);
                 }
                 menu.addItem('查看日志', null, function () {
                     // 查看日志
-                    ctx.showHideRunningLog(true, cell.data);
+                    ctx.showHideRunningLog(true, currentNode);
                 }, null, null, true);
             } else {
                 menu.addItem('删除依赖关系', null, function () {
