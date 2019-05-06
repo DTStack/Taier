@@ -59,7 +59,7 @@ class NoteBookGroup extends React.Component {
     }
     async closeTab (tabId) {
         const { tabs = [], currentTabIndex } = this.props;
-        let isChecked = await checkAndcloseTabs(tabs, [tabId]);
+        let isChecked = await checkAndcloseTabs(tabs, [parseInt(tabId)]);
         if (isChecked) {
             if (currentTabIndex == tabId && tabs.length > 1) {
                 this.switchTab(tabs.filter((tab) => {
