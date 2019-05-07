@@ -31,7 +31,7 @@ class ChooseTable extends PureComponent {
     handleSaveComponent = () => {
         const { currentTab, componentId, changeContent } = this.props;
         const form = this.props.form;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             writeTableComponent: {

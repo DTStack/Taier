@@ -28,12 +28,18 @@ export class ChooseModal extends PureComponent {
         targetKeys: [],
         loading: false
     }
-    componentDidMount () {
-        this.getSourceData();
-    }
     componentDidUpdate (prevProps, prevState, snapshot) {
         if (this.props.visible && !prevProps.visible) {
-            this.initTargetKeys();
+            // 说明是打开选择字段的弹窗
+            if (this.state.sourceData.length === 0) {
+                /**
+                 * 以sourceData的长度来标志
+                 * 表示第一次打开弹窗还没有获取soureceData
+                 */
+                this.getSourceData();
+            } else {
+                this.initTargetKeys();
+            }
         }
     }
     initTargetKeys () {
@@ -85,6 +91,8 @@ export class ChooseModal extends PureComponent {
                 this.setState({
                     sourceData,
                     backupSource: cloneDeep(sourceData)
+                }, () => {
+                    this.initTargetKeys();
                 })
             }
             this.setState({
@@ -376,7 +384,7 @@ class TypeChange extends PureComponent {
     }
     handleSaveComponent = (field, filedValue) => {
         const { data, currentTab, componentId, changeContent } = this.props;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             transTypeComponent: {

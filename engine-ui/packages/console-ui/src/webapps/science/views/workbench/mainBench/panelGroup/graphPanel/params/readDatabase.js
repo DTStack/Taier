@@ -1,4 +1,3 @@
-/* eslint-disable no-unreachable */
 /* eslint-disable no-template-curly-in-string */
 import React, { PureComponent } from 'react';
 import { Tabs, Form, Select, Checkbox, Input, Tooltip, Icon, Spin, message } from 'antd';
@@ -53,7 +52,7 @@ class ChooseTable extends PureComponent {
     handleSaveComponent = () => {
         const { currentTab, changeContent, componentId } = this.props;
         const form = this.props.form;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             readTableComponent: {
@@ -127,7 +126,8 @@ class ChooseTable extends PureComponent {
 // 字段信息
 class TableInfo extends PureComponent {
     state = {
-        columnsData: {}
+        columnsData: {},
+        loading: false
     }
     componentDidUpdate (prevProps) {
         if (prevProps.tableName !== this.props.tableName) {
@@ -139,12 +139,18 @@ class TableInfo extends PureComponent {
     }
     getTableInfo = () => {
         const { tableName } = this.props;
+        this.setState({
+            loading: true
+        })
         api.getColumnsByTableName({ tableName: tableName.value }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     columnsData: res.data
                 });
             }
+            this.setState({
+                loading: false
+            })
         })
     }
     initTableBody (data) {
@@ -158,19 +164,21 @@ class TableInfo extends PureComponent {
         return str;
     }
     render () {
-        const { columnsData } = this.state;
+        const { columnsData, loading } = this.state;
         return (
-            <table border="1" className="params-table">
-                <thead>
-                    <tr>
-                        <th>字段</th>
-                        <th>类型</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {this.initTableBody(columnsData)}
-                </tbody>
-            </table>
+            <Spin spinning={loading}>
+                <table border="1" className="params-table">
+                    <thead>
+                        <tr>
+                            <th>字段</th>
+                            <th>类型</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.initTableBody(columnsData)}
+                    </tbody>
+                </table>
+            </Spin>
         );
     }
 }
@@ -185,6 +193,11 @@ class ReadDatabase extends PureComponent {
         const WrapChooseTable = Form.create({
             onFieldsChange: (props, changedFields) => {
                 if (changedFields.tableName && !changedFields.tableName.validating && !changedFields.tableName.dirty) {
+                    /**
+                     * 此处监听form表单change事件，通过获取tableName缓存下来
+                     * 不放在state里面是为了不触发钩子函数
+                     * 放在对象里面是为了保证字段信息tab能实时获取到tableName
+                     */
                     this.tableName.value = changedFields.tableName.value;
                 }
             },

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Collapse, Input, Button, message } from 'antd';
+import { Collapse, Input, Button, message, Tooltip, Icon } from 'antd';
 import Editor from 'widgets/editor';
 import FullScreenButton from 'widgets/fullscreen';
 import api from '../../../../../../api/experiment';
@@ -16,24 +16,30 @@ class SqlScript extends Component {
             tableName: 'table3'
         }, {
             tableName: 'table4'
-        }]
+        }],
+        dirty: false
     }
     static getDerivedStateFromProps (nextProps, prevState) {
-        console.log('nextProps', nextProps);
-        return {
-            code: nextProps.data.sql
+        if (!prevState.dirty) {
+            return {
+                code: nextProps.data.sql
+            }
+        } else {
+            return null
         }
     }
     handleDdlChange = (value) => {
         this.setState({
-            code: value
+            code: value,
+            dirty: true
         })
     }
     handleFormat = () => {
         api.formatSql({ sql: this.state.code }).then((res) => {
             if (res.code === 1) {
                 this.setState({
-                    code: res.data
+                    code: res.data,
+                    dirty: true
                 });
             }
         })
@@ -73,7 +79,14 @@ class SqlScript extends Component {
             </>
         )
     }
+    renderTooltips = () => {
+        const title = '最后一句须为Select语句，作为此组件的输出';
+        return <Tooltip overlayClassName="big-tooltip" title={title}>
+            <Icon type="question-circle-o" className="supplementary" />
+        </Tooltip>
+    }
     render () {
+        const { dirty } = this.state;
         return (
             <div className="params-single-tab">
                 <div className="c-panel__siderbar__header">
@@ -87,31 +100,34 @@ class SqlScript extends Component {
                         <Panel header={
                             <div style={{ whiteSpace: 'nowrap' }}>
                                 SQL脚本
-                                <span className="supplementary">最后一句须为Select语句，作为此组件的输出</span>
+                                {this.renderTooltips()}
                             </div>
                         } key="2">
-                            <div className="toolbar ide-toolbar clear-offset">
-                                <Button
-                                    onClick={this.handleSaveSql}
-                                    title="保存任务"
-                                >
-                                    <MyIcon style={{ width: 11, height: 11, marginRight: 5 }} type="save" />保存
-                                </Button>
-                                <FullScreenButton target="sql-editor" />
-                                <Button
-                                    icon="appstore-o"
-                                    title="格式化"
-                                    onClick={this.handleFormat}
-                                >
-                                    格式化
-                                </Button>
+                            <div id="sql-editor">
+                                <div className="toolbar ide-toolbar clear-offset" style={{ borderBottom: '1px solid #ddd' }}>
+                                    <Button
+                                        onClick={this.handleSaveSql}
+                                        title="保存任务"
+                                    >
+                                        <MyIcon style={{ width: 11, height: 11, marginRight: 5 }} type="save" />保存
+                                    </Button>
+                                    <FullScreenButton target="sql-editor" />
+                                    <Button
+                                        icon="appstore-o"
+                                        title="格式化"
+                                        onClick={this.handleFormat}
+                                    >
+                                        格式化
+                                    </Button>
+                                </div>
+                                <Editor
+                                    sync={dirty}
+                                    value={this.state.code}
+                                    language="dtsql"
+                                    onChange={this.handleDdlChange}
+                                    options={{ readOnly: false, minimap: { enabled: false } }}
+                                />
                             </div>
-                            <Editor
-                                value={this.state.code}
-                                language="dtsql"
-                                onChange={this.handleDdlChange}
-                                options={{ readOnly: false, minimap: { enabled: false } }}
-                            />
                         </Panel>
                     </Collapse>
                 </div>

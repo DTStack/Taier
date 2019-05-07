@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Tabs, Form, Button, Select, InputNumber, message } from 'antd';
+import { Tabs, Form, Button, Select, InputNumber, message, Spin } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
@@ -14,9 +14,25 @@ const inputStyle = {
 class ChooseModal extends BaseChooseModal {
     constructor (props) {
         super(props);
-        this.disabledType = 'string';
+    }
+    // 重写钩子函数，实现由父级更新soureceData
+    static getDerivedStateFromProps (nextProps, prevState) {
+        if (nextProps.sourceData.length != 0) {
+            return {
+                sourceData: nextProps.sourceData,
+                loading: nextProps.loading
+            }
+        } else {
+            return null;
+        }
+    }
+    componentDidUpdate (prevProps, prevState, snapshot) {
+        if (prevState.sourceData.length != this.state.sourceData.length) {
+            this.initTargetKeys();
+        }
     }
     initTargetKeys = () => {
+        // 继承重写该方法
         const { data, transferField } = this.props;
         const { backupSource } = this.state;
         const chooseData = data.col || [];
@@ -141,15 +157,22 @@ class paramSetting extends PureComponent {
 class FieldSetting extends PureComponent {
     state = {
         chooseModalVisible: false,
-        columns: []
-    }
-    componentDidMount () {
-        this.getColumns()
+        columns: [],
+        fetching: false
     }
     getColumns = () => {
+        if (this.state.columns.length > 0) {
+            /**
+             * 此处是为了减少请求次数
+             */
+            return;
+        }
         const { currentTab, componentId } = this.props;
         const targetEdge = currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
+        })
+        this.setState({
+            fetching: true
         })
         api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : '' }).then(res => {
             if (res.code === 1) {
@@ -167,9 +190,13 @@ class FieldSetting extends PureComponent {
                     columns
                 })
             }
+            this.setState({
+                fetching: false
+            })
         })
     }
     handleChoose = () => {
+        this.getColumns();
         this.setState({
             chooseModalVisible: true
         });
@@ -190,7 +217,7 @@ class FieldSetting extends PureComponent {
         });
     }
     render () {
-        const { chooseModalVisible, columns } = this.state;
+        const { chooseModalVisible, columns, fetching } = this.state;
         const { data, currentTab, componentId } = this.props;
         const { getFieldDecorator } = this.props.form;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
@@ -213,7 +240,11 @@ class FieldSetting extends PureComponent {
                     {getFieldDecorator('label', {
                         rules: [{ required: true, message: '请选择目标列！' }]
                     })(
-                        <Select placeholder="请选择目标列" onChange={this.handleChange}>
+                        <Select
+                            notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
+                            placeholder="请选择目标列"
+                            onFocus={this.getColumns} // 获取焦点的时候再去请求，防止日志弹窗的弹出导致不停的触发didmount函数
+                            onChange={this.handleChange}>
                             {columns.map((item, index) => {
                                 return <Option key={item.key} value={item.key}>{item.key}</Option>
                             })}
@@ -236,6 +267,8 @@ class FieldSetting extends PureComponent {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
+                        loading={fetching}
+                        sourceData={columns}
                         currentTab={currentTab}
                         componentId={componentId}
                         data={data}
@@ -261,7 +294,7 @@ class LogisticRegression extends PureComponent {
     }
     handleSaveComponent = (field, filedValue) => {
         const { data, currentTab, componentId, changeContent } = this.props;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             logisticComponent: {
@@ -355,7 +388,11 @@ class LogisticRegression extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="字段设置" key="1">
-                    <WrapFieldSetting data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
+                    <WrapFieldSetting
+                        data={data}
+                        handleSaveComponent={this.handleSaveComponent}
+                        currentTab={currentTab}
+                        componentId={componentId} />
                 </TabPane>
                 <TabPane tab="参数设置" key="2">
                     <WrapParamSetting data={data} handleSaveComponent={this.handleSaveComponent} />

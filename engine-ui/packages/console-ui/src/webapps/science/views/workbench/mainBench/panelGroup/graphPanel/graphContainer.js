@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, cloneDeep } from 'lodash';
+import { debounce, cloneDeep, throttle } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
@@ -205,7 +205,6 @@ class GraphContainer extends React.Component {
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
-        // eslint-disable-next-line no-unused-vars
         const { saveSelectedCell, data, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
         graph.addMouseListener({
@@ -252,7 +251,6 @@ class GraphContainer extends React.Component {
         }, true);
         graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
-
             const activeElement = document.activeElement;
             // 当从编辑对象触发点击事件时，清除activeElement的焦点
             if (
@@ -269,8 +267,10 @@ class GraphContainer extends React.Component {
                 applyCellStyle(cellState, style);
                 selectedCell = cell;
                 saveSelectedCell(cell) // 保存已选择的cell
-                getTaskDetailData(data, cell.data.id);
-                changeSiderbar('params', true)
+                getTaskDetailData(data, cell.data.id)
+                    .then((res) => {
+                        changeSiderbar('params', true)
+                    })
             } else if (cell === undefined) {
                 const cells = graph.getSelectionCells();
                 graph.removeSelectionCells(cells);
@@ -306,6 +306,9 @@ class GraphContainer extends React.Component {
                 }, 500);
             }
         }, true);
+        graph.addListener(mxEvent.PAN, (sender, evt) => {
+            // ctx._handleListenPan(sender);
+        }, true)
     }
 
     /* 复制节点 */
@@ -353,18 +356,18 @@ class GraphContainer extends React.Component {
     /* 从这里开始执行 */
     startHandlerFromHere = (cell) => {
         const taskId = cell.data.id;
-        const type = 1;
+        const type = 3;
         this.handleRunTask(taskId, type);
     }
     /* 执行到这里 */
     handlerToHere = (cell) => {
         const taskId = cell.data.id;
-        const type = 2;
+        const type = 1;
         this.handleRunTask(taskId, type);
     }
     handlerThisCell = (cell) => {
         const taskId = cell.data.id;
-        const type = 3;
+        const type = 2;
         this.handleRunTask(taskId, type);
     }
     handleRunTask = (taskId, type) => {
@@ -383,6 +386,36 @@ class GraphContainer extends React.Component {
             detailData: cell
         });
     }
+
+    handleListenPan = (graph) => {
+        console.log(graph);
+        const { data } = this.props;
+        const view = graph.view;
+        const graphData = data.graphData;
+        if (graphData) {
+            const index = graphData.findIndex(o => o.graph == true);
+            if (index === -1) {
+                graphData.push({
+                    graph: true,
+                    vertex: false,
+                    edge: false,
+                    scale: view.getScale(),
+                    translate: cloneDeep(view.getTranslate())
+                })
+            } else {
+                graphData.splice(index, 1, {
+                    graph: true,
+                    vertex: false,
+                    edge: false,
+                    scale: view.getScale(),
+                    translate: cloneDeep(view.getTranslate())
+                })
+            }
+        }
+        this.props.changeContent(data, {}, false)
+    }
+
+    _handleListenPan = throttle(this.handleListenPan, 1500);
     /**
      *  更新task的data
      *  @param eventName-事件名称
@@ -393,12 +426,21 @@ class GraphContainer extends React.Component {
         const oldData = Object.assign({}, data);
         const newData = Object.assign({}, data);
         newData.graphData = graphData;
-        if (eventName === 'cellConnected' && newData.graphData.length <= oldData.graphData.length) {
-            //  在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
-            return;
+        // const object = oldData.graphData.find(o => o.graph);
+        // object && newData.graphData.push(object); // 获取到旧数据中的布局数据
+        if (eventName === 'cellsMoved') {
+            this.props.updateTaskData(oldData, newData);
+        } else if (eventName === 'cellConnected') {
+            if (newData.graphData.length <= oldData.graphData.length) {
+                /**
+                 * 在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
+                 * 用length来排除初始化的情况是因为没有想到特别好的办法
+                 */
+                return;
+            }
+            this.props.updateTaskData(oldData, newData);
+            this.props.saveExperiment(newData); // 当触发连线的钩子函数的时候实时执行保存操作
         }
-        this.props.updateTaskData(oldData, newData);
-        this.props.saveExperiment(newData); // 这里直接执行保存操作
     }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
@@ -441,6 +483,7 @@ class GraphContainer extends React.Component {
                         })
                     ]).then((res) => {
                         if (res[0].code === 1 && res[1].code === 1) {
+                            // 如果两次保存都成功，则更新cellData
                             ctx.updateCellData(cell, taskData);
                         }
                     })

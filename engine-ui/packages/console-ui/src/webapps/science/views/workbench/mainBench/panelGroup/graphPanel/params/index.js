@@ -32,9 +32,6 @@ export const formItemLayout = {
     return bindActionCreators({ ...experimentActions }, dispatch);
 })
 class Params extends Component {
-    shouldComponentUpdate (nextProps, nextState) {
-        return true;
-    }
     initRender = () => {
         const { selectedCell, changeContent, currentTabIndex, tabs } = this.props;
         if (isEmpty(selectedCell)) return '';
@@ -42,32 +39,38 @@ class Params extends Component {
         const componentId = selectedCell.data.id;
         let componentData = {};
         try {
-            componentData = currentTab.graphData.find(o => o.vertex && o.data.id == componentId).data[TASK_ENUM[selectedCell.data.componentType]] || {};
+            componentData = currentTab.graphData.find(o => o.vertex && o.data.id == componentId).data[TASK_ENUM[selectedCell.data.componentType]];
         } catch (error) {
+        }
+        const componentProps = {
+            data: componentData,
+            changeContent,
+            currentTab,
+            componentId
         }
         switch (selectedCell.data.componentType) {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:
                 return (
-                    <ReadDatabase data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                    <ReadDatabase {...componentProps} />
                 )
             case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE:
                 return (
-                    <WriteDatabase data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                    <WriteDatabase {...componentProps} />
                 )
             case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
-                return <SqlScript data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <SqlScript {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-                return <TypeChange data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <TypeChange {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
-                return <Normalise data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <Normalise {...componentProps} />
             case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
-                return <DataSplit data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <DataSplit {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
-                return <LogisticRegression data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <LogisticRegression {...componentProps} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
-                return <DataPredict data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <DataPredict {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
-                return <BinaryClassfication data={componentData} changeContent={changeContent} currentTab={currentTab} componentId={componentId} />
+                return <BinaryClassfication {...componentProps} />
             default:
                 return ''
         }

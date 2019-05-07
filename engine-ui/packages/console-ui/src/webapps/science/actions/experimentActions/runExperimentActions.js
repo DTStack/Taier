@@ -143,7 +143,7 @@ export function getRunTaskList (tabData, taskId, type, currentTab) {
             runnningTask.set(currentTab, res.data);
             tabData.graphData.forEach((item) => {
                 if (item.vertex) {
-                    item.data.jobId = res.data[item.id]
+                    item.data.jobId = res.data[item.data.id]
                 }
             })
             dispatch(changeContent(tabData, {}, false));
@@ -161,7 +161,14 @@ export function getRunTaskList (tabData, taskId, type, currentTab) {
 export function stopRunningTask (data) {
     return (dispatch) => {
         const jobIdList = runnningTask.get(data.id);
-        api.stopJobList({ jobIdList })
+        const stopJobs = [];
+        for (const key in jobIdList) {
+            if (jobIdList.hasOwnProperty(key)) {
+                const element = jobIdList[key];
+                stopJobs.push(element)
+            }
+        }
+        api.stopJobList({ jobIdList: stopJobs })
     }
 }
 async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
@@ -193,9 +200,11 @@ async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
         } else if (!status.compeletedFinish) {
             // 继续轮训
             outputExperimentStatus(tabId, '.....', dispatch)
-            await setTimeout(async () => {
-                await getRunningTaskStatus(tabId, tabData, jobIds, dispatch)
-            }, 1500)
+            await new Promise(resolve => {
+                setTimeout(() => {
+                    resolve(getRunningTaskStatus(tabId, tabData, jobIds, dispatch));
+                }, 1500)
+            })
         }
     } else {
         dispatch(experimentLog.appendExperimentLog(tabId, createLog(`请求异常！`, 'error')))
