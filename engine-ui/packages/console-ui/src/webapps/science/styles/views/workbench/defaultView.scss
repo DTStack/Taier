@@ -1,0 +1,13 @@
+.c-default-page {
+    position: relative;
+    height: 100%;
+    .c-default-page__img{
+        width: 85%;
+        max-width: 1200px;
+        min-width: 900px;
+        position: absolute;
+        top: 50%;
+        left:50%;
+        transform: translate(-50%, -50%);
+    }
+}

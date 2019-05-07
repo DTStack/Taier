@@ -64,8 +64,8 @@ export default class FullScreenButton extends Component {
     }
 
     fullScreen = () => {
-        const { target } = this.props;
-
+        const { target, onFullscreen } = this.props;
+        if (onFullscreen) { onFullscreen(this.state.isFullScreen) };
         if (this.state.isFullScreen) {
             if (document.exitFullscreen) {
                 document.exitFullscreen();
@@ -82,14 +82,13 @@ export default class FullScreenButton extends Component {
             if (domEle.requestFullscreen) {
                 domEle.requestFullscreen();
             } else if (domEle.msRequestFullscreen) { // IE
-                domEle.msRequestFUllscreen();
+                domEle.msRequestFullscreen();
             } else if (domEle.mozRequestFullscreen) { // Firefox (Gecko)
                 domEle.mozRequestFullscreen();
             } else if (domEle.webkitRequestFullscreen) { // Webkit
                 domEle.webkitRequestFullscreen();
             }
         }
-        // this.setState({ isFullScreen: !this.state.isFullScreen });
     }
 
     render () {
@@ -103,7 +102,7 @@ export default class FullScreenButton extends Component {
                 91: true,
                 16: true
             }}>
-                {customIcon ? <span onClick={this.fullScreen}>{customIcon}</span>
+                {customIcon ? <span {...other} onClick={this.fullScreen}>{customIcon}</span>
                     : <Button {...other} onClick={this.fullScreen}>
                         <MyIcon
                             className="my-icon"

@@ -36,8 +36,10 @@ class AdminUser extends Component {
 
         projects: [],
         streamProjects: [],
+        scienceProjects: [],
         selectedProject: undefined,
         streamSelectedProject: undefined,
+        scienceSelectedProject: undefined,
         dataBase: [],
         selecteDatabase: undefined,
         notProjectUsers: [],
@@ -68,16 +70,25 @@ class AdminUser extends Component {
     hasDatabase (app) {
         return app === 'analyticsEngine';
     }
+    isProjectExsit () {
+        const { active, projects, streamProjects, scienceProjects } = this.state;
+        let appMap = {
+            [MY_APPS.RDOS]: projects,
+            [MY_APPS.STREAM]: streamProjects,
+            [MY_APPS.SCIENCE]: scienceProjects
+        }
+        return appMap[active] && appMap[active].length
+    }
     /**
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
     loadData = (isGetProjectsBack, isGetDatabaseBack) => {
-        const { active, selectedProject, streamSelectedProject, currentPage, projects, streamProjects, dataBase, selecteDatabase } = this.state;
+        const { active, selectedProject, streamSelectedProject, scienceSelectedProject, currentPage, dataBase, selecteDatabase } = this.state;
         const params = {
             pageSize: 10,
             currentPage
         }
-        const projectsExsit = (MY_APPS.RDOS == active && projects.length) || (MY_APPS.STREAM == active && streamProjects.length);
+        const projectsExsit = this.isProjectExsit();
         const databaseExsit = (MY_APPS.ANALYTICS_ENGINE == active && dataBase.length);
 
         this.setState({
@@ -101,6 +112,8 @@ class AdminUser extends Component {
                 params.projectId = selectedProject;
             } else if (MY_APPS.STREAM == active) {
                 params.projectId = streamSelectedProject;
+            } else if (MY_APPS.SCIENCE == active) {
+                params.projectId = scienceSelectedProject;
             }
 
             // else if (MY_APPS.ANALYTICS_ENGINE == active) {
@@ -141,7 +154,8 @@ class AdminUser extends Component {
 
                 switch (app) {
                     case MY_APPS.RDOS:
-                    case MY_APPS.STREAM: {
+                    case MY_APPS.STREAM:
+                    case MY_APPS.SCIENCE: {
                         if (roleValue == RDOS_ROLE.VISITOR) {
                             isVisitor = true
                         } else if (roleValue == RDOS_ROLE.PROJECT_ADMIN) {
@@ -234,17 +248,24 @@ class AdminUser extends Component {
                 /**
                  * 不同应用设置不同的state
                  */
+                const projectId = res.data[0].id;
                 if (app == MY_APPS.STREAM) {
                     cookiesProject = utils.getCookie('stream_project_id')
                     ctx.setState({
                         streamProjects: res.data,
-                        streamSelectedProject: cookiesProject || res.data[0].id
+                        streamSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
                 } else if (app == MY_APPS.RDOS) {
                     cookiesProject = utils.getCookie('project_id')
                     ctx.setState({
                         projects: res.data,
-                        selectedProject: cookiesProject || res.data[0].id
+                        selectedProject: cookiesProject || projectId
+                    }, this.loadData.bind(this, true))
+                } else if (app == MY_APPS.SCIENCE) {
+                    cookiesProject = utils.getCookie('science_project_id')
+                    ctx.setState({
+                        scienceProjects: res.data,
+                        scienceSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
                 }
             }
@@ -252,17 +273,13 @@ class AdminUser extends Component {
     }
 
     loadUsersNotInProject = (userName) => {
-        const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
+        const { active, selecteDatabase } = this.state;
         const params = {
             userName
         }
 
         if (hasProject(active)) {
-            if (MY_APPS.RDOS == active) {
-                params.projectId = selectedProject;
-            } else if (MY_APPS.STREAM == active) {
-                params.projectId = streamSelectedProject;
-            }
+            params.projectId = this.getProjectId(active);
         }
 
         if (this.hasDatabase(active)) {
@@ -278,7 +295,7 @@ class AdminUser extends Component {
 
     addMember = () => {
         const ctx = this
-        const { active, selectedProject, streamSelectedProject, notProjectUsers, selecteDatabase } = this.state
+        const { active, notProjectUsers, selecteDatabase } = this.state
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
 
@@ -299,11 +316,7 @@ class AdminUser extends Component {
         form.validateFields((err) => {
             if (!err) {
                 if (hasProject(active)) {
-                    if (active == MY_APPS.RDOS) {
-                        projectRole.projectId = selectedProject
-                    } else if (active == MY_APPS.STREAM) {
-                        projectRole.projectId = streamSelectedProject
-                    }
+                    projectRole.projectId = this.getProjectId(active);
                 }
 
                 if (this.hasDatabase(active)) {
@@ -324,20 +337,24 @@ class AdminUser extends Component {
             }
         });
     }
-
+    getProjectId (active) {
+        const { selectedProject, streamSelectedProject, scienceSelectedProject } = this.state;
+        let map = {
+            [MY_APPS.RDOS]: selectedProject,
+            [MY_APPS.STREAM]: streamSelectedProject,
+            [MY_APPS.SCIENCE]: scienceSelectedProject
+        }
+        return map[map];
+    }
     removeUserFromProject = (member) => {
         const ctx = this
-        const { active, selectedProject, streamSelectedProject, selecteDatabase } = this.state
+        const { active, selecteDatabase } = this.state
         const params = {
             targetUserId: member.userId
         }
 
         if (hasProject(active)) {
-            if (active == MY_APPS.RDOS) {
-                params.projectId = selectedProject
-            } else if (active == MY_APPS.STREAM) {
-                params.projectId = streamSelectedProject
-            }
+            params.projectId = this.getProjectId(active);
         }
 
         if (this.hasDatabase(active)) {
@@ -356,7 +373,7 @@ class AdminUser extends Component {
 
     updateMemberRole = (item) => {
         const ctx = this
-        const { editTarget, active, selectedProject, streamSelectedProject, selecteDatabase } = this.state;
+        const { editTarget, active, selecteDatabase } = this.state;
 
         const memberRole = ctx.eidtRoleForm.props.form.getFieldsValue()
 
@@ -372,11 +389,7 @@ class AdminUser extends Component {
         }
 
         if (hasProject(active)) {
-            if (active == MY_APPS.RDOS) {
-                params.projectId = selectedProject
-            } else if (active == MY_APPS.STREAM) {
-                params.projectId = streamSelectedProject
-            }
+            params.projectId = this.getProjectId(active);
         }
 
         if (this.hasDatabase(active)) {
@@ -429,6 +442,9 @@ class AdminUser extends Component {
             currentPage: 1,
             roleIds: [],
             notProjectUsers: [],
+            projects: [],
+            streamProjects: [],
+            scienceProjects: [],
             searchName: undefined
         }, this.loadData)
     }
@@ -453,7 +469,12 @@ class AdminUser extends Component {
             currentPage: 1
         }, this.loadData)
     }
-
+    onScienceProjectSelect = (value) => {
+        this.setState({
+            scienceSelectedProject: value,
+            currentPage: 1
+        }, this.loadData)
+    }
     initAddMember = () => {
         this.loadUsersNotInProject();
         this.setState({ visible: true })
@@ -545,7 +566,18 @@ class AdminUser extends Component {
     }
 
     renderTitle = () => {
-        const { projects, streamProjects, active, selectedProject, searchName, streamSelectedProject, dataBase, selecteDatabase } = this.state;
+        const {
+            projects,
+            streamProjects,
+            active,
+            selectedProject,
+            searchName,
+            streamSelectedProject,
+            dataBase,
+            selecteDatabase,
+            scienceSelectedProject,
+            scienceProjects
+        } = this.state;
 
         let selectValue;
         let onSelectChange;
@@ -564,6 +596,10 @@ class AdminUser extends Component {
         } else if (active == MY_APPS.ANALYTICS_ENGINE) {
             databaseOptions = dataBase;
             onSelectChange = this.onDatabaseSelect;
+        } else if (active == MY_APPS.SCIENCE) {
+            selectValue = scienceSelectedProject;
+            projectsOptions = scienceProjects;
+            onSelectChange = this.onScienceProjectSelect
         }
 
         const projectOpts = projectsOptions && projectsOptions.map(project =>

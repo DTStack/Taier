@@ -1,0 +1,260 @@
+@import './siderbar.scss';
+@import './panelGroup.scss';
+@import './mainBench.scss';
+@import './defaultView.scss';
+@import './modelView.scss';
+@import './graph.scss';
+
+.sidebar {
+    &.c-component-siderbar{
+        .s-catalogue{
+            top: 10px;
+        }
+    }
+   .s-catalogue {
+
+        position: absolute;
+        top: 35px;
+        right: 0px;
+        left: 0px;
+        bottom: 0px;
+        padding: 6px 15px 5px 12px;
+        overflow: auto;
+
+        .ant-tree {
+
+            li {
+                padding: 4px 0 0 0;
+                .ant-tree-node-content-wrapper {
+                    padding: 5px 5px;
+
+                    .tree-node-hover-items {
+                        display: none;
+                        position: absolute;
+                        right: 12px;
+                        top: 7px;
+                    }
+
+                    .tree-node-hover-item {
+                        font-size: 14px;
+                        width: 14px;
+                        height: 14px;
+                        color: #333333;
+                        cursor: pointer;
+                        line-height: 14px;
+                        margin-right: 5px;
+                        vertical-align: middle;
+                    }
+
+                    &:hover .tree-node-hover-items  {
+                        display: inline-block;
+                    }
+                }
+
+                span.ant-tree-iconEle,
+                span.ant-tree-switcher {
+                    width: 16px;
+                }
+                
+                span.ant-tree-switcher {
+                    height: 28px;
+                    line-height: 28px;
+                }
+    
+                span.ant-tree-iconEle {
+                    &.ant-tree-icon_loading{
+                        position: relative;
+                        transform: none;
+                        left: initial;
+                        background-color: transparent;
+                        top: 0;
+                        &::after{
+                            position: absolute;
+                            left: -100%;
+                            background: #f5f5f5;
+                        }
+                    }
+                    margin-top: -2px;
+                    margin-right: 3px;
+                    background-size: cover;
+                    background-position: center center;
+                    height: 16px;
+                    line-height: 16px;
+                }
+                .ant-tree-icon__open{
+                    background-image: url(/public/science/img/icon/open-folder.svg);
+                }
+                .ant-tree-icon__close{
+                    background-image: url(/public/science/img/icon/folder.svg);
+                }
+            }
+
+        }
+   }
+}
+
+.o-tree-icon--normal {
+    .ant-tree-iconEle {
+        background-image: url(/public/science/img/database.svg);
+    }
+}
+.o-tree-icon--notebook {
+    .ant-tree-iconEle::before {
+        color: #2491F7;
+        font-size: 16px;
+        content: "\E637";
+        display: block;
+        font-family: "anticon" !important;
+    }
+}
+.o-tree-icon--experiment {
+    .ant-tree-iconEle::before {
+        color: #2491F7;
+        font-size: 16px;
+        content: "\E6D7";
+        display: block;
+        font-family: "anticon" !important;
+    }
+}
+.s-tree-folder {
+    &>.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/folder.svg);
+    }
+}
+
+.s-tree-item {
+    &>.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/file.svg);
+    }
+}
+
+.s-database {
+    .ant-tree-node-content-wrapper>.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/database.svg);
+    }
+}
+
+.s-table {
+    .ant-tree-node-content-wrapper >.ant-tree-iconEle {
+        background-image: url(/public/analyticsEngine/img/table.svg);
+    }
+}
+
+.s-datamap {
+   .ant-tree-node-content-wrapper>.ant-tree-icon__docu {
+        background-image: url(/public/analyticsEngine/img/datamap.svg);
+    }
+}
+
+.table-detail-container{
+    .ant-pagination{
+        .ant-pagination-item-active{
+            border: 1px solid #2491F7;
+            background-color: white;
+            a{
+                color: #2491F7;
+            }
+        }
+    }
+
+    .ant-table-small{
+        border-left: none;
+        border-right: none;
+    }
+    .ant-tabs-tabpane{
+        height: auto;
+    }
+    .tabs-container{
+        border: 1px solid #DDDDDD;
+        border-top: none;
+        border-right: none;
+
+    &>.ant-tabs {
+
+        .ant-tabs-bar {
+            margin-bottom: 0;
+            .ant-tabs-ink-bar{
+                top: 0;
+                visibility: visible;
+            }
+            .ant-tabs-nav-container{
+                height: 36px;
+            }
+            .ant-tabs-tab{
+                height: 35px;
+                display: inline-flex;
+                align-items: center;
+                border-left: 0;
+                margin-right: 0;
+            }
+            .ant-tabs-tab-active{
+                height: 36px;
+            }
+        }
+        .ant-tabs-content{
+            padding-top: 10px;
+            height: auto;
+            border-right: 1px solid #dddddd;
+        }
+            table{
+                background-color: #F5F5F5;
+                padding: 0;
+            }
+            .ant-table-body{
+                overflow-y: hidden;
+                overflow-x: scroll;
+            }
+
+            .ant-table-small {
+                .ant-table-tbody {
+                    tr{
+                        td{
+                            background: white;
+                            padding: 7px 20px;
+                            font-size: 12px;
+                            color: #333333;
+                            white-space: nowrap;
+                        }
+                    }
+                }
+            }
+            .ant-table-thead{
+                // background-color: #F5F5F5;
+                th{
+                    background-color: #F5F5F5;
+                    padding: 6.5px 21px;
+                    span{
+                        font-size: 12px;
+                        font-weight: normal;
+                        white-space: nowrap;
+
+                    }
+                }
+            }
+    }
+    }
+    .tabs-row{
+        padding: 0 20px;
+    }
+    .table-detail-panel{
+        padding: 0 20px 0 21px;
+        margin-top: 27px;
+        margin-bottom: 31px;
+        .func-box{
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            align-items: center;
+            line-height: 1;
+            .title{
+                font-size: 14px;
+                color: #333333;
+            }
+            .btn{
+                width: 112px;
+                height: 26px;
+                border-radius: 2px;
+            }
+        }
+    }
+}

@@ -13,6 +13,7 @@ module.exports = {
     'listen': 3001,
     'root': 'dist',
     'location': {
+        '/api/dataScience/service/scienceTask/getData': `${base}/res/get_res.json`
         // "/api/rdos/batch/batchTask/getTaskById": `${base}/task/get_task.json`,
         // "/api/task/add": `${base}/add.json`
         // "/api/analysis/getCatalogue": `${base}/catalogue/get_catalogues.json`,
@@ -38,10 +39,9 @@ module.exports = {
             secure: false
         },
         '/api/streamapp': {
-            // target: "http://172.16.1.191:9021", // formal test ser
-            // target: "http://172.16.8.104:9020", // formal test ser
-            // target: "http://172.16.8.105:9021", // formal test ser
-            target: 'http://172.16.10.86:9021', // test
+            target: 'http://172.16.10.86:9021', // test ser
+            // target: 'http://172.16.0.157:9020', // temp ser
+            // target: 'http://172.16.8.107:9020', // formal test ser
             changeOrigin: true,
             secure: false
         },
@@ -51,8 +51,8 @@ module.exports = {
             secure: false
         },
         '/api/da': { // da地址
-            target: 'http://172.16.10.45:8087',
-            // target: 'http://172.16.8.108:8087',
+            // target: 'http://172.16.10.45:8087',
+            target: 'http://172.16.8.108:8087',
             // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
             changeOrigin: true,
             secure: false
@@ -71,9 +71,16 @@ module.exports = {
             secure: false
         },
         '/api/analysis': { // 分析引擎
-            target: 'http://172.16.8.105:9022', // 开发环境
-            // target: "http://172.16.10.45:9022", // 测试环境
+            // target: 'http://172.16.8.108:9022', // 开发环境
+            target: 'http://172.16.10.45:9022', // 测试环境
             // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+            changeOrigin: true,
+            secure: false
+        },
+        '/api/dataScience': { // 算法平台
+            // target: 'http://172.16.8.107:9029', // 开发环境
+            // target: 'http://172.16.2.131:9029', // 联调环境
+            target: 'http://172.16.3.30:9029', // 联调环境
             changeOrigin: true,
             secure: false
         }

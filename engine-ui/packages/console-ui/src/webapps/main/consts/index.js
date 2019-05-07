@@ -13,7 +13,8 @@ export const MY_APPS = {
     DATA_MAP: 'map',
     META_DATA: 'metaData',
     ANALYTICS_ENGINE: 'analyticsEngine',
-    CONSOLE: 'console'
+    CONSOLE: 'console',
+    SCIENCE: 'science'
 }
 
 export const mainApp = {

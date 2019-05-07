@@ -37,6 +37,7 @@ export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
         case MY_APPS.API:
         case MY_APPS.LABEL:
         case MY_APPS.ANALYTICS_ENGINE:
+        case MY_APPS.SCIENCE:
         case MY_APPS.DATA_QUALITY: {
             if (loginUser.isTenantAdmin) { // 租户管理员
                 return value === APP_ROLE.TENANT_OWVER

@@ -3,21 +3,18 @@
     "message": "request success.",
     "result": "",
     "data": [
-        {
-            "id": 45,
-            "gmtCreate": 1493262555000,
-            "gmtModified": 1493262555000,
-            "isDeleted": 0,
-            "tenantId": 0,
-            "projectId": 123,
-            "url": "hdfs://172.16.1.151:9000/rdos/stream/SocketWindowWordCount.jar",
-            "resourceType": 1,
-            "resourceName": "????1",
-            "originFileName": "SocketWindowWordCount.jar",
-            "createUserId": 1,
-            "nodePid": 1,
-            "resourceDesc": "????"
-        }
+        [
+            "id",
+            "age"
+        ],
+        [
+            "5",
+            "5.0"
+        ],
+        [
+            "1",
+            "1.0"
+        ]
     ],
     "space": "0.3s"
 }
