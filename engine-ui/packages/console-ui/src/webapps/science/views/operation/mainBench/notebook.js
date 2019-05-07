@@ -4,6 +4,7 @@ import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd'
 import Api from '../../../api'
 import { offlineTaskPeriodFilter } from '../../../comm/const.js'
 import { taskType } from '../../../consts';
+import { toRdos } from './helper';
 
 import utils from 'utils';
 
@@ -177,7 +178,7 @@ class Notebook extends PureComponent {
                             placeholder='按Notebook名称搜索'
                             style={{ width: 267 }} />
                     }
-                    extra={<a href="javascript:void(0)">前往离线计算运维中心，查看实例运行情况</a>}>
+                    extra={<a onClick={toRdos} >前往离线计算运维中心，查看实例运行情况</a>}>
                     <Table
                         rowSelection={rowSelection}
                         rowKey="id"
