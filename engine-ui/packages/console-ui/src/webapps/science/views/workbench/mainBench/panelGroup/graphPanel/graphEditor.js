@@ -53,6 +53,15 @@ class GraphEditor extends Component {
         this.initGraph(data);
     }
     _edges = []; //
+    shouldComponentUpdate (nextProps, nextState) {
+        console.group();
+        console.log(nextProps.version, '->', this.props.version);
+        console.groupEnd();
+        if (nextProps.version === this.props.version) {
+            return false
+        }
+        return true;
+    }
 
     componentDidUpdate (prevProps) {
         const data = this.props.data
@@ -68,8 +77,8 @@ class GraphEditor extends Component {
         this.graph = '';
         const graphContainer = this.Container;
         this.initGraphEditor(graphContainer);
-        this.initListener();
-        this.initEdgeInsert();
+        this.initEventListener();
+        this.customizeInsertEdge();
         this.initConnector();
         this.listenConnection();
         this.initRender(data);
@@ -140,7 +149,7 @@ class GraphEditor extends Component {
         graph.convertValueToString = this.corvertValueToString
     }
     /* 重置一些添加事件的方法 */
-    initListener= () => {
+    initEventListener = () => {
         mxEventSource.prototype.addListener = function (name, funct, isUpdate = false) {
             if (this.eventListeners == null) {
                 this.eventListeners = [];
@@ -313,8 +322,8 @@ class GraphEditor extends Component {
             return '';
         }
     }
-    /* 自定义插入edge时的样式 */
-    initEdgeInsert = () => {
+    /* 自定义插入的edge样式 */
+    customizeInsertEdge = () => {
         const graph = this.graph;
         mxConnectionHandler.prototype.insertEdge = function (parent, id, value, source, target, style) {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;
@@ -426,6 +435,7 @@ class GraphEditor extends Component {
         mxConstraintHandler.prototype.intersects = function (icon, point, source, existingEdge) {
             return (!source || existingEdge) || mxUtils.intersects(icon.bounds, point);
         };
+        // 重写该方法，hover on constraint的时候可以展示title
         mxConstraintHandler.prototype.setFocus = function (me, state, source) {
             this.constraints = (state != null && !this.isStateIgnored(state, source) &&
                 this.graph.isCellConnectable(state.cell)) ? ((this.isEnabled())
@@ -482,6 +492,12 @@ class GraphEditor extends Component {
 
                     icon.redraw(); // icon在redraw之后 icon.node里面才有节点
                     if (this.constraints[i].name) {
+                        /**
+                         * 这个方法里面的其他地方都是源码复制过来的
+                         * 主要是这个if判断里面的内容
+                         * 为constraints添加title
+                         * hover展示name
+                         */
                         let title = document.createElementNS(mxConstants.NS_SVG, 'title');
                         title.innerHTML = this.constraints[i].name;
                         icon.node.children[0].appendChild(title)
@@ -585,37 +601,37 @@ class GraphEditor extends Component {
         this.graph.zoomOut()
     }
 
-     /* 初始化layout */
-     initGraphLayout = () => {
-         const graph = this.graph;
-         const { data } = this.props;
-         if (data.graph) {
-             const scale = data.graph.scale;
-             const dx = data.graph.translate.x;
-             const dy = data.graph.translate.y;
-             graph.view.setScale(scale);
-             graph.view.setTranslate(dx, dy);
-         } else {
-             this.layoutCenter();
-         }
-         // 注册执行布局
-         this.executeLayout = function (layoutTarget, change, post) {
-             const parent = layoutTarget || graph.getDefaultParent();
-             try {
-                 if (change != null) { change(); }
-                 const layout = new mxHierarchicalLayout(graph, 'north');
-                 layout.disableEdgeStyle = false;
-                 layout.interRankCellSpacing = 60;
-                 layout.intraCellSpacing = 60;
-                 layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
-                 layout.execute(parent);
-             } catch (e) {
-                 throw e;
-             } finally {
-                 if (post != null) { post(); }
-             }
-         }
-     }
+    /* 初始化layout */
+    initGraphLayout = () => {
+        const graph = this.graph;
+        const { data } = this.props;
+        const index = data.findIndex(o => o.graph);
+        if (index !== -1) {
+            const scale = data[index].scale;
+            const dx = data[index].translate.x;
+            const dy = data[index].translate.y;
+            graph.view.scaleAndTranslate(scale, dx, dy);
+        } else {
+            this.layoutCenter();
+        }
+        // 注册执行布局
+        this.executeLayout = function (layoutTarget, change, post) {
+            const parent = layoutTarget || graph.getDefaultParent();
+            try {
+                if (change != null) { change(); }
+                const layout = new mxHierarchicalLayout(graph, 'north');
+                layout.disableEdgeStyle = false;
+                layout.interRankCellSpacing = 60;
+                layout.intraCellSpacing = 60;
+                layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
+                layout.execute(parent);
+            } catch (e) {
+                throw e;
+            } finally {
+                if (post != null) { post(); }
+            }
+        }
+    }
 
     layoutCenter = () => {
         this.graph.center(true, true, 0.3, 0.3);
@@ -625,10 +641,6 @@ class GraphEditor extends Component {
         this.executeLayout(null, null, () => {
             this.layoutCenter();
         });
-    }
-
-    undo = () => { // 撤销上一步
-        this.undoMana.undo()
     }
 
     getDefaultVertexStyle () {

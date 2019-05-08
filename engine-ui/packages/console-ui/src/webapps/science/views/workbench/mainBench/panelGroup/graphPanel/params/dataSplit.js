@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Tabs, Select, InputNumber, Input, message } from 'antd';
+import { Form, Tabs, Select, InputNumber, Input, message, Spin } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
 import { cloneDeep, debounce } from 'lodash';
@@ -16,19 +16,31 @@ class ParamSetting extends PureComponent {
         super(props);
         this.state = {
             tableData: [],
+            fetching: false,
             params: cloneDeep(props.data)
         }
-        this.handleChange = debounce(this.handleChange, 800);
+        this.handleChange = debounce(this.handleChange, 500);
     }
     componentDidMount () {
+        // 如果拆分方式已选择是阈值列，则去请求阈值列的下拉菜单
         if (this.props.form.getFieldValue('splitType') == '2') {
             this.getTableColumns();
         }
     }
     getTableColumns = () => {
+        if (this.state.tableData.length > 0) {
+            /**
+             * 这里是为了减少请求次数
+             * 通过判断tableData的长度来判断是否需要再次请求
+             */
+            return;
+        }
         const { currentTab, componentId } = this.props;
         const targetEdge = currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
+        })
+        this.setState({
+            fetching: true
         })
         api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then(res => {
             if (res.code === 1) {
@@ -46,15 +58,20 @@ class ParamSetting extends PureComponent {
                     tableData
                 })
             }
+            this.setState({
+                fetching: false
+            })
         })
     }
     handleChange = (field, value) => {
         const { params } = this.state;
         if (field === 'splitType') {
+            // 如果只是切换拆分方式的话，暂时不做保存，考虑到还有必填项没有填写
             params[field] = value
             this.setState({
                 params
             })
+            // 选择按阈值拆分的情况下再去请求阈值列的下拉列表
             value === '2' && this.getTableColumns();
         } else {
             params[field] = value
@@ -75,7 +92,7 @@ class ParamSetting extends PureComponent {
             callback(new Error('取值范围为（0，1）'));
         }
     }
-    normalize = (value) => {
+    handleNormalize = (value) => {
         if (parseInt(value) == value) {
             return parseInt(value)
         } else {
@@ -83,7 +100,7 @@ class ParamSetting extends PureComponent {
         }
     }
     renderFormItme = () => {
-        const { tableData } = this.state;
+        const { tableData, fetching } = this.state;
         const { getFieldDecorator } = this.props.form;
         const selectedValue = this.props.form.getFieldValue('splitType');
         const prefixSelector = getFieldDecorator('operator', {
@@ -150,7 +167,10 @@ class ParamSetting extends PureComponent {
                                 { required: true, message: '请选择阈值列' }
                             ]
                         })(
-                            <Select onChange={(value) => this.handleChange('thresholdCol', value)}>
+                            <Select
+                                notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
+                                onChange={(value) => this.handleChange('thresholdCol', value)}
+                            >
                                 {
                                     tableData.filter(o => o.type !== 'string').map((item, index) => {
                                         return (
@@ -171,7 +191,7 @@ class ParamSetting extends PureComponent {
                                 { required: true, message: '请输入阈值' },
                                 { type: 'number', message: '只允许输入数字' }
                             ],
-                            normalize: this.normalize
+                            normalize: this.handleNormalize
                         })(
                             <Input onChange={(e) => this.handleChange('threshold', e.target.value)} addonBefore={prefixSelector} style={inputStyle} />
                         )}
@@ -193,7 +213,9 @@ class ParamSetting extends PureComponent {
                         initialValue: '1',
                         rules: [{ required: true, message: '请选择拆分方式' }]
                     })(
-                        <Select onChange={(value) => this.handleChange('splitType', value)}>
+                        <Select
+                            onChange={(value) => this.handleChange('splitType', value)}
+                        >
                             <Option value='1'>按比例拆分</Option>
                             <Option value='2'>按阈值拆分</Option>
                         </Select>
@@ -217,7 +239,7 @@ class DataSplit extends PureComponent {
     }
     handleSaveComponent = (dataSplitComponent) => {
         const { currentTab, componentId, changeContent } = this.props;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             dataSplitComponent: {

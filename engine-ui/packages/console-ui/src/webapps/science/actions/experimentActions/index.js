@@ -99,16 +99,18 @@ export function copyCell (tabData, copyCell) {
         })
     }
 }
-export function getTaskDetailData (data, taskId, cb) {
+export function getTaskDetailData (data, taskId) {
     return (dispatch) => {
-        api.getExperimentTask({ id: taskId }).then((res) => {
-            if (res.code === 1) {
-                const graphData = data.graphData;
-                const object = graphData.find(o => o.vertex && o.data.id === taskId);
-                object.data = res.data;
-                dispatch(changeContent(data, {}, false, true));
-                cb && cb();
-            }
+        return new Promise((resolve) => {
+            api.getExperimentTask({ id: taskId }).then((res) => {
+                if (res.code === 1) {
+                    const graphData = data.graphData;
+                    const object = graphData.find(o => o.vertex && o.data.id === taskId);
+                    object.data = res.data;
+                    dispatch(changeContent(data, {}, false, true));
+                    resolve(res.data);
+                }
+            })
         })
     }
 }

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Select, Input, InputNumber, message } from 'antd';
+import { Form, Select, Input, InputNumber, message, Spin } from 'antd';
 import { debounce } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { formItemLayout } from './index';
@@ -8,16 +8,17 @@ const Option = Select.Option;
 // 表选择
 class FieldSetting extends PureComponent {
     state = {
-        originalColumns: []
-    }
-    componentDidMount () {
-        this.getColumns()
+        originalColumns: [],
+        fetching: false
     }
     getColumns = () => {
         const { currentTab, componentId } = this.props;
         const targetEdge = currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
         })
+        this.setState({
+            fetching: true
+        });
         api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res) => {
             if (res.code === 1) {
                 let originalColumns = [];
@@ -34,6 +35,9 @@ class FieldSetting extends PureComponent {
                     originalColumns
                 })
             }
+            this.setState({
+                fetching: false
+            });
         })
     }
     handleChange = (value) => {
@@ -45,7 +49,7 @@ class FieldSetting extends PureComponent {
     }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { originalColumns } = this.state;
+        const { originalColumns, fetching } = this.state;
         return (
             <Form className="params-form">
                 <FormItem
@@ -56,10 +60,15 @@ class FieldSetting extends PureComponent {
                     {getFieldDecorator('oldLabel', {
                         rules: [{ required: true, message: '请选择原始标签列列名' }]
                     })(
-                        <Select onChange={this.handleChange}>
-                            {originalColumns.map((item, index) => {
-                                return <Option key={item.key} value={String(item.key)}>{item.key}</Option>
-                            })}
+                        <Select
+                            notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
+                            onFocus={this.getColumns}
+                            onChange={this.handleChange}>
+                            {
+                                originalColumns.map((item, index) => {
+                                    return <Option key={item.key} value={String(item.key)}>{item.key}</Option>
+                                })
+                            }
                         </Select>
                     )}
                 </FormItem>
@@ -116,7 +125,7 @@ class BinaryClassfication extends PureComponent {
     }
     handleSaveComponent = (field, filedValue) => {
         const { data, currentTab, componentId, changeContent } = this.props;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             eveluationComponent: {

@@ -108,7 +108,7 @@ class Normalise extends PureComponent {
     }
     handleSaveComponent = (field, filedValue) => {
         const { currentTab, componentId, data, changeContent } = this.props;
-        const currentComponentData = currentTab.graphData.find(o => o.data.id === componentId);
+        const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
         const params = {
             ...currentComponentData.data,
             normalizationComponent: {
