@@ -224,8 +224,6 @@ class GraphContainer extends React.Component {
                     this.removeCell(cell);
                 }
             }
-            e.preventDefault();
-            return false;
         }
     }
     /* graph的事件监听 */
