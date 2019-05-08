@@ -25,10 +25,6 @@ class SiderBench extends React.Component {
     }
     _updateKey = 0;
 
-    constructor (props) {
-        super(props);
-    }
-
     componentDidUpdate (prevProps) {
         const tabData = this.props.tabData
         const { tabData: oldData } = prevProps
@@ -63,7 +59,8 @@ class SiderBench extends React.Component {
     getTabPanes = () => {
         const { tabData, project, user, editor } = this.props;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const couldEdit = isProjectCouldEdit(project, user);
+        const isScienceTask = tabData.taskType == TASK_TYPE.NOTEBOOK || tabData.taskType == TASK_TYPE.EXPERIMENT;
+        const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
         if (!tabData) return null;
 
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
@@ -88,6 +85,7 @@ class SiderBench extends React.Component {
                     <SchedulingConfig
                         isPro={isPro}
                         couldEdit={couldEdit}
+                        isScienceTask={isScienceTask}
                         tabData={tabData}
                         key={`schedule-${tabData && tabData.version}-${this._updateKey}`}
                         isIncrementMode={isIncrementMode}
@@ -109,16 +107,18 @@ class SiderBench extends React.Component {
             tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
             tabData.taskType !== TASK_TYPE.WORKFLOW
         ) {
-            panes.push(
-                <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
-                    <TaskParams
-                        isPro={isPro}
-                        couldEdit={couldEdit}
-                        tabData={tabData}
-                        onChange={this.debounceChange}
-                    />
-                </TabPane>
-            )
+            if (!isScienceTask) {
+                panes.push(
+                    <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
+                        <TaskParams
+                            isPro={isPro}
+                            couldEdit={couldEdit}
+                            tabData={tabData}
+                            onChange={this.debounceChange}
+                        />
+                    </TabPane>
+                )
+            }
             panes.push(
                 <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                     <SQLEditor

@@ -42,7 +42,7 @@ class SiderBarContainer extends React.Component {
         const { changeSiderBar, siderBarKey } = this.props;
         return (
             <Tabs activeKey={siderBarKey} onChange={changeSiderBar} className={`c-antd-tabs-sidebar ${siderBarKey == siderBarType.model ? 'u-pane--hidden' : ''}`} tabPosition='left'>
-                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='book' />notebook</span>} key={siderBarType.notebook}>
+                <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='book' />Notebook</span>} key={siderBarType.notebook}>
                     <NotebookSiderBar />
                 </TabPane>
                 <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type='usb' />实验</span>} key={siderBarType.experiment}>

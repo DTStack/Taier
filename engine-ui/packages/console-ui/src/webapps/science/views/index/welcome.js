@@ -109,10 +109,10 @@ class Welcome extends Component {
                             style={{ marginTop: 20 }}
                             bordered={false}
                             noHovering
-                            title={<div>欢迎使用DTInsight.Science数据科学平台</div>}
+                            title={<div style={{ fontSize: '16px' }}>欢迎使用DTInsight.Science数据科学平台</div>}
                             extra={<>
-                                <Button ghost type="primary" onClick={this.handleNewProject}>创建项目</Button>
-                                <Button ghost type="primary" onClick={this.gotoProjectList}>项目列表</Button>
+                                <Button className='o-button--large-font' ghost type="primary" onClick={this.handleNewProject}>创建项目</Button>
+                                <Button className='o-button--large-font' ghost type="primary" onClick={this.gotoProjectList}>项目列表</Button>
                             </>}>
                             <img src='public/science/img/welcome.png' />,
                         </Card>

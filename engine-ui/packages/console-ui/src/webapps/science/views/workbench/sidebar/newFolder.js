@@ -77,10 +77,12 @@ class NewFolder extends React.Component {
                             rules: [{
                                 required: true,
                                 message: '请输入文件夹名称'
+                            }, {
+                                max: 32, message: '不超过32个字符'
                             }],
                             initialValue: get(data, 'name')
                         })(
-                            <Input placeholder='名称不超过32个字符' />
+                            <Input placeholder='请输入文件夹名' />
                         )}
                     </FormItem>
                     <FormItem

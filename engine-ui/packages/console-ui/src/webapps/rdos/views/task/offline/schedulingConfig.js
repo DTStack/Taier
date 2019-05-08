@@ -853,7 +853,7 @@ class SchedulingConfig extends React.Component {
             loading, wFScheduleConf, selfReliance
         } = this.state;
 
-        const { tabData, isWorkflowNode, couldEdit, isIncrementMode } = this.props;
+        const { tabData, isWorkflowNode, couldEdit, isIncrementMode, isScienceTask } = this.props;
 
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
@@ -913,7 +913,7 @@ class SchedulingConfig extends React.Component {
         };
 
         return <div className="m-scheduling" style={{ position: 'relative' }}>
-            {isLocked || !couldEdit ? <div className="cover-mask"></div> : null}
+            {isLocked || (!couldEdit && !isScienceTask) ? <div className="cover-mask"></div> : null}
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap

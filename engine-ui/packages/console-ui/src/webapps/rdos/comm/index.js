@@ -93,6 +93,12 @@ export function taskTypeIcon (type, task = {}) {
             case TASK_TYPE.CARBONSQL: {
                 return 's-carbonsql';
             }
+            case TASK_TYPE.NOTEBOOK: {
+                return 's-notebook';
+            }
+            case TASK_TYPE.EXPERIMENT: {
+                return 's-experiment';
+            }
             default:
                 return '';
         }

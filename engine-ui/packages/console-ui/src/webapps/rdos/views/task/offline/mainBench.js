@@ -171,7 +171,9 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.MR:
                 case TASK_TYPE.VIRTUAL_NODE:
                 case TASK_TYPE.ML:
-                case TASK_TYPE.HAHDOOPMR: {
+                case TASK_TYPE.HAHDOOPMR:
+                case TASK_TYPE.NOTEBOOK:
+                case TASK_TYPE.EXPERIMENT: {
                     return <NormalTaskForm
                         isWorkflowNode={isWorkflowNode}
                         key={tabData.id}

@@ -32,7 +32,7 @@ export function authAfterFormated(response) {
             message: '权限通知',
             description: response.message,
         });
-        return Promise.reject(response);
+        return response;
     case 16: // 需要重新进入Web首页选择项目，并进入
         hashHistory.push('/');
     default:

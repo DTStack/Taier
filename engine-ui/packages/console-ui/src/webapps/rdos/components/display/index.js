@@ -31,6 +31,10 @@ export function taskTypeText (type) {
             return '工作流';
         case TASK_TYPE.CARBONSQL:
             return 'CarbonSQL';
+        case TASK_TYPE.NOTEBOOK:
+            return 'Notebook';
+        case TASK_TYPE.EXPERIMENT:
+            return '算法实验';
         default:
             return '未知';
     }

@@ -70,3 +70,10 @@ table {
 .state-loading{
     @include state-icon-base(#f5a623);
 }
+.o-button--large-font {
+    font-size: 14px;
+    font-weight: normal;
+}
+.o-font--normal {
+    font-weight: normal;
+}
