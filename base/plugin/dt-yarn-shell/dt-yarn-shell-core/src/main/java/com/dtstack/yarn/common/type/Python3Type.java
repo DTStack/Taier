@@ -25,7 +25,7 @@ public class Python3Type extends AppType {
             try {
                 String cmdOpts = clientArguments.getCmdOpts();
                 if (clientArguments.getLocalFile()){
-                    cmdOpts += clientArguments.getApplicationId();
+                    cmdOpts += " " + clientArguments.getApplicationId();
                 }
                 encodedOpts = URLEncoder.encode(cmdOpts, "UTF-8");
             } catch (Exception e) {
