@@ -52,9 +52,9 @@ class TargetForm extends React.Component {
         sourceId && this.getTableList(sourceId);
         if (type) {
             this.checkIsNativeHive(type.tableName);
-            // 加载分区
+            // 如果是已经添加过分区信息，则加载其分区列表信息
             if (type.partition) {
-                this.getHivePartions(type.table);
+                this.getHivePartitions(type.table);
             }
         }
     }
@@ -87,59 +87,6 @@ class TargetForm extends React.Component {
         })
     }
 
-    getTableColumn = (tableName) => {
-        const { form, handleTableColumnChange, targetMap } = this.props;
-        const sourceId = form.getFieldValue('sourceId');
-
-        this.setState({
-            loading: true
-        })
-        // 排除条件
-        if (targetMap.type && targetMap.type.type === DATA_SOURCE.HBASE) {
-            this.setState({
-                loading: false
-            })
-            return true;
-        }
-
-        ajax.getOfflineTableColumn({
-            sourceId,
-            tableName
-        }).then(res => {
-            this.setState({
-                loading: false
-            })
-            if (res.code === 1) {
-                handleTableColumnChange(res.data);
-                this.checkIsNativeHive(tableName);
-            } else {
-                handleTableColumnChange([]);
-            }
-        })
-    }
-    checkIsNativeHive (tableName) {
-        const { form, targetMap, changeNativeHive } = this.props;
-        const sourceId = form.getFieldValue('sourceId');
-        if (!tableName || !sourceId) {
-            return;
-        }
-        if (targetMap.type && targetMap.type.type === DATA_SOURCE.CARBONDATA) {
-            this.setState({
-                loading: true
-            })
-            ajax.isNativeHive({
-                sourceId,
-                tableName
-            }).then((res) => {
-                this.setState({
-                    loading: false
-                })
-                if (res.code == 1) {
-                    changeNativeHive(res.data)
-                }
-            })
-        }
-    }
     /**
      * 根据数据源id获取数据源信息
      * @param {*} id
@@ -174,15 +121,16 @@ class TargetForm extends React.Component {
         })
     }
 
-    getHivePartions = (tableName) => {
+    getHivePartitions = (tableName) => {
         const {
             targetMap, handleTargetMapChange
         } = this.props;
 
-        const { isNativeHive, sourceId, type } = targetMap;
+        const { sourceId, type } = targetMap;
+        // TODO 这里获取 Hive 分区的条件有点模糊
         if (type && (
             type.type === DATA_SOURCE.HIVE ||
-            (isNativeHive && type.type !== DATA_SOURCE.CARBONDATA)
+            type.type === DATA_SOURCE.CARBONDATA
         )) {
             ajax.getHivePartitions({
                 sourceId: sourceId,
@@ -199,12 +147,71 @@ class TargetForm extends React.Component {
 
     changeTable (value) {
         if (value) {
-            this.getTableColumn(value);
             // Reset partition
             this.props.form.setFieldsValue({ partition: '' });
-            this.getHivePartions(value);
+            // 获取表列字段
+            this.getTableColumn(value);
+            // 检测是否有 native hive
+            this.checkIsNativeHive(value);
+            // 获取 Hive 分区字段
+            this.getHivePartitions(value);
         }
         this.submitForm();
+    }
+
+    getTableColumn = (tableName) => {
+        const { form, handleTableColumnChange, targetMap } = this.props;
+        const sourceId = form.getFieldValue('sourceId');
+
+        this.setState({
+            loading: true
+        })
+        // 排除条件
+        if (targetMap.type && targetMap.type.type === DATA_SOURCE.HBASE) {
+            this.setState({
+                loading: false
+            })
+            return true;
+        }
+
+        ajax.getOfflineTableColumn({
+            sourceId,
+            tableName
+        }).then(res => {
+            this.setState({
+                loading: false
+            })
+            if (res.code === 1) {
+                handleTableColumnChange(res.data);
+            } else {
+                handleTableColumnChange([]);
+            }
+        })
+    }
+
+    checkIsNativeHive (tableName) {
+        const { form, targetMap, changeNativeHive } = this.props;
+        const sourceId = form.getFieldValue('sourceId');
+        if (!tableName || !sourceId) {
+            return;
+        }
+        if (targetMap.type && targetMap.type.type === DATA_SOURCE.CARBONDATA) {
+            this.setState({
+                loading: true
+            })
+            ajax.isNativeHive({
+                sourceId,
+                tableName
+            }).then((res) => {
+                this.setState({
+                    loading: false
+                })
+                if (res.code == 1) {
+                    const isNativeHive = res.data;
+                    changeNativeHive(isNativeHive);
+                }
+            })
+        }
     }
 
     submitForm = () => {
@@ -302,7 +309,7 @@ class TargetForm extends React.Component {
         this.setState({
             modalLoading: true
         })
-        ajax.createDdlTable({ sql: textSql }).then((res) => {
+        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId }).then((res) => {
             this.setState({
                 modalLoading: false
             })
@@ -318,7 +325,7 @@ class TargetForm extends React.Component {
         })
     }
     showCreateModal = () => {
-        const { sourceMap } = this.props;
+        const { sourceMap, targetMap } = this.props;
         this.setState({
             loading: true
         })
@@ -326,7 +333,8 @@ class TargetForm extends React.Component {
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName: tableName,
-            partition: sourceMap.type.partition
+            partition: sourceMap.type.partition,
+            targetSourceId: targetMap.sourceId
         })
             .then(
                 (res) => {

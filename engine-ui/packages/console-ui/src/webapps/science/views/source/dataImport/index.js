@@ -8,8 +8,9 @@ import {
 import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../api/table';
+import { toRdos } from 'funcs';
 
-import { getUploadStatus } from '../../../actions/sourceActions'
+// import { getUploadStatus } from '../../../actions/sourceActions'
 
 const defaultState = {
     file: '',
@@ -38,11 +39,11 @@ const defaultState = {
 }
 @connect()
 class ImportLocalData extends Component {
-    state = Object.assign({}, defaultState)
+    state = Object.assign({ key: Math.random() }, defaultState)
 
     importData = () => {
-        const { dispatch } = this.props;
-        const { file } = this.state;
+        // const { dispatch } = this.props;
+        // const { file } = this.state;
         const params = this.getParams()
         if (this.checkParams(params)) {
             params.partitions = JSON.stringify(params.partitions)
@@ -55,13 +56,14 @@ class ImportLocalData extends Component {
                     loading: false
                 })
                 if (res.code === 1) {
-                    getUploadStatus({
-                        queryParams: { queryKey: res.data },
-                        fileName: file.name
-                    }, dispatch)
+                    // getUploadStatus({
+                    //     queryParams: { queryKey: res.data },
+                    //     fileName: file.name
+                    // }, dispatch)
                     this.setState({
                         ...defaultState
-                    })
+                    });
+                    this.props.onOk();
                 }
             })
         }
@@ -136,6 +138,13 @@ class ImportLocalData extends Component {
     fileChange = (e) => {
         const file = e.target.files[0];
         const sizeLimit = 20 * 1024 * 1024 // 20MB
+        const fileName = file.name;
+        const suffix = fileName.split('.').pop();
+        const whiteList = ['txt', 'csv'];
+        if (whiteList.indexOf(suffix) == -1) {
+            message.error(`不支持 ${suffix} 后缀的文件`);
+            return;
+        }
         if (file.size > sizeLimit) {
             message.error('本地上传文件不可超过20MB!')
         } else {
@@ -224,7 +233,7 @@ class ImportLocalData extends Component {
     }
 
     onCancel = () => {
-        this.setState({ ...defaultState });
+        this.setState({ ...defaultState, key: Math.random() });
     }
 
     footer () {
@@ -274,7 +283,7 @@ class ImportLocalData extends Component {
                         ? (
                             <>
                                 此模块支持本地小批量数据上传，若需要同步数据库数据或大批量数据，请前往
-                                <a href="javascript:void(0)">离线计算-数据同步</a>
+                                <a onClick={toRdos}>离线计算-数据同步</a>
                                 模块完成
                             </>
                         )
@@ -297,7 +306,7 @@ class ImportLocalData extends Component {
         )
     }
     render () {
-        const { data, file, visible, step, targetExchangeWarning } = this.state
+        const { data, file, visible, step, targetExchangeWarning, key } = this.state
         return (
             <div id="JS_import_modal">
                 <input
@@ -313,6 +322,7 @@ class ImportLocalData extends Component {
                     maskClosable={false}
                     title="本地数据导入"
                     visible={visible}
+                    key={key}
                     onCancel={this.onCancel}
                     footer={this.footer()}
                 >

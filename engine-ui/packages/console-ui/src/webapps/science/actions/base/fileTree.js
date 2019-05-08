@@ -37,7 +37,15 @@ export function initLoadTreeNode () {
                 for (let i = 0; i < res.data.children.length; i++) {
                     const tree = res.data.children[i];
                     const treeType = tree.catalogueType;
-                    typeMap[treeType] && dispatch(initTreeNode(treeType, tree.children));
+                    if (typeMap[treeType]) {
+                        dispatch(initTreeNode(treeType, tree.children));
+                        if (treeType == siderBarType.notebook || treeType == siderBarType.experiment) {
+                            if (tree.children && tree.children.length) {
+                                dispatch(updateExpandedKeys(treeType, tree.children[0].key))
+                                dispatch(loadTreeData(treeType, tree.children[0].id));
+                            }
+                        }
+                    }
                 }
             }
         })
@@ -84,5 +92,13 @@ export function updateFolder (id, type, nodeName, nodePid) {
                 resolve(res)
             }
         })
+    }
+}
+
+export function updateExpandedKeys (type, keys) {
+    let actionType = typeMap[type];
+    return {
+        type: actionType.UPDATE_EXPANDEDKEYS,
+        payload: keys
     }
 }

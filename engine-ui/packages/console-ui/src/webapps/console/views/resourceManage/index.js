@@ -198,6 +198,7 @@ class ResourceManage extends React.Component {
         this.setState({
             changeModalVisible: false
         })
+        this.getResourceList();
     }
     resourceUserChange () {
         this.setState({

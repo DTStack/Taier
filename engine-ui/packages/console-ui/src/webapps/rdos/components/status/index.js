@@ -22,6 +22,7 @@ export function TaskStatus (props) {
     const value = props.value
     switch (value) {
         case TASK_STATUS.RUNNING:
+        case TASK_STATUS.TASK_STATUS_NOT_FOUND:
             return <span>
                 <Circle className="status_running" />&nbsp;
                     运行中
@@ -77,75 +78,14 @@ export function TaskStatus (props) {
                     重试中
             </span>
         case TASK_STATUS.WAIT_SUBMIT:
-        default:
             return <span>
                 <Circle className="status_wait_submit" />&nbsp;
                 等待提交
             </span>
-    }
-}
-
-// 0--->未提交
-// 10-->提交中
-// 16--->等待运行
-// 4--->运行中
-// 5--->已完成
-// 8--->失败
-// 7--->取消
-// 18--->冻结
-export function OfflineTaskStatus (props) {
-    const value = props.value
-    switch (value) {
-        case 4:
-            return <span>
-                <Circle style={{ background: '#2491F7' }} />&nbsp;
-                运行中
-            </span>
-        case 5:
-            return <span color="green">
-                <Circle style={{ background: '#00A755' }} />&nbsp;
-                成功
-            </span>
-        case 7:
-            return <span>
-                <Circle style={{ background: '#EF5350' }} />&nbsp;
-                    取消
-            </span>
-        case 8:
-            return <span color="red">
-                <Circle style={{ background: '#EF5350' }} />&nbsp;
-                运行失败
-            </span>
-        case 9:
-            return <span color="red">
-                <Circle style={{ background: '#EF5350' }} />&nbsp;
-                提交失败
-            </span>
-        case 21:
-            return <span color="red">
-                <Circle style={{ background: '#EF5350' }} />&nbsp;
-                上游失败
-            </span>
-        case 10:
-            return <span color="green">
-                <Circle style={{ background: '#2491F7' }} />&nbsp;
-                提交中
-            </span>
-        case 16:
-            return <span color="green" >
-                <Circle style={{ background: '#F5A623' }} />&nbsp;
-                等待运行
-            </span>
-        case 18:
-            return <span>
-                <Circle style={{ background: '#26DAD2' }} />&nbsp;
-                    冻结
-            </span>
-        case 0:
         default:
             return <span>
-                <Circle style={{ background: '#d9d9d9' }} />&nbsp;
-                等待提交
+                <Circle className="status_submit_failed" />&nbsp;
+                异常
             </span>
     }
 }
@@ -272,6 +212,10 @@ export function TaskType (props) {
             return <span>SparkSQL</span>
         case TASK_TYPE.CARBONSQL:
             return <span>CarbonSQL</span>
+        case TASK_TYPE.NOTEBOOK:
+            return <span>Notebook</span>
+        case TASK_TYPE.EXPERIMENT:
+            return <span>算法实验</span>
         default:
             return <span>SparkSQL</span>
     }

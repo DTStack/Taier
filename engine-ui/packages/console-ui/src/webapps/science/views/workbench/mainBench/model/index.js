@@ -58,7 +58,8 @@ class ModelView extends React.Component {
             currentPage: pagination.current,
             pageSize: pagination.pageSize,
             modelName: searchName,
-            statuss: filters.status
+            statuss: filters.status,
+            componentTypeList: filters.componentName
         }
         if (columnKey) {
             let dic = {

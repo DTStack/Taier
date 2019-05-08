@@ -16,7 +16,7 @@ import * as experimentActions from '../../../../../actions/experimentActions';
 import workbenchActions from '../../../../../actions/workbenchActions';
 
 import { siderBarType } from '../../../../../consts';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 
 // const Search = Input.Search;
 
@@ -26,7 +26,8 @@ import { Modal } from 'antd';
             routing: state.routing,
             files: state.experiment.files,
             currentTabIndex: state.experiment.currentTabIndex,
-            tabs: state.experiment.localTabs
+            tabs: state.experiment.localTabs,
+            expandedKeys: state.experiment.expandedKeys
         }
     },
     dispatch => {
@@ -42,7 +43,6 @@ class ExperimentSidebar extends Component {
     }
 
     state = {
-        expandedKeys: [],
         newFolderVisible: false,
         experimentSearchVisible: false,
         editParamsVisible: false,
@@ -66,9 +66,7 @@ class ExperimentSidebar extends Component {
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
         }
-        this.setState({
-            expandedKeys: keys
-        })
+        this.props.updateExpandedKeys(siderBarType.experiment, keys);
     }
     asynLoadCatalogue = (treeNode) => {
         return this.props.loadTreeData(siderBarType.experiment, treeNode.props.data.id)
@@ -99,7 +97,7 @@ class ExperimentSidebar extends Component {
                         onExpand={this.onExpand}
                         onSelect={this.onSelect}
                         selectedKeys={selectedKeys}
-                        expandedKeys={this.state.expandedKeys}
+                        expandedKeys={this.props.expandedKeys}
                         treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
@@ -144,6 +142,10 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '重命名',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的实验') {
+                                            message.warn('该文件夹不允许重命名');
+                                            return;
+                                        }
                                         this.newFolder({
                                             nodePid: activeNode.parentId,
                                             name: activeNode.name,
@@ -153,6 +155,10 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的实验') {
+                                            message.warn('该文件夹不允许删除');
+                                            return;
+                                        }
                                         Modal.confirm({
                                             title: '确认删除',
                                             content: '确认删除文件夹？',

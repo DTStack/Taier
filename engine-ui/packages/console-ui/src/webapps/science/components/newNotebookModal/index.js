@@ -33,6 +33,7 @@ class NewNotebookModal extends React.Component {
                 let res = await this.props.addNotebook(values);
                 if (res) {
                     this.props.onOk && this.props.onOk(res);
+                    this.props.openNotebook(res.data.id);
                     this.props.resetModal();
                 }
             }
@@ -61,6 +62,17 @@ class NewNotebookModal extends React.Component {
 class NewNotebookModalForm extends React.Component {
     loadData (node) {
         return this.props.loadTreeData(siderBarType.notebook, node.props.data.id);
+    }
+    getRootNode () {
+        const { files } = this.props;
+        if (files && files.length) {
+            const children = files[0].children;
+            const myFolder = children.find((node) => {
+                return node.name == '我的Notebook'
+            })
+            return myFolder && myFolder.id
+        }
+        return null;
     }
     render () {
         const { files, form, modal } = this.props;
@@ -93,7 +105,7 @@ class NewNotebookModalForm extends React.Component {
                             required: true,
                             message: '请选择存储位置'
                         }],
-                        initialValue: get(modalData, 'id')
+                        initialValue: get(modalData, 'id') || this.getRootNode()
                     })(
                         <FolderTree loadData={this.loadData.bind(this)} treeData={files} isSelect={true} hideFiles={true} />
                     )}

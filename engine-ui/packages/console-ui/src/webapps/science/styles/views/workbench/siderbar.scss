@@ -42,9 +42,6 @@
             color: #fff;
             background: #2491F7;
         }
-        .ant-tabs-ink-bar{
-            background: transparent;
-        }
     }
     &.ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
         padding-left: 0px;
@@ -70,7 +67,7 @@
 // 右边的tabs
 .ant-tabs-vertical.ant-tabs-right {
     &.c-panel-siderbar.c-panel-siderbar--open{
-        width: 329px;
+        width: 389px;
     }
     >.ant-tabs-content {
         padding-right: 0;

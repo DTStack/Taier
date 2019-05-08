@@ -138,8 +138,8 @@ async function pollTask (tabId, jobId, dispatch) {
                 resolveData(tabId, res.data, jobId, dispatch);
                 return true;
             }
-            case taskStatus.FAILED:
-            case taskStatus.CANCELED: {
+            case taskStatus.RUN_FAILED:
+            case taskStatus.STOPED: {
                 outputStatus(tabId, status, dispatch);
                 if (res.data && res.data.download) {
                     dispatch(appendNotebookLog(tabId, `完整日志下载地址：${createLinkMark({ href: res.data.download, download: '' })}\n`))

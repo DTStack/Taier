@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
 
@@ -25,7 +25,8 @@ import { siderBarType } from '../../../../../consts';
             routing: state.routing,
             files: state.notebook.files,
             currentTabIndex: state.notebook.currentTabIndex,
-            tabs: state.notebook.localTabs
+            tabs: state.notebook.localTabs,
+            expandedKeys: state.notebook.expandedKeys
         }
     },
     dispatch => {
@@ -66,9 +67,7 @@ class NotebookSidebar extends Component {
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
         }
-        this.setState({
-            expandedKeys: keys
-        })
+        this.props.updateExpandedKeys(siderBarType.notebook, keys);
     }
     onSelect = (selectedKeys, e) => {
         const data = e.node.props.data;
@@ -95,7 +94,7 @@ class NotebookSidebar extends Component {
                         loadData={this.asynLoadCatalogue}
                         onExpand={this.onExpand}
                         onSelect={this.onSelect}
-                        expandedKeys={this.state.expandedKeys}
+                        expandedKeys={this.props.expandedKeys}
                         selectedKeys={selectedKeys}
                         treeData={files}
                         nodeClass={(item) => {
@@ -141,6 +140,10 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '重命名',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的Notebook') {
+                                            message.warn('该文件夹不允许重命名');
+                                            return;
+                                        }
                                         this.newFolder({
                                             nodePid: activeNode.parentId,
                                             name: activeNode.name,
@@ -150,6 +153,10 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的Notebook') {
+                                            message.warn('该文件夹不允许删除');
+                                            return;
+                                        }
                                         Modal.confirm({
                                             title: '确认删除',
                                             content: `确认删除文件夹？`,

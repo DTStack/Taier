@@ -52,8 +52,8 @@ class NewProject extends Component {
         this.props.onCancel();
     }
     alert () {
-        const values = this.props.form.getFieldsValue(['projectName', 'projectAliaName']);
-        return values.projectName && values.projectAliaName && <div className="alert"><Icon type="question-circle-o" />项目创建后，项目显示名支持修改，项目名称将不能再修改</div>;
+        const values = this.props.form.getFieldsValue(['projectName', 'projectAlias']);
+        return values.projectName && values.projectAlias && <div className="alert"><Icon type="question-circle-o" />项目创建后，项目显示名支持修改，项目名称将不能再修改</div>;
     }
     render () {
         const { loading } = this.state;
@@ -87,7 +87,7 @@ class NewProject extends Component {
                                     pattern: /^\w+$/, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }]
                             })(
-                                <Input placeholder="项目创建后，项目显示名支持修改，项目名称将不能再修改" />
+                                <Input />
                             )}
                         </FormItem>
                         <FormItem
@@ -101,7 +101,7 @@ class NewProject extends Component {
                                     max: 32, message: '不超过32个字符'
                                 }]
                             })(
-                                <Input placeholder="不超过32个字符" />
+                                <Input />
                             )}
                         </FormItem>
                         <FormItem
@@ -114,7 +114,7 @@ class NewProject extends Component {
                                     message: '不超过64个字符'
                                 }]
                             })(
-                                <Input type="textarea" rows={4} placeholder="不超过64个字符" />
+                                <Input type="textarea" rows={4} />
                             )}
                         </FormItem>
                     </Form>

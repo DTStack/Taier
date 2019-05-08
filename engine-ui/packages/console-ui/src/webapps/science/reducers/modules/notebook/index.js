@@ -5,6 +5,7 @@ import { saveReducer } from '../../helper';
 
 import files from './files';
 import localTabs from './localTabs';
+import expandedKeys from './expandedKeys';
 
 function currentTabIndex (state = null, action) {
     const { type, payload } = action;
@@ -30,5 +31,6 @@ function currentTabIndex (state = null, action) {
 export default combineReducers({
     files,
     localTabs,
+    expandedKeys,
     currentTabIndex: saveReducer('notebookCurrentTabIndex', currentTabIndex)
 });

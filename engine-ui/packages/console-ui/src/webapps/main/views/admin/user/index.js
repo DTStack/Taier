@@ -344,7 +344,7 @@ class AdminUser extends Component {
             [MY_APPS.STREAM]: streamSelectedProject,
             [MY_APPS.SCIENCE]: scienceSelectedProject
         }
-        return map[map];
+        return map[active];
     }
     removeUserFromProject = (member) => {
         const ctx = this
@@ -483,8 +483,8 @@ class AdminUser extends Component {
     initColums = () => {
         const ctx = this;
         const { active } = this.state;
-        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE);
-        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM);
+        const hideDel = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.ANALYTICS_ENGINE || active == MY_APPS.SCIENCE);
+        const isProject = (active == MY_APPS.RDOS || active == MY_APPS.STREAM || active == MY_APPS.SCIENCE);
 
         return [{
             title: '账号',

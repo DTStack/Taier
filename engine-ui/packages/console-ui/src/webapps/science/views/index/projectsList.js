@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router'
+import { get } from 'lodash';
 
 import { Icon, Card, Input, Table, Button, message } from 'antd';
 import NewProject from '../../components/newProject';
@@ -135,8 +136,8 @@ class ProjectsList extends Component {
             sorter: true
         }, {
             title: '创建人',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'createUser.userName',
+            key: 'createUser.userName'
         }, {
             title: '创建时间',
             dataIndex: 'gmtCreate',
@@ -211,7 +212,7 @@ class ProjectsList extends Component {
                             placeholder='按项目名称、项目显示名搜索'
                             style={{ width: 267 }} />
                     }
-                    extra={<Button type="primary" onClick={this.handleNewProject}>创建项目</Button>}>
+                    extra={<Button className='o-font--normal' type="primary" onClick={this.handleNewProject}>创建项目</Button>}>
                     <Table
                         rowKey="id"
                         className='m-table'
@@ -253,10 +254,12 @@ class ProjectsList extends Component {
                         value: utils.formatDateTime(checkProject.gmtCreate)
                     }, {
                         label: '创建人',
-                        value: checkProject.projectName
+                        value: get(checkProject, 'createUser.userName')
                     }, {
                         label: '管理员',
-                        value: checkProject.projectName
+                        value: get(checkProject, 'adminUsers', []).map((user) => {
+                            return user.userName
+                        }).join(', ')
                     }]}
                 />
             </div>

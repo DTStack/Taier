@@ -2,6 +2,7 @@ import { debounce, endsWith } from 'lodash';
 import { notification, Modal } from 'antd'
 import React from 'react';
 import { MY_APPS } from 'main/consts';
+import { rdosApp } from 'config/base';
 
 /**
  * 存放一些零碎的公共方法
@@ -441,4 +442,8 @@ export function generateValueDic (dic) {
         }
     });
     return newDic;
+}
+
+export function toRdos (params) {
+    location.href = rdosApp.link;
 }
