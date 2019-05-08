@@ -87,7 +87,7 @@ class NewProject extends Component {
                                     pattern: /^\w+$/, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }]
                             })(
-                                <Input />
+                                <Input placeholder='请输入项目名称' />
                             )}
                         </FormItem>
                         <FormItem
@@ -101,7 +101,7 @@ class NewProject extends Component {
                                     max: 32, message: '不超过32个字符'
                                 }]
                             })(
-                                <Input />
+                                <Input placeholder='请输入项目显示名' />
                             )}
                         </FormItem>
                         <FormItem
@@ -114,7 +114,7 @@ class NewProject extends Component {
                                     message: '不超过64个字符'
                                 }]
                             })(
-                                <Input type="textarea" rows={4} />
+                                <Input placeholder='请输入项目描述' type="textarea" rows={4} />
                             )}
                         </FormItem>
                     </Form>

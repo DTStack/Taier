@@ -61,7 +61,8 @@ class ImportLocalData extends Component {
                     //     fileName: file.name
                     // }, dispatch)
                     this.setState({
-                        ...defaultState
+                        ...defaultState,
+                        key: Math.random()
                     });
                     this.props.onOk();
                 }
