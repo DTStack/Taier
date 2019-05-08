@@ -46,7 +46,7 @@ export default {
 
     GET_EXPERIMENT_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取组件数据
     UPDATE_TASK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 更新组件参数
-    GET_COMPONENT_RUNNING_LOG: `${SCIENCE_BASE_URL}/service/scienceTask/getJobLog`, // 获取组件运行日志
+    GET_COMPONENT_RUNNING_LOG: `${SCIENCE_BASE_URL}/service/scienceJob/getJobLog`, // 获取组件运行日志
     GET_INPUT_TABLE_COLUMNS: `${SCIENCE_BASE_URL}/service/scienceTask/getInputTableColumns`, // 获取组件相关的表数据
     CLONE_COMPONENT: `${SCIENCE_BASE_URL}/service/scienceTask/cloneComponentTask`, // 复制组件
     GET_TABLENAME_BY_NAME: `${SCIENCE_BASE_URL}/service/dataManager/getTableNameList`, // 获取表名列表(模糊查询)

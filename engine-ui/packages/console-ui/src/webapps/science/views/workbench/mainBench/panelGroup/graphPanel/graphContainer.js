@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, cloneDeep, throttle } from 'lodash';
+import { debounce, cloneDeep, isEmpty } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
@@ -49,7 +49,8 @@ const applyCellStyle = (cellState, style) => {
         editor,
         runTasks: state.component.taskLists, // 即将执行的任务列表
         project: project,
-        graph: state.component.graph
+        graph: state.component.graph,
+        selectedCell: state.component.selectedCell
     }
 }, (dispatch) => {
     return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
@@ -72,9 +73,11 @@ class GraphContainer extends React.Component {
 
     componentDidMount () {
         console.log('graph did mount', this.props);
+        this.initKeyboardEvent();
     }
 
     shouldComponentUpdate (nextProps) {
+        console.log('graph should update:', nextProps);
         return true;
     }
 
@@ -137,14 +140,16 @@ class GraphContainer extends React.Component {
                     ctx.handlerThisCell(cell);
                 }, null, null, !isRunning);
                 menu.addSeparator();
-                const menuModal = menu.addItem('模型选项', null, function () {
-                }, null, null, true);
-                menu.addItem('导出PMML', null, function () {
-                    ctx.handleExportPMML(cell);
-                }, menuModal, null, true);
-                menu.addItem('模型描述', null, function () {
-                    ctx.handleOpenDescription(cell);
-                }, menuModal, null, true);
+                if (currentNode.componentType === COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION) {
+                    const menuModal = menu.addItem('模型选项', null, function () {
+                    }, null, null, true);
+                    menu.addItem('导出PMML', null, function () {
+                        ctx.handleExportPMML(cell);
+                    }, menuModal, null, true);
+                    menu.addItem('模型描述', null, function () {
+                        ctx.handleOpenDescription(cell);
+                    }, menuModal, null, true);
+                }
                 // 初始化输出数据菜单项
                 ctx.initOutputMenuItems(menu, currentNode);
                 // 查看评估报告
@@ -172,11 +177,11 @@ class GraphContainer extends React.Component {
         if (isVertex) {
             div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${this.componentType(data.componentType)}`;
             div.style.left = (state.x) + 'px';
-            div.style.top = (state.y + 32 + 10) + 'px';
+            div.style.top = (state.y + VertexSize.height + 10) + 'px';
         } else {
             const values = state.cell.value.split('_');
             div.innerHTML = `输入参数：${values[0]} <br /> 输出参数: ${values[1]}`;
-            div.style.left = (state.getCenterX()) + 'px';
+            div.style.left = (state.getCenterX() - VertexSize.width / 2) + 'px';
             div.style.top = (state.getCenterY()) + 'px';
         }
         state.view.graph.container.appendChild(div);
@@ -202,6 +207,28 @@ class GraphContainer extends React.Component {
             default: return '未知';
         }
     }
+    /* document的事件监听 */
+    initKeyboardEvent = () => {
+        document.onkeydown = (e) => {
+            const keyCode = e.keyCode || e.which || e.charCode;
+            const ctrlKey = e.ctrlKey || e.metaKey;
+            if (ctrlKey && keyCode == 67) {
+                const cell = this.props.selectedCell;
+                if (!isEmpty(cell)) {
+                    this.copyCell(cell);
+                }
+            }
+            if (keyCode == 46) {
+                const cell = this.props.selectedCell;
+                if (!isEmpty(cell)) {
+                    this.removeCell(cell);
+                }
+            }
+            e.preventDefault();
+            return false;
+        }
+    }
+    /* graph的事件监听 */
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
@@ -290,7 +317,7 @@ class GraphContainer extends React.Component {
             }
         };
 
-        graph.addListener(mxEvent.CELLS_MOVED, function (sender, evt) {
+        graph.addListener(mxEvent.MOVE_CELLS, function (sender, evt) {
             ctx.handleUpdateTaskData(evt.getName());
         }, true);
         graph.addListener(mxEvent.CELL_CONNECTED, (sender, evt) => {
@@ -307,7 +334,7 @@ class GraphContainer extends React.Component {
             }
         }, true);
         graph.addListener(mxEvent.PAN, (sender, evt) => {
-            // ctx._handleListenPan(sender);
+            ctx._handleListenPan(sender);
         }, true)
     }
 
@@ -345,13 +372,23 @@ class GraphContainer extends React.Component {
             removeCells = removeCells.concat(cell.edges);
         }
         removeCells.forEach((item) => {
-            let index = graphData.findIndex(o => { return o.id === item.id; });
+            let index = graphData.findIndex(o => {
+                if (item.vertex && o.vertex) {
+                    return o.data.id === item.data.id;
+                } else if (item.edge && o.edge) {
+                    return o.id === item.id;
+                }
+            });
             if (index > -1) {
                 graphData.splice(index, 1);
             }
         })
-        this.props.changeContent(copyData, data, true)
-        this.props.saveExperiment(copyData); // 这里直接执行保存操作
+        if (data.graphData.length !== graphData.length) {
+            this.props.changeContent(copyData, data, true)
+            this.props.saveExperiment(copyData); // 这里直接执行保存操作
+        } else {
+            message.warning('删除失败')
+        }
     }
     /* 从这里开始执行 */
     startHandlerFromHere = (cell) => {
@@ -388,7 +425,6 @@ class GraphContainer extends React.Component {
     }
 
     handleListenPan = (graph) => {
-        console.log(graph);
         const { data } = this.props;
         const view = graph.view;
         const graphData = data.graphData;
@@ -412,10 +448,10 @@ class GraphContainer extends React.Component {
                 })
             }
         }
-        this.props.changeContent(data, {}, false)
+        this.props.changeContent(data, {}, false, true)
     }
 
-    _handleListenPan = throttle(this.handleListenPan, 1500);
+    _handleListenPan = debounce(this.handleListenPan, 1500);
     /**
      *  更新task的data
      *  @param eventName-事件名称
@@ -426,10 +462,10 @@ class GraphContainer extends React.Component {
         const oldData = Object.assign({}, data);
         const newData = Object.assign({}, data);
         newData.graphData = graphData;
-        // const object = oldData.graphData.find(o => o.graph);
-        // object && newData.graphData.push(object); // 获取到旧数据中的布局数据
-        if (eventName === 'cellsMoved') {
-            this.props.updateTaskData(oldData, newData);
+        const object = oldData.graphData.find(o => o.graph);
+        object && newData.graphData.push(object); // 获取到旧数据中的布局数据
+        if (eventName === 'moveCells') {
+            this.props.updateTaskData(oldData, newData, false);
         } else if (eventName === 'cellConnected') {
             if (newData.graphData.length <= oldData.graphData.length) {
                 /**
@@ -438,7 +474,7 @@ class GraphContainer extends React.Component {
                  */
                 return;
             }
-            this.props.updateTaskData(oldData, newData);
+            this.props.updateTaskData(oldData, newData, false);
             this.props.saveExperiment(newData); // 当触发连线的钩子函数的时候实时执行保存操作
         }
     }
@@ -630,6 +666,7 @@ class GraphContainer extends React.Component {
         const graphData = cloneDeep(data.graphData);
         return <div className="exp-graph-view" style={{ width: '100%' }}>
             <GraphEditor
+                version={data.version}
                 data={graphData}
                 key={data.id}
                 onSearchNode={this.initShowSearch}

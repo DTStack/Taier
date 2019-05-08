@@ -53,6 +53,15 @@ class GraphEditor extends Component {
         this.initGraph(data);
     }
     _edges = []; //
+    shouldComponentUpdate (nextProps, nextState) {
+        console.group();
+        console.log(nextProps.version, '->', this.props.version);
+        console.groupEnd();
+        if (nextProps.version === this.props.version) {
+            return false
+        }
+        return true;
+    }
 
     componentDidUpdate (prevProps) {
         const data = this.props.data
@@ -601,8 +610,7 @@ class GraphEditor extends Component {
             const scale = data[index].scale;
             const dx = data[index].translate.x;
             const dy = data[index].translate.y;
-            graph.view.setScale(scale);
-            graph.view.setTranslate(dx, dy);
+            graph.view.scaleAndTranslate(scale, dx, dy);
         } else {
             this.layoutCenter();
         }

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 
 import { Modal, Row } from 'antd';
@@ -7,7 +8,7 @@ import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
 
 import API from '../../../../../../api/experiment';
 
-const logContainerStyle = { height: '300px' };
+const logContainerStyle = { height: '450px' };
 
 const editorOptions = {
     mode: 'text',
@@ -38,9 +39,11 @@ class RunningLogModal extends Component {
         indexData: null, // 指标数据
         logData: null // log数据
     }
-
-    componentDidMount () {
-        this.fetchData();
+    componentDidUpdate (prevProps, prevState) {
+        if (!prevProps.visible && this.props.visible) {
+            this.fetchData();
+        }
+        return true;
     }
 
     fetchData = async () => {
@@ -55,8 +58,8 @@ class RunningLogModal extends Component {
     }
 
     renderLogContent = () => {
-        const { runningIndexData, downloadLink, log } = this.state;
-        const logText = prettifyLogText(log, downloadLink);
+        const { runningIndexData, downloadLink, logData } = this.state;
+        // const logText = prettifyLogText(logData, downloadLink);
 
         return (
             <div>
@@ -73,7 +76,7 @@ class RunningLogModal extends Component {
                         : ''
                 }
                 <Row style={logContainerStyle}>
-                    <Editor sync value={logText} options={editorOptions} />
+                    <Editor sync value={logData} options={editorOptions} />
                 </Row>
             </div>
         )
@@ -107,7 +110,7 @@ const prettifyLogText = (message, downloadAddress) => {
      * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
      */
     const safeSpace = ' ';
-    const log = message ? JSON.parse(message.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
+    const log = message ? JSON.parse(message.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
 
     const errors = log['all-exceptions'] || ''
     const engineLogErr = log['engineLogErr'];
