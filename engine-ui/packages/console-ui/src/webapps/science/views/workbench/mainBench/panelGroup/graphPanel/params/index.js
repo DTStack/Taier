@@ -39,7 +39,7 @@ class Params extends Component {
         const componentId = selectedCell.data.id;
         let componentData = {};
         try {
-            componentData = currentTab.graphData.find(o => o.vertex && o.data.id == componentId).data[TASK_ENUM[selectedCell.data.componentType]];
+            componentData = currentTab.graphData.find(o => o.vertex && o.data.id == componentId).data[TASK_ENUM[selectedCell.data.componentType]] || {};
         } catch (error) {
         }
         const componentProps = {

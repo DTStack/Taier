@@ -55,7 +55,7 @@ class FieldSetting extends PureComponent {
         const { getFieldDecorator } = this.props.form;
         const { data, componentId, currentTab } = this.props;
         const btnStyle = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = (isEmpty(data) || data.colList.length == 0) ? '选择字段' : `已选择${data.colList.length}个字段`
+        const btnContent = (isEmpty(data) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem

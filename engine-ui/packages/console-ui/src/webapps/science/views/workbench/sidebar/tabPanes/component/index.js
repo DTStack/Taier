@@ -37,7 +37,7 @@ class ComponentSidebar extends Component {
     constructor (props) {
         super(props)
     }
-
+    _dragElements = [];
     state = {
         expandedKeys: []
     }
@@ -58,12 +58,61 @@ class ComponentSidebar extends Component {
             id: cell.id
         }
     }
-    initDragger = () => {
-        const fileNodes = document.querySelectorAll('.anchor-file.o-tree-icon--normal');
+    // Returns the graph under the mouse
+    graphF = (evt) => {
+        const { graph = {} } = this.props;
+        const x = mxEvent.getClientX(evt);
+        const y = mxEvent.getClientY(evt);
+        const elt = document.elementFromPoint(x, y);
+        if (mxUtils.isAncestorNode(graph.container, elt)) {
+            return graph;
+        }
+        return null;
+    };
+    // Inserts a cell at the given location
+    funct = (graph, evt, target, x, y) => {
+        const { currentTabIndex, tabs, changeContent } = this.props;
         const ctx = this;
-        const { graph = {}, files, currentTabIndex, tabs, changeContent } = this.props;
         const currentTab = tabs.find(o => o.id == currentTabIndex);
         const copyCurrentTab = cloneDeep(currentTab);
+        const data = this.sourceData;
+        const params = {
+            taskType: data.taskType,
+            componentType: data.componentType,
+            flowId: currentTabIndex,
+            [TASK_ENUM[data.componentType]]: {}
+        }
+        api.addOrUpdateTask(params).then(res => {
+            if (res.code === 1) {
+                // eslint-disable-next-line new-cap
+                let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
+                cell.data = res.data;
+                cell.vertex = true;
+                let cells = graph.importCells([cell], x, y, target);
+                if (copyCurrentTab.graphData) {
+                    copyCurrentTab.graphData.push(ctx.getCellData(cell));
+                } else {
+                    copyCurrentTab.graphData = [ctx.getCellData(cell)]
+                }
+                changeContent(copyCurrentTab, currentTab, true)
+                if (cells != null && cells.length > 0) {
+                    graph.scrollCellToVisible(cells[0]);
+                    graph.setSelectionCells(cells);
+                }
+            }
+        })
+    };
+    // Creates the element that is being for the actual preview.
+    initDragElement = () => {
+        var dragElt = document.createElement('div');
+        dragElt.style.border = 'solid #90d5ff 1px';
+        dragElt.style.width = VertexSize.width;
+        dragElt.style.height = VertexSize.height;
+        return dragElt;
+    }
+    initDragger = () => {
+        const fileNodes = document.querySelectorAll('.anchor-file.o-tree-icon--normal');
+        const { graph = {}, files } = this.props;
         const findNameInLoop = (name, arr) => {
             if (!name) return false;
             for (let index = 0; index < arr.length; index++) {
@@ -79,58 +128,20 @@ class ComponentSidebar extends Component {
                 }
             }
         }
-        // Returns the graph under the mouse
-        var graphF = function (evt) {
-            var x = mxEvent.getClientX(evt);
-            var y = mxEvent.getClientY(evt);
-            var elt = document.elementFromPoint(x, y);
-            if (mxUtils.isAncestorNode(graph.container, elt)) {
-                return graph;
-            }
-            return null;
-        };
-        // Inserts a cell at the given location
-        var funct = function (graph, evt, target, x, y) {
-            const data = this.sourceData;
-            const params = {
-                taskType: data.taskType,
-                componentType: data.componentType,
-                flowId: currentTabIndex,
-                [TASK_ENUM[data.componentType]]: {}
-            }
-            api.addOrUpdateTask(params).then(res => {
-                if (res.code === 1) {
-                    // eslint-disable-next-line new-cap
-                    let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
-                    cell.data = res.data;
-                    cell.vertex = true;
-                    let cells = graph.importCells([cell], x, y, target);
-                    if (copyCurrentTab.graphData) {
-                        copyCurrentTab.graphData.push(ctx.getCellData(cell));
-                    } else {
-                        copyCurrentTab.graphData = [ctx.getCellData(cell)]
-                    }
-                    changeContent(copyCurrentTab, currentTab, true)
-                    if (cells != null && cells.length > 0) {
-                        graph.scrollCellToVisible(cells[0]);
-                        graph.setSelectionCells(cells);
-                    }
-                }
-            })
-        };
-        // Creates the element that is being for the actual preview.
-        var dragElt = document.createElement('div');
-        dragElt.style.border = 'solid #90d5ff 1px';
-        dragElt.style.width = VertexSize.width;
-        dragElt.style.height = VertexSize.height;
+        console.log('fileNodes:', fileNodes);
+        this._dragElements.map((item) => {
+            item.reset();
+        })
+        this._dragElements = [];
         fileNodes.forEach((element) => {
             const title = element.getElementsByClassName('ant-tree-title')[0].children[0].innerText;
-            let md = mxUtils.makeDraggable(element, graphF, funct, dragElt, null, null, graph.autoscroll, true);
+            let md = mxUtils.makeDraggable(element, this.graphF, this.funct, this.initDragElement(), null, null, graph.autoscroll, true);
             md.sourceData = findNameInLoop(title, files) ? findNameInLoop(title, files) : null;
             md.isGuidesEnabled = function () {
                 return graph.graphHandler.guidesEnabled;
             };
             md.createDragElement = mxDragSource.prototype.createDragElement;
+            this._dragElements.push(md);
         })
     }
     onExpand = (expandedKeys, { expanded }) => {
