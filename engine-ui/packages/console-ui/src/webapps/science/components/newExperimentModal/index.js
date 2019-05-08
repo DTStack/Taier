@@ -33,6 +33,7 @@ class NewExperimentModal extends React.Component {
                 let res = await this.props.addExperiment(values);
                 if (res) {
                     this.props.onOk && this.props.onOk(res);
+                    this.props.openExperiment(res.data.id);
                     this.props.resetModal();
                 }
             }

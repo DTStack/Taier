@@ -33,6 +33,7 @@ class NewNotebookModal extends React.Component {
                 let res = await this.props.addNotebook(values);
                 if (res) {
                     this.props.onOk && this.props.onOk(res);
+                    this.props.openNotebook(res.data.id);
                     this.props.resetModal();
                 }
             }

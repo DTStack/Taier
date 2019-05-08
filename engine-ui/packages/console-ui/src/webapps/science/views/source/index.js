@@ -163,7 +163,7 @@ class Source extends PureComponent {
                     title={
                         <Search
                             onSearch={this.handleSearch}
-                            placeholder='按项目名称、项目显示名搜索'
+                            placeholder='按数据源名称搜索'
                             style={{ width: 267, height: 30 }} />
                     }
                     extra={
