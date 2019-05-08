@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 import { bindActionCreators } from 'redux';
 import { union } from 'lodash';
 
@@ -141,6 +141,10 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '重命名',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的Notebook') {
+                                            message.warn('该文件夹不允许重命名');
+                                            return;
+                                        }
                                         this.newFolder({
                                             nodePid: activeNode.parentId,
                                             name: activeNode.name,
@@ -150,6 +154,10 @@ class NotebookSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的Notebook') {
+                                            message.warn('该文件夹不允许删除');
+                                            return;
+                                        }
                                         Modal.confirm({
                                             title: '确认删除',
                                             content: `确认删除文件夹？`,

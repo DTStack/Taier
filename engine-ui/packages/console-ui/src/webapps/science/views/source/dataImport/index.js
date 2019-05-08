@@ -138,6 +138,13 @@ class ImportLocalData extends Component {
     fileChange = (e) => {
         const file = e.target.files[0];
         const sizeLimit = 20 * 1024 * 1024 // 20MB
+        const fileName = file.name;
+        const suffix = fileName.split('.').pop();
+        const whiteList = ['txt', 'csv'];
+        if (whiteList.indexOf(suffix) == -1) {
+            message.error(`不支持 ${suffix} 后缀的文件`);
+            return;
+        }
         if (file.size > sizeLimit) {
             message.error('本地上传文件不可超过20MB!')
         } else {

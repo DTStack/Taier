@@ -66,7 +66,11 @@ class NewExperimentModalForm extends React.Component {
     getRootNode () {
         const { files } = this.props;
         if (files && files.length) {
-            return files[0].id
+            const children = files[0].children;
+            const myFolder = children.find((node) => {
+                return node.name == '我的实验'
+            })
+            return myFolder && myFolder.id
         }
         return null;
     }

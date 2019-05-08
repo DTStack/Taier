@@ -37,7 +37,14 @@ export function initLoadTreeNode () {
                 for (let i = 0; i < res.data.children.length; i++) {
                     const tree = res.data.children[i];
                     const treeType = tree.catalogueType;
-                    typeMap[treeType] && dispatch(initTreeNode(treeType, tree.children));
+                    if (typeMap[treeType]) {
+                        dispatch(initTreeNode(treeType, tree.children));
+                        if (treeType == siderBarType.notebook || treeType == siderBarType.experiment) {
+                            if (tree.children && tree.children.length) {
+                                dispatch(loadTreeData(treeType, tree.children[0].id));
+                            }
+                        }
+                    }
                 }
             }
         })

@@ -16,7 +16,7 @@ import * as experimentActions from '../../../../../actions/experimentActions';
 import workbenchActions from '../../../../../actions/workbenchActions';
 
 import { siderBarType } from '../../../../../consts';
-import { Modal } from 'antd';
+import { Modal, message } from 'antd';
 
 // const Search = Input.Search;
 
@@ -144,6 +144,10 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '重命名',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的实验') {
+                                            message.warn('该文件夹不允许重命名');
+                                            return;
+                                        }
                                         this.newFolder({
                                             nodePid: activeNode.parentId,
                                             name: activeNode.name,
@@ -153,6 +157,10 @@ class ExperimentSidebar extends Component {
                                 }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
+                                        if (activeNode.name == '我的实验') {
+                                            message.warn('该文件夹不允许删除');
+                                            return;
+                                        }
                                         Modal.confirm({
                                             title: '确认删除',
                                             content: '确认删除文件夹？',
