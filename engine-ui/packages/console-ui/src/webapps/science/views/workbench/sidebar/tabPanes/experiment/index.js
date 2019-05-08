@@ -26,7 +26,8 @@ import { Modal, message } from 'antd';
             routing: state.routing,
             files: state.experiment.files,
             currentTabIndex: state.experiment.currentTabIndex,
-            tabs: state.experiment.localTabs
+            tabs: state.experiment.localTabs,
+            expandedKeys: state.experiment.expandedKeys
         }
     },
     dispatch => {
@@ -42,7 +43,6 @@ class ExperimentSidebar extends Component {
     }
 
     state = {
-        expandedKeys: [],
         newFolderVisible: false,
         experimentSearchVisible: false,
         editParamsVisible: false,
@@ -66,9 +66,7 @@ class ExperimentSidebar extends Component {
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
         }
-        this.setState({
-            expandedKeys: keys
-        })
+        this.props.updateExpandedKeys(siderBarType.experiment, keys);
     }
     asynLoadCatalogue = (treeNode) => {
         return this.props.loadTreeData(siderBarType.experiment, treeNode.props.data.id)
@@ -99,7 +97,7 @@ class ExperimentSidebar extends Component {
                         onExpand={this.onExpand}
                         onSelect={this.onSelect}
                         selectedKeys={selectedKeys}
-                        expandedKeys={this.state.expandedKeys}
+                        expandedKeys={this.props.expandedKeys}
                         treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {

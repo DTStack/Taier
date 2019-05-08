@@ -3,6 +3,7 @@ import { combineReducers } from 'redux';
 import { experimentTabType } from '../../../consts/actionType/tabType';
 import { saveReducer } from '../../helper';
 
+import expandedKeys from './expandedKeys';
 import files from './files';
 import localTabs from './localTabs';
 
@@ -30,5 +31,6 @@ function currentTabIndex (state = null, action) {
 export default combineReducers({
     files,
     localTabs,
+    expandedKeys,
     currentTabIndex: saveReducer('experimentCurrentTabIndex', currentTabIndex)
 });
