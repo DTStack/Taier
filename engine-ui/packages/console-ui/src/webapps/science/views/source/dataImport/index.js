@@ -39,7 +39,7 @@ const defaultState = {
 }
 @connect()
 class ImportLocalData extends Component {
-    state = Object.assign({}, defaultState)
+    state = Object.assign({ key: Math.random() }, defaultState)
 
     importData = () => {
         // const { dispatch } = this.props;
@@ -233,7 +233,7 @@ class ImportLocalData extends Component {
     }
 
     onCancel = () => {
-        this.setState({ ...defaultState });
+        this.setState({ ...defaultState, key: Math.random() });
     }
 
     footer () {
@@ -306,7 +306,7 @@ class ImportLocalData extends Component {
         )
     }
     render () {
-        const { data, file, visible, step, targetExchangeWarning } = this.state
+        const { data, file, visible, step, targetExchangeWarning, key } = this.state
         return (
             <div id="JS_import_modal">
                 <input
@@ -322,6 +322,7 @@ class ImportLocalData extends Component {
                     maskClosable={false}
                     title="本地数据导入"
                     visible={visible}
+                    key={key}
                     onCancel={this.onCancel}
                     footer={this.footer()}
                 >
