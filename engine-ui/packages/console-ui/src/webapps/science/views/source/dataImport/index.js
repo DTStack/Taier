@@ -9,7 +9,7 @@ import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../api/table';
 
-import { getUploadStatus } from '../../../actions/sourceActions'
+// import { getUploadStatus } from '../../../actions/sourceActions'
 
 const defaultState = {
     file: '',
@@ -41,8 +41,8 @@ class ImportLocalData extends Component {
     state = Object.assign({}, defaultState)
 
     importData = () => {
-        const { dispatch } = this.props;
-        const { file } = this.state;
+        // const { dispatch } = this.props;
+        // const { file } = this.state;
         const params = this.getParams()
         if (this.checkParams(params)) {
             params.partitions = JSON.stringify(params.partitions)
@@ -55,13 +55,14 @@ class ImportLocalData extends Component {
                     loading: false
                 })
                 if (res.code === 1) {
-                    getUploadStatus({
-                        queryParams: { queryKey: res.data },
-                        fileName: file.name
-                    }, dispatch)
+                    // getUploadStatus({
+                    //     queryParams: { queryKey: res.data },
+                    //     fileName: file.name
+                    // }, dispatch)
                     this.setState({
                         ...defaultState
-                    })
+                    });
+                    this.props.onOk();
                 }
             })
         }

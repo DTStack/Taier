@@ -183,7 +183,9 @@ class Source extends PureComponent {
                         pagination={pagination}
                     />
                 </Card>
-                <DataImport />
+                <DataImport
+                    onOk={this.getTableData}
+                />
                 <Edit
                     record={editRecord}
                     onOk={this.getTableData}
