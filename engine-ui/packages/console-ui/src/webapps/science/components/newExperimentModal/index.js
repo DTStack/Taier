@@ -62,6 +62,13 @@ class NewExperimentModalForm extends React.Component {
     loadData (node) {
         return this.props.loadTreeData(siderBarType.experiment, node.props.data.id);
     }
+    getRootNode () {
+        const { files } = this.props;
+        if (files && files.length) {
+            return files[0].id
+        }
+        return null;
+    }
     render () {
         const { files, form, modal } = this.props;
         const { getFieldDecorator } = form;
@@ -93,7 +100,7 @@ class NewExperimentModalForm extends React.Component {
                             required: true,
                             message: '请选择存储位置'
                         }],
-                        initialValue: get(modalData, 'id')
+                        initialValue: get(modalData, 'id') || this.getRootNode()
                     })(
                         <FolderTree loadData={this.loadData.bind(this)} treeData={files} isSelect={true} hideFiles={true} />
                     )}

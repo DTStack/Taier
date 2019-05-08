@@ -87,7 +87,7 @@ class NewProject extends Component {
                                     pattern: /^\w+$/, message: '不超过32个字符，只支持字母、数字、下划线'
                                 }]
                             })(
-                                <Input placeholder="项目创建后，项目显示名支持修改，项目名称将不能再修改" />
+                                <Input placeholder="项目创建后，项目名称将不能再修改" />
                             )}
                         </FormItem>
                         <FormItem
