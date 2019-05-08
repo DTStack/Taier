@@ -24,10 +24,10 @@ public class Python3Type extends AppType {
         if (StringUtils.isNotBlank(clientArguments.getCmdOpts())) {
             try {
                 String cmdOpts = clientArguments.getCmdOpts();
-                if (clientArguments.getLocalFile()){
-                    cmdOpts += " " + clientArguments.getApplicationId();
-                }
                 encodedOpts = URLEncoder.encode(cmdOpts, "UTF-8");
+                if (clientArguments.getLocalFile()){
+                    encodedOpts += " " + clientArguments.getApplicationId();
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
