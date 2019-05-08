@@ -108,15 +108,15 @@ export const offlineTaskPeriodFilter = [{
 
 export const dataSourceFilter = [{
     id: 1,
-    text: 'HIVE',
+    text: 'hive',
     value: 0
 }, {
     id: 2,
-    text: 'TXT',
+    text: 'txt',
     value: 1
 }, {
     id: 3,
-    text: 'CSV',
+    text: 'csv',
     value: 2
 }]
 

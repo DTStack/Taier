@@ -4,7 +4,7 @@ import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd'
 import Api from '../../../api'
 import { offlineTaskPeriodFilter } from '../../../comm/const.js'
 import { taskType } from '../../../consts';
-import { toRdos } from './helper';
+import { toRdos } from 'funcs';
 
 import utils from 'utils';
 

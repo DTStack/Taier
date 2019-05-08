@@ -135,8 +135,8 @@ class ProjectsList extends Component {
             sorter: true
         }, {
             title: '创建人',
-            dataIndex: 'creator',
-            key: 'creator'
+            dataIndex: 'createUser.userName',
+            key: 'createUser.userName'
         }, {
             title: '创建时间',
             dataIndex: 'gmtCreate',
@@ -253,10 +253,10 @@ class ProjectsList extends Component {
                         value: utils.formatDateTime(checkProject.gmtCreate)
                     }, {
                         label: '创建人',
-                        value: checkProject.projectName
+                        value: checkProject.createUser.userName
                     }, {
                         label: '管理员',
-                        value: checkProject.projectName
+                        value: checkProject.adminUsers.userName
                     }]}
                 />
             </div>

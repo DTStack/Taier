@@ -8,6 +8,7 @@ import {
 import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../api/table';
+import { toRdos } from 'funcs';
 
 // import { getUploadStatus } from '../../../actions/sourceActions'
 
@@ -275,7 +276,7 @@ class ImportLocalData extends Component {
                         ? (
                             <>
                                 此模块支持本地小批量数据上传，若需要同步数据库数据或大批量数据，请前往
-                                <a href="javascript:void(0)">离线计算-数据同步</a>
+                                <a onClick={toRdos}>离线计算-数据同步</a>
                                 模块完成
                             </>
                         )
