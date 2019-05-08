@@ -474,7 +474,8 @@ public class ClientArguments {
         CommandLine commandLine = new BasicParser().parse(allOptions, args);
         if (commandLine.getOptions().length == 0 || commandLine.hasOption("help")) {
             printUsage(allOptions);
-            System.exit(0);
+            LOG.error("args length is 0");
+            throw new UnsupportedOperationException("args length is 0");
         }
 
         if (commandLine.hasOption("app-name")) {
