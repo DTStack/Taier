@@ -223,7 +223,8 @@ export const INPUT_TYPE = {
     SQL_1: 14,
     SQL_2: 15,
     SQL_3: 16,
-    SQL_4: 17
+    SQL_4: 17,
+    SOURCE_WRITE: 18
 }
 
 export const INPUT_TYPE_ENUM = {
@@ -243,7 +244,8 @@ export const INPUT_TYPE_ENUM = {
     '预测数据': INPUT_TYPE.PREDICT_INPUT_DATA,
     '综合指标表': INPUT_TYPE.EVALUATION_OVERALL_DATA,
     '等频详细数据表': INPUT_TYPE.EVALUATION_FREQUENCY_DATA,
-    '等宽详细数据表': INPUT_TYPE.EVALUATION_WIDTH_DATA
+    '等宽详细数据表': INPUT_TYPE.EVALUATION_WIDTH_DATA,
+    '写数据源': INPUT_TYPE.SOURCE_WRITE
 }
 /**
  * SQL执行状态

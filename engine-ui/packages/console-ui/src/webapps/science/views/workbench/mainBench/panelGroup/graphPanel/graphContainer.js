@@ -518,7 +518,7 @@ class GraphContainer extends React.Component {
                     ]).then((res) => {
                         if (res[0].code === 1 && res[1].code === 1) {
                             // 如果两次保存都成功，则更新cellData
-                            ctx.updateCellData(cell, taskData);
+                            ctx.updateCellData(cell, taskData, res);
                         }
                     })
                 }
@@ -534,14 +534,11 @@ class GraphContainer extends React.Component {
             editTarget.addEventListener('keypress', editSucc, false)
         }
     }
-    updateCellData = (cell, taskData) => {
+    updateCellData = (cell, taskData, res) => {
         const { data } = this.props;
-        const object = data.graphData.find(o => o.vertex && o.data.id == cell.data.id);
-        if (object) {
-            object.data = taskData;
-            this.props.changeContent(data, {}, true, false);
-            this._graph.refresh();
-        }
+        const newContent = { ...cloneDeep(data), ...res[0].data };
+        this.props.changeContent(newContent, {}, true, false);
+        this._graph.refresh();
     }
 
     getCellData = (cell) => {

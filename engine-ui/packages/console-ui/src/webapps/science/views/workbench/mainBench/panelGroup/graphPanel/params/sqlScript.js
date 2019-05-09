@@ -22,7 +22,7 @@ class SqlScript extends Component {
     static getDerivedStateFromProps (nextProps, prevState) {
         if (!prevState.dirty) {
             return {
-                code: nextProps.data.sql
+                code: nextProps.data ? nextProps.data.sql : ''
             }
         } else {
             return null

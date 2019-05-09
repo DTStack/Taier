@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -8,7 +9,7 @@ import FolderTree from '../../../../../components/folderTree';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import Mx from 'widgets/mxGraph';
-import { siderBarType, VertexSize, TASK_ENUM } from '../../../../../consts';
+import { siderBarType, VertexSize, TASK_ENUM, COMPONENT_TYPE } from '../../../../../consts';
 import api from '../../../../../api/experiment';
 const {
     mxUtils,
@@ -37,12 +38,26 @@ class ComponentSidebar extends Component {
     constructor (props) {
         super(props)
     }
-
+    _dragElements = [];
     state = {
         expandedKeys: []
     }
     componentDidMount () {
+        this.initDragEvent();
         this.initDragger();
+    }
+    initDragEvent = () => {
+        mxDragSource.prototype.reset = function () {
+            if (this.currentGraph != null) {
+                this.dragExit(this.currentGraph);
+                this.currentGraph = null;
+            }
+            mxEvent.removeAllListeners(this.element);
+            this.element = null;
+            this.removeDragElement();
+            this.removeListeners();
+            this.stopDrag();
+        };
     }
     componentDidUpdate (prevProps, prevState) {
         this.initDragger();
@@ -58,12 +73,29 @@ class ComponentSidebar extends Component {
             id: cell.id
         }
     }
+    // Returns the graph under the mouse
+    graphF = (evt) => {
+        const { graph = {} } = this.props;
+        const x = mxEvent.getClientX(evt);
+        const y = mxEvent.getClientY(evt);
+        const elt = document.elementFromPoint(x, y);
+        if (mxUtils.isAncestorNode(graph.container, elt)) {
+            return graph;
+        }
+        return null;
+    };
+    // Creates the element that is being for the actual preview.
+    initDragElement = () => {
+        var dragElt = document.createElement('div');
+        dragElt.style.border = 'solid #90d5ff 1px';
+        dragElt.style.width = VertexSize.width;
+        dragElt.style.height = VertexSize.height;
+        return dragElt;
+    }
     initDragger = () => {
-        const fileNodes = document.querySelectorAll('.anchor-file.o-tree-icon--normal');
-        const ctx = this;
+        const fileNodes = document.querySelectorAll('.anchor-component-file .ant-tree-node-content-wrapper');
         const { graph = {}, files, currentTabIndex, tabs, changeContent } = this.props;
-        const currentTab = tabs.find(o => o.id == currentTabIndex);
-        const copyCurrentTab = cloneDeep(currentTab);
+        const ctx = this;
         const findNameInLoop = (name, arr) => {
             if (!name) return false;
             for (let index = 0; index < arr.length; index++) {
@@ -79,18 +111,14 @@ class ComponentSidebar extends Component {
                 }
             }
         }
-        // Returns the graph under the mouse
-        var graphF = function (evt) {
-            var x = mxEvent.getClientX(evt);
-            var y = mxEvent.getClientY(evt);
-            var elt = document.elementFromPoint(x, y);
-            if (mxUtils.isAncestorNode(graph.container, elt)) {
-                return graph;
-            }
-            return null;
-        };
+        this._dragElements.map((item) => {
+            item.reset();
+        })
+        this._dragElements = [];
         // Inserts a cell at the given location
-        var funct = function (graph, evt, target, x, y) {
+        const funct = function (graph, evt, target, x, y) {
+            const currentTab = tabs.find(o => o.id == currentTabIndex);
+            const copyCurrentTab = cloneDeep(currentTab);
             const data = this.sourceData;
             const params = {
                 taskType: data.taskType,
@@ -105,32 +133,28 @@ class ComponentSidebar extends Component {
                     cell.data = res.data;
                     cell.vertex = true;
                     let cells = graph.importCells([cell], x, y, target);
-                    if (copyCurrentTab.graphData) {
-                        copyCurrentTab.graphData.push(ctx.getCellData(cell));
-                    } else {
-                        copyCurrentTab.graphData = [ctx.getCellData(cell)]
-                    }
-                    changeContent(copyCurrentTab, currentTab, true)
-                    if (cells != null && cells.length > 0) {
-                        graph.scrollCellToVisible(cells[0]);
-                        graph.setSelectionCells(cells);
-                    }
+                    // if (copyCurrentTab.graphData) {
+                    //     copyCurrentTab.graphData.push(ctx.getCellData(cell));
+                    // } else {
+                    //     copyCurrentTab.graphData = [ctx.getCellData(cell)]
+                    // }
+                    // changeContent(copyCurrentTab, currentTab, true)
+                    // if (cells != null && cells.length > 0) {
+                    //     graph.scrollCellToVisible(cells[0]);
+                    //     graph.setSelectionCells(cells);
+                    // }
                 }
             })
         };
-        // Creates the element that is being for the actual preview.
-        var dragElt = document.createElement('div');
-        dragElt.style.border = 'solid #90d5ff 1px';
-        dragElt.style.width = VertexSize.width;
-        dragElt.style.height = VertexSize.height;
         fileNodes.forEach((element) => {
             const title = element.getElementsByClassName('ant-tree-title')[0].children[0].innerText;
-            let md = mxUtils.makeDraggable(element, graphF, funct, dragElt, null, null, graph.autoscroll, true);
+            let md = mxUtils.makeDraggable(element, this.graphF, funct, this.initDragElement(), null, null, graph.autoscroll, true);
             md.sourceData = findNameInLoop(title, files) ? findNameInLoop(title, files) : null;
             md.isGuidesEnabled = function () {
                 return graph.graphHandler.guidesEnabled;
             };
             md.createDragElement = mxDragSource.prototype.createDragElement;
+            this._dragElements.push(md);
         })
     }
     onExpand = (expandedKeys, { expanded }) => {
@@ -158,10 +182,32 @@ class ComponentSidebar extends Component {
                         expandedKeys={this.state.expandedKeys}
                         treeData={files}
                         nodeClass={(item) => {
-                            if (item.type == 'file') {
-                                return 'anchor-file o-tree-icon--normal'
+                            switch (item.componentType) {
+                                case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE:
+                                case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: {
+                                    return `anchor-component-file o-tree-icon--data-source`
+                                }
+                                case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {
+                                    return 'anchor-component-file o-tree-icon--data-tools'
+                                }
+                                case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
+                                case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
+                                    return 'anchor-component-file o-tree-icon--data-merge'
+                                }
+                                case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
+                                    return 'anchor-component-file o-tree-icon--data-pre-hand'
+                                }
+                                case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION: {
+                                    return 'anchor-component-file o-tree-icon--machine-learning'
+                                }
+                                case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
+                                    return 'anchor-component-file o-tree-icon--data-predict'
+                                }
+                                case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
+                                    return 'anchor-component-file o-tree-icon--data-evaluate'
+                                }
+                                default: return 'anchor-folder';
                             }
-                            return 'anchor-folder'
                         }}
                     />
                 ) : <Loading />}
