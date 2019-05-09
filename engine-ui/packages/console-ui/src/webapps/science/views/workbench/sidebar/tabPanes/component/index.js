@@ -1,8 +1,7 @@
-/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { union, cloneDeep } from 'lodash';
+import { union } from 'lodash';
 
 import Loading from '../loading';
 import FolderTree from '../../../../../components/folderTree';
@@ -22,12 +21,12 @@ const {
 
 @connect(
     state => {
+        const tab = state.experiment.localTabs.find(o => o.id === state.experiment.currentTabIndex);
         return {
             routing: state.routing,
             files: state.component.files,
             graph: state.component.graph,
-            currentTabIndex: state.experiment.currentTabIndex,
-            tabs: state.experiment.localTabs
+            tabData: tab
         }
     },
     dispatch => {
@@ -94,7 +93,7 @@ class ComponentSidebar extends Component {
     }
     initDragger = () => {
         const fileNodes = document.querySelectorAll('.anchor-component-file .ant-tree-node-content-wrapper');
-        const { graph = {}, files, currentTabIndex, tabs, changeContent } = this.props;
+        const { graph = {}, files, currentTabIndex } = this.props;
         const ctx = this;
         const findNameInLoop = (name, arr) => {
             if (!name) return false;
@@ -117,8 +116,6 @@ class ComponentSidebar extends Component {
         this._dragElements = [];
         // Inserts a cell at the given location
         const funct = function (graph, evt, target, x, y) {
-            const currentTab = tabs.find(o => o.id == currentTabIndex);
-            const copyCurrentTab = cloneDeep(currentTab);
             const data = this.sourceData;
             const params = {
                 taskType: data.taskType,
@@ -126,23 +123,22 @@ class ComponentSidebar extends Component {
                 flowId: currentTabIndex,
                 [TASK_ENUM[data.componentType]]: {}
             }
-            api.addOrUpdateTask(params).then(res => {
+            api.addOrUpdateTask(params).then(async res => {
                 if (res.code === 1) {
-                    // eslint-disable-next-line new-cap
-                    let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
-                    cell.data = res.data;
-                    cell.vertex = true;
-                    let cells = graph.importCells([cell], x, y, target);
-                    // if (copyCurrentTab.graphData) {
-                    //     copyCurrentTab.graphData.push(ctx.getCellData(cell));
-                    // } else {
-                    //     copyCurrentTab.graphData = [ctx.getCellData(cell)]
-                    // }
-                    // changeContent(copyCurrentTab, currentTab, true)
-                    // if (cells != null && cells.length > 0) {
-                    //     graph.scrollCellToVisible(cells[0]);
-                    //     graph.setSelectionCells(cells);
-                    // }
+                    /**
+                     * 上面那个接口没有返回重要的组件信息
+                     * 下面这个请求返回了组件的信息
+                     */
+                    let response = await api.getExperimentTask({ id: res.data.id });
+                    if (response.code === 1) {
+                        // eslint-disable-next-line new-cap
+                        let cell = new mxCell('', new mxGeometry(0, 0, VertexSize.width, VertexSize.height));
+                        cell.data = response.data;
+                        cell.vertex = true;
+                        graph.importCells([cell], x, y, target);
+                        ctx.props.saveExperiment(ctx.props.tabData)
+                        graph.clearSelection();
+                    }
                 }
             })
         };

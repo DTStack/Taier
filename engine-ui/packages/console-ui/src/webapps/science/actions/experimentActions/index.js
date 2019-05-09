@@ -75,7 +75,7 @@ export function openExperiment (id) {
         })
     }
 }
-export function saveExperiment (tabData) {
+export function saveExperiment (tabData, isMessage = true) {
     return (dispatch, getState) => {
         return new Promise(async (resolve) => {
             tabData.sqlText = JSON.stringify(tabData.graphData);
@@ -85,8 +85,8 @@ export function saveExperiment (tabData) {
                 dispatch(changeContent(res.data, tabs.find((tab) => {
                     return tab.id == tabData.id
                 }), false));
-                message.success('保存成功！')
                 resolve(res);
+                isMessage && message.success('保存成功！')
             }
         })
     }

@@ -12,7 +12,7 @@ import Mx from 'widgets/mxGraph';
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
 import * as componentActions from '../../../../../actions/componentActions';
-import { VertexSize, taskStatus, COMPONENT_TYPE } from '../../../../../consts'
+import { VertexSize, taskStatus, COMPONENT_TYPE, CONSTRAINT_TEXT } from '../../../../../consts'
 const propType = {
     data: PropTypes.object,
     registerContextMenu: PropTypes.func,
@@ -55,9 +55,12 @@ class GraphEditor extends Component {
     _edges = []; //
     shouldComponentUpdate (nextProps, nextState) {
         console.group();
-        console.log(nextProps.version, '->', this.props.version);
+        console.log('version:', nextProps.version, '<-', this.props.version);
         console.log(nextProps.data)
         console.groupEnd();
+        if (this.calculateStatus(nextProps.data) !== this.calculateStatus(this.props.data)) {
+            return true;
+        }
         if (nextProps.version === this.props.version) {
             return false
         }
@@ -71,6 +74,21 @@ class GraphEditor extends Component {
         if (data && data !== oldData) {
             this.initRender(data);
         }
+    }
+    /**
+     * 用于计算组件的状态是否有发生改变
+     * 返回组件的total，和之前的状态比较，若有不同表示有变化
+     */
+    calculateStatus = (arr) => {
+        let statusTotal = 0;
+        for (let index = 0; index < arr.length; index++) {
+            if (!arr[index].vertex) {
+                continue;
+            }
+            const status = arr[index].data.status || 0;
+            statusTotal += status;
+        }
+        return statusTotal;
     }
     /* 初始化整个graph */
     initGraph = (data) => {
@@ -278,20 +296,19 @@ class GraphEditor extends Component {
         if (!status) return;
         switch (status) {
             case taskStatus.FINISHED:
-            case taskStatus.SET_SUCCESS: {
+            case taskStatus.SET_SUCCESS:
                 // 成功
                 return 1
-            }
+
             case taskStatus.STOPED:
             case taskStatus.RUN_FAILED:
             case taskStatus.SUBMIT_FAILED:
             case taskStatus.KILLED:
             case taskStatus.FROZEN:
             case taskStatus.PARENT_FAILD:
-            case taskStatus.FAILING: {
+            case taskStatus.FAILING:
                 // 失败
                 return 2;
-            }
             default: {
                 // 中间状态，进行中
                 return 0
@@ -347,78 +364,78 @@ class GraphEditor extends Component {
                 switch (type) {
                     case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, 'HDFS数据源输出')
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return outputs;
                     }
                     case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE: {
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '写数据源')
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
                         ];
                     }
                     case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, 'SQL结果输出')
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.2, 0), perimeter, 'sql脚本表1'),
-                            new mxConnectionConstraint(new mxPoint(0.4, 0), perimeter, 'sql脚本表2'),
-                            new mxConnectionConstraint(new mxPoint(0.6, 0), perimeter, 'sql脚本表3'),
-                            new mxConnectionConstraint(new mxPoint(0.8, 0), perimeter, 'sql脚本表4')
+                            new mxConnectionConstraint(new mxPoint(0.2, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.4, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value),
+                            new mxConnectionConstraint(new mxPoint(0.6, 0), perimeter, CONSTRAINT_TEXT[type].input[2].value),
+                            new mxConnectionConstraint(new mxPoint(0.8, 0), perimeter, CONSTRAINT_TEXT[type].input[3].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '转化结果输出')
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '类型转换输入1')
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_MERGE.NORMALIZE: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '输出参数表'),
-                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '输出结果表')
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, '归一化输入参数表'),
-                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, '归一化输入结果表')
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '输出表1'),
-                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '输出表2')
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '拆分输入1')
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '模型输出')
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '逻辑回归二分类输入1')
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '预测结果输出')
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, '模型'),
-                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, '预测数据')
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
                         const outputs = [
-                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, '综合指标表'),
-                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, '等频详细数据表'),
-                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, '等宽详细数据表')
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[2].value)
                         ].map(item => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '二分类评估输入1')
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
                         ].concat(outputs);
                     }
                     default:
