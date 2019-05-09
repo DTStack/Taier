@@ -24,7 +24,8 @@ initNotification();
     return {
         user: state.user,
         licenseApps: state.licenseApps,
-        routing: state.routing
+        routing: state.routing,
+        isLicenseLoaded: state.isLicenseLoaded
     }
 })
 
@@ -35,7 +36,7 @@ class Main extends Component {
         this.props.dispatch(userAction);
         this.checkRoot(user);
         this.props.dispatch(getLicenseApp());
-        // this.isEnableLicenseApp();
+        this.isEnableLicenseApp();
     }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
@@ -204,7 +205,7 @@ class Main extends Component {
     }
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
-        let { licenseApps } = this.props;
+        let { licenseApps, isLicenseLoaded } = this.props;
         const pathAddress = this.getCurrentPath();
         // 成功返回数据
         if (licenseApps && licenseApps.length) {
@@ -367,7 +368,7 @@ class Main extends Component {
             this.loopIsIntercept(pathAddress, arr);
         }
         // 用户未上传license,返回空数组情况
-        if (licenseApps && licenseApps.length == 0) {
+        if (isLicenseLoaded && licenseApps && licenseApps.length == 0) {
             if (pathAddress.indexOf('index.html') == -1) {
                 window.location.href = '/'
             }

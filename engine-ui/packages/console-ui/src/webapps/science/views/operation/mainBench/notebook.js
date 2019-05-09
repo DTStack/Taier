@@ -4,7 +4,8 @@ import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd'
 import Api from '../../../api'
 import { offlineTaskPeriodFilter } from '../../../comm/const.js'
 import { taskType } from '../../../consts';
-import { toRdos } from 'funcs';
+import { toRdosGateway } from 'funcs';
+import { appUriDict } from 'main/consts';
 
 import utils from 'utils';
 
@@ -162,6 +163,7 @@ class Notebook extends PureComponent {
         )
     }
     render () {
+        const { currentProject } = this.props;
         const { data, loading, selectedRowKeys } = this.state;
         const rowSelection = {
             selectedRowKeys,
@@ -178,7 +180,7 @@ class Notebook extends PureComponent {
                             placeholder='按Notebook名称搜索'
                             style={{ width: 267 }} />
                     }
-                    extra={<a onClick={toRdos} >前往离线计算运维中心，查看实例运行情况</a>}>
+                    extra={<a onClick={toRdosGateway.bind(null, appUriDict.RDOS.OPERATION_MANAGER, { projectId: currentProject.refProjectId })} >前往离线计算运维中心，查看实例运行情况</a>}>
                     <Table
                         rowSelection={rowSelection}
                         rowKey="id"

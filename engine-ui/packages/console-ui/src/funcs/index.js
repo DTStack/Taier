@@ -444,6 +444,11 @@ export function generateValueDic (dic) {
     return newDic;
 }
 
-export function toRdos (params) {
-    location.href = rdosApp.link;
+export function toRdosGateway (uri, params = {}) {
+    params['redirect_uri'] = uri;
+    const keyAndValues = Object.entries(params);
+    const queryStr = keyAndValues.map(([key, value]) => {
+        return `${key}=${value}`
+    }).join('&');
+    location.href = `${rdosApp.link}/gateway${queryStr ? `?${queryStr}` : ''}`;
 }

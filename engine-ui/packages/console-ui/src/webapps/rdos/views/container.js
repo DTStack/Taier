@@ -29,9 +29,8 @@ class Container extends Component {
         dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
         dispatch(getTaskTypes());
         dispatch(updateApp(rdosApp))
-        this.initProject()
+        this.initProject();
     }
-
     initProject () {
         const { dispatch, router } = this.props
         const pathname = router.location.pathname

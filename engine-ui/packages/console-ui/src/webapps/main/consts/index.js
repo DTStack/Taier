@@ -124,3 +124,11 @@ export function getThemeBanner (theme) {
         }
     }
 }
+
+export const appUriDict = {
+    RDOS: {
+        OPERATION: 'operation',
+        OPERATION_MANAGER: 'operation_manager',
+        DEVELOP: 'offline/task'
+    }
+}

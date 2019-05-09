@@ -8,7 +8,8 @@ import {
 import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../api/table';
-import { toRdos } from 'funcs';
+import { toRdosGateway } from 'funcs';
+import { appUriDict } from 'main/consts';
 
 // import { getUploadStatus } from '../../../actions/sourceActions'
 
@@ -37,7 +38,11 @@ const defaultState = {
     originLineCount: 0, // 原数据总条数
     targetExchangeWarning: false// target界面是否提示未选择源字段
 }
-@connect()
+@connect(state => {
+    return {
+        currentProject: state.project.currentProject
+    }
+})
 class ImportLocalData extends Component {
     state = Object.assign({ key: Math.random() }, defaultState)
 
@@ -276,6 +281,7 @@ class ImportLocalData extends Component {
         )
     }
     renderTips = () => {
+        const { currentProject } = this.props;
         const { step } = this.state;
         const message = (
             <div style={{ color: '#666666' }}>
@@ -284,7 +290,7 @@ class ImportLocalData extends Component {
                         ? (
                             <>
                                 此模块支持本地小批量数据上传，若需要同步数据库数据或大批量数据，请前往
-                                <a onClick={toRdos}>离线计算-数据同步</a>
+                                <a onClick={toRdosGateway.bind(null, appUriDict.RDOS.DEVELOP, { projectId: currentProject.refProjectId })}>离线计算-数据同步</a>
                                 模块完成
                             </>
                         )

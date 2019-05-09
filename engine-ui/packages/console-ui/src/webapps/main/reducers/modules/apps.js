@@ -35,3 +35,13 @@ export function app (state = {}, action) {
             return state
     }
 }
+
+export function isLicenseLoaded (state = false, action) {
+    switch (action.type) {
+        case appActions.SET_LICENSE_LOADED: {
+            return true;
+        }
+        default:
+            return state
+    }
+}
