@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { union } from 'lodash';
+import { union, cloneDeep } from 'lodash';
 
 import Loading from '../loading';
 import FolderTree from '../../../../../components/folderTree';
@@ -132,11 +132,16 @@ class ComponentSidebar extends Component {
                     let response = await api.getExperimentTask({ id: res.data.id });
                     if (response.code === 1) {
                         // eslint-disable-next-line new-cap
-                        let cell = new mxCell('', new mxGeometry(0, 0, VertexSize.width, VertexSize.height));
+                        let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
                         cell.data = response.data;
                         cell.vertex = true;
-                        graph.importCells([cell], x, y, target);
-                        ctx.props.saveExperiment(ctx.props.tabData)
+                        graph.importCells([cell], 0, 0, target);
+                        /**
+                         * 拉进来之后保存一下
+                         */
+                        const tabData = cloneDeep(ctx.props.tabData);
+                        tabData.graphData.push(ctx.getCellData(cell));
+                        ctx.props.saveExperiment(tabData)
                         graph.clearSelection();
                     }
                 }
@@ -152,6 +157,18 @@ class ComponentSidebar extends Component {
             md.createDragElement = mxDragSource.prototype.createDragElement;
             this._dragElements.push(md);
         })
+    }
+    getCellData = (cell) => {
+        return cell && {
+            vertex: cell.vertex,
+            edge: cell.edge,
+            data: cell.data,
+            x: cell.geometry.x,
+            y: cell.geometry.y,
+            value: cell.value,
+            id: cell.id,
+            style: cell.style
+        }
     }
     onExpand = (expandedKeys, { expanded }) => {
         let keys = expandedKeys;

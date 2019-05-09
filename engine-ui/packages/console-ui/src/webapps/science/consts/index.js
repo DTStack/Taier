@@ -237,7 +237,7 @@ export const CONSTRAINT_TEXT = {
         ],
         output: []
     },
-    [COMPONENT_TYPE.DATA_SOURCE.SQL_SCRIPT]: {
+    [COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT]: {
         input: [
             { key: INPUT_TYPE.SQL_1, value: 'SQL结果输入1' },
             { key: INPUT_TYPE.SQL_2, value: 'SQL结果输入2' },
@@ -246,7 +246,7 @@ export const CONSTRAINT_TEXT = {
         ],
         output: [{ key: INPUT_TYPE.NORMAL, value: 'SQL结果输出' }]
     },
-    [COMPONENT_TYPE.DATA_SOURCE.TYPE_CHANGE]: {
+    [COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE]: {
         input: [
             { key: INPUT_TYPE.NORMAL, value: '输入' }
         ],
@@ -254,7 +254,7 @@ export const CONSTRAINT_TEXT = {
             { key: INPUT_TYPE.NORMAL, value: '转化结果输出' }
         ]
     },
-    [COMPONENT_TYPE.DATA_SOURCE.NORMALIZE]: {
+    [COMPONENT_TYPE.DATA_MERGE.NORMALIZE]: {
         input: [
             { key: INPUT_TYPE.NORMALIZATION_INPUT_PARAM, value: '归一化输入参数表' },
             { key: INPUT_TYPE.NORMALIZATION_INPUT_DATA, value: '归一化输入结果表' }
@@ -264,7 +264,7 @@ export const CONSTRAINT_TEXT = {
             { key: INPUT_TYPE.NORMALIZATION_OUTPUT_DATA, value: '输出结果表' }
         ]
     },
-    [COMPONENT_TYPE.DATA_SOURCE.DATA_SPLIT]: {
+    [COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT]: {
         input: [
             { key: INPUT_TYPE.NORMAL, value: '输入' }
         ],
@@ -273,7 +273,7 @@ export const CONSTRAINT_TEXT = {
             { key: INPUT_TYPE.DATA_SPLIT_RIGHT, value: '输出2' }
         ]
     },
-    [COMPONENT_TYPE.DATA_SOURCE.LOGISTIC_REGRESSION]: {
+    [COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION]: {
         input: [
             { key: INPUT_TYPE.NORMAL, value: '输入' }
         ],
@@ -281,7 +281,7 @@ export const CONSTRAINT_TEXT = {
             { key: INPUT_TYPE.MODEL, value: '模型输出' }
         ]
     },
-    [COMPONENT_TYPE.DATA_SOURCE.DATA_PREDICT]: {
+    [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: {
         input: [
             { key: INPUT_TYPE.NORMAL, value: '模型数据输入' },
             { key: INPUT_TYPE.PREDICT_INPUT_DATA, value: '预测数据输入' }
@@ -290,7 +290,7 @@ export const CONSTRAINT_TEXT = {
             { key: INPUT_TYPE.NORMAL, value: '输出预测结果' }
         ]
     },
-    [COMPONENT_TYPE.DATA_SOURCE.BINARY_CLASSIFICATION]: {
+    [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: {
         input: [
             { key: INPUT_TYPE.NORMAL, value: '输入' }
         ],

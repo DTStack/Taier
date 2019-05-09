@@ -256,6 +256,9 @@ class GraphContainer extends React.Component {
                 this.isClick = false;
             },
             dragEnter: function (evt, state, isVertex) {
+                if (!isVertex) {
+                    return
+                }
                 const data = state.cell.data;
                 const editTarget = document.getElementById(`JS_cell_${data.id}`);
                 if (
@@ -322,7 +325,7 @@ class GraphContainer extends React.Component {
         };
 
         graph.addListener(mxEvent.MOVE_CELLS, function (sender, evt) {
-            ctx.handleUpdateTaskData(evt.getName());
+            ctx.handleUpdateTaskData(evt.getName(), evt.getProperty('cells')[0]);
         }, true);
         graph.addListener(mxEvent.CELL_CONNECTED, (sender, evt) => {
             // 一次连接会触发两次该事件，通过判断是否是source来区分
@@ -333,7 +336,7 @@ class GraphContainer extends React.Component {
                      * 而需要的style来保存位置信息的style在真正生成的时候才有值
                      * 故延迟执行，确保edge的style有值了
                      *  */
-                    ctx.handleUpdateTaskData(evt.getName());
+                    ctx.handleUpdateTaskData(evt.getName(), evt.getProperty('edge'));
                 }, 500);
             }
         }, true);
@@ -349,10 +352,10 @@ class GraphContainer extends React.Component {
         const graph = this._graph;
         const cellData = this.getCellData(cell);
         this.props.copyCell(data, cellData).then((res) => {
-            let cell = new mxCell('', new mxGeometry(0, 0, VertexSize.width, VertexSize.height));
+            let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
             cell.data = res;
             cell.vertex = true;
-            graph.importCells([cell], cellData.x + 10, cellData.y + 10, rootCell);
+            graph.importCells([cell], 0, 0, rootCell);
             /**
              * 复制完成后
              * 保存tab
@@ -462,26 +465,36 @@ class GraphContainer extends React.Component {
      *  更新task的data
      *  @param eventName-事件名称
      *  */
-    handleUpdateTaskData = (eventName) => {
+    handleUpdateTaskData = (eventName, cell) => {
         const { data } = this.props;
         const graphData = this.getGraphData();
-        const oldData = Object.assign({}, data);
-        const newData = Object.assign({}, data);
-        newData.graphData = graphData;
-        const object = oldData.graphData.find(o => o.graph);
-        object && newData.graphData.push(object); // 获取到旧数据中的布局数据
         if (eventName === 'moveCells') {
-            this.props.updateTaskData(oldData, newData, false);
+            cell = this.getCellData(cell);
+            const movedCell = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
+            if (movedCell) {
+                movedCell.x = cell.x;
+                movedCell.y = cell.y;
+            }
+            this.props.updateTaskData({}, data, false);
         } else if (eventName === 'cellConnected') {
-            if (newData.graphData.length <= oldData.graphData.length) {
+            if (graphData.length <= data.graphData.length) {
                 /**
                  * 在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
                  * 用length来排除初始化的情况是因为没有想到特别好的办法
                  */
                 return;
             }
-            this.props.updateTaskData(oldData, newData, false);
-            this.props.saveExperiment(newData); // 当触发连线的钩子函数的时候实时执行保存操作
+            const cellItem = this.getCellData(cell);
+            cellItem.source = this.getCellData(cell.source);
+            cellItem.target = this.getCellData(cell.target);
+            const valueArr = cell.value.split('_');
+            const inputType = CONSTRAINT_TEXT[cellItem.source.data.componentType].output.find(o => o.value === valueArr[0]);
+            const outputType = CONSTRAINT_TEXT[cellItem.target.data.componentType].input.find(o => o.value === valueArr[1]);
+            cellItem.inputType = inputType ? inputType.key : 0;
+            cellItem.outputType = outputType ? outputType.key : 0;
+            data.graphData.push(cellItem);
+            this.props.updateTaskData({}, data, false);
+            this.props.saveExperiment(data); // 当触发连线的钩子函数的时候实时执行保存操作
         }
     }
     initEditTaskCell = (cell, task) => {
@@ -572,8 +585,6 @@ class GraphContainer extends React.Component {
                 cellItem.source = this.getCellData(cell.source);
                 cellItem.target = this.getCellData(cell.target);
                 const valueArr = cell.value.split('_');
-                // eslint-disable-next-line no-debugger
-                debugger;
                 const inputType = CONSTRAINT_TEXT[cellItem.source.data.componentType].output.find(o => o.value === valueArr[0]);
                 const outputType = CONSTRAINT_TEXT[cellItem.target.data.componentType].input.find(o => o.value === valueArr[1]);
                 cellItem.inputType = inputType ? inputType.key : 0;

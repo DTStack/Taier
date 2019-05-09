@@ -79,10 +79,8 @@ export function saveExperiment (tabData, isMessage = true) {
             tabData.sqlText = JSON.stringify(tabData.graphData);
             let res = await api.addExperiment(tabData);
             if (res && res.code == 1) {
-                const tabs = getState().experiment.localTabs;
-                dispatch(changeContent(res.data, tabs.find((tab) => {
-                    return tab.id == tabData.id
-                }), false));
+                // const tabs = getState().experiment.localTabs;
+                dispatch(changeContent(res.data, tabData, false));
                 resolve(res);
                 isMessage && message.success('保存成功！')
             }
@@ -109,7 +107,7 @@ export function getTaskDetailData (data, taskId) {
                     const graphData = data.graphData;
                     const object = graphData.find(o => o.vertex && o.data.id === taskId);
                     object.data = res.data;
-                    dispatch(changeContent(data, {}, false, true));
+                    dispatch(changeContent(data, {}, false, false));
                     resolve(res.data);
                 }
             })
