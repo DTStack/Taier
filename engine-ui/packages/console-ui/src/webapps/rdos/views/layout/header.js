@@ -142,15 +142,6 @@ class Header extends Component {
         const routes = pathname ? pathname.split('/') : [];
         let path =
             routes.length > 0 && routes[1] !== '' ? routes[1] : 'overview';
-        if (
-            path &&
-            (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
-        ) {
-            this.setState({
-                devPath: pathname
-            });
-            path = 'realtime'
-        }
         if (path !== this.state.current) {
             this.setState({
                 current: path

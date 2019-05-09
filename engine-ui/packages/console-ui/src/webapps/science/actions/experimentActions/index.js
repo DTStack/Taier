@@ -135,7 +135,7 @@ export function submitExperiment (tabData) {
         return new Promise(async (resolve) => {
             let res = await api.submitExperiment(tabData);
             if (res && res.code == 1) {
-                message.success('提交实验成功！')
+                message.success('实验提交成功，可前往运维中心查看该实验')
                 dispatch(changeContent(res.data, tabData, false));
                 resolve(res)
             }

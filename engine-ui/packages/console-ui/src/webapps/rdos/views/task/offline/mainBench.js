@@ -172,7 +172,6 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.VIRTUAL_NODE:
                 case TASK_TYPE.ML:
                 case TASK_TYPE.HAHDOOPMR:
-                case TASK_TYPE.NOTEBOOK:
                 case TASK_TYPE.EXPERIMENT: {
                     return <NormalTaskForm
                         isWorkflowNode={isWorkflowNode}
@@ -217,7 +216,8 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.DEEP_LEARNING:
                 case TASK_TYPE.PYTHON:
                 case TASK_TYPE.PYTHON_23:
-                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
+                case TASK_TYPE.NOTEBOOK:
+                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT || tabData.taskType == TASK_TYPE.NOTEBOOK) {
                         return <CommonEditor
                             mode="python"
                             taskCustomParams={taskCustomParams}

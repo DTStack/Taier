@@ -56,7 +56,12 @@ class SubmitModal extends React.Component {
                         {...formItemLayout}
                         label='备注'
                     >
-                        {getFieldDecorator('publishDesc')(
+                        {getFieldDecorator('publishDesc', {
+                            rules: [{
+                                max: 64,
+                                message: '最大字数不能超过64'
+                            }]
+                        })(
                             <Input.TextArea />
                         )}
                     </FormItem>

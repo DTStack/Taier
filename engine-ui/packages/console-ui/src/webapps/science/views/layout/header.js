@@ -53,10 +53,40 @@ class Header extends Component {
             return e.key == project.id;
         }));
     }
+    getMenuLicense (licenseApps = []) {
+        const result = {
+            develop: true,
+            operation: true,
+            source: true
+        };
+        const app = licenseApps[5];
+        if (!app) {
+            return result;
+        }
+        const scienceItems = licenseApps[5].children || [];
+        scienceItems.forEach(item => {
+            switch (item.name) {
+                case '算法实验': {
+                    result.develop = item.isShow;
+                    break;
+                }
+                case '运维中心': {
+                    result.operation = item.isShow;
+                    break;
+                }
+                case '数据管理': {
+                    result.source = item.isShow;
+                    break;
+                }
+            }
+        });
+        return result;
+    }
     render () {
         const { app, licenseApps } = this.props;
         const { project } = this.props;
         const projectName = get(project, 'projectAlias', project ? project.projectName : '项目选择');
+        const menulicense = this.getMenuLicense(licenseApps);
         const baseUrl = app.link;
         const path = location.hash.split('/');
         let menuItems = [];
@@ -110,19 +140,19 @@ class Header extends Component {
                 id: 'science/workbench',
                 name: '算法实验',
                 link: `${baseUrl}science/workbench`,
-                enable: true
+                enable: menulicense.develop
             },
             {
                 id: 'science/operation',
                 name: '运维中心',
                 link: `${baseUrl}science/operation`,
-                enable: true
+                enable: menulicense.operation
             },
             {
                 id: 'science/source',
                 name: '数据管理',
                 link: `${baseUrl}science/source`,
-                enable: true
+                enable: menulicense.source
             }];
         }
         const logo = <React.Fragment>

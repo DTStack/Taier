@@ -203,6 +203,27 @@ class Main extends Component {
             return arr;
         }
     }
+    fixScienceChildrenApps = (arr) => {
+        let fixScienceChildrenApps = [];
+        if (arr && arr.length > 1) {
+            arr.map(item => {
+                switch (item.name) {
+                    case '算法实验':
+                        fixScienceChildrenApps[0] = item;
+                        break;
+                    case '运维中心':
+                        fixScienceChildrenApps[1] = item;
+                        break;
+                    case '数据管理':
+                        fixScienceChildrenApps[2] = item;
+                        break;
+                }
+            })
+            return fixScienceChildrenApps
+        } else {
+            return arr;
+        }
+    }
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
         let { licenseApps, isLicenseLoaded } = this.props;
@@ -217,6 +238,7 @@ class Main extends Component {
             fixLicenseApps[2].children = this.fixAnalyChildrenApps(fixLicenseApps[2].children)
             fixLicenseApps[3].children = this.fixQualityChildrenApps(fixLicenseApps[3].children)
             fixLicenseApps[4].children = this.fixApiChildrenApps(fixLicenseApps[4].children)
+            fixLicenseApps[5].children = this.fixScienceChildrenApps(fixLicenseApps[5].children)
             // rdosAPP
             const rdosApp = fixLicenseApps[0];
             const isRdosShow = rdosApp.isShow;
@@ -253,6 +275,12 @@ class Main extends Component {
             const isApiMana = apiApp.children[3] && apiApp.children[3].isShow;
             const isApiSafe = apiApp.children[4] && apiApp.children[4].isShow;
             const isApiDataSource = apiApp.children[5] && apiApp.children[5].isShow;
+            // science
+            // const scienceApp = fixLicenseApps[5];
+            // const isScience = scienceApp.isShow;
+            // const isScienceDevelop = scienceApp.children[0] && scienceApp.children[0].isShow;
+            // const isScienceOperation = scienceApp.children[1] && scienceApp.children[1].isShow;
+            // const isScienceSource = scienceApp.children[2] && scienceApp.children[2].isShow;
             // 判断条件存入数组
             const arr = [
                 // rdos
@@ -364,6 +392,22 @@ class Main extends Component {
                     url: 'dataApi.html#/api/dataSource',
                     isShow: !isApiDataSource
                 }
+                // {
+                //     url: 'science.html',
+                //     isShow: !isScience
+                // },
+                // {
+                //     url: 'science.html#/science/workbench',
+                //     isShow: !isScienceDevelop
+                // },
+                // {
+                //     url: 'science.html#/science/operation',
+                //     isShow: !isScienceOperation
+                // },
+                // {
+                //     url: 'science.html#/science/source',
+                //     isShow: !isScienceSource
+                // }
             ];
             this.loopIsIntercept(pathAddress, arr);
         }

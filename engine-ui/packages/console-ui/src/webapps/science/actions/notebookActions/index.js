@@ -136,7 +136,7 @@ export function submitNotebook (tabData) {
         return new Promise(async (resolve) => {
             let res = await api.submitNotebook(tabData);
             if (res && res.code == 1) {
-                message.success('提交作业成功！')
+                message.success('任务提交成功，可前往运维中心查看该任务')
                 dispatch(changeContent(res.data, tabData, false));
                 resolve(res)
             }
