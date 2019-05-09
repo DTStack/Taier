@@ -353,7 +353,7 @@ class GraphEditor extends Component {
                     }
                     case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE: {
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '写数据表输入1')
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, '写数据源')
                         ];
                     }
                     case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT: {

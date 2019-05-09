@@ -116,6 +116,42 @@
         font-family: "anticon" !important;
     }
 }
+.anchor-component-file {
+    // 数据源/目标
+    &.o-tree-icon--data-source .ant-tree-iconEle::before{
+        font-size: 16px;
+        content: "\E650";
+        display: block;
+        font-family: "anticon" !important;
+    }
+    // 数据工具
+    &.o-tree-icon--data-tools .ant-tree-iconEle::before{
+        font-size: 16px;
+        content: "\E6D9";
+        display: block;
+        font-family: "anticon" !important;
+    }
+    // 数据合并
+    &.o-tree-icon--data-merge .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/data_merge.svg);
+    }
+    // 预测
+    &.o-tree-icon--data-pre-hand .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/data_prehand.svg);
+    }
+    // 机器学习
+    &.o-tree-icon--machine-learning .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/machine_learning.svg);
+    }
+    // 数据预测
+    &.o-tree-icon--data-predict .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/data_predict.svg);
+    }
+    // 数据评估
+    &.o-tree-icon--data-evaluate .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/data_evaluate.svg);
+    }
+}
 .s-tree-folder {
     &>.ant-tree-iconEle {
         background-image: url(/public/analyticsEngine/img/folder.svg);
