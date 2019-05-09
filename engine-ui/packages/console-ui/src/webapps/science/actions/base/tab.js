@@ -1,5 +1,7 @@
 import { experimentTabType, notebookTabType } from '../../consts/actionType/tabType'
 import { siderBarType } from '../../consts';
+import { checkAndcloseTabs } from './helper';
+
 const typeMap = {
     [siderBarType.experiment]: experimentTabType,
     [siderBarType.notebook]: notebookTabType
@@ -43,5 +45,19 @@ export function deleteOtherTab (type, tabId) {
     return {
         type: typeMap[type].DELETE_OTHER_TAB,
         payload: tabId
+    }
+}
+
+export function closeTab (type, tabId, tabs, currentTabIndex) {
+    return async (dispatch) => {
+        let isChecked = await checkAndcloseTabs(tabs, [parseInt(tabId)]);
+        if (isChecked) {
+            if (currentTabIndex == tabId && tabs.length > 1) {
+                dispatch(setCurrentTab(type, tabs.filter((tab) => {
+                    return tab.id != currentTabIndex
+                }).pop().id));
+            }
+            dispatch(deleteTab(type, tabId));
+        }
     }
 }

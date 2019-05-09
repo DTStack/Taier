@@ -9,7 +9,7 @@ import GraphPanel from '../graphPanel';
 import * as tabActions from '../../../../../actions/base/tab';
 import { siderBarType } from '../../../../../consts';
 import DefaultExperimentView from '../../default/defaultExperimentView';
-import { checkAndcloseTabs } from '../helper';
+import { checkAndcloseTabs } from '../../../../../actions/base/helper';
 
 const TabPane = Tabs.TabPane;
 
@@ -46,15 +46,7 @@ class GraphGroup extends React.Component {
     }
     async closeTab (tabId) {
         const { tabs = [], currentTabIndex } = this.props;
-        let isChecked = await checkAndcloseTabs(tabs, [parseInt(tabId)]);
-        if (isChecked) {
-            if (currentTabIndex == tabId && tabs.length > 1) {
-                this.switchTab(tabs.filter((tab) => {
-                    return tab.id != currentTabIndex
-                }).pop().id);
-            }
-            this.props.deleteTab(siderBarType.experiment, tabId);
-        }
+        this.props.closeTab(siderBarType.experiment, parseInt(tabId), tabs, currentTabIndex);
     }
     render () {
         const { tabs = [], currentTabIndex } = this.props;

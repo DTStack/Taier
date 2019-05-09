@@ -1,4 +1,4 @@
-import { addTab, setCurrentTab } from '../base/tab';
+import { addTab, setCurrentTab, closeTab } from '../base/tab';
 import { message } from 'antd';
 import { loadTreeData } from '../base/fileTree';
 import { siderBarType } from '../../consts';
@@ -24,12 +24,14 @@ export function addExperiment (params) {
     }
 }
 export function deleteExperiment (params) {
-    return dispatch => {
+    return (dispatch, getState) => {
         return new Promise(async (resolve) => {
             let res = await api.deleteExperiment({ taskId: params.id });
             if (res && res.code == 1) {
+                const experiment = getState().experiment;
                 message.success('删除成功');
                 dispatch(loadTreeData(siderBarType.experiment, params.parentId))
+                dispatch(closeTab(siderBarType.experiment, params.id, experiment.localTabs, experiment.currentTabIndex))
                 resolve(res);
             }
         })

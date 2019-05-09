@@ -10,7 +10,7 @@ import DefaultNotebookView from '../../default/defaultNotebookView';
 import * as tabActions from '../../../../../actions/base/tab';
 import { siderBarType } from '../../../../../consts';
 import * as commActions from '../../../../../actions/base';
-import { checkAndcloseTabs } from '../helper';
+import { checkAndcloseTabs } from '../../../../../actions/base/helper';
 
 const TabPane = Tabs.TabPane;
 
@@ -59,15 +59,7 @@ class NoteBookGroup extends React.Component {
     }
     async closeTab (tabId) {
         const { tabs = [], currentTabIndex } = this.props;
-        let isChecked = await checkAndcloseTabs(tabs, [parseInt(tabId)]);
-        if (isChecked) {
-            if (currentTabIndex == tabId && tabs.length > 1) {
-                this.switchTab(tabs.filter((tab) => {
-                    return tab.id != currentTabIndex
-                }).pop().id);
-            }
-            this.props.deleteTab(siderBarType.notebook, tabId);
-        }
+        this.props.closeTab(siderBarType.notebook, parseInt(tabId), tabs, currentTabIndex);
     }
     render () {
         const { tabs = [], currentTabIndex } = this.props;

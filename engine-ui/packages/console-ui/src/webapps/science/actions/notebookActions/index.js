@@ -2,7 +2,7 @@ import { message } from 'antd';
 
 import { setOutput, output, outputRes, removeRes, resetConsole } from '../editorActions';
 import editorAction from '../../consts/editorActionType';
-import { changeTab, addTab, setCurrentTab } from '../base/tab';
+import { changeTab, addTab, setCurrentTab, closeTab } from '../base/tab';
 import { siderBarType, consoleKey, modelComponentType } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
 import api from '../../api/notebook';
@@ -67,12 +67,14 @@ export function addNotebook (params) {
     }
 }
 export function deleteNotebook (params) {
-    return dispatch => {
+    return (dispatch, getState) => {
         return new Promise(async (resolve) => {
             let res = await api.deleteNotebook({ taskId: params.id });
             if (res && res.code == 1) {
+                const notebook = getState().notebook;
                 message.success('删除成功');
                 dispatch(loadTreeData(siderBarType.notebook, params.parentId))
+                dispatch(closeTab(siderBarType.notebook, params.id, notebook.localTabs, notebook.currentTabIndex))
                 resolve(res);
             }
         })
