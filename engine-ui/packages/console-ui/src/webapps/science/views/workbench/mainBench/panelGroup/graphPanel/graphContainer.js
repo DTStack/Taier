@@ -12,8 +12,7 @@ import api from '../../../../../api/experiment';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE, INPUT_TYPE_ENUM, VertexSize, INPUT_TYPE } from '../../../../../consts';
-import { getInputTypeItems } from '../../../../../comm';
+import { COMPONENT_TYPE, VertexSize, INPUT_TYPE, CONSTRAINT_TEXT } from '../../../../../consts';
 import ReqUrls from '../../../../../consts/reqUrls';
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
@@ -83,7 +82,8 @@ class GraphContainer extends React.Component {
 
     initOutputMenuItems = (menu, data) => {
         const ctx = this;
-        const menuItemArr = getInputTypeItems(data.componentType);
+        console.log(data);
+        const menuItemArr = data.outputTypeList || [];
         // 逻辑回归没有【查看数据】功能
         if (menuItemArr.length === 1) {
             menu.addItem('查看数据', null, function () {
@@ -96,7 +96,7 @@ class GraphContainer extends React.Component {
             while (i < menuItemArr.length) {
                 const item = menuItemArr[i];
                 menu.addItem(`查看数据输出${i}`, null, function () {
-                    const selectedTarget = { inputType: item.inputType, ...data };
+                    const selectedTarget = { inputType: item, ...data };
                     ctx.showHideOutputData(true, selectedTarget)
                 }, parentMenuItem, null, true);
                 i++;
@@ -106,7 +106,6 @@ class GraphContainer extends React.Component {
 
     initContextMenu = (graph) => {
         const ctx = this;
-        const { isRunning } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
@@ -132,13 +131,13 @@ class GraphContainer extends React.Component {
                 menu.addSeparator();
                 menu.addItem('从此处开始执行', null, function () {
                     ctx.startHandlerFromHere(cell);
-                }, null, null, !isRunning);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('执行到此节点', null, function () {
                     ctx.handlerToHere(cell)
-                }, null, null, !isRunning);
+                }, null, null, !ctx.props.isRunning);
                 menu.addItem('执行此节点', null, function () {
                     ctx.handlerThisCell(cell);
-                }, null, null, !isRunning);
+                }, null, null, !ctx.props.isRunning);
                 menu.addSeparator();
                 if (currentNode.componentType === COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION) {
                     const menuModal = menu.addItem('模型选项', null, function () {
@@ -178,11 +177,6 @@ class GraphContainer extends React.Component {
             div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${this.componentType(data.componentType)}`;
             div.style.left = (state.x) + 'px';
             div.style.top = (state.y + VertexSize.height + 10) + 'px';
-        } else {
-            const values = state.cell.value.split('_');
-            div.innerHTML = `输入参数：${values[0]} <br /> 输出参数: ${values[1]}`;
-            div.style.left = (state.getCenterX() - VertexSize.width / 2) + 'px';
-            div.style.top = (state.getCenterY()) + 'px';
         }
         state.view.graph.container.appendChild(div);
         return {
@@ -230,7 +224,7 @@ class GraphContainer extends React.Component {
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
-        const { saveSelectedCell, data, changeSiderbar, getTaskDetailData } = this.props;
+        const { saveSelectedCell, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
         graph.addMouseListener({
             id: 'hoverTitle', // 事件的唯一id，用于update事件
@@ -262,8 +256,20 @@ class GraphContainer extends React.Component {
                 this.isClick = false;
             },
             dragEnter: function (evt, state, isVertex) {
-                if (this.currentTitleContent == null && !this.isClick && !graph.popupMenuHandler.isMenuShowing()) {
-                    // 当前没有右键点击弹出菜单 并且 没有左键点击 并且 当前没有currentTitleContent
+                const data = state.cell.data;
+                const editTarget = document.getElementById(`JS_cell_${data.id}`);
+                if (
+                    this.currentTitleContent == null &&
+                    !this.isClick &&
+                    !graph.popupMenuHandler.isMenuShowing() &&
+                    window.getComputedStyle(editTarget).display === 'none'
+                    /**
+                     * 当前currentTitleContent
+                     * 当前没有左键点击
+                     * 当前没有右键点击弹出菜单
+                     * 当前没有处于重命名状态
+                     */
+                ) {
                     this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
                 }
             },
@@ -292,7 +298,7 @@ class GraphContainer extends React.Component {
                 applyCellStyle(cellState, style);
                 selectedCell = cell;
                 saveSelectedCell(cell) // 保存已选择的cell
-                getTaskDetailData(data, cell.data.id)
+                getTaskDetailData(ctx.props.data, cell.data.id)
                     .then((res) => {
                         changeSiderbar('params', true)
                     })
@@ -338,25 +344,23 @@ class GraphContainer extends React.Component {
 
     /* 复制节点 */
     copyCell = (cell) => {
-        const { data, changeContent } = this.props;
+        const { data } = this.props;
         const rootCell = this._graph.getDefaultParent();
         const graph = this._graph;
         const cellData = this.getCellData(cell);
         this.props.copyCell(data, cellData).then((res) => {
-            let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
+            let cell = new mxCell('', new mxGeometry(0, 0, VertexSize.width, VertexSize.height));
             cell.data = res;
             cell.vertex = true;
-            let cells = graph.importCells([cell], cellData.x + 10, cellData.y + 10, rootCell);
-            if (data.graphData) {
-                data.graphData.push(this.getCellData(cell));
-            } else {
-                data.graphData = [this.getCellData(cell)]
-            }
-            changeContent(data, {}, true)
-            if (cells != null && cells.length > 0) {
-                graph.scrollCellToVisible(cells[0]);
-                graph.setSelectionCells(cells);
-            }
+            graph.importCells([cell], cellData.x + 10, cellData.y + 10, rootCell);
+            /**
+             * 复制完成后
+             * 保存tab
+             */
+            const tabData = cloneDeep(data);
+            tabData.graphData.push(this.getCellData(cell));
+            this.props.saveExperiment(tabData);
+            graph.clearSelection();
         })
     }
     /* 删除节点 */
@@ -383,7 +387,11 @@ class GraphContainer extends React.Component {
         })
         if (data.graphData.length !== graphData.length) {
             this.props.changeContent(copyData, data, true)
-            this.props.saveExperiment(copyData); // 这里直接执行保存操作
+            message.success('删除成功');
+            /**
+             * 删除之后也要保存
+             */
+            this.props.saveExperiment(copyData, false);
         } else {
             message.warning('删除失败')
         }
@@ -449,7 +457,7 @@ class GraphContainer extends React.Component {
         this.props.changeContent(data, {}, false, true)
     }
 
-    _handleListenPan = debounce(this.handleListenPan, 1500);
+    _handleListenPan = debounce(this.handleListenPan, 500);
     /**
      *  更新task的data
      *  @param eventName-事件名称
@@ -538,7 +546,6 @@ class GraphContainer extends React.Component {
         const { data } = this.props;
         const newContent = { ...cloneDeep(data), ...res[0].data };
         this.props.changeContent(newContent, {}, true, false);
-        this._graph.refresh();
     }
 
     getCellData = (cell) => {
@@ -565,8 +572,12 @@ class GraphContainer extends React.Component {
                 cellItem.source = this.getCellData(cell.source);
                 cellItem.target = this.getCellData(cell.target);
                 const valueArr = cell.value.split('_');
-                cellItem.inputType = INPUT_TYPE_ENUM[valueArr[0]] || 0;
-                cellItem.outputType = INPUT_TYPE_ENUM[valueArr[1]] || 0;
+                // eslint-disable-next-line no-debugger
+                debugger;
+                const inputType = CONSTRAINT_TEXT[cellItem.source.data.componentType].output.find(o => o.value === valueArr[0]);
+                const outputType = CONSTRAINT_TEXT[cellItem.target.data.componentType].input.find(o => o.value === valueArr[1]);
+                cellItem.inputType = inputType ? inputType.key : 0;
+                cellItem.outputType = outputType ? outputType.key : 0;
             }
             cellData.push(cellItem);
         }

@@ -226,26 +226,80 @@ export const INPUT_TYPE = {
     SQL_4: 17,
     SOURCE_WRITE: 18
 }
-
-export const INPUT_TYPE_ENUM = {
-    'HDFS数据源输出': INPUT_TYPE.SOURCE_READ,
-    'sql脚本表1': INPUT_TYPE.SQL_1,
-    'sql脚本表2': INPUT_TYPE.SQL_2,
-    'sql脚本表3': INPUT_TYPE.SQL_3,
-    'sql脚本表4': INPUT_TYPE.SQL_4,
-    '输出参数表': INPUT_TYPE.NORMALIZATION_OUTPUT_PARAM,
-    '输出结果表': INPUT_TYPE.NORMALIZATION_OUTPUT_DATA,
-    '归一化输入参数表': INPUT_TYPE.NORMALIZATION_INPUT_PARAM,
-    '归一化输入结果表': INPUT_TYPE.NORMALIZATION_INPUT_DATA,
-    '输出表1': INPUT_TYPE.DATA_SPLIT_LEFT,
-    '输出表2': INPUT_TYPE.DATA_SPLIT_RIGHT,
-    '模型输出': INPUT_TYPE.MODEL,
-    '模型': INPUT_TYPE.PREDICT_INPUT_MODAL,
-    '预测数据': INPUT_TYPE.PREDICT_INPUT_DATA,
-    '综合指标表': INPUT_TYPE.EVALUATION_OVERALL_DATA,
-    '等频详细数据表': INPUT_TYPE.EVALUATION_FREQUENCY_DATA,
-    '等宽详细数据表': INPUT_TYPE.EVALUATION_WIDTH_DATA,
-    '写数据源': INPUT_TYPE.SOURCE_WRITE
+export const CONSTRAINT_TEXT = {
+    [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
+        input: [],
+        output: [{ key: INPUT_TYPE.SOURCE_READ, value: 'HDFS数据源输出' }]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE]: {
+        input: [
+            { key: INPUT_TYPE.SOURCE_WRITE, value: '输入' }
+        ],
+        output: []
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.SQL_SCRIPT]: {
+        input: [
+            { key: INPUT_TYPE.SQL_1, value: 'SQL结果输入1' },
+            { key: INPUT_TYPE.SQL_2, value: 'SQL结果输入2' },
+            { key: INPUT_TYPE.SQL_3, value: 'SQL结果输入3' },
+            { key: INPUT_TYPE.SQL_4, value: 'SQL结果输入4' }
+        ],
+        output: [{ key: INPUT_TYPE.NORMAL, value: 'SQL结果输出' }]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.TYPE_CHANGE]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.NORMAL, value: '转化结果输出' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.NORMALIZE]: {
+        input: [
+            { key: INPUT_TYPE.NORMALIZATION_INPUT_PARAM, value: '归一化输入参数表' },
+            { key: INPUT_TYPE.NORMALIZATION_INPUT_DATA, value: '归一化输入结果表' }
+        ],
+        output: [
+            { key: INPUT_TYPE.NORMALIZATION_OUTPUT_PARAM, value: '输出参数表' },
+            { key: INPUT_TYPE.NORMALIZATION_OUTPUT_DATA, value: '输出结果表' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.DATA_SPLIT]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.DATA_SPLIT_LEFT, value: '输出1' },
+            { key: INPUT_TYPE.DATA_SPLIT_RIGHT, value: '输出2' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.LOGISTIC_REGRESSION]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.MODEL, value: '模型输出' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.DATA_PREDICT]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '模型数据输入' },
+            { key: INPUT_TYPE.PREDICT_INPUT_DATA, value: '预测数据输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.NORMAL, value: '输出预测结果' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_SOURCE.BINARY_CLASSIFICATION]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.EVALUATION_OVERALL_DATA, value: '输出综合指标表' },
+            { key: INPUT_TYPE.EVALUATION_FREQUENCY_DATA, value: '输出等频详细数据表' },
+            { key: INPUT_TYPE.EVALUATION_WIDTH_DATA, value: '输出等宽详细数据表' }
+        ]
+    }
 }
 /**
  * SQL执行状态

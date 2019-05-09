@@ -25,11 +25,12 @@ class ChooseTable extends PureComponent {
         api.getTableByName({ tableName: value }).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    tables: res.data
+                    tables: res.data,
+                    fetching: false
                 })
             } else {
                 this.setState({
-                    fetching: true
+                    fetching: false
                 })
             }
         })
@@ -56,6 +57,7 @@ class ChooseTable extends PureComponent {
         const params = {
             ...currentComponentData.data,
             readTableComponent: {
+                ...currentComponentData.data.readTableComponent,
                 table: form.getFieldValue('tableName'),
                 isPartition: form.getFieldValue('partitionCheck'),
                 partitions: form.getFieldValue('partitionParam')
@@ -142,7 +144,7 @@ class TableInfo extends PureComponent {
         this.setState({
             loading: true
         })
-        api.getColumnsByTableName({ tableName: tableName.value }).then((res) => {
+        api.getColumnsByTableName({ tableName }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     columnsData: res.data
@@ -189,7 +191,7 @@ class ReadDatabase extends PureComponent {
         this.tableName = { value: props.data.table };
     }
     render () {
-        const { data, currentTab } = this.props;
+        const { data = {}, currentTab } = this.props;
         const WrapChooseTable = Form.create({
             onFieldsChange: (props, changedFields) => {
                 if (changedFields.tableName && !changedFields.tableName.validating && !changedFields.tableName.dirty) {
@@ -203,6 +205,9 @@ class ReadDatabase extends PureComponent {
             },
             mapPropsToFields: (props) => {
                 const { data } = props;
+                if (typeof (data.isPartition) === 'string') {
+                    data.isPartition = data.isPartition === 'true'
+                }
                 const values = {
                     tableName: { value: data.table || '' },
                     partitionCheck: { value: data.isPartition }
@@ -219,7 +224,7 @@ class ReadDatabase extends PureComponent {
                     <WrapChooseTable data={data} currentTab={currentTab} {...this.props}/>
                 </TabPane>
                 <TabPane tab="字段信息" key="2">
-                    <TableInfo data={data} tableName={this.tableName} />
+                    <TableInfo data={data} tableName={this.tableName.value} />
                 </TabPane>
             </Tabs>
         );

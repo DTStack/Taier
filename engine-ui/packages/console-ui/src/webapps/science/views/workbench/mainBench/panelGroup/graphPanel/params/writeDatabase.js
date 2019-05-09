@@ -1,7 +1,8 @@
+/* eslint-disable no-template-curly-in-string */
 import React, { PureComponent } from 'react';
 import { formItemLayout } from './index';
 import { debounce } from 'lodash';
-import { Form, Select, Checkbox, InputNumber, message } from 'antd';
+import { Form, Select, Checkbox, InputNumber, message, Input, Tooltip, Icon } from 'antd';
 import api from '../../../../../../api/experiment';
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -12,14 +13,24 @@ class ChooseTable extends PureComponent {
     }
     constructor (props) {
         super(props);
-        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
-        this.handleChange = debounce(this.handleChange, 800);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 500);
+        this.handleChange = debounce(this.handleChange, 500);
+    }
+    handleBlur = () => {
+        const value = this.props.form.getFieldValue('tableName');
+        api.isPartitionTable({ tableName: value }).then((res) => {
+            if (res.code === 1) {
+                this.props.form.setFieldsValue({
+                    partitionCheck: res.data
+                })
+            }
+            this.handleSaveComponent();
+        })
     }
     handleChange = (value) => {
         this.props.form.setFieldsValue({
             tableName: String(value)
         })
-        this.handleSaveComponent();
         api.getTableByName({ tableName: value }).then(res => {
             if (res.code === 1) {
                 this.setState({
@@ -36,8 +47,10 @@ class ChooseTable extends PureComponent {
             ...currentComponentData.data,
             writeTableComponent: {
                 ...currentComponentData.data.writeTableComponent,
-                tableName: form.getFieldValue('tableName'),
-                lifecycle: form.getFieldValue('lifeCycle')
+                table: form.getFieldValue('tableName'),
+                lifecycle: form.getFieldValue('lifeCycle'),
+                isPartition: form.getFieldValue('partitionCheck'),
+                partitions: form.getFieldValue('partitionParam')
             }
         }
         api.addOrUpdateTask(params).then((res) => {
@@ -49,9 +62,16 @@ class ChooseTable extends PureComponent {
             }
         })
     }
+    renderTooltips = () => {
+        const title = '分区配置支持填写动态分区，如下：\n${bdp.system.premonth}，表示yymm-1\n${bdp.system.cyctime}，表示运行时间数据\n${bdp.system.bizdate}，表示yymmdd-1\n${bdp.system.currmonth}，表示当前月数据';
+        return <Tooltip overlayClassName="big-tooltip" title={title}>
+            <Icon type="question-circle-o" className="supplementary" />
+        </Tooltip>
+    }
     render () {
         const { getFieldDecorator } = this.props.form;
         const { tables } = this.state;
+        const partitionCheck = this.props.form.getFieldValue('partitionCheck');
         return (
             <Form className="params-form">
                 <FormItem
@@ -73,6 +93,7 @@ class ChooseTable extends PureComponent {
                             defaultActiveFirstOption={false}
                             filterOption={false}
                             onChange={this.handleChange}
+                            onBlur={this.handleBlur}
                         >
                             {tables.map((item, index) => {
                                 return <Option key={index} value={item}>{item}</Option>
@@ -82,9 +103,18 @@ class ChooseTable extends PureComponent {
                     {getFieldDecorator('partitionCheck', {
                         valuePropName: 'checked'
                     })(
-                        <Checkbox>分区</Checkbox>
+                        <Checkbox disabled>分区</Checkbox>
                     )}
                 </FormItem>
+                {partitionCheck && <FormItem
+                    colon={false}
+                    label={<div>分区参数{this.renderTooltips()}</div>}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('partitionParam', {})(
+                        <Input placeholder='如：ds=20190328， ds=${bdp.system.bizdate}' onChange={this.handleSaveComponent} />
+                    )}
+                </FormItem>}
                 <FormItem
                     colon={false}
                     label='设置表生命周期'
@@ -107,9 +137,11 @@ class WriteDatabase extends PureComponent {
     render () {
         const WrapChooseTable = Form.create({
             mapPropsToFields: (props) => {
-                const { data } = props;
+                const { data = {} } = props;
                 const values = {
-                    tableName: { value: data.tableName || '' },
+                    tableName: { value: data.table || '' },
+                    partitionCheck: { value: data.isPartition },
+                    partitionParam: { value: data.partitions || '' },
                     lifeCycle: { value: data.lifecycle }
                 }
                 return values;
