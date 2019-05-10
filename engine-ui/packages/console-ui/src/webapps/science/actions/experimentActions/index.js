@@ -106,7 +106,7 @@ export function getTaskDetailData (data, taskId) {
                 if (res.code === 1) {
                     const graphData = data.graphData;
                     const object = graphData.find(o => o.vertex && o.data.id === taskId);
-                    object.data = res.data;
+                    object.data = { ...object.data, ...res.data };
                     dispatch(changeContent(data, {}, false, false));
                     resolve(res.data);
                 }

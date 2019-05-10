@@ -355,13 +355,14 @@ class GraphContainer extends React.Component {
             let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
             cell.data = res;
             cell.vertex = true;
-            graph.importCells([cell], 0, 0, rootCell);
+            let cells = graph.importCells([cell], 0, 0, rootCell);
+            cell = this.getCellData(cells[0]);
             /**
              * 复制完成后
              * 保存tab
              */
             const tabData = cloneDeep(data);
-            tabData.graphData.push(this.getCellData(cell));
+            tabData.graphData.push(cell);
             this.props.saveExperiment(tabData);
             graph.clearSelection();
         })

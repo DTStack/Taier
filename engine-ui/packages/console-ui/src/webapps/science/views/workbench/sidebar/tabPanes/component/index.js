@@ -21,11 +21,12 @@ const {
 
 @connect(
     state => {
-        const tab = state.experiment.localTabs.find(o => o.id === state.experiment.currentTabIndex);
+        const tab = state.experiment.localTabs.find(o => o.id == state.experiment.currentTabIndex);
         return {
             routing: state.routing,
             files: state.component.files,
             graph: state.component.graph,
+            currentTabIndex: state.experiment.currentTabIndex,
             tabData: tab
         }
     },
@@ -135,12 +136,13 @@ class ComponentSidebar extends Component {
                         let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
                         cell.data = response.data;
                         cell.vertex = true;
-                        graph.importCells([cell], 0, 0, target);
+                        let cells = graph.importCells([cell], 0, 0, target);
+                        cell = ctx.getCellData(cells[0]);
                         /**
                          * 拉进来之后保存一下
                          */
                         const tabData = cloneDeep(ctx.props.tabData);
-                        tabData.graphData.push(ctx.getCellData(cell));
+                        tabData.graphData.push(cell);
                         ctx.props.saveExperiment(tabData)
                         graph.clearSelection();
                     }
