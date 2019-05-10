@@ -42,14 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Client {
@@ -222,6 +219,15 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.APP_TYPE.toString(), clientArguments.appType.name());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(taskConf, applicationId, "").toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
+
+        if (taskConf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH)==null){
+            for (String cp : buildDefaultHadoopHome(conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR))){
+                File file = new File(cp);
+                if (!file.exists()){
+                    throw new IOException(cp + " directory is not exist!");
+                }
+            }
+        }
 
 
         /** launch command */
@@ -399,5 +405,17 @@ public class Client {
             infos.add(lineString.toString());
         }
         return infos;
+    }
+
+    public static List<String> buildDefaultHadoopHome(String hadoop){
+        List<String> hadoopLibs = new LinkedList<>();
+        hadoopLibs.add(hadoop + "/share/hadoop/common");
+        hadoopLibs.add(hadoop + "/share/hadoop/common/lib");
+        hadoopLibs.add(hadoop + "/share/hadoop/hdfs/lib");
+        hadoopLibs.add(hadoop + "/share/hadoop/yarn");
+        hadoopLibs.add(hadoop + "/share/hadoop/yarn/lib");
+        hadoopLibs.add(hadoop + "/share/hadoop/mapreduce");
+        hadoopLibs.add(hadoop + "/share/hadoop/mapreduce/lib");
+        return hadoopLibs;
     }
 }
