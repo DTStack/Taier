@@ -72,7 +72,7 @@ class GraphContainer extends React.Component {
 
     componentDidMount () {
         console.log('graph did mount', this.props);
-        this.initKeyboardEvent();
+        // this.initKeyboardEvent();
     }
 
     shouldComponentUpdate (nextProps) {
@@ -92,10 +92,11 @@ class GraphContainer extends React.Component {
             }, null, null, true);
         } else if (menuItemArr.length > 1) {
             const parentMenuItem = menu.addItem('查看数据');
-            let i = 1;
+            let i = 0;
             while (i < menuItemArr.length) {
                 const item = menuItemArr[i];
-                menu.addItem(`查看数据输出${i}`, null, function () {
+                const text = CONSTRAINT_TEXT[data.componentType].output.find(o => o.key == item);
+                menu.addItem(`${text ? text.value : ('查看数据输出' + i)}`, null, function () {
                     const selectedTarget = { inputType: item, ...data };
                     ctx.showHideOutputData(true, selectedTarget)
                 }, parentMenuItem, null, true);
