@@ -4,6 +4,7 @@ import { SCIENCE_BASE_URL } from 'config/base';
 export default {
 
     // ================== Common ================== //
+    GET_USER_BY_ID: `${SCIENCE_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
     DOWNLOAD_PMML: `/download/scienceDownload/downloadPmml`, // 下载模型 （导出pmml文件）
     GET_ALL_PROJECTS: `${SCIENCE_BASE_URL}/service/project/getProjects`, // 获取所有的项目列表
     GET_PROJECT_LIST: `${SCIENCE_BASE_URL}/common/project/listProject`, // 获取项目列表
@@ -61,7 +62,7 @@ export default {
     // === 模型 === //
     SAVE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/saveModel`, // 新增保存模型
     GET_MODEL_VERSIONS: `${SCIENCE_BASE_URL}/service/scienceModel/listVersion`, // 查询模型的全部版本
-    LIST_MODEL_TASK_FROM_LAB: `${SCIENCE_BASE_URL}/scienceModel/listModelTaskFromLab`, // 返回算法实验任务中的模型任务
+    LIST_MODEL_TASK_FROM_LAB: `${SCIENCE_BASE_URL}/service/scienceModel/listModelTaskFromLab`, // 返回算法实验任务中的模型任务
     GET_MODEL_LIST: `${SCIENCE_BASE_URL}/service/scienceModel/pageQuery`, // pageQuery模型
     LIST_TASK_ALL_MODEL_AND_VERSION: `${SCIENCE_BASE_URL}/service/scienceModel/listWithTopVersion`, // 查询全部model（包含最高的version）
     GET_MODEL_COMPONENTS_LIST: `${SCIENCE_BASE_URL}/service/scienceTask/getModelComponentList`, // 模型组件列表

@@ -59,7 +59,7 @@ class SubmitModal extends React.Component {
                         {getFieldDecorator('publishDesc', {
                             rules: [{
                                 max: 64,
-                                message: '最大字数不能超过64'
+                                message: '最大字符不能超过64'
                             }]
                         })(
                             <Input.TextArea />

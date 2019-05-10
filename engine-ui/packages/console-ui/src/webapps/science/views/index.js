@@ -8,6 +8,7 @@ import Header from './layout/header'
 
 import { updateApp } from 'main/actions/app'
 import { getProjectList, initCurrentProject } from '../actions/base'
+import { getUser } from '../actions/user';
 
 const propType = {
     children: PropTypes.node
@@ -25,6 +26,7 @@ class Main extends Component {
     componentDidMount () {
         const { dispatch } = this.props;
         dispatch(updateApp(scienceApp));
+        dispatch(getUser())
         dispatch(getProjectList());
         dispatch(initCurrentProject())
     }
