@@ -4,7 +4,13 @@ class DefaultImgView extends React.Component {
     render () {
         return (
             <div className='c-default-page'>
-                <img className='c-default-page__img' src={this.props.imgSrc} />
+                <div className='c-default-page__container'>
+                    <p className='c-default-page__text'>{this.props.text}</p>
+                    <div className='c-default-page__img__container'>
+                        <img className='c-default-page__img' src={this.props.imgSrc} />
+                        {this.props.imgButton}
+                    </div>
+                </div>
             </div>
         )
     }

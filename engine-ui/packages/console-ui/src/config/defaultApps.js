@@ -92,7 +92,7 @@ module.exports = [
         apiBase: '/science',
         icon: '/public/main/img/icon_suanfa.png',
         description: '集可视化实验与交互式Notebook开发于一体的机器学习作业探索平台，帮助企业构建算法服务能力',
-        className: 'icon_dropdown_api'
+        className: 'science'
     }, {
         id: 'console',
         name: '控制台',
