@@ -224,7 +224,7 @@ export const INPUT_TYPE = {
     SQL_2: 15,
     SQL_3: 16,
     SQL_4: 17,
-    SOURCE_WRITE: 18
+    SOURCE_WRITE: 18 // 写数据表的输出，但是读数据表暂时没有输出
 }
 export const CONSTRAINT_TEXT = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
@@ -233,7 +233,7 @@ export const CONSTRAINT_TEXT = {
     },
     [COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE]: {
         input: [
-            { key: INPUT_TYPE.SOURCE_WRITE, value: '输入' }
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
         ],
         output: []
     },

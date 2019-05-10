@@ -107,7 +107,7 @@ export function getTaskDetailData (data, taskId) {
                     const graphData = data.graphData;
                     const object = graphData.find(o => o.vertex && o.data.id === taskId);
                     object.data = { ...object.data, ...res.data };
-                    dispatch(changeContent(data, {}, false, false));
+                    dispatch(changeContent(data, {}, data.dirty, false));
                     resolve(res.data);
                 }
             })

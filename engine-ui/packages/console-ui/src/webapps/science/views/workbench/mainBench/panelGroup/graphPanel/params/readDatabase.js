@@ -141,6 +141,10 @@ class TableInfo extends PureComponent {
     }
     getTableInfo = () => {
         const { tableName } = this.props;
+        if (tableName) {
+            message.warning('请先选择表');
+            return;
+        }
         this.setState({
             loading: true
         })
