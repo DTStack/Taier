@@ -172,7 +172,7 @@ class GraphContainer extends React.Component {
     mxTitleContent = (state, isVertex) => {
         const data = state.cell.data;
         const div = document.createElement('div');
-        div.id = 'titleContent'
+        div.className = 'titleContent'
         if (isVertex) {
             div.innerHTML = `节点名称：${data.name} <br /> 算法名称：${this.componentType(data.componentType)}`;
             div.style.left = (state.x) + 'px';
@@ -181,8 +181,12 @@ class GraphContainer extends React.Component {
         state.view.graph.container.appendChild(div);
         return {
             destroy: () => {
-                if (document.getElementById('titleContent')) {
-                    div.parentNode.removeChild(div)
+                const nodeLists = document.querySelectorAll('.titleContent');
+                if (nodeLists.length > 0) {
+                    for (let index = 0; index < nodeLists.length; index++) {
+                        const node = nodeLists[index];
+                        node.parentNode.removeChild(node);
+                    }
                 }
             }
         }
@@ -203,7 +207,7 @@ class GraphContainer extends React.Component {
     }
     /* document的事件监听 */
     initKeyboardEvent = () => {
-        document.onkeydown = (e) => {
+        this._graph.container.onkeydown = (e) => {
             const keyCode = e.keyCode || e.which || e.charCode;
             const ctrlKey = e.ctrlKey || e.metaKey;
             if (ctrlKey && keyCode == 67) {
@@ -321,6 +325,7 @@ class GraphContainer extends React.Component {
                 style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
                 applyCellStyle(cellState, style);
                 selectedCell = null;
+                changeSiderbar(null, false); // 没有选择cell会关闭侧边栏
             }
         };
 
@@ -478,7 +483,15 @@ class GraphContainer extends React.Component {
             }
             this.props.updateTaskData({}, data, false);
         } else if (eventName === 'cellConnected') {
-            if (graphData.length <= data.graphData.length) {
+            let length = data.graphData.length;
+            if (data.graphData.findIndex(o => o.graph) !== -1) {
+                /**
+                 * 如果包含layout信息，则长度少算一个
+                 * 因为getGraphData里面实际不包含layout信息
+                 */
+                length -= 1;
+            }
+            if (graphData.length <= length) {
                 /**
                  * 在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
                  * 用length来排除初始化的情况是因为没有想到特别好的办法
@@ -494,9 +507,10 @@ class GraphContainer extends React.Component {
             cellItem.inputType = inputType ? inputType.key : 0;
             cellItem.outputType = outputType ? outputType.key : 0;
             data.graphData.push(cellItem);
-            this.props.updateTaskData({}, data, false);
+            // this.props.updateTaskData({}, data, false);
             this.props.saveExperiment(data); // 当触发连线的钩子函数的时候实时执行保存操作
         }
+        this._graph.clearSelection();
     }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
