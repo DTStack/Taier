@@ -49,7 +49,7 @@ class ChooseTable extends PureComponent {
                 ...currentComponentData.data.writeTableComponent,
                 table: form.getFieldValue('tableName'),
                 lifecycle: form.getFieldValue('lifeCycle'),
-                partition: form.getFieldValue('partitionCheck'),
+                isPartition: form.getFieldValue('partitionCheck'),
                 partitions: form.getFieldValue('partitionParam')
             }
         }
@@ -140,7 +140,7 @@ class WriteDatabase extends PureComponent {
                 const { data = {} } = props;
                 const values = {
                     tableName: { value: data.table || '' },
-                    partitionCheck: { value: data.partition },
+                    partitionCheck: { value: data.isPartition },
                     partitionParam: { value: data.partitions || '' },
                     lifeCycle: { value: data.lifecycle }
                 }

@@ -401,6 +401,7 @@ class GraphContainer extends React.Component {
             }
         })
         if (data.graphData.length !== graphData.length) {
+            api.deleteExperiment({ taskId: cell.data.id });
             this.props.changeContent(copyData, data, true)
             message.success('删除成功');
             /**
