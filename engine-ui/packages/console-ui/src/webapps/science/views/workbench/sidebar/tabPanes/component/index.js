@@ -143,7 +143,7 @@ class ComponentSidebar extends Component {
                          */
                         const tabData = cloneDeep(ctx.props.tabData);
                         tabData.graphData.push(cell);
-                        ctx.props.saveExperiment(tabData)
+                        ctx.props.saveExperiment(tabData, false)
                         graph.clearSelection();
                     }
                 }

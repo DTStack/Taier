@@ -12,7 +12,7 @@ import api from '../../../../../api/experiment';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE, VertexSize, INPUT_TYPE, CONSTRAINT_TEXT } from '../../../../../consts';
+import { COMPONENT_TYPE, VertexSize, CONSTRAINT_TEXT } from '../../../../../consts';
 import ReqUrls from '../../../../../consts/reqUrls';
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
@@ -29,7 +29,8 @@ const {
     mxConstants,
     mxEventObject,
     mxCell,
-    mxGeometry
+    mxGeometry,
+    mxKeyHandler
 } = Mx;
 
 const applyCellStyle = (cellState, style) => {
@@ -82,12 +83,11 @@ class GraphContainer extends React.Component {
 
     initOutputMenuItems = (menu, data) => {
         const ctx = this;
-        console.log(data);
         const menuItemArr = data.outputTypeList || [];
         // 逻辑回归没有【查看数据】功能
         if (menuItemArr.length === 1) {
             menu.addItem('查看数据', null, function () {
-                data.inputType = INPUT_TYPE.NORMAL;
+                data.inputType = menuItemArr[0] || 0;
                 ctx.showHideOutputData(true, data)
             }, null, null, true);
         } else if (menuItemArr.length > 1) {
@@ -349,6 +349,11 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.PAN, (sender, evt) => {
             ctx._handleListenPan(sender);
         }, true)
+
+        const keyHandler = new mxKeyHandler(graph);
+        keyHandler.bindKey(46, function (evt) {
+            console.log(evt)
+        })
     }
 
     /* 复制节点 */
@@ -509,7 +514,7 @@ class GraphContainer extends React.Component {
             cellItem.outputType = outputType ? outputType.key : 0;
             data.graphData.push(cellItem);
             // this.props.updateTaskData({}, data, false);
-            this.props.saveExperiment(data); // 当触发连线的钩子函数的时候实时执行保存操作
+            this.props.saveExperiment(data, false); // 当触发连线的钩子函数的时候实时执行保存操作
         }
         this._graph.clearSelection();
     }
@@ -739,6 +744,7 @@ class GraphContainer extends React.Component {
             <DataExploringModal
                 data={selectedOutputData}
                 visible={outputDataVisible}
+                onOk={() => this.showHideOutputData(false, null)}
                 onCancel={() => this.showHideOutputData(false, null) }
             />
         </div>
