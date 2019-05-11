@@ -619,8 +619,8 @@ class GraphContainer extends React.Component {
 
     onSearchChange = (searchText) => {
         if (searchText) {
-            const rootCell = this.graph.getDefaultParent();
-            const cells = this.graph.getChildCells(rootCell);
+            const rootCell = this._graph.getDefaultParent();
+            const cells = this._graph.getChildCells(rootCell);
             const result = [];
             for (let i = 0; i < cells.length; i++) {
                 const cell = cells[i];
@@ -683,10 +683,12 @@ class GraphContainer extends React.Component {
 
     onSelectResult = (value, option) => {
         const id = option.props.data
-        const cell = this._cacheCells[id];
+        const rootCell = this._graph.getDefaultParent();
+        const cells = this._graph.getChildCells(rootCell);
+        const cell = cells.find(o => o.vertex && o.data.id == id);
         if (cell) {
             const mxe = new mxEventObject(mxEvent.CLICK, 'cell', cell);
-            this.graph.fireEvent(mxe);
+            this._graph.fireEvent(mxe);
             this.setState({
                 showSearch: false,
                 searchText: ''

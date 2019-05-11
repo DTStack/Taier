@@ -7,7 +7,7 @@ import {
 const Option = Select.Option;
 
 export default function SearchModal (props) {
-    const { visible, id, style, searchResult, onCancel, onSelect, onSearch, placeholder } = props;
+    const { visible, id, style, searchResult, onCancel, onSelect, onChange, placeholder } = props;
 
     const options = searchResult && searchResult.map(d => {
         return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
@@ -43,7 +43,7 @@ export default function SearchModal (props) {
                 showArrow={false}
                 filterOption={false}
                 autoComplete="off"
-                onChange={onSearch}
+                onChange={onChange}
                 onSelect={onSelect}
             >
                 {options}

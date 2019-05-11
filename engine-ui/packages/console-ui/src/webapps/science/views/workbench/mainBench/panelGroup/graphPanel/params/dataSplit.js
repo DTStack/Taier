@@ -129,7 +129,7 @@ class ParamSetting extends PureComponent {
                                     { validator: this.validatRate }
                                 ]
                             })(
-                                <InputNumber onChange={(value) => this.handleChange('splitPercent', value)} style={inputStyle} />
+                                <InputNumber onChange={(value) => this.handleChange('splitPercent', value)} style={inputStyle} step={0.1} />
                             )}
                         </FormItem>
                         <FormItem
