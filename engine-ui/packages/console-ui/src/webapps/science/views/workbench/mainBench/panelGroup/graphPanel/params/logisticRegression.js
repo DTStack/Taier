@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Tabs, Form, Button, Select, InputNumber, message, Spin } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce } from 'lodash';
+import { isEmpty, cloneDeep, debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -55,13 +55,10 @@ class ChooseModal extends BaseChooseModal {
 class paramSetting extends PureComponent {
     state = {
         regexDatas: [{
-            value: 'None',
-            name: 'None'
-        }, {
-            value: 'L1',
+            value: 'l1',
             name: 'L1'
         }, {
-            value: 'L2',
+            value: 'l2',
             name: 'L2'
         }]
     }
@@ -70,6 +67,14 @@ class paramSetting extends PureComponent {
         const object = regexDatas.find(o => o.value === value);
         if (object) {
             this.props.handleSaveComponent('penalty', value);
+        }
+    }
+    /* 最小收敛误差 */
+    validatorTol = (rule, value, callback) => {
+        if (value > 0 && value <= 100000) {
+            callback()
+        } else {
+            callback(new Error('最小收敛误差的区间在(0, 100000]'))
         }
     }
     render () {
@@ -83,7 +88,7 @@ class paramSetting extends PureComponent {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('penalty', {
-                        initialValue: 'none',
+                        initialValue: 'l1',
                         rules: [{ required: false }]
                     })(
                         <Select placeholder="请选择目标列" onChange={this.handleChange}>
@@ -102,31 +107,31 @@ class paramSetting extends PureComponent {
                         initialValue: 100,
                         rules: [
                             { required: false },
-                            { max: 100000, message: '最大迭代次数为100000', type: 'number' }
+                            { min: 1, max: 100000, message: '最大迭代次数的取值范围为[1,100000]', type: 'number' }
                         ]
                     })(
                         <InputNumber
-                            parser={value => value ? parseInt(value) : value}
-                            formatter={value => value ? parseInt(value) : value}
+                            parser={value => isNumber(value) ? parseInt(value) : value}
+                            formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={inputStyle}
                         />
                     )}
                 </FormItem>
                 <FormItem
                     colon={false}
-                    label={<div>正则系数<span className="supplementary">正则项为None时，此值无效</span></div>}
+                    label={<div>正则系数</div>}
                     {...formItemLayout}
                 >
                     {getFieldDecorator('c', {
                         initialValue: 1,
                         rules: [
                             { required: false },
-                            { max: 100000, message: '正则系数最大为100000', type: 'number' }
+                            { min: 1, max: 100000, message: '正则系数取值范围为[1,100000]', type: 'number' }
                         ]
                     })(
                         <InputNumber
-                            parser={value => value ? parseInt(value) : value}
-                            formatter={value => value ? parseInt(value) : value}
+                            parser={value => isNumber(value) ? parseInt(value) : value}
+                            formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={inputStyle}
                         />
                     )}
@@ -137,14 +142,15 @@ class paramSetting extends PureComponent {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('tol', {
-                        initialValue: 0.000001,
+                        initialValue: 0.0001,
                         rules: [
                             { required: false },
-                            { max: 100000, min: -100000, type: 'number', message: '最小收敛误差的区间在[-100000, 100000]' }
-                        ]
+                            { type: 'number', message: '最小收敛误差的区间在(0, 100000]' }
+                        ],
+                        validator: this.validatorTol
                     })(
                         <InputNumber
-                            step={0.000001}
+                            step={0.0001}
                             style={inputStyle}
                         />
                     )}
