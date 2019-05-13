@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Tabs, Form, Button, Select, InputNumber, message, Spin } from 'antd';
+import { Tabs, Form, Button, Select, InputNumber, message, Spin, Input } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
 import { isEmpty, cloneDeep, debounce, isNumber } from 'lodash';
@@ -263,12 +263,9 @@ class FieldSetting extends PureComponent {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('pos', {
-                        initialValue: '1',
                         rules: [{ required: true }]
                     })(
-                        <Select>
-                            <Option value={'1'}>1</Option>
-                        </Select>
+                        <Input placeholder="请输入正类值" />
                     )}
                 </FormItem>
                 <div className="chooseWrap">

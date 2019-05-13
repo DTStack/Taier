@@ -22,10 +22,11 @@ const {
 @connect(
     state => {
         const tab = state.experiment.localTabs.find(o => o.id == state.experiment.currentTabIndex);
+        const graph = state.component.graph[state.experiment.currentTabIndex] || {};
         return {
             routing: state.routing,
             files: state.component.files,
-            graph: state.component.graph,
+            graph: graph,
             currentTabIndex: state.experiment.currentTabIndex,
             tabData: tab
         }
