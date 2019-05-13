@@ -480,7 +480,6 @@ class GraphContainer extends React.Component {
      *  */
     handleUpdateTaskData = (eventName, cell) => {
         const { data } = this.props;
-        const graphData = this.getGraphData();
         if (eventName === 'moveCells') {
             cell = this.getCellData(cell);
             const movedCell = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
@@ -490,21 +489,8 @@ class GraphContainer extends React.Component {
             }
             this.props.updateTaskData({}, data, false);
         } else if (eventName === 'cellConnected') {
-            let length = data.graphData.length;
-            if (data.graphData.findIndex(o => o.graph) !== -1) {
-                /**
-                 * 如果包含layout信息，则长度少算一个
-                 * 因为getGraphData里面实际不包含layout信息
-                 */
-                length -= 1;
-            }
-            if (graphData.length <= length) {
-                /**
-                 * 在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
-                 * 用length来排除初始化的情况是因为没有想到特别好的办法
-                 */
-                return;
-            }
+            // eslint-disable-next-line no-debugger
+            debugger;
             const cellItem = this.getCellData(cell);
             cellItem.source = this.getCellData(cell.source);
             cellItem.target = this.getCellData(cell.target);
@@ -689,6 +675,7 @@ class GraphContainer extends React.Component {
         if (cell) {
             const mxe = new mxEventObject(mxEvent.CLICK, 'cell', cell);
             this._graph.fireEvent(mxe);
+            this._graph.scrollCellToVisible(cell, true);
             this.setState({
                 showSearch: false,
                 searchText: ''
