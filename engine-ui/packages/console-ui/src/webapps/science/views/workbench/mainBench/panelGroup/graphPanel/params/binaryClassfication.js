@@ -19,7 +19,7 @@ class FieldSetting extends PureComponent {
         this.setState({
             fetching: true
         });
-        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res) => {
+        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : undefined }).then((res) => {
             if (res.code === 1) {
                 let originalColumns = [];
                 for (const key in res.data) {
@@ -73,14 +73,14 @@ class FieldSetting extends PureComponent {
                     )}
                 </FormItem>
                 <FormItem
-                    label='分数列列名'
+                    label='明细列列名'
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('scoreCol', {
-                        rules: [{ required: true, message: '请输入分数列列名' }]
+                    {getFieldDecorator('detailCol', {
+                        rules: [{ required: true, message: '请输入明细列列名' }]
                     })(
-                        <Input placeholder="请输入分数列列名" />
+                        <Input placeholder="请输入明细列列名" />
                     )}
                 </FormItem>
                 <FormItem

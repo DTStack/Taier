@@ -284,7 +284,7 @@ export const CONSTRAINT_TEXT = {
     },
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: {
         input: [
-            { key: INPUT_TYPE.NORMAL, value: '模型数据输入' },
+            { key: INPUT_TYPE.PREDICT_INPUT_MODAL, value: '模型数据输入' },
             { key: INPUT_TYPE.PREDICT_INPUT_DATA, value: '预测数据输入' }
         ],
         output: [
