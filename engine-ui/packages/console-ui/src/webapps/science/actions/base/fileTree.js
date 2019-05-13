@@ -59,7 +59,6 @@ export function loadTreeData (type, nodePid) {
                 dispatch(updateTreeNode(type, res.data));
             }
             resolve();
-            // resolve();
         })
     }
 }

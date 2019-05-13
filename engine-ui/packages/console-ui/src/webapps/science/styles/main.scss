@@ -77,3 +77,15 @@ table {
 .o-font--normal {
     font-weight: normal;
 }
+
+.dt-tree-select{
+    .ant-select-tree-node-content-wrapper {
+        position: relative;
+    }
+    .ant-select-tree-iconEle.ant-select-tree-icon_loading {
+        position: absolute;
+        top: 0px;
+        left: -24px;
+        background: #fff;
+    }
+}

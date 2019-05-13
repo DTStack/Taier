@@ -121,7 +121,7 @@ class ProjectsList extends Component {
             key: 'projectAlias',
             render: (text, record) => {
                 if (record.status == PROJECT_STATUS.SUCCESS) {
-                    return <a href="javascript:void(0)" onClick={() => this.handleCheckProject(record)}>{text}</a>
+                    return <a onClick={() => this.handleCheckProject(record)}>{text}</a>
                 }
                 return text;
             }
@@ -245,6 +245,7 @@ class ProjectsList extends Component {
                         label: '项目描述',
                         value: checkProject.projectDesc,
                         key: 'projectDesc',
+                        editType: 'textarea',
                         edit: true
                     }, {
                         label: '关联离线计算中的项目',

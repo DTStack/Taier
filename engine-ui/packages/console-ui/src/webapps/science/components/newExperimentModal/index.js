@@ -114,7 +114,12 @@ class NewExperimentModalForm extends React.Component {
                     label='实验描述'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('desc')(
+                    {getFieldDecorator('desc', {
+                        rules: [{
+                            max: 64,
+                            message: '最大字符不能超过64'
+                        }]
+                    })(
                         <Input.TextArea />
                     )}
                 </FormItem>

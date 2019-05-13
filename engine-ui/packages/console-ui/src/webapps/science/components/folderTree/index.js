@@ -92,8 +92,11 @@ class FolderTree extends React.PureComponent {
     }
     render () {
         const { isSelect, value, onChange } = this.props;
+        // ant-select-dropdown ant-select-tree-dropdown ant-select-dropdown--single ant-select-dropdown-placement-bottomLeft
+        // ant-select-dropdown dt-tree-select ant-select-dropdown--single ant-select-dropdown-placement-bottomLeft
         return isSelect ? (
             <TreeSelect
+                dropdownClassName='ant-select-tree-dropdown dt-tree-select'
                 showSearch
                 placeholder='选择一个父节点'
                 dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}

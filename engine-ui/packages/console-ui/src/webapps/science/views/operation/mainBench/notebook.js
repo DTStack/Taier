@@ -98,7 +98,7 @@ class Notebook extends PureComponent {
             title: 'Notebook名称',
             dataIndex: 'name',
             render (name, record) {
-                return record.scheduleStatus == 0 ? `${name}（已冻结）` : name
+                return record.scheduleStatus == 2 ? `${name}（已冻结）` : name
             }
         }, {
             width: '25%',
@@ -141,7 +141,7 @@ class Notebook extends PureComponent {
                 <Col span={12}>
                     <Button
                         style={{ marginRight: 10 }}
-                        onClick={this.handleForzenTasks.bind(this, 0)}
+                        onClick={this.handleForzenTasks.bind(this, 2)}
                         size="small"
                         type="primary"
                     >
