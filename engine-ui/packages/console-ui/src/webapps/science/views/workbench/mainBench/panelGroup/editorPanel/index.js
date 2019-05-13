@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Tabs, Button } from 'antd';
+import { Tabs, Button, Icon } from 'antd';
 import { debounce, get } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { commonFileEditDelegator } from 'widgets/editor/utils';
@@ -133,18 +133,19 @@ class EditorPanel extends Component {
         const { data } = this.props;
         return [
             <Tabs.TabPane
-                tab='调度周期'
+                tab={<span><Icon className='c-panel__siderbar__title__icon' type="rocket" />调度周期</span>}
                 key='scheduleConf'
             >
                 <SchedulingConfig
-                    formData={JSON.parse(data.scheduleConf || '{}')}
+                    formData={Object.assign(JSON.parse(data.scheduleConf || '{}'), { scheduleStatus: data.scheduleStatus })}
                     onChange={(newFormData) => {
+                        this.changeContent('scheduleStatus', newFormData.scheduleStatus);
                         this.debounceChangeContent('scheduleConf', JSON.stringify(newFormData));
                     }}
                 />
             </Tabs.TabPane>,
             <Tabs.TabPane
-                tab='任务参数'
+                tab={<span><Icon className='c-panel__siderbar__title__icon' type="tags-o" />任务参数</span>}
                 key='taskParams'
             >
                 <TaskVariables
@@ -153,7 +154,7 @@ class EditorPanel extends Component {
                 />
             </Tabs.TabPane>,
             <Tabs.TabPane
-                tab='环境参数'
+                tab={<span><Icon className='c-panel__siderbar__title__icon' type="eye-o" />环境参数</span>}
                 key='envParams'
             >
                 <EnvConfig

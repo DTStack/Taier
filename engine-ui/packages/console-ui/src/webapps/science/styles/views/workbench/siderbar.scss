@@ -13,7 +13,24 @@
             margin: 0;
             margin-bottom: 2px;
             color: #FFFFFF;
+            &.c-antd-tabs-sidebar__tab__icon--inline {
+                padding-bottom: 49px;
+            }
         }
+    }
+    .c-antd-tabs-sidebar__text--inline {
+        writing-mode: initial;
+        position: absolute;
+        width: 100%;
+        left: 0px;
+        letter-spacing: 0px;
+        bottom: 23px;
+        text-align: center;
+        word-break: break-all;
+        line-height: 13px;
+        font-size: 12px;
+        transform: scale(0.9);
+        white-space: initial;
     }
     .c-antd-tabs-sidebar__tab__img__icon {
         height: 18px;

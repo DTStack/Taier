@@ -93,8 +93,28 @@ function isCompeletedFinish (arrayList) {
     }
     return status;
 }
-function outputExperimentStatus (tabId, status, dispatch) {
-    dispatch(experimentLog.appendExperimentLog(tabId, createLog(`${status}.....`, 'info')))
+function getRunningTask (arrayList) {
+    const arr = [].concat(arrayList);
+    const runningTask = arr.find(o => {
+        switch (o.status) {
+            case taskStatus.FINISHED:
+            case taskStatus.SET_SUCCESS: return false;
+            case taskStatus.STOPED:
+            case taskStatus.RUN_FAILED:
+            case taskStatus.SUBMIT_FAILED:
+            case taskStatus.KILLED:
+            case taskStatus.FROZEN:
+            case taskStatus.PARENT_FAILD:
+            case taskStatus.FAILING: return false;
+            default: {
+                return true;
+            }
+        }
+    });
+    return runningTask ? runningTask.taskId : '';
+}
+function outputExperimentStatus (tabId, taskName, dispatch) {
+    dispatch(experimentLog.appendExperimentLog(tabId, createLog(`${taskName ? '[' + taskName + ']' : ''}执行中.....`, 'info')))
 }
 function resolveMsgExperiment (tabId, res, dispatch) {
     if (res && res.message) {
@@ -199,7 +219,8 @@ async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
             resolveDataExperiment(tabId, response.data, null, dispatch);
         } else if (!status.compeletedFinish) {
             // 继续轮训
-            outputExperimentStatus(tabId, '.....', dispatch)
+            const object = tabData.graphData.find(o => o.vertex && o.data.id == getRunningTask(response.data));
+            outputExperimentStatus(tabId, object ? object.data.name : '', dispatch)
             await new Promise(resolve => {
                 setTimeout(() => {
                     resolve(getRunningTaskStatus(tabId, tabData, jobIds, dispatch));

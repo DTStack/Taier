@@ -218,6 +218,7 @@ class GraphEditor extends Component {
         // Init container scroll
         this.initContainerScroll(graph);
         this.renderData(data);
+        this.initGraphEvent(graph);
         this.renderAnimation();
     }
     /* 初始化隐藏右键的菜单 */
@@ -541,10 +542,26 @@ class GraphEditor extends Component {
             if (sourceConstraint && sourceConstraint.id !== 'outputs') return false;
             // 限制，禁止连接输出点
             if (targetConstraint && targetConstraint.id === 'outputs') return false;
-            // 限制，输出点的contransint只能有一条线
-            if (sourceConstraint && source.edges && source.edges.length > 0 && source.edges.findIndex(o => o.value.indexOf(sourceConstraint.name) !== -1) !== -1) return false;
+            // 不需要限制，输出点的contransint只能有一条线
+            // if (
+            //     sourceConstraint &&
+            //     source.edges &&
+            //     source.edges.length > 0 &&
+            //     source.edges.findIndex(o => {
+            //         const values = o.value.split('_');
+            //         return values.includes(sourceConstraint.name);
+            //     }) !== -1
+            // ) return false;
             // 限制，输入点的contransint只能有一条线
-            if (targetConstraint && target.edges && target.edges.length > 0 && target.edges.findIndex(o => o.value.indexOf(targetConstraint.name) !== -1) !== -1) return false;
+            if (
+                targetConstraint &&
+                target.edges &&
+                target.edges.length > 0 &&
+                target.edges.findIndex(o => {
+                    const values = o.value.split('_');
+                    return values.includes(targetConstraint.name);
+                }) !== -1
+            ) return false;
             // 限制，只能vertex可连接
             if (!source.vertex || !target.vertex) return false;
             // 限制循环依赖
@@ -556,7 +573,7 @@ class GraphEditor extends Component {
                 }
             });
             if (isLoop) return false;
-            return graph.isValidSource(source) && graph.isValidTarget(target);
+            return true
         }
     }
 

@@ -96,7 +96,7 @@ class NewFolder extends React.Component {
                             }],
                             initialValue: get(data, 'nodePid')
                         })(
-                            <FolderTree loadData={this.loadData.bind(this)} treeData={files} isSelect={true} hideFiles={true} />
+                            <FolderTree disabled={isEdit} loadData={this.loadData.bind(this)} treeData={files} isSelect={true} hideFiles={true} />
                         )}
                     </FormItem>
                 </Form>

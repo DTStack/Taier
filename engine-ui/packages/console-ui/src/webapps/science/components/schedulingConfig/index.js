@@ -364,9 +364,16 @@ export default Form.create({
                         value: moment(value)
                     }
                 } else {
-                    result[key] = {
-                        ...baseParam,
-                        value: value
+                    if (key == 'scheduleStatus') {
+                        result[key] = {
+                            ...baseParam,
+                            value: value == 2 || value === true
+                        }
+                    } else {
+                        result[key] = {
+                            ...baseParam,
+                            value: value
+                        }
                     }
                 }
             });
@@ -387,7 +394,11 @@ export default Form.create({
             if (dateType.indexOf(key) > -1 && value instanceof moment) {
                 values[key].value = value.format('YYYY-MM-DD');
             }
-            newFormData[key] = value;
+            if (key == 'scheduleStatus') {
+                newFormData[key] = value ? 2 : 1
+            } else {
+                newFormData[key] = value;
+            }
         });
         if (values.hasOwnProperty('periodType')) {
             setFormDataValueAndMetadata('beginHour', undefined, newFormData);
