@@ -14,7 +14,7 @@ import * as experimentActions from '../../../../../actions/experimentActions';
 import { changeContent } from '../../../../../actions/experimentActions/runExperimentActions';
 import PublishButtons from '../../../../../components/publishButtons';
 import commActions from '../../../../../actions';
-import { Tabs, Button } from 'antd';
+import { Tabs, Button, Icon } from 'antd';
 import GraphContainer from './graphContainer';
 import Description from './description';
 import Params from './params/index';
@@ -80,21 +80,21 @@ class GraphPanel extends Component {
         const { selectedCell, data } = this.props;
         return [
             <Tabs.TabPane
-                tab='组件参数'
+                tab={<span><Icon className='c-panel__siderbar__title__icon' type="bars" />组件参数</span>}
                 key='params'
                 disabled={isEmpty(selectedCell)}
             >
                 <Params data={data.detailData} />
             </Tabs.TabPane>,
             <Tabs.TabPane
-                tab='组件说明'
+                tab={<span><Icon className='c-panel__siderbar__title__icon' type="question-circle-o" />组件说明</span>}
                 key='description'
                 disabled={isEmpty(selectedCell)}
             >
                 <Description />
             </Tabs.TabPane>,
             <Tabs.TabPane
-                tab='调度周期'
+                tab={<span><Icon className='c-panel__siderbar__title__icon' type="rocket" />调度周期</span>}
                 key='scheduleConf'
             >
                 <SchedulingConfig
