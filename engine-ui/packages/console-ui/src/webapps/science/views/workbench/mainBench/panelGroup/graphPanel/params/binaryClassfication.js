@@ -165,7 +165,7 @@ class BinaryClassfication extends PureComponent {
                 const { data } = props;
                 const values = {
                     oldLabel: { value: !data.oldLabel ? '' : data.oldLabel.key },
-                    scoreCol: { value: data.scoreCol },
+                    detailCol: { value: data.detailCol },
                     pos: { value: data.pos },
                     bin: { value: data.bin }
                 }
