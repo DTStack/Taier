@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Table } from 'antd';
 
 import API from '../../../../../../api/experiment';
@@ -6,7 +6,7 @@ function getID (current, index) {
     return (current - 1) * 10 + (index + 1);
 }
 
-class TableDetail extends PureComponent {
+class TableDetail extends Component {
     state = {
         tableData: [],
         pagination: {
@@ -15,7 +15,12 @@ class TableDetail extends PureComponent {
         },
         loading: false
     };
-
+    shouldComponentUpdate (nextProps) {
+        if (nextProps.visible && !this.props.visible) {
+            this.fetchData();
+        }
+        return true;
+    }
     componentDidMount () {
         this.fetchData()
     }
@@ -32,24 +37,25 @@ class TableDetail extends PureComponent {
         });
     }
 
-    fetchData = async (params = {}) => {
+    fetchData = (params = {}) => {
         const { data, indexType, queryParams } = this.props;
         if (!data) return;
 
         this.setState({ loading: true });
-        const res = await API.getEvaluateReportTableData({
+        API.getEvaluateReportTableData({
             num: 100,
             taskId: data.id,
             inputType: indexType,
             ...params,
             ...queryParams
+        }).then((res) => {
+            if (res.code === 1) {
+                this.setState({
+                    tableData: res.data || []
+                })
+            }
+            this.setState({ loading: false });
         });
-        if (res.code === 1) {
-            this.setState({
-                tableData: res.data || []
-            })
-        }
-        this.setState({ loading: false });
     }
 
     initialCols = (fields) => {

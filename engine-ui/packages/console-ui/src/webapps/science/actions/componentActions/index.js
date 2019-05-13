@@ -13,8 +13,14 @@ export function saveSelectedCell (payload, cb) {
     }
 }
 export function saveGraph (payload) {
-    return {
-        type: componentActionType.SAVE_GRAPH,
-        payload
+    return (dispatch, getState) => {
+        const currentTab = getState().experiment.currentTabIndex
+        dispatch({
+            type: componentActionType.SAVE_GRAPH,
+            payload: {
+                graph: payload,
+                currentTab
+            }
+        })
     }
 }

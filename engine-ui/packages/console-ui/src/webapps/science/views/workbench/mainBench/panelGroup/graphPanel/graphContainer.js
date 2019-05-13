@@ -12,7 +12,7 @@ import api from '../../../../../api/experiment';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE, VertexSize, INPUT_TYPE, CONSTRAINT_TEXT } from '../../../../../consts';
+import { COMPONENT_TYPE, VertexSize, CONSTRAINT_TEXT } from '../../../../../consts';
 import ReqUrls from '../../../../../consts/reqUrls';
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
@@ -29,7 +29,8 @@ const {
     mxConstants,
     mxEventObject,
     mxCell,
-    mxGeometry
+    mxGeometry,
+    mxKeyHandler
 } = Mx;
 
 const applyCellStyle = (cellState, style) => {
@@ -72,7 +73,7 @@ class GraphContainer extends React.Component {
 
     componentDidMount () {
         console.log('graph did mount', this.props);
-        this.initKeyboardEvent();
+        // this.initKeyboardEvent();
     }
 
     shouldComponentUpdate (nextProps) {
@@ -82,20 +83,20 @@ class GraphContainer extends React.Component {
 
     initOutputMenuItems = (menu, data) => {
         const ctx = this;
-        console.log(data);
         const menuItemArr = data.outputTypeList || [];
         // 逻辑回归没有【查看数据】功能
         if (menuItemArr.length === 1) {
             menu.addItem('查看数据', null, function () {
-                data.inputType = INPUT_TYPE.NORMAL;
+                data.inputType = menuItemArr[0] || 0;
                 ctx.showHideOutputData(true, data)
             }, null, null, true);
         } else if (menuItemArr.length > 1) {
             const parentMenuItem = menu.addItem('查看数据');
-            let i = 1;
+            let i = 0;
             while (i < menuItemArr.length) {
                 const item = menuItemArr[i];
-                menu.addItem(`查看数据输出${i}`, null, function () {
+                const text = CONSTRAINT_TEXT[data.componentType].output.find(o => o.key == item);
+                menu.addItem(`${text ? text.value : ('查看数据输出' + i)}`, null, function () {
                     const selectedTarget = { inputType: item, ...data };
                     ctx.showHideOutputData(true, selectedTarget)
                 }, parentMenuItem, null, true);
@@ -348,6 +349,11 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.PAN, (sender, evt) => {
             ctx._handleListenPan(sender);
         }, true)
+
+        const keyHandler = new mxKeyHandler(graph);
+        keyHandler.bindKey(46, function (evt) {
+            console.log(evt)
+        })
     }
 
     /* 复制节点 */
@@ -395,6 +401,7 @@ class GraphContainer extends React.Component {
             }
         })
         if (data.graphData.length !== graphData.length) {
+            cell.vertex && api.deleteExperiment({ taskId: cell.data.id });
             this.props.changeContent(copyData, data, true)
             message.success('删除成功');
             /**
@@ -508,7 +515,7 @@ class GraphContainer extends React.Component {
             cellItem.outputType = outputType ? outputType.key : 0;
             data.graphData.push(cellItem);
             // this.props.updateTaskData({}, data, false);
-            this.props.saveExperiment(data); // 当触发连线的钩子函数的时候实时执行保存操作
+            this.props.saveExperiment(data, false); // 当触发连线的钩子函数的时候实时执行保存操作
         }
         this._graph.clearSelection();
     }
@@ -612,8 +619,8 @@ class GraphContainer extends React.Component {
 
     onSearchChange = (searchText) => {
         if (searchText) {
-            const rootCell = this.graph.getDefaultParent();
-            const cells = this.graph.getChildCells(rootCell);
+            const rootCell = this._graph.getDefaultParent();
+            const cells = this._graph.getChildCells(rootCell);
             const result = [];
             for (let i = 0; i < cells.length; i++) {
                 const cell = cells[i];
@@ -676,10 +683,12 @@ class GraphContainer extends React.Component {
 
     onSelectResult = (value, option) => {
         const id = option.props.data
-        const cell = this._cacheCells[id];
+        const rootCell = this._graph.getDefaultParent();
+        const cells = this._graph.getChildCells(rootCell);
+        const cell = cells.find(o => o.vertex && o.data.id == id);
         if (cell) {
             const mxe = new mxEventObject(mxEvent.CLICK, 'cell', cell);
-            this.graph.fireEvent(mxe);
+            this._graph.fireEvent(mxe);
             this.setState({
                 showSearch: false,
                 searchText: ''
@@ -738,6 +747,7 @@ class GraphContainer extends React.Component {
             <DataExploringModal
                 data={selectedOutputData}
                 visible={outputDataVisible}
+                onOk={() => this.showHideOutputData(false, null)}
                 onCancel={() => this.showHideOutputData(false, null) }
             />
         </div>

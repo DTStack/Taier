@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer, message, Spin } from 'antd';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce } from 'lodash';
+import { isEmpty, cloneDeep, debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -349,8 +349,8 @@ export class MemorySetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
-                            parser={value => value ? parseInt(value) : value}
-                            formatter={value => value ? parseInt(value) : value}
+                            parser={value => isNumber(value) ? parseInt(value) : value}
+                            formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={inputStyle} />
                     )}
                 </FormItem>
@@ -367,8 +367,8 @@ export class MemorySetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
-                            parser={value => value ? parseInt(value) : value}
-                            formatter={value => value ? parseInt(value) : value}
+                            parser={value => isNumber(value) ? parseInt(value) : value}
+                            formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={inputStyle} />
                     )}
                 </FormItem>

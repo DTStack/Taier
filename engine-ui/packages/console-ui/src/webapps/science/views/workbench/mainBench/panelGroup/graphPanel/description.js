@@ -17,6 +17,43 @@ class Description extends Component {
     isEmptyObejct = (obejct) => {
         return Object.keys(obejct).length === 0
     }
+    initTitle = () => {
+        const { selectedCell } = this.props;
+        let title = '';
+        if (this.isEmptyObejct(selectedCell)) return '';
+        switch (selectedCell.data.componentType) {
+            case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:
+                title = '读数据表';
+                break;
+            case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE:
+                title = '写数据表';
+                break;
+            case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
+                title = 'SQL脚本';
+                break;
+            case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
+                title = '类型转化';
+                break;
+            case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
+                title = '归一化';
+                break;
+            case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
+                title = '拆分';
+                break;
+            case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
+                title = '逻辑回归二分类';
+                break;
+            case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
+                title = '预测';
+                break;
+            case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
+                title = '二分类评估';
+                break;
+            default:
+                return ''
+        }
+        return title;
+    }
     initRender = () => {
         const { selectedCell } = this.props;
         let description = '';
@@ -60,6 +97,9 @@ class Description extends Component {
     render () {
         return (
             <div>
+                <header className='c-panel__siderbar__header'>
+                    {this.initTitle()}
+                </header>
                 {this.initRender()}
             </div>
         );

@@ -37,13 +37,20 @@ function getLogsInfo (title, data, type = 'info') {
 class RunningLogModal extends Component {
     state = {
         indexData: null, // 指标数据
-        logData: null // log数据
+        logData: {} // log数据
     }
     componentDidUpdate (prevProps, prevState) {
         if (!prevProps.visible && this.props.visible) {
             this.fetchData();
+            return true;
         }
-        return true;
+        if (prevProps.visible && !this.props.visible) {
+            this.setState({
+                logData: {}
+            });
+            return true
+        }
+        return false;
     }
 
     fetchData = async () => {
@@ -58,9 +65,8 @@ class RunningLogModal extends Component {
     }
 
     renderLogContent = () => {
-        const { runningIndexData, downloadLink, logData } = this.state;
-        // const logText = prettifyLogText(logData, downloadLink);
-
+        const { runningIndexData, logData } = this.state;
+        const logText = prettifyLogText(logData.msg, logData.download);
         return (
             <div>
                 {
@@ -76,7 +82,7 @@ class RunningLogModal extends Component {
                         : ''
                 }
                 <Row style={logContainerStyle}>
-                    <Editor sync value={logData} options={editorOptions} />
+                    <Editor sync value={logText} options={editorOptions} />
                 </Row>
             </div>
         )
@@ -109,50 +115,17 @@ const prettifyLogText = (message, downloadAddress) => {
     /**
      * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
      */
-    const safeSpace = ' ';
-    const log = message ? JSON.parse(message.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
+    // const safeSpace = ' ';
+    let log = '';
+    try {
+        log = message ? JSON.parse(message.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : '';
+    } catch (err) {
+        log = message;
+    }
 
-    const errors = log['all-exceptions'] || ''
-    const engineLogErr = log['engineLogErr'];
-    let flinkLog = errors;
-
-    const appLogs = engineLogErr ? `${wrappTitle('appLogs')}\n${engineLogErr}\n` : getLogsInfo('appLogs', log.appLog)
-    const driverLog = getLogsInfo('driverLog', log.driverLog);
-
-    let logText = ''
+    let logText = `${log}\n`;
     if (downloadAddress) {
-        logText = `完整日志下载地址：${createLinkMark({ href: downloadAddress, download: '' })}\n`;
-    }
-    if (log.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`
-    }
-
-    if (log['perf']) {
-        logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(log['perf'], 'warning')}${safeSpace} \n`
-    }
-    /**
-     * 数据增量同步配置信息
-     */
-    if (log['increInfo']) {
-        logText = `${logText}\n${wrappTitle('增量标志信息')}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`
-    }
-
-    if (flinkLog || log['root-exception']) {
-        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(flinkLog, 'error')} \n ${createLogMark(log['root-exception'], 'error') || ''}`
-    }
-
-    if (appLogs || driverLog) {
-        logText = `${logText} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(driverLog, 'error')}`
-    }
-
-    if (log.msg_info) {
-        let logSql = log['sql'];
-        if (logSql && typeof logSql == 'object') {
-            logSql = JSON.stringify(logSql, null, 2);
-        }
-        if (logSql) {
-            logText = `${logText}${wrappTitle('任务信息')}\n${createLogMark(logSql, 'info')} \n`
-        }
+        logText += `完整日志下载地址：${createLinkMark({ href: downloadAddress, download: '' })}\n`;
     }
 
     return logText;

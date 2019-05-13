@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Form, Select, Input, InputNumber, message, Spin } from 'antd';
-import { debounce } from 'lodash';
+import { debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { formItemLayout } from './index';
 const FormItem = Form.Item;
@@ -107,8 +107,8 @@ class FieldSetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
-                            parser={value => value ? parseInt(value) : value}
-                            formatter={value => value ? parseInt(value) : value}
+                            parser={value => isNumber(value) ? parseInt(value) : value}
+                            formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={{ width: '100%' }} />
                     )}
                 </FormItem>

@@ -8,7 +8,7 @@ import TableDetail from './table';
 
 class DataExploringModal extends Component {
     render () {
-        const { onOk, onCancel, visible, data } = this.props;
+        const { onOk, onCancel, visible, data = {} } = this.props;
         return (
             <DTModal
                 bodyStyle={{
@@ -23,10 +23,11 @@ class DataExploringModal extends Component {
                 onOk={onOk}
                 onCancel={onCancel}
             >
-                <TableDetail
+                {visible && <TableDetail
+                    visible={visible}
                     data={data}
                     indexType={get(data, 'inputType', 0)}
-                />
+                />}
             </DTModal>
         )
     }

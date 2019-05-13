@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Form, Tabs, Select, InputNumber, Input, message, Spin } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
-import { cloneDeep, debounce } from 'lodash';
+import { cloneDeep, debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -129,7 +129,7 @@ class ParamSetting extends PureComponent {
                                     { validator: this.validatRate }
                                 ]
                             })(
-                                <InputNumber onChange={(value) => this.handleChange('splitPercent', value)} style={inputStyle} />
+                                <InputNumber onChange={(value) => this.handleChange('splitPercent', value)} style={inputStyle} step={0.1} />
                             )}
                         </FormItem>
                         <FormItem
@@ -147,8 +147,8 @@ class ParamSetting extends PureComponent {
                             })(
                                 <InputNumber
                                     onChange={(value) => this.handleChange('randomSeed', value)}
-                                    parser={value => value ? parseInt(value) : value}
-                                    formatter={value => value ? parseInt(value) : value}
+                                    parser={value => isNumber(value) ? parseInt(value) : value}
+                                    formatter={value => isNumber(value) ? parseInt(value) : value}
                                     style={inputStyle} />
                             )}
                         </FormItem>
