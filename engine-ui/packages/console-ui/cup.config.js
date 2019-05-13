@@ -78,9 +78,8 @@ module.exports = {
             secure: false
         },
         '/api/dataScience': { // 算法平台
-            // target: 'http://172.16.8.107:9029', // 开发环境
+            target: 'http://172.16.8.107:9029', // 开发环境
             // target: 'http://172.16.2.131:9029', // 联调环境
-            target: 'http://172.16.3.30:9029', // 联调环境
             changeOrigin: true,
             secure: false
         }
