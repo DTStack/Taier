@@ -54,24 +54,27 @@ class GraphGroup extends React.Component {
             <DefaultExperimentView />
         ) : (
             <PanelGroup
+                className="experiment"
                 switchTab={this.switchTab.bind(this)}
                 closeTabs={this.closeTabs.bind(this)}
                 closeTab={this.closeTab.bind(this)}
                 currentTabIndex={currentTabIndex}
+                renderOutsideTabs={() => {
+                    return <GraphPanel currentTab={currentTabIndex} data={tabs.find(o => o.id == currentTabIndex)} />
+                }}
             >
                 {tabs.map((tab) => {
                     return (
                         <TabPane
+                            style={{ height: '0px' }}
                             tab={(
                                 <span className={tab.isDirty ? 'c-group-tabs__tab--dirty' : ''}>
                                     <Icon className='c-group-tabs__icon' type="usb" />
                                     {tab.name}
                                 </span>
                             )}
-                            key={tab.id}
-                        >
-                            <GraphPanel currentTab={tab.id} data={tab} />
-                        </TabPane>
+                            key={`${tab.id}`}
+                        />
                     )
                 })}
             </PanelGroup>
