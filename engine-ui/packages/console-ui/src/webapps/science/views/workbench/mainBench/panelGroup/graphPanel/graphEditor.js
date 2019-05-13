@@ -260,7 +260,6 @@ class GraphEditor extends Component {
                     this._edges.push(edge);
                 }
             }
-            // this.executeLayout();
             model.endUpdate();
         }
     }
@@ -276,6 +275,7 @@ class GraphEditor extends Component {
     initGraphEvent = (graph) => {
         const { registerEvent } = this.props;
         if (registerEvent) {
+            console.log('graph evt:', this.props.data, graph);
             registerEvent(graph);
         }
     }
@@ -612,22 +612,10 @@ class GraphEditor extends Component {
                             style={{ fontSize: '17px', color: '#333333' }}
                         />
                     </Tooltip>
-                    <Tooltip placement="bottom" title="刷新">
-                        <Icon
-                            type="refresh"
-                            onClick={this.refresh}
-                            style={{ fontSize: '17px', color: '#333333' }}
-                        />
-                    </Tooltip>
                 </div>
             </div>
         )
     }
-
-    refresh = () => {
-        this.graph.refresh()
-    }
-
     graphEnable () {
         const status = this.graph.isEnabled()
         this.graph.setEnabled(!status)

@@ -82,12 +82,12 @@ class PanelGroup extends Component {
         console.log(key)
     }
     render () {
-        const { closeTab, currentTabIndex, children } = this.props;
+        const { closeTab, currentTabIndex, children, renderOutsideTabs, className } = this.props;
         return (
             <div style={{ position: 'relative', width: '100%', height: 'calc(100% - 10px)', marginTop: '10px' }}>
                 <div className="m-mainbench">
                     <Tabs
-                        className='c-group-tabs'
+                        className={`${className || ''} c-group-tabs`}
                         hideAdd
                         onTabClick={this.props.switchTab}
                         activeKey={`${currentTabIndex}`}
@@ -97,6 +97,7 @@ class PanelGroup extends Component {
                     >
                         {children}
                     </Tabs>
+                    {renderOutsideTabs && renderOutsideTabs()}
                 </div>
             </div>
         )

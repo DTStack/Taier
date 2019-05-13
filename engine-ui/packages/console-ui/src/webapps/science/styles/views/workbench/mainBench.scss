@@ -19,7 +19,17 @@
     }
 
     &>.ant-tabs {
-        
+
+        &.experiment {
+            
+            .ant-tabs-content.ant-tabs-content-no-animated {
+                height: 0px;
+                min-height: 0px;
+                border-bottom: 0px;
+                background: #fff;
+            }
+        }
+
         &>.ant-tabs-bar {
 
             margin-bottom: 0px;
