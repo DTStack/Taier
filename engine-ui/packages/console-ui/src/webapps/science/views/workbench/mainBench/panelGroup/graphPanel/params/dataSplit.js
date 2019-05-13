@@ -42,7 +42,7 @@ class ParamSetting extends PureComponent {
         this.setState({
             fetching: true
         })
-        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then(res => {
+        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : undefined }).then(res => {
             if (res.code === 1) {
                 let tableData = [];
                 for (const key in res.data) {

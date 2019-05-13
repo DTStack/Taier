@@ -29,8 +29,7 @@ const {
     mxConstants,
     mxEventObject,
     mxCell,
-    mxGeometry,
-    mxKeyHandler
+    mxGeometry
 } = Mx;
 
 const applyCellStyle = (cellState, style) => {
@@ -85,6 +84,9 @@ class GraphContainer extends React.Component {
         const ctx = this;
         const menuItemArr = data.outputTypeList || [];
         // 逻辑回归没有【查看数据】功能
+        if (data.componentType === COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION) {
+            return false;
+        }
         if (menuItemArr.length === 1) {
             menu.addItem('查看数据', null, function () {
                 data.inputType = menuItemArr[0] || 0;
@@ -333,7 +335,7 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.MOVE_CELLS, function (sender, evt) {
             ctx.handleUpdateTaskData(evt.getName(), evt.getProperty('cells')[0]);
         }, true);
-        graph.addListener(mxEvent.CELL_CONNECTED, (sender, evt) => {
+        graph.addListener(mxEvent.CELL_CONNECTED, function (sender, evt) {
             // 一次连接会触发两次该事件，通过判断是否是source来区分
             if (!evt.getProperty('source')) {
                 setTimeout(() => {
@@ -349,11 +351,6 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.PAN, (sender, evt) => {
             ctx._handleListenPan(sender);
         }, true)
-
-        const keyHandler = new mxKeyHandler(graph);
-        keyHandler.bindKey(46, function (evt) {
-            console.log(evt)
-        })
     }
 
     /* 复制节点 */
@@ -480,6 +477,7 @@ class GraphContainer extends React.Component {
      *  */
     handleUpdateTaskData = (eventName, cell) => {
         const { data } = this.props;
+        const graphData = this.getGraphData();
         if (eventName === 'moveCells') {
             cell = this.getCellData(cell);
             const movedCell = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
@@ -489,8 +487,21 @@ class GraphContainer extends React.Component {
             }
             this.props.updateTaskData({}, data, false);
         } else if (eventName === 'cellConnected') {
-            // eslint-disable-next-line no-debugger
-            debugger;
+            let length = data.graphData.length;
+            if (data.graphData.findIndex(o => o.graph) !== -1) {
+                /**
+                 * 如果包含layout信息，则长度少算一个
+                 * 因为getGraphData里面实际不包含layout信息
+                 */
+                length -= 1;
+            }
+            if (graphData.length <= length) {
+                /**
+                 * 在初始化生成的时候也会触发这个事件，所以要排除掉初始化的情况
+                 * 用length来排除初始化的情况是因为没有想到特别好的办法
+                 */
+                return;
+            }
             const cellItem = this.getCellData(cell);
             cellItem.source = this.getCellData(cell.source);
             cellItem.target = this.getCellData(cell.target);

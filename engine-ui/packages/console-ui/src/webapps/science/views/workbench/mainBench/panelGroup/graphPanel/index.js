@@ -175,7 +175,11 @@ class GraphPanel extends Component {
                 siderBarItems={this.renderSiderbarItems()}
                 SiderBarRef={(SiderBarRef) => this.SiderBarRef = SiderBarRef}
             >
-                <GraphContainer isRunning={toolbarOpts.isRunning} changeSiderbar={this.changeSiderbar} currentTab={currentTab} data={data} />
+                <GraphContainer
+                    isRunning={toolbarOpts.isRunning}
+                    changeSiderbar={this.changeSiderbar}
+                    currentTab={currentTab}
+                    data={data} />
             </CommonEditor>
         );
     }
