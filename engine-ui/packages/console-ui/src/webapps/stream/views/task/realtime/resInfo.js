@@ -20,6 +20,7 @@ class ResInfoModal extends Component {
                     visible={visible}
                     onCancel={handCancel}
                     footer={null}
+                    cancelText="关闭"
                     getContainer={() => getContainer('JS_res_modal')}
                 >
                     <div className="ant-table ant-table-bordered bd-top bd-left" >
