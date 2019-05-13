@@ -6,6 +6,7 @@ import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DTYarnShellConstant;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.common.ReturnValue;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
@@ -151,7 +152,7 @@ public class DtContainer {
         return this.containerId;
     }
 
-    private String run() throws IOException, InterruptedException {
+    private ReturnValue run() throws IOException, InterruptedException {
 
         Date now = new Date();
         containerStatusNotifier.setContainersStartTime(now.toString());
@@ -195,10 +196,12 @@ public class DtContainer {
 
         LOG.info("container_wait_for_begin");
         process.waitFor();
-        LOG.info("container_wait_for_end exitValue: " + process.exitValue());
+        int exitValue = process.exitValue();
+        LOG.info("container_wait_for_end exitValue: " + exitValue);
         String log = readFile(logDir + "/dterror.log");
 
-        return log;
+        ReturnValue rValue = new ReturnValue(exitValue, log);
+        return rValue;
 
     }
 
@@ -336,13 +339,13 @@ public class DtContainer {
         try {
             container = new DtContainer();
             container.init();
-            String response = container.run();
-            if (response.equals("")) {
+            ReturnValue response = container.run();
+            if (response.getExitValue() == 0) {
                 LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
                 container.reportSucceededAndExit();
             } else {
                 LOG.error("DtContainer run failed! error");
-                container.reportFailedAndExit(response);
+                container.reportFailedAndExit(response.getErrorLog());
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
