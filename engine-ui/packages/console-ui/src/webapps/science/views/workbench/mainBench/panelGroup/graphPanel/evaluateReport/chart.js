@@ -50,10 +50,11 @@ class CurveChart extends Component {
         const { data } = this.props;
         const option = cloneDeep(lineAreaChartOptions);
         const reqParams = {};
+        option.color = ['#2491F7'];
         option.grid = {
-            left: 20,
+            left: 30,
             right: 20,
-            bottom: 10
+            bottom: 30
         }
         option.toolbox = {
             show: true,
@@ -62,10 +63,33 @@ class CurveChart extends Component {
                 saveAsImage: {}
             }
         }
-        option.yAxis[0].nameLocation = 'end';
-        option.yAxis[0].nameTextStyle.fontSize = 13;
-        option.yAxis[0].nameTextStyle.color = '#666666';
-        option.yAxis[0].nameTextStyle.align = 'center';
+        option.yAxis = [{
+            type: 'value',
+            splitNumber: 5,
+            nameLocation: 'end',
+            nameTextStyle: {
+                fontSize: 13,
+                color: '#666666',
+                align: 'center'
+            },
+            axisLine: {
+                lineStyle: {
+                    color: '#DDDDDD'
+                }
+            },
+            axisTick: {
+                show: false
+            },
+            splitLine: {
+                lineStyle: {
+                    type: 'dashed'
+                }
+            },
+            axisLabel: {
+                color: '#666666',
+                fontSize: 13
+            }
+        }]
 
         option.title.textStyle = {
             fontSize: 14,
@@ -84,30 +108,29 @@ class CurveChart extends Component {
         switch (chart) {
             case 'roc': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.ROC;
-                option.yAxis[0].minInterval = 1;
                 option.title.text = 'ROC';
-                option.yAxis[0].name = 'AUC值';
+                option.yAxis[0].name = 'AUC值：';
                 break;
             }
             case 'ks': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.K_S;
                 option.title.text = 'K-S';
-                option.yAxis[0].name = 'KS值';
+                option.yAxis[0].name = 'KS值：';
                 break;
             } case 'lift': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.LIFT;
                 option.title.text = 'Lift';
-                option.yAxis[0].name = 'Lift值';
+                option.yAxis[0].name = 'Lift值：';
                 break;
             } case 'gain': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.GAIN;
                 option.title.text = 'Gain';
-                option.yAxis[0].name = 'Gain值';
+                option.yAxis[0].name = 'Gain值：';
                 break;
             } case 'pre': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.PRECISION_RECALL;
                 option.title.text = 'Precision Recall';
-                option.yAxis[0].name = 'F1-Score值';
+                option.yAxis[0].name = 'F1-Score值：';
                 break;
             }
         }
@@ -119,7 +142,12 @@ class CurveChart extends Component {
                 option.xAxis[0].data = chartData.xAxis || [];
                 const seriesData = chartData.series || [{ type: 'line' }];
                 seriesData[0].type = 'line';
-                option.series = seriesData;
+                option.series = seriesData.map((item) => {
+                    item.areaStyle = {
+                        color: 'rgba(36,145,247,0.20)'
+                    }
+                    return item;
+                });
             }
         }
         // 绘制图表

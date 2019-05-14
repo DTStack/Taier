@@ -399,12 +399,16 @@ class GraphContainer extends React.Component {
         })
         if (data.graphData.length !== graphData.length) {
             cell.vertex && api.deleteExperiment({ taskId: cell.data.id });
-            this.props.changeContent(copyData, data, true)
-            message.success('删除成功');
             /**
              * 删除之后也要保存
              */
-            this.props.saveExperiment(copyData, false);
+            this.props.saveExperiment(copyData, false).then((res) => {
+                if (res.code === 1) {
+                    message.success('删除成功');
+                } else {
+                    message.warning('删除失败');
+                }
+            });
         } else {
             message.warning('删除失败')
         }
@@ -511,7 +515,6 @@ class GraphContainer extends React.Component {
             cellItem.inputType = inputType ? inputType.key : 0;
             cellItem.outputType = outputType ? outputType.key : 0;
             data.graphData.push(cellItem);
-            // this.props.updateTaskData({}, data, false);
             this.props.saveExperiment(data, false); // 当触发连线的钩子函数的时候实时执行保存操作
         }
         this._graph.clearSelection();

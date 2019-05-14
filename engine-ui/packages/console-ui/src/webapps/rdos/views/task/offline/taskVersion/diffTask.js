@@ -156,7 +156,7 @@ class DiffTask extends React.Component {
                 crosscycleDependence: false
             },
             currentParse: {},
-            tabKey: 'config'
+            tabKey: ''
         }
     }
 
@@ -317,7 +317,7 @@ class DiffTask extends React.Component {
         const historyParse = this.parseScheduleConf(historyValue, 1);
         const currentParse = this.parseScheduleConf(currentTabData, 2);
 
-        const currentAttributes = ['scheduleStatus', 'effectiveDate', 'schedulingCycle'];
+        const currentAttributes = ['scheduleStatus', 'effectiveDate', 'isFailRetry', 'schedulingCycle'];
 
         currentAttributes.forEach(v => {
             if (JSON.stringify(historyParse[v]) != JSON.stringify(currentParse[v])) {
@@ -351,8 +351,15 @@ class DiffTask extends React.Component {
         const {
             contrastResults, historyParse, currentParse, tabKey
         } = this.state;
+        let activeTabKey = tabKey;
+        if (showDiffCode && !tabKey) {
+            activeTabKey = 'code';
+        } else if (!showDiffCode && !tabKey) {
+            activeTabKey = 'config';
+        }
+
         return <div className="m-taksdetail diff-params-modal" style={{ marginTop: '5px' }}>
-            <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
+            <Tabs onChange={this.callback} type="card" activeKey={activeTabKey}>
                 { showDiffCode
                     ? <TabPane tab="代码" key="code">
                         <DiffCodeEditor
