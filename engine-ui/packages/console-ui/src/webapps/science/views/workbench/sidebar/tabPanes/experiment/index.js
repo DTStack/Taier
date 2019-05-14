@@ -261,7 +261,10 @@ class ExperimentSidebar extends Component {
                         })
                     }}
                     onEdit={(editKey, editValue, callback) => {
+                        const { tabs, currentTabIndex } = this.props;
+                        const currentTab = tabs.find(o => o.id == currentTabIndex) || {};
                         this.props.saveExperiment({
+                            ...currentTab,
                             id: editParamsData.id,
                             name: editParamsData.name,
                             taskDesc: editParamsData.taskDesc,

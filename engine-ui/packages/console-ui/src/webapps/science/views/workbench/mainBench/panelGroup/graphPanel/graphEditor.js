@@ -539,28 +539,27 @@ class GraphEditor extends Component {
         graph.isValidConnection = (source, target) => {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;
             const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
+            // eslint-disable-next-line no-debugger
+            debugger;
             // 限制，必须从输出点开始连线
             if (sourceConstraint && sourceConstraint.id !== 'outputs') return false;
             // 限制，禁止连接输出点
             if (targetConstraint && targetConstraint.id === 'outputs') return false;
-            // 不需要限制，输出点的contransint只能有一条线
-            // if (
-            //     sourceConstraint &&
-            //     source.edges &&
-            //     source.edges.length > 0 &&
-            //     source.edges.findIndex(o => {
-            //         const values = o.value.split('_');
-            //         return values.includes(sourceConstraint.name);
-            //     }) !== -1
-            // ) return false;
+            // 不需要限制输出点的contransint只能有一条线
             // 限制，输入点的contransint只能有一条线
             if (
                 targetConstraint &&
                 target.edges &&
                 target.edges.length > 0 &&
                 target.edges.findIndex(o => {
-                    const values = o.value.split('_');
-                    return values.includes(targetConstraint.name);
+                    if (o.target.data.id !== target.data.id) {
+                        // 首先排除掉不是同一个target的edge
+                        return false
+                    } else {
+                        // 其次再根据edge的pisition来判断目标位置上是否有edge
+                        const positionEquals = `entryX=${targetConstraint.point.x};entryY=${targetConstraint.point.y};`
+                        return o.style.indexOf(positionEquals) !== -1;
+                    }
                 }) !== -1
             ) return false;
             // 限制，只能vertex可连接

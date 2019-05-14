@@ -30,11 +30,6 @@ class TableDetail extends Component {
         this.setState({
             pagination: pager
         });
-        this.fetchData({
-            sortField: sorter.field,
-            sortOrder: sorter.order,
-            ...filters
-        });
     }
 
     fetchData = (params = {}) => {
@@ -65,7 +60,7 @@ class TableDetail extends Component {
             dataIndex: 'serialIndex',
             fixed: 'left',
             key: 'serialIndex',
-            sorter: true,
+            // sorter: true,
             render: (text, item, index) => {
                 return getID(pagination.current, index);
             }
@@ -77,7 +72,9 @@ class TableDetail extends Component {
                     title: field,
                     dataIndex: field,
                     key: field,
-                    sorter: true,
+                    sorter: (a, b) => {
+                        return a[i] - b[i];
+                    },
                     render: (text, record) => {
                         return record[i];
                     }

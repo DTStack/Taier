@@ -153,7 +153,7 @@ class GraphPanel extends Component {
             disableEdit: true,
             customToobar: this.handleRenderToolbarOptions(),
             leftCustomButton: this.renderPublishButton(),
-            isRunning: editor.running.indexOf(currentTabId) > -1,
+            isRunning: editor.running.indexOf(String(currentTabId)) > -1,
             onRun: this.execConfirm,
             onStop: this.stopTask
         };
