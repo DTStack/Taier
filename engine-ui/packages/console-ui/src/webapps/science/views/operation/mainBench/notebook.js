@@ -145,13 +145,13 @@ class Notebook extends PureComponent {
                         size="small"
                         type="primary"
                     >
-                        冻结实验
+                        冻结作业
                     </Button>
                     <Button
                         size="small"
                         onClick={this.handleForzenTasks.bind(this, 1)}
                     >
-                        解冻实验
+                        解冻作业
                     </Button>
                 </Col>
                 <Col span={12}>

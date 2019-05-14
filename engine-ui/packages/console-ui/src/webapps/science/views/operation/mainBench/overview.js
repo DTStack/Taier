@@ -218,7 +218,7 @@ class Overview extends React.PureComponent {
                             }}></div>
                         </Resize>
                     </TabPane>
-                    <TabPane tab="NoteBook作业" key={`${taskType.NOTEBOOK}`} forceRender={true}>
+                    <TabPane tab="Notebook作业" key={`${taskType.NOTEBOOK}`} forceRender={true}>
                         <Resize onResize={this.resizeChart}>
                             <div id="notebook" style={{
                                 width: '100%',
