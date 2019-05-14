@@ -60,7 +60,7 @@ class GraphGroup extends React.Component {
                 closeTab={this.closeTab.bind(this)}
                 currentTabIndex={currentTabIndex}
                 renderOutsideTabs={() => {
-                    return <GraphPanel currentTab={currentTabIndex} data={tabs.find(o => o.id == currentTabIndex)} />
+                    return <GraphPanel currentTab={currentTabIndex} data={tabs.find(o => o.id == currentTabIndex) || {}} />
                 }}
             >
                 {tabs.map((tab) => {
