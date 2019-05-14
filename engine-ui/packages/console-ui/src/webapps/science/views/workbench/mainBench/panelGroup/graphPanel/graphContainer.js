@@ -342,6 +342,10 @@ class GraphContainer extends React.Component {
         this.listenCopyAndDel(graph);
     }
 
+    executeLayout = () => {
+        this.handleUpdateTaskData('all');
+    }
+
     listenCopyAndDel = (graph) => {
         const ctx = this;
         if (!graph) return;
@@ -568,13 +572,17 @@ class GraphContainer extends React.Component {
     handleUpdateTaskData = (eventName, cell) => {
         const { data } = this.props;
         const graphData = this.getGraphData();
+        const updateGraphVertex = (arrData, target) => {
+            if (!data) return;
+            const movedCell = arrData.find(o => o.vertex && o.data.id === target.data.id);
+            if (movedCell) {
+                movedCell.x = target.x;
+                movedCell.y = target.y;
+            }
+        }
         if (eventName === 'moveCells') {
             cell = this.getCellData(cell);
-            const movedCell = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
-            if (movedCell) {
-                movedCell.x = cell.x;
-                movedCell.y = cell.y;
-            }
+            updateGraphVertex(data.graphData, cell);
             this.props.updateTaskData({}, data, false);
         } else if (eventName === 'cellConnected') {
             let length = data.graphData.length;
@@ -602,6 +610,16 @@ class GraphContainer extends React.Component {
             cellItem.outputType = outputType ? outputType.key : 0;
             data.graphData.push(cellItem);
             this.props.saveExperiment(data, false); // 当触发连线的钩子函数的时候实时执行保存操作
+        } else if (eventName === 'all') { // 更新所有节点
+            if (graphData && graphData.length > 0) {
+                graphData.forEach((o) => {
+                    if (o.vertex) {
+                        // 更新所有节点坐标信息
+                        updateGraphVertex(data.graphData, o);
+                    }
+                })
+            }
+            this.props.updateTaskData({}, data, false);
         }
         this._graph.clearSelection();
     }
@@ -800,6 +818,7 @@ class GraphContainer extends React.Component {
                 onSearchNode={this.initShowSearch}
                 registerContextMenu={this.initContextMenu}
                 registerEvent={this.initGraphEvent}
+                executeLayout={this.executeLayout}
             />
             <SearchModal
                 visible={showSearch}
