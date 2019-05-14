@@ -305,6 +305,7 @@ class GraphContainer extends React.Component {
                 changeSiderbar(null, false); // 没有选择cell会关闭侧边栏
                 saveSelectedCell({})
             }
+            if (ctx._activeNode) ctx._activeNode.focus();
         }, true);
 
         graph.clearSelection = function (evt) {
@@ -344,34 +345,53 @@ class GraphContainer extends React.Component {
     listenCopyAndDel = (graph) => {
         const ctx = this;
         if (!graph) return;
+
         const mockInput = document.createElement('textarea');
         mxUtils.setOpacity(mockInput, 0);
         mockInput.style.width = '1px';
         mockInput.style.height = '1px';
         mockInput.value = '';
-
         // 处理快捷键事件
         let restoreFocus = false;
         let isCopied = false;
+
+        const activeGraph = function () {
+            restoreFocus = true;
+            mockInput.style.position = 'absolute';
+            mockInput.style.left = (graph.container.scrollLeft + 10) + 'px';
+            mockInput.style.top = (graph.container.scrollTop + 10) + 'px';
+            graph.container.appendChild(mockInput);
+            restoreFocus = true;
+            mockInput.focus();
+            mockInput.select();
+        }
+
+        const activedGraph = function () {
+            restoreFocus = false;
+            if (!graph.isEditing()) {
+                graph.container.focus();
+            }
+            graph.container.removeChild(mockInput);
+        }
 
         document.addEventListener('keydown', (evt) => {
             const keyCode = evt.keyCode;
             const source = evt.target;
 
-            if (graph && !graph.isSelectionEmpty() && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
+            if (
+                graph && !graph.isSelectionEmpty() && graph.isEnabled() &&
+                !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT'
+            ) {
                 if (keyCode == 224 /* FF */ ||
                     (!mxClient.IS_MAC && keyCode == 17 /* Control */) ||
                     (mxClient.IS_MAC && keyCode == 91 /* Meta */)) {
                     if (!restoreFocus) {
-                        mockInput.style.position = 'absolute';
-                        mockInput.style.left = (graph.container.scrollLeft + 10) + 'px';
-                        mockInput.style.top = (graph.container.scrollTop + 10) + 'px';
-                        graph.container.appendChild(mockInput);
-                        restoreFocus = true;
-                        isCopied = false;
-                        mockInput.focus();
-                        mockInput.select();
+                        activeGraph();
+                        isCopied = true;
                     }
+                }
+                if ((keyCode == 8 || keyCode == 46) && !restoreFocus && source.nodeName != 'TEXTAREA') {
+                    activeGraph();
                 }
             }
         }, true);
@@ -380,16 +400,13 @@ class GraphContainer extends React.Component {
             const keyCode = evt.keyCode;
             const source = evt.target;
 
-            if (graph && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
+            if (graph && !graph.isSelectionEmpty() && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
                 if (restoreFocus && (keyCode == 224 || keyCode == 17 || keyCode == 91)) {
-                    restoreFocus = false;
-                    if (!graph.isEditing()) {
-                        graph.container.focus();
-                    }
-                    graph.container.removeChild(mockInput);
+                    activedGraph();
                 }
 
-                if (keyCode == 8 || keyCode == 46) { // Backspace and Del keyPress
+                if (restoreFocus && (keyCode == 8 || keyCode == 46)) { // Backspace and Del keyPress
+                    activedGraph();
                     const cell = graph.getSelectionCell();
                     if (!cell) return;
                     ctx.removeCell(cell);
@@ -407,7 +424,7 @@ class GraphContainer extends React.Component {
             mockInput.value = '';
             const cell = graph.getSelectionCell();
             if (isCopied && graph && graph.isEnabled() && cell) {
-                this.copyCell(cell);
+                ctx.copyCell(cell);
             }
             mockInput.select();
         }), true);
