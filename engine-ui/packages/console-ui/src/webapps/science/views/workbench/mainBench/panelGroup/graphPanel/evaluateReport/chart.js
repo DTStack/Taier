@@ -63,6 +63,20 @@ class CurveChart extends Component {
                 saveAsImage: {}
             }
         }
+        option.tooltip = {
+            trigger: 'item',
+            borderColor: '#2491F7',
+            backgroundColor: '#2491F7',
+            axisPointer: {
+                type: 'cross',
+                crossStyle: {
+                    color: '#2491F7'
+                },
+                label: {
+                    backgroundColor: '#6a7985'
+                }
+            }
+        };
         option.yAxis = [{
             type: 'value',
             splitNumber: 5,
@@ -110,27 +124,42 @@ class CurveChart extends Component {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.ROC;
                 option.title.text = 'ROC';
                 option.yAxis[0].name = 'AUC值：';
+                option.tooltip.formatter = (params, ticket, callback) => {
+                    return (params.value * 100).toFixed(2) + '%';
+                }
                 break;
             }
             case 'ks': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.K_S;
                 option.title.text = 'K-S';
                 option.yAxis[0].name = 'KS值：';
+                option.tooltip.formatter = (params, ticket, callback) => {
+                    return (params.value * 100).toFixed(2) + '%';
+                }
                 break;
             } case 'lift': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.LIFT;
                 option.title.text = 'Lift';
                 option.yAxis[0].name = 'Lift值：';
+                option.tooltip.formatter = (params, ticket, callback) => {
+                    return (params.value).toFixed(2);
+                }
                 break;
             } case 'gain': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.GAIN;
                 option.title.text = 'Gain';
                 option.yAxis[0].name = 'Gain值：';
+                option.tooltip.formatter = (params, ticket, callback) => {
+                    return (params.value * 100).toFixed(2) + '%';
+                }
                 break;
             } case 'pre': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.PRECISION_RECALL;
                 option.title.text = 'Precision Recall';
                 option.yAxis[0].name = 'F1-Score值：';
+                option.tooltip.formatter = (params, ticket, callback) => {
+                    return (params.value * 100).toFixed(2) + '%';
+                }
                 break;
             }
         }
@@ -141,17 +170,19 @@ class CurveChart extends Component {
                 const chartData = res.data;
                 option.xAxis[0].data = chartData.xAxis || [];
                 const seriesData = chartData.series || [{ type: 'line' }];
-                seriesData[0].type = 'line';
                 option.series = seriesData.map((item) => {
+                    item.type = 'line';
                     item.areaStyle = {
-                        color: 'rgba(36,145,247,0.20)'
+                        normal: {
+                            color: 'rgba(36,145,247,0.20)'
+                        }
                     }
                     return item;
                 });
             }
         }
         // 绘制图表
-        myChart.setOption(option);
+        myChart.setOption(option, true);
     }
 
     resizeChart = () => {

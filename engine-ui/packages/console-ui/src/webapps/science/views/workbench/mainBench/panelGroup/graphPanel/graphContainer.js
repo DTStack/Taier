@@ -778,7 +778,7 @@ class GraphContainer extends React.Component {
         return <div className="exp-graph-view" style={{ width: '100%' }}>
             <GraphEditor
                 version={data.version}
-                data={graphData}
+                data={graphData || []}
                 key={data.id}
                 onSearchNode={this.initShowSearch}
                 registerContextMenu={this.initContextMenu}
