@@ -28,7 +28,6 @@ export default class Toolbar extends Component {
                 disabled={disableRun || isRunning}
                 title="立即运行"
                 icon="play-circle-o"
-                style={{ marginLeft: '0px' }}
             >
                 {' '}
                 运行

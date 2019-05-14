@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, cloneDeep, isEmpty } from 'lodash';
+import { debounce, cloneDeep } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
@@ -29,7 +29,9 @@ const {
     mxConstants,
     mxEventObject,
     mxCell,
-    mxGeometry
+    mxGeometry,
+    mxUtils,
+    mxClient
 } = Mx;
 
 const applyCellStyle = (cellState, style) => {
@@ -72,7 +74,6 @@ class GraphContainer extends React.Component {
 
     componentDidMount () {
         console.log('graph did mount', this.props);
-        // this.initKeyboardEvent();
     }
 
     shouldComponentUpdate (nextProps) {
@@ -208,25 +209,6 @@ class GraphContainer extends React.Component {
             default: return '未知';
         }
     }
-    /* document的事件监听 */
-    initKeyboardEvent = () => {
-        this._graph.container.onkeydown = (e) => {
-            const keyCode = e.keyCode || e.which || e.charCode;
-            const ctrlKey = e.ctrlKey || e.metaKey;
-            if (ctrlKey && keyCode == 67) {
-                const cell = this.props.selectedCell;
-                if (!isEmpty(cell)) {
-                    this.copyCell(cell);
-                }
-            }
-            if (keyCode == 46) {
-                const cell = this.props.selectedCell;
-                if (!isEmpty(cell)) {
-                    this.removeCell(cell);
-                }
-            }
-        }
-    }
     /* graph的事件监听 */
     initGraphEvent = (graph) => {
         const ctx = this;
@@ -355,7 +337,80 @@ class GraphContainer extends React.Component {
         }, true);
         graph.addListener(mxEvent.PAN, (sender, evt) => {
             ctx._handleListenPan(sender);
-        }, true)
+        }, true);
+        this.listenCopyAndDel(graph);
+    }
+
+    listenCopyAndDel = (graph) => {
+        const ctx = this;
+        if (!graph) return;
+        const mockInput = document.createElement('textarea');
+        mxUtils.setOpacity(mockInput, 0);
+        mockInput.style.width = '1px';
+        mockInput.style.height = '1px';
+        mockInput.value = '';
+
+        // 处理快捷键事件
+        let restoreFocus = false;
+        let isCopied = false;
+
+        document.addEventListener('keydown', (evt) => {
+            const keyCode = evt.keyCode;
+            const source = evt.target;
+
+            if (graph && !graph.isSelectionEmpty() && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
+                if (keyCode == 224 /* FF */ ||
+                    (!mxClient.IS_MAC && keyCode == 17 /* Control */) ||
+                    (mxClient.IS_MAC && keyCode == 91 /* Meta */)) {
+                    if (!restoreFocus) {
+                        mockInput.style.position = 'absolute';
+                        mockInput.style.left = (graph.container.scrollLeft + 10) + 'px';
+                        mockInput.style.top = (graph.container.scrollTop + 10) + 'px';
+                        graph.container.appendChild(mockInput);
+                        restoreFocus = true;
+                        isCopied = false;
+                        mockInput.focus();
+                        mockInput.select();
+                    }
+                }
+            }
+        }, true);
+
+        document.addEventListener('keyup', (evt) => {
+            const keyCode = evt.keyCode;
+            const source = evt.target;
+
+            if (graph && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
+                if (restoreFocus && (keyCode == 224 || keyCode == 17 || keyCode == 91)) {
+                    restoreFocus = false;
+                    if (!graph.isEditing()) {
+                        graph.container.focus();
+                    }
+                    graph.container.removeChild(mockInput);
+                }
+
+                if (keyCode == 8 || keyCode == 46) { // Backspace and Del keyPress
+                    const cell = graph.getSelectionCell();
+                    if (!cell) return;
+                    ctx.removeCell(cell);
+                }
+            }
+        }, true);
+
+        mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function (evt) {
+            if (graph.isEnabled() && !graph.isSelectionEmpty()) {
+                isCopied = true;
+            }
+        }), true);
+
+        mxEvent.addListener(mockInput, 'paste', mxUtils.bind(this, function (evt) {
+            mockInput.value = '';
+            const cell = graph.getSelectionCell();
+            if (isCopied && graph && graph.isEnabled() && cell) {
+                this.copyCell(cell);
+            }
+            mockInput.select();
+        }), true);
     }
 
     /* 复制节点 */

@@ -52,7 +52,7 @@ class ScheduleForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { status, scheduleConf, isWorkflowNode, wFScheduleConf, isWorkflowRoot } = this.props;
+        const { status, scheduleConf, isWorkflowNode, wFScheduleConf, isWorkflowRoot, isScienceTask } = this.props;
         const { periodType, isFailRetry } = scheduleConf;
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
@@ -65,7 +65,7 @@ class ScheduleForm extends React.Component {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
             }
             return <Select
-                disabled={disabledInvokeTime}
+                disabled={disabledInvokeTime || isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >
                 {options}
@@ -77,7 +77,7 @@ class ScheduleForm extends React.Component {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
             }
             return <Select
-                disabled={disabledInvokeTime}
+                disabled={disabledInvokeTime || isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >
                 {options}
@@ -91,6 +91,7 @@ class ScheduleForm extends React.Component {
             return <Select
                 mode="multiple"
                 style={{ width: '100%' }}
+                disabled={isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >{options}</Select>;
         };
@@ -98,6 +99,7 @@ class ScheduleForm extends React.Component {
             return <Select
                 mode="multiple"
                 style={{ width: '100%' }}
+                disabled={isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >
                 <Option key={1} value="1">星期一</Option>
@@ -119,6 +121,7 @@ class ScheduleForm extends React.Component {
                     initialValue: status === 0 || status === 2
                 })(
                     <Checkbox
+                        disabled={isScienceTask}
                         onChange={this.changeScheduleStatus.bind(this)}
                     >冻结</Checkbox>
                 )}
@@ -134,6 +137,7 @@ class ScheduleForm extends React.Component {
                             initialValue: get(scheduleConf, 'isFailRetry')
                         })(
                             <Checkbox
+                                disabled={isScienceTask}
                                 onChange={this.changeScheduleConf.bind(this)}
                             >是</Checkbox>
                         )}
@@ -151,6 +155,7 @@ class ScheduleForm extends React.Component {
                                     initialValue: get(scheduleConf, 'maxRetryNum', 3)
                                 })(
                                     <Select
+                                        disabled={isScienceTask}
                                         onChange={this.changeScheduleConf.bind(this)}
                                     >
                                         <Option key='1' value='1'>1</Option>
@@ -178,6 +183,7 @@ class ScheduleForm extends React.Component {
                             initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                         })(
                             <DatePicker
+                                disabled={isScienceTask}
                                 style={{ width: '140px' }}
                                 onChange={this.changeScheduleConf.bind(this)}
                             />
@@ -187,6 +193,7 @@ class ScheduleForm extends React.Component {
                             initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
                         })(
                             <DatePicker
+                                disabled={isScienceTask}
                                 style={{ width: '140px' }}
                                 onChange={this.changeScheduleConf.bind(this)}
                             />
@@ -203,7 +210,7 @@ class ScheduleForm extends React.Component {
                                     required: true
                                 }]
                             })(
-                                <Select onChange={this.changeScheduleType.bind(this)}>
+                                <Select disabled={isScienceTask} onChange={this.changeScheduleType.bind(this)}>
                                     <Option key={0} value="0">分钟</Option>
                                     <Option key={1} value="1">小时</Option>
                                     <Option key={2} value="2">天</Option>
@@ -220,7 +227,7 @@ class ScheduleForm extends React.Component {
                 {getFieldDecorator('selfReliance', {
                     initialValue: scheduleConf.selfReliance
                 })(
-                    <Input type="hidden"></Input>
+                    <Input disabled={isScienceTask} type="hidden"></Input>
                 )}
             </FormItem>
             {(function (type, ctx) {
@@ -276,6 +283,7 @@ class ScheduleForm extends React.Component {
                                         initialValue: `${scheduleConf.gapMin}`
                                     })(
                                         <Select
+                                            disabled={isScienceTask}
                                             onChange={ctx.changeScheduleConf.bind(ctx)}
                                         >
                                             {(function () {
@@ -376,6 +384,7 @@ class ScheduleForm extends React.Component {
                                     })(
                                         <Select
                                             onChange={ctx.changeScheduleConf.bind(ctx)}
+                                            disabled={isScienceTask}
                                         >
                                             {(function () {
                                                 let options = [];
@@ -918,6 +927,7 @@ class SchedulingConfig extends React.Component {
                 <Panel key="1" header="调度属性">
                     <FormWrap
                         scheduleConf={scheduleConf}
+                        isScienceTask={isScienceTask}
                         wFScheduleConf={wFScheduleConf}
                         status={tabData.scheduleStatus}
                         isWorkflowNode={isWorkflowNode}
@@ -967,7 +977,7 @@ class SchedulingConfig extends React.Component {
                         <Row style={{ marginBottom: 16 }}>
                             <Col span="1" />
                             <Col>
-                                <RadioGroup onChange={this.setSelfReliance.bind(this)}
+                                <RadioGroup disabled={isScienceTask} onChange={this.setSelfReliance.bind(this)}
                                     value={selfReliance}
                                 >
                                     {!isIncrementMode && <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>}

@@ -100,6 +100,13 @@ class GraphEditor extends Component {
         this.customizeInsertEdge();
         this.initConnector();
         this.listenConnection();
+
+        this.initGraphLayout();
+        this.initContextMenu();
+        this.initGraphEvent();
+        // Init container scroll
+        this.initContainerScroll();
+
         this.initRender(data);
         this.hideMenu();
     }
@@ -212,13 +219,7 @@ class GraphEditor extends Component {
         const cells = graph.getChildCells(graph.getDefaultParent());
         // Clean data;
         graph.removeCells(cells);
-        this.initGraphLayout();
-        this.initContextMenu(graph);
-        this.initGraphEvent(graph);
-        // Init container scroll
-        this.initContainerScroll(graph);
         this.renderData(data);
-        this.initGraphEvent(graph);
         this.renderAnimation();
     }
     /* 初始化隐藏右键的菜单 */
@@ -265,18 +266,18 @@ class GraphEditor extends Component {
     }
 
     /* 初始化右键菜单 */
-    initContextMenu = (graph) => {
+    initContextMenu = () => {
         const { registerContextMenu } = this.props;
         if (registerContextMenu) {
-            registerContextMenu(graph);
+            registerContextMenu(this.graph);
         }
     }
     /* 初始化事件 */
     initGraphEvent = (graph) => {
         const { registerEvent } = this.props;
         if (registerEvent) {
-            console.log('graph evt:', this.props.data, graph);
-            registerEvent(graph);
+            console.log('graph evt:', this.props.data, this.graph);
+            registerEvent(this.graph);
         }
     }
     /**
@@ -678,7 +679,8 @@ class GraphEditor extends Component {
         });
     }
 
-    initContainerScroll (graph) {
+    initContainerScroll = () => {
+        const graph = this.graph;
         /**
          * Specifies the size of the size for "tiles" to be used for a graph with
          * scrollbars but no visible background page. A good value is large

@@ -6,6 +6,12 @@
         background-repeat: repeat;
     }
 
+    .editor {
+        &::-webkit-scrollbar-track {
+            border: 0;
+        }
+    }
+
     .txt-bg {
         font-size: 40px;
         color: #2491f7;
