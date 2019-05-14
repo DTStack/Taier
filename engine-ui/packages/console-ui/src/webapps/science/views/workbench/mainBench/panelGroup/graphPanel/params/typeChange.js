@@ -277,9 +277,9 @@ class Transform extends PureComponent {
                         rules: [{ required: false }]
                     })(
                         <RadioGroup>
-                            <Radio style={{ marginRight: 4 }} value={'double'}>{TYPE_ENUM.double}</Radio>
-                            <Radio style={{ marginRight: 4 }} value={'int'}>{TYPE_ENUM.int}</Radio>
-                            <Radio style={{ marginRight: 0 }} value={'string'}>{TYPE_ENUM.string}</Radio>
+                            <Radio style={{ marginRight: 4, fontSize: 13 }} value={'double'}>{TYPE_ENUM.double}</Radio>
+                            <Radio style={{ marginRight: 4, fontSize: 13 }} value={'int'}>{TYPE_ENUM.int}</Radio>
+                            <Radio style={{ marginRight: 0, fontSize: 13 }} value={'string'}>{TYPE_ENUM.string}</Radio>
                         </RadioGroup>
                     )}
                     <Button style={btnStyle} onClick={this.handleChoose}>{this.renderBtnContent()}</Button>
@@ -290,7 +290,7 @@ class Transform extends PureComponent {
                     label=""
                     {...formItemLayout}
                 >
-                    <div style={{ display: 'grid', gridTemplateColumns: '78px auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '82px auto' }}>
                         {getFieldDecorator('isSaveOld', {
                             initialValue: data.isSaveOld === 1,
                             valuePropName: 'checked',
@@ -302,9 +302,9 @@ class Transform extends PureComponent {
                                 return target.type === 'checkbox' ? (target.checked ? 1 : 0) : target.value;
                             }
                         })(
-                            <Checkbox>保留原列</Checkbox>
+                            <Checkbox style={{ fontSize: 13 }}>保留原列</Checkbox>
                         )}
-                        <div className="supplementary" style={{ paddingTop: 5, lineHeight: 1.5 }}>{'若保留，原列名不变，处理过的列增加"typed_"前缀'}</div>
+                        <div className="supplementary" style={{ paddingTop: 5, lineHeight: 1.5, marginLeft: 0 }}>{'若保留，原列名不变，处理过的列增加"typed_"前缀'}</div>
                     </div>
                 </FormItem>
                 <div className="chooseWrap">

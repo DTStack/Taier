@@ -75,7 +75,7 @@ class FieldSetting extends PureComponent {
                                 return target.type === 'checkbox' ? (target.checked ? 1 : 0) : target.value;
                             }
                         })(
-                            <Checkbox>保留原列</Checkbox>
+                            <Checkbox style={{ fontSize: 13 }}>保留原列</Checkbox>
                         )}
                         <div className="supplementary" style={{ paddingTop: 5, lineHeight: 1.5 }}>{'若保留，原列名不变，处理过的列增加"nornalized_"前缀'}</div>
                     </div>
