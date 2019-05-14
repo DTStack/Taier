@@ -632,8 +632,8 @@ class GraphEditor extends Component {
     /* 初始化layout */
     initGraphLayout = () => {
         const graph = this.graph;
-        const { data } = this.props;
-        const index = data.findIndex(o => o.graph);
+        const { data, executeLayout } = this.props;
+        const index = data ? data.findIndex(o => o.graph) : -1;
         if (index !== -1) {
             const scale = data[index].scale;
             const dx = data[index].translate.x;
@@ -657,6 +657,7 @@ class GraphEditor extends Component {
                 throw e;
             } finally {
                 if (post != null) { post(); }
+                if (executeLayout) executeLayout();
             }
         }
         // Sets initial scrollbar positions
@@ -848,6 +849,7 @@ class GraphEditor extends Component {
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_CURVED] = true;
         style[mxConstants.STYLE_ARCSIZE] = 90;
 
         return style
