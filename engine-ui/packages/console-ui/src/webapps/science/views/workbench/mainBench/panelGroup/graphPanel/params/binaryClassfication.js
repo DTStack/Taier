@@ -16,29 +16,31 @@ class FieldSetting extends PureComponent {
         const targetEdge = currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
         })
-        this.setState({
-            fetching: true
-        });
-        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : undefined }).then((res) => {
-            if (res.code === 1) {
-                let originalColumns = [];
-                for (const key in res.data) {
-                    if (res.data.hasOwnProperty(key)) {
-                        const element = res.data[key];
-                        originalColumns.push({
-                            key,
-                            type: element
-                        })
+        if (targetEdge) {
+            this.setState({
+                fetching: true
+            });
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res) => {
+                if (res.code === 1) {
+                    let originalColumns = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            originalColumns.push({
+                                key,
+                                type: element
+                            })
+                        }
                     }
+                    this.setState({
+                        originalColumns
+                    })
                 }
                 this.setState({
-                    originalColumns
-                })
-            }
-            this.setState({
-                fetching: false
-            });
-        })
+                    fetching: false
+                });
+            })
+        }
     }
     handleChange = (value) => {
         const { originalColumns } = this.state;

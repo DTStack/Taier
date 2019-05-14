@@ -65,40 +65,42 @@ export class ChooseModal extends PureComponent {
         const targetEdge = currentTab.graphData && currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
         })
-        this.setState({
-            loading: true
-        });
-        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : undefined }).then(res => {
-            if (res.code === 1) {
-                let sourceData = [];
-                for (const key in res.data) {
-                    if (res.data.hasOwnProperty(key)) {
-                        const element = res.data[key];
-                        if (this.disabledType) {
-                            sourceData.push({
-                                key,
-                                type: element,
-                                disabled: element === this.disabledType
-                            })
-                        } else {
-                            sourceData.push({
-                                key,
-                                type: element
-                            })
+        if (targetEdge) {
+            this.setState({
+                loading: true
+            });
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then(res => {
+                if (res.code === 1) {
+                    let sourceData = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            if (this.disabledType) {
+                                sourceData.push({
+                                    key,
+                                    type: element,
+                                    disabled: element === this.disabledType
+                                })
+                            } else {
+                                sourceData.push({
+                                    key,
+                                    type: element
+                                })
+                            }
                         }
                     }
+                    this.setState({
+                        sourceData,
+                        backupSource: cloneDeep(sourceData)
+                    }, () => {
+                        this.initTargetKeys();
+                    })
                 }
                 this.setState({
-                    sourceData,
-                    backupSource: cloneDeep(sourceData)
-                }, () => {
-                    this.initTargetKeys();
+                    loading: false
                 })
-            }
-            this.setState({
-                loading: false
             })
-        })
+        }
     }
     handleCancel = () => {
         this.initTargetKeys();
