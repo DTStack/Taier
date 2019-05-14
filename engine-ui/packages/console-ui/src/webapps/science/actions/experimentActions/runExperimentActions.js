@@ -95,7 +95,7 @@ function isCompeletedFinish (arrayList) {
 }
 function getRunningTask (arrayList) {
     const arr = [].concat(arrayList);
-    const runningTask = arr.find(o => {
+    const runningTask = arr.filter(o => {
         switch (o.status) {
             case taskStatus.FINISHED:
             case taskStatus.SET_SUCCESS: return false;
@@ -106,15 +106,33 @@ function getRunningTask (arrayList) {
             case taskStatus.FROZEN:
             case taskStatus.PARENT_FAILD:
             case taskStatus.FAILING: return false;
+            case taskStatus.WAIT_SUBMIT: return false;
             default: {
                 return true;
             }
         }
     });
-    return runningTask ? runningTask.taskId : '';
+    return runningTask.map((item) => item.taskId)
+}
+function getCancelTask (arrayList) {
+    const arr = [].concat(arrayList);
+    const runningTask = arr.filter(o => {
+        switch (o.status) {
+            case taskStatus.STOPED:
+            case taskStatus.KILLED: return true;
+            default: {
+                return false;
+            }
+        }
+    });
+    return runningTask.map((item) => item.taskId)
 }
 function outputExperimentStatus (tabId, taskName, dispatch) {
-    dispatch(experimentLog.appendExperimentLog(tabId, createLog(`${taskName ? '[' + taskName + ']' : ''}执行中.....`, 'info')))
+    let text = '';
+    taskName.forEach((item) => {
+        text += `[${item.data.name}]`
+    })
+    dispatch(experimentLog.appendExperimentLog(tabId, createLog(`${text || '等待'}执行中.....`, 'info')))
 }
 function resolveMsgExperiment (tabId, res, dispatch) {
     if (res && res.message) {
@@ -180,6 +198,7 @@ export function getRunTaskList (tabData, taskId, type, currentTab) {
 /* 停止 */
 export function stopRunningTask (data) {
     return (dispatch) => {
+        console.log(data);
         const jobIdList = runnningTask.get(data.id);
         const stopJobs = [];
         for (const key in jobIdList) {
@@ -189,6 +208,7 @@ export function stopRunningTask (data) {
             }
         }
         api.stopJobList({ jobIdList: stopJobs })
+        dispatch(experimentLog.appendExperimentLog(data.id, createLog(`实验[${data.name}]停止运行，请耐心等待……`, 'warning')));
     }
 }
 async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
@@ -215,12 +235,17 @@ async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
             resolveDataExperiment(tabId, response.data, null, dispatch);
         } else if (status.compeletedFinish && !status.handlerStatus) {
             // 失败
-            dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')))
+            const object = tabData.graphData.find(o => o.vertex && getCancelTask(response.data).includes(o.data.id + ''));
+            if (object) {
+                dispatch(experimentLog.appendExperimentLog(tabId, createLog(`[${object.data.name}]节点执行取消`, 'info')));
+            } else {
+                dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')));
+            }
             resolveDataExperiment(tabId, response.data, null, dispatch);
         } else if (!status.compeletedFinish) {
             // 继续轮训
-            const object = tabData.graphData.find(o => o.vertex && o.data.id == getRunningTask(response.data));
-            outputExperimentStatus(tabId, object ? object.data.name : '', dispatch)
+            const object = tabData.graphData.filter(o => o.vertex && getRunningTask(response.data).includes(o.data.id + ''));
+            outputExperimentStatus(tabId, object, dispatch)
             await new Promise(resolve => {
                 setTimeout(() => {
                     resolve(getRunningTaskStatus(tabId, tabData, jobIds, dispatch));

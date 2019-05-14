@@ -5,7 +5,7 @@ export default {
 
     // ================== Common ================== //
     GET_USER_BY_ID: `${SCIENCE_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
-    DOWNLOAD_PMML: `/download/scienceDownload/downloadPmml`, // 下载模型 （导出pmml文件）
+    DOWNLOAD_PMML: `${SCIENCE_BASE_URL}/download/scienceDownload/downloadPmml`, // 下载模型 （导出pmml文件）
     GET_ALL_PROJECTS: `${SCIENCE_BASE_URL}/service/project/getProjects`, // 获取所有的项目列表
     GET_PROJECT_LIST: `${SCIENCE_BASE_URL}/common/project/listProject`, // 获取项目列表
     GET_PROJECT_DETAIL: `${SCIENCE_BASE_URL}/common/project/getProject`, // 项目详情
