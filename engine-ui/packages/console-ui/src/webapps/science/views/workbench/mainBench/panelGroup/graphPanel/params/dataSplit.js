@@ -39,29 +39,31 @@ class ParamSetting extends PureComponent {
         const targetEdge = currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
         })
-        this.setState({
-            fetching: true
-        })
-        api.getInputTableColumns({ taskId: componentId, inputType: targetEdge ? targetEdge.inputType : undefined }).then(res => {
-            if (res.code === 1) {
-                let tableData = [];
-                for (const key in res.data) {
-                    if (res.data.hasOwnProperty(key)) {
-                        const element = res.data[key];
-                        tableData.push({
-                            key,
-                            type: element
-                        })
+        if (targetEdge) {
+            this.setState({
+                fetching: true
+            })
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then(res => {
+                if (res.code === 1) {
+                    let tableData = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            tableData.push({
+                                key,
+                                type: element
+                            })
+                        }
                     }
+                    this.setState({
+                        tableData
+                    })
                 }
                 this.setState({
-                    tableData
+                    fetching: false
                 })
-            }
-            this.setState({
-                fetching: false
             })
-        })
+        }
     }
     handleChange = (field, value) => {
         const { params } = this.state;
