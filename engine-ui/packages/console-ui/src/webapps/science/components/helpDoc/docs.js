@@ -22,3 +22,8 @@ export const modelPath = () => {
         </p>
     </div>)
 }
+export const schedulingEnd = () => {
+    return (
+        <div>任务结束包括成功、失败、取消3种情况</div>
+    )
+}

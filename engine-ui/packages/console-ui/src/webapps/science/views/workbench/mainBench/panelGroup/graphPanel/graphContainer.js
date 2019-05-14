@@ -274,6 +274,11 @@ class GraphContainer extends React.Component {
         }, true);
         graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
+            const event = evt.getProperty('event');
+            if (event.button === 2) {
+                // 鼠标右键
+                return false;
+            }
             const activeElement = document.activeElement;
             // 当从编辑对象触发点击事件时，清除activeElement的焦点
             if (
@@ -454,6 +459,7 @@ class GraphContainer extends React.Component {
         })
         if (data.graphData.length !== graphData.length) {
             cell.vertex && api.deleteExperiment({ taskId: cell.data.id });
+            cell.edge && this.resetComponentStatus(cell.target, graphData);
             /**
              * 删除之后也要保存
              */
@@ -466,6 +472,14 @@ class GraphContainer extends React.Component {
             });
         } else {
             message.warning('删除失败')
+        }
+    }
+    /* 重置某组件状态 */
+    resetComponentStatus = (cell, graphData) => {
+        const graphCell = graphData.find(o => o.vertex && o.data.id == cell.data.id);
+        if (graphCell) {
+            delete graphCell.data.status;
+            // graphCell.data.status = 0;
         }
     }
     /* 从这里开始执行 */

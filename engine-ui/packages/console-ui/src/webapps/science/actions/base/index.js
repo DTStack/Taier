@@ -8,10 +8,10 @@ import utils from 'utils';
 
 export function getSysParams () {
     return (dispatch, getState) => {
-        return new Promise(async () => {
+        return new Promise(async (resolve) => {
             const state = getState();
             if (state.common.sysParams) {
-                return;
+                resolve(state.common.sysParams);
             }
             let res = await Api.comm.getSysParams();
             if (res && res.code == 1) {
@@ -20,7 +20,7 @@ export function getSysParams () {
                     payload: res.data
                 });
             }
-            return res;
+            resolve(res.data);
         })
     }
 }

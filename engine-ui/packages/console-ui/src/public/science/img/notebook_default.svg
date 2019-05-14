@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="868px" height="253px" viewBox="0 0 868 253" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>流程图</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <polygon id="path-3" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-4" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-3"></use>
+        </mask>
+        <polygon id="path-5" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-6" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-5"></use>
+        </mask>
+        <rect id="path-7" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-8" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-7"></use>
+        </mask>
+        <polygon id="path-9" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-10" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-9"></use>
+        </mask>
+        <polygon id="path-11" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-12" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-11"></use>
+        </mask>
+        <rect id="path-13" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-14" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-13"></use>
+        </mask>
+        <polygon id="path-15" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-16" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-15"></use>
+        </mask>
+        <polygon id="path-17" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-18" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-17"></use>
+        </mask>
+        <rect id="path-19" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-20" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-19"></use>
+        </mask>
+        <polygon id="path-21" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-22" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-21"></use>
+        </mask>
+        <polygon id="path-23" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-24" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-23"></use>
+        </mask>
+        <rect id="path-25" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-26" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-25"></use>
+        </mask>
+        <polygon id="path-27" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-28" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-27"></use>
+        </mask>
+        <polygon id="path-29" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-30" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-29"></use>
+        </mask>
+        <rect id="path-31" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-32" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-31"></use>
+        </mask>
+        <polygon id="path-33" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-34" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-33"></use>
+        </mask>
+        <polygon id="path-35" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-36" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-35"></use>
+        </mask>
+        <rect id="path-37" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-38" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-37"></use>
+        </mask>
+        <polygon id="path-39" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-40" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-39"></use>
+        </mask>
+        <polygon id="path-41" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-42" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-41"></use>
+        </mask>
+        <rect id="path-43" x="0" y="13" width="150" height="38"></rect>
+        <mask id="mask-44" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="150" height="38" fill="white">
+            <use xlink:href="#path-43"></use>
+        </mask>
+        <polygon id="path-45" points="149 13.4765625 177 -2.84217094e-14 177 38 149 51.4765625"></polygon>
+        <mask id="mask-46" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="28" height="51.4765625" fill="white">
+            <use xlink:href="#path-45"></use>
+        </mask>
+        <polygon id="path-47" points="27 1 177 1 150 14 0 14"></polygon>
+        <mask id="mask-48" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="177" height="13" fill="white">
+            <use xlink:href="#path-47"></use>
+        </mask>
+    </defs>
+    <g id="1.0" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="算法实验-notebook介绍页" transform="translate(-391.000000, -383.000000)">
+            <g id="介绍配图1" transform="translate(290.000000, 245.000000)">
+                <g id="流程图" transform="translate(101.000000, 138.000000)">
+                    <g id="分组" transform="translate(0.000000, 82.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-2)" xlink:href="#path-1"></use>
+                        <use id="矩形" mask="url(#mask-4)" xlink:href="#path-3"></use>
+                        <use id="矩形" mask="url(#mask-6)" xlink:href="#path-5"></use>
+                    </g>
+                    <g id="分组" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-8)" xlink:href="#path-7"></use>
+                        <use id="矩形" mask="url(#mask-10)" xlink:href="#path-9"></use>
+                        <use id="矩形" mask="url(#mask-12)" xlink:href="#path-11"></use>
+                    </g>
+                    <g id="分组" transform="translate(0.000000, 163.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-14)" xlink:href="#path-13"></use>
+                        <use id="矩形" mask="url(#mask-16)" xlink:href="#path-15"></use>
+                        <use id="矩形" mask="url(#mask-18)" xlink:href="#path-17"></use>
+                    </g>
+                    <g id="分组" transform="translate(231.000000, 121.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-20)" xlink:href="#path-19"></use>
+                        <use id="矩形" mask="url(#mask-22)" xlink:href="#path-21"></use>
+                        <use id="矩形" mask="url(#mask-24)" xlink:href="#path-23"></use>
+                    </g>
+                    <g id="分组" transform="translate(461.000000, 121.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-26)" xlink:href="#path-25"></use>
+                        <use id="矩形" mask="url(#mask-28)" xlink:href="#path-27"></use>
+                        <use id="矩形" mask="url(#mask-30)" xlink:href="#path-29"></use>
+                    </g>
+                    <g id="分组" transform="translate(461.000000, 200.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-32)" xlink:href="#path-31"></use>
+                        <use id="矩形" mask="url(#mask-34)" xlink:href="#path-33"></use>
+                        <use id="矩形" mask="url(#mask-36)" xlink:href="#path-35"></use>
+                    </g>
+                    <g id="分组" transform="translate(691.000000, 121.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-38)" xlink:href="#path-37"></use>
+                        <use id="矩形" mask="url(#mask-40)" xlink:href="#path-39"></use>
+                        <use id="矩形" mask="url(#mask-42)" xlink:href="#path-41"></use>
+                    </g>
+                    <g id="分组" transform="translate(231.000000, 201.000000)" fill="#2491F7" fill-opacity="0.2" stroke="#2491F7" stroke-dasharray="2" stroke-width="2">
+                        <use id="矩形" mask="url(#mask-44)" xlink:href="#path-43"></use>
+                        <use id="矩形" mask="url(#mask-46)" xlink:href="#path-45"></use>
+                        <use id="矩形" mask="url(#mask-48)" xlink:href="#path-47"></use>
+                    </g>
+                    <text id="创建Notebook" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#2491F7">
+                        <tspan x="40" y="38">创建Notebook</tspan>
+                    </text>
+                    <text id="代码编写" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="40" y="118">代码编写</tspan>
+                    </text>
+                    <text id="代码运行" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="40" y="198">代码运行</tspan>
+                    </text>
+                    <text id="模型训练" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="269" y="158">模型训练</tspan>
+                    </text>
+                    <text id="模型在线部署" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="499" y="158">模型在线部署</tspan>
+                    </text>
+                    <text id="模型在线调用" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="729" y="158">模型在线调用</tspan>
+                    </text>
+                    <text id="作业离线调度" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="271" y="238">作业离线调度</tspan>
+                    </text>
+                    <text id="算法结果输出" font-family="PingFangSC-Regular, PingFang SC" font-size="14" font-weight="normal" fill="#333333">
+                        <tspan x="501" y="238">算法结果输出</tspan>
+                    </text>
+                    <text id="book---anticon" font-family="anticon" font-size="16" font-weight="400" fill="#2491F7">
+                        <tspan x="18" y="39"></tspan>
+                    </text>
+                    <text id="code-o---anticon" font-family="anticon" font-size="16" font-weight="400" fill="#333333">
+                        <tspan x="18" y="119"></tspan>
+                    </text>
+                    <text id="code-o---anticon" font-family="anticon" font-size="16" font-weight="400" fill="#333333">
+                        <tspan x="18" y="199"></tspan>
+                    </text>
+                    <text id="code-o---anticon" font-family="anticon" font-size="16" font-weight="400" fill="#333333">
+                        <tspan x="249" y="239"></tspan>
+                    </text>
+                    <text id="code-o---anticon" font-family="anticon" font-size="16" font-weight="400" fill="#333333">
+                        <tspan x="479" y="239"></tspan>
+                    </text>
+                    <polygon id="路径-9" fill="#2591F7" fill-rule="nonzero" points="74.5 85.5 74.5 52 75.5 52 75.5 85.5 79.5 85.5 75 94.5 70.5 85.5"></polygon>
+                    <polygon id="路径-9" fill="#2591F7" fill-rule="nonzero" points="74.5 165.5 74.5 132 75.5 132 75.5 165.5 79.5 165.5 75 174.5 70.5 165.5"></polygon>
+                    <path d="M257.269707,153.459491 C257.085865,153.53828 256.966667,153.71905 256.966667,153.919064 L256.966667,158.276462 C256.966667,158.344175 256.980421,158.411183 257.007094,158.473421 C257.115872,158.727236 257.409811,158.844812 257.663626,158.736034 L262.19696,156.793177 C262.380802,156.714388 262.5,156.533619 262.5,156.333605 L262.5,151.976206 C262.5,151.908493 262.486246,151.841485 262.459573,151.779247 C262.350795,151.525432 262.056855,151.407856 261.80304,151.516634 L257.269707,153.459491 Z M254.730293,153.459491 L250.19696,151.516634 C249.943145,151.407856 249.649205,151.525432 249.540427,151.779247 C249.513754,151.841485 249.5,151.908493 249.5,151.976206 L249.5,156.333605 C249.5,156.533619 249.619198,156.714388 249.80304,156.793177 L254.336374,158.736034 C254.590189,158.844812 254.884128,158.727236 254.992906,158.473421 C255.019579,158.411183 255.033333,158.344175 255.033333,158.276462 L255.033333,153.919064 C255.033333,153.71905 254.914135,153.53828 254.730293,153.459491 Z M256.169307,146.539683 C256.051665,146.493403 255.92086,146.493403 255.803218,146.539683 L250.615202,148.58064 C250.486018,148.631461 250.383777,148.733702 250.332956,148.862886 C250.231863,149.119858 250.358229,149.410127 250.615202,149.51122 L255.803218,151.552177 C255.92086,151.598457 256.051665,151.598457 256.169307,151.552177 L261.357323,149.51122 C261.486508,149.460399 261.588748,149.358158 261.639569,149.228974 C261.740662,148.972002 261.614296,148.681733 261.357323,148.58064 L256.169307,146.539683 Z" id="合并形状" stroke="#333333"></path>
+                    <path d="M487.269707,153.459491 C487.085865,153.53828 486.966667,153.71905 486.966667,153.919064 L486.966667,158.276462 C486.966667,158.344175 486.980421,158.411183 487.007094,158.473421 C487.115872,158.727236 487.409811,158.844812 487.663626,158.736034 L492.19696,156.793177 C492.380802,156.714388 492.5,156.533619 492.5,156.333605 L492.5,151.976206 C492.5,151.908493 492.486246,151.841485 492.459573,151.779247 C492.350795,151.525432 492.056855,151.407856 491.80304,151.516634 L487.269707,153.459491 Z M484.730293,153.459491 L480.19696,151.516634 C479.943145,151.407856 479.649205,151.525432 479.540427,151.779247 C479.513754,151.841485 479.5,151.908493 479.5,151.976206 L479.5,156.333605 C479.5,156.533619 479.619198,156.714388 479.80304,156.793177 L484.336374,158.736034 C484.590189,158.844812 484.884128,158.727236 484.992906,158.473421 C485.019579,158.411183 485.033333,158.344175 485.033333,158.276462 L485.033333,153.919064 C485.033333,153.71905 484.914135,153.53828 484.730293,153.459491 Z M486.169307,146.539683 C486.051665,146.493403 485.92086,146.493403 485.803218,146.539683 L480.615202,148.58064 C480.486018,148.631461 480.383777,148.733702 480.332956,148.862886 C480.231863,149.119858 480.358229,149.410127 480.615202,149.51122 L485.803218,151.552177 C485.92086,151.598457 486.051665,151.598457 486.169307,151.552177 L491.357323,149.51122 C491.486508,149.460399 491.588748,149.358158 491.639569,149.228974 C491.740662,148.972002 491.614296,148.681733 491.357323,148.58064 L486.169307,146.539683 Z" id="合并形状" stroke="#333333"></path>
+                    <path d="M717.269707,153.459491 C717.085865,153.53828 716.966667,153.71905 716.966667,153.919064 L716.966667,158.276462 C716.966667,158.344175 716.980421,158.411183 717.007094,158.473421 C717.115872,158.727236 717.409811,158.844812 717.663626,158.736034 L722.19696,156.793177 C722.380802,156.714388 722.5,156.533619 722.5,156.333605 L722.5,151.976206 C722.5,151.908493 722.486246,151.841485 722.459573,151.779247 C722.350795,151.525432 722.056855,151.407856 721.80304,151.516634 L717.269707,153.459491 Z M714.730293,153.459491 L710.19696,151.516634 C709.943145,151.407856 709.649205,151.525432 709.540427,151.779247 C709.513754,151.841485 709.5,151.908493 709.5,151.976206 L709.5,156.333605 C709.5,156.533619 709.619198,156.714388 709.80304,156.793177 L714.336374,158.736034 C714.590189,158.844812 714.884128,158.727236 714.992906,158.473421 C715.019579,158.411183 715.033333,158.344175 715.033333,158.276462 L715.033333,153.919064 C715.033333,153.71905 714.914135,153.53828 714.730293,153.459491 Z M716.169307,146.539683 C716.051665,146.493403 715.92086,146.493403 715.803218,146.539683 L710.615202,148.58064 C710.486018,148.631461 710.383777,148.733702 710.332956,148.862886 C710.231863,149.119858 710.358229,149.410127 710.615202,149.51122 L715.803218,151.552177 C715.92086,151.598457 716.051665,151.598457 716.169307,151.552177 L721.357323,149.51122 C721.486508,149.460399 721.588748,149.358158 721.639569,149.228974 C721.740662,148.972002 721.614296,148.681733 721.357323,148.58064 L716.169307,146.539683 Z" id="合并形状" stroke="#333333"></path>
+                    <path d="M222.5,153.5 L201.976562,153.5 L201.976562,190 C201.976562,191.932997 200.409559,193.5 198.476562,193.5 L150,193.5 L150,192.5 L198.476562,192.5 C199.857274,192.5 200.976562,191.380712 200.976562,190 L200.976562,152.5 L222.5,152.5 L222.5,148.5 L231.5,153 L222.5,157.5 L222.5,153.5 Z" id="路径-10" fill="#2491F7" fill-rule="nonzero"></path>
+                    <path d="M222.5,197.5 L201.976562,197.5 L201.976563,234 C201.976563,235.932997 200.409559,237.5 198.476563,237.5 L150,237.5 L150,236.5 L198.476563,236.5 C199.857274,236.5 200.976563,235.380712 200.976563,234 L200.976563,196.5 L222.5,196.5 L222.5,192.5 L231.5,197 L222.5,201.5 L222.5,197.5 L222.5,197.5 Z" id="路径-10" fill="#2491F7" fill-rule="nonzero" transform="translate(190.750000, 215.000000) scale(1, -1) translate(-190.750000, -215.000000) "></path>
+                    <polygon id="路径-11" fill="#2491F7" fill-rule="nonzero" points="452.5 153.5 381 153.5 381 152.5 452.5 152.5 452.5 148.5 461.5 153 452.5 157.5"></polygon>
+                    <polygon id="路径-11" fill="#2491F7" fill-rule="nonzero" points="682.5 153.5 611 153.5 611 152.5 682.5 152.5 682.5 148.5 691.5 153 682.5 157.5"></polygon>
+                    <polygon id="路径-11" fill="#2491F7" fill-rule="nonzero" points="452.5 234 381 234 381 233 452.5 233 452.5 229 461.5 233.5 452.5 238"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

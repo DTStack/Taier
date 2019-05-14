@@ -23,7 +23,7 @@ class TaskManage extends Component {
                     <TabPane tab="实验" key="experiment">
                         <Experiment currentProject={currentProject} />
                     </TabPane>
-                    <TabPane tab="NoteBook作业" key="notebook">
+                    <TabPane tab="Notebook作业" key="notebook">
                         <Notebook currentProject={currentProject} />
                     </TabPane>
                 </Tabs>

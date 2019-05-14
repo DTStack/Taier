@@ -185,12 +185,11 @@ class ImportLocalData extends Component {
         const { splitSymbol, startLine } = this.state
         const arr = []
         const splitVal = this.parseSplitSymbol(splitSymbol)
-
-        data = data.split('\n');
+        data = data.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
         // 防卡死
         if (data && data[0].length > 5000) {
-            message.error('文件内容不正确！');
+            message.error('文件字段超出限制！');
             return;
         }
 

@@ -5,15 +5,23 @@
     .ant-tabs-content{
         height: calc(100% - 32px);
     }
-    .c-group-tabs__tab--dirty::after {
-        content:'';
-        position: absolute;
-        top: 11px;
-        right: 5px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(242, 81, 30, 0.7);
+    .ant-tabs-tab:hover {
+        .c-group-tabs__tab--dirty::after {
+            background-color: transparent;
+            transition: all 0.3s;
+        }
+    }
+    .c-group-tabs__tab--dirty {
+        &::after {
+            content:'';
+            position: absolute;
+            top: 11px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(242, 81, 30, 0.7);
+        }
     }
     .c-group-tabs__icon{
         position: absolute;
