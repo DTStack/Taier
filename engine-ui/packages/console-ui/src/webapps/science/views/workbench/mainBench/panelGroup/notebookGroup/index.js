@@ -26,8 +26,14 @@ const TabPane = Tabs.TabPane;
     };
 })
 class NoteBookGroup extends React.Component {
-    componentDidMount () {
-        this.props.getSysParams();
+    state = {
+        loading: true
+    }
+    async componentDidMount () {
+        await this.props.getSysParams();
+        this.setState({
+            loading: false
+        })
     }
     switchTab (key) {
         this.props.setCurrentTab(siderBarType.notebook, key)
@@ -62,8 +68,9 @@ class NoteBookGroup extends React.Component {
         this.props.closeTab(siderBarType.notebook, parseInt(tabId), tabs, currentTabIndex);
     }
     render () {
+        const { loading } = this.state;
         const { tabs = [], currentTabIndex } = this.props;
-        return !tabs || !tabs.length ? (
+        return !tabs || !tabs.length || loading ? (
             <DefaultNotebookView />
         )
             : (

@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { Form, Checkbox, Select, Col, DatePicker, Radio } from 'antd';
+import HelpDoc from '../helpDoc';
 
 // import { formItemLayout } from '../../consts'
 
@@ -323,7 +324,7 @@ class SchedulingConfig extends React.Component {
                             <RadioGroup>
                                 <Radio value={false}>不依赖上一调度周期</Radio>
                                 <Radio value={1}>自依赖，等待上一调度周期成功，才能继续运行</Radio>
-                                <Radio value={3}>自依赖，等待上一调度周期结束，才能继续运行</Radio>
+                                <Radio value={3}>自依赖，等待上一调度周期结束，才能继续运行 <HelpDoc className='u-helpdox--table' doc='schedulingEnd' /></Radio>
                             </RadioGroup>
                         )}
                     </FormItem>

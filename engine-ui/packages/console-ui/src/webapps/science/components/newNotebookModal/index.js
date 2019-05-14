@@ -114,7 +114,7 @@ class NewNotebookModalForm extends React.Component {
                     label='Notebook描述'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('desc', {
+                    {getFieldDecorator('taskDesc', {
                         rules: [{
                             max: 64,
                             message: '最大字符不能超过64'
