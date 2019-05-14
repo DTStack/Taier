@@ -574,10 +574,15 @@ class GraphContainer extends React.Component {
         const graphData = this.getGraphData();
         const updateGraphVertex = (arrData, target) => {
             if (!data) return;
-            const movedCell = arrData.find(o => o.vertex && o.data.id === target.data.id);
+            const movedCell = arrData.find(o => (o.vertex && o.data.id === target.data.id) || o.graph);
             if (movedCell) {
-                movedCell.x = target.x;
-                movedCell.y = target.y;
+                if (movedCell.graph) {
+                    movedCell.translate = target.translate;
+                    movedCell.scale = target.scale;
+                } else {
+                    movedCell.x = target.x;
+                    movedCell.y = target.y;
+                }
             }
         }
         if (eventName === 'moveCells') {
