@@ -1,13 +1,12 @@
 .context-menu {
     position: fixed;
-    min-width: 120px;
+    min-width: 90px;
     max-width: 160px;
-    padding: 10px 0;
     display: none;
     z-index: 9999;
-    border: 1px solid rgb(224, 224, 224);
     background: #fff;
-    box-shadow: 1px 1px 2px rgb(224, 224, 224);     
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);   
+    border-radius: 2px; 
     .context-menu-header {
         height: 25px;
         line-height: 25px;
@@ -26,20 +25,19 @@
             list-style-type: none;
         }
         .context-list-a {
-            padding: 0px 10px;
             display: block;
-            line-height: 25px;
-            font-size: inherit;
-            text-align: left;
-            text-overflow: ellipsis;
-            word-wrap: break-word;
-            overflow: hidden;
+            padding: 7px 8px;
+            margin: 0;
+            clear: both;
+            font-size: 12px;
+            font-weight: normal;
+            color: rgba(0, 0, 0, 0.65);
             white-space: nowrap;
-            color: #2491F7;
             cursor: pointer;
+            transition: all 0.3s;
             text-decoration: none;
             &:hover {
-                background: #eee;
+                background: #eef6fe;
             }
         }
     }
