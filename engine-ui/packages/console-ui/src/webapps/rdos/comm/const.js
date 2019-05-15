@@ -18,6 +18,16 @@ export const DATA_SOURCE = {
     CARBONDATA: 20
 }
 
+/**
+ * 引擎类型
+ */
+export const ENGINE_TYPE = {
+    SPARK: 0,
+    LIBRA: 1,
+    KYLIN: 2,
+    HAWQ: 3
+}
+
 export const DATA_SOURCE_TEXT = {
     1: 'MySQL',
     2: 'Oracle',
