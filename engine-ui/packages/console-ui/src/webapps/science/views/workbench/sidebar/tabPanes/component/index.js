@@ -27,6 +27,7 @@ const {
             routing: state.routing,
             files: state.component.files,
             graph: graph,
+            running: state.editor.running,
             currentTabIndex: state.experiment.currentTabIndex,
             tabData: tab
         }
@@ -119,6 +120,11 @@ class ComponentSidebar extends Component {
         // Inserts a cell at the given location
         const funct = function (graph, evt, target, x, y) {
             const data = this.sourceData;
+            const isRunning = ctx.props.running.indexOf(String(currentTabIndex)) > -1;
+            if (isRunning) {
+                // 如果正在运行，无法拖进组件
+                return;
+            }
             const params = {
                 taskType: data.taskType,
                 componentType: data.componentType,

@@ -273,7 +273,7 @@ class Transform extends PureComponent {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('transferField', {
-                        initialValue: 'double',
+                        initialValue: data.transferField || 'double',
                         rules: [{ required: false }]
                     })(
                         <RadioGroup>
@@ -383,6 +383,9 @@ class TypeChange extends PureComponent {
     constructor (props) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+        this.state = {
+            transferField: 'double'
+        }
     }
     handleSaveComponent = (field, filedValue) => {
         const { data, currentTab, componentId, changeContent } = this.props;
@@ -406,14 +409,21 @@ class TypeChange extends PureComponent {
         })
     }
     render () {
+        const { transferField } = this.state;
         const { data, currentTab, componentId } = this.props;
         const WrapTransform = Form.create({
             onFieldsChange: (props, changedFields) => {
                 for (const key in changedFields) {
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty && element.name !== 'transferField') {
-                            props.handleSaveComponent(key, element.value)
+                        if (!element.validating && !element.dirty) {
+                            if (element.name !== 'transferField') {
+                                props.handleSaveComponent(key, element.value)
+                            } else {
+                                this.setState({
+                                    transferField: element.value
+                                })
+                            }
                         }
                     }
                 }
@@ -442,7 +452,11 @@ class TypeChange extends PureComponent {
         return (
             <Tabs type="card" className="params-tabs">
                 <TabPane tab="转化字段" key="1">
-                    <WrapTransform data={data} handleSaveComponent={this.handleSaveComponent} currentTab={currentTab} componentId={componentId} />
+                    <WrapTransform
+                        data={{ ...data, transferField }}
+                        handleSaveComponent={this.handleSaveComponent}
+                        currentTab={currentTab}
+                        componentId={componentId} />
                 </TabPane>
                 <TabPane tab="内存设置" key="2">
                     <WrapMemorySetting data={data} handleSaveComponent={this.handleSaveComponent} />
