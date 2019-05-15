@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.5.4"></a>
+## [3.5.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.5.3...3.5.4) (2019-05-15)
+
+
+### Bug Fixes
+
+* **catalog tree:** show selected catalogue value correctly ([27b8639](http://git.dtstack.cn/dtstack/data-stack-web/commits/27b8639)), closes [#15784](http://redmine.prod.dtstack.cn/issues/15784) [#15786](http://redmine.prod.dtstack.cn/issues/15786)
+* **data management:** fix display selected catalogue correctly ([77376ea](http://git.dtstack.cn/dtstack/data-stack-web/commits/77376ea)), closes [#15145](http://redmine.prod.dtstack.cn/issues/15145)
+* **data sync:** fix index judge condition to more than -1 ([c65d5dc](http://git.dtstack.cn/dtstack/data-stack-web/commits/c65d5dc))
+* **data sync:** hbase add rowkey error ([ebaa4fc](http://git.dtstack.cn/dtstack/data-stack-web/commits/ebaa4fc)), closes [#15943](http://redmine.prod.dtstack.cn/issues/15943)
+
+
+
 <a name="3.5.3"></a>
 ## [3.5.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.5.2...3.5.3) (2019-04-17)
 
