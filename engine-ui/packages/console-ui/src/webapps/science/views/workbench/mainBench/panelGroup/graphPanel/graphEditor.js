@@ -283,13 +283,24 @@ class GraphEditor extends Component {
     /**
      * @param {mxCell} edge
      */
-    isFlowEdge = (edge) => {
+    edgeStatus = (edge) => {
         const target = edge.target;
         const source = edge.source;
+        /**
+         * edge状态如下：
+         * 1. 源节点完成状态，目标节点中间状态，此时edge为pending状态
+         * 2. 源节点成功状态，目标节点成功状态，此时edge为success状态
+         * 3. 源节点成功状态，目标节点失败状态，此时edge为failure状态
+         * 4. 未进行，此时edge无状态
+         */
         if (this.vertexStatus(source.data.status) === 1 && this.vertexStatus(target.data.status) === 0) {
-            return true
+            return 'running';
+        } else if (this.vertexStatus(source.data.status) === 1 && this.vertexStatus(target.data.status) === 1) {
+            return 'success';
+        } else if (this.vertexStatus(source.data.status) === 1 && this.vertexStatus(target.data.status) === 2) {
+            return 'failure'
         } else {
-            return false
+            return null
         }
     }
     /**
@@ -325,10 +336,15 @@ class GraphEditor extends Component {
         const edges = this._edges;
         for (let i = 0; i < edges.length; i++) {
             let state = graph.view.getState(edges[i]);
-            if (state && this.isFlowEdge(edges[i])) {
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#2491F7');
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#2491F7');
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
+            if (state) {
+                if (this.edgeStatus(edges[i]) === 'running') {
+                    state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#2491F7');
+                    state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#2491F7');
+                    state.shape.node.getElementsByTagName('path')[1].setAttribute('class', 'flow');
+                } else if (this.edgeStatus(edges[i]) === 'success') {
+                    state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', '#666');
+                    state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', '#666');
+                }
             }
         }
     }
