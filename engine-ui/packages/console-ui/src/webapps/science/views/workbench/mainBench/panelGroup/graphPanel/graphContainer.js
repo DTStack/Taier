@@ -377,49 +377,51 @@ class GraphContainer extends React.Component {
             }
             graph.container.removeChild(mockInput);
         }
-        const keydownFunc = (evt) => {
-            const keyCode = evt.keyCode;
-            const source = evt.target;
+        if (!this._keydownFunc) {
+            this._keydownFunc = (evt) => {
+                const keyCode = evt.keyCode;
+                const source = evt.target;
 
-            if (
-                graph && !graph.isSelectionEmpty() && graph.isEnabled() &&
-                !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT' &&
-                source.className != 'inputarea' // sql组件输入editor
-            ) {
-                if (keyCode == 224 /* FF */ ||
-                    (!mxClient.IS_MAC && keyCode == 17 /* Control */) ||
-                    (mxClient.IS_MAC && keyCode == 91 /* Meta */)) {
-                    if (!restoreFocus) {
+                if (
+                    graph && !graph.isSelectionEmpty() && graph.isEnabled() &&
+                    !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT' &&
+                    source.className != 'inputarea' // sql组件输入editor
+                ) {
+                    if (keyCode == 224 /* FF */ ||
+                        (!mxClient.IS_MAC && keyCode == 17 /* Control */) ||
+                        (mxClient.IS_MAC && keyCode == 91 /* Meta */)) {
+                        if (!restoreFocus) {
+                            activeGraph();
+                            isCopied = true;
+                        }
+                    }
+                    if ((keyCode == 8 || keyCode == 46) && !restoreFocus && source.nodeName != 'TEXTAREA') {
                         activeGraph();
-                        isCopied = true;
                     }
                 }
-                if ((keyCode == 8 || keyCode == 46) && !restoreFocus && source.nodeName != 'TEXTAREA') {
-                    activeGraph();
+            }
+            this._keyupFunc = (evt) => {
+                const keyCode = evt.keyCode;
+                const source = evt.target;
+
+                if (graph && !graph.isSelectionEmpty() && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
+                    if (restoreFocus && (keyCode == 224 || keyCode == 17 || keyCode == 91)) {
+                        activedGraph();
+                    }
+
+                    if (restoreFocus && (keyCode == 8 || keyCode == 46)) { // Backspace and Del keyPress
+                        activedGraph();
+                        const cell = graph.getSelectionCell();
+                        if (!cell) return;
+                        ctx.removeCell(cell);
+                    }
                 }
             }
         }
-        const keyupFunc = (evt) => {
-            const keyCode = evt.keyCode;
-            const source = evt.target;
-
-            if (graph && !graph.isSelectionEmpty() && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
-                if (restoreFocus && (keyCode == 224 || keyCode == 17 || keyCode == 91)) {
-                    activedGraph();
-                }
-
-                if (restoreFocus && (keyCode == 8 || keyCode == 46)) { // Backspace and Del keyPress
-                    activedGraph();
-                    const cell = graph.getSelectionCell();
-                    if (!cell) return;
-                    ctx.removeCell(cell);
-                }
-            }
-        }
-        document.removeEventListener('keydown', keydownFunc);
-        document.removeEventListener('keyup', keyupFunc);
-        document.addEventListener('keydown', keydownFunc);
-        document.addEventListener('keyup', keyupFunc);
+        document.removeEventListener('keydown', this._keydownFunc);
+        document.removeEventListener('keyup', this._keyupFunc);
+        document.addEventListener('keydown', this._keydownFunc);
+        document.addEventListener('keyup', this._keyupFunc);
 
         mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function (evt) {
             if (graph.isEnabled() && !graph.isSelectionEmpty()) {
@@ -443,7 +445,14 @@ class GraphContainer extends React.Component {
         const rootCell = this._graph.getDefaultParent();
         const graph = this._graph;
         const cellData = this.getCellData(cell);
+        // 增加一个锁
+        if (this._copyLock) {
+            return;
+        } else {
+            this._copyLock = true;
+        }
         this.props.copyCell(data, cellData).then((res) => {
+            this._copyLock = false;
             let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
             cell.data = res;
             cell.vertex = true;
@@ -455,8 +464,10 @@ class GraphContainer extends React.Component {
              */
             const tabData = cloneDeep(data);
             tabData.graphData.push(cell);
-            this.props.saveExperiment(tabData);
+            this.props.saveExperiment(tabData, false);
             graph.clearSelection();
+        }).catch((_err) => {
+            this._copyLock = false;
         })
     }
     /* 删除节点 */
@@ -465,6 +476,11 @@ class GraphContainer extends React.Component {
         let removeCells = [cell];
         const copyData = cloneDeep(data);
         const graphData = copyData.graphData;
+        if (this._removeLock === cell.data.id) {
+            return;
+        } else {
+            this._removeLock = cell.data.id;
+        }
         if (cell.edges && cell.edges.length > 0) {
             // 如果删除的是有边的vertex，连带边一起删除
             removeCells = removeCells.concat(cell.edges);
@@ -493,6 +509,7 @@ class GraphContainer extends React.Component {
                 } else {
                     message.warning('删除失败');
                 }
+                this._removeLock = null;
             });
         } else {
             message.warning('删除失败')
@@ -503,7 +520,6 @@ class GraphContainer extends React.Component {
         const graphCell = graphData.find(o => o.vertex && o.data.id == cell.data.id);
         if (graphCell) {
             delete graphCell.data.status;
-            // graphCell.data.status = 0;
         }
     }
     /* 从这里开始执行 */
