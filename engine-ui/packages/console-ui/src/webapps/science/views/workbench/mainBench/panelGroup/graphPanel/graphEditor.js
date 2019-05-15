@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux';
-
+import { get } from 'lodash'
 import {
     Tooltip, Icon
 } from 'antd';
@@ -652,8 +652,8 @@ class GraphEditor extends Component {
         const index = data ? data.findIndex(o => o.graph) : -1;
         if (index !== -1) {
             const scale = data[index].scale;
-            const dx = data[index].translate.x;
-            const dy = data[index].translate.y;
+            const dx = get(data[index], 'translate.x', 0)
+            const dy = get(data[index], 'translate.y', 0)
             graph.view.scaleAndTranslate(scale, dx, dy);
         } else {
             this.layoutCenter();
