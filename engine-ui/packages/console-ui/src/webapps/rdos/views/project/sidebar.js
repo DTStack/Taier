@@ -45,13 +45,20 @@ export default class Sidebar extends Component {
                     defaultSelectedKeys={[this.state.current]}
                     mode="inline"
                 >
-
                     <Menu.Item key="config">
                         <Link to={`${base}/config`}>
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-project_set"></use>
                             </svg>
                             <span>项目配置</span>
+                        </Link>
+                    </Menu.Item>
+                    <Menu.Item key="engine">
+                        <Link to={`${base}/config`}>
+                            <svg className="icon-svg" aria-hidden="true">
+                                <use xlinkHref="#icon-project_set"></use>
+                            </svg>
+                            <span>计算引擎</span>
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="member">
