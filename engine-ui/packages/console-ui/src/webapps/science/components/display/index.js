@@ -40,13 +40,16 @@ export function nodeTypeIcon (type) {
 export function nodeStatus (status) {
     switch (status) {
         case 0: {
-            return `<i style="float:right;line-height:18px" class="anticon anticon-ellipsis"></i>`;
+            // 中间态
+            return `<i style="float:right;line-height:18px;font-size:20px;" class="anticon anticon-ellipsis"></i>`;
         }
         case 1: {
-            return `<i style="float:right;line-height:18px" class="anticon anticon-check"></i>`;
+            // 成功
+            return `<i style="float:right;line-height:18px;color:rgb(21,167,74);" class="anticon anticon-check-circle"></i>`;
         }
         case 2: {
-            return `<i style="float:right;line-height:18px" class="anticon anticon-close"></i>`;
+            // 失败
+            return `<i style="float:right;line-height:18px;color:rgb(223,54,43);" class="anticon anticon-close-circle"></i>`;
         }
         default: {
             return `<span></span>`
