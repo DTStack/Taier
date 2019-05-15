@@ -108,11 +108,11 @@ class TableEditor extends Component {
                                         required: true,
                                         message: '请选择所属类目'
                                     }],
-                                    initialValue: catalogueId
+                                    initialValue: catalogueId + ''
                                 })(
                                     <CatalogueTree
                                         id="catalogue"
-                                        value={catalogueId}
+                                        value={catalogueId + ''}
                                         isPicker
                                         isFolderPicker
                                         treeData={this.state.dataCatalogue}

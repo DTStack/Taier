@@ -124,13 +124,13 @@ class TableEditor extends Component {
                                 {getFieldDecorator('所属类目', {
                                     rules: [{
                                         required: true,
-                                        message: '请选择所属类目'
+                                        message: '请选择所属类目1'
                                     }],
-                                    initialValue: catalogueId
+                                    initialValue: catalogueId + ''
                                 })(
                                     <CatalogueTree
                                         id="catalogue"
-                                        value={catalogueId}
+                                        value={catalogueId + ''}
                                         isPicker
                                         isFolderPicker
                                         treeData={this.state.dataCatalogue}

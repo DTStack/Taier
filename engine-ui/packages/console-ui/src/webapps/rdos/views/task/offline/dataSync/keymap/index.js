@@ -416,10 +416,9 @@ class Keymap extends React.Component {
 
     hbaseRowKeyChange = (e) => {
         const value = utils.trim(e.target.value)
-        const { handleTargetMapChange, targetMap } = this.props
+        const { handleTargetMapChange } = this.props
         if (value) {
-            targetMap.rowkey = value
-            handleTargetMapChange(targetMap)
+            handleTargetMapChange({ rowkey: value })
         }
     }
 
@@ -1094,7 +1093,7 @@ class Keymap extends React.Component {
                         res = source.find(item => item === arr[i])
                     }
                     if (!res) {
-                        message.error(`rowkey在已映射的字段中并未找到${arr[i]}！`)
+                        message.error(`目标表rowkey: ${arr[i]}在源表中并不存在！！`)
                         return false;
                     }
                 }
