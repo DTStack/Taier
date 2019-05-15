@@ -95,14 +95,18 @@ class SqlScript extends Component {
                 <div className="params-single-tab-content">
                     <Collapse bordered={false} defaultActiveKey={['1', '2']} className="params-collapse">
                         <Panel header="输入源" key="1">
-                            { this.renderSource() }
+                            {this.renderSource()}
                         </Panel>
-                        <Panel header={
-                            <div style={{ whiteSpace: 'nowrap' }}>
-                                SQL脚本
-                                {this.renderTooltips()}
-                            </div>
-                        } key="2">
+                        <Panel
+                            header={
+                                <div style={{ whiteSpace: 'nowrap' }}>
+                                    SQL脚本
+                                    {this.renderTooltips()}
+                                </div>
+                            }
+                            key="2"
+                            style={{ height: 400 }}
+                        >
                             <div id="sql-editor">
                                 <div className="toolbar ide-toolbar clear-offset" style={{ borderBottom: '1px solid #ddd' }}>
                                     <Button
@@ -111,7 +115,7 @@ class SqlScript extends Component {
                                     >
                                         <MyIcon style={{ width: 11, height: 11, marginRight: 5 }} type="save" />保存
                                     </Button>
-                                    <FullScreenButton target="sql-editor" />
+                                    <FullScreenButton iconStyle={{ width: 12, height: 12, verticalAlign: 'top', marginRight: '0.4em' }} target="sql-editor" />
                                     <Button
                                         icon="appstore-o"
                                         title="格式化"
@@ -121,6 +125,7 @@ class SqlScript extends Component {
                                     </Button>
                                 </div>
                                 <Editor
+                                    style={{ height: 'calc(100% - 29px)', minHeight: 300 }}
                                     sync={dirty}
                                     value={this.state.code}
                                     language="dtsql"

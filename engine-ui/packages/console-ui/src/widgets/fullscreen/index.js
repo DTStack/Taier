@@ -92,7 +92,7 @@ export default class FullScreenButton extends Component {
     }
 
     render () {
-        const { themeDark, fullIcon, exitFullIcon, ...other } = this.props;
+        const { themeDark, fullIcon, exitFullIcon, iconStyle, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? 'exit-fullscreen' : 'fullscreen';
         const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;
@@ -105,6 +105,7 @@ export default class FullScreenButton extends Component {
                 {customIcon ? <span {...other} onClick={this.fullScreen}>{customIcon}</span>
                     : <Button {...other} onClick={this.fullScreen}>
                         <MyIcon
+                            style={iconStyle}
                             className="my-icon"
                             type={iconType}
                             themeDark={themeDark}
