@@ -66,17 +66,35 @@ class Console extends Component {
                                 key={tab.id}
                                 closable={!extData.disableClose}
                             >
-                                <Result isShow={isShow} data={data} extraView={!isDisEabledDownload && tab.id && data ? (
-                                    <a
-                                        href={`${this.props.downloadUri}?jobId=${
-                                            tab.id
-                                        }`}
-                                        download
-                                    >
-                                        <Button className="btn-download">下载</Button>
-                                    </a>
-                                ) : null} />
-
+                                {(() => {
+                                    if (typeof data == 'string') {
+                                        return <div style={{ position: 'relative' }}>
+                                            <CodeEditor
+                                                style={{ minHeight: 'auto' }}
+                                                ref={e => {
+                                                    this.editor = e;
+                                                }}
+                                                options={{ ...defaultEditorOptions, mode: 'dtlog' }}
+                                                key="output-log"
+                                                sync={true}
+                                                value={data}
+                                            />
+                                        </div>
+                                    } else {
+                                        return (
+                                            <Result isShow={isShow} data={data} extraView={!isDisEabledDownload && tab.id && data ? (
+                                                <a
+                                                    href={`${this.props.downloadUri}?jobId=${
+                                                        tab.id
+                                                    }`}
+                                                    download
+                                                >
+                                                    <Button className="btn-download">下载</Button>
+                                                </a>
+                                            ) : null} />
+                                        )
+                                    }
+                                })()}
                             </TabPane>
                         );
                     }
