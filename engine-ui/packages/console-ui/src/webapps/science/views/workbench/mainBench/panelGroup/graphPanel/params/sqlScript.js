@@ -71,8 +71,8 @@ class SqlScript extends Component {
                 {source.map((item, index) => {
                     return (
                         <InputGroup compact key={index} style={{ marginTop: -1 }}>
-                            <Input style={{ width: '20%' }} defaultValue={item.tableName} disabled />
-                            <Input style={{ width: '80%' }} disabled value={data.nodeList && data.nodeList[index]} />
+                            <Input style={{ width: '20%', background: '#fff' }} defaultValue={item.tableName} disabled />
+                            <Input style={{ width: '80%', background: '#fff' }} disabled value={data.nodeList && data.nodeList[index]} />
                         </InputGroup>
                     )
                 })}
