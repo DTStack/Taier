@@ -377,14 +377,14 @@ class GraphContainer extends React.Component {
             }
             graph.container.removeChild(mockInput);
         }
-
-        document.addEventListener('keydown', (evt) => {
+        const keydownFunc = (evt) => {
             const keyCode = evt.keyCode;
             const source = evt.target;
 
             if (
                 graph && !graph.isSelectionEmpty() && graph.isEnabled() &&
-                !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT'
+                !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT' &&
+                source.className != 'inputarea' // sql组件输入editor
             ) {
                 if (keyCode == 224 /* FF */ ||
                     (!mxClient.IS_MAC && keyCode == 17 /* Control */) ||
@@ -398,11 +398,8 @@ class GraphContainer extends React.Component {
                     activeGraph();
                 }
             }
-        }, {
-            once: true
-        });
-
-        document.addEventListener('keyup', (evt) => {
+        }
+        const keyupFunc = (evt) => {
             const keyCode = evt.keyCode;
             const source = evt.target;
 
@@ -418,9 +415,11 @@ class GraphContainer extends React.Component {
                     ctx.removeCell(cell);
                 }
             }
-        }, {
-            once: true
-        });
+        }
+        document.removeEventListener('keydown', keydownFunc);
+        document.removeEventListener('keyup', keyupFunc);
+        document.addEventListener('keydown', keydownFunc);
+        document.addEventListener('keyup', keyupFunc);
 
         mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function (evt) {
             if (graph.isEnabled() && !graph.isSelectionEmpty()) {
