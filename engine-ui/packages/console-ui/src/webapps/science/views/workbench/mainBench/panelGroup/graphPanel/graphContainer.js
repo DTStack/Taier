@@ -398,7 +398,9 @@ class GraphContainer extends React.Component {
                     activeGraph();
                 }
             }
-        }, true);
+        }, {
+            once: true
+        });
 
         document.addEventListener('keyup', (evt) => {
             const keyCode = evt.keyCode;
@@ -416,7 +418,9 @@ class GraphContainer extends React.Component {
                     ctx.removeCell(cell);
                 }
             }
-        }, true);
+        }, {
+            once: true
+        });
 
         mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function (evt) {
             if (graph.isEnabled() && !graph.isSelectionEmpty()) {
