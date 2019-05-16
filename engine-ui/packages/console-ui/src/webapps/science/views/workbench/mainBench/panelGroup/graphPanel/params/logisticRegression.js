@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Tabs, Form, Button, Select, InputNumber, message, Spin, Input } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce, isNumber } from 'lodash';
+import { isEmpty, cloneDeep, debounce, isNumber, get } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
@@ -173,7 +173,7 @@ class FieldSetting extends PureComponent {
              */
             return;
         }
-        const { currentTab, componentId } = this.props;
+        const { currentTab, componentId, data } = this.props;
         const targetEdge = currentTab.graphData.find(o => {
             return o.edge && o.target.data.id == componentId
         })
@@ -189,7 +189,8 @@ class FieldSetting extends PureComponent {
                             const element = res.data[key];
                             columns.push({
                                 key,
-                                type: element
+                                type: element,
+                                disabled: key === get(data, 'label.key', '')
                             })
                         }
                     }
@@ -254,7 +255,10 @@ class FieldSetting extends PureComponent {
                             onFocus={this.getColumns} // 获取焦点的时候再去请求，防止日志弹窗的弹出导致不停的触发didmount函数
                             onChange={this.handleChange}>
                             {columns.map((item, index) => {
-                                return <Option key={item.key} value={item.key}>{item.key}</Option>
+                                const disabled = !!data.col.find(o => o.key === item.key);
+                                // eslint-disable-next-line no-debugger
+                                debugger;
+                                return <Option key={item.key} value={item.key} disabled={disabled}>{item.key}</Option>
                             })}
                         </Select>
                     )}
