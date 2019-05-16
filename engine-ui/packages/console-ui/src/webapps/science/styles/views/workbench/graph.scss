@@ -122,14 +122,14 @@
         cursor: default;
         padding:20px 10px;
         width: 188px;
-        background: #ffffff;
-        box-shadow:0 0 6px 0 rgba(0, 0, 0, 0.15);
+        background: rgba(0,0,0,0.7);
+        // box-shadow:0 0 6px 0 rgba(0, 0, 0, 0.15);
         border-radius:2px;
-        color: #666666;
+        color: #fff;
         font-size: 12px;
 
         &::after {
-            border-color: #fff transparent;
+            border-color: rgba(0,0,0,0.7) transparent;
             border-style: solid;
             border-width: 0px 5 5 5;
             height: 0px;
