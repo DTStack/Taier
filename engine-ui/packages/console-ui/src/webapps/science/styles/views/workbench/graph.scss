@@ -248,7 +248,6 @@ table.mxPopupMenu tr {
         letter-spacing: 0;
         line-height: 18px;
         font-weight: normal;
-        cursor: move;
 
         .circle{
             // 过程中状态的点点点
@@ -342,9 +341,10 @@ div.mxTooltip {
     border-width: 1px;
     border-color: black;
     font-family: Arial;
-    font-size: 8pt;
+    font-size: 12px;
     position: absolute;
     cursor: default;
+    text-align: center;
     padding: 4px;
     color: #ffffff;
 }

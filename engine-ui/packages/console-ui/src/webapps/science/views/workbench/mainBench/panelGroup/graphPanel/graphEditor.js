@@ -39,6 +39,7 @@ const {
     mxImageShape,
     mxRectangle,
     mxStyleRegistry,
+    mxTooltipHandler,
     mxClient
 } = Mx;
 
@@ -130,6 +131,7 @@ class GraphEditor extends Component {
 
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
+        mxTooltipHandler.prototype.delay = 0; // show tooltip delay as 0
 
         // Disable default context menu
         mxEvent.disableContextMenu(container);
