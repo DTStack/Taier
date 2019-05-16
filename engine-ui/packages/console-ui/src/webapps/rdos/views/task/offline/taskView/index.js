@@ -4,18 +4,11 @@ import { cloneDeep, get } from 'lodash'
 import {
     message, Modal
 } from 'antd'
+import Mx from 'widgets/mxGraph';
 
 import Api from '../../../../api'
 import { TASK_TYPE } from '../../../../comm/const'
 import TaskGraphView, { mergeTreeNodes } from '../../../operation/offline/taskFlowView/taskGraphView'
-
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
 
 const {
     mxEvent,

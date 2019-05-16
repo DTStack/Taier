@@ -3,6 +3,8 @@ import { cloneDeep, get } from 'lodash'
 import moment from 'moment';
 import { Tooltip, Modal, message, Icon } from 'antd'
 
+import Mx from 'widgets/mxGraph';
+
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
@@ -14,14 +16,6 @@ import { taskStatusText } from '../../../../components/display'
 import JobGraphView, {
     mergeTreeNodes, replacTreeNodeField
 } from './jobGraphView';
-
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
 
 const {
     mxEvent,

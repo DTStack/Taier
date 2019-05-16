@@ -10,6 +10,7 @@ import {
 import utils from 'utils';
 import KeyEventListener from 'widgets/keyCombiner/listener';
 import KEY_CODE from 'widgets/keyCombiner/keyCode';
+import Mx from 'widgets/mxGraph';
 
 import API from '../../../../api';
 import MyIcon from '../../../../components/icon';
@@ -22,14 +23,6 @@ import {
 } from '../../../../store/modules/offlineTask/offlineAction';
 import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../comm';
-
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-});
 
 const {
     mxGraph,
