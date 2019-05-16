@@ -19,8 +19,6 @@ import RunningLogModal from './runningLog';
 import EvaluateReportModal from './evaluateReport';
 import DataExploringModal from './evaluateReport/dataExploring';
 
-// const WIDGETS_PREFIX = 'JS_WIDGETS_'; // Prefix for widgets
-
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
 
 const {
