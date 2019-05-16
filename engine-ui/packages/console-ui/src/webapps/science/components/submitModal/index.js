@@ -14,7 +14,8 @@ const FormItem = Form.Item;
 })
 class SubmitModal extends React.Component {
     state = {
-        key: null
+        key: null,
+        confirmLoading: false
     }
     onCancel = () => {
         this.props.onClose();
@@ -25,16 +26,22 @@ class SubmitModal extends React.Component {
     onOk = () => {
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                this.setState({
+                    confirmLoading: true
+                });
                 this.props.onOk(values).then((success) => {
                     if (success) {
                         this.onCancel();
                     }
+                    this.setState({
+                        confirmLoading: false
+                    });
                 })
             }
         });
     }
     render () {
-        const { key } = this.state;
+        const { key, confirmLoading } = this.state;
         const { visible, form, user, name } = this.props;
         const { getFieldDecorator } = form;
         return (
@@ -42,6 +49,7 @@ class SubmitModal extends React.Component {
                 key={key}
                 visible={visible}
                 onCancel={this.onCancel}
+                confirmLoading={confirmLoading}
                 onOk={this.onOk}
                 title={name + '提交'}
             >

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { cloneDeep } from 'lodash';
-
 import Resize from 'widgets/resize';
 
 import {
@@ -13,7 +12,7 @@ import API from '../../../../../../api/experiment';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
-require('echarts/lib/chart/bar');
+// require('echarts/lib/chart/bar');
 
 // 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
@@ -31,12 +30,15 @@ class CurveChart extends Component {
         selectedBtn: 'roc',
         chartData: null
     }
-
     componentDidMount () {
         this._chart1 = echarts.init(document.getElementById('JS_CurveChart'));
         this.renderChart('roc');
     }
-
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.visible && !prevProps.visible) {
+            this.renderChart(this.state.selectedBtn);
+        }
+    }
     componentWillUnmount () {
         this._chart1 = null;
         this.setState({
@@ -142,7 +144,7 @@ class CurveChart extends Component {
                 option.title.text = 'Lift';
                 option.yAxis[0].name = 'Lift值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (parseFloat(params.value)).toFixed(2);
+                    return (params.value * 1).toFixed(2);
                 }
                 break;
             } case 'gain': {
@@ -165,6 +167,7 @@ class CurveChart extends Component {
         }
         if (data) {
             reqParams.taskId = data.id;
+            myChart.showLoading()
             const res = await API.getEvaluateReportChartData(reqParams);
             if (res.code === 1) {
                 const chartData = res.data;
@@ -179,10 +182,11 @@ class CurveChart extends Component {
                     }
                     return item;
                 });
-                // 绘制图表
-                myChart.setOption(option, true);
             }
         }
+        // 绘制图表
+        myChart.setOption(option, true);
+        myChart.hideLoading()
     }
 
     resizeChart = () => {

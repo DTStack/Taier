@@ -157,7 +157,7 @@ class Overview extends React.PureComponent {
                 <div className="info-box blue">
                     <div className="info-box-left">
                         <p><Icon type="appstore-o" /><span>总任务</span></p>
-                        <p className="number">{status.totalNotebookCount}</p>
+                        <p className="number">{status.totalNotebookCount + status.totalLabCount}</p>
                     </div>
                     <div className="info-box-right">
                         <p>实验数：{status.totalLabCount}</p>

@@ -140,7 +140,8 @@ class ModelView extends React.Component {
         return [{
             title: '模型名称',
             dataIndex: 'modelName',
-            width: '150px'
+            width: '150px',
+            sorter: true
         }, {
             title: '算法名称',
             dataIndex: 'componentName',

@@ -90,10 +90,12 @@ export function saveExperiment (tabData, isMessage = true) {
 
 export function copyCell (tabData, copyCell) {
     return (dispatch) => {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             api.cloneComponent({ taskId: copyCell.data.id }).then((res) => {
                 if (res.code == 1) {
                     resolve(res.data);
+                } else {
+                    reject(res)
                 }
             })
         })
