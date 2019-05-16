@@ -38,6 +38,7 @@ const {
     mxUtils,
     mxImageShape,
     mxRectangle,
+    mxStyleRegistry,
     mxClient
 } = Mx;
 
@@ -866,9 +867,22 @@ class GraphEditor extends Component {
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         style[mxConstants.STYLE_CURVED] = true;
-        style[mxConstants.STYLE_ARCSIZE] = 90;
-
         return style
+    }
+
+    customEdgeStyle () {
+        mxEdgeStyle.MyStyle = function (state, source, target, points, result) {
+            if (source != null && target != null) {
+                var pt = new mxPoint(target.getCenterX(), source.getCenterY());
+
+                if (mxUtils.contains(source, pt.x, pt.y)) {
+                    pt.y = source.y + source.height;
+                }
+
+                result.push(pt);
+            }
+        };
+        mxStyleRegistry.putValue('myEdgeStyle', mxEdgeStyle.MyStyle);
     }
 }
 

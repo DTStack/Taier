@@ -4,7 +4,7 @@ import FullScreen from 'widgets/fullscreen';
 
 const defaultModalStyle = {
     width: 800,
-    height: 560
+    minHeight: 200
 };
 export default class DTModal extends Component {
     state = {

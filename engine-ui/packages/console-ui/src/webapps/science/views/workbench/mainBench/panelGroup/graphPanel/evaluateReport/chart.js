@@ -125,7 +125,7 @@ class CurveChart extends Component {
                 option.title.text = 'ROC';
                 option.yAxis[0].name = 'AUC值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (params.value * 100).toFixed(2) + '%';
+                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
                 }
                 break;
             }
@@ -134,7 +134,7 @@ class CurveChart extends Component {
                 option.title.text = 'K-S';
                 option.yAxis[0].name = 'KS值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (params.value * 100).toFixed(2) + '%';
+                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
                 }
                 break;
             } case 'lift': {
@@ -142,7 +142,7 @@ class CurveChart extends Component {
                 option.title.text = 'Lift';
                 option.yAxis[0].name = 'Lift值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (params.value).toFixed(2);
+                    return (parseFloat(params.value)).toFixed(2);
                 }
                 break;
             } case 'gain': {
@@ -150,7 +150,7 @@ class CurveChart extends Component {
                 option.title.text = 'Gain';
                 option.yAxis[0].name = 'Gain值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (params.value * 100).toFixed(2) + '%';
+                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
                 }
                 break;
             } case 'pre': {
@@ -158,7 +158,7 @@ class CurveChart extends Component {
                 option.title.text = 'Precision Recall';
                 option.yAxis[0].name = 'F1-Score值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (params.value * 100).toFixed(2) + '%';
+                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
                 }
                 break;
             }
@@ -179,10 +179,10 @@ class CurveChart extends Component {
                     }
                     return item;
                 });
+                // 绘制图表
+                myChart.setOption(option, true);
             }
         }
-        // 绘制图表
-        myChart.setOption(option, true);
     }
 
     resizeChart = () => {

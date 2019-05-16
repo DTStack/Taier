@@ -17,7 +17,7 @@ class DataExploringModal extends Component {
                 }}
                 title={'数据探查（展示前100条数据）'}
                 width={800}
-                style={{ height: '560px' }}
+                style={{ height: '400px' }}
                 wrapClassName="vertical-center-modal m-log-modal"
                 visible={visible}
                 onOk={onOk}
