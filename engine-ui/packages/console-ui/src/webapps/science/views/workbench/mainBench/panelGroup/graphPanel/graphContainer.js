@@ -882,6 +882,7 @@ class GraphContainer extends React.Component {
                 data={selectedData}
                 visible={evaluateReportVisible}
                 onCancel={() => this.showHideEvaluateReport(false, null) }
+                onOk={() => this.showHideEvaluateReport(false, null) }
             />
             <DataExploringModal
                 data={selectedOutputData}
