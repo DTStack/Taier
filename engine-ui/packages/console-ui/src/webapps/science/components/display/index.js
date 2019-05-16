@@ -41,7 +41,9 @@ export function nodeStatus (status) {
     switch (status) {
         case 0: {
             // 中间态
-            return `<i style="float:right;line-height:18px;font-size:20px;" class="anticon anticon-ellipsis"></i>`;
+            return (
+                `<i class="anticon" style="float:right;margin-top:6px;"><span class="circle"></span><span class="circle"></span><span class="circle"></span></i>`
+            )
         }
         case 1: {
             // 成功

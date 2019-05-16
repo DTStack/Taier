@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
 import React from 'react';
 import { connect } from 'react-redux';
-import { debounce, cloneDeep } from 'lodash';
+import { debounce, cloneDeep, get } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
@@ -476,10 +476,10 @@ class GraphContainer extends React.Component {
         let removeCells = [cell];
         const copyData = cloneDeep(data);
         const graphData = copyData.graphData;
-        if (this._removeLock === cell.data.id) {
+        if (this._removeLock === get(cell, 'data.id', 1)) {
             return;
         } else {
-            this._removeLock = cell.data.id;
+            this._removeLock = get(cell, 'data.id', 1);
         }
         if (cell.edges && cell.edges.length > 0) {
             // 如果删除的是有边的vertex，连带边一起删除
@@ -513,6 +513,7 @@ class GraphContainer extends React.Component {
             });
         } else {
             message.warning('删除失败')
+            this._removeLock = null;
         }
     }
     /* 重置某组件状态 */
