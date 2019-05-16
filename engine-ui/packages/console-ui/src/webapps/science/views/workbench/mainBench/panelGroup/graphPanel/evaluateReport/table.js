@@ -15,11 +15,10 @@ class TableDetail extends Component {
         },
         loading: false
     };
-    shouldComponentUpdate (nextProps) {
-        if (nextProps.visible && !this.props.visible) {
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.visible && !prevProps.visible) {
             this.fetchData();
         }
-        return true;
     }
     componentDidMount () {
         this.fetchData()
@@ -89,6 +88,7 @@ class TableDetail extends Component {
         const { indexType } = this.props;
         const cols = this.initialCols(tableData[0]);
         const dataSource = tableData.length > 1 ? tableData.slice(1, tableData.length) : [];
+        const scroll = { x: cols.length < 5 ? true : 2000 };
         return (
             <Table
                 className="m-table"
@@ -102,7 +102,7 @@ class TableDetail extends Component {
                 pagination={this.state.pagination}
                 loading={this.state.loading}
                 onChange={this.handleTableChange}
-                scroll={{ x: '2000px' }}
+                scroll={scroll}
             >
             </Table>
         )

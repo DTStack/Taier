@@ -31,16 +31,16 @@ class EvaluateReportModal extends Component {
                 <div className="m-tabs">
                     <Tabs>
                         <TabPane tab="综合指标数据" key="pane-1">
-                            <TableDetail indexType={EVALUATION_INDEX_TYPE.OVERALL} data={data}/>
+                            <TableDetail indexType={EVALUATION_INDEX_TYPE.OVERALL} data={data} visible={visible}/>
                         </TabPane>
                         <TabPane tab="图表曲线" key="pane-2">
                             <ChartDetail data={data}/>
                         </TabPane>
                         <TabPane tab="等宽详细数据" key="pane-3">
-                            <TableDetail indexType={EVALUATION_INDEX_TYPE.WIDTH_DATA} data={data}/>
+                            <TableDetail indexType={EVALUATION_INDEX_TYPE.WIDTH_DATA} data={data} visible={visible}/>
                         </TabPane>
                         <TabPane tab="等频详细数据" key="pane-4">
-                            <TableDetail indexType={EVALUATION_INDEX_TYPE.FREQUENCY} data={data}/>
+                            <TableDetail indexType={EVALUATION_INDEX_TYPE.FREQUENCY} data={data} visible={visible}/>
                         </TabPane>
                     </Tabs>
                 </div>
