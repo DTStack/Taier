@@ -30,12 +30,15 @@ class CurveChart extends Component {
         selectedBtn: 'roc',
         chartData: null
     }
-
     componentDidMount () {
         this._chart1 = echarts.init(document.getElementById('JS_CurveChart'));
         this.renderChart('roc');
     }
-
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.visible && !prevProps.visible) {
+            this.renderChart(this.state.selectedBtn);
+        }
+    }
     componentWillUnmount () {
         this._chart1 = null;
         this.setState({

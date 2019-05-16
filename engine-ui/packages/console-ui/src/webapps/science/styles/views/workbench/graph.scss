@@ -259,7 +259,7 @@ table.mxPopupMenu tr {
             background: rgb(180,180,180);
             margin: 0 2px;
             display: inline-block;
-            animation: loadingCircle 1s infinite linear;
+            animation: runningCircle 1s infinite linear;
             animation-direction: alternate;
             transition: background 1s;
             &:nth-child(2){
@@ -269,7 +269,7 @@ table.mxPopupMenu tr {
                 animation-delay: 1s; 
             }
         }
-        @keyframes loadingCircle { 
+        @keyframes runningCircle { 
             0% {background: rgb(213,213,213);}
             50% {background: rgb(180,180,180);}
             100%{background:rgb(150,150,150);}
