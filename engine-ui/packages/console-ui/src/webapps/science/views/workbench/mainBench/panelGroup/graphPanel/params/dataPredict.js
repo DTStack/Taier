@@ -4,6 +4,7 @@ import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { isEmpty, cloneDeep, debounce } from 'lodash';
 import api from '../../../../../../api/experiment';
+import { INPUT_TYPE } from '../../../../../../consts';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 /* 选择字段弹出框 */
@@ -29,6 +30,50 @@ class ChooseModal extends BaseChooseModal {
             targetKeys,
             sourceData
         });
+    }
+    getSourceData = () => {
+        const { currentTab, componentId } = this.props;
+        const targetEdges = currentTab.graphData && currentTab.graphData.filter(o => {
+            return o.edge && o.target.data.id == componentId
+        })
+        if (targetEdges.length) {
+            const targetEdge = targetEdges.find(o => o.outputType === INPUT_TYPE.PREDICT_INPUT_DATA);
+            if (!targetEdge) return;
+            this.setState({
+                loading: true
+            });
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then(res => {
+                if (res.code === 1) {
+                    let sourceData = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            if (this.disabledType) {
+                                sourceData.push({
+                                    key,
+                                    type: element,
+                                    disabled: element === this.disabledType
+                                })
+                            } else {
+                                sourceData.push({
+                                    key,
+                                    type: element
+                                })
+                            }
+                        }
+                    }
+                    this.setState({
+                        sourceData,
+                        backupSource: cloneDeep(sourceData)
+                    }, () => {
+                        this.initTargetKeys();
+                    })
+                }
+                this.setState({
+                    loading: false
+                })
+            })
+        }
     }
 }
 /* 字段设置 */

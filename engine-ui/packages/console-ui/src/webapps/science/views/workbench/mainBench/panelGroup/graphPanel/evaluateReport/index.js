@@ -34,7 +34,7 @@ class EvaluateReportModal extends Component {
                             <TableDetail indexType={EVALUATION_INDEX_TYPE.OVERALL} data={data} visible={visible}/>
                         </TabPane>
                         <TabPane tab="图表曲线" key="pane-2">
-                            <ChartDetail data={data}/>
+                            <ChartDetail data={data} visible={visible}/>
                         </TabPane>
                         <TabPane tab="等宽详细数据" key="pane-3">
                             <TableDetail indexType={EVALUATION_INDEX_TYPE.WIDTH_DATA} data={data} visible={visible}/>
