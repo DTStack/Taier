@@ -555,8 +555,6 @@ class GraphEditor extends Component {
         graph.isValidConnection = (source, target) => {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;
             const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
-            // eslint-disable-next-line no-debugger
-            debugger;
             // 限制，必须从输出点开始连线
             if (sourceConstraint && sourceConstraint.id !== 'outputs') return false;
             // 限制，禁止连接输出点

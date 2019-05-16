@@ -256,8 +256,6 @@ class FieldSetting extends PureComponent {
                             onChange={this.handleChange}>
                             {columns.map((item, index) => {
                                 const disabled = !!data.col.find(o => o.key === item.key);
-                                // eslint-disable-next-line no-debugger
-                                debugger;
                                 return <Option key={item.key} value={item.key} disabled={disabled}>{item.key}</Option>
                             })}
                         </Select>
