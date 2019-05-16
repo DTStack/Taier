@@ -149,7 +149,7 @@ class GraphEditor extends Component {
         // 启用绘制
         graph.setPanning(true);
         graph.setConnectable(true);
-        graph.setTooltips(false);
+        graph.setTooltips(true);
         // // Enables HTML labels
         graph.setHtmlLabels(true)
         graph.setAllowDanglingEdges(false)
@@ -173,7 +173,14 @@ class GraphEditor extends Component {
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
         // 转换value显示的内容
-        graph.convertValueToString = this.corvertValueToString
+        graph.convertValueToString = this.corvertValueToString;
+
+        // Redefine tooltip
+        graph.getTooltip = function (state, node, x, y) {
+            if (node.getAttribute('isconnectionpoint')) {
+                return `${node.textContent}`
+            }
+        }
     }
     /* 重置一些添加事件的方法 */
     initEventListener = () => {
@@ -238,7 +245,6 @@ class GraphEditor extends Component {
         const rootCell = this.graph.getDefaultParent();
         const model = graph.getModel();
         const cellMap = this._cacheCells;
-        console.log('data:', data);
         if (data) {
             model.beginUpdate();
             for (let i = 0; i < data.length; i++) {
@@ -501,7 +507,6 @@ class GraphEditor extends Component {
                     // 这里是根据constraints来生成页面上的节点
                     var cp = this.graph.getConnectionPoint(state, this.constraints[i]);
                     var img = this.getImageForConstraint(state, this.constraints[i], cp);
-
                     var src = img.src;
                     var bounds = new mxRectangle(Math.round(cp.x - img.width / 2),
                         Math.round(cp.y - img.height / 2), img.width, img.height);
@@ -519,7 +524,6 @@ class GraphEditor extends Component {
                             return false;
                         });
                     }
-
                     // Move the icon behind all other overlays
                     if (icon.node.previousSibling != null) {
                         icon.node.parentNode.insertBefore(icon.node, icon.node.parentNode.firstChild);
@@ -537,9 +541,10 @@ class GraphEditor extends Component {
                          * 为constraints添加title
                          * hover展示name
                          */
-                        let title = document.createElementNS(mxConstants.NS_SVG, 'title');
+                        let title = document.createElementNS(mxConstants.NS_SVG, 'text');
                         title.innerHTML = this.constraints[i].name;
-                        icon.node.children[0].appendChild(title)
+                        icon.node.children[0].setAttribute('isconnectionpoint', true);
+                        icon.node.children[0].appendChild(title);
                     }
                     mxEvent.redirectMouseEvents(icon.node, this.graph, getState);
                     this.currentFocusArea.add(icon.bounds);
@@ -556,8 +561,6 @@ class GraphEditor extends Component {
         graph.isValidConnection = (source, target) => {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;
             const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
-            // eslint-disable-next-line no-debugger
-            debugger;
             // 限制，必须从输出点开始连线
             if (sourceConstraint && sourceConstraint.id !== 'outputs') return false;
             // 限制，禁止连接输出点

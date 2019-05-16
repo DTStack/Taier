@@ -120,10 +120,9 @@
     div.titleContent {
         position: absolute;
         cursor: default;
-        padding:20px 10px;
+        padding: 20px 10px;
         width: 188px;
         background: rgba(0,0,0,0.7);
-        // box-shadow:0 0 6px 0 rgba(0, 0, 0, 0.15);
         border-radius:2px;
         color: #fff;
         font-size: 12px;
@@ -249,6 +248,7 @@ table.mxPopupMenu tr {
         letter-spacing: 0;
         line-height: 18px;
         font-weight: normal;
+        cursor: move;
     }
 
     .vertex-desc {
@@ -309,20 +309,21 @@ table.mxPopupMenu tr {
     }
 }
 div.mxTooltip {
-	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
-	-moz-box-shadow: 3px 3px 12px #C0C0C0;
-	box-shadow: 3px 3px 12px #C0C0C0;
-	background: #FFFFCC;
-	border-style: solid;
-	border-width: 1px;
-	border-color: black;
-	font-family: Arial;
-	font-size: 8pt;
-	position: absolute;
-	cursor: default;
-	padding: 4px;
-	color: black;
+    -webkit-box-shadow: 3px 3px 12px #747474;
+    -moz-box-shadow: 3px 3px 12px #747474;
+    box-shadow: 3px 3px 12px #747474;
+    background: rgba(0,0,0,0.7);
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+    font-family: Arial;
+    font-size: 8pt;
+    position: absolute;
+    cursor: default;
+    padding: 4px;
+    color: #ffffff;
 }
+
 div.mxPopupMenu {
 	-webkit-box-shadow: 3px 3px 12px #C0C0C0;
 	-moz-box-shadow: 3px 3px 12px #C0C0C0;
