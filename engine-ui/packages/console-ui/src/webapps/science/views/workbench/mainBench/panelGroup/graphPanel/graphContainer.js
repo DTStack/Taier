@@ -275,7 +275,7 @@ class GraphContainer extends React.Component {
         graph.addListener(mxEvent.CLICK, function (sender, evt) {
             const cell = evt.getProperty('cell');
             const event = evt.getProperty('event');
-            if (event.button === 2) {
+            if (event && event.button === 2) {
                 // 鼠标右键
                 return false;
             }
