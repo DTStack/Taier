@@ -385,7 +385,12 @@ td.mxPopupMenuIcon {
 	opacity: 0.2 !important;
 	cursor:default !important;
 }
-
+// 评估报告窗口
+.m-tabs {
+    .ant-tabs-content {
+        height: 100%;
+    }
+}
 
 
 

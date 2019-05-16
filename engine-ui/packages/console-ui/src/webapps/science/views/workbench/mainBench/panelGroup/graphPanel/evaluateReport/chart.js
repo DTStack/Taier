@@ -219,10 +219,6 @@ class CurveChart extends Component {
         })
         return (
             <div
-                style={{
-                    width: '132px',
-                    display: 'inline-block'
-                }}
                 onClick={this.onSelected}>
                 {imgs}
             </div>
@@ -231,14 +227,18 @@ class CurveChart extends Component {
 
     render () {
         return (
-            <div style={{ padding: '30px 20px', height: '100%' }}>
+            <div style={{
+                padding: '30px 20px',
+                height: '100%',
+                display: 'grid',
+                gridTemplateColumns: '132px auto',
+                gridColumnGap: '10px'
+            }}>
                 {this.renderSwitchButtons()}
                 <Resize onResize={this.resizeChart}>
                     <div id="JS_CurveChart" style={{
-                        display: 'inline-block',
-                        float: 'right',
-                        height: 'calc(100% - 100px)',
-                        width: 'calc(100% - 152px)'
+                        height: '90%',
+                        width: '100%'
                     }}></div>
                 </Resize>
             </div>
