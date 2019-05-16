@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { get } from 'lodash';
 import {
     Select, Table, Card, message
 } from 'antd'
@@ -81,10 +82,11 @@ class AdminRole extends Component {
 
     loadRoles = (app, params) => {
         Api.queryRole(app, params).then(res => {
-            this.setState({
-                data: res.data
-            })
-
+            if (res.code == 1) {
+                this.setState({
+                    data: res.data
+                })
+            }
             this.setState({
                 loading: 'success'
             })
@@ -115,7 +117,7 @@ class AdminRole extends Component {
 
         Api.getProjects(app).then((res) => {
             if (res.code === 1) {
-                const selectedProject = res.data[0].id
+                const selectedProject = get(res, 'data[0].id', '无项目')
 
                 if (MY_APPS.RDOS == app) {
                     ctx.setState({
