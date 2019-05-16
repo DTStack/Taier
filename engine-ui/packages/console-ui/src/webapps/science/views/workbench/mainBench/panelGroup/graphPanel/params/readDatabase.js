@@ -95,7 +95,8 @@ class ChooseTable extends PureComponent {
                         <Select
                             showSearch
                             placeholder="请选择表名"
-                            notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
+                            showArrow={false}
+                            notFoundContent={fetching ? <Spin size="small" /> : null}
                             filterOption={false}
                             onSearch={this.fetchTables}
                             onChange={this.handleChange}
