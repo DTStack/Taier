@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import { Table } from 'antd';
 
@@ -54,7 +55,7 @@ class TableDetail extends Component {
 
     initialCols = (fields) => {
         const { pagination } = this.state;
-        const columns = [{
+        const columns = [/* {
             title: '序号',
             dataIndex: 'serialIndex',
             fixed: 'left',
@@ -63,7 +64,7 @@ class TableDetail extends Component {
             render: (text, item, index) => {
                 return getID(pagination.current, index);
             }
-        }];
+        } */];
         if (fields) {
             for (let i = 0; i < fields.length; i++) {
                 const field = fields[i];
