@@ -44,7 +44,16 @@ export default class ImportSource extends Component {
             radio: e.target.value
         });
     }
-
+    generateColWidth (data) {
+        if (data && data.length > 0) {
+            const w = data.reduce((count, item) => {
+                return count + Math.max(item.length * 8 + 20, 100)
+            }, 0);
+            return w;
+        } else {
+            return undefined;
+        }
+    }
     generateCols = (asTitle, data) => {
         if (data && data.length > 0) {
             const arr = []
@@ -52,10 +61,10 @@ export default class ImportSource extends Component {
                 data.forEach((item, index) => {
                     arr.push({
                         title: item,
-                        width: 100,
+                        width: Math.max(item.length * 8 + 20, 100),
                         key: index + item,
                         render: (text, item) => {
-                            return <TableCell style={{ minWidth: 100 }} value={item[index]} />
+                            return <TableCell style={{ resize: 'vertical' }} value={item[index]} />
                         }
                     })
                 })
@@ -174,7 +183,7 @@ export default class ImportSource extends Component {
                 <Row className="no-table-padding">
                     <Table
                         rowKey={this.getRowKey}
-                        scroll={{ y: 240, x: 800 }}
+                        scroll={{ y: 240, x: this.generateColWidth(data[0]) }}
                         bordered
                         dataSource={dataSource}
                         columns={columns}
