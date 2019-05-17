@@ -22,6 +22,7 @@ class EvaluateReportModal extends Component {
                 }}
                 title="评估报告"
                 width={800}
+                maskClosable={false}
                 style={{ height: '560px' }}
                 wrapClassName="vertical-center-modal m-log-modal"
                 visible={visible}
