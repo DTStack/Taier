@@ -104,10 +104,11 @@ class SqlScript extends Component {
                                     {this.renderTooltips()}
                                 </div>
                             }
+                            id="sql-editor"
                             key="2"
-                            style={{ height: 400 }}
+                            style={{ height: 400, background: '#f5f5f5', paddingTop: 10 }}
                         >
-                            <div id="sql-editor">
+                            <div>
                                 <div className="toolbar ide-toolbar clear-offset" style={{ borderBottom: '1px solid #ddd' }}>
                                     <Button
                                         onClick={this.handleSaveSql}
