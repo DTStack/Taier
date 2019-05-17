@@ -213,6 +213,20 @@ class GraphContainer extends React.Component {
         let selectedCell = null;
         const { saveSelectedCell, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
+        const attachMouseOverStyle = function (cell) {
+            const cellState = graph.view.getState(cell);
+            const style = {}
+            style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
+            style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
+            applyCellStyle(cellState, style);
+        }
+        const removeMouseOverStyle = function (cell) {
+            const cellState = graph.view.getState(cell);
+            const style = {}
+            style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
+            style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
+            applyCellStyle(cellState, style);
+        }
         graph.addMouseListener({
             id: 'hoverTitle', // 事件的唯一id，用于update事件
             currentState: null,
@@ -262,11 +276,15 @@ class GraphContainer extends React.Component {
                 ) {
                     this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
                 }
+                attachMouseOverStyle(state.cell);
             },
             dragLeave: function (evt, state) {
                 if (this.currentTitleContent != null) {
                     this.currentTitleContent.destroy();
                     this.currentTitleContent = null;
+                }
+                if (graph.getSelectionCell() !== state.cell) {
+                    removeMouseOverStyle(state.cell);
                 }
             }
         }, true);
@@ -286,11 +304,7 @@ class GraphContainer extends React.Component {
 
             if (cell && cell.vertex) {
                 graph.clearSelection();
-                const cellState = graph.view.getState(cell);
-                const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
-                style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
-                applyCellStyle(cellState, style);
+                attachMouseOverStyle(cell);
                 selectedCell = cell;
                 saveSelectedCell(cell) // 保存已选择的cell
                 getTaskDetailData(ctx.props.data, cell.data.id)
@@ -308,11 +322,7 @@ class GraphContainer extends React.Component {
 
         graph.clearSelection = function (evt) {
             if (selectedCell) {
-                const cellState = graph.view.getState(selectedCell);
-                const style = {}
-                style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
-                style[mxConstants.STYLE_STROKECOLOR] = '#90D5FF';
-                applyCellStyle(cellState, style);
+                removeMouseOverStyle(selectedCell);
                 selectedCell = null;
                 changeSiderbar(null, false); // 没有选择cell会关闭侧边栏
             }

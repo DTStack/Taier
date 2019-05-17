@@ -26,6 +26,7 @@ const {
     mxEvent,
     mxConstants,
     mxEdgeStyle,
+    mxCellState,
     mxPerimeter,
     mxGraphView,
     mxGraphHandler,
@@ -39,6 +40,7 @@ const {
     mxImageShape,
     mxRectangle,
     mxStyleRegistry,
+    mxTooltipHandler,
     mxClient
 } = Mx;
 
@@ -124,12 +126,14 @@ class GraphEditor extends Component {
         mxConstants.HIGHLIGHT_COLOR = BASE_COLOR;
         mxConstants.OUTLINE_HIGHLIGHT_COLOR = BASE_COLOR;
         mxConstants.CONNECT_HANDLE_FILLCOLOR = BASE_COLOR;
+        mxConstants.CURSOR_CONNECT = 'crosshair';
 
         // Constraint highlight color
         mxConstraintHandler.prototype.highlightColor = BASE_COLOR;
 
         mxGraphView.prototype.optimizeVmlReflows = false;
         mxText.prototype.ignoreStringSize = true; // to avoid calling getBBox
+        mxTooltipHandler.prototype.delay = 0; // show tooltip delay as 0
 
         // Disable default context menu
         mxEvent.disableContextMenu(container);
@@ -137,8 +141,8 @@ class GraphEditor extends Component {
         // 启用辅助线
         mxGraphHandler.prototype.guidesEnabled = true;
 
-        const graph = new mxGraph(container)
-        this.graph = graph
+        const graph = new mxGraph(container);
+        this.graph = graph;
         this.props.saveGraph(graph);
         // 允许鼠标右键移动画布
         graph.panningHandler.useLeftButtonForPanning = true;
@@ -181,6 +185,11 @@ class GraphEditor extends Component {
                 return `${node.textContent}`
             }
         }
+        // Implements the connect preview style by default edgeStyle
+        graph.connectionHandler.createEdgeState = function (me) {
+            var edge = graph.createEdge(null, null, null, null, null);
+            return new mxCellState(this.graph.view, edge, this.graph.getCellStyle(edge));
+        };
     }
     /* 重置一些添加事件的方法 */
     initEventListener = () => {
