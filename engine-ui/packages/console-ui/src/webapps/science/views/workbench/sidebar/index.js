@@ -8,6 +8,8 @@ import ExperimentSiderBar from './tabPanes/experiment';
 import commonActionType from '../../../consts/commonActionType';
 import { siderBarType } from '../../../consts'
 import { initLoadTreeNode } from '../../../actions/base/fileTree';
+import utils from 'utils';
+
 const TabPane = Tabs.TabPane;
 @connect((state) => {
     return {
@@ -25,6 +27,7 @@ const TabPane = Tabs.TabPane;
                 type: commonActionType.CHANGE_SIDERBAR_KEY,
                 payload: key
             })
+            location.href = location.href + '?siderkey=' + key;
         },
         initLoadTreeNode (...args) {
             return dispatch(initLoadTreeNode(...args));
@@ -34,6 +37,10 @@ const TabPane = Tabs.TabPane;
 class SiderBarContainer extends React.Component {
     componentDidMount () {
         const { files } = this.props;
+        const siderkey = utils.getParameterByName('siderkey');
+        if (siderkey) {
+            this.props.changeSiderBar(siderkey);
+        }
         if (!files.notebook.length && !files.experiment.length && !files.component.length) {
             this.props.initLoadTreeNode();
         }
