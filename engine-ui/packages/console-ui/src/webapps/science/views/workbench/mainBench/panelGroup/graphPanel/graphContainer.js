@@ -213,14 +213,14 @@ class GraphContainer extends React.Component {
         let selectedCell = null;
         const { saveSelectedCell, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
-        const attachMouseMoveStyle = function (cell) {
+        const attachMouseOverStyle = function (cell) {
             const cellState = graph.view.getState(cell);
             const style = {}
             style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
             style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
             applyCellStyle(cellState, style);
         }
-        const removeMouseMoveStyle = function (cell) {
+        const removeMouseOverStyle = function (cell) {
             const cellState = graph.view.getState(cell);
             const style = {}
             style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
@@ -276,7 +276,7 @@ class GraphContainer extends React.Component {
                 ) {
                     this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
                 }
-                attachMouseMoveStyle(state.cell);
+                attachMouseOverStyle(state.cell);
             },
             dragLeave: function (evt, state) {
                 if (this.currentTitleContent != null) {
@@ -284,7 +284,7 @@ class GraphContainer extends React.Component {
                     this.currentTitleContent = null;
                 }
                 if (graph.getSelectionCell() !== state.cell) {
-                    removeMouseMoveStyle(state.cell);
+                    removeMouseOverStyle(state.cell);
                 }
             }
         }, true);
@@ -304,7 +304,7 @@ class GraphContainer extends React.Component {
 
             if (cell && cell.vertex) {
                 graph.clearSelection();
-                attachMouseMoveStyle(cell);
+                attachMouseOverStyle(cell);
                 selectedCell = cell;
                 saveSelectedCell(cell) // 保存已选择的cell
                 getTaskDetailData(ctx.props.data, cell.data.id)
@@ -322,7 +322,7 @@ class GraphContainer extends React.Component {
 
         graph.clearSelection = function (evt) {
             if (selectedCell) {
-                removeMouseMoveStyle(selectedCell);
+                removeMouseOverStyle(selectedCell);
                 selectedCell = null;
                 changeSiderbar(null, false); // 没有选择cell会关闭侧边栏
             }
