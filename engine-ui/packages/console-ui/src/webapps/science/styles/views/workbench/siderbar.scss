@@ -197,8 +197,13 @@
                 .params-single-tab-content {
                     padding: 9.5px 0px;
                     
-                    .ant-collapse-item {
+                    >*:not(.params-collapse) {
                         padding: 0px 14px;
+                    }
+                    .params-collapse {
+                        .ant-collapse-item{
+                            padding: 0px 14px;
+                        }
                     }
                 }
             }

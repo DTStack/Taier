@@ -87,6 +87,10 @@
         .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
             border-bottom: 1px solid #dddddd;
+            width: 100px;
+            > div {
+                text-align: center;
+            }
         }
 
         .ant-tabs-nav div:nth-child(2) {

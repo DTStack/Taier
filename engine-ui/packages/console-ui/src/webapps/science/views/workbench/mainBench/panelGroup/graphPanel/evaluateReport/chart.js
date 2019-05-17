@@ -12,11 +12,13 @@ import API from '../../../../../../api/experiment';
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
-// require('echarts/lib/chart/bar');
+require('echarts/lib/chart/bar');
 
 // 引入提示框和标题组件
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
+require('echarts/lib/component/dataZoom');
+require('echarts/lib/component/toolbox');
 
 const imgBaseUrl = '/public/science/img/evaluate-report';
 const btnStyle = {
@@ -54,9 +56,9 @@ class CurveChart extends Component {
         const reqParams = {};
         option.color = ['#2491F7'];
         option.grid = {
-            left: 30,
+            left: 40,
             right: 20,
-            bottom: 30
+            bottom: 70
         }
         option.toolbox = {
             show: true,
@@ -79,6 +81,17 @@ class CurveChart extends Component {
                 }
             }
         };
+        option.dataZoom = [{
+            show: true,
+            realtime: true,
+            start: 0,
+            end: 10
+        }, {
+            type: 'inside',
+            realtime: true,
+            start: 65,
+            end: 85
+        }];
         option.yAxis = [{
             type: 'value',
             splitNumber: 5,
@@ -113,13 +126,6 @@ class CurveChart extends Component {
             textAlign: 'left'
         }
         option.title.padding = [5, 10, 5, 0];
-        option.dataZoom = [ // 数据过滤缩放
-            {
-                type: 'inside',
-                start: 0,
-                end: 10
-            }
-        ];
 
         switch (chart) {
             case 'roc': {
@@ -152,7 +158,7 @@ class CurveChart extends Component {
                 option.title.text = 'Gain';
                 option.yAxis[0].name = 'Gain值：';
                 option.tooltip.formatter = (params, ticket, callback) => {
-                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
+                    return params.value;
                 }
                 break;
             } case 'pre': {
