@@ -130,12 +130,12 @@ class Welcome extends Component {
                             })
                         }
                     </div>
-                    <div>
+                    {/* <div>
                         <div className="title">新手指南</div>
                         <a className="project" href="javascript:void(0)">创建算法实验</a>
                         <a className="project" href="javascript:void(0)">任务离线调度</a>
                         <a className="project" href="javascript:void(0)">模型自动调参</a>
-                    </div>
+                    </div> */}
                 </Col>
                 <NewProject
                     onCancel={this.handleCancel}
