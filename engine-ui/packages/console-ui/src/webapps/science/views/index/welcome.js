@@ -10,7 +10,11 @@ import * as baseActions from '../../actions/base'
 
 import Api from '../../api'
 
-@connect(null, dispatch => {
+@connect(state => {
+    return {
+        projectTotal: state.project.projectList.length
+    }
+}, dispatch => {
     return {
         ...bindActionCreators(baseActions, dispatch)
     }
@@ -68,7 +72,7 @@ class Welcome extends Component {
                                 <div className="info-box blue">
                                     <div className="info-box-left">
                                         <p><Icon type="appstore-o" /><span>总项目数</span></p>
-                                        <p className="number">{(statistic.totalLabCount + statistic.totalNotebookCount) || 0}</p>
+                                        <p className="number">{this.props.projectTotal}</p>
                                     </div>
                                 </div>
                             </Col>

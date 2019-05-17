@@ -276,11 +276,11 @@ class Main extends Component {
             const isApiSafe = apiApp.children[4] && apiApp.children[4].isShow;
             const isApiDataSource = apiApp.children[5] && apiApp.children[5].isShow;
             // science
-            // const scienceApp = fixLicenseApps[5];
-            // const isScience = scienceApp.isShow;
-            // const isScienceDevelop = scienceApp.children[0] && scienceApp.children[0].isShow;
-            // const isScienceOperation = scienceApp.children[1] && scienceApp.children[1].isShow;
-            // const isScienceSource = scienceApp.children[2] && scienceApp.children[2].isShow;
+            const scienceApp = fixLicenseApps[5];
+            const isScience = scienceApp.isShow;
+            const isScienceDevelop = scienceApp.children[0] && scienceApp.children[0].isShow;
+            const isScienceOperation = scienceApp.children[1] && scienceApp.children[1].isShow;
+            const isScienceSource = scienceApp.children[2] && scienceApp.children[2].isShow;
             // 判断条件存入数组
             const arr = [
                 // rdos
@@ -391,23 +391,23 @@ class Main extends Component {
                 {
                     url: 'dataApi.html#/api/dataSource',
                     isShow: !isApiDataSource
+                },
+                {
+                    url: 'science.html',
+                    isShow: !isScience
+                },
+                {
+                    url: 'science.html#/science/workbench',
+                    isShow: !isScienceDevelop
+                },
+                {
+                    url: 'science.html#/science/operation',
+                    isShow: !isScienceOperation
+                },
+                {
+                    url: 'science.html#/science/source',
+                    isShow: !isScienceSource
                 }
-                // {
-                //     url: 'science.html',
-                //     isShow: !isScience
-                // },
-                // {
-                //     url: 'science.html#/science/workbench',
-                //     isShow: !isScienceDevelop
-                // },
-                // {
-                //     url: 'science.html#/science/operation',
-                //     isShow: !isScienceOperation
-                // },
-                // {
-                //     url: 'science.html#/science/source',
-                //     isShow: !isScienceSource
-                // }
             ];
             this.loopIsIntercept(pathAddress, arr);
         }
