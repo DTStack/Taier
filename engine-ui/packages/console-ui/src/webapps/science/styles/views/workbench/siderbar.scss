@@ -251,11 +251,11 @@
             /* 穿梭框 */
             .params-transfer{
                 display: grid;
-                grid-template-columns: 220px auto 220px;
+                grid-template-columns: auto 20px auto;
                 grid-gap: 10px;
                 justify-items: center;
                 align-items: center;
-
+                height: 400px;
                 .ant-transfer-list{
                     width: 100%;
                     .ant-transfer-list-search-action > i {

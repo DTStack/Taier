@@ -28,8 +28,7 @@ const {
     mxEventObject,
     mxCell,
     mxGeometry,
-    mxUtils,
-    mxClient
+    mxUtils
 } = Mx;
 
 const applyCellStyle = (cellState, style) => {
@@ -345,96 +344,32 @@ class GraphContainer extends React.Component {
     }
 
     listenCopyAndDel = (graph) => {
-        const ctx = this;
         if (!graph) return;
-
-        const mockInput = document.createElement('textarea');
-        mxUtils.setOpacity(mockInput, 0);
-        mockInput.style.width = '1px';
-        mockInput.style.height = '1px';
-        mockInput.value = '';
-        // 处理快捷键事件
-        let restoreFocus = false;
-        let isCopied = false;
-
-        const activeGraph = function () {
-            restoreFocus = true;
-            mockInput.style.position = 'absolute';
-            mockInput.style.left = (graph.container.scrollLeft + 10) + 'px';
-            mockInput.style.top = (graph.container.scrollTop + 10) + 'px';
-            graph.container.appendChild(mockInput);
-            restoreFocus = true;
-            mockInput.focus();
-            mockInput.select();
-        }
-
-        const activedGraph = function () {
-            restoreFocus = false;
-            if (!graph.isEditing()) {
-                graph.container.focus();
-            }
-            graph.container.removeChild(mockInput);
-        }
-        if (!this._keydownFunc) {
-            this._keydownFunc = (evt) => {
-                const keyCode = evt.keyCode;
-                const source = evt.target;
-
-                if (
-                    graph && !graph.isSelectionEmpty() && graph.isEnabled() &&
-                    !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT' &&
-                    source.className != 'inputarea' // sql组件输入editor
-                ) {
-                    if (keyCode == 224 /* FF */ ||
-                        (!mxClient.IS_MAC && keyCode == 17 /* Control */) ||
-                        (mxClient.IS_MAC && keyCode == 91 /* Meta */)) {
-                        if (!restoreFocus) {
-                            activeGraph();
-                            isCopied = true;
-                        }
-                    }
-                    if ((keyCode == 8 || keyCode == 46) && !restoreFocus && source.nodeName != 'TEXTAREA') {
-                        activeGraph();
-                    }
-                }
-            }
-            this._keyupFunc = (evt) => {
-                const keyCode = evt.keyCode;
-                const source = evt.target;
-
-                if (graph && !graph.isSelectionEmpty() && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() && source.nodeName != 'INPUT') {
-                    if (restoreFocus && (keyCode == 224 || keyCode == 17 || keyCode == 91)) {
-                        activedGraph();
-                    }
-
-                    if (restoreFocus && (keyCode == 8 || keyCode == 46)) { // Backspace and Del keyPress
-                        activedGraph();
-                        const cell = graph.getSelectionCell();
-                        if (!cell) return;
-                        ctx.removeCell(cell);
-                    }
-                }
-            }
-        }
-        document.removeEventListener('keydown', this._keydownFunc);
-        document.removeEventListener('keyup', this._keyupFunc);
-        document.addEventListener('keydown', this._keydownFunc);
-        document.addEventListener('keyup', this._keyupFunc);
-
+        let restoreCell;
+        const ctx = this;
+        const mockInput = document.getElementById('mockInput');
+        mxEvent.addListener(graph.container, 'click', mxUtils.bind(this, function (evt) {
+            mockInput.value = '';
+            mockInput.focus()
+        }), true)
         mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function (evt) {
             if (graph.isEnabled() && !graph.isSelectionEmpty()) {
-                isCopied = true;
+                const cell = graph.getSelectionCells()[0];
+                restoreCell = cell;
             }
-        }), true);
-
+        }), true)
         mxEvent.addListener(mockInput, 'paste', mxUtils.bind(this, function (evt) {
-            mockInput.value = '';
-            const cell = graph.getSelectionCell();
-            if (isCopied && graph && graph.isEnabled() && cell) {
-                ctx.copyCell(cell);
+            if (graph.isEnabled() && !graph.isSelectionEmpty() && mockInput.focus) {
+                ctx.copyCell(restoreCell)
             }
-            mockInput.select();
-        }), true);
+        }), true)
+        mxEvent.addListener(mockInput, 'keyup', mxUtils.bind(this, function (evt) {
+            const keyCode = evt.keyCode;
+            if (graph.isEnabled() && !graph.isSelectionEmpty() && mockInput.focus && (keyCode == 8 || keyCode == 46)) {
+                const cell = graph.getSelectionCells()[0];
+                ctx.removeCell(cell);
+            }
+        }), true)
     }
 
     /* 复制节点 */
@@ -834,6 +769,7 @@ class GraphContainer extends React.Component {
         const { data } = this.props;
         const graphData = cloneDeep(data.graphData);
         return <div className="exp-graph-view" style={{ width: '100%' }}>
+            <input id="mockInput" style={{ opacity: 1, width: 1, height: 1, outline: 0 }} />
             <GraphEditor
                 version={data.version}
                 data={graphData || []}

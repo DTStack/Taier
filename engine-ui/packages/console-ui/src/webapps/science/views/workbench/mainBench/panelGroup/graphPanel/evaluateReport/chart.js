@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { cloneDeep, maxBy } from 'lodash';
+import { cloneDeep, maxBy, get } from 'lodash';
 import Resize from 'widgets/resize';
 
 import {
@@ -33,6 +33,13 @@ const btnStyle = {
     marginTop: '-1px',
     cursor: 'pointer'
 }
+const chartsLoadingStyle = {
+    text: 'loading...',
+    color: '#108ee9',
+    textColor: '#000',
+    maskColor: 'rgba(255, 255, 255, 0.8)',
+    zlevel: 0
+}
 class CurveChart extends Component {
     state = {
         selectedBtn: 'roc',
@@ -62,25 +69,28 @@ class CurveChart extends Component {
         const reqParams = {};
         option.color = ['#2491F7'];
         option.grid = {
-            left: 40,
-            right: 20,
+            left: 50,
+            right: 30,
             bottom: 70
         }
         option.toolbox = {
             show: true,
+            right: 20,
             feature: {
                 magicType: { type: ['line', 'bar'] },
                 saveAsImage: {}
             }
         }
         option.tooltip = {
-            trigger: 'item',
+            trigger: 'axis',
             borderColor: '#2491F7',
-            backgroundColor: '#2491F7',
+            padding: [10, 15],
+            backgroundColor: 'rgba(0,0,0,0.6)',
             axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#2491F7'
+                type: 'line',
+                lineStyle: {
+                    color: '#2491F7',
+                    type: 'dashed'
                 },
                 label: {
                     backgroundColor: '#6a7985'
@@ -136,14 +146,10 @@ class CurveChart extends Component {
         switch (chart) {
             case 'roc': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.ROC;
-                option.title.text = 'ROC';
-                option.yAxis[0].name = 'AUC值：';
                 break;
             }
             case 'ks': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.K_S;
-                option.title.text = 'K-S';
-                option.yAxis[0].name = 'KS值：';
                 break;
             } case 'lift': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.LIFT;
@@ -157,14 +163,12 @@ class CurveChart extends Component {
                 break;
             } case 'pre': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.PRECISION_RECALL;
-                option.title.text = 'Precision Recall';
-                option.yAxis[0].name = 'F1-Score值：';
                 break;
             }
         }
         if (data) {
             reqParams.taskId = data.id;
-            myChart.showLoading()
+            myChart.showLoading('default', chartsLoadingStyle)
             const res = await API.getEvaluateReportChartData(reqParams);
             if (res.code === 1) {
                 const chartData = res.data;
@@ -185,8 +189,10 @@ class CurveChart extends Component {
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const sensitive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const fpr = res.data.series[0].keyList.findIndex(o => o === 'fpr');
+                        option.title.text = 'ROC';
+                        option.yAxis[0].name = `AUC值：${get(res.data, 'param.AUC', 0)}`;
                         option.tooltip.formatter = (params, ticket, callback) => {
-                            const data = params.data.colList;
+                            const data = params[0].data.colList;
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
                             return (
                                 `threshold: ${threshold} <br />
@@ -203,14 +209,30 @@ class CurveChart extends Component {
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
+                        const maxData = this.findMax(option.series[0].data, ks);
+                        option.title.text = 'K-S';
+                        option.yAxis[0].name = `KS值：${get(res.data, 'param.KS', 0)}`;
+                        option.series = option.series.map((item) => {
+                            item.markPoint = {
+                                data: [{
+                                    xAxis: maxData.name,
+                                    yAxis: maxData.value,
+                                    value: maxData.colList[ks]
+                                }]
+                            }
+                            return item;
+                        })
                         option.tooltip.formatter = (params, ticket, callback) => {
-                            const data = params.data.colList;
+                            if (params[0].componentType === 'markPoint') {
+                                return null;
+                            }
+                            const data = params[0].data.colList;
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
                             return (
                                 `
                                 KS: ${data[ks]} <br />
                                 threshold: ${threshold} <br />
-                                sample ratio: ${params.data.value} <br />
+                                sample ratio: ${params[0].data.value} <br />
                                 cumulaitve_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
                                 cumulaitve_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
                                 `
@@ -223,7 +245,7 @@ class CurveChart extends Component {
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const lift = res.data.series[0].keyList.findIndex(o => o === 'lift');
                         option.tooltip.formatter = (params, ticket, callback) => {
-                            const data = params.data.colList;
+                            const data = params[0].data.colList;
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
                             return (
                                 `
@@ -240,7 +262,7 @@ class CurveChart extends Component {
                         const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
                         option.tooltip.formatter = (params, ticket, callback) => {
-                            const data = params.data.colList;
+                            const data = params[0].data.colList;
                             return (
                                 `
                                 recall: ${data[recall]} <br />
@@ -270,8 +292,13 @@ class CurveChart extends Component {
                             }
                             return item;
                         })
+                        option.title.text = 'Precision Recall';
+                        option.yAxis[0].name = `F1-Score值：${get(res.data, 'param["F1 Score"]', 0)}`;
                         option.tooltip.formatter = (params, ticket, callback) => {
-                            const data = params.data.colList;
+                            if (params[0].componentType === 'markPoint') {
+                                return null;
+                            }
+                            const data = params[0].data.colList;
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
                             return (
                                 `
