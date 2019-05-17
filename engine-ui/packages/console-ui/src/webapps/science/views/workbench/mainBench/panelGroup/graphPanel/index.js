@@ -146,14 +146,14 @@ class GraphPanel extends Component {
             ? consoleData[currentTabId].data
             : [];
         const consoleActivekey = get(consoleData[currentTabId], 'activeKey', null);
-
+        const running = get(editor, 'running', []);
         const toolbarOpts = {
             enable: true,
             enableRun: true,
             disableEdit: true,
             customToobar: this.handleRenderToolbarOptions(),
             leftCustomButton: this.renderPublishButton(),
-            isRunning: editor.running.indexOf(String(currentTabId)) > -1,
+            isRunning: running.findIndex(o => o == currentTabId) > -1,
             onRun: this.execConfirm,
             onStop: this.stopTask
         };
