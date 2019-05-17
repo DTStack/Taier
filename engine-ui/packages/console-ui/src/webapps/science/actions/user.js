@@ -7,7 +7,7 @@ export function getUser () {
         UserApi.getLoginedUser().then(res => {
             if (res.code === 1) {
                 return dispatch({
-                    type: userActions.GET_USER,
+                    type: userActions.UPDATE_USER,
                     data: res.data
                 })
             }
