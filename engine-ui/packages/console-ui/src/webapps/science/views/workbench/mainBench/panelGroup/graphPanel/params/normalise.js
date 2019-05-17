@@ -38,7 +38,7 @@ class ChooseModal extends BaseChooseModal {
             return o.edge && o.target.data.id == componentId
         })
         if (targetEdges.length) {
-            const targetEdge = targetEdges.find(o => o.outputType === INPUT_TYPE.NORMALIZATION_OUTPUT_DATA);
+            const targetEdge = targetEdges.find(o => o.outputType === INPUT_TYPE.NORMALIZATION_INPUT_DATA);
             if (!targetEdge) return;
             this.setState({
                 loading: true
@@ -109,7 +109,7 @@ class FieldSetting extends PureComponent {
                     {...formItemLayout}
                 >
                     <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
-                    <div style={{ display: 'grid', gridTemplateColumns: '78px auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '82px auto' }}>
                         {getFieldDecorator('is_save_old', {
                             valuePropName: 'checked',
                             getValueFromEvent: (e) => {
