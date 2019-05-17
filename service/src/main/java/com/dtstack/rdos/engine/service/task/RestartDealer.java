@@ -189,8 +189,10 @@ public class RestartDealer {
             return;
         }
 
-        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskIdAndEngineTaskId(jobId, jobClient.getEngineTaskId());
+        LOG.info("Set checkpoint path for job:{}", jobId);
+        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobId);
         if(taskCheckpoint != null){
+            LOG.info("Set checkpoint path:{}", taskCheckpoint.getCheckpoint());
             jobClient.setExternalPath(taskCheckpoint.getCheckpoint());
         }
     }
