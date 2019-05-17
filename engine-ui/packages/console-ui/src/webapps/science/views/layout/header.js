@@ -85,7 +85,7 @@ class Header extends Component {
     render () {
         const { app, licenseApps } = this.props;
         const { project } = this.props;
-        const projectName = get(project, 'projectAlias', project ? project.projectName : '项目选择');
+        const projectName = get(project, 'projectAlias', project ? project.projectName : '项目名称');
         const menulicense = this.getMenuLicense(licenseApps);
         const baseUrl = app.link;
         const path = location.hash.split('/');
