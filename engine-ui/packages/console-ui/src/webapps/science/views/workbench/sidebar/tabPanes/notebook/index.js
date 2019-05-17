@@ -101,7 +101,7 @@ class NotebookSidebar extends Component {
                             if (item.type == 'file') {
                                 return 'anchor-notebook-file o-tree-icon--notebook'
                             }
-                            if (item.level == 1) {
+                            if (item.level == 13) {
                                 return 'anchor-notebook-root'
                             }
                             return 'anchor-notebook-folder'

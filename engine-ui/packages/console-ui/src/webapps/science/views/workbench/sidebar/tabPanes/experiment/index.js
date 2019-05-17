@@ -103,7 +103,7 @@ class ExperimentSidebar extends Component {
                             if (item.type == 'file') {
                                 return 'anchor-experiment-file o-tree-icon--experiment'
                             }
-                            if (item.level == 1) {
+                            if (item.level == 13) {
                                 return 'anchor-experiment-root'
                             }
                             return 'anchor-experiment-folder'
