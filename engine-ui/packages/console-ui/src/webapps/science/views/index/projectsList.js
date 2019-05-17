@@ -133,6 +133,9 @@ class ProjectsList extends Component {
             title: '项目占用存储',
             dataIndex: 'totalSize',
             key: 'totalSize',
+            render (t) {
+                return utils.convertBytes(t)
+            },
             sorter: true
         }, {
             title: '创建人',
