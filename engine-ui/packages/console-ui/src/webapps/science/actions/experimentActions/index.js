@@ -6,6 +6,8 @@ import api from '../../api/experiment';
 import fileApi from '../../api/fileTree';
 // import { cloneDeep } from 'lodash';
 import { changeContent } from './runExperimentActions';
+import { removeMetadata } from '../helper';
+
 export function changeText (text, tab) {
     return changeContent({
         sqlText: text
@@ -76,6 +78,7 @@ export function openExperiment (id) {
 export function saveExperiment (tabData, isMessage = true) {
     return (dispatch, getState) => {
         return new Promise(async (resolve) => {
+            tabData = removeMetadata(tabData);
             tabData.sqlText = JSON.stringify(tabData.graphData);
             let res = await api.addExperiment(tabData);
             if (res && res.code == 1) {
