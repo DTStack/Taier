@@ -27,7 +27,7 @@ const TabPane = Tabs.TabPane;
                 type: commonActionType.CHANGE_SIDERBAR_KEY,
                 payload: key
             })
-            location.href = location.href + '?siderkey=' + key;
+            location.href = location.href.split('?')[0] + '?siderkey=' + key;
         },
         initLoadTreeNode (...args) {
             return dispatch(initLoadTreeNode(...args));
