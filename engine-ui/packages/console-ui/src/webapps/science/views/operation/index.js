@@ -8,7 +8,7 @@ class Operation extends Component {
     render () {
         return (
             <div className="inner-container" style={{ padding: 0, backgroundColor: '#fff' }}>
-                <Tabs className='c-antd-tabs-sidebar' tabPosition='left'>
+                <Tabs className='c-antd-tabs-sidebar c-ant-tabs-fixed' tabPosition='left'>
                     <TabPane tab={<span><Icon className='c-antd-tabs-sidebar__tab__icon' type="bar-chart" />运维概览</span>} key="overview">
                         <Overview />
                     </TabPane>

@@ -154,3 +154,10 @@
         }
     }
 }
+.c-antd-tabs-sidebar.c-ant-tabs-fixed.ant-tabs-vertical.ant-tabs-left{
+    > .ant-tabs-content {
+        height: 100%;
+        overflow-y: auto;
+        background: #ffffff;
+    }
+}
