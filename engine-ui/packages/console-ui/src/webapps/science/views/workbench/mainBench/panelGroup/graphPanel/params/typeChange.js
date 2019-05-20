@@ -155,12 +155,16 @@ export class ChooseModal extends PureComponent {
             <Modal
                 title="选择字段"
                 visible={visible}
+                width={800}
                 onOk={this.handleOk}
                 onCancel={this.handleCancel}
                 getContainer={() => document.querySelector(this.warpClassName)}
             >
                 <Spin spinning={this.state.loading}>
                     <Transfer
+                        listStyle={{
+                            height: '100%'
+                        }}
                         className="params-transfer"
                         rowKey={record => record.key}
                         dataSource={this.state.sourceData}

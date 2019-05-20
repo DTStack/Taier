@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, maxBy, get } from 'lodash';
 import Resize from 'widgets/resize';
 
 import {
@@ -19,6 +19,12 @@ require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
 require('echarts/lib/component/dataZoom');
 require('echarts/lib/component/toolbox');
+require('echarts/lib/component/markPoint');
+require('echarts/lib/component/marker/MarkerModel');
+require('echarts/lib/component/marker/MarkPointModel');
+require('echarts/lib/component/marker/MarkPointView');
+require('echarts/lib/component/marker/markerHelper');
+require('echarts/lib/component/marker/MarkerView');
 
 const imgBaseUrl = '/public/science/img/evaluate-report';
 const btnStyle = {
@@ -26,6 +32,13 @@ const btnStyle = {
     height: '72px',
     marginTop: '-1px',
     cursor: 'pointer'
+}
+const chartsLoadingStyle = {
+    text: 'loading...',
+    color: '#108ee9',
+    textColor: '#000',
+    maskColor: 'rgba(255, 255, 255, 0.8)',
+    zlevel: 0
 }
 class CurveChart extends Component {
     state = {
@@ -56,25 +69,28 @@ class CurveChart extends Component {
         const reqParams = {};
         option.color = ['#2491F7'];
         option.grid = {
-            left: 40,
-            right: 20,
+            left: 50,
+            right: 30,
             bottom: 70
         }
         option.toolbox = {
             show: true,
+            right: 20,
             feature: {
                 magicType: { type: ['line', 'bar'] },
                 saveAsImage: {}
             }
         }
         option.tooltip = {
-            trigger: 'item',
+            trigger: 'axis',
             borderColor: '#2491F7',
-            backgroundColor: '#2491F7',
+            padding: [10, 15],
+            backgroundColor: 'rgba(0,0,0,0.6)',
             axisPointer: {
-                type: 'cross',
-                crossStyle: {
-                    color: '#2491F7'
+                type: 'line',
+                lineStyle: {
+                    color: '#2491F7',
+                    type: 'dashed'
                 },
                 label: {
                     backgroundColor: '#6a7985'
@@ -85,12 +101,12 @@ class CurveChart extends Component {
             show: true,
             realtime: true,
             start: 0,
-            end: 10
+            end: 100
         }, {
             type: 'inside',
             realtime: true,
-            start: 65,
-            end: 85
+            start: 0,
+            end: 100
         }];
         option.yAxis = [{
             type: 'value',
@@ -130,50 +146,29 @@ class CurveChart extends Component {
         switch (chart) {
             case 'roc': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.ROC;
-                option.title.text = 'ROC';
-                option.yAxis[0].name = 'AUC值：';
-                option.tooltip.formatter = (params, ticket, callback) => {
-                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
-                }
                 break;
             }
             case 'ks': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.K_S;
-                option.title.text = 'K-S';
-                option.yAxis[0].name = 'KS值：';
-                option.tooltip.formatter = (params, ticket, callback) => {
-                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
-                }
                 break;
             } case 'lift': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.LIFT;
                 option.title.text = 'Lift';
                 option.yAxis[0].name = 'Lift值：';
-                option.tooltip.formatter = (params, ticket, callback) => {
-                    return (params.value * 1).toFixed(2);
-                }
                 break;
             } case 'gain': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.GAIN;
                 option.title.text = 'Gain';
                 option.yAxis[0].name = 'Gain值：';
-                option.tooltip.formatter = (params, ticket, callback) => {
-                    return params.value;
-                }
                 break;
             } case 'pre': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.PRECISION_RECALL;
-                option.title.text = 'Precision Recall';
-                option.yAxis[0].name = 'F1-Score值：';
-                option.tooltip.formatter = (params, ticket, callback) => {
-                    return (parseFloat(params.value) * 100).toFixed(2) + '%';
-                }
                 break;
             }
         }
         if (data) {
             reqParams.taskId = data.id;
-            myChart.showLoading()
+            myChart.showLoading('default', chartsLoadingStyle)
             const res = await API.getEvaluateReportChartData(reqParams);
             if (res.code === 1) {
                 const chartData = res.data;
@@ -188,13 +183,148 @@ class CurveChart extends Component {
                     }
                     return item;
                 });
+                switch (chart) {
+                    case 'roc': {
+                        const regex = /(?<=\[|\()[^,]*/;
+                        const range = res.data.series[0].keyList.findIndex(o => o === 'range');
+                        const sensitive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
+                        const fpr = res.data.series[0].keyList.findIndex(o => o === 'fpr');
+                        option.title.text = 'ROC';
+                        option.yAxis[0].name = `AUC值：${get(res.data, 'param.AUC', 0)}`;
+                        option.tooltip.formatter = (params, ticket, callback) => {
+                            const data = params[0].data.colList;
+                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            return (
+                                `threshold: ${threshold} <br />
+                                sensitive: ${data[sensitive]} <br />
+                                fpr: ${data[fpr]} <br />
+                                `
+                            )
+                        }
+                        break;
+                    }
+                    case 'ks': {
+                        const regex = /(?<=\[|\()[^,]*/;
+                        const ks = res.data.series[0].keyList.findIndex(o => o === 'ks');
+                        const range = res.data.series[0].keyList.findIndex(o => o === 'range');
+                        const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
+                        const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
+                        const maxData = this.findMax(option.series[0].data, ks);
+                        option.title.text = 'K-S';
+                        option.yAxis[0].name = `KS值：${get(res.data, 'param.KS', 0)}`;
+                        option.series = option.series.map((item) => {
+                            item.markPoint = {
+                                data: [{
+                                    xAxis: maxData.name,
+                                    yAxis: maxData.value,
+                                    value: maxData.colList[ks]
+                                }]
+                            }
+                            return item;
+                        })
+                        option.tooltip.formatter = (params, ticket, callback) => {
+                            if (params[0].componentType === 'markPoint') {
+                                return null;
+                            }
+                            const data = params[0].data.colList;
+                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            return (
+                                `
+                                KS: ${data[ks]} <br />
+                                threshold: ${threshold} <br />
+                                sample ratio: ${params[0].data.value} <br />
+                                cumulaitve_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
+                                cumulaitve_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
+                                `
+                            )
+                        }
+                        break;
+                    } case 'lift': {
+                        option.xAxis[0].data = option.xAxis[0].data.reverse(); // x 轴反转
+                        const regex = /(?<=\[|\()[^,]*/;
+                        const range = res.data.series[0].keyList.findIndex(o => o === 'range');
+                        const lift = res.data.series[0].keyList.findIndex(o => o === 'lift');
+                        option.tooltip.formatter = (params, ticket, callback) => {
+                            const data = params[0].data.colList;
+                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            return (
+                                `
+                                threshold: ${threshold} <br />
+                                lift: ${data[lift]} <br />
+                                `
+                            )
+                        }
+                        break;
+                    } case 'gain': {
+                        const recall = res.data.series[0].keyList.findIndex(o => o === 'recall');
+                        const threshold = res.data.series[0].keyList.findIndex(o => o === 'threshold');
+                        const precision = res.data.series[0].keyList.findIndex(o => o === 'precision');
+                        const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
+                        const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
+                        option.tooltip.formatter = (params, ticket, callback) => {
+                            const data = params[0].data.colList;
+                            return (
+                                `
+                                recall: ${data[recall]} <br />
+                                threshold: ${data[threshold]} <br />
+                                precision: ${data[precision]} <br />
+                                cumulaitve_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
+                                cumulaitve_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
+                                `
+                            )
+                        }
+                        break;
+                        ;
+                    } case 'pre': {
+                        const regex = /(?<=\[|\()[^,]*/;
+                        const range = res.data.series[0].keyList.findIndex(o => o === 'range');
+                        const f1Score = res.data.series[0].keyList.findIndex(o => o === 'f1_score');
+                        const precision = res.data.series[0].keyList.findIndex(o => o === 'precision');
+                        const recall = res.data.series[0].keyList.findIndex(o => o === 'recall');
+                        const maxData = this.findMax(option.series[0].data, f1Score);
+                        option.series = option.series.map((item) => {
+                            item.markPoint = {
+                                data: [{
+                                    xAxis: maxData.value,
+                                    yAxis: maxData.name,
+                                    value: maxData.colList[precision]
+                                }]
+                            }
+                            return item;
+                        })
+                        option.title.text = 'Precision Recall';
+                        option.yAxis[0].name = `F1-Score值：${get(res.data, 'param["F1 Score"]', 0)}`;
+                        option.tooltip.formatter = (params, ticket, callback) => {
+                            if (params[0].componentType === 'markPoint') {
+                                return null;
+                            }
+                            const data = params[0].data.colList;
+                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            return (
+                                `
+                                threshold: ${threshold} <br />
+                                f1Score: ${data[f1Score]} <br />
+                                precision: ${data[precision]} <br />
+                                recall: ${data[recall]} <br />
+                                `
+                            )
+                        }
+                        break;
+                    }
+                }
             }
         }
         // 绘制图表
+        console.log('option:', option);
         myChart.setOption(option, true);
         myChart.hideLoading()
     }
-
+    findMax = (arr, index) => {
+        let maxData = maxBy(arr, (o) => {
+            return o.colList[index]
+        })
+        return maxData;
+    }
     resizeChart = () => {
         if (this._chart1) {
             this._chart1.resize();
