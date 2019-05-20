@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
 import { Collapse, Input, Button, message, Tooltip, Icon } from 'antd';
+import { connect } from 'react-redux';
 import Editor from 'widgets/editor';
 import FullScreenButton from 'widgets/fullscreen';
 import api from '../../../../../../api/experiment';
 import MyIcon from '../../../../../../components/icon'
+import { matchTaskParams } from '../../../../../../comm';
 const Panel = Collapse.Panel;
 const InputGroup = Input.Group;
+@connect(state => {
+    return {
+        sysParams: state.common.sysParams || []
+    }
+})
 class SqlScript extends Component {
     state = {
         source: [{
@@ -47,12 +54,14 @@ class SqlScript extends Component {
     handleSaveSql = () => {
         const { currentTab, componentId, changeContent, data } = this.props;
         const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
+        const sysParams = matchTaskParams(this.props.sysParams, this.state.code);
         const params = {
             ...currentComponentData.data,
             sqlComponent: {
                 ...data,
                 sql: this.state.code
-            }
+            },
+            taskVariables: sysParams
         }
         api.addOrUpdateTask(params).then((res) => {
             if (res.code == 1) {
