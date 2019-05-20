@@ -107,18 +107,16 @@ class SiderBench extends React.Component {
             tabData.taskType !== TASK_TYPE.VIRTUAL_NODE &&
             tabData.taskType !== TASK_TYPE.WORKFLOW
         ) {
-            if (!isScienceTask) {
-                panes.push(
-                    <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
-                        <TaskParams
-                            isPro={isPro}
-                            couldEdit={couldEdit}
-                            tabData={tabData}
-                            onChange={this.debounceChange}
-                        />
-                    </TabPane>
-                )
-            }
+            panes.push(
+                <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
+                    <TaskParams
+                        isPro={isPro}
+                        couldEdit={couldEdit}
+                        tabData={tabData}
+                        onChange={this.debounceChange}
+                    />
+                </TabPane>
+            )
             panes.push(
                 <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                     <SQLEditor

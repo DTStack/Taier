@@ -168,7 +168,7 @@ class Overview extends React.PureComponent {
             <Col span={6}>
                 <div className="info-box green">
                     <div className="info-box-left">
-                        <p><Icon type="appstore-o" /><span>已部署任务</span></p>
+                        <p><Icon type="appstore-o" /><span>已提交任务数</span></p>
                         <p className="number">{status.deployLabCount + status.deployNotebookCount}</p>
                     </div>
                     <div className="info-box-right">

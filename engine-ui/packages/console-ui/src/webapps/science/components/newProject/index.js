@@ -71,7 +71,7 @@ class NewProject extends Component {
                     okText="创建"
                     onCancel={this.handleCancel}
                 >
-                    <Alert style={{ marginBottom: '20px' }} showIcon message=" 数据科学平台创建的项目，同时会同步至离线计算中，可在离线计算中进行数据同步、任务运维。" type="info" />
+                    <Alert style={{ margin: '16px 16px 20px 16px' }} showIcon message=" 数据科学平台创建的项目，同时会同步至离线计算中，可在离线计算中进行数据同步、任务运维。" type="info" />
                     {this.alert()}
                     <Form>
                         <FormItem

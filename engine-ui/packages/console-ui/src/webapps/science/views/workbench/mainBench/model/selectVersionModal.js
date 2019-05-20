@@ -60,7 +60,7 @@ class SelectVersionsModal extends React.Component {
                 onOk={this.changeVersion.bind(this)}
                 title='切换版本'
             >
-                <Alert style={{ marginBottom: '20px' }} message="注：切换版本时，由于某些模型较大，切换可能需要较长时间，请耐心等待。" type="info" />
+                <Alert style={{ marginBottom: '20px' }} showIcon message="切换版本时，由于某些模型较大，切换可能需要较长时间，请耐心等待。" type="info" />
                 <Form.Item
                     {...formItemLayout}
                     label='选择版本'
