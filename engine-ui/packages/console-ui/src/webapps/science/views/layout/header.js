@@ -39,7 +39,7 @@ class Header extends Component {
                 <Menu.Item
                     data={project}
                     title={name}
-                    value={name}
+                    value={project.id}
                     key={project.id}
                 >
                     {project.projectAlias || project.projectName}
