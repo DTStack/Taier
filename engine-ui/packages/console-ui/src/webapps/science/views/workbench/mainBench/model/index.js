@@ -140,12 +140,12 @@ class ModelView extends React.Component {
         return [{
             title: '模型名称',
             dataIndex: 'modelName',
-            width: '150px',
+            width: '180px',
             sorter: true
         }, {
             title: '算法名称',
             dataIndex: 'componentName',
-            width: '150px',
+            width: '180px',
             filters: modelComponentsList.map((m) => {
                 return {
                     text: m.type,
@@ -180,7 +180,7 @@ class ModelView extends React.Component {
         }, {
             title: '更新时间',
             dataIndex: 'gmtModified',
-            width: '150px',
+            width: '180px',
             sorter: true,
             render (t) {
                 return utils.formatDateTime(t);
@@ -188,7 +188,7 @@ class ModelView extends React.Component {
         }, {
             title: '模型操作',
             dataIndex: 'deal',
-            width: '240px',
+            width: '260px',
             render: (t, record) => {
                 const menuItems = [];
                 const disableItem = (
@@ -279,7 +279,7 @@ class ModelView extends React.Component {
                 <Table
                     rowKey='id'
                     loading={loading}
-                    className="m-table border-table"
+                    className="dt-ant-table border-table"
                     columns={this.initColumns()}
                     dataSource={modelList}
                     pagination={pagination}

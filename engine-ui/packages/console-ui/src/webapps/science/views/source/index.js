@@ -24,7 +24,7 @@ class Source extends PureComponent {
         pagination: {
             current: 1,
             total: 0,
-            pageSize: 20
+            pageSize: 15
         },
         params: {
             search: '',
@@ -104,17 +104,20 @@ class Source extends PureComponent {
         return [{
             title: '数据源名称',
             dataIndex: 'name',
-            key: 'name'
+            key: 'name',
+            width: '150px'
         }, {
             title: '类型',
             dataIndex: 'type',
             key: 'type',
+            width: '100px',
             filters: dataSourceFilter,
             filterMultiple: false
         }, {
             title: '描述信息',
             dataIndex: 'dataSourceDesc',
-            key: 'dataSourceDesc'
+            key: 'dataSourceDesc',
+            width: '200px'
         }, {
             title: 'HDFS地址',
             dataIndex: 'address',
@@ -175,7 +178,7 @@ class Source extends PureComponent {
                 >
                     <Table
                         rowKey="id"
-                        className='m-table'
+                        className='border-table dt-ant-table'
                         loading={loading}
                         columns={this.initCol()}
                         onChange={this.handleTableChange}

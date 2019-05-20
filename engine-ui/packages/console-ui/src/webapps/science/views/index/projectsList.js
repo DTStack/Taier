@@ -36,7 +36,7 @@ class ProjectsList extends Component {
         pagination: {
             current: 1,
             total: 0,
-            pageSize: 20
+            pageSize: 15
         },
         checkProject: undefined,
         visible: false,
@@ -119,6 +119,7 @@ class ProjectsList extends Component {
             title: '项目显示名',
             dataIndex: 'projectAlias',
             key: 'projectAlias',
+            width: '180px',
             render: (text, record) => {
                 if (record.status == PROJECT_STATUS.SUCCESS) {
                     return <a onClick={() => this.handleCheckProject(record)}>{text}</a>
@@ -128,7 +129,8 @@ class ProjectsList extends Component {
         }, {
             title: '项目名称',
             dataIndex: 'projectName',
-            key: 'projectName'
+            key: 'projectName',
+            width: '180px'
         }, {
             title: '项目占用存储',
             dataIndex: 'totalSize',
@@ -218,7 +220,7 @@ class ProjectsList extends Component {
                     extra={<Button className='o-font--normal' type="primary" onClick={this.handleNewProject}>创建项目</Button>}>
                     <Table
                         rowKey="id"
-                        className='m-table'
+                        className='dt-ant-table dt-ant-table--border'
                         loading={loading}
                         onChange={this.handleTableChange}
                         columns={this.initCol()}

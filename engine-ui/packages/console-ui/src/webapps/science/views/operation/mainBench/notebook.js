@@ -16,8 +16,8 @@ class Notebook extends PureComponent {
         loading: false,
         pagination: {
             current: 1,
-            total: 20,
-            pageSize: 20
+            total: 0,
+            pageSize: 15
         },
         selectedRowKeys: [],
         params: {
@@ -184,7 +184,7 @@ class Notebook extends PureComponent {
                     <Table
                         rowSelection={rowSelection}
                         rowKey="id"
-                        className='m-table'
+                        className='dt-ant-table--border dt-ant-table'
                         loading={loading}
                         onChange={this.handleTableChange}
                         columns={this.initCol()}
