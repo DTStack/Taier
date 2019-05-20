@@ -66,12 +66,23 @@ class paramSetting extends PureComponent {
         const { regexDatas } = this.state;
         const object = regexDatas.find(o => o.value === value);
         if (object) {
-            this.props.handleSaveComponent('penalty', value);
+            this.props.form.validateFieldsAndScroll(['penalty'], (err, values) => {
+                if (!err) {
+                    this.props.handleSaveComponent('penalty', value);
+                }
+            });
         }
+    }
+    handleSubmit (name, value) {
+        this.props.form.validateFieldsAndScroll([name], (err, values) => {
+            if (!err) {
+                this.props.handleSaveComponent(name, value);
+            }
+        });
     }
     /* 最小收敛误差 */
     validatorTol = (rule, value, callback) => {
-        if (value > 0 && value <= 100000) {
+        if (isNumber(value) && value > 0 && value <= 100000) {
             callback()
         } else {
             callback(new Error('最小收敛误差的区间在(0, 100000]'))
@@ -111,6 +122,7 @@ class paramSetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
+                            onBlur={(e) => this.handleSubmit('max_iter', e.target.value)}
                             parser={value => isNumber(value) ? parseInt(value) : value}
                             formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={inputStyle}
@@ -130,6 +142,7 @@ class paramSetting extends PureComponent {
                         ]
                     })(
                         <InputNumber
+                            onBlur={(e) => this.handleSubmit('c', e.target.value)}
                             parser={value => isNumber(value) ? parseInt(value) : value}
                             formatter={value => isNumber(value) ? parseInt(value) : value}
                             style={inputStyle}
@@ -145,11 +158,11 @@ class paramSetting extends PureComponent {
                         initialValue: 0.0001,
                         rules: [
                             { required: false },
-                            { type: 'number', message: '最小收敛误差的区间在(0, 100000]' }
-                        ],
-                        validator: this.validatorTol
+                            { validator: this.validatorTol }
+                        ]
                     })(
                         <InputNumber
+                            onBlur={(e) => this.handleSubmit('tol', e.target.value)}
                             step={0.0001}
                             style={inputStyle}
                         />
@@ -347,20 +360,20 @@ class LogisticRegression extends PureComponent {
             }
         })(FieldSetting);
         const WrapParamSetting = Form.create({
-            onFieldsChange: (props, changedFields) => {
-                for (const key in changedFields) {
-                    if (key === 'penalty') {
-                        // penalty是下拉菜单，与上同理
-                        continue;
-                    }
-                    if (changedFields.hasOwnProperty(key)) {
-                        const element = changedFields[key];
-                        if (!element.validating && !element.dirtys && !element.errors) {
-                            props.handleSaveComponent(key, element.value)
-                        }
-                    }
-                }
-            },
+            // onFieldsChange: (props, changedFields) => {
+            //     for (const key in changedFields) {
+            //         if (key === 'penalty') {
+            //             // penalty是下拉菜单，与上同理
+            //             continue;
+            //         }
+            //         if (changedFields.hasOwnProperty(key)) {
+            //             const element = changedFields[key];
+            //             if (!element.validating && !element.dirtys && !element.errors) {
+            //                 props.handleSaveComponent(key, element.value)
+            //             }
+            //         }
+            //     }
+            // },
             mapPropsToFields: (props) => {
                 const { data } = props;
                 const values = {

@@ -192,7 +192,7 @@ class CurveChart extends Component {
                         const sensitive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const fpr = res.data.series[0].keyList.findIndex(o => o === 'fpr');
                         option.title.text = 'ROC';
-                        option.yAxis[0].name = `AUC值：${parseFloat(get(res.data, 'param.AUC', 0)).toFixed(6)}`;
+                        option.yAxis[0].name = `AUC值：${parseFloat(get(res.data, 'param.AUC', 0)).toFixed(4)}`;
                         option.yAxis[0].nameTextStyle.padding = [0, 0, 0, 15];
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
@@ -244,7 +244,6 @@ class CurveChart extends Component {
                         }
                         break;
                     } case 'lift': {
-                        option.xAxis[0].data = option.xAxis[0].data.reverse(); // x 轴反转
                         const regex = /(?<=\[|\()[^,]*/;
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const lift = res.data.series[0].keyList.findIndex(o => o === 'lift');
@@ -266,6 +265,10 @@ class CurveChart extends Component {
                         const precision = res.data.series[0].keyList.findIndex(o => o === 'precision');
                         const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
+                        option.xAxis[0].axisLabel.rotate = 60;
+                        option.xAxis[0].axisLabel.formatter = function (value, index) {
+                            return parseFloat(value).toFixed(2)
+                        }
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
                             return (
@@ -298,7 +301,11 @@ class CurveChart extends Component {
                             return item;
                         })
                         option.title.text = 'Precision Recall';
-                        option.yAxis[0].name = `F1-Score值：${parseFloat(get(res.data, 'param["F1 Score"]', 0)).toFixed(6)}`;
+                        option.xAxis[0].axisLabel.rotate = 60;
+                        option.xAxis[0].axisLabel.formatter = function (value, index) {
+                            return parseFloat(value).toFixed(2)
+                        }
+                        option.yAxis[0].name = `F1-Score值：${parseFloat(get(res.data, 'param["F1 Score"]', 0)).toFixed(4)}`;
                         option.yAxis[0].nameTextStyle.padding = [0, 0, 0, 55];
                         option.tooltip.formatter = (params, ticket, callback) => {
                             if (params[0].componentType === 'markPoint') {
@@ -341,6 +348,7 @@ class CurveChart extends Component {
         const ele = e.target;
         if (ele.tagName && ele.tagName.toLowerCase() === 'img') {
             const key = ele.getAttribute('data-key');
+            if (key === this.state.selectedBtn) return;
             this.setState({
                 selectedBtn: key
             });
