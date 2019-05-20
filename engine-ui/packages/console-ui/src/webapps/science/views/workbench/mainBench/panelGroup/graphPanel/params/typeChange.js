@@ -163,7 +163,7 @@ export class ChooseModal extends PureComponent {
                 <Spin spinning={this.state.loading}>
                     <Transfer
                         listStyle={{
-                            height: '100%'
+                            height: 400
                         }}
                         className="params-transfer"
                         rowKey={record => record.key}

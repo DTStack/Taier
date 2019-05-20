@@ -355,7 +355,7 @@ class LogisticRegression extends PureComponent {
                     }
                     if (changedFields.hasOwnProperty(key)) {
                         const element = changedFields[key];
-                        if (!element.validating && !element.dirty) {
+                        if (!element.validating && !element.dirtys && !element.errors) {
                             props.handleSaveComponent(key, element.value)
                         }
                     }
