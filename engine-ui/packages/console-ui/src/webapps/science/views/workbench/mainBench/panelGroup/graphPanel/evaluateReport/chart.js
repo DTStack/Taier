@@ -8,6 +8,7 @@ import {
 } from '../../../../../../consts';
 
 import API from '../../../../../../api/experiment';
+import utils from 'utils'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -115,7 +116,8 @@ class CurveChart extends Component {
             nameTextStyle: {
                 fontSize: 13,
                 color: '#666666',
-                align: 'center'
+                align: 'center',
+                padding: 0
             },
             axisLine: {
                 lineStyle: {
@@ -190,7 +192,8 @@ class CurveChart extends Component {
                         const sensitive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const fpr = res.data.series[0].keyList.findIndex(o => o === 'fpr');
                         option.title.text = 'ROC';
-                        option.yAxis[0].name = `AUC值：${get(res.data, 'param.AUC', 0)}`;
+                        option.yAxis[0].name = `AUC值：${parseFloat(get(res.data, 'param.AUC', 0)).toFixed(4)}`;
+                        option.yAxis[0].nameTextStyle.padding = [0, 0, 0, 15];
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
@@ -211,7 +214,8 @@ class CurveChart extends Component {
                         const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
                         const maxData = this.findMax(option.series[0].data, ks);
                         option.title.text = 'K-S';
-                        option.yAxis[0].name = `KS值：${get(res.data, 'param.KS', 0)}`;
+                        option.xAxis[0].axisLabel.formatter = '{value} %'
+                        option.yAxis[0].name = `KS值：${utils.percent(get(res.data, 'param.KS', 0))}`;
                         option.series = option.series.map((item) => {
                             item.markPoint = {
                                 data: [{
@@ -230,20 +234,20 @@ class CurveChart extends Component {
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
                             return (
                                 `
-                                KS: ${data[ks]} <br />
+                                KS: ${utils.percent(data[ks])} <br />
                                 threshold: ${threshold} <br />
-                                sample ratio: ${params[0].data.value} <br />
-                                cumulaitve_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
-                                cumulaitve_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
+                                sample ratio: ${params[0].data.name}% <br />
+                                cumulative_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
+                                cumulative_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
                                 `
                             )
                         }
                         break;
                     } case 'lift': {
-                        option.xAxis[0].data = option.xAxis[0].data.reverse(); // x 轴反转
                         const regex = /(?<=\[|\()[^,]*/;
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const lift = res.data.series[0].keyList.findIndex(o => o === 'lift');
+                        option.xAxis[0].axisLabel.formatter = '{value} %'
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
                             const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
@@ -261,6 +265,10 @@ class CurveChart extends Component {
                         const precision = res.data.series[0].keyList.findIndex(o => o === 'precision');
                         const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
+                        option.xAxis[0].axisLabel.rotate = 60;
+                        option.xAxis[0].axisLabel.formatter = function (value, index) {
+                            return parseFloat(value).toFixed(2)
+                        }
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
                             return (
@@ -268,8 +276,8 @@ class CurveChart extends Component {
                                 recall: ${data[recall]} <br />
                                 threshold: ${data[threshold]} <br />
                                 precision: ${data[precision]} <br />
-                                cumulaitve_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
-                                cumulaitve_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
+                                cumulative_percentages_of_negative: ${data[cumulaitvePercentagesOfNegative]} <br />
+                                cumulative_percentages_of_positive: ${data[cumulaitvePercentagesOfPositive]} <br />
                                 `
                             )
                         }
@@ -293,7 +301,12 @@ class CurveChart extends Component {
                             return item;
                         })
                         option.title.text = 'Precision Recall';
-                        option.yAxis[0].name = `F1-Score值：${get(res.data, 'param["F1 Score"]', 0)}`;
+                        option.xAxis[0].axisLabel.rotate = 60;
+                        option.xAxis[0].axisLabel.formatter = function (value, index) {
+                            return parseFloat(value).toFixed(2)
+                        }
+                        option.yAxis[0].name = `F1-Score值：${parseFloat(get(res.data, 'param["F1 Score"]', 0)).toFixed(4)}`;
+                        option.yAxis[0].nameTextStyle.padding = [0, 0, 0, 55];
                         option.tooltip.formatter = (params, ticket, callback) => {
                             if (params[0].componentType === 'markPoint') {
                                 return null;
@@ -335,6 +348,7 @@ class CurveChart extends Component {
         const ele = e.target;
         if (ele.tagName && ele.tagName.toLowerCase() === 'img') {
             const key = ele.getAttribute('data-key');
+            if (key === this.state.selectedBtn) return;
             this.setState({
                 selectedBtn: key
             });

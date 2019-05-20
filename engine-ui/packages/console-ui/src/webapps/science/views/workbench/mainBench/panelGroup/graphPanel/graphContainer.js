@@ -143,9 +143,9 @@ class GraphContainer extends React.Component {
                 if (currentNode.componentType === COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION) {
                     const menuModal = menu.addItem('模型选项', null, function () {
                     }, null, null, true);
-                    menu.addItem('导出PMML', null, function () {
+                    /* menu.addItem('导出PMML', null, function () {
                         ctx.handleExportPMML(cell);
-                    }, menuModal, null, true);
+                    }, menuModal, null, true); */
                     menu.addItem('模型描述', null, function () {
                         ctx.handleOpenDescription(cell);
                     }, menuModal, null, true);
