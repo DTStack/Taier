@@ -2,6 +2,8 @@ import './style.scss'
 
 class ProcessBar {
     constructor () {
+        this._clock = null;
+        this._count = 0;
         this.className = 'progress-bar'
         this.hodor = document.createElement('div')
         this.hodor.className = this.className
@@ -23,14 +25,26 @@ class ProcessBar {
     }
 
     show () {
-        document.body.appendChild(this.hodor)
-        document.body.appendChild(this.img)
+        this._count++;
+        if (!this.hasAdded() && !this._clock) {
+            this._clock = setTimeout(() => {
+                document.body.appendChild(this.hodor)
+                document.body.appendChild(this.img)
+            }, 200);
+        }
     }
 
     hide () {
-        if (this.hasAdded()) {
-            document.body.removeChild(this.hodor)
-            document.body.removeChild(this.img)
+        this._count--;
+        if (this._count <= 0) {
+            if (this._clock) {
+                clearTimeout(this._clock);
+                this._clock = null;
+            }
+            if (this.hasAdded()) {
+                document.body.removeChild(this.hodor)
+                document.body.removeChild(this.img)
+            }
         }
     }
 

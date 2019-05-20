@@ -19,6 +19,9 @@ export function getLicenseApp () {
                         data: [...res.data]
                     })
                 }
+                dispatch({
+                    type: appActions.SET_LICENSE_LOADED
+                })
             })
         }
     }

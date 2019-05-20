@@ -22,7 +22,8 @@ const CheckboxGroup = Checkbox.Group;
 export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
     switch (app) {
         case MY_APPS.RDOS:
-        case MY_APPS.STREAM: {
+        case MY_APPS.STREAM:
+        case MY_APPS.SCIENCE: {
             if (loginUser.isTenantAdmin || myRoles.isProjectOwner) { // 租户管理员和项目拥有者
                 return (value === RDOS_ROLE.PROJECT_OWNER ||
                 value === RDOS_ROLE.TENANT_OWVER)

@@ -1,0 +1,203 @@
+.welcome {
+    padding: 0;
+    background: #F5F5F5;
+    min-height: 100%;
+    
+    .welcome-page {
+        background: #fff;
+        box-shadow: 4px 2px 10px 0 rgba(0, 0, 0, 0.10);
+        padding: 20px 20px 0px 20px;
+        position: relative;
+        z-index: 999;
+        min-height: 100%;
+
+        .info-box {
+            box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.10);
+            border-radius: 3px;
+            padding: 17px 0 15px 20px;
+
+            &.blue {
+                border-left: 5px solid #2491F7;
+            }
+
+            &.purple {
+                border-left: 5px solid #7460EF;
+            }
+
+            &.orange {
+                border-left: 5px solid #F5A623;
+            }
+
+            &.yellow {
+                border-left: 5px solid #F8DC1C;
+            }
+
+            &.green {
+                border-left: 5px solid #26DAD2;
+            }
+
+            .info-box-left {
+
+                >:nth-child(1) {
+                    font-size: 14px;
+                    color: #666666;
+
+                    >span {
+                        margin-left: 4px;
+                    }
+                }
+
+                .number {
+                    font-size: 30px;
+                    color: #333333;
+                }
+            }
+        }
+
+        .ant-card-head {
+            padding: 0;
+            border-bottom: 0;
+
+            button {
+                margin: 10px 0 0 14px;
+            }
+        }
+
+        .ant-card-body {
+            text-align: center;
+
+            img {
+                width: 73%;
+            }
+        }
+    }
+
+    .common-projects {
+        padding: 30px 0 0 24px;
+
+        .title {
+            font-size: 16px;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+
+        .project {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 10px;
+        }
+    }
+}
+
+.projects-list {
+    padding: 20px;
+    background: #fff;
+    height: 100%;
+
+    .projects-header {
+        font-size: 16px;
+        color: #333333;
+        margin-bottom: 16px;
+
+        i {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+    }
+
+    .ant-card-head {
+        padding: 0;
+        height: 30px;
+        line-height: 1;
+        border-bottom: 0;
+        font-size: 13px;
+        margin-bottom: 10px;
+
+        .ant-input-search {
+            margin: 0;
+            height: 30px;
+
+            input {
+                @extend .ant-input-search
+            }
+        }
+
+        button {
+            margin: 0;
+            background: #0099FF;
+            width: 104;
+            height: 30px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    }
+
+    .ant-card-body {
+        padding: 7px 0;
+    }
+}
+
+.detail-modal {
+    tr {
+        height: 40px;
+        font-size: 13px;
+        color: #333333;
+
+        th:nth-child(1) {
+            border: 1px solid #DDDDDD;
+            background: #F5F5F5;
+            width: 100px;
+            word-break: keep-all;
+            text-align: left;
+            padding: 0 20px;
+            font-weight: normal;
+        }
+
+        th:nth-child(2) {
+            border: 1px solid #DDDDDD;
+            width: auto;
+            text-align: left;
+            padding-left: 20px;
+            font-weight: normal;
+
+            .editable-cell-text-wrapper {
+                position: relative;
+                height: 16px;
+
+
+                i {
+                    position: absolute;
+                    right: 20px;
+                    line-height: 18px;
+
+                    &:hover {
+                        color: #2491F7;
+                        cursor: pointer;
+                    }
+                }
+            }
+
+            .editable-cell-input-wrapper {
+                i {
+                    margin-left: 6px;
+
+                    &:hover {
+                        color: #2491F7;
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
+    }
+
+    .ant-modal-footer {
+        border-top: 0;
+        padding: 20px;
+
+        button {
+            width: 86px;
+            height: 30px;
+            border-radius: 3px;
+        }
+    }
+}

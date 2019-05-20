@@ -5,17 +5,11 @@ import {
 
 import { cloneDeep } from 'lodash';
 
+import Mx from 'widgets/mxGraph';
+
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 import RelationDetail from './relationDetail';
-
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
 
 const {
     mxGraph,

@@ -158,7 +158,9 @@ export const TASK_TYPE = { // 任务类型
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
     DATA_COLLECTION: 11, // 实时采集
-    CARBONSQL: 12 // CarbonSQL
+    CARBONSQL: 12, // CarbonSQL
+    NOTEBOOK: 13,
+    EXPERIMENT: 14
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
@@ -444,6 +446,14 @@ export const offlineTaskTypeFilter = [
         id: 12,
         text: 'CarbonSQL',
         value: TASK_TYPE.CARBONSQL
+    }, {
+        id: 13,
+        text: 'Notebook',
+        value: TASK_TYPE.NOTEBOOK
+    }, {
+        id: 14,
+        text: '算法实验',
+        value: TASK_TYPE.EXPERIMENT
     }]
 
 export const offlineTaskPeriodFilter = [{

@@ -7,6 +7,7 @@ import {
 
 import utils from 'utils'
 import { removeToolTips } from 'funcs';
+import Mx from 'widgets/mxGraph';
 
 import MyIcon from '../../../../components/icon'
 import { TASK_TYPE, SCHEDULE_STATUS } from '../../../../comm/const'
@@ -14,14 +15,6 @@ import { taskTypeText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
 
 const {
     mxGraph,

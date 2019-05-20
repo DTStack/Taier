@@ -21,6 +21,7 @@ import GRoleEdit from 'main/views/admin/role/edit'
 import Container from './views/container'
 import Dashboard from './views/dashboard'
 import MetaDataImport from './views/dashboard/metaDataImport'
+import GateWay from './views/gateway';
 
 // ======= 项目 =======
 import ProjectConfig from './views/project/config'
@@ -130,6 +131,7 @@ export default (
         <Route path="/rdos" component={Container}>
             <Route path="/metaDataImport" component={MetaDataImport} />
             <IndexRoute component={Dashboard} />
+            <Route path="/gateway" component={GateWay} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>
                 <IndexRoute component={ProjectConfig} />
                 <Route path="config" component={ProjectConfig} />

@@ -116,6 +116,7 @@ class FolderTree extends React.Component {
             case MENU_TYPE.TASK_DEV: {
                 const isWorkflowNode = data && data.isSubTask === 1; // 工作流子节点
                 const isWorkflow = data && data.taskType === TASK_TYPE.WORKFLOW; // 工作流
+                const isScienceTask = data && (data.taskType == TASK_TYPE.NOTEBOOK || data.taskType == TASK_TYPE.EXPERIMENT)
                 const isLocked = data && data.readWriteLockVO && !data.readWriteLockVO.getLock; // 任务是否上锁
 
                 if (isWorkflowNode) {
@@ -142,7 +143,7 @@ class FolderTree extends React.Component {
                             }])
                         }
                     } else {
-                        if (isLocked) {
+                        if (isLocked || isScienceTask) {
                             operations = [];
                         } else {
                             operations = arr.concat([{

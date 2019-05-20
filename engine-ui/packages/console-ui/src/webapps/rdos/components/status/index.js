@@ -212,6 +212,10 @@ export function TaskType (props) {
             return <span>SparkSQL</span>
         case TASK_TYPE.CARBONSQL:
             return <span>CarbonSQL</span>
+        case TASK_TYPE.NOTEBOOK:
+            return <span>Notebook</span>
+        case TASK_TYPE.EXPERIMENT:
+            return <span>算法实验</span>
         default:
             return <span>SparkSQL</span>
     }
