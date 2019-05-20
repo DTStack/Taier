@@ -251,7 +251,7 @@
             /* 穿梭框 */
             .params-transfer{
                 display: grid;
-                grid-template-columns: auto 20px auto;
+                grid-template-columns: 1fr 20px 1fr;
                 grid-gap: 10px;
                 justify-items: center;
                 align-items: center;

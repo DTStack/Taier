@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer, message, Spin } from 'antd';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce, isNumber } from 'lodash';
+import { cloneDeep, debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
@@ -163,7 +163,7 @@ export class ChooseModal extends PureComponent {
                 <Spin spinning={this.state.loading}>
                     <Transfer
                         listStyle={{
-                            height: '100%'
+                            height: 400
                         }}
                         className="params-transfer"
                         rowKey={record => record.key}
@@ -260,7 +260,7 @@ class Transform extends PureComponent {
         const { data } = this.props;
         const transferField = this.props.form.getFieldValue('transferField');
         const chooseData = KEY_VALUE_ENUM[transferField];
-        const btnContent = (!data || isEmpty(data) || data[chooseData].length === 0) ? '选择字段' : `已选择${data[chooseData].length}个字段`
+        const btnContent = (data && data[chooseData] && data[chooseData].length > 0) ? `已选择${data[chooseData].length}个字段` : '选择字段'
         return btnContent;
     }
     render () {
