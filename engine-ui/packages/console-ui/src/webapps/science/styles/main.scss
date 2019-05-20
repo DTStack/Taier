@@ -5,24 +5,24 @@
 
 @import './views/layout.scss';
 
-* {
-    &::-webkit-scrollbar-track {
-        border: 1px solid #e9e9e9;
-        background-color: #ffffff;
-        border-top: none;
-        border-right: none;
-    }
+// * {
+//     &::-webkit-scrollbar-track {
+//         border: 1px solid #e9e9e9;
+//         background-color: #ffffff;
+//         border-top: none;
+//         border-right: none;
+//     }
 
-    &::-webkit-scrollbar {
-        width: 12px;
-        height: 12px;
-        background-color: #ffffff;
-    }
+//     &::-webkit-scrollbar {
+//         width: 12px;
+//         height: 12px;
+//         background-color: #ffffff;
+//     }
 
-    &::-webkit-scrollbar-thumb {
-        background-color: #c2c2c2;
-    }
-}
+//     &::-webkit-scrollbar-thumb {
+//         background-color: #c2c2c2;
+//     }
+// }
 table {
     font-size: 12px;
 }

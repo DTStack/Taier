@@ -16,27 +16,36 @@ class GateWay extends React.Component {
     componentDidMount () {
         this.routerDispatch();
     }
+    resolveRedirectUri (uri) {
+        const { router } = this.props;
+        switch (uri) {
+            case appUriDict.RDOS.OPERATION: {
+                router.push('operation');
+                break;
+            }
+            case appUriDict.RDOS.DEVELOP: {
+                router.push('offline/task');
+                break;
+            }
+            case appUriDict.RDOS.OPERATION_MANAGER: {
+                router.push('operation/offline-management');
+                break;
+            }
+        }
+    }
     routerDispatch () {
-        const { dispatch, router } = this.props;
+        const { dispatch } = this.props;
         const projectId = utils.getParameterByName('projectId');
         const redirectUri = utils.getParameterByName('redirect_uri');
-        if (projectId) {
-            dispatch(ProjectAction.getProject(projectId));
-        }
         if (redirectUri) {
-            switch (redirectUri) {
-                case appUriDict.RDOS.OPERATION: {
-                    router.push('operation');
-                    break;
-                }
-                case appUriDict.RDOS.DEVELOP: {
-                    router.push('offline/task');
-                    break;
-                }
-                case appUriDict.RDOS.OPERATION_MANAGER: {
-                    router.push('operation/offline-management');
-                    break;
-                }
+            if (projectId) {
+                dispatch(ProjectAction.getProject(projectId)).then((data) => {
+                    if (data) {
+                        this.resolveRedirectUri(redirectUri);
+                    }
+                });
+            } else {
+                this.resolveRedirectUri(redirectUri);
             }
         }
     }

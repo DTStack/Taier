@@ -85,13 +85,13 @@ class ModelUpdateModal extends React.Component {
                 title='更新模型'
             >
                 <Table
-                    className='m-table'
+                    className='m-table border-table'
                     rowkey='time'
                     columns={this.initColumns()}
                     dataSource={updateList}
                     loading={loading}
                     onChange={this.onTableChange}
-                    scroll={{ y: '550px' }}
+                    scroll={{ y: 550 }}
                     pagination={false}
                 />
             </Modal>

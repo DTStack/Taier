@@ -56,7 +56,7 @@ class Overview extends React.PureComponent {
         }
         let myChart = echarts.init(document.getElementById(id));
         const option = cloneDeep(lineChartOptions);
-        option.color = ['#2491F7', '#00A755', '#E64933'];
+        option.color = ['#2491F7', '#00A755', '#E64933', '#F5BD23'];
         option.title.text = '';
         option.legend = {
             data: chartDatas && chartDatas.y ? chartDatas.y.map((item) => { return { name: item.name, icon: 'circle' } }) : [],

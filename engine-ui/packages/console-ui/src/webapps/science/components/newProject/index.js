@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { Modal, Form, Input, Icon, message } from 'antd';
+import { Modal, Form, Input, Icon, message, Alert } from 'antd';
 import './index.scss';
 
 import * as baseActions from '../../actions/base'
@@ -71,7 +71,7 @@ class NewProject extends Component {
                     okText="创建"
                     onCancel={this.handleCancel}
                 >
-                    <div className="tips"><Icon type="exclamation-circle-o" /> 数据科学平台创建的项目，同时会同步至离线计算中，可在离线计算中进行数据同步、任务运维。</div>
+                    <Alert style={{ marginBottom: '20px' }} showIcon message=" 数据科学平台创建的项目，同时会同步至离线计算中，可在离线计算中进行数据同步、任务运维。" type="info" />
                     {this.alert()}
                     <Form>
                         <FormItem
