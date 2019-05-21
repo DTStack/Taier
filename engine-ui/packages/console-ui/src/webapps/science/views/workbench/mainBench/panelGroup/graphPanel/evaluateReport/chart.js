@@ -156,12 +156,12 @@ class CurveChart extends Component {
             } case 'lift': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.LIFT;
                 option.title.text = 'Lift';
-                option.yAxis[0].name = 'Lift值：';
+                option.yAxis[0].name = 'Lift值';
                 break;
             } case 'gain': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.GAIN;
                 option.title.text = 'Gain';
-                option.yAxis[0].name = 'Gain值：';
+                option.yAxis[0].name = 'Gain值';
                 break;
             } case 'pre': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.PRECISION_RECALL;
