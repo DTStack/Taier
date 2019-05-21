@@ -274,15 +274,13 @@ class GraphContainer extends React.Component {
                      */
                 ) {
                     this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
+                    attachMouseOverStyle(state.cell);
                 }
-                attachMouseOverStyle(state.cell);
             },
             dragLeave: function (evt, state) {
                 if (this.currentTitleContent != null) {
                     this.currentTitleContent.destroy();
                     this.currentTitleContent = null;
-                }
-                if (graph.getSelectionCell() !== state.cell && !state.cell.edge) {
                     removeMouseOverStyle(state.cell);
                 }
             }
