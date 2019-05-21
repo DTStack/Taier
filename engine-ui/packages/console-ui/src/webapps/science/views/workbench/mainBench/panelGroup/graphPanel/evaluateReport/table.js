@@ -1,11 +1,7 @@
-/* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 import { Table } from 'antd';
 
 import API from '../../../../../../api/experiment';
-function getID (current, index) {
-    return (current - 1) * 10 + (index + 1);
-}
 
 class TableDetail extends Component {
     state = {
@@ -54,17 +50,7 @@ class TableDetail extends Component {
     }
 
     initialCols = (fields) => {
-        const { pagination } = this.state;
-        const columns = [/* {
-            title: '序号',
-            dataIndex: 'serialIndex',
-            fixed: 'left',
-            key: 'serialIndex',
-            // sorter: true,
-            render: (text, item, index) => {
-                return getID(pagination.current, index);
-            }
-        } */];
+        const columns = [];
         if (fields) {
             for (let i = 0; i < fields.length; i++) {
                 const field = fields[i];
@@ -92,7 +78,7 @@ class TableDetail extends Component {
         const scroll = { x: cols.length < 5 ? true : 2000 };
         return (
             <Table
-                className="m-table"
+                className="m-table border-table"
                 columns={cols}
                 rowKey={(record, index) => {
                     const rowKey = `${indexType}-${record[index]}-${index}`

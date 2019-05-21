@@ -282,7 +282,7 @@ class GraphContainer extends React.Component {
                     this.currentTitleContent.destroy();
                     this.currentTitleContent = null;
                 }
-                if (graph.getSelectionCell() !== state.cell) {
+                if (graph.getSelectionCell() !== state.cell && !state.cell.edge) {
                     removeMouseOverStyle(state.cell);
                 }
             }
@@ -359,6 +359,10 @@ class GraphContainer extends React.Component {
         const ctx = this;
         const mockInput = document.getElementById('mockInput');
         mxEvent.addListener(graph.container, 'click', mxUtils.bind(this, function (evt) {
+            if (evt.target.nodeName === 'INPUT' && evt.target.className.indexOf('vertex-input') > -1) {
+                // 排除重命名的情况
+                return;
+            }
             mockInput.value = '';
             mockInput.focus()
         }), true)
@@ -775,58 +779,59 @@ class GraphContainer extends React.Component {
             showSearch, searchResult, detailModalVisible,
             runningLogVisible, evaluateReportVisible, outputDataVisible
         } = this.state;
-        console.log('render:', this.state);
         const { data } = this.props;
         const graphData = cloneDeep(data.graphData);
-        return <div className="exp-graph-view" style={{ width: '100%' }}>
-            <input id="mockInput" style={{ opacity: 1, width: 1, height: 1, outline: 0 }} />
-            <GraphEditor
-                version={data.version}
-                data={graphData || []}
-                key={data.id}
-                onSearchNode={this.initShowSearch}
-                registerContextMenu={this.initContextMenu}
-                registerEvent={this.initGraphEvent}
-                executeLayout={this.executeLayout}
-            />
-            <SearchModal
-                visible={showSearch}
-                searchResult={searchResult}
-                id={SEARCH_MODAL_ID}
-                placeholder="按子节点名称搜索"
-                onCancel={this.closeSearch}
-                onChange={this.debounceSearch}
-                onSelect={this.onSelectResult}
-            />
-            <ModelDetailModal
-                visible={detailModalVisible}
-                key={detailData && detailData.id}
-                data={detailData}
-                onCancel={() => {
-                    this.setState({
-                        detailModalVisible: false,
-                        detailData: null
-                    })
-                }}
-            />
-            <RunningLogModal
-                visible={runningLogVisible}
-                data={selectedData}
-                onCancel={() => this.showHideRunningLog(false, null)}
-            />
-            <EvaluateReportModal
-                data={selectedData}
-                visible={evaluateReportVisible}
-                onCancel={() => this.showHideEvaluateReport(false, null) }
-                onOk={() => this.showHideEvaluateReport(false, null) }
-            />
-            <DataExploringModal
-                data={selectedOutputData}
-                visible={outputDataVisible}
-                onOk={() => this.showHideOutputData(false, null)}
-                onCancel={() => this.showHideOutputData(false, null) }
-            />
-        </div>
+        return (
+            <div className="exp-graph-view" style={{ width: '100%' }}>
+                <input id="mockInput" style={{ opacity: 1, width: 1, height: 1, outline: 0 }} />
+                <GraphEditor
+                    version={data.version}
+                    data={graphData || []}
+                    key={data.id}
+                    onSearchNode={this.initShowSearch}
+                    registerContextMenu={this.initContextMenu}
+                    registerEvent={this.initGraphEvent}
+                    executeLayout={this.executeLayout}
+                />
+                <SearchModal
+                    visible={showSearch}
+                    searchResult={searchResult}
+                    id={SEARCH_MODAL_ID}
+                    placeholder="按子节点名称搜索"
+                    onCancel={this.closeSearch}
+                    onChange={this.debounceSearch}
+                    onSelect={this.onSelectResult}
+                />
+                <ModelDetailModal
+                    visible={detailModalVisible}
+                    key={detailData && detailData.id}
+                    data={detailData}
+                    onCancel={() => {
+                        this.setState({
+                            detailModalVisible: false,
+                            detailData: null
+                        })
+                    }}
+                />
+                <RunningLogModal
+                    visible={runningLogVisible}
+                    data={selectedData}
+                    onCancel={() => this.showHideRunningLog(false, null)}
+                />
+                <EvaluateReportModal
+                    data={selectedData}
+                    visible={evaluateReportVisible}
+                    onCancel={() => this.showHideEvaluateReport(false, null)}
+                    onOk={() => this.showHideEvaluateReport(false, null)}
+                />
+                <DataExploringModal
+                    data={selectedOutputData}
+                    visible={outputDataVisible}
+                    onOk={() => this.showHideOutputData(false, null)}
+                    onCancel={() => this.showHideOutputData(false, null)}
+                />
+            </div>
+        )
     }
 }
 
