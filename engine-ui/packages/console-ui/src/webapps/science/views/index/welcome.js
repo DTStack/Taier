@@ -96,7 +96,7 @@ class Welcome extends Component {
                                 <div className="info-box orange">
                                     <div className="info-box-left">
                                         <p><Icon type="usb" /><span>正在运行的实验</span></p>
-                                        <p className="number">{statistic.deployLabCount || 0}</p>
+                                        <p className="number">{statistic.successLabCount || 0}</p>
                                     </div>
                                 </div>
                             </Col>
@@ -104,7 +104,7 @@ class Welcome extends Component {
                                 <div className="info-box yellow">
                                     <div className="info-box-left">
                                         <p><Icon type="book" /><span>正在运行的Notebook作业</span></p>
-                                        <p className="number">{statistic.deployNotebookCount || 0}</p>
+                                        <p className="number">{statistic.successNotebookCount || 0}</p>
                                     </div>
                                 </div>
                             </Col>
