@@ -6,7 +6,6 @@ import { Modal, Form, Input, Radio, Select, Icon } from 'antd';
 
 import CopyIcon from 'main/components/copy-icon';
 import './modelSubmitModal.scss';
-import HelpDoc from '../helpDoc';
 
 import * as baseActions from '../../actions/base'
 import { formItemLayout, siderBarType } from '../../consts';
@@ -236,24 +235,6 @@ class ModelSubmitModalForm extends React.Component {
                         )}
                     </FormItem>
                     {this.renderDetail()}
-                    {isNotebook && (
-                        <FormItem
-                            {...formItemLayout}
-                            label='模型部署路径'
-                        >
-                            {getFieldDecorator('modelPath', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '请填写模型部署路径'
-                                    }
-                                ]
-                            })(
-                                <Input />
-                            )}
-                            <HelpDoc doc='modelPath' />
-                        </FormItem>
-                    )}
                 </Form>)}
             </Modal>
         )
