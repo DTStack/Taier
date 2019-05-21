@@ -389,12 +389,25 @@ public class TaskStatusListener implements Runnable{
             checkpointGetTotalNumCache.put(jobIdentifier.getEngineJobId(), checkpointCallNum + 1);
         }
 
+        // 任务成功或者取消后要删除记录的
+        if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
+                || RdosTaskStatus.KILLED.getStatus().equals(status)){
+            cleanCheckpoint(jobIdentifier);
+        }
+
         if(RdosTaskStatus.needClean(status)){
             jobStatusFrequency.remove(jobIdentifier.getTaskId());
             rdosEngineJobCacheDao.deleteJob(jobIdentifier.getTaskId());
 
             updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
         }
+    }
+
+    /**
+     * 删除任务实例的checkpoint记录
+     */
+    private void cleanCheckpoint(JobIdentifier jobIdentifier){
+        rdosStreamTaskCheckpointDAO.deleteByTaskId(jobIdentifier.getTaskId());
     }
 
     private void updateBatchTaskCheckpoint(String pluginInfo,JobIdentifier jobIdentifier){
