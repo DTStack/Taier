@@ -399,7 +399,7 @@ class GraphContainer extends React.Component {
         this.props.copyCell(data, cellData).then((res) => {
             this._copyLock = false;
             let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
-            cell.data = res;
+            cell.data = this.handleSimplify(res);
             cell.vertex = true;
             let cells = graph.importCells([cell], 0, 0, rootCell);
             cell = this.getCellData(cells[0]);
@@ -528,8 +528,28 @@ class GraphContainer extends React.Component {
         }
         this.props.changeContent(data, {}, false, true)
     }
-
     _handleListenPan = debounce(this.handleListenPan, 500);
+    handleSimplify = (object) => {
+        if (Object.keys(object).length === 0) {
+            return {};
+        }
+        const copyObject = cloneDeep(object);
+        const deleteAttr = (obj, attr) => {
+            delete obj[attr]
+        }
+        deleteAttr(copyObject, 'isDeleted')
+        deleteAttr(copyObject, 'tenantId')
+        deleteAttr(copyObject, 'engineType')
+        deleteAttr(copyObject, 'taskParams')
+        deleteAttr(copyObject, 'exeArgs')
+        deleteAttr(copyObject, 'targetId')
+        deleteAttr(copyObject, 'componentStatus')
+        deleteAttr(copyObject, 'nodePName')
+        deleteAttr(copyObject, 'readWriteLockVO')
+        deleteAttr(copyObject, 'cron')
+        deleteAttr(copyObject, 'scheduleConf')
+        return copyObject;
+    }
     /**
      *  更新task的data
      *  @param eventName-事件名称
@@ -620,10 +640,18 @@ class GraphContainer extends React.Component {
                     const object = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
                     object.data.name = value
                     data.sqlText = JSON.stringify(data.graphData);
+                    const tab = cloneDeep(data);
+                    tab.graphData = tab.graphData.map((item) => {
+                        if (item.edge) {
+                            item.source = { ...item.source, data: { id: item.source.data.id } };
+                            item.target = { ...item.target, data: { id: item.target.data.id } };
+                        }
+                        return item;
+                    })
                     // 对整个tab保存一次，再对cellData保存一次
                     Promise.all([
                         new Promise((resolve, reject) => {
-                            api.addOrUpdateTask(data).then(res => {
+                            api.addOrUpdateTask(tab).then(res => {
                                 resolve(res)
                             })
                         }),
