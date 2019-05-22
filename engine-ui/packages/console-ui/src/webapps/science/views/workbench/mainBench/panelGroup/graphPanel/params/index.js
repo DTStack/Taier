@@ -51,26 +51,26 @@ class Params extends Component {
         switch (selectedCell.data.componentType) {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:
                 return (
-                    <ReadDatabase {...componentProps} />
+                    <ReadDatabase key={componentId} {...componentProps} />
                 )
             case COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE:
                 return (
-                    <WriteDatabase {...componentProps} />
+                    <WriteDatabase key={componentId} {...componentProps} />
                 )
             case COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT:
-                return <SqlScript {...componentProps} />
+                return <SqlScript key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.TYPE_CHANGE:
-                return <TypeChange {...componentProps} />
+                return <TypeChange key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_MERGE.NORMALIZE:
-                return <Normalise {...componentProps} />
+                return <Normalise key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT:
-                return <DataSplit {...componentProps} />
+                return <DataSplit key={componentId} {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
-                return <LogisticRegression {...componentProps} />
+                return <LogisticRegression key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
-                return <DataPredict {...componentProps} />
+                return <DataPredict key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
-                return <BinaryClassfication {...componentProps} />
+                return <BinaryClassfication key={componentId} {...componentProps} />
             default:
                 return ''
         }

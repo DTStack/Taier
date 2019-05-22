@@ -8,6 +8,7 @@ import GraphPanel from '../graphPanel';
 
 import * as tabActions from '../../../../../actions/base/tab';
 import * as commActions from '../../../../../actions/base';
+import * as componentActions from '../../../../../actions/componentActions';
 import { siderBarType } from '../../../../../consts';
 import DefaultExperimentView from '../../default/defaultExperimentView';
 import { checkAndcloseTabs } from '../../../../../actions/base/helper';
@@ -20,10 +21,11 @@ const TabPane = Tabs.TabPane;
         currentTabIndex: state.experiment.currentTabIndex
     }
 }, (dispatch) => {
-    const actions = {
-        ...bindActionCreators(tabActions, dispatch),
-        getSysParams: commActions.getSysParams
-    };
+    const actions = bindActionCreators({
+        ...tabActions,
+        getSysParams: commActions.getSysParams,
+        saveSelectedCell: componentActions.saveSelectedCell
+    }, dispatch);
     return actions;
 })
 class GraphGroup extends React.Component {
@@ -31,6 +33,7 @@ class GraphGroup extends React.Component {
         loading: true
     }
     switchTab (key) {
+        this.props.saveSelectedCell({});
         this.props.setCurrentTab(siderBarType.experiment, key);
     }
     async componentDidMount () {
@@ -74,7 +77,7 @@ class GraphGroup extends React.Component {
                 closeTab={this.closeTab.bind(this)}
                 currentTabIndex={currentTabIndex}
                 renderOutsideTabs={() => {
-                    return <GraphPanel currentTab={currentTabIndex} data={tabs.find(o => o.id == currentTabIndex) || {}} />
+                    return <GraphPanel key={currentTabIndex} currentTab={currentTabIndex} data={tabs.find(o => o.id == currentTabIndex) || {}} />
                 }}
             >
                 {tabs.map((tab) => {
