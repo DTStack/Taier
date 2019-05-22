@@ -20,7 +20,6 @@ import GRoleEdit from 'main/views/admin/role/edit'
 
 import Container from './views/container'
 import Dashboard from './views/dashboard'
-import MetaDataImport from './views/dashboard/metaDataImport'
 import GateWay from './views/gateway';
 
 // ======= 项目 =======
@@ -30,6 +29,7 @@ import RoleManagement from './views/project/role'
 import RoleAdd from './views/project/role/add'
 import RoleEdit from './views/project/role/edit'
 import EngineConfig from './views/project/engine'
+import CreateWorkspace from './views/dashboard/createWorkspace'
 
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
@@ -130,7 +130,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/rdos" component={Container}>
-            <Route path="/metaDataImport" component={MetaDataImport} />
+            <Route path="/create-work-space" component={CreateWorkspace} />
             <IndexRoute component={Dashboard} />
             <Route path="/gateway" component={GateWay} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>

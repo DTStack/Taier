@@ -169,7 +169,7 @@ class Header extends Component {
         const projectName =
             project && project.projectName
                 ? project.projectAlias || project.projectName
-                : '项目选择';
+                : '选择空间';
         let projectTypeText = '';
         let projectTypeIcon = null;
         switch (project && project.projectType) {
