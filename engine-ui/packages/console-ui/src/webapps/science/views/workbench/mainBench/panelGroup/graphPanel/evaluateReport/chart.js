@@ -156,12 +156,12 @@ class CurveChart extends Component {
             } case 'lift': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.LIFT;
                 option.title.text = 'Lift';
-                option.yAxis[0].name = 'Lift值：';
+                option.yAxis[0].name = 'Lift值';
                 break;
             } case 'gain': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.GAIN;
                 option.title.text = 'Gain';
-                option.yAxis[0].name = 'Gain值：';
+                option.yAxis[0].name = 'Gain值';
                 break;
             } case 'pre': {
                 reqParams.type = EVALUATE_REPORT_CHART_TYPE.PRECISION_RECALL;
@@ -185,9 +185,9 @@ class CurveChart extends Component {
                     }
                     return item;
                 });
+                const regex = /,|\[|\(/;
                 switch (chart) {
                     case 'roc': {
-                        const regex = /(?<=\[|\()[^,]*/;
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const sensitive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const fpr = res.data.series[0].keyList.findIndex(o => o === 'fpr');
@@ -196,7 +196,7 @@ class CurveChart extends Component {
                         option.yAxis[0].nameTextStyle.padding = [0, 0, 0, 15];
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
-                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            const threshold = data[range].split(regex)[1]
                             return (
                                 `threshold: ${threshold} <br />
                                 sensitive: ${data[sensitive]} <br />
@@ -207,7 +207,6 @@ class CurveChart extends Component {
                         break;
                     }
                     case 'ks': {
-                        const regex = /(?<=\[|\()[^,]*/;
                         const ks = res.data.series[0].keyList.findIndex(o => o === 'ks');
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
@@ -231,7 +230,7 @@ class CurveChart extends Component {
                                 return null;
                             }
                             const data = params[0].data.colList;
-                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            const threshold = data[range].split(regex)[1];
                             return (
                                 `
                                 KS: ${utils.percent(data[ks])} <br />
@@ -244,13 +243,12 @@ class CurveChart extends Component {
                         }
                         break;
                     } case 'lift': {
-                        const regex = /(?<=\[|\()[^,]*/;
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const lift = res.data.series[0].keyList.findIndex(o => o === 'lift');
                         option.xAxis[0].axisLabel.formatter = '{value} %'
                         option.tooltip.formatter = (params, ticket, callback) => {
                             const data = params[0].data.colList;
-                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            const threshold = data[range].split(regex)[1];
                             return (
                                 `
                                 threshold: ${threshold} <br />
@@ -284,7 +282,6 @@ class CurveChart extends Component {
                         break;
                         ;
                     } case 'pre': {
-                        const regex = /(?<=\[|\()[^,]*/;
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const f1Score = res.data.series[0].keyList.findIndex(o => o === 'f1_score');
                         const precision = res.data.series[0].keyList.findIndex(o => o === 'precision');
@@ -312,7 +309,7 @@ class CurveChart extends Component {
                                 return null;
                             }
                             const data = params[0].data.colList;
-                            const threshold = regex.exec(data[range]) ? regex.exec(data[range])[0] : '';
+                            const threshold = data[range].split(regex)[1];
                             return (
                                 `
                                 threshold: ${threshold} <br />
@@ -328,7 +325,6 @@ class CurveChart extends Component {
             }
         }
         // 绘制图表
-        console.log('option:', option);
         myChart.setOption(option, true);
         myChart.hideLoading()
     }

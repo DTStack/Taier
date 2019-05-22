@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { Component } from 'react';
 
-import { Modal, Row } from 'antd';
+import { Modal, Row, Spin } from 'antd';
 
 import Editor from 'widgets/code-editor';
 import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
@@ -37,7 +37,8 @@ function getLogsInfo (title, data, type = 'info') {
 class RunningLogModal extends Component {
     state = {
         indexData: null, // 指标数据
-        logData: {} // log数据
+        logData: {}, // log数据
+        spinning: false
     }
     componentDidUpdate (prevProps, prevState) {
         if (!prevProps.visible && this.props.visible) {
@@ -56,12 +57,18 @@ class RunningLogModal extends Component {
     fetchData = async () => {
         const { data } = this.props;
         if (!data) return;
+        this.setState({
+            spinning: true
+        });
         const res = await API.getComponentRunningLog({ taskId: data.id });
         if (res.code === 1) {
             this.setState({
                 logData: res.data
             })
         }
+        this.setState({
+            spinning: false
+        });
     }
 
     renderLogContent = () => {
@@ -103,7 +110,9 @@ class RunningLogModal extends Component {
                     position: 'relative'
                 }}
             >
-                {this.renderLogContent()}
+                <Spin spinning={this.state.spinning}>
+                    {this.renderLogContent()}
+                </Spin>
             </Modal>
         )
     }

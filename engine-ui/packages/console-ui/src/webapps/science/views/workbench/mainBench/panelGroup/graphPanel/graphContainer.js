@@ -274,15 +274,13 @@ class GraphContainer extends React.Component {
                      */
                 ) {
                     this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
+                    attachMouseOverStyle(state.cell);
                 }
-                attachMouseOverStyle(state.cell);
             },
             dragLeave: function (evt, state) {
                 if (this.currentTitleContent != null) {
                     this.currentTitleContent.destroy();
                     this.currentTitleContent = null;
-                }
-                if (graph.getSelectionCell() !== state.cell) {
                     removeMouseOverStyle(state.cell);
                 }
             }
@@ -359,6 +357,10 @@ class GraphContainer extends React.Component {
         const ctx = this;
         const mockInput = document.getElementById('mockInput');
         mxEvent.addListener(graph.container, 'click', mxUtils.bind(this, function (evt) {
+            if (evt.target.nodeName === 'INPUT' && evt.target.className.indexOf('vertex-input') > -1) {
+                // 排除重命名的情况
+                return;
+            }
             mockInput.value = '';
             mockInput.focus()
         }), true)
@@ -397,7 +399,7 @@ class GraphContainer extends React.Component {
         this.props.copyCell(data, cellData).then((res) => {
             this._copyLock = false;
             let cell = new mxCell('', new mxGeometry(cellData.x + 10, cellData.y + 10, VertexSize.width, VertexSize.height));
-            cell.data = res;
+            cell.data = this.handleSimplify(res);
             cell.vertex = true;
             let cells = graph.importCells([cell], 0, 0, rootCell);
             cell = this.getCellData(cells[0]);
@@ -526,8 +528,28 @@ class GraphContainer extends React.Component {
         }
         this.props.changeContent(data, {}, false, true)
     }
-
     _handleListenPan = debounce(this.handleListenPan, 500);
+    handleSimplify = (object) => {
+        if (Object.keys(object).length === 0) {
+            return {};
+        }
+        const copyObject = cloneDeep(object);
+        const deleteAttr = (obj, attr) => {
+            delete obj[attr]
+        }
+        deleteAttr(copyObject, 'isDeleted')
+        deleteAttr(copyObject, 'tenantId')
+        deleteAttr(copyObject, 'engineType')
+        deleteAttr(copyObject, 'taskParams')
+        deleteAttr(copyObject, 'exeArgs')
+        deleteAttr(copyObject, 'targetId')
+        deleteAttr(copyObject, 'componentStatus')
+        deleteAttr(copyObject, 'nodePName')
+        deleteAttr(copyObject, 'readWriteLockVO')
+        deleteAttr(copyObject, 'cron')
+        deleteAttr(copyObject, 'scheduleConf')
+        return copyObject;
+    }
     /**
      *  更新task的data
      *  @param eventName-事件名称
@@ -618,10 +640,18 @@ class GraphContainer extends React.Component {
                     const object = data.graphData.find(o => o.vertex && o.data.id === cell.data.id);
                     object.data.name = value
                     data.sqlText = JSON.stringify(data.graphData);
+                    const tab = cloneDeep(data);
+                    tab.graphData = tab.graphData.map((item) => {
+                        if (item.edge) {
+                            item.source = { ...item.source, data: { id: item.source.data.id } };
+                            item.target = { ...item.target, data: { id: item.target.data.id } };
+                        }
+                        return item;
+                    })
                     // 对整个tab保存一次，再对cellData保存一次
                     Promise.all([
                         new Promise((resolve, reject) => {
-                            api.addOrUpdateTask(data).then(res => {
+                            api.addOrUpdateTask(tab).then(res => {
                                 resolve(res)
                             })
                         }),
@@ -775,58 +805,59 @@ class GraphContainer extends React.Component {
             showSearch, searchResult, detailModalVisible,
             runningLogVisible, evaluateReportVisible, outputDataVisible
         } = this.state;
-        console.log('render:', this.state);
         const { data } = this.props;
         const graphData = cloneDeep(data.graphData);
-        return <div className="exp-graph-view" style={{ width: '100%' }}>
-            <input id="mockInput" style={{ opacity: 1, width: 1, height: 1, outline: 0 }} />
-            <GraphEditor
-                version={data.version}
-                data={graphData || []}
-                key={data.id}
-                onSearchNode={this.initShowSearch}
-                registerContextMenu={this.initContextMenu}
-                registerEvent={this.initGraphEvent}
-                executeLayout={this.executeLayout}
-            />
-            <SearchModal
-                visible={showSearch}
-                searchResult={searchResult}
-                id={SEARCH_MODAL_ID}
-                placeholder="按子节点名称搜索"
-                onCancel={this.closeSearch}
-                onChange={this.debounceSearch}
-                onSelect={this.onSelectResult}
-            />
-            <ModelDetailModal
-                visible={detailModalVisible}
-                key={detailData && detailData.id}
-                data={detailData}
-                onCancel={() => {
-                    this.setState({
-                        detailModalVisible: false,
-                        detailData: null
-                    })
-                }}
-            />
-            <RunningLogModal
-                visible={runningLogVisible}
-                data={selectedData}
-                onCancel={() => this.showHideRunningLog(false, null)}
-            />
-            <EvaluateReportModal
-                data={selectedData}
-                visible={evaluateReportVisible}
-                onCancel={() => this.showHideEvaluateReport(false, null) }
-                onOk={() => this.showHideEvaluateReport(false, null) }
-            />
-            <DataExploringModal
-                data={selectedOutputData}
-                visible={outputDataVisible}
-                onOk={() => this.showHideOutputData(false, null)}
-                onCancel={() => this.showHideOutputData(false, null) }
-            />
-        </div>
+        return (
+            <div className="exp-graph-view" style={{ width: '100%' }}>
+                <input id="mockInput" style={{ opacity: 1, width: 1, height: 1, outline: 0 }} />
+                <GraphEditor
+                    version={data.version}
+                    data={graphData || []}
+                    key={data.id}
+                    onSearchNode={this.initShowSearch}
+                    registerContextMenu={this.initContextMenu}
+                    registerEvent={this.initGraphEvent}
+                    executeLayout={this.executeLayout}
+                />
+                <SearchModal
+                    visible={showSearch}
+                    searchResult={searchResult}
+                    id={SEARCH_MODAL_ID}
+                    placeholder="按子节点名称搜索"
+                    onCancel={this.closeSearch}
+                    onChange={this.debounceSearch}
+                    onSelect={this.onSelectResult}
+                />
+                <ModelDetailModal
+                    visible={detailModalVisible}
+                    key={detailData && detailData.id}
+                    data={detailData}
+                    onCancel={() => {
+                        this.setState({
+                            detailModalVisible: false,
+                            detailData: null
+                        })
+                    }}
+                />
+                <RunningLogModal
+                    visible={runningLogVisible}
+                    data={selectedData}
+                    onCancel={() => this.showHideRunningLog(false, null)}
+                />
+                <EvaluateReportModal
+                    data={selectedData}
+                    visible={evaluateReportVisible}
+                    onCancel={() => this.showHideEvaluateReport(false, null)}
+                    onOk={() => this.showHideEvaluateReport(false, null)}
+                />
+                <DataExploringModal
+                    data={selectedOutputData}
+                    visible={outputDataVisible}
+                    onOk={() => this.showHideOutputData(false, null)}
+                    onCancel={() => this.showHideOutputData(false, null)}
+                />
+            </div>
+        )
     }
 }
 

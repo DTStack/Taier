@@ -4,7 +4,7 @@ import { loadTreeData } from '../base/fileTree';
 import { siderBarType } from '../../consts';
 import api from '../../api/experiment';
 import fileApi from '../../api/fileTree';
-// import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { changeContent } from './runExperimentActions';
 import { removeMetadata } from '../helper';
 
@@ -68,6 +68,14 @@ export function openExperiment (id) {
                 } catch (error) {
                     res.data.graphData = []
                 }
+                res.data.graphData.forEach(element => {
+                    if (element.edge) {
+                        const targetId = element.target.data.id;
+                        const sourceId = element.source.data.id;
+                        element.target.data = res.data.graphData.find(o => o.vertex && o.data.id == targetId).data;
+                        element.source.data = res.data.graphData.find(o => o.vertex && o.data.id == sourceId).data;
+                    }
+                });
                 dispatch(addTab(siderBarType.experiment, res.data));
                 dispatch(setCurrentTab(siderBarType.experiment, id));
                 resolve(res);
@@ -78,9 +86,17 @@ export function openExperiment (id) {
 export function saveExperiment (tabData, isMessage = true) {
     return (dispatch, getState) => {
         return new Promise(async (resolve) => {
-            tabData = removeMetadata(tabData);
-            tabData.sqlText = JSON.stringify(tabData.graphData);
-            let res = await api.addExperiment(tabData);
+            let tab = cloneDeep(tabData);
+            tab = removeMetadata(tab);
+            tab.graphData = tab.graphData.map((item) => {
+                if (item.edge) {
+                    item.source = { ...item.source, data: { id: item.source.data.id } };
+                    item.target = { ...item.target, data: { id: item.target.data.id } };
+                }
+                return item;
+            })
+            tab.sqlText = JSON.stringify(tab.graphData);
+            let res = await api.addExperiment(tab);
             if (res && res.code == 1) {
                 // const tabs = getState().experiment.localTabs;
                 dispatch(changeContent(res.data, tabData, false));

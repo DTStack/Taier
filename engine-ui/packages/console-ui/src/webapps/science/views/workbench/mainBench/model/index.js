@@ -175,8 +175,11 @@ class ModelView extends React.Component {
             }
         }, {
             title: '占用内存(MB)',
-            dataIndex: 'fileSize',
-            sorter: true
+            dataIndex: 'fileSizeMb',
+            sorter: true,
+            render (t) {
+                return parseFloat(t).toFixed(6);
+            }
         }, {
             title: '更新时间',
             dataIndex: 'gmtModified',

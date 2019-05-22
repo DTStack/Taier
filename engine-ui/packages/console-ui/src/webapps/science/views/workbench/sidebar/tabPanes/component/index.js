@@ -141,7 +141,7 @@ class ComponentSidebar extends Component {
                     if (response.code === 1) {
                         // eslint-disable-next-line new-cap
                         let cell = new mxCell('', new mxGeometry(x, y, VertexSize.width, VertexSize.height));
-                        cell.data = response.data;
+                        cell.data = ctx.handleSimplify(response.data);
                         cell.vertex = true;
                         let cells = graph.importCells([cell], 0, 0, target);
                         cell = ctx.getCellData(cells[0]);
@@ -166,6 +166,28 @@ class ComponentSidebar extends Component {
             md.createDragElement = mxDragSource.prototype.createDragElement;
             this._dragElements.push(md);
         })
+    }
+    /* 精简掉一些没用的属性 */
+    handleSimplify = (object = {}) => {
+        if (Object.keys(object).length === 0) {
+            return {};
+        }
+        const copyObject = cloneDeep(object);
+        const deleteAttr = (obj, attr) => {
+            delete obj[attr]
+        }
+        deleteAttr(copyObject, 'isDeleted')
+        deleteAttr(copyObject, 'tenantId')
+        deleteAttr(copyObject, 'engineType')
+        deleteAttr(copyObject, 'taskParams')
+        deleteAttr(copyObject, 'exeArgs')
+        deleteAttr(copyObject, 'targetId')
+        deleteAttr(copyObject, 'componentStatus')
+        deleteAttr(copyObject, 'nodePName')
+        deleteAttr(copyObject, 'readWriteLockVO')
+        deleteAttr(copyObject, 'cron')
+        deleteAttr(copyObject, 'scheduleConf')
+        return copyObject;
     }
     getCellData = (cell) => {
         return cell && {
