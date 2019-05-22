@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Menu } from 'antd'
+import { Menu, Icon } from 'antd'
 import { Link } from 'react-router'
 require('../iconfont/iconfont');
 export default class Sidebar extends Component {
@@ -54,10 +54,8 @@ export default class Sidebar extends Component {
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="engine">
-                        <Link to={`${base}/config`}>
-                            <svg className="icon-svg" aria-hidden="true">
-                                <use xlinkHref="#icon-project_set"></use>
-                            </svg>
+                        <Link to={`${base}/engine`}>
+                            <Icon className="icon-svg" type="api" />
                             <span>计算引擎</span>
                         </Link>
                     </Menu.Item>

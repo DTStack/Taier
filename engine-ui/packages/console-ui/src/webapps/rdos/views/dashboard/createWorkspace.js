@@ -1,13 +1,13 @@
 import React from 'react';
-import { Button, message, Card, Alert, Row, Col } from 'antd';
+import { Button, message, Card, Alert, Row } from 'antd';
 import { hashHistory } from 'react-router';
 
 import api from '../../api';
 import GoBack from 'main/components/go-back'
-import MetaImportForm, { metaFormLayout } from './metaImportForm';
+import WorkspaceForm from './workspaceForm';
 import { PROJECT_CREATE_MODEL } from '../../comm/const';
 
-class MetaDataImport extends React.Component {
+class CreateWorkSpace extends React.Component {
     state = {
         projectList: [],
         loading: false,
@@ -62,39 +62,42 @@ class MetaDataImport extends React.Component {
     }
     render () {
         const { formData, projectList, loading } = this.state;
+        const title = (
+            <div>
+                <GoBack
+                    type="textButton"
+                />
+                <span className='c-createWorkspace__header__title'>基本信息</span>
+            </div>
+        )
         return (
-            <div className='c-metaImport l-metaImport'>
-                <div className='l-metaImport__header'>
-                    <GoBack
-                        type="textButton"
-                    />
-                    <span className='c-metaImport__header__title'>接入已有项目</span>
-                </div>
+            <div className='c-createWorkspace l-createWorkspace m-card'>
                 <Card
+                    title={title}
+                    extra={false}
                     noHovering
+                    bordered={false}
                 >
                     <Alert
-                        className='l-metaImport__wanring'
-                        message="注意：本功能会将已有Hive表导入本平台进行管理，Hadoop内的数据本身不会移动或改变，在导入进行过程中，请勿新建表或执行其他表结构变更操作"
+                        className='l-createWorkspace__wanring'
+                        message="一个工作空间可以对接一个或多个计算引擎，相当于对接不同引擎的database / schema，新建成功后不可删除"
                         type="warning"
                         showIcon
                         closable
                     />
-                    <MetaImportForm
+                    <WorkspaceForm
                         ref={(ref) => { this.form = ref; }}
                         projectList={projectList}
                         {...formData}
                         onChange={this.formChange}
                     />
-                    <Row>
-                        <Col {...metaFormLayout.labelCol}></Col>
-                        <Col {...metaFormLayout.wrapperCol}>
-                            <Button loading={loading} onClick={this.create} type='primary'>导入</Button>
-                        </Col>
+                    <Row style={{ marginTop: 30, textAlign: 'right' }}>
+                        <Button onClick={this.create} style={{ width: 90, marginRight: 10 }}>取消</Button>
+                        <Button loading={loading} style={{ width: 90 }} onClick={this.create} type='primary'>确定</Button>
                     </Row>
                 </Card>
             </div>
         )
     }
 }
-export default MetaDataImport;
+export default CreateWorkSpace;

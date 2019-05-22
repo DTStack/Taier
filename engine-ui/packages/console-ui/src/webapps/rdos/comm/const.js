@@ -1,5 +1,23 @@
 // 常量
 
+// Engine source 类型
+export const ENGINE_SOURCE_TYPE = {
+    SPARK_THRIFT_SERVER: 1,
+    LIBRA: 2
+}
+
+// Engine source 类型选项
+export const ENGINE_SOURCE_TYPE_OPTIONS = [
+    {
+        name: 'Spark Thrift Server',
+        value: ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER
+    },
+    {
+        name: 'LibrA',
+        value: ENGINE_SOURCE_TYPE.LIBRA
+    }
+]
+
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,

@@ -128,6 +128,9 @@ export default {
     getRetainDBList (params) {
         return http.post(req.GET_RETAINDB_LIST, params)
     },
+    queryEngineSource (params) { // 查询引擎列表
+        return http.post(req.GET_ENGINE_LIST, params)
+    },
     // ========== Role ========== //
     getRoleList(params) {
         return http.post(req.GET_ROLE_LIST, params)

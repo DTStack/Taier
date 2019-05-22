@@ -80,7 +80,7 @@ class LifeCycleSelect extends React.Component {
         </Option>)
     }
     render () {
-        const { width } = this.props;
+        const { width, inputWidth } = this.props;
         const { selectValue, value } = this.state;
         return (
             <div>
@@ -97,7 +97,7 @@ class LifeCycleSelect extends React.Component {
                     <Input
                         size="large"
                         value={value}
-                        style={{ width: 220, marginLeft: '5px' }}
+                        style={{ width: inputWidth || 220, marginLeft: '5px' }}
                         type="number"
                         min={0}
                         addonAfter={'天'}
