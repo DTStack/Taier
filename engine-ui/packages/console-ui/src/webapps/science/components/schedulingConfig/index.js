@@ -391,9 +391,10 @@ export default Form.create({
          * 转化时间格式
          */
         keys.forEach((key) => {
-            const value = values[key].value;
+            let value = values[key].value;
             if (dateType.indexOf(key) > -1 && value instanceof moment) {
                 values[key].value = value.format('YYYY-MM-DD');
+                value = value.format('YYYY-MM-DD');
             }
             if (key == 'scheduleStatus') {
                 newFormData[key] = value ? 2 : 1

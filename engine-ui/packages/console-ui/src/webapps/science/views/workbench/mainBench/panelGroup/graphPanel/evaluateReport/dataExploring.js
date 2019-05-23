@@ -12,7 +12,7 @@ class DataExploringModal extends Component {
         return (
             <DTModal
                 bodyStyle={{
-                    padding: '0 0 0 0',
+                    padding: '16px',
                     position: 'relative'
                 }}
                 title={'数据探查（展示前100条数据）'}

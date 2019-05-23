@@ -110,7 +110,7 @@ class NotebookSidebar extends Component {
                             {
                                 targetClassName: 'anchor-notebook-root',
                                 menuItems: [{
-                                    text: '新建任务',
+                                    text: '新建Notebook',
                                     onClick: (activeNode) => {
                                         this.props.openNewNotebook(activeNode);
                                     }
@@ -126,7 +126,7 @@ class NotebookSidebar extends Component {
                             {
                                 targetClassName: 'anchor-notebook-folder',
                                 menuItems: [{
-                                    text: '新建任务',
+                                    text: '新建Notebook',
                                     onClick: (activeNode) => {
                                         this.props.openNewNotebook(activeNode);
                                     }
