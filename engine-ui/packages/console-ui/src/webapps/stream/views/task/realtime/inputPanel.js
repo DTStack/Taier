@@ -356,7 +356,7 @@ class InputOrigin extends Component {
                             <span>
                                 <span style={{ paddingRight: '5px' }}>时区</span>
                                 <Tooltip overlayClassName="big-tooltip" title={<div>
-                                    <p>注意：目前【时区功能】只支持【时间特征】为 EventTime 的情况</p>
+                                    <p>注意：时区设置功能目前只支持时间特征为EventTime的任务</p>
                                 </div>}>
                                     <Icon type="question-circle-o" />
                                 </Tooltip>
