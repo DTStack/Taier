@@ -37,7 +37,7 @@ public class FlinkRestartStrategy extends IRestartStrategy {
         return false;
     }
 
-    @Override
+   /* @Override
     public boolean checkCanRestart(String jobId,String engineJobId, IClient client,
                                    Integer alreadyRetryNum, Integer maxRetryNum) {
         String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
@@ -63,5 +63,5 @@ public class FlinkRestartStrategy extends IRestartStrategy {
         }else {
             return false;
         }
-    }
+    }*/
 }

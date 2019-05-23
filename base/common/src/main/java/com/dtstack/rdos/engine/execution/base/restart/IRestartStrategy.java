@@ -25,10 +25,14 @@ public abstract class IRestartStrategy {
 
     public abstract boolean checkNOResource(String msg);
 
-    public abstract boolean checkCanRestart(String jobId, String engineJobId, IClient client,
-                                            Integer alreadyRetryNum, Integer maxRetryNum);
+    public boolean checkCanRestart(String jobId, String engineJobId, IClient client,
+                                            Integer alreadyRetryNum, Integer maxRetryNum){
+        return retry(jobId, alreadyRetryNum, maxRetryNum);
+    }
 
-    public abstract boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum);
+    public boolean checkCanRestart(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum){
+        return retry(jobId, alreadyRetryNum, maxRetryNum);
+    }
 
     public boolean retrySubmitFail(String jobId, String msg, Integer alreadyRetryNum, Integer maxRetryNum){
         if(checkFailureForEngineDown(msg)){
