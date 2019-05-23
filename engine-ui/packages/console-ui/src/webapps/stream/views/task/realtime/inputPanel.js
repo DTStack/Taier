@@ -231,7 +231,7 @@ class InputOrigin extends Component {
                                     style={{ minHeight: 202 }}
                                     className="bd"
                                     sync={sync}
-                                    placeholder={'字段 类型, 比如 id int 一行一个字段\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya int \nkey1.keyb int'}
+                                    placeholder={'字段 类型, 比如 id int 一行一个字段\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'}
                                     value={panelColumn[index].columnsText}
                                     onChange={this.debounceEditorChange.bind(this, 'columnsText')}
                                     editorRef={(ref) => {
