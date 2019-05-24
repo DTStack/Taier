@@ -35,5 +35,10 @@ export default {
     GET_GROUP_LIST: `${CONSOLE_BASE_URL}/group/groups`, // group列表
     GET_VIEW_DETAIL: `${CONSOLE_BASE_URL}/group/groupDetail`, // 查看明细 和搜索条件
     CHANGE_JOB_PRIORITY: `${CONSOLE_BASE_URL}/group/jobPriority`, // 顺序调整调整优先级
-    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/group/clusterResources` // 查看剩余资源
+    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/group/clusterResources`, // 查看剩余资源
+
+    ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/add`, // 新增集群
+    SAVE_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/update`, // 保存更新集群
+    SAVE_OR_ADD_ENGINE: `${CONSOLE_BASE_URL}/cluster/addEngine`, // 保存单个引擎或新增引擎
+    DELETE_ENGINE: `${CONSOLE_BASE_URL}/cluster/deleteEngine` // 删除引擎
 }
