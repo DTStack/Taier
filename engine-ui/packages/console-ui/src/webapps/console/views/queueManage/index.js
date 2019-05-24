@@ -26,6 +26,7 @@ class QueueManage extends Component {
         clusterList: [],
         clusterId: undefined,
         nodeList: [],
+        defaultSelectValue: '',
         // 节点值
         node: undefined,
         // 会重新渲染detail组件
@@ -79,8 +80,11 @@ class QueueManage extends Component {
         return Api.getClusterSelect().then((res) => {
             if (res.code == 1) {
                 const data = res.data;
+                console.log()
                 this.setState({
-                    clusterList: data || []
+                    clusterList: data || [],
+                    clusterId: data && data[0] && data[0].id, // 取第一项
+                    defaultSelectValue: data && data[0] && data[0].clusterName
                 })
             }
         })
@@ -89,7 +93,7 @@ class QueueManage extends Component {
     getClusterOptionView () {
         const clusterList = this.state.clusterList;
         return clusterList.map((item, index) => {
-            return <Option key={item.id} value={item.id}>{item.clusterName}</Option>
+            return <Option key={item.id} value={`${item.id}`}>{item.clusterName}</Option>
         })
     }
     // 集群option改变
@@ -292,7 +296,8 @@ class QueueManage extends Component {
                                     placeholder="选择集群"
                                     allowClear
                                     onChange={this.clusterOptionChange.bind(this)}
-                                    value={this.state.clusterId}
+                                    // defaultValue={`${this.state.defaultSelectValue}`}
+                                    // value={this.state.defaultSelectValue}
                                 >
                                     {
                                         this.getClusterOptionView()

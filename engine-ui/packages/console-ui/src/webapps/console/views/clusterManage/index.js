@@ -106,18 +106,7 @@ class ClusterManage extends React.Component {
             pathname: '/console/clusterManage/editCluster',
             state: {
                 cluster: item,
-                mode: 'edit',
-                engineLists: [
-                    'Flink',
-                    'Spark',
-                    'DTYarnShell',
-                    'Learning',
-                    'HDFS',
-                    'YARN',
-                    'Spark Thrift Server',
-                    'CarbonData',
-                    'Libra'
-                ]
+                mode: 'edit'
             }
         })
     }
@@ -126,18 +115,7 @@ class ClusterManage extends React.Component {
             pathname: '/console/clusterManage/editCluster',
             state: {
                 cluster: item,
-                mode: 'view',
-                engineLists: [
-                    'Flink',
-                    'Spark',
-                    'DTYarnShell',
-                    'Learning',
-                    'HDFS',
-                    'YARN',
-                    'Spark Thrift Server',
-                    'CarbonData',
-                    'Libra'
-                ]
+                mode: 'view'
             }
         })
     }

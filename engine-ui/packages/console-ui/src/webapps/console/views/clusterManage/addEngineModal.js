@@ -15,6 +15,15 @@ class AddEngineModal extends Component {
             return <Option value={`${item}`} key={`${item}`}>{item}</Option>
         })
     }
+    isHaveEngine () {
+        let validate = false
+        this.props.form.validateFields(null, {}, (err, value) => {
+            if (!err) {
+                validate = true
+            }
+        })
+        return validate
+    }
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const engineType = getFieldValue('engineType')
@@ -23,7 +32,7 @@ class AddEngineModal extends Component {
                 visible={this.props.visible}
                 title='新增引擎'
                 onCancel={this.props.onCancel}
-                onOk={() => this.props.onOk(engineType, true)}
+                onOk={() => this.props.onOk(engineType, this.isHaveEngine.bind(this))}
             >
                 <Form>
                     <FormItem

@@ -1,5 +1,5 @@
 import consoleApi from '../api/console'
-import consoleActions from '../consts/consoleActions'
+import { userActions, clusterActions } from '../consts/consoleActions'
 
 // Action
 export function getUser () {
@@ -7,10 +7,17 @@ export function getUser () {
         consoleApi.getTenantList({ pageSize: 9999, currentPage: 1 }).then(res => {
             if (res.code === 1) {
                 return dispatch({
-                    type: consoleActions.SET_USER_LIST,
+                    type: userActions.SET_USER_LIST,
                     data: res.data.data
                 })
             }
         })
+    }
+}
+
+export function updateEngineList (fields) {
+    return {
+        type: clusterActions.UPDATE_ENGINE_LIST,
+        data: fields
     }
 }
