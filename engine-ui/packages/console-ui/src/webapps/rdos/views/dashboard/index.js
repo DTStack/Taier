@@ -330,8 +330,8 @@ class Index extends Component {
                             <Button
                                 style={{ float: 'left', margin: '10 0 0 15' }}
                                 type="primary"
-                                onClick={() => { hashHistory.push('/create-work-space') }}>
-                                创建工作空间
+                                onClick={() => { hashHistory.push('/create-project') }}>
+                                创建项目
                             </Button>
                         </Col>
                         <Col span="8" >

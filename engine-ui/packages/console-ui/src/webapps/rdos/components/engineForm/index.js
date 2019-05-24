@@ -4,11 +4,11 @@ import { Form, Select } from 'antd';
 import { isEmpty } from 'lodash';
 
 import EngineConfigItem from './configItem';
+import EngineSelect from '../engineSelect';
 
 import {
     formItemLayout,
-    ENGINE_SOURCE_TYPE,
-    ENGINE_SOURCE_TYPE_OPTIONS
+    ENGINE_SOURCE_TYPE
 } from '../../comm/const';
 
 const FormItem = Form.Item;
@@ -56,18 +56,6 @@ class EngineForm extends React.Component {
         } = this.props;
         const { getFieldDecorator } = this.props.form;
 
-        const sourceTypeList = ENGINE_SOURCE_TYPE_OPTIONS.map(
-            item => (
-                <Option
-                    key={item.value}
-                    disabled={disabledEngineTypes && disabledEngineTypes.indexOf(item.value) > -1} // 禁用指定引擎类型选项
-                    value={item.value.toString()}
-                >
-                    {item.name}
-                </Option>
-            )
-        )
-
         return (
             <Form>
                 <FormItem
@@ -81,12 +69,11 @@ class EngineForm extends React.Component {
                             message: '请选择引擎类型'
                         }]
                     })(
-                        <Select
+                        <EngineSelect
+                            disabledEngineTypes={disabledEngineTypes}
                             onChange={this.onTypeChange}
                             placeholder="请选择引擎类型"
-                        >
-                            { sourceTypeList }
-                        </Select>
+                        />
                     )}
                 </FormItem>
                 <EngineConfigItem

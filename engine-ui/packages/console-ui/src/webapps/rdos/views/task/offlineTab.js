@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-    Icon, Tooltip,
+    Icon, Tooltip, Collapse,
     Tabs, Dropdown, Menu
 } from 'antd';
 import { isEmpty, union } from 'lodash';
@@ -29,6 +29,7 @@ import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
 import { isProjectCouldEdit } from '../../comm';
 
 const TabPane = Tabs.TabPane;
+const Panel = Collapse.Panel;
 
 @connect(state => {
     const { offlineTask, user } = state;
@@ -546,29 +547,47 @@ class OfflineTabPane extends Component {
                                     </Dropdown>
                                 )}
                             </header>
-                            <div className="contentBox">
+                            <div className="contentBox c-funcMa__collapse">
                                 <div className="folder-box">
-                                    {
-                                        !isEmpty(functionTreeData) &&
-                                        <FolderTree
-                                            isPro={isPro}
-                                            couldEdit={couldEdit}
-                                            type={MENU_TYPE.COSTOMFUC}
-                                            expandedKeys={expandedKeys}
-                                            onExpand={this.onExpand}
-                                            treeData={functionTreeData} />
-                                    }
-                                    {
-                                        !isEmpty(sysFunctionTreeData) &&
-                                        <FolderTree
-                                            isPro={isPro}
-                                            couldEdit={couldEdit}
-                                            type={MENU_TYPE.SYSFUC}
-                                            expandedKeys={expandedKeys2}
-                                            onExpand={this.onExpand2}
-                                            treeData={sysFunctionTreeData}
-                                        />
-                                    }
+                                    <Collapse defaultActiveKey={['spark']} accordion>
+                                        <Panel header="SparkSQL" key="spark">
+                                            {
+                                                !isEmpty(functionTreeData) &&
+                                                <FolderTree
+                                                    isPro={isPro}
+                                                    couldEdit={couldEdit}
+                                                    type={MENU_TYPE.COSTOMFUC}
+                                                    expandedKeys={expandedKeys}
+                                                    onExpand={this.onExpand}
+                                                    treeData={functionTreeData}
+                                                />
+                                            }
+                                            {
+                                                !isEmpty(sysFunctionTreeData) &&
+                                                <FolderTree
+                                                    isPro={isPro}
+                                                    couldEdit={couldEdit}
+                                                    type={MENU_TYPE.SYSFUC}
+                                                    expandedKeys={expandedKeys2}
+                                                    onExpand={this.onExpand2}
+                                                    treeData={sysFunctionTreeData}
+                                                />
+                                            }
+                                        </Panel>
+                                        <Panel header="LibrA SQL" key="librA">
+                                            {
+                                                !isEmpty(sysFunctionTreeData) &&
+                                                <FolderTree
+                                                    isPro={isPro}
+                                                    couldEdit={couldEdit}
+                                                    type={MENU_TYPE.SYSFUC}
+                                                    expandedKeys={expandedKeys2}
+                                                    onExpand={this.onExpand2}
+                                                    treeData={sysFunctionTreeData}
+                                                />
+                                            }
+                                        </Panel>
+                                    </Collapse>
                                 </div>
                             </div>
                         </div>

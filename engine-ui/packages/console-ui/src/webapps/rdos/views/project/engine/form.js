@@ -1,20 +1,18 @@
 import React, { Component } from 'react'
 
 import {
-    Input, Button,
-    Select, Form, Tooltip,
-    Icon
+    Input, Button, Form, Tooltip, Icon
 } from 'antd'
 
 import { isEmpty } from 'lodash';
 
 import utils from 'utils';
+import EngineSelect from '../../../components/engineSelect';
 
 import {
     formItemLayout,
     tailFormItemLayout,
-    ENGINE_SOURCE_TYPE,
-    ENGINE_SOURCE_TYPE_OPTIONS
+    ENGINE_SOURCE_TYPE
 } from '../../../comm/const';
 import {
     jdbcUrlExample
@@ -23,8 +21,7 @@ import {
 import HelpDoc from '../../helpDoc';
 import CopyIcon from 'main/components/copy-icon';
 
-const FormItem = Form.Item
-const Option = Select.Option
+const FormItem = Form.Item;
 
 const hdfsConf =
     `{
@@ -280,17 +277,6 @@ class EngineSourceForm extends Component {
         const { getFieldDecorator } = form;
         const { sourceType } = this.state;
 
-        const sourceTypeList = ENGINE_SOURCE_TYPE_OPTIONS.map(
-            item => (
-                <Option
-                    key={item.value}
-                    value={item.value.toString()}
-                >
-                    {item.name}
-                </Option>
-            )
-        )
-
         return (
             <Form autoComplete="off">
                 <FormItem
@@ -303,11 +289,10 @@ class EngineSourceForm extends Component {
                         }],
                         initialValue: sourceData.type ? sourceData.type.toString() : `${sourceType}`
                     })(
-                        <Select
+                        <EngineSelect
                             onChange={this.sourceChange}
-                            disabled={formMode === 'edit'}>
-                            {sourceTypeList}
-                        </Select>
+                            disabled={formMode === 'edit'}
+                        />
                     )}
                 </FormItem>
                 {this.renderDynamic()}
