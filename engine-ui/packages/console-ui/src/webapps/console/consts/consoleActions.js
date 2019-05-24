@@ -1,7 +1,9 @@
 import mc from 'mirror-creator';
 
-const userActions = mc([
+export const userActions = mc([
     'SET_USER_LIST'
-], { prefix: 'console/' })
+], { prefix: 'console/user' });
 
-export default userActions;
+export const clusterActions = mc([
+    'UPDATE_ENGINE_LIST'
+], { prefix: 'console/cluster' })

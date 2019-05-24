@@ -98,6 +98,11 @@ class ResourceManage extends React.Component {
                 width: '200px'
             },
             {
+                title: '集群类型',
+                dataIndex: 'clusterType',
+                width: '120px'
+            },
+            {
                 title: '资源队列',
                 dataIndex: 'queueName',
                 width: '200px',
@@ -167,7 +172,7 @@ class ResourceManage extends React.Component {
                 title: '操作',
                 dataIndex: 'deal',
                 render: (text, record) => {
-                    if (record.queueState == 'STOPPED' || !record.tenants) {
+                    if (record.queueState == 'STOPPED' || !record.tenants || record.clusterType === 'huawei') {
                         return null;
                     }
                     return <a onClick={this.changeResource.bind(this, record)}>修改</a>

@@ -1,13 +1,14 @@
 /* eslint-disable */
 import React from 'react';
 import utils from 'utils';
-import { Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Radio, Tabs } from 'antd';
+import { Form, Input, Row, Col, Select, Icon, Tooltip, Button, Tag, message, Card, Radio, Tabs, Modal } from 'antd';
 import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router'
 
-import { getUser } from '../../../actions/console'
+import { getUser, updateEngineList } from '../../../actions/console'
 import Api from '../../../api/console'
+import { engineTypeConfig, validateEngine } from '../../../consts/clusterFunc';
 import { formItemLayout, ENGINE_TYPES, validateFlinkParams, validateHiveParams,
     validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams } from '../../../consts'
 import GoBack from 'main/components/go-back';
@@ -20,6 +21,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
+const confirm = Modal.confirm;
 const TEST_STATUS = {
     NOTHING: 0,
     SUCCESS: 1,
@@ -48,6 +50,9 @@ function mapDispatchToProps (dispatch) {
     return {
         getTenantList () {
             dispatch(getUser())
+        },
+        updateEngineList (params) {
+            dispatch(updateEngineList(params))
         }
     }
 }
@@ -85,7 +90,6 @@ class EditCluster extends React.Component {
         addEngineVisible: false, // 新增引擎modal
         editModalKey: '',
         clusterType: '', // 集群类型 apache_hadoop,cloudera,huawei
-        engineSelectedLists: [], // 编辑时 集群引擎选择列表
         // 引擎testLoading
         flinkTestLoading: false,
         sparkTestLoading: false,
@@ -122,8 +126,15 @@ class EditCluster extends React.Component {
     componentDidMount () {
         this.getDataList();
         // this.props.getTenantList();
+        this.refreshSaveEngine();
     }
-
+    // 新增入口刷新无数据
+    refreshSaveEngine () {
+        const { mode, enginelist } = this.props.location.state;
+        if (mode === 'new') {
+            this.props.updateEngineList(enginelist)
+        }
+    }
     // 填充表单数据
     getDataList () {
         const { location, form } = this.props;
@@ -160,7 +171,6 @@ class EditCluster extends React.Component {
                                 memory: cluster.totalMemory,
                                 nodeNumber: cluster.totalNode,
                                 clusterType: cluster.clusterType,
-                                engineSelectedLists: cluster.engines,
                                 zipConfig: JSON.stringify({
                                     yarnConf: clusterConf.yarnConf,
                                     hadoopConf: clusterConf.hadoopConf,
@@ -191,6 +201,18 @@ class EditCluster extends React.Component {
                                 dtyarnshellConf: this.toChsKeys(clusterConf.dtyarnshellConf, yarnShellkeyMap)
                             })
                         }
+                        // 暂时先派发数据测试(getOne接口成功dispatch)
+                        this.props.updateEngineList([
+                            'Flink',
+                            'Spark',
+                            'DTYarnShell',
+                            'Learning',
+                            'HDFS',
+                            'YARN',
+                            'Spark Thrift Server',
+                            'CarbonData',
+                            'Libra'
+                        ])
                     }
                 )
         } else { // 新增集群填充集群名称、节点数、资源数
@@ -677,12 +699,13 @@ class EditCluster extends React.Component {
     }
     // 全部校验表单是否必填
     validateAllRequired = () => {
-        const { engineLists, mode } = this.props.location.state || {};
+        const { mode } = this.props.location.state || {};
+        const { engineList } = this.props.consoleUser;
         const isNew = mode == 'new';
-        const engines = !isNew ? this.state.engineSelectedLists : engineLists;
+        // const engines = !isNew ? this.state.engineSelectedLists : engineLists;
         let obj = {}
-        engines && engines.map(item => {
-            this.props.form.validateFields(this.validateEngine(item), {}, (err, values) => {
+        engineList && engineList.map(item => {
+            this.props.form.validateFields(validateEngine(item), {}, (err, values) => {
                 if (item === ENGINE_TYPES.FLINK) {
                     if (!err) {
                         obj = Object.assign(obj, {
@@ -777,9 +800,7 @@ class EditCluster extends React.Component {
                     console.log('error')
                 }
             })
-            console.log('objobjpbj0', obj)
         })
-        console.log('objobjpbj0', obj)
         return obj
     }
     renderRequiredIcon = (engineType) => {
@@ -1115,262 +1136,133 @@ class EditCluster extends React.Component {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
-    loadingStart = (engineType) => {
+    loadingStatus = (engineType, isShowLoading) => {
         switch (engineType) {
             case ENGINE_TYPES.FLINK: {
                 return this.setState({
-                    flinkTestLoading: true
+                    flinkTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
                 return this.setState({
-                    hiveTestLoading: true
+                    hiveTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.CARBONDATA: {
                 return this.setState({
-                    carbonTestLoading: true
+                    carbonTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.SPARK: {
                 return this.setState({
-                    sparkTestLoading: true
+                    sparkTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.DTYARNSHELL: {
                 return this.setState({
-                    dtYarnShellTestLoading: true
+                    dtYarnShellTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.LEARNING: {
                 return this.setState({
-                    learningTestLoading: true
+                    learningTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.HDFS: {
                 return this.setState({
-                    hdfsTestLoading: true
+                    hdfsTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.YARN: {
                 return this.setState({
-                    yarnTestLoading: true
+                    yarnTestLoading: isShowLoading
                 })
             }
             case ENGINE_TYPES.LIBRA: {
                 return this.setState({
-                    libraTestLoading: true
+                    libraTestLoading: isShowLoading
                 })
             }
             case null : {
                 this.setState({
-                    flinkTestLoading: true,
-                    hiveTestLoading: true,
-                    carbonTestLoading: true,
-                    sparkTestLoading: true,
-                    dtYarnShellTestLoading: true,
-                    learningTestLoading: true,
-                    hdfsTestLoading: true,
-                    yarnTestLoading: true,
-                    libraTestLoading: true,
-                    allTestLoading: true
+                    flinkTestLoading: isShowLoading,
+                    hiveTestLoading: isShowLoading,
+                    carbonTestLoading: isShowLoading,
+                    sparkTestLoading: isShowLoading,
+                    dtYarnShellTestLoading: isShowLoading,
+                    learningTestLoading: isShowLoading,
+                    hdfsTestLoading: isShowLoading,
+                    yarnTestLoading: isShowLoading,
+                    libraTestLoading: isShowLoading,
+                    allTestLoading: isShowLoading
                 })
             }
         }
     }
-    loadingEnd = (engineType) => {
-        let testLoading = {}
-        switch (engineType) {
-            case ENGINE_TYPES.FLINK: {
-                return testLoading = {
-                    flinkTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                return testLoading = {
-                    hiveTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.CARBONDATA: {
-                return testLoading = {
-                    carbonTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.SPARK: {
-                return testLoading = {
-                    sparkTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.DTYARNSHELL: {
-                return testLoading = {
-                    dtYarnShellTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.LEARNING: {
-                return testLoading = {
-                    learningTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.HDFS: {
-                return testLoading = {
-                    hdfsTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.YARN: {
-                return testLoading = {
-                    yarnTestLoading: false
-                }
-            }
-            case ENGINE_TYPES.LIBRA: {
-                return testLoading = {
-                    libraTestLoading: false
-                }
-            }
-            case null : {
-                return testLoading = {
-                    flinkTestLoading: false,
-                    hiveTestLoading: false,
-                    carbonTestLoading: false,
-                    sparkTestLoading: false,
-                    dtYarnShellTestLoading: false,
-                    learningTestLoading: false,
-                    hdfsTestLoading: false,
-                    yarnTestLoading: false,
-                    libraTestLoading: false,
-                    allTestLoading: false
-                }
-            }
-        }
-    }
-
-    renderSuccessTestStatus = (engineType) =>{
+    
+    renderTestStatus = (engineType, isSuccess) =>{
         let testStatus = {}
         switch (engineType) {
             case ENGINE_TYPES.FLINK: {
                 return testStatus = {
-                    flinkTestStatus: TEST_STATUS.SUCCESS
+                    flinkTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
                 return testStatus = {
-                    hiveTestStatus: TEST_STATUS.SUCCESS
+                    hiveTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.CARBONDATA: {
                 return testStatus = {
-                    carbonTestStatus: TEST_STATUS.SUCCESS
+                    carbonTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.SPARK: {
                 return testStatus = {
-                    sparkTestStatus: TEST_STATUS.SUCCESS
+                    sparkTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.DTYARNSHELL: {
                 return testStatus = {
-                    dtYarnShellTestStatus: TEST_STATUS.SUCCESS
+                    dtYarnShellTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.LEARNING: {
                 return testStatus = {
-                    learningTestStatus: TEST_STATUS.SUCCESS
+                    learningTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.HDFS: {
                 return testStatus = {
-                    hdfsTestStatus: TEST_STATUS.SUCCESS
+                    hdfsTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.YARN: {
                 return testStatus = {
-                    yarnTestStatus: TEST_STATUS.SUCCESS
+                    yarnTestStatus: isSuccess
                 }
             }
             case ENGINE_TYPES.LIBRA: {
                 return testStatus = {
-                    libraTestStatus: TEST_STATUS.SUCCESS
+                    libraTestStatus: isSuccess
                 }
             }
             case null : {
                 return testStatus = {
-                    flinkTestStatus: TEST_STATUS.SUCCESS,
-                    hiveTestStatus: TEST_STATUS.SUCCESS,
-                    carbonTestStatus: TEST_STATUS.SUCCESS,
-                    sparkTestStatus: TEST_STATUS.SUCCESS,
-                    dtYarnShellTestStatus: TEST_STATUS.SUCCESS,
-                    learningTestStatus: TEST_STATUS.SUCCESS,
-                    hdfsTestStatus: TEST_STATUS.SUCCESS,
-                    yarnTestStatus: TEST_STATUS.SUCCESS,
-                    libraTestStatus: TEST_STATUS.SUCCESS
+                    flinkTestStatus: isSuccess,
+                    hiveTestStatus: isSuccess,
+                    carbonTestStatus: isSuccess,
+                    sparkTestStatus: isSuccess,
+                    dtYarnShellTestStatus: isSuccess,
+                    learningTestStatus: isSuccess,
+                    hdfsTestStatus: isSuccess,
+                    yarnTestStatus: isSuccess,
+                    libraTestStatus: isSuccess
                 }
             }
         }
     }
-
-    renderFailedTestStatus = (engineType) => {
-        let testStatus = {}
-        switch (engineType) {
-            case ENGINE_TYPES.FLINK: {
-                return testStatus = {
-                    flinkTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                return testStatus = {
-                    hiveTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.CARBONDATA: {
-                return testStatus = {
-                    carbonTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.SPARK: {
-                return testStatus = {
-                    sparkTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.DTYARNSHELL: {
-                return testStatus = {
-                    dtYarnShellTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.LEARNING: {
-                return testStatus = {
-                    learningTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.HDFS: {
-                return testStatus = {
-                    hdfsTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.YARN: {
-                return testStatus = {
-                    yarnTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case ENGINE_TYPES.LIBRA: {
-                return testStatus = {
-                    libraTestStatus: TEST_STATUS.FAIL
-                }
-            }
-            case null : {
-                return testStatus = {
-                    flinkTestStatus: TEST_STATUS.FAIL,
-                    hiveTestStatus: TEST_STATUS.FAIL,
-                    carbonTestStatus: TEST_STATUS.FAIL,
-                    sparkTestStatus: TEST_STATUS.FAIL,
-                    dtYarnShellTestStatus: TEST_STATUS.FAIL,
-                    learningTestStatus: TEST_STATUS.FAIL,
-                    hdfsTestStatus: TEST_STATUS.FAIL,
-                    yarnTestStatus: TEST_STATUS.FAIL,
-                    libraTestStatus: TEST_STATUS.FAIL
-                }
-            }
-        }
-    }
-
     // 全部保存
     saveOrUpdateCluster (engineType) {
         const { mode } = this.props.location.state || {};
@@ -1399,39 +1291,59 @@ class EditCluster extends React.Component {
         })
     }
     /**
-     * @param {*} engineType
-     * @param {*} isAdd 区分引擎添加、 保存 添加为true
+     * 保存单引擎
      */
-    saveOrAddEngine (engineType, isAdd) {
+    saveSingleEngine (engineType) {
         const { clusterId, mode, cluster } = this.props.location.state || {};
         const isNew = mode === 'new' // clusterId
-        this.props.form.validateFields(this.validateEngine(engineType), {}, (err, values) => {
+        this.props.form.validateFields(validateEngine(engineType), {}, (err, values) => {
             if (!err) {
                 const clusterConf = this.getClusterConf(values);
                 Api.saveOrAddEngine({
                     clusterId: !isNew ? cluster.id : clusterId,
                     engineType,
-                    engineConfig: isAdd ? '' : JSON.stringify(clusterConf[this.engineTypeConfig(engineType)])
+                    engineConfig: JSON.stringify(clusterConf[engineTypeConfig(engineType)])
                 }).then(res => {
                     if (res.code ===1) {
-                        message.success(isAdd ? '添加引擎成功' : `${engineType}保存成功`)
+                        message.success(`${engineType}保存成功`)
                     }
                 })
             }
         })
+    }
+    // add engine
+    addEngine (engineType, callback) {
+        callback()
+        const { clusterId, mode, cluster } = this.props.location.state || {};
+        const isNew = mode === 'new' // clusterId
+        let engineList = this.props.consoleUser.engineList;
+        const newEngineList = engineList.concat(engineType)
+        if (callback()) {
+            Api.saveOrAddEngine({
+                clusterId: !isNew ? cluster.id : clusterId,
+                engineType,
+                engineConfig: ''
+            }).then(res => {
+                if (res.code ===1) {
+                    // 添加dispatch updateEngineList
+                    this.props.updateEngineList(newEngineList)
+                    this.onCancel()
+                    message.success('添加引擎成功!')
+                }
+            })
+        }
     }
     /**
      * 测试连通性
      * @param engineType 引擎类型 为null则全部测试
      */
     test (engineType) {
-        this.props.form.validateFields (this.validateEngine(engineType), {}, (err, values) => {
-            console.log('校验的engine',  engineType, this.validateEngine(engineType))
+        this.props.form.validateFields (validateEngine(engineType), {}, (err, values) => {
             if (!err) {
                 this.setState({
                     ...this.showRequireIcon(engineType, false) // 不出现红标
                 })
-                this.loadingStart(engineType)
+                this.loadingStatus(engineType, true)
                 Api.testCluster(this.getServerParams(values, engineType))
                     .then(
                         (res) => {
@@ -1440,14 +1352,14 @@ class EditCluster extends React.Component {
                                     nodeNumber: res.data.totalNode,
                                     core: res.data.totalCores,
                                     memory: res.data.totalMemory,
-                                    ...this.renderSuccessTestStatus(engineType),
-                                    ...this.loadingEnd(engineType)
+                                    ...this.renderTestStatus(engineType, TEST_STATUS.SUCCESS),
+                                    ...this.loadingStatus(engineType, false)
                                 })
                                 message.success('连通成功')
                             } else {
                                 this.setState({
-                                    ...this.renderFailedTestStatus(engineType),
-                                    ...this.loadingEnd(engineType)
+                                    ...this.renderTestStatus(engineType, TEST_STATUS.FAIL),
+                                    ...this.loadingStatus(engineType, false)
                                 })
                             }
                         }
@@ -1459,92 +1371,70 @@ class EditCluster extends React.Component {
             }
         })
     }
-    // 不同engine校验值
-    // hdfs yarn libra 暂不知其确定参数
-    validateEngine = (engineType) => {
-        switch (engineType) {
-            case ENGINE_TYPES.FLINK: {
-                return validateFlinkParams
-            }
-            case ENGINE_TYPES.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                return validateHiveParams
-            }
-            case ENGINE_TYPES.CARBONDATA: {
-                return validateCarbonDataParams
-            }
-            case ENGINE_TYPES.SPARK: {
-                return validateSparkParams
-            }
-            case ENGINE_TYPES.DTYARNSHELL: {
-                return validateDtYarnShellParams
-            }
-            case ENGINE_TYPES.LEARNING: {
-                return validateLearningParams
-            }
-            case ENGINE_TYPES.HDFS: {
-                return []
-            }
-            case ENGINE_TYPES.YARN: {
-                return []
-            }
-            case ENGINE_TYPES.LIBRA: {
-                return []
-            }
-            case null: {
-                return null
-            }
-            default: {
-                return null
-            }
 
-        }
-    }
-    engineTypeConfig = (engineType) => {
-        switch (engineType) {
-            case ENGINE_TYPES.FLINK: {
-                return 'flinkConf'
+    showDeleteConfirm (engineType) {
+        confirm({
+            title: '是否确定删除该引擎？',
+            okText: '是',
+            okType: 'danger',
+            cancelText: '否',
+            onOk: () => {
+                this.deleteEngine(engineType)
+            },
+            onCancel() {
+                console.log('cancel')
             }
-            case ENGINE_TYPES.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                return 'hiveConf'
-            }
-            case ENGINE_TYPES.CARBONDATA: {
-                return 'carbonConf'
-            }
-            case ENGINE_TYPES.SPARK: {
-                return 'sparkConf'
-            }
-            case ENGINE_TYPES.DTYARNSHELL: {
-                return 'dtyarnshellConf'
-            }
-            case ENGINE_TYPES.LEARNING: {
-                return 'learningConf'
-            }
-            case ENGINE_TYPES.HDFS: {
-                return 'hadoopConf'
-            }
-            case ENGINE_TYPES.YARN: {
-                return 'yarnConf'
-            }
-            case ENGINE_TYPES.LIBRA: {
-                return 'libraConf'
-            }
-            default: {
-                return ''
-            }
-        }
+        })
     }
 
     deleteEngine (engineType) {
         const { clusterId, mode, cluster } = this.props.location.state || {};
         const isNew = mode === 'new' // clusterId
+        const { consoleUser } = this.props;
+        let engineList = consoleUser.engineList
         Api.deleteEngine({
             clusterId: !isNew ? cluster.id : clusterId,
             engineType
         }).then(res => {
             if (res.code === 1) {
-
+                const newEngineList = engineList.filter(currentValue => { return currentValue != engineType })
+                this.props.updateEngineList(newEngineList) // 更新engineList
             }
+            // test
+            // const newEngineList = engineList.filter(currentValue => { return currentValue != engineType })
+            // console.log(newEngineList)
+            // this.props.updateEngineList(newEngineList) // 更新engineList
         })
+    }
+    /**
+     * 引擎配置模块底部 测试连通性、取消、保存、删除 Button
+     * @param isView 是否显示 
+     * @param engineType 引擎类型 
+     * @param engineTestLoading 测试loading
+     */
+    renderExtFooter = (isView, engineType, engineTestLoading) => {
+        return (
+            <div>
+                {isView ? null : (
+                    <div className='config-bottom'>
+                        <Row>
+                            <Col span={4}></Col>
+                            <Col span={formItemLayout.wrapperCol.sm.span}>
+                                <Button onClick={this.test.bind(this, engineType)} loading={engineTestLoading} type="primary">测试连通性</Button>
+                                <span style={{ marginLeft: '18px' }}>
+                                    {this.renderTestResult(engineType)}
+                                </span>
+                                <span>
+                                    <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
+                                    <Button onClick={this.saveSingleEngine.bind(this, engineType, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
+                                    <Button type="danger" style={{ marginLeft: '5px' }} onClick={this.showDeleteConfirm.bind(this, engineType)}>删除</Button>
+                                </span>
+                            </Col>
+                        </Row>
+                    </div>
+                )}
+            </div>
+        )
     }
 
     // 获取各引擎配置项数据
@@ -1557,7 +1447,7 @@ class EditCluster extends React.Component {
             clusterName: formValues.clusterName,
             clusterId, // 保存全部需要
             engineType: engineType ? engineType : '',
-            clusterConf: engineType ? JSON.stringify(clusterConf[this.engineTypeConfig(engineType)]) : JSON.stringify(clusterConf)
+            clusterConf: engineType ? JSON.stringify(clusterConf[engineTypeConfig(engineType)]) : JSON.stringify(clusterConf)
         };
         if (haveFile) {
             let file = this.state.file;
@@ -1765,22 +1655,11 @@ class EditCluster extends React.Component {
             }
         })
     }
-
-    // flinkYarnModes (flinkVersion) {
-    //     const flinkYarnMode14 = ['PER_JOB', 'LEGACY'];
-    //     const flinkYarnMode15 = ['PER_JOB', 'LEGACY', 'NEW'];
-    //     console.log(flinkVersion) // finlk140
-    //     if (flinkVersion == 'flink140') {
-    //         return flinkYarnMode14.map((item, index) => {
-    //             return <Option key={item} value={item}>{item}</Option>
-    //         })
-    //     } else if (flinkVersion == 'flink150') {
-    //         return flinkYarnMode15.map((item, index) => {
-    //             return <Option key={item} value={item}>{item}</Option>
-    //         })
-    //     }
-    // }
-
+    onCancel () {
+        this.setState({
+            addEngineVisible: false
+        })
+    }
     // 获取每项Input的值
     getGatewayHostValue (e) {
         this.setState({
@@ -1836,28 +1715,7 @@ class EditCluster extends React.Component {
                                 )}
                             </div>
                         )}
-                        singleButton={(
-                            <div>
-                                {isView ? null : (
-                                    <div className='config-bottom'>
-                                        <Row>
-                                            <Col span={4}></Col>
-                                            <Col span={formItemLayout.wrapperCol.sm.span}>
-                                                <Button onClick={this.test.bind(this, ENGINE_TYPES.SPARKTHRIFTSERVER)} loading={hiveTestLoading} type="primary">测试连通性</Button>
-                                                <span style={{ marginLeft: '18px' }}>
-                                                    {this.renderTestResult(ENGINE_TYPES.SPARKTHRIFTSERVER)}
-                                                </span>
-                                                <span>
-                                                    <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                                    <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.SPARKTHRIFTSERVER, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                                    <Button type="danger" style={{ marginLeft: '5px' }} onClick={this.deleteEngine.bind(this, ENGINE_TYPES.SPARKTHRIFTSERVER)}>删除</Button>
-                                                </span>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        singleButton={this.renderExtFooter(isView, ENGINE_TYPES.SPARKTHRIFTSERVER, hiveTestLoading)}
                     />
                 )
             }
@@ -1869,23 +1727,7 @@ class EditCluster extends React.Component {
                             <div className="engine-config-content" style={{ width: '800px' }}>
                                 {this.renderZipConfig('hdfs')}
                             </div>
-                            {isView ? null : (
-                                <div className='config-bottom'>
-                                    <Row>
-                                        <Col span={4}></Col>
-                                        <Col span={formItemLayout.wrapperCol.sm.span}>
-                                            <Button onClick={this.test.bind(this, ENGINE_TYPES.HDFS)} loading={hdfsTestLoading} type="primary">测试连通性</Button>
-                                            <span style={{ marginLeft: '18px' }}>
-                                                {this.renderTestResult(ENGINE_TYPES.HDFS)}
-                                            </span>
-                                            <span>
-                                                <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                                <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.HDFS, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                            </span>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            )}
+                            {this.renderExtFooter(isView, ENGINE_TYPES.HDFS, hdfsTestLoading)}
                         </div>
                     ) : null
                 )
@@ -1897,23 +1739,7 @@ class EditCluster extends React.Component {
                             <div className="engine-config-content" style={{ width: '800px' }}>
                                 {this.renderZipConfig('yarn')}
                             </div>
-                            {isView ? null : (
-                                <div className='config-bottom'>
-                                    <Row>
-                                        <Col span={4}></Col>
-                                        <Col span={formItemLayout.wrapperCol.sm.span}>
-                                            <Button onClick={this.test.bind(this, ENGINE_TYPES.YARN)} loading={yarnTestLoading} type="primary">测试连通性</Button>
-                                            <span style={{ marginLeft: '18px' }}>
-                                                {this.renderTestResult(ENGINE_TYPES.YARN)}
-                                            </span>
-                                            <span>
-                                                <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                                <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.YARN, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                            </span>
-                                        </Col>
-                                    </Row>
-                                </div>
-                            )}
+                            {this.renderExtFooter(isView, ENGINE_TYPES.YARN, yarnTestLoading)}
                         </div>
                     ) : null
                 )
@@ -1923,27 +1749,7 @@ class EditCluster extends React.Component {
                     <CarbonDataConfig
                         isView={isView}
                         getFieldDecorator={getFieldDecorator}
-                        singleButton={(
-                            <div>
-                                {isView ? null : (
-                                    <div className='config-bottom'>
-                                        <Row>
-                                            <Col span={4}></Col>
-                                            <Col span={formItemLayout.wrapperCol.sm.span}>
-                                                <Button onClick={this.test.bind(this, ENGINE_TYPES.CARBONDATA)} loading={carbonTestLoading} type="primary">测试连通性</Button>
-                                                <span style={{ marginLeft: '18px' }}>
-                                                    {this.renderTestResult(ENGINE_TYPES.CARBONDATA)}
-                                                </span>
-                                                <span>
-                                                    <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                                    <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.CARBONDATA, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                                </span>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        singleButton={this.renderExtFooter(isView, ENGINE_TYPES.CARBONDATA, carbonTestLoading)}
                     />
                 )
             }
@@ -1978,27 +1784,7 @@ class EditCluster extends React.Component {
                                 )}
                             </div>
                         )}
-                        singleButton={(
-                            <div>
-                                {isView ? null : (
-                                    <div className='config-bottom'>
-                                        <Row>
-                                            <Col span={4}></Col>
-                                            <Col span={formItemLayout.wrapperCol.sm.span}>
-                                                <Button onClick={this.test.bind(this, ENGINE_TYPES.FLINK)} loading={flinkTestLoading} type="primary">测试连通性</Button>
-                                                <span style={{ marginLeft: '18px' }}>
-                                                    {this.renderTestResult(ENGINE_TYPES.FLINK)}
-                                                </span>
-                                                <span>
-                                                    <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                                    <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.FLINK, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                                </span>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        singleButton={this.renderExtFooter(isView, ENGINE_TYPES.FLINK, flinkTestLoading)}
                     />
                 )
             }
@@ -2021,27 +1807,7 @@ class EditCluster extends React.Component {
                                 )}
                             </div>
                         )}
-                        singleButton={(
-                            <div>
-                                {isView ? null : (
-                                    <div className='config-bottom'>
-                                        <Row>
-                                            <Col span={4}></Col>
-                                            <Col span={formItemLayout.wrapperCol.sm.span}>
-                                                <Button onClick={this.test.bind(this, ENGINE_TYPES.SPARK)} loading={sparkTestLoading} type="primary">测试连通性</Button>
-                                                <span style={{ marginLeft: '18px' }}>
-                                                    {this.renderTestResult(ENGINE_TYPES.SPARK)}
-                                                </span>
-                                                <span>
-                                                    <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                                    <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.SPARK, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                                </span>
-                                            </Col>
-                                        </Row>
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        singleButton={this.renderExtFooter(isView, ENGINE_TYPES.SPARK, sparkTestLoading)}
                     />
                 )
             }
@@ -2125,23 +1891,7 @@ class EditCluster extends React.Component {
                             )}
                         </div>
                         {/* config底部功能按钮（测试连通性、取消、保存） */}
-                        {isView ? null : (
-                            <div className='config-bottom'>
-                                <Row>
-                                    <Col span={4}></Col>
-                                    <Col span={formItemLayout.wrapperCol.sm.span}>
-                                        <Button onClick={this.test.bind(this, ENGINE_TYPES.LEARNING)} loading={learningTestLoading} type="primary">测试连通性</Button>
-                                        <span style={{ marginLeft: '18px' }}>
-                                            {this.renderTestResult(ENGINE_TYPES.LEARNING)}
-                                        </span>
-                                        <span>
-                                            <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                            <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.LEARNING, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                        </span>
-                                    </Col>
-                                </Row>
-                            </div>
-                        )}
+                        {this.renderExtFooter(isView, ENGINE_TYPES.LEARNING, learningTestLoading)}
                     </div>
                 )
             }
@@ -2267,23 +2017,7 @@ class EditCluster extends React.Component {
                                 </Row>
                             )}
                         </div>
-                        {isView ? null : (
-                            <div className='config-bottom'>
-                                <Row>
-                                    <Col span={4}></Col>
-                                    <Col span={formItemLayout.wrapperCol.sm.span}>
-                                        <Button onClick={this.test.bind(this, ENGINE_TYPES.DTYARNSHELL)} loading={dtYarnShellTestLoading} type="primary">测试连通性</Button>
-                                        <span style={{ marginLeft: '18px' }}>
-                                            {this.renderTestResult(ENGINE_TYPES.DTYARNSHELL)}
-                                        </span>
-                                        <span>
-                                            <Button onClick={hashHistory.goBack} style={{ marginLeft: '5px' }}>取消</Button>
-                                            <Button onClick={this.saveOrAddEngine.bind(this, ENGINE_TYPES.DTYARNSHELL, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                        </span>
-                                    </Col>
-                                </Row>
-                            </div>
-                        )}
+                        {this.renderExtFooter(isView, ENGINE_TYPES.DTYARNSHELL, dtYarnShellTestLoading)}
                     </div>
                 )
             }
@@ -2310,18 +2044,19 @@ class EditCluster extends React.Component {
         // const isNew = !(mode == 'view' || mode == 'edit');
         const columns = this.initColumns();
         const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
-        const { engineLists } = this.props.location.state || {};
-        // engineSelectedLists 查看或者修改接口返回数据 
-        const engines = engineLists
-        // console.log('engineLists', engineLists)
+        const { engineList } = this.props.consoleUser;
         return (
             <div className='console-wrapper'>
+                
                 <Card
                     className='shadow'
                     style={{ margin: '20 20 10 20' }}
                     noHovering
                 >
-                    <div className='config-title'>集群信息</div>
+                    <div>
+                        <p className='back-icon'><GoBack size="default" type="textButton" style={{ fontSize: '14px', color: '#333333' }}></GoBack></p>
+                        <div className='config-title'>集群信息</div>
+                    </div>
                     <div style={{ borderBottom: '1px solid #DDDDDD' }}>
                         <FormItem
                             label="集群标识"
@@ -2442,13 +2177,13 @@ class EditCluster extends React.Component {
                     noHovering
                 >
                     <Tabs
-                        defaultActiveKey={engines && engines[0]}
+                        defaultActiveKey={engineList && engineList[0]}
                         tabPosition='left'
                         style={{ height: '515' }}
                     >
                         {/* 循环出tabPane */}
                         {
-                            engines && engines.map(item => {
+                            engineList && engineList.map(item => {
                                 return (
                                     <TabPane
                                         tab={
@@ -2474,10 +2209,10 @@ class EditCluster extends React.Component {
                 <AddEngineModal
                     key={this.state.editModalKey}
                     visible={this.state.addEngineVisible}
-                    engineSelectedLists={engines}
+                    engineSelectedLists={engineList}
                     clusterType={!isNew ? this.state.clusterType : clusterType} // 集群类型
-                    onCancel={() => {this.setState({ addEngineVisible: false })}}
-                    onOk={this.saveOrAddEngine.bind(this)}
+                    onCancel={() => this.onCancel()}
+                    onOk={this.addEngine.bind(this)}
                 />
             </div>
         )

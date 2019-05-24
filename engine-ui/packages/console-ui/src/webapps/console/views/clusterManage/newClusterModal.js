@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Modal, Form, Select, Input, Checkbox, message } from 'antd';
 import { formItemLayout, CLUSTER_TYPES_VALUE, otherClustersOptions, huaWeiOptions } from '../../consts';
+import { updateEngineList } from '../../actions/console';
 import { hashHistory } from 'react-router';
 import Api from '../../api/console';
 
@@ -8,6 +10,20 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
 const defaultCheckedValue = ['HDFS', 'YARN']; // 必选引擎
+
+function mapStateToProps (state) {
+    return {
+        consoleUser: state.consoleUser
+    }
+}
+function mapDispatchToProps (dispatch) {
+    return {
+        updateEngineList (params) {
+            dispatch(updateEngineList(params))
+        }
+    }
+}
+@connect(mapStateToProps, mapDispatchToProps)
 class NewClusterModal extends Component {
     state = {
         indeterminate: false,
@@ -63,6 +79,8 @@ class NewClusterModal extends Component {
     addCluster = () => {
         this.props.form.validateFields(['type', 'name', 'engines'], {}, (err, value) => {
             if (!err && this.checkEngines()) {
+                // dispatch enginelist
+                this.props.updateEngineList(this.state.checkedList)
                 Api.addCluster({
                     type: value.type,
                     name: value.name,
@@ -78,7 +96,7 @@ class NewClusterModal extends Component {
                     pathname: '/console/clusterManage/editCluster',
                     state: {
                         mode: 'new',
-                        engineLists: this.state.checkedList,
+                        enginelist: this.state.checkedList,
                         clusterName: value.name,
                         clusterType: value.type
                         // clusterConfig: res.data.res.data,
