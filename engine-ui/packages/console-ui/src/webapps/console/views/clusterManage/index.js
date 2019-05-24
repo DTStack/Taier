@@ -1,6 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
 import { Card, Table, Button } from 'antd';
+import NewClusterModal from './newClusterModal';
 import moment from 'moment';
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
@@ -12,7 +13,9 @@ class ClusterManage extends React.Component {
             pageIndex: 1,
             total: 0,
             loading: true
-        }
+        },
+        newClusterModal: false,
+        editModalKey: ''
     }
     componentDidMount () {
         this.getResourceList();
@@ -98,11 +101,23 @@ class ClusterManage extends React.Component {
         ]
     }
     editCluster (item) {
+        console.log('表单数据', item)
         hashHistory.push({
             pathname: '/console/clusterManage/editCluster',
             state: {
                 cluster: item,
-                mode: 'edit'
+                mode: 'edit',
+                engineLists: [
+                    'Flink',
+                    'Spark',
+                    'DTYarnShell',
+                    'Learning',
+                    'HDFS',
+                    'YARN',
+                    'Spark Thrift Server',
+                    'CarbonData',
+                    'Libra'
+                ]
             }
         })
     }
@@ -111,22 +126,37 @@ class ClusterManage extends React.Component {
             pathname: '/console/clusterManage/editCluster',
             state: {
                 cluster: item,
-                mode: 'view'
+                mode: 'view',
+                engineLists: [
+                    'Flink',
+                    'Spark',
+                    'DTYarnShell',
+                    'Learning',
+                    'HDFS',
+                    'YARN',
+                    'Spark Thrift Server',
+                    'CarbonData',
+                    'Libra'
+                ]
             }
         })
     }
     newCluster () {
-        hashHistory.push({
-            pathname: '/console/clusterManage/editCluster'
+        this.setState({
+            editModalKey: Math.random(),
+            newClusterModal: true
         })
+        // hashHistory.push({
+        //     pathname: '/console/clusterManage/editCluster'
+        // })
     }
     render () {
-        const { dataSource, table } = this.state;
+        const { dataSource, table, newClusterModal, editModalKey } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
 
         const cardTitle = (
-            <div>多集群管理 <Button type="primary" onClick={this.newCluster} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
+            <div>多集群管理 <Button type="primary" onClick={this.newCluster.bind(this)} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
         )
         return (
             <div className="contentBox m-card">
@@ -145,6 +175,11 @@ class ClusterManage extends React.Component {
                         columns={columns}
                     />
                 </Card>
+                <NewClusterModal
+                    visible={newClusterModal}
+                    onCancel={() => { this.setState({ newClusterModal: false }) }}
+                    key={editModalKey}
+                />
             </div>
         )
     }

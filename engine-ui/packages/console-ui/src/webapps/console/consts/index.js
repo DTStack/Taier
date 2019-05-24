@@ -114,6 +114,108 @@ export const dataSourceTypes = [ // 数据源类型
     'MaxCompute'
 ]
 
+export const CLUSTER_TYPES_VALUE = { // 集群类型值
+    APACHEHADOOP: 'apache_hadoop',
+    CLOUDERA: 'cloudera',
+    HUAWEI: 'huawei'
+}
+
+export const ENGINE_TYPES = {
+    FLINK: 'Flink',
+    SPARK: 'Spark',
+    DTYARNSHELL: 'DTYarnShell',
+    LEARNING: 'Learning',
+    HDFS: 'HDFS',
+    YARN: 'YARN',
+    SPARKTHRIFTSERVER: 'Spark Thrift Server',
+    CARBONDATA: 'CarbonData',
+    LIBRA: 'Libra'
+}
+
+export const otherClustersOptions = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
+    { label: 'Flink', value: 'Flink' },
+    { label: 'Spark', value: 'Spark' },
+    { label: 'DTYarnShell', value: 'DTYarnShell' },
+    { label: 'Learning', value: 'Learning' },
+    { label: 'HDFS', value: 'HDFS', disabled: true },
+    { label: 'YARN', value: 'YARN', disabled: true },
+    { label: 'Spark Thrift Server', value: 'Spark Thrift Server' },
+    { label: 'CarbonData', value: 'CarbonData' }
+];
+export const otherEngineType = [
+    'Flink',
+    'Spark',
+    'DTYarnShell',
+    'Learning',
+    'HDFS',
+    'YARN',
+    'Spark Thrift Server',
+    'CarbonData'
+]
+export const huaWeiOptions = [ // 华为集群支持的引擎 options
+    'Flink',
+    'Spark',
+    'DTYarnShell',
+    'Learning',
+    'HDFS',
+    'YARN',
+    'Spark Thrift Server',
+    'CarbonData',
+    'Libra'
+];
+
+// hdfs、yarn、learning、libra暂无必填数据,
+// 为了能获取到一组域数据，validateFields第一个参数不可为空，取每组数据任一参数
+export const validateFlinkParams = [ // flink
+    'flinkConf.flinkZkAddress',
+    'flinkConf.flinkHighAvailabilityStorageDir',
+    'flinkConf.flinkZkNamespace',
+    'flinkConf.gatewayHost',
+    'flinkConf.gatewayPort',
+    'flinkConf.gatewayJobName',
+    'flinkConf.deleteOnShutdown',
+    'flinkConf.randomJobNameSuffix',
+    'flinkConf.typeName',
+    'flinkConf.clusterMode',
+    'flinkConf.flinkJarPath',
+    'flinkConf.flinkJobHistory',
+    'flinkConf.flinkPrincipal',
+    'flinkConf.flinkKeytabPath',
+    'flinkConf.flinkKrb5ConfPath',
+    'flinkConf.zkPrincipal',
+    'flinkConf.zkKeytabPath',
+    'flinkConf.zkLoginName'
+]
+export const validateHiveParams = [ // hive <=> Spark Thrift Server
+    'hiveConf.jdbcUrl'
+]
+export const validateCarbonDataParams = [ // carbonData
+    'carbonConf.jdbcUrl'
+]
+export const validateSparkParams = [ // spark
+    'sparkConf.typeName',
+    'sparkConf.sparkYarnArchive',
+    'sparkConf.sparkSqlProxyPath',
+    'sparkConf.sparkPythonExtLibPath',
+    'sparkConf.sparkPrincipal',
+    'sparkConf.sparkKeytabPath',
+    'sparkConf.sparkKrb5ConfPath',
+    'sparkConf.zkPrincipal',
+    'sparkConf.zkKeytabPath',
+    'sparkConf.zkLoginName'
+]
+export const validateDtYarnShellParams = [
+    'dtyarnshellConf.jlogstashRoot',
+    'dtyarnshellConf.javaHome',
+    'dtyarnshellConf.hadoopHomeDir',
+    'dtyarnshellConf.hdfsPrincipal',
+    'dtyarnshellConf.hdfsKeytabPath',
+    'dtyarnshellConf.hdfsKrb5ConfPath'
+]
+
+export const validateLearningParams = [
+    'learningConf.learningPython3Path'
+]
 export const formItemLayout = { // 表单常用布局
     labelCol: {
         xs: { span: 24 },

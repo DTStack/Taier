@@ -89,5 +89,17 @@ export default {
     // 查看剩余资源
     getClusterResources (params) {
         return http.post(req.GET_CLUSTER_RESOURCES, params);
+    },
+    addCluster (params) {
+        return http.post(req.ADD_CLUSTER, params); // 新增集群
+    },
+    saveOrUpdateCluster (params) {
+        return http.post(req.SAVE_ALL_CLUSTER, params);
+    },
+    saveOrAddEngine (params) {
+        return http.post(req.SAVE_OR_ADD_ENGINE, params); // 保存单个引擎或新增引擎
+    },
+    deleteEngine (params) {
+        return http.post(req.DELETE_ENGINE, params); // 删除引擎
     }
 }
