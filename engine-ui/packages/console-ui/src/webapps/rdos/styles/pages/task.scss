@@ -1121,3 +1121,31 @@
     height: 100%;
     background: #fff;
 }
+
+.c-funcMa__collapse {
+    .folder-box {
+        padding: 0 !important;
+    }
+    .ant-collapse {
+        border: 0;
+        border-radius: 0;
+        & > .ant-collapse-item > .ant-collapse-header {
+            padding: 4px 0 4px 32px;
+
+            .arrow {
+                line-height: 30px;
+
+                &::before {
+                    content: "\E606";
+                    transform: rotate(270deg);
+                    font-size: 12px;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        .ant-collapse-item-active > .ant-collapse-header {
+            border-bottom: 1px solid #dddddd;
+        }
+    }
+}

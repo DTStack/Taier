@@ -17,6 +17,14 @@ class EngineConfigItem extends React.Component {
     state = {
         createType: 1
     }
+    componentDidUpdate (prevProps, prevState, snapshot) {
+        if (prevProps.engineType !== this.props.engineType) {
+            this.setState({
+                createType: 1
+            })
+        }
+    }
+
     initialTypeRadios () {
         const { engineType } = this.props;
         switch (engineType) {
@@ -44,7 +52,7 @@ class EngineConfigItem extends React.Component {
         const {
             onPreviewMetaData,
             targets,
-            engine,
+            formParentField,
             formItemLayout,
             disabledTargets
         } = this.props;
@@ -63,23 +71,20 @@ class EngineConfigItem extends React.Component {
             )
         )
 
+        const parentField = formParentField ? `${formParentField}.` : '';
+
         return (
             <React.Fragment>
                 <FormItem
                     label='初始化方式'
+                    style={{ marginBottom: createType === 1 ? 0 : 24 }}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator(`${engine}.initialType`, {
-                        initialValue: 1,
-                        rules: [{
-                            required: false,
-                            message: '请选择初始化方式'
-                        }]
-                    })(
-                        <RadioGroup onChange={this.onInitialTypeChange}>
-                            {this.initialTypeRadios()}
-                        </RadioGroup>
-                    )}
+                    <RadioGroup
+                        value={this.state.createType}
+                        onChange={this.onInitialTypeChange}>
+                        {this.initialTypeRadios()}
+                    </RadioGroup>
                 </FormItem>
                 {
                     createType === 2 ? <React.Fragment>
@@ -87,7 +92,7 @@ class EngineConfigItem extends React.Component {
                             label='对接目标'
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${engine}.target`, {
+                            {getFieldDecorator(`${parentField}.target`, {
                                 rules: [{
                                     required: true,
                                     message: '请选择对接目标'
@@ -106,7 +111,7 @@ class EngineConfigItem extends React.Component {
                             label='所属类目'
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${engine}.catalogueId`, {
+                            {getFieldDecorator(`${parentField}.catalogueId`, {
                                 rules: [{
                                     required: true,
                                     message: '请选择所属类目'
@@ -123,7 +128,7 @@ class EngineConfigItem extends React.Component {
                             label='生命周期'
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${engine}.lifecycle`, {
+                            {getFieldDecorator(`${parentField}.lifecycle`, {
                                 rules: [{
                                     required: true,
                                     message: '生命周期不可为空'

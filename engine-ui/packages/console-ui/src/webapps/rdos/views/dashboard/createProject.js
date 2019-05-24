@@ -4,7 +4,7 @@ import { hashHistory } from 'react-router';
 
 import api from '../../api';
 import GoBack from 'main/components/go-back'
-import WorkspaceForm from './workspaceForm';
+import CreateForm from './createForm';
 import { PROJECT_CREATE_MODEL } from '../../comm/const';
 
 class CreateWorkSpace extends React.Component {
@@ -80,12 +80,12 @@ class CreateWorkSpace extends React.Component {
                 >
                     <Alert
                         className='l-createWorkspace__wanring'
-                        message="一个工作空间可以对接一个或多个计算引擎，相当于对接不同引擎的database / schema，新建成功后不可删除"
+                        message="一个项目可以对接一个或多个计算引擎，相当于对接不同引擎的database / schema，新建成功后不可删除"
                         type="warning"
                         showIcon
                         closable
                     />
-                    <WorkspaceForm
+                    <CreateForm
                         ref={(ref) => { this.form = ref; }}
                         projectList={projectList}
                         {...formData}

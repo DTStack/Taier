@@ -29,7 +29,7 @@ import RoleManagement from './views/project/role'
 import RoleAdd from './views/project/role/add'
 import RoleEdit from './views/project/role/edit'
 import EngineConfig from './views/project/engine'
-import CreateWorkspace from './views/dashboard/createWorkspace'
+import CreateProject from './views/dashboard/createProject'
 
 // ======= 任务 =======
 import TaskContainer from './views/task/container'
@@ -130,7 +130,7 @@ export default (
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
         </Route>
         <Route path="/rdos" component={Container}>
-            <Route path="/create-work-space" component={CreateWorkspace} />
+            <Route path="/create-project" component={CreateProject} />
             <IndexRoute component={Dashboard} />
             <Route path="/gateway" component={GateWay} />
             <Route path="/project/:pid" component={ProjectContainer} onEnter={isSelectedProject}>

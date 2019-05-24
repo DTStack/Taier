@@ -14,11 +14,11 @@ const TextArea = Input.TextArea;
 export const metaFormLayout = {
     labelCol: {
         xs: { span: 24 },
-        sm: { span: 2 }
+        sm: { span: 3 }
     },
     wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 14 }
+        sm: { span: 16 }
     }
 }
 
@@ -98,7 +98,8 @@ class WorkspaceForm extends React.Component {
                         {getFieldDecorator('enableCycleSchedule', {
                             rules: [{
                                 required: true
-                            }]
+                            }],
+                            initialValue: true
                         })(
                             <Switch
                                 checkedChildren="开"
@@ -114,7 +115,8 @@ class WorkspaceForm extends React.Component {
                         {getFieldDecorator('downloadSelect', {
                             rules: [{
                                 required: true
-                            }]
+                            }],
+                            initialValue: true
                         })(
                             <Switch
                                 checkedChildren="开"
@@ -151,7 +153,7 @@ class WorkspaceForm extends React.Component {
                     <div className="bd" style={{ background: '#f5f5f5', padding: '10px' }}>
                         <EngineConfigItem
                             {...this.props}
-                            engine="spark"
+                            formParentField="spark"
                             formItemLayout={metaFormLayout}
                             engineType={ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER}
                         />
@@ -168,7 +170,7 @@ class WorkspaceForm extends React.Component {
                     <div className="bd" style={{ background: '#f5f5f5', padding: '10px' }}>
                         <EngineConfigItem
                             {...this.props}
-                            engine="libra"
+                            formParentField="libra"
                             formItemLayout={metaFormLayout}
                             engineType={ENGINE_SOURCE_TYPE.LIBRA}
                         />
