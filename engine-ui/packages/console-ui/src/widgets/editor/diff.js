@@ -38,15 +38,15 @@ class DiffEditor extends React.Component {
             this.props.editorInstanceRef(this._originalEditor)
         }
     }
-
-    componentWillReceiveProps (nextProps) {
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { sync, original = {}, modified = {}, options = {}, theme } = nextProps;
         if (this.props.original && this.props.original.value !== original.value && sync) {
             const editorText = !original.value ? '' : original.value;
             this.updateValueWithNoEvent(editorText);
         }
         if (this.props.modified && this.props.modified.value !== modified.value) {
-            this._modifiedEditor.setValue(modified.value)
+            this._modifiedEditor.setValue(modified.value || '')
         }
         if (this.props.options !== options) {
             this.monacoInstance.updateOptions({ ...options, originalEditable: !options.readOnly })
@@ -143,7 +143,7 @@ class DiffEditor extends React.Component {
     initEditorEvent () {
         this._originalEditor.onDidChangeModelContent(event => {
             this.log('编辑器事件');
-            const { onChange, value } = this.props;
+            const { onChange } = this.props;
             const newValue = this._originalEditor.getValue();
             if (onChange) {
                 this.log('订阅事件触发');
@@ -212,7 +212,7 @@ DiffEditor.propTypes = {
     /**
      * 该方法的入参为源文件Editor的引用
      */
-    editorInstanceRef: PropTypes.function,
+    editorInstanceRef: PropTypes.func,
     /**
      * 源文件的属性对象
      * value:文件内容
@@ -232,19 +232,19 @@ DiffEditor.propTypes = {
     /**
      * 源文件改变事件回调函数
      */
-    onChange: PropTypes.function,
+    onChange: PropTypes.func,
     /**
      * 源文件失去焦点回调函数
      */
-    onBlur: PropTypes.function,
+    onBlur: PropTypes.func,
     /**
      * 源文件获得焦点回调函数
      */
-    onFocus: PropTypes.function,
+    onFocus: PropTypes.func,
     /**
      * 文件指针改变事件回调函数
      */
-    onCursorSelection: PropTypes.function,
+    onCursorSelection: PropTypes.func,
     /**
      * 是否同步源文件内容
      */
