@@ -234,13 +234,13 @@ public class ApplicationContainerListener
 
     @Override
     public LocalRemotePath[] getOutputLocation() {
-        LOG.info("-----call getOutputLocation-----");
+        LOG.debug("-----call getOutputLocation-----");
         return new LocalRemotePath[0];
     }
 
     @Override
     public LocalRemotePath[] getInputSplit(DtContainerId containerId) {
-        LOG.info("-----call getInputSplit-----");
+        LOG.debug("-----call getInputSplit-----");
         return new LocalRemotePath[0];
     }
 
