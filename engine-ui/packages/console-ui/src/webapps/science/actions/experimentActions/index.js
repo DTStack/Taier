@@ -1,0 +1,166 @@
+import { addTab, setCurrentTab, closeTab } from '../base/tab';
+import { message } from 'antd';
+import { loadTreeData } from '../base/fileTree';
+import { siderBarType } from '../../consts';
+import api from '../../api/experiment';
+import fileApi from '../../api/fileTree';
+import { cloneDeep } from 'lodash';
+import { changeContent } from './runExperimentActions';
+import { removeMetadata } from '../helper';
+
+export function changeText (text, tab) {
+    return changeContent({
+        sqlText: text
+    }, tab)
+}
+export function addExperiment (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.addExperiment(params);
+            if (res && res.code == 1) {
+                message.success('新建成功');
+                dispatch(loadTreeData(siderBarType.experiment, params.nodePid))
+                resolve(res);
+            }
+        })
+    }
+}
+export function deleteExperiment (params) {
+    return (dispatch, getState) => {
+        return new Promise(async (resolve) => {
+            let res = await api.deleteExperiment({ taskId: params.id });
+            if (res && res.code == 1) {
+                const experiment = getState().experiment;
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.experiment, params.parentId))
+                dispatch(closeTab(siderBarType.experiment, params.id, experiment.localTabs, experiment.currentTabIndex))
+                resolve(res);
+            }
+        })
+    }
+}
+
+export function deleteExperimentFolder (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await fileApi.deleteFolder(params);
+            if (res && res.code == 1) {
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.experiment, params.parentId))
+                resolve(res);
+            }
+        })
+    }
+}
+export function updateTaskData (oldData, newData, isSilent = true) {
+    return (dispatch, getState) => {
+        dispatch(changeContent(newData, oldData, true, isSilent))
+    }
+}
+
+export function openExperiment (id) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.openExperiment({ id });
+            if (res && res.code == 1) {
+                try {
+                    res.data.graphData = JSON.parse(res.data.sqlText)
+                } catch (error) {
+                    res.data.graphData = []
+                }
+                res.data.graphData.forEach(element => {
+                    if (element.edge) {
+                        const targetId = element.target.data.id;
+                        const sourceId = element.source.data.id;
+                        element.target.data = res.data.graphData.find(o => o.vertex && o.data.id == targetId).data;
+                        element.source.data = res.data.graphData.find(o => o.vertex && o.data.id == sourceId).data;
+                    }
+                });
+                dispatch(addTab(siderBarType.experiment, res.data));
+                dispatch(setCurrentTab(siderBarType.experiment, id));
+                resolve(res);
+            }
+        })
+    }
+}
+export function saveExperiment (tabData, isMessage = true) {
+    return (dispatch, getState) => {
+        return new Promise(async (resolve) => {
+            let tab = cloneDeep(tabData);
+            tab = removeMetadata(tab);
+            tab.graphData = tab.graphData.map((item) => {
+                if (item.edge) {
+                    item.source = { ...item.source, data: { id: item.source.data.id } };
+                    item.target = { ...item.target, data: { id: item.target.data.id } };
+                }
+                return item;
+            })
+            tab.sqlText = JSON.stringify(tab.graphData);
+            let res = await api.addExperiment(tab);
+            if (res && res.code == 1) {
+                // const tabs = getState().experiment.localTabs;
+                dispatch(changeContent(res.data, tabData, false));
+                resolve(res);
+                isMessage && message.success('保存成功！')
+            }
+        })
+    }
+}
+
+export function copyCell (tabData, copyCell) {
+    return (dispatch) => {
+        return new Promise((resolve, reject) => {
+            api.cloneComponent({ taskId: copyCell.data.id }).then((res) => {
+                if (res.code == 1) {
+                    resolve(res.data);
+                } else {
+                    reject(res)
+                }
+            })
+        })
+    }
+}
+export function getTaskDetailData (data, taskId) {
+    return (dispatch) => {
+        return new Promise((resolve) => {
+            api.getExperimentTask({ id: taskId }).then((res) => {
+                if (res.code === 1) {
+                    const graphData = data.graphData;
+                    const object = graphData.find(o => o.vertex && o.data.id === taskId);
+                    object.data = { ...object.data, ...res.data };
+                    dispatch(changeContent(data, {}, data.dirty, false));
+                    resolve(res.data);
+                }
+            })
+        })
+    }
+}
+
+export function submitExperimentModel (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.submitExperimentModel(params);
+            if (res && res.code == 1) {
+                message.success('提交模型成功！')
+                resolve(res);
+            }
+            resolve(false);
+        })
+    }
+}
+
+export function submitExperiment (tabData) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await api.submitExperiment(tabData);
+            if (res && res.code == 1) {
+                message.success('实验提交成功，可前往运维中心查看该实验')
+                dispatch(changeContent(res.data, tabData, false));
+                resolve(res)
+            }
+            resolve(false);
+        })
+    }
+}
+
+export * from './runExperimentActions';

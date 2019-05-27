@@ -45,7 +45,7 @@ class FolderForm extends React.Component {
                         rules: [
                             {
                                 max: 20,
-                                message: '项目名称不得超过20个字符！'
+                                message: '目录名称不得超过20个字符！'
                             },
                             {
                                 required: true,

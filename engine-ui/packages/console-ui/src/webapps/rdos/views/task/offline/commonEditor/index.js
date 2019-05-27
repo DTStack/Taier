@@ -12,6 +12,7 @@ import API from '../../../../api';
 import IDEEditor from 'main/components/ide';
 
 import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
+import { TASK_TYPE } from '../../../../comm/const';
 
 import {
     workbenchActions
@@ -172,7 +173,8 @@ class CommonEditorContainer extends Component {
 
         const cursorPosition = currentTabData.cursorPosition || undefined;
         const isLocked = currentTabData.readWriteLockVO && !currentTabData.readWriteLockVO.getLock;
-        const couldEdit = isProjectCouldEdit(project, user);
+        const isScienceTask = currentTabData.taskType == TASK_TYPE.NOTEBOOK;
+        const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
         const editorOpts = {
             value: value,
             language: mode,

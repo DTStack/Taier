@@ -1,5 +1,23 @@
 // 常量
 
+// Engine source 类型
+export const ENGINE_SOURCE_TYPE = {
+    SPARK_THRIFT_SERVER: 1,
+    LIBRA: 2
+}
+
+// Engine source 类型选项
+export const ENGINE_SOURCE_TYPE_OPTIONS = [
+    {
+        name: 'Spark Thrift Server',
+        value: ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER
+    },
+    {
+        name: 'LibrA',
+        value: ENGINE_SOURCE_TYPE.LIBRA
+    }
+]
+
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
@@ -16,6 +34,16 @@ export const DATA_SOURCE = {
     MONGODB: 13,
     DB2: 19,
     CARBONDATA: 20
+}
+
+/**
+ * 引擎类型
+ */
+export const ENGINE_TYPE = {
+    SPARK: 0,
+    LIBRA: 1,
+    KYLIN: 2,
+    HAWQ: 3
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -158,7 +186,9 @@ export const TASK_TYPE = { // 任务类型
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
     DATA_COLLECTION: 11, // 实时采集
-    CARBONSQL: 12 // CarbonSQL
+    CARBONSQL: 12, // CarbonSQL
+    NOTEBOOK: 13,
+    EXPERIMENT: 14
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
@@ -444,6 +474,14 @@ export const offlineTaskTypeFilter = [
         id: 12,
         text: 'CarbonSQL',
         value: TASK_TYPE.CARBONSQL
+    }, {
+        id: 13,
+        text: 'Notebook',
+        value: TASK_TYPE.NOTEBOOK
+    }, {
+        id: 14,
+        text: '算法实验',
+        value: TASK_TYPE.EXPERIMENT
     }]
 
 export const offlineTaskPeriodFilter = [{

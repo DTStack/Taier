@@ -1,17 +1,17 @@
-const path = require("path");
-const webpack = require("webpack");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const path = require('path');
+const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-const HappyPack = require("happypack");
+const HappyPack = require('happypack');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
-const os = require("os");
+const os = require('os');
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
 
-const MY_PATH = require("./consts");
-const monacoConfig = require("./monacoConfig");
-const splitChunksConfig = require("./splitChunksConfig");
-const VERSION = JSON.stringify(require("../package.json").version); // app version.
+const MY_PATH = require('./consts');
+const monacoConfig = require('./monacoConfig');
+const splitChunksConfig = require('./splitChunksConfig');
+const VERSION = JSON.stringify(require('../package.json').version); // app version.
 
 module.exports = function () {
     return {
@@ -24,6 +24,7 @@ module.exports = function () {
             dataLabel: MY_PATH.DATA_LABEL_APP_FILE,
             console: MY_PATH.CONSOLE_APP_FILE,
             analyticsEngine: MY_PATH.ANALYTICS_ENGINE_APP_FILE,
+            science: MY_PATH.SCIENCE_APP_FILE
         },
         output: {
             path: MY_PATH.BUILD_PATH,
@@ -103,7 +104,8 @@ module.exports = function () {
                 dataMap: MY_PATH.DATA_MAP_PATH, // 数据地图
                 metaData: MY_PATH.META_DATA_PATH, // 元数据
                 coreData: MY_PATH.CORE_DATA_PATH, // 主数据
-                analytics: MY_PATH.ANALYTICS_ENGINE_PATH,//分析引擎
+                analytics: MY_PATH.ANALYTICS_ENGINE_PATH, // 分析引擎
+                science: MY_PATH.SCIENCE_PATH // 算法平台
             }
         },
         plugins: [
@@ -113,31 +115,31 @@ module.exports = function () {
                 languages: monacoConfig.languages
             }),
             new HappyPack({
-                id: "happy-babel-js",
-                loaders: ["babel-loader?cacheDirectory=true"],
-                threadPool: happyThreadPool,
+                id: 'happy-babel-js',
+                loaders: ['babel-loader?cacheDirectory=true'],
+                threadPool: happyThreadPool
             }),
             new MiniCssExtractPlugin({
-                //提取为外部css代码
-                filename: "[name].css?v=[contenthash]"
+                // 提取为外部css代码
+                filename: '[name].css?v=[contenthash]'
             }),
             new CopyWebpackPlugin([
                 {
                     from: path.resolve(MY_PATH.WEB_PUBLIC),
-                    to: path.resolve(MY_PATH.BUILD_PATH, "public"),
-                    ignore: ["*/index.html"]
+                    to: path.resolve(MY_PATH.BUILD_PATH, 'public'),
+                    ignore: ['*/index.html']
                 }, {
                     from: path.resolve(MY_PATH.ROOT_PATH, 'docs'),
-                    to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
+                    to: path.resolve(MY_PATH.BUILD_PATH, 'docs')
                 }, {
                     from: path.resolve(MY_PATH.ROOT_PATH, '*.md'),
-                    to: path.resolve(MY_PATH.BUILD_PATH, "docs"),
+                    to: path.resolve(MY_PATH.BUILD_PATH, 'docs')
                 }, {
                     from: path.resolve(MY_PATH.PWA, 'sw.js'),
-                    to: path.resolve(MY_PATH.BUILD_PATH),
+                    to: path.resolve(MY_PATH.BUILD_PATH)
                 }, {
                     from: path.resolve(MY_PATH.PWA, 'manifest.json'),
-                    to: path.resolve(MY_PATH.BUILD_PATH),
+                    to: path.resolve(MY_PATH.BUILD_PATH)
                 }
             ]),
 

@@ -6,19 +6,13 @@ import {
     message, Modal
 } from 'antd'
 
+import Mx from 'widgets/mxGraph';
+
 import Api from '../../../../api'
 import OperaRecordModal from './operaRecordModal';
 import { SCHEDULE_STATUS, TASK_TYPE } from '../../../../comm/const'
 
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView'
-
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
 
 const {
     mxEvent,

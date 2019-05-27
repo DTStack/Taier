@@ -7,10 +7,11 @@ import {
 } from 'antd';
 import utils from 'utils'
 
-import API from '../../../../api/dataManage'
 import Editor from 'widgets/editor'
 import CopyIcon from 'main/components/copy-icon';
+import TableEngineSelect from '../../../../components/tableEngineSelect';
 
+import API from '../../../../api/dataManage'
 import { formItemLayout } from '../../../../comm/const'
 import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon'
 import { getTableList } from '../../../../store/modules/offlineTask/comm';
@@ -77,6 +78,12 @@ class ImportTarget extends Component {
             params.tableData = {}
         }
         this.props.changeStatus(params);
+    }
+
+    onTableEngineChange = (value) => {
+        this.props.changeStatus({
+            tableEngine: value
+        });
     }
 
     debounceSearch = debounce(this.tableInput, 500, { 'maxWait': 2000 })
@@ -330,15 +337,12 @@ class ImportTarget extends Component {
                         onChange={(e) => { this.tablePartitionChange(e, item, index) }}
                         placeholder="请输入分区名称" />
                     &nbsp;&nbsp;
-
                     {
-                        /* eslint-disable */
                         index === data.length - 1
                             ? <span style={{ color: '#f60' }}>
                                 <br />
-                                点击"检测"按钮，测试分区是否存在
+                                点击<b>检测</b>按钮，测试分区是否存在
                             </span> : ''
-                        /* eslint-disable */
                     }
                 </Row>
             )
@@ -365,6 +369,16 @@ class ImportTarget extends Component {
             <div style={{ display: display === 'target' ? 'block' : 'none' }}>
                 <Row>
                     <Form>
+                        <FormItem
+                            required
+                            label="引擎类型"
+                            {...formItemLayout}
+                        >
+                            <TableEngineSelect
+                                placeholder="请选择引擎类型"
+                                onChange={this.onTableEngineChange}
+                            />
+                        </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="导入至表"

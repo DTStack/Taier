@@ -142,15 +142,6 @@ class Header extends Component {
         const routes = pathname ? pathname.split('/') : [];
         let path =
             routes.length > 0 && routes[1] !== '' ? routes[1] : 'overview';
-        if (
-            path &&
-            (path.indexOf('task') > -1 || path.indexOf('offline') > -1 || path.indexOf('realtime') > -1)
-        ) {
-            this.setState({
-                devPath: pathname
-            });
-            path = 'realtime'
-        }
         if (path !== this.state.current) {
             this.setState({
                 current: path
@@ -178,7 +169,7 @@ class Header extends Component {
         const projectName =
             project && project.projectName
                 ? project.projectAlias || project.projectName
-                : '项目选择';
+                : '选择项目';
         let projectTypeText = '';
         let projectTypeIcon = null;
         switch (project && project.projectType) {
@@ -280,7 +271,7 @@ class Header extends Component {
 
     isIndex () {
         const { current } = this.state;
-        const isIndex = current == 'overview' || current == 'data-manage' || current == 'metaDataImport';
+        const isIndex = current == 'overview' || current == 'data-manage' || current == 'create-project';
         return isIndex;
     }
     // 固定数组Index, 控制显示子应用
@@ -383,7 +374,7 @@ class Header extends Component {
                         {taskNav && taskNav.isShow ? (
                             <Menu.Item
                                 className="my-menu-item"
-                                key="realtime"
+                                key="offline"
                                 style={{ display }}
                             >
                                 <a href={`${basePath}${devPath}`}>数据开发</a>
