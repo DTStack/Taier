@@ -101,6 +101,7 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
+    "dev:win": "./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install --unsafe-perm=true --allow-root && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",

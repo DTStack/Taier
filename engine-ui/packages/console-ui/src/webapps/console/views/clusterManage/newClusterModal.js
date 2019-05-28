@@ -89,21 +89,21 @@ class NewClusterModal extends Component {
                     if (res.code === 1) {
                         this.props.onCancel()
                         message.success('集群新增成功！')
-                    }
-                })
-                // 采用接口返回数据
-                hashHistory.push({
-                    pathname: '/console/clusterManage/editCluster',
-                    state: {
-                        mode: 'new',
-                        enginelist: this.state.checkedList,
-                        clusterName: value.name,
-                        clusterType: value.type
-                        // clusterConfig: res.data.res.data,
-                        // clusterId: res.data.id,
-                        // totalNode: res.data.totalNode,
-                        // totalMemory: res.data.totalMemory,
-                        // totalCore: res.data.totalCore
+                        // 采用接口返回数据
+                        hashHistory.push({
+                            pathname: '/console/clusterManage/editCluster',
+                            state: {
+                                mode: 'new',
+                                enginelist: this.state.checkedList,
+                                clusterName: value.name,
+                                clusterType: value.type,
+                                totalNode: res.data.totalNode,
+                                totalMemory: res.data.totalMemory,
+                                totalCore: res.data.totalCore,
+                                clusterConfig: res.data,
+                                clusterId: res.data.id
+                            }
+                        })
                     }
                 })
             }

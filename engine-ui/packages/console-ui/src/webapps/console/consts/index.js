@@ -127,9 +127,9 @@ export const ENGINE_TYPES = {
     LEARNING: 'Learning',
     HDFS: 'HDFS',
     YARN: 'YARN',
-    SPARKTHRIFTSERVER: 'Spark Thrift Server',
+    SPARKTHRIFTSERVER: 'SparkThrift',
     CARBONDATA: 'CarbonData',
-    LIBRA: 'Libra'
+    LIBRA: 'LibrA'
 }
 
 export const otherClustersOptions = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
@@ -139,7 +139,7 @@ export const otherClustersOptions = [ // 非华为集群支持的引擎类型opt
     { label: 'Learning', value: 'Learning' },
     { label: 'HDFS', value: 'HDFS', disabled: true },
     { label: 'YARN', value: 'YARN', disabled: true },
-    { label: 'Spark Thrift Server', value: 'Spark Thrift Server' },
+    { label: 'SparkThrift', value: 'SparkThrift' },
     { label: 'CarbonData', value: 'CarbonData' }
 ];
 export const otherEngineType = [
@@ -149,7 +149,7 @@ export const otherEngineType = [
     'Learning',
     'HDFS',
     'YARN',
-    'Spark Thrift Server',
+    'SparkThrift',
     'CarbonData'
 ]
 export const huaWeiOptions = [ // 华为集群支持的引擎 options
@@ -159,9 +159,9 @@ export const huaWeiOptions = [ // 华为集群支持的引擎 options
     'Learning',
     'HDFS',
     'YARN',
-    'Spark Thrift Server',
+    'SparkThrift',
     'CarbonData',
-    'Libra'
+    'LibrA'
 ];
 
 // hdfs、yarn、learning、libra暂无必填数据,
@@ -215,6 +215,10 @@ export const validateDtYarnShellParams = [
 
 export const validateLearningParams = [
     'learningConf.learningPython3Path'
+]
+// libra暂无配置项，此项为解决无法匹配libra
+export const validateLibraParams = [
+    'libraConf.tempParam'
 ]
 export const formItemLayout = { // 表单常用布局
     labelCol: {
