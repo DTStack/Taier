@@ -1,7 +1,14 @@
 import React, { Component } from 'react'
-import Mx from 'widgets/mxGraph';
 
 import './style.scss'
+
+const Mx = require('public/main/mxgraph')({
+    mxBasePath: 'public/main/mxgraph',
+    mxImageBasePath: 'public/main/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
+    mxLoadStylesheets: false
+})
 
 const {
     // mxClient,
