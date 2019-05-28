@@ -158,10 +158,12 @@ class GraphContainer extends React.Component {
                         ctx.showHideEvaluateReport(true, currentNode);
                     }, null, null, true);
                 }
-                menu.addItem('查看日志', null, function () {
-                    // 查看日志
-                    ctx.showHideRunningLog(true, currentNode);
-                }, null, null, true);
+                if (currentNode.componentType !== COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE) {
+                    menu.addItem('查看日志', null, function () {
+                        // 查看日志
+                        ctx.showHideRunningLog(true, currentNode);
+                    }, null, null, true);
+                }
             } else {
                 menu.addItem('删除依赖关系', null, function () {
                     ctx.removeCell(cell);
