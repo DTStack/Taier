@@ -809,7 +809,7 @@ class GraphContainer extends React.Component {
         const graphData = cloneDeep(data.graphData);
         return (
             <div className="exp-graph-view" style={{ width: '100%' }}>
-                <input id="mockInput" style={{ opacity: 1, width: 1, height: 1, outline: 0 }} />
+                <input id="mockInput" readOnly style={{ opacity: 0, width: 1, height: 1, outline: 0, border: 0 }} />
                 <GraphEditor
                     version={data.version}
                     data={graphData || []}
