@@ -47,7 +47,7 @@ class CollectionTarget extends React.Component {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
@@ -128,11 +128,11 @@ class CollectionTargetForm extends React.Component {
         const { isEdit, targetMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap) return [];
-
+        const isOrc = targetMap.fileType == 'orc';
         switch (targetMap.type) {
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10:
-            case DATA_SOURCE.KAFKA : {
+            case DATA_SOURCE.KAFKA: {
                 return (
                     <FormItem
                         {...formItemLayout}
@@ -174,7 +174,7 @@ class CollectionTargetForm extends React.Component {
                             }],
                             initialValue: get(targetMap, 'path', '')
                         })(
-                            <Input placeholder="例如: /app/batch"/>
+                            <Input placeholder="例如: /app/batch" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -188,7 +188,7 @@ class CollectionTargetForm extends React.Component {
                             }],
                             initialValue: get(targetMap, 'fileName', '')
                         })(
-                            <Input placeholder="文件名"/>
+                            <Input placeholder="文件名" />
                         )}
                     </FormItem>,
                     <FormItem
@@ -208,7 +208,7 @@ class CollectionTargetForm extends React.Component {
                             </Select>
                         )}
                     </FormItem>,
-                    <FormItem
+                    !isOrc && (<FormItem
                         {...formItemLayout}
                         label="列分隔符"
                         key="fieldDelimiter"
@@ -219,27 +219,29 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <Input
                                 /* eslint-disable-next-line */
-                                placeholder="例如: 目标为hive则 分隔符为\001"/>
+                                placeholder="例如: 目标为hive则 分隔符为\001" />
                         )}
                         <HelpDoc doc="splitCharacter" />
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="编码"
-                        key="encoding"
-                    >
-                        {getFieldDecorator('encoding', {
-                            rules: [{
-                                required: true
-                            }],
-                            initialValue: get(targetMap, 'encoding', undefined)
-                        })(
-                            <Select>
-                                <Option value="utf-8">utf-8</Option>
-                                <Option value="gbk">gbk</Option>
-                            </Select>
-                        )}
-                    </FormItem>,
+                    </FormItem>),
+                    !isOrc && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="编码"
+                            key="encoding"
+                        >
+                            {getFieldDecorator('encoding', {
+                                rules: [{
+                                    required: true
+                                }],
+                                initialValue: get(targetMap, 'encoding', undefined)
+                            })(
+                                <Select>
+                                    <Option value="utf-8">utf-8</Option>
+                                    <Option value="gbk">gbk</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
                     <FormItem
                         {...formItemLayout}
                         label="写入模式"
@@ -262,7 +264,7 @@ class CollectionTargetForm extends React.Component {
                             </RadioGroup>
                         )}
                     </FormItem>
-                ];
+                ].filter(Boolean);
             }
             default: {
                 return null;

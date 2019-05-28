@@ -95,8 +95,7 @@ class TaskIndex extends Component {
             })
         })
     }
-
-    saveTask = (saveMode) => {
+    _saveTask = (saveMode) => {
         const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
         console.log('saveTask', this.props);
 
@@ -228,7 +227,7 @@ class TaskIndex extends Component {
             })
         })
     }
-
+    saveTask = debounce(this._saveTask, 500, { maxWait: 2000 });
     editorChange = (data) => {
         let { currentPage, dispatch } = this.props;
         currentPage = cloneDeep(currentPage);
