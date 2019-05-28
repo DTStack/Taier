@@ -66,7 +66,9 @@ export default {
     searchUICUsers(params) {
         return http.post(req.SEARCH_UIC_USERS, params)
     },
-
+    getTenantList(params) {
+        return http.post(req.GET_TENANT_LIST, params)
+    },
     // ========== Project ========== //
     queryProjects(params) {
         return http.post(req.QUERY_PROJECT_LIST, params)

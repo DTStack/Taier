@@ -12,6 +12,7 @@ export default {
     UPDATE_USER_ROLE: `${RDOS_BASE_URL}/common/roleUser/updateUserRole`, // 更新用户角色
     GET_USER_BY_ID: `${RDOS_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
     SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,
+    GET_TENANT_LIST: `${RDOS_BASE_URL}/common/project/getProjects`,
 
     // ===== 项目模块 ===== //
     CREATE_PROJECT: `${RDOS_BASE_URL}/common/project/createProject`, // 创建项目
