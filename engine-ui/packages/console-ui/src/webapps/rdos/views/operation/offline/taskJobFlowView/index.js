@@ -3,8 +3,6 @@ import { cloneDeep, get } from 'lodash'
 import moment from 'moment';
 import { Tooltip, Modal, message, Icon } from 'antd'
 
-import Mx from 'widgets/mxGraph';
-
 import { TaskInfo } from './taskInfo'
 import { LogInfo } from '../taskLog'
 import RestartModal from './restartModal'
@@ -17,6 +15,13 @@ import JobGraphView, {
     mergeTreeNodes, replacTreeNodeField
 } from './jobGraphView';
 
+const Mx = require('public/main/mxgraph')({
+    mxBasePath: 'public/main/mxgraph',
+    mxImageBasePath: 'public/main/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
+    mxLoadStylesheets: false
+})
 const {
     mxEvent,
     mxCellHighlight,
@@ -412,7 +417,7 @@ class TaskJobFlowView extends Component {
                         registerEvent={this.initGraphEvent}
                         registerContextMenu={this.initContextMenu}
                         graphData={workflowData && workflowData.subNodes}
-                        key={`graph-${workflowData && workflowData.id}`}
+                        key={`graph-workflow-${workflowData && workflowData.id}`}
                         refresh={this.loadWorkflowNodes.bind(this, workflowData)}
                     />
                 </Modal>
