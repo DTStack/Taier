@@ -69,8 +69,8 @@ export default {
     GET_TYPE_ORIGIN_DATA: `${RDOS_BASE_URL}/stream/streamDataSource/listDataSourceBaseInfo`, // 获取类型数据源
     GET_TOPIC_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/getKafkaTopics`, // 获取Topic
     GET_STREM_TABLE_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/tablelist`, // 获取数据源列表
-    GET_CREATE_TARGET_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getCreateTargetTableSql`, // 获取目标表创建sql
-    GET_COLUMNS_OF_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/simpleTableColumns`, // 获取表的列名
+    GET_CREATE_TARGET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getCreateTargetTableSql`, // 获取目标表创建sql
+    GET_COLUMNS_OF_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/simpleTableColumns`, // 获取表的列名
     GET_ALL_FUNCTION_NAME: `${RDOS_BASE_URL}/batch/batchFunction/getAllFunctionName`, // 获取系统函数
 
     GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
@@ -122,7 +122,7 @@ export default {
     GET_REALTIME_LINK_SOURCE: `${RDOS_BASE_URL}/stream/streamDataSource/getDataSourceInBingProject`,
     GET_OFFLINE_TASK_LINK_ITEMS: `${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`, // 获取任务关联的函数资源表
     GET_REALTIME_TASK_LINK_ITEMS: `${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`,
-    GET_TABLES: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/simplePageQuery`, // 获取表
+    GET_TABLES: `${RDOS_BASE_URL}/batch/batchTableInfo/simplePageQuery`, // 获取表
     GET_OFFLINE_PACKAGE_NAME: `${RDOS_BASE_URL}/batch/batchPackage/getPackageName`, // 获取包名
     GET_REALTIME_PACKAGE_NAME: `${RDOS_BASE_URL}/stream/streamPackage/getPackageName`, // 获取包名
     OFFLINE_CREATE_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/createPackage`, // 创建包

@@ -5,7 +5,7 @@ export default {
     UNLOCK_FILE: `${RDOS_BASE_URL}/common/readWriteLock/getLock`, // 解锁文件
 
     // ========================= 离线任务请求 ========================= //
-    SQL_FORMAT: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/sqlFormat`, // SQL格式化服务
+    SQL_FORMAT: `${RDOS_BASE_URL}/batch/batchTableInfo/sqlFormat`, // SQL格式化服务
 
     // ===== task模块 ===== //
     SAVE_TASK: `${RDOS_BASE_URL}/batch/batchTask/addOrUpdateTask`, // 添加或者更新任务
@@ -74,7 +74,7 @@ export default {
     DOWNLOAD_SQL_RESULT: `${RDOS_BASE_URL}/download/batch/batchDownload/downloadSqlExeResult`, // 下载运行结果
     EXEC_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSqlImmediately`, // 立即执行SQL
     STOP_SQL_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSqlImmediately`, // 停止执行SQL
-    SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchHiveSelectSql/selectData`, // 轮询调度查询sql结果
+    SELECT_SQL_RESULT_DATA: `${RDOS_BASE_URL}/batch/batchSelectSql/selectData`, // 轮询调度查询sql结果
     EXEC_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/startSyncImmediately`, // 立即执行数据同步
     STOP_DATA_SYNC_IMMEDIATELY: `${RDOS_BASE_URL}/batch/batchJob/stopSyncJob`, // 停止执行数据同步
     SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
