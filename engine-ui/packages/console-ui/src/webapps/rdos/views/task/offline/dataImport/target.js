@@ -9,7 +9,7 @@ import utils from 'utils'
 
 import Editor from 'widgets/editor'
 import CopyIcon from 'main/components/copy-icon';
-import TableEngineSelect from '../../../../components/tableEngineSelect';
+import TableEngineSelect from '../../../../components/engineSelect';
 
 import API from '../../../../api/dataManage'
 import { formItemLayout } from '../../../../comm/const'

@@ -1,34 +1,34 @@
 import { RDOS_BASE_URL } from 'config/base';
 
 export default {
-    CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createTable`,
-    SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/showTables`,
-    GET_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTable`,
-    GET_TABLE_BY_NAME: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTableByName`,
-    PREVIEW_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getData`,
-    SAVE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/alterTable`,
-    SEARCH_LOG: `${RDOS_BASE_URL}/batch/batchHiveActionRecord/getRecords`,
-    GET_CREATE_CODE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/createSql`,
-    DROP_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/dropTable`,
-    DDL_CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/ddlCreateTable`,
-    CHECK_TABLE_EXIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/isTableExist`,
-    GET_TABLES_BY_NAME: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getTableList`, // 查询指定名称表信息(支持模糊查询)
-    CHECK_HDFSLOC_EXIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/isHdfsDirExist`,
-    GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/getPartitions`, // 获取表分区信息
+    CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/createTable`,
+    SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/showTables`,
+    GET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getTable`,
+    GET_TABLE_BY_NAME: `${RDOS_BASE_URL}/batch/batchTableInfo/getTableByName`,
+    PREVIEW_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getData`,
+    SAVE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/alterTable`,
+    SEARCH_LOG: `${RDOS_BASE_URL}/batch/batchActionRecord/getRecords`,
+    GET_CREATE_CODE: `${RDOS_BASE_URL}/batch/batchTableInfo/createSql`,
+    DROP_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/dropTable`,
+    DDL_CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/ddlCreateTable`,
+    CHECK_TABLE_EXIST: `${RDOS_BASE_URL}/batch/batchTableInfo/isTableExist`,
+    GET_TABLES_BY_NAME: `${RDOS_BASE_URL}/batch/batchTableInfo/getTableList`, // 查询指定名称表信息(支持模糊查询)
+    CHECK_HDFSLOC_EXIST: `${RDOS_BASE_URL}/batch/batchTableInfo/isHdfsDirExist`,
+    GET_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchTablePartition/getPartitions`, // 获取表分区信息
 
-    UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/batchHiveDataImport/importData`, //
-    GET_UPLOAD_STATUS: `${RDOS_BASE_URL}/batch/batchHiveDataImport/getImportLocalDataStatus`, // 获取文件上传状态
-    CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchHiveTablePartition/checkPartitionExists`, // 检查表分区
-    NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/pageQuery`, // 新的查询表的详细信息
-    QUERY_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/tableQuery`, // 表查询
+    UPLOAD_TABLE_DATA: `${RDOS_BASE_URL}/upload/batch/batchDataImport/importData`, //
+    GET_UPLOAD_STATUS: `${RDOS_BASE_URL}/batch/batchDataImport/getImportLocalDataStatus`, // 获取文件上传状态
+    CHECK_TABLE_PARTITION: `${RDOS_BASE_URL}/batch/batchTablePartition/checkPartitionExists`, // 检查表分区
+    NEW_SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/pageQuery`, // 新的查询表的详细信息
+    QUERY_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/tableQuery`, // 表查询
 
     GET_USERS_IN_TENANT: `${RDOS_BASE_URL}/common/user/getUsersInTenant`, // 用户列表
 
     // ========= 数据类目 =========
-    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/getHiveCatalogue`, // 获取表目录
-    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/addCatalogue`, // 增加目录
-    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/deleteCatalogue`, // 删除目录
-    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchHiveCatalogue/updateHiveCatalogue`, // 更新目录
+    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/getHiveCatalogue`, // 获取表目录
+    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`, // 增加目录
+    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/deleteCatalogue`, // 删除目录
+    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateHiveCatalogue`, // 更新目录
     ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
     DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
     APPLY_TABLE: `${RDOS_BASE_URL}/batch/batchApply/apply`, // 申请资源
@@ -58,20 +58,20 @@ export default {
     APPLY_CANCEL: `${RDOS_BASE_URL}/batch/batchApply/cancel`, // 取消申请
     REVOKE_PERMISSION: `${RDOS_BASE_URL}/batch/batchApply/revoke`, // 撤回权限
     APPLY_HANDLE: `${RDOS_BASE_URL}/batch/batchApply/getRelateTask`, // 申请处理
-    ADD_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/collect`, // 取消收藏
-    CANCEL_MARK: `${RDOS_BASE_URL}/batch/batchHiveTableCollect/cancelCollect`, // 取消收藏
+    ADD_MARK: `${RDOS_BASE_URL}/batch/batchTableCollect/collect`, // 取消收藏
+    CANCEL_MARK: `${RDOS_BASE_URL}/batch/batchTableCollect/cancelCollect`, // 取消收藏
     ApplY_REPLY: `${RDOS_BASE_URL}/batch/batchApply/reply`, // 申请处理
-    GET_DDL_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getDDLOperators`, // 获取DDL
-    GET_DML_LIST: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getDMLOperators`, // 获取DML
-    GET_SIMPLE_COLUMNS: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getSimpleColumns`, // 获取字段名
+    GET_DDL_LIST: `${RDOS_BASE_URL}/batch/batchTableInfo/getDDLOperators`, // 获取DDL
+    GET_DML_LIST: `${RDOS_BASE_URL}/batch/batchTableInfo/getDMLOperators`, // 获取DML
+    GET_SIMPLE_COLUMNS: `${RDOS_BASE_URL}/batch/batchTableInfo/getSimpleColumns`, // 获取字段名
     GET_APPLY_DETAIL: `${RDOS_BASE_URL}/batch/batchApply/getApplyDetail`, // 获取字段权限详情
 
     // ===== 项目表数据统计 ===== //
-    PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableCount`, // 表总量
-    PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/batchHiveTableCount/totalSize`, // 表总存储量
-    PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/batchHiveTableCount/projectSizeTopOrder`, // 项目占用排行
-    PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/batchHiveTableCount/tableSizeTopOrder`, // 表占用排行
-    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/batchHiveTableCount/dataHistory`, // 数据趋势概览
+    PROJECT_TABLE_COUNT: `${RDOS_BASE_URL}/batch/batchTableCount/tableCount`, // 表总量
+    PROJECT_STORE_COUNT: `${RDOS_BASE_URL}/batch/batchTableCount/totalSize`, // 表总存储量
+    PROJECT_STORE_TOP: `${RDOS_BASE_URL}/batch/batchTableCount/projectSizeTopOrder`, // 项目占用排行
+    PROJECT_TABLE_STORE_TOP: `${RDOS_BASE_URL}/batch/batchTableCount/tableSizeTopOrder`, // 表占用排行
+    PROJECT_DATA_OVERVIEW: `${RDOS_BASE_URL}/batch/batchTableCount/dataHistory`, // 数据趋势概览
 
     // ===== 数据脱敏 ===== //
     // 脱敏管理
