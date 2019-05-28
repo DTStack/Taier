@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <appender name="allAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_engine_%d{yyyy-MM-dd}.log</file>
+        <file>${user.dir}/logs/rdos_engine.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/history/rdos_engine_%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/rdos_engine_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>10</MaxHistory>
         </rollingPolicy>
         <encoder>
@@ -12,10 +12,10 @@
     </appender>
 
     <appender name="zkAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_zk_%d{yyyy-MM-dd}.log</file>
+        <file>${user.dir}/logs/rdos_zk.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/history/rdos_zk_%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-            <MaxHistory>10</MaxHistory>
+            <fileNamePattern>${user.dir}/logs/rdos_zk_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>2</MaxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
@@ -23,10 +23,10 @@
     </appender>
 
     <appender name="flinkAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_flink_%d{yyyy-MM-dd}.log</file>
+        <file>${user.dir}/logs/rdos_flink.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/history/rdos_flink_%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-            <MaxHistory>10</MaxHistory>
+            <fileNamePattern>${user.dir}/logs/rdos_flink_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <MaxHistory>2</MaxHistory>
         </rollingPolicy>
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%file:%line] - %msg%n</pattern>
@@ -34,9 +34,9 @@
     </appender>
 
     <appender name="request" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${user.dir}/logs/rdos_request_%d{yyyy-MM-dd}.log</file>
+        <file>${user.dir}/logs/rdos_request.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${user.dir}/logs/history/rdos_request_%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <fileNamePattern>${user.dir}/logs/rdos_request_%d{yyyy-MM-dd}.log</fileNamePattern>
             <MaxHistory>10</MaxHistory>
         </rollingPolicy>
         <encoder>

@@ -90,7 +90,7 @@ public class ApplicationContainerListener
 
        try{
 
-           LOG.error("hdfs principal:" + conf.get("hdfsPrincipal"));
+           LOG.info("hdfs principal:" + conf.get("hdfsPrincipal"));
            final Configuration newConf = new Configuration(conf);
            if ("true".equals(conf.get("security"))){
                newConf.set(DTYarnShellConstant.RPC_SERVER_PRINCIPAL, conf.get("hdfsPrincipal"));
@@ -116,9 +116,9 @@ public class ApplicationContainerListener
 
             ServiceAuthorizationManager serviceAuthorizationManager = server.getServiceAuthorizationManager();
             serviceAuthorizationManager.refreshWithLoadedConfiguration(newConf, new DTPolicyProvider());
-            LOG.error(serviceAuthorizationManager);
+            LOG.info(serviceAuthorizationManager);
 
-           LOG.error("----start rpc success----");
+           LOG.info("----start rpc success----");
         } catch (Exception e) {
             LOG.error("Error starting application containers handler server!", e);
             e.printStackTrace();
@@ -234,13 +234,13 @@ public class ApplicationContainerListener
 
     @Override
     public LocalRemotePath[] getOutputLocation() {
-        LOG.error("-----call getOutputLocation-----");
+        LOG.debug("-----call getOutputLocation-----");
         return new LocalRemotePath[0];
     }
 
     @Override
     public LocalRemotePath[] getInputSplit(DtContainerId containerId) {
-        LOG.error("-----call getInputSplit-----");
+        LOG.debug("-----call getInputSplit-----");
         return new LocalRemotePath[0];
     }
 
