@@ -104,8 +104,8 @@ class Experiment extends PureComponent {
         }, {
             width: '25%',
             title: '提交时间',
-            dataIndex: 'gmtCreate',
-            key: 'gmtCreate',
+            dataIndex: 'gmtModified',
+            key: 'gmtModified',
             render (t) {
                 return utils.formatDateTime(t);
             }
