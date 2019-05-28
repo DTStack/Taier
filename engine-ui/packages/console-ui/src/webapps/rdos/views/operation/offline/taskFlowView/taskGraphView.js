@@ -14,7 +14,6 @@ import { taskTypeText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-
 const Mx = require('public/main/mxgraph')({
     mxBasePath: 'public/main/mxgraph',
     mxImageBasePath: 'public/main/mxgraph/images',
@@ -22,7 +21,6 @@ const Mx = require('public/main/mxgraph')({
     mxLoadResources: false,
     mxLoadStylesheets: false
 });
-
 const {
     mxGraph,
     mxEvent,

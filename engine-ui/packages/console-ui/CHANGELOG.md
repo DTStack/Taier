@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0-beta.2.1"></a>
+# [3.6.0-beta.2.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.2...3.6.0-beta.2.1) (2019-05-28)
+
+
+### Bug Fixes
+
+* **mxgraph:** fix require bug ([2b47f8d](http://git.dtstack.cn/dtstack/data-stack-web/commits/2b47f8d))
+
+
+
 <a name="3.6.0-beta.2"></a>
 # [3.6.0-beta.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.5.4...3.6.0-beta.2) (2019-05-22)
 

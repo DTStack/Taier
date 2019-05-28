@@ -14,7 +14,6 @@ import { taskStatusText } from '../../../../components/display'
 import JobGraphView, {
     mergeTreeNodes, replacTreeNodeField
 } from './jobGraphView';
-
 const Mx = require('public/main/mxgraph')({
     mxBasePath: 'public/main/mxgraph',
     mxImageBasePath: 'public/main/mxgraph/images',
