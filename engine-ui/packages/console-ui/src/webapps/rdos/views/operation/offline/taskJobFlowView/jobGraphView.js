@@ -7,7 +7,6 @@ import {
 
 import utils from 'utils'
 import { removeToolTips } from 'funcs'
-import Mx from 'widgets/mxGraph';
 
 import MyIcon from '../../../../components/icon'
 import { getVertxtStyle } from '../../../../comm'
@@ -16,7 +15,13 @@ import { taskTypeText, taskStatusText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-
+const Mx = require('public/main/mxgraph')({
+    mxBasePath: 'public/main/mxgraph',
+    mxImageBasePath: 'public/main/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
+    mxLoadStylesheets: false
+})
 const {
     mxGraph,
     mxEvent,
@@ -163,7 +168,7 @@ class JobGraphView extends Component {
         this.loadEditor(editor)
         this.initRender(graphData);
         console.log('initGraph:', graphData);
-        this.hideMenu();
+        // this.hideMenu();
     }
 
     loadEditor = (container) => {

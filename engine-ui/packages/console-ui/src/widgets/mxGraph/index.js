@@ -10,4 +10,4 @@ const Mx = require('public/main/mxgraph')({
     mxLoadStylesheets: false
 })
 
-export default Mx;
+module.exports = Mx;

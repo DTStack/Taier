@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { cloneDeep, maxBy, get } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import Resize from 'widgets/resize';
 
 import {
@@ -211,7 +211,7 @@ class CurveChart extends Component {
                         const range = res.data.series[0].keyList.findIndex(o => o === 'range');
                         const cumulaitvePercentagesOfPositive = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_positive');
                         const cumulaitvePercentagesOfNegative = res.data.series[0].keyList.findIndex(o => o === 'cumulaitve_percentages_of_negative');
-                        const maxData = this.findMax(option.series[0].data, ks);
+                        const maxData = this.findMax(option.series[0].data, ks, res.data.param['KS']);
                         option.title.text = 'K-S';
                         option.xAxis[0].axisLabel.formatter = '{value} %'
                         option.yAxis[0].name = `KS值：${utils.percent(get(res.data, 'param.KS', 0))}`;
@@ -286,12 +286,12 @@ class CurveChart extends Component {
                         const f1Score = res.data.series[0].keyList.findIndex(o => o === 'f1_score');
                         const precision = res.data.series[0].keyList.findIndex(o => o === 'precision');
                         const recall = res.data.series[0].keyList.findIndex(o => o === 'recall');
-                        const maxData = this.findMax(option.series[0].data, f1Score);
+                        const maxData = this.findMax(option.series[0].data, f1Score, res.data.param['F1 Score']);
                         option.series = option.series.map((item) => {
                             item.markPoint = {
                                 data: [{
-                                    xAxis: maxData.value,
-                                    yAxis: maxData.name,
+                                    xAxis: maxData.name,
+                                    yAxis: maxData.value,
                                     value: maxData.colList[precision]
                                 }]
                             }
@@ -328,9 +328,9 @@ class CurveChart extends Component {
         myChart.setOption(option, true);
         myChart.hideLoading()
     }
-    findMax = (arr, index) => {
-        let maxData = maxBy(arr, (o) => {
-            return o.colList[index]
+    findMax = (arr, index, flag) => {
+        const maxData = arr.find(o => {
+            return o.colList[index] == flag
         })
         return maxData;
     }
