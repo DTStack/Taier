@@ -10,7 +10,8 @@ import {
     PYTON_VERSION,
     SCRIPT_TYPE,
     DATA_SOURCE,
-    PROJECT_TYPE
+    PROJECT_TYPE,
+    ENGINE_SOURCE_TYPE
 } from './const';
 
 // 请求防抖动
@@ -373,4 +374,14 @@ export function formJsonValidator (rule, value, callback) {
     } finally {
         callback(msg);
     }
+}
+
+// Judge spark engine
+export function isSparkEngine (engineType) {
+    return ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER === parseInt(engineType, 10);
+}
+
+// Judge libra engine
+export function isLibrAEngine (engineType) {
+    return ENGINE_SOURCE_TYPE.LIBRA === parseInt(engineType, 10);
 }

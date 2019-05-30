@@ -7,13 +7,14 @@ import {
 } from 'antd';
 import utils from 'utils'
 
-import Editor from 'widgets/editor'
-import CopyIcon from 'main/components/copy-icon';
+import Editor from 'widgets/editor';
 import TableEngineSelect from '../../../../components/engineSelect';
 
-import API from '../../../../api/dataManage'
-import { formItemLayout } from '../../../../comm/const'
-import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon'
+import CopyIcon from 'main/components/copy-icon';
+import API from '../../../../api/dataManage';
+import { formItemLayout } from '../../../../comm/const';
+import { DDL_IDE_PLACEHOLDER, LIBRA_DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon'
+import { isLibrAEngine } from '../../../../comm';
 import { getTableList } from '../../../../store/modules/offlineTask/comm';
 import HelpDoc, { relativeStyle } from '../../../helpDoc';
 
@@ -82,7 +83,9 @@ class ImportTarget extends Component {
 
     onTableEngineChange = (value) => {
         this.props.changeStatus({
-            tableEngine: value
+            engineType: value,
+            sqlText: null,
+            sync: true
         });
     }
 
@@ -157,8 +160,13 @@ class ImportTarget extends Component {
         }
     }
     createTable = () => {
-        const { sqlText } = this.props.formState
-        API.createDdlTable({ sql: sqlText }).then((res) => {
+        const { sqlText, engineType } = this.props.formState;
+
+        if (!engineType) {
+            message.error('请先选择引擎类型！');
+            return;
+        }
+        API.createDdlTable({ sql: sqlText, engineType }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     visible: false,
@@ -175,6 +183,10 @@ class ImportTarget extends Component {
     handleCancel = () => {
         this.setState({
             visible: false
+        })
+        this.props.changeStatus({
+            sqlText: null,
+            sync: true
         })
     }
 
@@ -351,7 +363,7 @@ class ImportTarget extends Component {
 
     render () {
         const { data, display, formState } = this.props
-        const { tableList, tableData, queryTable, asTitle, sync, sqlText } = formState
+        const { tableList, tableData, queryTable, asTitle, sync, sqlText, engineType } = formState
         const { pagination } = this.state;
 
         const columns = this.generateCols(data, tableData)
@@ -364,6 +376,8 @@ class ImportTarget extends Component {
                 {item.tableName}
             </Option>
         )
+
+        const DDL_TEMPLATE = isLibrAEngine(engineType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
 
         return (
             <div style={{ display: display === 'target' ? 'block' : 'none' }}>
@@ -457,7 +471,7 @@ class ImportTarget extends Component {
                 </Row>
                 <Modal className="m-codemodal"
                     title={(
-                        <span>建表语句<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_IDE_PLACEHOLDER} /></span>
+                        <span>建表语句<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_TEMPLATE} /></span>
                     )}
                     maskClosable={false}
                     style={{ height: 424 }}
@@ -467,7 +481,7 @@ class ImportTarget extends Component {
                 >
                     <Editor
                         language="dtsql"
-                        placeholder={DDL_IDE_PLACEHOLDER}
+                        placeholder={DDL_TEMPLATE}
                         onChange={this.ddlChange}
                         sync={sync}
                         value={sqlText}
