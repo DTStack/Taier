@@ -8,7 +8,13 @@ import { cloneDeep } from 'lodash';
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 
-import Mx from 'widgets/mxGraph';
+const Mx = require('public/main/mxgraph')({
+    mxBasePath: 'public/main/mxgraph',
+    mxImageBasePath: 'public/main/mxgraph/images',
+    mxLanguage: 'none',
+    mxLoadResources: false,
+    mxLoadStylesheets: false
+})
 
 const {
     mxGraph,

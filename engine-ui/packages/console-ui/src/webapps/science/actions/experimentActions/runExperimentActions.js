@@ -1,23 +1,30 @@
 /* eslint-disable no-unreachable */
 import { changeTab, changeTabSlient } from '../base/tab';
-import { siderBarType, taskStatus, sqlExecStatus } from '../../consts';
+import { siderBarType, taskStatus } from '../../consts';
 import { addLoadingTab, removeLoadingTab } from '../editorActions';
 import experimentLog from './experimentLog';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 import api from '../../api/experiment';
 
 function getLogStatus (status) {
+    if (!status) return 'info';
     switch (status) {
-        case sqlExecStatus.FINISHED: {
-            return 'info';
-        }
-        case sqlExecStatus.FAILED: {
+        case taskStatus.FINISHED:
+        case taskStatus.SET_SUCCESS:
+            // 成功
+            return 'info'
+
+        case taskStatus.STOPED:
+        case taskStatus.RUN_FAILED:
+        case taskStatus.SUBMIT_FAILED:
+        case taskStatus.KILLED:
+        case taskStatus.FROZEN:
+        case taskStatus.PARENT_FAILD:
+        case taskStatus.FAILING:
+            // 失败
             return 'error';
-        }
-        case sqlExecStatus.CANCELED: {
-            return 'warning';
-        }
         default: {
+            // 中间状态，进行中
             return 'info'
         }
     }
@@ -93,27 +100,39 @@ function isCompeletedFinish (arrayList) {
     }
     return status;
 }
+/**
+ * 获取正在运行中组件id
+ * @param {Array} arrayList
+ */
 function getRunningTask (arrayList) {
     const arr = [].concat(arrayList);
     const runningTask = arr.filter(o => {
-        switch (o.status) {
-            case taskStatus.FINISHED:
-            case taskStatus.SET_SUCCESS: return false;
-            case taskStatus.STOPED:
-            case taskStatus.RUN_FAILED:
-            case taskStatus.SUBMIT_FAILED:
-            case taskStatus.KILLED:
-            case taskStatus.FROZEN:
-            case taskStatus.PARENT_FAILD:
-            case taskStatus.FAILING: return false;
-            case taskStatus.WAIT_SUBMIT: return false;
-            default: {
-                return true;
+        if (o) {
+            switch (o.status) {
+                case taskStatus.FINISHED:
+                case taskStatus.SET_SUCCESS: return false;
+                case taskStatus.STOPED:
+                case taskStatus.RUN_FAILED:
+                case taskStatus.SUBMIT_FAILED:
+                case taskStatus.KILLED:
+                case taskStatus.FROZEN:
+                case taskStatus.PARENT_FAILD:
+                case taskStatus.FAILING: return false;
+                case taskStatus.WAIT_SUBMIT: return false;
+                default: {
+                    return true;
+                }
             }
+        } else {
+            return false;
         }
     });
     return runningTask.map((item) => item.taskId)
 }
+/**
+ * 获取取消状态的组件id
+ * @param {Array} arrayList
+ */
 function getCancelTask (arrayList) {
     const arr = [].concat(arrayList);
     const runningTask = arr.filter(o => {
@@ -127,6 +146,24 @@ function getCancelTask (arrayList) {
     });
     return runningTask.map((item) => item.taskId)
 }
+let _cacheTask = [];
+function getFinishedJustNowTask (arrayList) {
+    const ids = getRunningTask(arrayList); // 当前正在运行中的taskid
+    const preRunningIds = [].concat(_cacheTask); // 之前正在运行中的taskid
+    const difference = preRunningIds.filter(o => o && ids.indexOf(o) === -1);
+    const result = [];
+    if (difference.length > 0) {
+        difference.forEach((d) => {
+            const object = arrayList.find(o => o.taskId === d);
+            result.push(object);
+        })
+        _cacheTask = [];
+    } else {
+        _cacheTask = ids;
+    }
+    return result;
+}
+
 function outputExperimentStatus (tabId, taskName, dispatch) {
     let text = '';
     taskName.forEach((item) => {
@@ -139,13 +176,16 @@ function resolveMsgExperiment (tabId, res, dispatch) {
         dispatch(experimentLog.appendExperimentLog(tabId, createLog(`${res.message}`, 'error')))
     }
     if (res && res.code == 1) {
-        if (res.data && res.data.msg) {
-            dispatch(
-                experimentLog.appendExperimentLog(
-                    tabId,
-                    createLog(`${res.data.msg}`, getLogStatus(res.data.status))
+        const tasks = getFinishedJustNowTask(res.data);
+        if (tasks.length > 0) {
+            tasks.forEach(task => {
+                task.msg && dispatch(
+                    experimentLog.appendExperimentLog(
+                        tabId,
+                        createLog(`${task.msg}`, getLogStatus(res.data.status))
+                    )
                 )
-            )
+            })
         }
     }
 }
@@ -158,6 +198,17 @@ function resolveDataExperiment (tabId, data, key, dispatch) {
         dispatch(experimentLog.appendExperimentLog(tabId, `完整日志下载地址：${createLinkMark({ href: data.download, download: '' })}\n`))
     }
 }
+function rejectDataExperiment (tabId, data, tabData, dispatch) {
+    const object = tabData.graphData.find(o => o.vertex && getCancelTask(data).includes(o.data.id + ''));
+    // 获取取消状态的组件数据
+    if (object) {
+        dispatch(experimentLog.appendExperimentLog(tabId, createLog(`[${object.data.name}]节点执行取消`, 'info')));
+    } else {
+        dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')));
+    }
+    resolveDataExperiment(tabData, data, null, dispatch)
+}
+
 /**
  *  运行任务
  *  @param tabData-当前打开的tab的值，包括了detailData，graphData等数据
@@ -229,21 +280,20 @@ async function getRunningTaskStatus (tabId, tabData, jobIds, dispatch) {
     dispatch(changeContent(tabData, {}, false))
     resolveMsgExperiment(tabId, response, dispatch);
     if (response && response.code === 1) {
-        let status = isCompeletedFinish(response.data);
+        /**
+         * status.compeletedFinish 表示完全结束
+         * status.handlerStatus 表示执行结果的状态
+         */
+        const status = isCompeletedFinish(response.data);
         if (status.compeletedFinish && status.handlerStatus) {
             // 成功
             resolveDataExperiment(tabId, response.data, null, dispatch);
         } else if (status.compeletedFinish && !status.handlerStatus) {
             // 失败
-            const object = tabData.graphData.find(o => o.vertex && getCancelTask(response.data).includes(o.data.id + ''));
-            if (object) {
-                dispatch(experimentLog.appendExperimentLog(tabId, createLog(`[${object.data.name}]节点执行取消`, 'info')));
-            } else {
-                dispatch(experimentLog.appendExperimentLog(tabId, createLog(`节点执行失败`, 'error')));
-            }
-            resolveDataExperiment(tabId, response.data, null, dispatch);
+            rejectDataExperiment(tabId, response.data, tabData, dispatch);
         } else if (!status.compeletedFinish) {
             // 继续轮训
+            // 获取当前正在运行的组件数据
             const object = tabData.graphData.filter(o => o.vertex && getRunningTask(response.data).includes(o.data.id + ''));
             outputExperimentStatus(tabId, object, dispatch)
             await new Promise(resolve => {
