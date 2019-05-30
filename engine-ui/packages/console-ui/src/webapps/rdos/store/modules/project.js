@@ -16,7 +16,7 @@ const projectAction = mc([
 
 const defaultProject = {
     id: 0,
-    projectName: '选择空间'
+    projectName: '选择项目'
 }
 
 // Action

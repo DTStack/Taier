@@ -20,7 +20,7 @@ import SyntaxHelpPane from './syntaxTipPane';
 import RightTableButton from './tableTipPane/rightButton';
 import RightSyntaxButton from './syntaxTipPane/rightButton';
 
-import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
+import { matchTaskParams, isProjectCouldEdit, isSparkEngine } from '../../../../comm';
 
 import {
     workbenchActions
@@ -551,6 +551,8 @@ class EditorContainer extends Component {
             isDisEabledDownload: project.isAllowDownload == 0
         }
 
+        const extraPne = isSparkEngine(currentTabData.engineType) ? this.renderExtraPane() : null;
+
         return (
             <div className="m-editor" style={{ height: '100%' }}>
                 <IDEEditor
@@ -558,7 +560,7 @@ class EditorContainer extends Component {
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
-                    extraPane={this.renderExtraPane()}
+                    extraPane={extraPne}
                 />
                 <div id="JS_ddl_confirm_modal">
                     <Modal
