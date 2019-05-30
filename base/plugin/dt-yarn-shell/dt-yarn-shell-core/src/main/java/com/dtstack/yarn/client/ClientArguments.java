@@ -35,6 +35,7 @@ public class ClientArguments {
     int psVCores;
     int psNum;
     int appMem;
+    int maxAppAttempts;
     String[] files;
     Boolean localFile = false;
 //    Configuration remoteConf;
@@ -366,10 +367,12 @@ public class ClientArguments {
         queue = "default";
         userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
         exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
+        maxAppAttempts = 1;
 
 
         allOptions = new Options();
         allOptions.addOption("test", "test", false, "test mode");
+        allOptions.addOption("maxAppAttempts", "maxAppAttempts", true, "maxAppAttempts");
         allOptions.addOption("appName", "app-name", true,
                 "set the Application name");
         allOptions.addOption("appType", "app-type", true,
@@ -515,6 +518,11 @@ public class ClientArguments {
 
         if (commandLine.hasOption("app-memory")) {
             appMem = getNormalizedMem(commandLine.getOptionValue("app-memory"));
+        }
+
+        if (commandLine.hasOption("maxAppAttempts")) {
+            String appAttempts = commandLine.getOptionValue("maxAppAttempts");
+            maxAppAttempts = Integer.parseInt(appAttempts);
         }
 
         if (commandLine.hasOption("priority")) {

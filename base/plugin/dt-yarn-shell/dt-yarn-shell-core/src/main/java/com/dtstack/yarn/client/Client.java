@@ -154,6 +154,7 @@ public class Client {
         applicationContext.setApplicationId(applicationId);
         applicationContext.setApplicationName(clientArguments.appName);
         applicationContext.setApplicationType(clientArguments.appType.name());
+        applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
 
         localResources.put(DtYarnConstants.APP_MASTER_JAR,
                 Utilities.createApplicationResource(dfs, appMasterJar, LocalResourceType.FILE));
