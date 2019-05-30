@@ -12,7 +12,7 @@ export default {
     UPDATE_USER_ROLE: `${RDOS_BASE_URL}/common/roleUser/updateUserRole`, // 更新用户角色
     GET_USER_BY_ID: `${RDOS_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
     SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,
-    GET_TENANT_LIST: `${RDOS_BASE_URL}/common/project/getProjects`,
+    GET_TENANT_LIST: `${RDOS_BASE_URL}/batch/tenant/getUserTenants`,
 
     // ===== 项目模块 ===== //
     CREATE_PROJECT: `${RDOS_BASE_URL}/common/project/createProject`, // 创建项目
@@ -20,7 +20,7 @@ export default {
     ADD_PROJECT_USER: `${RDOS_BASE_URL}/common/roleUser/addRoleUserNew`, // 添加项目用户接口
     QUERY_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/queryProjects`, // 查询项目列表
     GET_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getProjects`, // 获取当前用户有权限的项目列表
-    GET_ALL_PROJECTS: `${RDOS_BASE_URL}/common/project/getAllProjects`, // 获取所以项目列表
+    GET_PROJECT_BY_TENANT: `${RDOS_BASE_URL}/batch/project/getAllByTenantId`, // 查询租户下的项目列表
     GET_USRE_PROJECTS: `${RDOS_BASE_URL}/common/project/getProjectUserIn`, // 获取用户所在的所有项目
     GET_PROJECT_USERS: `${RDOS_BASE_URL}/common/project/getProjectUsers`, // 获取所在的项目所有用户
     GET_PROJECT_BY_ID: `${RDOS_BASE_URL}/common/project/getProjectByProjectId`, // 获取项目详情

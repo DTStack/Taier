@@ -73,6 +73,9 @@ export default {
     queryProjects(params) {
         return http.post(req.QUERY_PROJECT_LIST, params)
     },
+    getProjectByTenant(params) {
+        return http.post(req.GET_PROJECT_BY_TENANT, params)
+    },
     getProjects(params) { // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)
     },

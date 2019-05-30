@@ -114,10 +114,11 @@ class TaskDependence extends React.Component {
     onSelectTenant (value) {
         this.setState({
             tenantId: value
-        }, this.loadProjectList);
+        }, this.loadProjectList.bind(this));
     }
     async loadProjectList () {
-        let res = ajax.getProjects();
+        const { tenantId } = this.state;
+        let res = ajax.getProjectByTenant({ searchTenantId: tenantId });
         if (res && res.code == 1) {
             this.setState({
                 projectList: res.data
@@ -131,7 +132,7 @@ class TaskDependence extends React.Component {
     }
     render () {
         const { tabData, handleAddVOS, tenant } = this.props;
-        const { loading, recommentTaskModalVisible, recommentTaskList, tenantId, projectId } = this.state;
+        const { loading, recommentTaskModalVisible, recommentTaskList, tenantId, projectId, projectList = [] } = this.state;
         const isSql = tabData.taskType == TASK_TYPE.SQL;
         return (
             <React.Fragment>
@@ -159,8 +160,8 @@ class TaskDependence extends React.Component {
                         label="项目"
                     >
                         <Select value={projectId} onSelect={this.onSelectProject.bind(this)}>
-                            {tenant.tenantList.map((tenantItem) => {
-                                return <Option key={tenantItem.id} value={tenantItem.id}>{tenantItem.name}</Option>
+                            {projectList.map((projectItem) => {
+                                return <Option key={projectItem.id} value={projectItem.id}>{projectItem.projectAlias}</Option>
                             })}
                         </Select>
                     </FormItem>
