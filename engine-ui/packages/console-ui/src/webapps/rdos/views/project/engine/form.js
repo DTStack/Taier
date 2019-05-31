@@ -33,7 +33,7 @@ const hdfsConf =
 
 class EngineSourceForm extends Component {
     state = {
-        sourceType: ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER // Default is spark
+        sourceType: ENGINE_SOURCE_TYPE.HADOOP // Default is spark
     }
 
     componentDidMount () {
@@ -103,7 +103,7 @@ class EngineSourceForm extends Component {
     getJDBCRule = (type) => {
         switch (type) {
             case ENGINE_SOURCE_TYPE.LIBRA:
-            case ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER:
+            case ENGINE_SOURCE_TYPE.HADOOP:
                 return /jdbc:(\w)+:\/\/(\w)+/;
             default:
                 return undefined;
@@ -123,7 +123,7 @@ class EngineSourceForm extends Component {
         }
 
         switch (sourceType) {
-            case ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER: {
+            case ENGINE_SOURCE_TYPE.HADOOP: {
                 const formItems = [
                     <FormItem
                         {...formItemLayout}

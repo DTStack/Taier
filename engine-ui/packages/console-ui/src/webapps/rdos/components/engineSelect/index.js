@@ -1,15 +1,11 @@
 import React from 'react';
 import { Select } from 'antd';
 
-import {
-    ENGINE_SOURCE_TYPE_OPTIONS
-} from '../../comm/const';
-
 const Option = Select.Option;
 
 export default function EngineSelect (props) {
-    const { disabledEngineTypes } = props;
-    const engineOptionsList = ENGINE_SOURCE_TYPE_OPTIONS.map(
+    const { disabledEngineTypes, tableTypes } = props;
+    const engineOptionsList = tableTypes && tableTypes.map(
         item => (
             <Option
                 key={item.value}

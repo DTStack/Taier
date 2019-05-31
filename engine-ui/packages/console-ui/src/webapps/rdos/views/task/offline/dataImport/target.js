@@ -26,7 +26,8 @@ const Option = Select.Option
 @connect(state => {
     return {
         project: state.project,
-        tables: state.offlineTask.comm.tables
+        tables: state.offlineTask.comm.tables,
+        tableTypes: state.tableTypes
     }
 }, dispatch => {
     return {
@@ -163,7 +164,7 @@ class ImportTarget extends Component {
         const { sqlText, engineType } = this.props.formState;
 
         if (!engineType) {
-            message.error('请先选择引擎类型！');
+            message.error('请先选择表类型！');
             return;
         }
         API.createDdlTable({ sql: sqlText, engineType }).then((res) => {
@@ -362,7 +363,7 @@ class ImportTarget extends Component {
     }
 
     render () {
-        const { data, display, formState } = this.props
+        const { data, display, formState, tableTypes } = this.props
         const { tableList, tableData, queryTable, asTitle, sync, sqlText, engineType } = formState
         const { pagination } = this.state;
 
@@ -385,11 +386,12 @@ class ImportTarget extends Component {
                     <Form>
                         <FormItem
                             required
-                            label="引擎类型"
+                            label="表类型"
                             {...formItemLayout}
                         >
                             <TableEngineSelect
-                                placeholder="请选择引擎类型"
+                                tableTypes={tableTypes}
+                                placeholder="请选择表类型"
                                 onChange={this.onTableEngineChange}
                             />
                         </FormItem>

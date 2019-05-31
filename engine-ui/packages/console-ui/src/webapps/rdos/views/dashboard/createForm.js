@@ -136,14 +136,14 @@ class WorkspaceForm extends React.Component {
                         {getFieldDecorator('enableSpark', {
                             rules: []
                         })(
-                            <Checkbox defaultChecked>Apache Spark</Checkbox>
+                            <Checkbox defaultChecked>Hadoop</Checkbox>
                         )}
                     </FormItem>
                     <Alert
                         className='l-createWorkspace__wanring'
                         message={<div>
-                            <p>系统需对接到Spark Thrift Server上，并使用Hive Metastore存储元数据，由Spark计算引擎执行计算。</p>
-                            <p>创建：建立一个新的Spark Thrift Server </p>
+                            <p>系统需对接到Spark Thrift Server上，并使用Hive Metastore存储元数据，默认由Spark作为计算引擎，同时支持Python、Shell等类型。</p>
+                            <p>创建：建立一个新的Spark Thrift Server</p>
                             <p>对接已有Database / Schema，可将已有表导入本平台进行管理，原系统内的数据本身不会移动或改变，在导入进行过程中，请勿执行表结构变更操作。</p>
                         </div>}
                         type="warning"
@@ -155,7 +155,7 @@ class WorkspaceForm extends React.Component {
                             {...this.props}
                             formParentField="spark"
                             formItemLayout={metaFormLayout}
-                            engineType={ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER}
+                            engineType={ENGINE_SOURCE_TYPE.HADOOP}
                         />
                     </div>
                     <FormItem

@@ -28,7 +28,7 @@ class EngineConfigItem extends React.Component {
     initialTypeRadios () {
         const { engineType } = this.props;
         switch (engineType) {
-            case ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER: {
+            case ENGINE_SOURCE_TYPE.HADOOP: {
                 return [
                     <Radio value={1} key={1}>创建</Radio>,
                     <Radio value={2} key={2}>对接已有Spark Thrift Server</Radio>
