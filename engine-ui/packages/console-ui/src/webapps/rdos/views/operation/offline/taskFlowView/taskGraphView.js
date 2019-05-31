@@ -14,13 +14,9 @@ import { taskTypeText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-});
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxGraph,
     mxEvent,

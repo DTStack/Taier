@@ -11,13 +11,9 @@ import OperaRecordModal from './operaRecordModal';
 import { SCHEDULE_STATUS, TASK_TYPE } from '../../../../comm/const'
 
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView'
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxEvent,
     mxCellHighlight,
