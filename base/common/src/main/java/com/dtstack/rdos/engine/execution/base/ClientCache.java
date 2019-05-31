@@ -99,9 +99,14 @@ public class ClientCache {
 
         IClient client = clientMap.get(pluginInfoMd5);
         if(client == null){
-            client = buildPluginClient(pluginInfo);
-            client.init(properties);
-            clientMap.putIfAbsent(pluginInfoMd5, client);
+            synchronized (clientMap) {
+                client = clientMap.get(pluginInfoMd5);
+                if (client == null){
+                    client = buildPluginClient(pluginInfo);
+                    client.init(properties);
+                    clientMap.putIfAbsent(pluginInfoMd5, client);
+                }
+            }
         }
 
         return client;
