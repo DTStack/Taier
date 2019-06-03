@@ -5,7 +5,7 @@ import { debounce, cloneDeep, get } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
-import Mx from 'widgets/mxGraph';
+import * as MxFactory from 'widgets/mxGraph';
 import SearchModal from 'widgets/searchModal';
 
 import api from '../../../../../api/experiment';
@@ -20,7 +20,7 @@ import EvaluateReportModal from './evaluateReport';
 import DataExploringModal from './evaluateReport/dataExploring';
 
 const SEARCH_MODAL_ID = 'JS_Search_MODAL';
-
+const Mx = MxFactory.create();
 const {
     mxEvent,
     mxPopupMenu,

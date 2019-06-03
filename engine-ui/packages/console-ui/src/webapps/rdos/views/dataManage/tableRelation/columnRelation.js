@@ -8,13 +8,9 @@ import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 
 import { isEqTable } from './tableRelation'
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxGraph,
     mxEvent,
