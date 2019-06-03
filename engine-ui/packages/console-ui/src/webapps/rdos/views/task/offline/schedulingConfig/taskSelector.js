@@ -18,7 +18,10 @@ class TaskSelector extends React.Component {
 
     fetchVOS (evt) {
         const value = evt.target.value;
-        const { projectId, tenantId } = this.props;
+        const { projectId } = this.props;
+        if (!projectId) {
+            return;
+        }
         if (value.trim() === '') {
             this.setState({
                 list: []
@@ -30,8 +33,7 @@ class TaskSelector extends React.Component {
         ajax.getOfflineTaskByName({
             name: value,
             taskId: this.taskId,
-            projectId,
-            tenantId
+            searchProjectId: projectId
         }).then(res => {
             if (res.code === 1) {
                 res.data.length === 0 && this.setState({

@@ -134,7 +134,16 @@ class TaskDependence extends React.Component {
         if (res && res.code == 1) {
             this.setState({
                 projectList: res.data
-            })
+            }, this.setDefaultProject);
+        }
+    }
+    setDefaultProject = () => {
+        const { project, tenant } = this.props;
+        const { tenantId } = this.state;
+        if (tenant.currentTenant.tenantId == tenantId) {
+            this.setState({
+                projectId: project.id
+            });
         }
     }
     onSelectProject (value) {
@@ -185,7 +194,6 @@ class TaskDependence extends React.Component {
                             onSelect={handleAddVOS}
                             taskId={tabData.id}
                             projectId={projectId}
-                            tenantId={tenantId}
                         />
                     </FormItem>
                 </Form>
