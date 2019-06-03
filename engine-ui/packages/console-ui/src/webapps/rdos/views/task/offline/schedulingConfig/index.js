@@ -135,13 +135,18 @@ class SchedulingConfig extends React.Component {
 
     handleScheduleType (type) {
         const dft = this.getDefaultScheduleConf(type);
+        const isFailRetry = this.form.props.form.getFieldValue('isFailRetry');
         const values = assign({}, dft, {
             scheduleStatus: this.form.props.form.getFieldValue('scheduleStatus'),
             periodType: type,
+            isFailRetry: this.form.props.form.getFieldValue('isFailRetry'),
             beginDate: this.form.props.form.getFieldValue('beginDate'),
             endDate: this.form.props.form.getFieldValue('endDate'),
             selfReliance: this.form.props.form.getFieldValue('selfReliance')
         });
+        if (isFailRetry) {
+            values.maxRetryNum = this.form.props.form.getFieldValue('maxRetryNum');
+        }
         this.props.changeScheduleConf(values);
     }
 

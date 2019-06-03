@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import {
     Row,
@@ -43,6 +44,17 @@ class TaskDependence extends React.Component {
         projectList: [],
         tenantId: null,
         projectId: null
+    }
+    componentDidMount () {
+        this.initTenant();
+    }
+    initTenant () {
+        const tenantId = get(this.props, 'tenant.currentTenant.tenantId');
+        if (tenantId) {
+            this.setState({
+                tenantId
+            }, this.loadProjectList.bind(this));
+        }
     }
     showRecommentTask () {
         const { tabData } = this.props;
@@ -118,7 +130,7 @@ class TaskDependence extends React.Component {
     }
     async loadProjectList () {
         const { tenantId } = this.state;
-        let res = ajax.getProjectByTenant({ searchTenantId: tenantId });
+        let res = ajax.getProjectByTenant({ targetTenantId: tenantId });
         if (res && res.code == 1) {
             this.setState({
                 projectList: res.data
@@ -151,7 +163,7 @@ class TaskDependence extends React.Component {
                     >
                         <Select value={tenantId} onSelect={this.onSelectTenant.bind(this)}>
                             {tenant.tenantList.map((tenantItem) => {
-                                return <Option key={tenantItem.id} value={tenantItem.id}>{tenantItem.name}</Option>
+                                return <Option key={tenantItem.tenantId} value={tenantItem.tenantId}>{tenantItem.tenantName}</Option>
                             })}
                         </Select>
                     </FormItem>

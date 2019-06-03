@@ -1,5 +1,5 @@
 import React from 'react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import { connect } from 'react-redux';
 
 import { Modal, Form, message, Select, Row, Col } from 'antd';
@@ -24,10 +24,10 @@ class BindProjectModal extends React.Component {
     }
     getProjectList (value) {
         const { project, form } = this.props;
-        const tenantId = value || form.getFieldValue('tenantId');
+        const targetTenantId = value || form.getFieldValue('targetTenantId');
         Api.getBindingProjectList({
             projectAlias: project.projectAlias,
-            tenantId: tenantId
+            targetTenantId
         }).then(
             (res) => {
                 if (res && res.code == 1) {
@@ -94,6 +94,7 @@ class BindProjectModal extends React.Component {
         const { visible, form, tenant } = this.props;
         const { bindLoading, projectBindList } = this.state;
         const tenantList = tenant.tenantList || [];
+        const currentTenant = tenant.currentTenant;
         return (
             <Modal
                 title="绑定发布目标"
@@ -107,11 +108,12 @@ class BindProjectModal extends React.Component {
                         label="租户"
                         {...formItemLayout}
                     >
-                        {form.getFieldDecorator('tenantId', {
+                        {form.getFieldDecorator('targetTenantId', {
                             rules: [{
                                 required: true,
                                 message: '请选择租户'
-                            }]
+                            }],
+                            initialValue: get(currentTenant, 'targetTenantId')
                         })(
                             <Select
                                 placeholder="请选择租户"
@@ -121,11 +123,11 @@ class BindProjectModal extends React.Component {
                                 onSelect={this.changeTenantId}
                             >
                                 {tenantList.map(
-                                    (project) => {
+                                    (tenant) => {
                                         return <Option
-                                            key={project.id}
-                                            value={project.id}>
-                                            {project.projectAlias}
+                                            key={tenant.tenantId}
+                                            value={tenant.tenantId}>
+                                            {tenant.tenantName}
                                         </Option>
                                     }
                                 ).filter(Boolean)}
