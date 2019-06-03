@@ -2,15 +2,15 @@
 
 // Engine source 类型
 export const ENGINE_SOURCE_TYPE = {
-    SPARK_THRIFT_SERVER: 1,
+    HADOOP: 1,
     LIBRA: 2
 }
 
 // Engine source 类型选项
 export const ENGINE_SOURCE_TYPE_OPTIONS = [
     {
-        name: 'Spark Thrift Server',
-        value: ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER
+        name: 'Hadoop',
+        value: ENGINE_SOURCE_TYPE.HADOOP
     },
     {
         name: 'LibrA',

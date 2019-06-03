@@ -378,7 +378,7 @@ export function formJsonValidator (rule, value, callback) {
 
 // Judge spark engine
 export function isSparkEngine (engineType) {
-    return ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER === parseInt(engineType, 10);
+    return ENGINE_SOURCE_TYPE.HADOOP === parseInt(engineType, 10);
 }
 
 // Judge libra engine

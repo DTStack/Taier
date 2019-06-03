@@ -24,6 +24,8 @@ import { visibleSearchTask } from './modules/comm';
 
 import { uploader } from './modules/uploader';
 
+import { tableTypes } from './modules/tableType';
+
 const rootReducer = combineReducers({
     routing,
     user,
@@ -42,7 +44,8 @@ const rootReducer = combineReducers({
     dataSource, // 数据源
     visibleSearchTask,
     dataModel, // 数据模型
-    uploader
+    uploader,
+    tableTypes // 表类型
 })
 
 export default rootReducer

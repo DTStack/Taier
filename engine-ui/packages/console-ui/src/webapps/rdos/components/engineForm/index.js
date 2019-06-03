@@ -27,7 +27,7 @@ export const customItemLayout = {
 
 class EngineForm extends React.Component {
     state = {
-        engineType: ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER // Default is spark
+        engineType: ENGINE_SOURCE_TYPE.HADOOP // Default is spark
     }
 
     static getDerivedStateFromProps (props, state) {
@@ -63,7 +63,7 @@ class EngineForm extends React.Component {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('engineType', {
-                        initialValue: `${ENGINE_SOURCE_TYPE.SPARK_THRIFT_SERVER}`,
+                        initialValue: `${ENGINE_SOURCE_TYPE.HADOOP}`,
                         rules: [{
                             required: true,
                             message: '请选择引擎类型'
