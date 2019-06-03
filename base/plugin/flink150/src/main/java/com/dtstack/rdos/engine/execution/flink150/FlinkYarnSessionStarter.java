@@ -1,6 +1,5 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
-import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.flink150.util.FLinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
@@ -36,12 +35,9 @@ public class FlinkYarnSessionStarter {
     private ClusterClient<ApplicationId> clusterClient;
 
     public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig) throws MalformedURLException {
-        JobClient jobClient = new JobClient();
-        jobClient.setTaskId("default");
-
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
 
-        yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, metricConfig, jobClient, false);
+        yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, metricConfig, null, false);
         yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName());
         yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
     }

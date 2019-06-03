@@ -258,7 +258,11 @@ public class FlinkClientBuilder {
             configuration = flinkConfiguration;
         }
         Configuration newConf = new Configuration(configuration);
-        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+        String clusterId = flinkConfig.getCluster() + "_" + flinkConfig.getQueue();
+        if (isPerjob){
+            clusterId = jobClient.getTaskId();
+        }
+        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
         newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
         perJobMetricConfigConfig(newConf, metricConfig);
 
