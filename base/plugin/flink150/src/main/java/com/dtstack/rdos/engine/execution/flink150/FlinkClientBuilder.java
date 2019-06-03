@@ -242,8 +242,8 @@ public class FlinkClientBuilder {
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
         } catch (Exception e) {
-            LOG.info("Couldn't retrieve Yarn cluster.", e);
-            throw new RdosException("Couldn't retrieve Yarn cluster.");
+            LOG.info("No flink session, Couldn't retrieve Yarn cluster.", e);
+            throw new RdosException("No flink session, Couldn't retrieve Yarn cluster.");
         }
 
         clusterClient.setDetached(isDetached);

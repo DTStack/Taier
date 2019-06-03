@@ -33,8 +33,13 @@ public class FlinkYarnSessionStarter {
     private AbstractYarnClusterDescriptor yarnSessionDescriptor;
     private ClusterSpecification yarnSessionSpecification;
     private ClusterClient<ApplicationId> clusterClient;
+    private FlinkClientBuilder flinkClientBuilder;
+    private FlinkConfig flinkConfig;
 
     public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig) throws MalformedURLException {
+        this.flinkClientBuilder = flinkClientBuilder;
+        this.flinkConfig = flinkConfig;
+
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
 
         yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, metricConfig, null, false);
@@ -43,6 +48,22 @@ public class FlinkYarnSessionStarter {
     }
 
     public void startFlinkYarnSession() {
+
+        ClusterClient<ApplicationId> retrieveClusterClient = null;
+        try {
+            retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(flinkConfig);
+        } catch (Exception e) {
+            logger.error("{}", e);
+            if (!e.getMessage().startsWith("No flink session")) {
+                System.exit(-1);
+            }
+        }
+
+        if (retrieveClusterClient != null){
+            clusterClient = retrieveClusterClient;
+            return;
+        }
+
         try {
             clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
             clusterClient.setDetached(true);
@@ -72,7 +93,7 @@ public class FlinkYarnSessionStarter {
                 throw new IllegalArgumentException("Given configuration directory is null, cannot load configuration");
             }
 
-            final File confDirFile = new File(configDir + "../conf");
+            final File confDirFile = new File(configDir + "/../conf");
             if (!(confDirFile.exists())) {
                 throw new IllegalConfigurationException(
                         "The given configuration directory name '" + configDir +
