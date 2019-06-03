@@ -252,9 +252,12 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient,
+    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(Configuration configuration, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient,
                                                                        boolean isPerjob) throws MalformedURLException {
-        Configuration newConf = new Configuration(flinkConfiguration);
+        if (configuration == null){
+            configuration = flinkConfiguration;
+        }
+        Configuration newConf = new Configuration(configuration);
         newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
         newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
         perJobMetricConfigConfig(newConf, metricConfig);
