@@ -44,6 +44,7 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -151,6 +152,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public void init(Properties prop) throws Exception {
             this.flinkExtProp = prop;
+
             String propStr = PublicUtil.objToString(prop);
             flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
             prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
