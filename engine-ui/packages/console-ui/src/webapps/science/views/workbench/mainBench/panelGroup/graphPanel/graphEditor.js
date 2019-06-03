@@ -7,7 +7,7 @@ import {
     Tooltip, Icon
 } from 'antd';
 
-import Mx from 'widgets/mxGraph';
+import * as MxFactory from 'widgets/mxGraph';
 
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
@@ -19,7 +19,7 @@ const propType = {
     registerEvent: PropTypes.func,
     onSearchNode: PropTypes.func
 }
-
+const Mx = MxFactory.create();
 const {
     mxGraph,
     mxText,

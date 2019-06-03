@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import { hashHistory } from 'react-router'
 
 import {
-    Input, Modal, Row, Form, DatePicker, TimePicker, Col, Tree, Checkbox
+    Input, Modal, Row, Form, DatePicker, TimePicker, Col, Tree, Checkbox, message
 } from 'antd'
 
 import Api from '../../../api'
@@ -34,6 +34,7 @@ class PatchData extends Component {
         expandedKeys: [],
         checkedKeys: ['0'],
         confirmLoading: false,
+        loading: false, // 初始化
         startTime: '00:00', // 限制时间范围
         endTime: '23:59',
         checked: false
@@ -57,6 +58,11 @@ class PatchData extends Component {
     }
 
     addData = () => {
+        const { loading } = this.state;
+        if (loading) {
+            message.warn('加载中，请稍后再试');
+            return;
+        }
         const { form } = this.props
         const taskJson = this.getSelectedTasks()
         const reqParams = form.getFieldsValue()
@@ -114,7 +120,13 @@ class PatchData extends Component {
 
     loadTaskTree = (params) => {
         const ctx = this
+        ctx.setState({
+            loading: true
+        })
         Api.getTaskChildren(params).then(res => {
+            ctx.setState({
+                loading: false
+            })
             if (res.code === 1) {
                 const arr = res.data ? [res.data] : []
                 ctx.wrapTableTree(arr)
