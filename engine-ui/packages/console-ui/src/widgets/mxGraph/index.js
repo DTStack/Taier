@@ -12,8 +12,8 @@ const MxFactory = {
         mxLoadResources: false,
         mxLoadStylesheets: false
     },
-    create: () => {
-        return Mx(this.config);
+    create () {
+        return Mx(MxFactory.config);
     }
 }
 
