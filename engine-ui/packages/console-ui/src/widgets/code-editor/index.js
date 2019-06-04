@@ -41,6 +41,9 @@ class CodeEditor extends Component {
         if (!ele) return;
         this.self = instance.fromTextArea(ele, options);
         this.renderTextMark();
+        // window.setTimeout(() => {
+        //     this.self.refresh();
+        // }, 200);
         // 设置corsor位置
         if (cursor) this.self.doc.setCursor(cursor)
 
@@ -70,6 +73,9 @@ class CodeEditor extends Component {
             editorRef(this.self);
         }
     }
+    componentWillUnmount() {
+        console.log('unmount');
+    }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { value, sync, cursor, placeholder, cursorAlwaysInEnd, options = {} } = nextProps
@@ -80,6 +86,9 @@ class CodeEditor extends Component {
             this.self.setOption('placeholder', placeholder)
         }
         if (this.props.value !== value) {
+            // window.setTimeout(() => {
+            //     this.self.refresh();
+            // }, 200);
             if (cursor) this.self.doc.setCursor(cursor)
             if (sync) {
                 window.ted = this.self;
