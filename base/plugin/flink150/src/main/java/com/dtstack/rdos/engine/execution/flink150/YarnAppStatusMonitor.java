@@ -66,13 +66,11 @@ public class YarnAppStatusMonitor implements Runnable{
                     switch(appState) {
                         case FAILED:
                         case KILLED:
+                        case FINISHED:
                             flinkYarnSessionStarter.stopFlinkYarnSession();
                             LOG.error("-------Flink session is down----");
                             //限制任务提交---直到恢复
                             flinkClient.setClientOn(false);
-                            break;
-                        case FINISHED:
-                            flinkClient.setClientOn(true);
                             break;
                         case RUNNING:
                             if (lastAppState != appState) {
