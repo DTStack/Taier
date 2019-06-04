@@ -87,15 +87,50 @@ class TaskDependence extends React.Component {
         this.props.getTaskDetail(task.id)
     }
     initColumn () {
+        const { project, tenant } = this.props;
+        const currentTenantName = tenant.currentTenant.tenantName;
+        const currentProjectName = project.projectName;
         return [
+            {
+                title: '租户',
+                dataIndex: 'tenantName',
+                key: 'tenantName',
+                render (tenantName) {
+                    if (tenantName) {
+                        return tenantName;
+                    } else {
+                        return currentTenantName;
+                    }
+                }
+            },
+            {
+                title: '项目标识',
+                dataIndex: 'projectName',
+                key: 'projectName',
+                render (projectName) {
+                    if (projectName) {
+                        return projectName;
+                    } else {
+                        return currentProjectName;
+                    }
+                }
+            },
             {
                 title: '任务名称',
                 dataIndex: 'name',
                 key: 'name',
-                render: (text, record) => <a
-                    href="javascript:void(0)"
-                    onClick={this.goEdit.bind(this, record)}
-                >{text}</a>
+                render: (text, record) => {
+                    if (record.tenantName == currentTenantName && record.projectName == currentProjectName) {
+                        return (
+                            <a
+                                href="javascript:void(0)"
+                                onClick={this.goEdit.bind(this, record)}
+                            >{text}</a>
+                        )
+                    } else {
+                        return text;
+                    }
+                }
             },
             {
                 title: '责任人',
@@ -125,15 +160,17 @@ class TaskDependence extends React.Component {
     }
     onSelectTenant (value) {
         this.setState({
-            tenantId: value
+            tenantId: value,
+            projectList: [],
+            projectId: null
         }, this.loadProjectList.bind(this));
     }
     async loadProjectList () {
         const { tenantId } = this.state;
-        let res = ajax.getProjectByTenant({ targetTenantId: tenantId });
+        let res = await ajax.getProjectByTenant({ searchTenantId: tenantId });
         if (res && res.code == 1) {
             this.setState({
-                projectList: res.data
+                projectList: res.data || []
             }, this.setDefaultProject);
         }
     }
@@ -182,7 +219,7 @@ class TaskDependence extends React.Component {
                     >
                         <Select value={projectId} onSelect={this.onSelectProject.bind(this)}>
                             {projectList.map((projectItem) => {
-                                return <Option key={projectItem.id} value={projectItem.id}>{projectItem.projectAlias}</Option>
+                                return <Option key={projectItem.projectId} value={projectItem.projectId}>{projectItem.projectAlias}</Option>
                             })}
                         </Select>
                     </FormItem>

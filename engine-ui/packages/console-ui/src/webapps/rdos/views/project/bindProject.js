@@ -49,11 +49,11 @@ class BindProjectModal extends React.Component {
             if (!err) {
                 const selectProject = projectBindList.filter((project) => {
                     return project.id == values.produceProjectId;
-                }) || {};
+                })[0] || {};
                 Modal.confirm({
                     title: '确认绑定发布目标',
                     content: (<div style={{ color: 'ff0000', fontWeight: 'bold' }}>
-                        <p>是否确定将{selectProject.name}项目指定为发布目标？</p>
+                        <p>是否确定将{selectProject.projectName}项目指定为发布目标？</p>
                         <p>此配置不可逆，确认后不可修改</p>
                     </div>),
                     iconType: 'exclamation-circle',
@@ -70,7 +70,7 @@ class BindProjectModal extends React.Component {
                                     message.success('绑定成功！')
                                     const newProject = cloneDeep(Object.assign(project,
                                         {
-                                            produceProject: selectProject.name,
+                                            produceProject: selectProject.projectName,
                                             produceProjectId: selectProject.id,
                                             projectType: PROJECT_TYPE.TEST
                                         }

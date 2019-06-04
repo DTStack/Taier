@@ -212,7 +212,14 @@ table.mxPopupMenu tr {
 .vertex {
     user-select: none;
     margin-top: -2px;
-
+    position: relative;
+    .vertex-across-logo {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        right: -10px;
+        top: 0px;
+    }
     .vertex-title {
         width: 120px;
         text-align: center;
