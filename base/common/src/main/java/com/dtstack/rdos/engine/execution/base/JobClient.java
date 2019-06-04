@@ -136,7 +136,11 @@ public class JobClient extends OrderObject{
         this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
         this.isFailRetry = paramAction.getIsFailRetry();
-        this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
+        if (paramAction.getEngineType().equals("flink") && EJobType.getEJobType(paramAction.getTaskType()).name().equals("SQL")){
+            this.maxRetryNum = 0;
+        } else {
+            this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
+        }
         if(paramAction.getPluginInfo() != null){
             this.pluginInfo = PublicUtil.objToString(paramAction.getPluginInfo());
         }
