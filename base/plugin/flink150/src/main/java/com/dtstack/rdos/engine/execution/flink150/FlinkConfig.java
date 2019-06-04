@@ -270,7 +270,7 @@ public class FlinkConfig {
     }
 
     public String getCluster() {
-        return cluster;
+        return StringUtils.isBlank(cluster) ? "default" : cluster;
     }
 
     public void setCluster(String cluster) {
