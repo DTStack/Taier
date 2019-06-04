@@ -96,10 +96,35 @@ export default {
     saveOrUpdateCluster (params) {
         return http.post(req.SAVE_ALL_CLUSTER, params);
     },
-    saveOrAddEngine (params) {
-        return http.post(req.SAVE_OR_ADD_ENGINE, params); // 保存单个引擎或新增引擎
+    // saveOrAddEngine (params) {
+    //     return http.post(req.SAVE_OR_ADD_ENGINE, params); // 保存单个引擎或新增引擎
+    // },
+    addComponent (params) {
+        return http.post(req.ADD_COMPONENT, params);
     },
-    deleteEngine (params) {
-        return http.post(req.DELETE_ENGINE, params); // 删除引擎
+    saveComponent (params) {
+        return http.post(req.SAVE_COMPONENT, params);
+    },
+    deleteComponent (params) {
+        return http.post(req.DELETE_COMPONENT, params); // 删除组件
+    },
+    // 资源管理
+    getAllCluster (params) {
+        return http.post(req.GET_ALL_CLUSTER, params); // 返回数据包含集群下的engine
+    },
+    searchTenant (params) {
+        return http.post(req.SEARCH_TENANT, params);
+    },
+    getAllTenant (params) {
+        return http.post(req.GET_ALL_TENANT, params);
+    },
+    getQueue (params) {
+        return http.post(req.GET_QUEUE, params);
+    },
+    bindTenant (params) {
+        return http.post(req.BIND_TENANT, params);
+    },
+    switchQueue (params) {
+        return http.post(req.SWITCH_QUEUE, params);
     }
 }

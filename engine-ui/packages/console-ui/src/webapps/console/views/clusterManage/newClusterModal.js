@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Select, Input, Checkbox, message } from 'antd';
-import { formItemLayout, CLUSTER_TYPES_VALUE, otherClustersOptions, huaWeiOptions } from '../../consts';
+import { Modal, Form, Input, Checkbox, message } from 'antd';
+import EngineSelect from '../../../../webapps/rdos/components/engineSelect';
+import { formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME, COMPONENT_TYPE_VALUE, hadoopEngineOptionsValue } from '../../consts';
 import { updateEngineList } from '../../actions/console';
 import { hashHistory } from 'react-router';
 import Api from '../../api/console';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 const CheckboxGroup = Checkbox.Group;
-const defaultCheckedValue = ['HDFS', 'YARN']; // 必选引擎
-
+const defaultCheckedValue = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN]; // 必选引擎值
+const defaultEngine = ENGINE_TYPE_NAME.HADOOP // hadoop
 function mapStateToProps (state) {
     return {
         consoleUser: state.consoleUser
@@ -26,95 +26,173 @@ function mapDispatchToProps (dispatch) {
 @connect(mapStateToProps, mapDispatchToProps)
 class NewClusterModal extends Component {
     state = {
-        indeterminate: false,
         checkedList: defaultCheckedValue,
-        checkAll: false
+        checkAll: false,
+        isShowLibra: false // 是否添加Libra引擎
     }
-    changeClusterType = (value) => {
-        this.setState({
-            checkAll: false
+    tranEngineData = () => {
+        let hadoopOptionValue = [];
+        hadoopEngineOptionsValue.map(item => {
+            hadoopOptionValue.push(item.value)
         })
-        if (value === CLUSTER_TYPES_VALUE.HUAWEI) {
-            this.setState({
-                checkedList: []
-            })
-        } else {
-            this.setState({
-                checkedList: defaultCheckedValue
-            })
-        }
-    }
-    getOtherClustersOptionsValue = () => {
-        let otherClusterValues = [];
-        otherClustersOptions.map(item => {
-            otherClusterValues.push(item.value)
-        })
-        return otherClusterValues
+        return hadoopOptionValue
     }
     onChange = (checkedList) => {
-        const { getFieldValue } = this.props.form;
-        const isHuaweiType = getFieldValue('type') === CLUSTER_TYPES_VALUE.HUAWEI;
         this.setState({
             checkedList,
-            // indeterminate: !!checkedList.length && (checkedList.length < isHuaweiType ? huaWeiOptions.length : otherClustersOptions.length),
-            checkAll: isHuaweiType ? checkedList.length === huaWeiOptions.length : checkedList.length === otherClustersOptions.length
+            checkAll: checkedList.length === hadoopEngineOptionsValue.length
         })
     }
     onCheckAllChange = (e) => {
-        const { getFieldValue } = this.props.form;
-        const isHuaweiType = getFieldValue('type') === CLUSTER_TYPES_VALUE.HUAWEI;
         this.setState({
-            checkedList: e.target.checked ? (isHuaweiType ? huaWeiOptions : this.getOtherClustersOptionsValue())
-                : isHuaweiType ? [] : defaultCheckedValue,
+            checkedList: e.target.checked ? this.tranEngineData() : defaultCheckedValue,
             checkAll: e.target.checked
         })
     }
-    checkEngines = () => {
-        if (this.state.checkedList.length === 0) {
-            message.error('可选引擎不可为空！')
-            return false
+    getServerParams = (value) => {
+        const { getFieldValue } = this.props.form;
+        const hadoopOption = getFieldValue('engineName')
+        const libraOption = getFieldValue('libraEngineName')
+        const isHadoop = hadoopOption === ENGINE_TYPE_NAME.HADOOP || libraOption === ENGINE_TYPE_NAME.HADOOP;
+        const isLibra = hadoopOption === ENGINE_TYPE_NAME.LIBRA || libraOption === ENGINE_TYPE_NAME.LIBRA;
+        let params = {};
+        params.engineList = [];
+        params.clusterName = value.clusterName;
+        if (isHadoop) {
+            params.engineList.push({
+                engineName: value.engineName || value.libraEngineName,
+                componentTypeCodeList: this.state.checkedList
+            })
         }
-        return true
+        if (isLibra) {
+            params.engineList.push({
+                engineName: value.libraEngineName || value.engineName,
+                componentTypeCodeList: [COMPONENT_TYPE_VALUE.LIBRASQL]
+            })
+        }
+        console.log('ServerParams', params)
+        return params
+    }
+    validateEngine = () => {
+        const { getFieldValue } = this.props.form;
+        const hadoopOption = getFieldValue('engineName')
+        const libraOption = getFieldValue('libraEngineName')
+        let flag = true;
+        console.log(hadoopOption, libraOption)
+        if (hadoopOption === libraOption) {
+            message.error('不能选择同类的引擎！')
+            flag = false
+        }
+        return flag
     }
     addCluster = () => {
-        this.props.form.validateFields(['type', 'name', 'engines'], {}, (err, value) => {
-            if (!err && this.checkEngines()) {
-                // dispatch enginelist
-                this.props.updateEngineList(this.state.checkedList)
-                Api.addCluster({
-                    type: value.type,
-                    name: value.name,
-                    engines: this.state.checkedList
-                }).then(res => {
-                    if (res.code === 1) {
-                        this.props.onCancel()
-                        message.success('集群新增成功！')
-                        // 采用接口返回数据
-                        hashHistory.push({
-                            pathname: '/console/clusterManage/editCluster',
-                            state: {
-                                mode: 'new',
-                                enginelist: this.state.checkedList,
-                                clusterName: value.name,
-                                clusterType: value.type,
-                                totalNode: res.data.totalNode,
-                                totalMemory: res.data.totalMemory,
-                                totalCore: res.data.totalCore,
-                                clusterConfig: res.data,
-                                clusterId: res.data.id
-                            }
-                        })
-                    }
-                })
+        this.props.form.validateFields(['clusterName', 'engineName', 'libraEngineName'], {}, (err, value) => {
+            if (!err) {
+                if (this.validateEngine()) {
+                    this.getServerParams(value);
+                    const params = this.getServerParams(value);
+                    // dispatch enginelist
+                    // this.props.updateEngineList(this.state.checkedList)
+                    Api.addCluster({ ...params }).then(res => {
+                        if (res.code === 1) {
+                            this.props.onCancel()
+                            message.success('集群新增成功！')
+                            // 采用接口返回数据
+                            hashHistory.push({
+                                pathname: '/console/clusterManage/editCluster',
+                                state: {
+                                    mode: 'new',
+                                    enginelist: this.state.checkedList,
+                                    clusterName: value.clusterName,
+                                    clusterType: value.type,
+                                    totalNode: res.data.totalNode,
+                                    totalMemory: res.data.totalMemory,
+                                    totalCore: res.data.totalCore,
+                                    clusterConfig: res.data,
+                                    clusterId: res.data.id
+                                }
+                            })
+                        }
+                    })
+                }
             }
         })
     }
+    addEngine = () => {
+        this.setState({
+            isShowLibra: true
+        })
+    }
+    delEngine = () => {
+        this.setState({
+            isShowLibra: false
+        })
+    }
+    renderDiffentEngine = (flag) => {
+        const { getFieldDecorator } = this.props.form;
+        const { checkAll, checkedList } = this.state;
+        return (
+            flag ? <React.Fragment>
+                <FormItem
+                    label="必选组件"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('requiredEngines', {
+                        rules: [{
+                            required: true,
+                            message: ''
+                        }]
+                    })(
+                        <span>{'HDFS、YARN'}</span>
+                    )}
+                </FormItem>
+                <FormItem
+                    label={<span>
+                        <span style={{ color: '#f04134', fontSize: '12px', fontFamily: 'SimSun' }}>* </span>
+                        <span>可选组件</span>
+                    </span>}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('engines', {
+                    })(
+                        <div>
+                            <Checkbox
+                                onChange={this.onCheckAllChange}
+                                checked={checkAll}
+                            >全选</Checkbox>
+                            <CheckboxGroup
+                                options={hadoopEngineOptionsValue}
+                                value={checkedList}
+                                onChange={this.onChange}
+                            />
+                        </div>
+                    )}
+                </FormItem>
+            </React.Fragment> : <React.Fragment>
+                <FormItem
+                    label="必选组件"
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator('librarequiredEngines', {
+                        rules: [{
+                            required: true,
+                            message: ''
+                        }],
+                        initialValue: COMPONENT_TYPE_VALUE.LIBRASQL
+                    })(
+                        <span>LibrA SQL</span>
+                    )}
+                </FormItem>
+            </React.Fragment>
+        )
+    }
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
-        const { indeterminate, checkAll, checkedList } = this.state;
-        const engineType = getFieldValue('type');
-        const isHaveRequiredEngine = engineType == CLUSTER_TYPES_VALUE.APACHEHADOOP || engineType == CLUSTER_TYPES_VALUE.CLOUDERA || engineType == undefined
-        const isHuaweiEngine = engineType == CLUSTER_TYPES_VALUE.HUAWEI
+        const { isShowLibra } = this.state;
+        const hadoopOption = getFieldValue('engineName')
+        const libraOption = getFieldValue('libraEngineName')
+        const hadoopFlag = hadoopOption === ENGINE_TYPE_NAME.HADOOP || hadoopOption == undefined;
+        const libraFlag = libraOption === ENGINE_TYPE_NAME.HADOOP || libraOption == undefined;
         return (
             <Modal
                 title='新增集群'
@@ -124,31 +202,10 @@ class NewClusterModal extends Component {
             >
                 <Form>
                     <FormItem
-                        label='集群类型'
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator('type', {
-                            rules: [{
-                                required: true,
-                                message: '集群类型不可为空！'
-                            }],
-                            initialValue: CLUSTER_TYPES_VALUE.APACHEHADOOP
-                        })(
-                            <Select
-                                onChange={this.changeClusterType}
-                                placeholder='请选择集群类型'
-                            >
-                                <Option value={CLUSTER_TYPES_VALUE.APACHEHADOOP}>Apache Hadoop</Option>
-                                <Option value={CLUSTER_TYPES_VALUE.HUAWEI}>华为</Option>
-                                <Option value={CLUSTER_TYPES_VALUE.CLOUDERA}>Cloudera</Option>
-                            </Select>
-                        )}
-                    </FormItem>
-                    <FormItem
                         label="集群标识"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('name', {
+                        {getFieldDecorator('clusterName', {
                             rules: [{
                                 required: true,
                                 message: '集群标识不可为空！'
@@ -161,51 +218,53 @@ class NewClusterModal extends Component {
                         )}
                     </FormItem>
                     <FormItem
-                        label="必选引擎"
+                        label="引擎类型"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('requiredEngines', {
+                        {getFieldDecorator('engineName', {
                             rules: [{
                                 required: true,
-                                message: ''
-                            }]
+                                message: '引擎类型不可为空！'
+                            }],
+                            initialValue: defaultEngine
                         })(
-                            <span>{isHaveRequiredEngine ? 'HDFS、YARN' : '无'}</span>
+                            <EngineSelect
+                                placeholder='请选择引擎类型'
+                                tableTypes={ENGINE_TYPE_ARRAY}
+                            />
                         )}
+                        {
+                            isShowLibra ? null : <a className='engine-opera' onClick={this.addEngine}>添加引擎</a>
+                        }
                     </FormItem>
-                    <FormItem
-                        label={<span>
-                            <span style={{ color: '#f04134', fontSize: '12px', fontFamily: 'SimSun' }}>* </span>
-                            <span>可选引擎</span>
-                        </span>}
-                        {...formItemLayout}
-                    >
-                        {getFieldDecorator('engines', {
-                            // rules: [{
-                            //     validator: function (rule, value, callback) {
-                            //         if (checkedList.length === 0) {
-                            //             const error = '可选引擎不可为空！'
-                            //             callback(error)
-                            //             return;
-                            //         }
-                            //         callback();
-                            //     }
-                            // }]
-                        })(
-                            <div>
-                                <Checkbox
-                                    indeterminate={indeterminate}
-                                    onChange={this.onCheckAllChange}
-                                    checked={checkAll}
-                                >全选</Checkbox>
-                                <CheckboxGroup
-                                    options={isHuaweiEngine ? huaWeiOptions : otherClustersOptions}
-                                    value={checkedList}
-                                    onChange={this.onChange}
-                                />
-                            </div>
-                        )}
-                    </FormItem>
+                    {this.renderDiffentEngine(hadoopFlag)}
+                    {/* libra */}
+                    {
+                        isShowLibra ? <React.Fragment>
+                            <div className='dashed-line'></div>
+                            <FormItem
+                                label="引擎类型"
+                                {...formItemLayout}
+                            >
+                                {getFieldDecorator('libraEngineName', {
+                                    rules: [{
+                                        required: true,
+                                        message: '引擎类型不可为空！'
+                                    }],
+                                    initialValue: defaultEngine
+                                })(
+                                    <EngineSelect
+                                        placeholder='请选择引擎类型'
+                                        tableTypes={ENGINE_TYPE_ARRAY}
+                                    />
+                                )}
+                                {
+                                    isShowLibra ? <a className='engine-opera' onClick={this.delEngine}>删除引擎</a> : null
+                                }
+                            </FormItem>
+                            {this.renderDiffentEngine(libraFlag)}
+                        </React.Fragment> : null
+                    }
                 </Form>
             </Modal>
         )

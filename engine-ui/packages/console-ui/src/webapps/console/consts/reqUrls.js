@@ -39,6 +39,16 @@ export default {
 
     ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/add`, // 新增集群
     SAVE_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/update`, // 保存更新集群
-    SAVE_OR_ADD_ENGINE: `${CONSOLE_BASE_URL}/cluster/addEngine`, // 保存单个引擎或新增引擎
-    DELETE_ENGINE: `${CONSOLE_BASE_URL}/cluster/deleteEngine` // 删除引擎
+    // SAVE_OR_ADD_ENGINE: `${CONSOLE_BASE_URL}/cluster/addEngine`, // 保存单个引擎或新增引擎
+    ADD_COMPONENT: `${CONSOLE_BASE_URL}/component/addComponent`,
+    SAVE_COMPONENT: `${CONSOLE_BASE_URL}/component/update`,
+    DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`, // 删除组件
+
+    // 资源管理
+    GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
+    SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,
+    GET_ALL_TENANT: `${CONSOLE_BASE_URL}/tenant/getAllTenant`,
+    GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
+    BIND_TENANT: `${CONSOLE_BASE_URL}/engine/bindingTenant`,
+    SWITCH_QUEUE: `${CONSOLE_BASE_URL}/engine/switchQueue`
 }

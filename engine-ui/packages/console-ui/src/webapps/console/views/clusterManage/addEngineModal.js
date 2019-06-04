@@ -1,29 +1,13 @@
 import React, { Component } from 'react';
-import { Modal, Form, Select } from 'antd';
-import { difference } from 'lodash';
-import { formItemLayout, otherEngineType, huaWeiOptions } from '../../consts';
-// import { hashHistory } from 'react-router';
+import { Modal, Form } from 'antd';
+// import { difference } from 'lodash';
+import EngineSelect from '../../../../webapps/rdos/components/engineSelect';
+import { formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME } from '../../consts';
 // import Api from '../../api/console';
 const FormItem = Form.Item;
-const Option = Select.Option;
+const defaultEngine = ENGINE_TYPE_NAME.HADOOP // hadoop
+
 class AddEngineModal extends Component {
-    getEngineOptions = () => {
-        const { clusterType, engineSelectedLists } = this.props;
-        const isHuawei = clusterType === 'huawei';
-        const unSelectEngine = difference((isHuawei ? huaWeiOptions : otherEngineType), engineSelectedLists);
-        return unSelectEngine && unSelectEngine.map(item => {
-            return <Option value={`${item}`} key={`${item}`}>{item}</Option>
-        })
-    }
-    isHaveEngine () {
-        let validate = false
-        this.props.form.validateFields(null, {}, (err, value) => {
-            if (!err) {
-                validate = true
-            }
-        })
-        return validate
-    }
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const engineType = getFieldValue('engineType')
@@ -36,20 +20,23 @@ class AddEngineModal extends Component {
             >
                 <Form>
                     <FormItem
-                        label='增加引擎'
+                        label="引擎类型"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('engineType', {
+                        {getFieldDecorator('engineName', {
                             rules: [{
                                 required: true,
-                                message: '请选择引擎！'
-                            }]
+                                message: '引擎类型不可为空！'
+                            }],
+                            initialValue: defaultEngine
                         })(
-                            <Select>
-                                {this.getEngineOptions()}
-                            </Select>
+                            <EngineSelect
+                                placeholder='请选择引擎类型'
+                                tableTypes={ENGINE_TYPE_ARRAY}
+                            />
                         )}
                     </FormItem>
+                    {/* {this.renderDiffentEngine(hadoopFlag)} */}
                 </Form>
             </Modal>
         )

@@ -5,7 +5,7 @@ import { formItemLayout } from '../../../consts'
 
 const FormItem = Form.Item;
 
-export class HiveConfig extends React.Component {
+export class SparkThriftConfig extends React.Component {
     render () {
         const { isView, getFieldDecorator, customView, singleButton } = this.props;
         return (

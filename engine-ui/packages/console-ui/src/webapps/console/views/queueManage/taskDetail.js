@@ -577,7 +577,7 @@ class TaskDetail extends Component {
                 width: '70px'
             },
             {
-                title: '引擎',
+                title: '组件',
                 dataIndex: 'engine',
                 render (text, record) {
                     return record.engineType;
@@ -841,7 +841,7 @@ class TaskDetail extends Component {
                         >
                             {this.getClusterListOptionView()}
                         </Select>
-                        引擎：
+                        组件：
                         <Select
                             placeholder="请选择引擎"
                             style={{ width: '150px', marginRight: '10px' }}

@@ -5,5 +5,7 @@ export const userActions = mc([
 ], { prefix: 'console/user' });
 
 export const clusterActions = mc([
-    'UPDATE_ENGINE_LIST'
+    'UPDATE_ENGINE_LIST',
+    'UPDATE_HADOOP_COMPONENT_LIST',
+    'UPDATE_LIBRA_COMPONENT_LIST'
 ], { prefix: 'console/cluster' })

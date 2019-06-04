@@ -28,8 +28,86 @@ table{
     text-align: center;
 }
 .console-wrapper {
+    padding-bottom: 20px;
     .ant-card-body {
         padding: 0
+    }
+}
+@mixin setTabBarWidth ($width) {
+    width: $width;
+}
+@mixin setCenter ($param) {
+    text-align: $param;
+}
+.cluster-tab-width {
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar .ant-tabs-tab {
+        @include setCenter(right);
+    }
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
+        @include setTabBarWidth(180px)
+    }
+}
+.resource-tab-width {
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar .ant-tabs-tab {
+        @include setCenter(center);
+    }
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
+        @include setTabBarWidth(140px)
+    }
+}
+.console-tabs {
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar .ant-tabs-tab {
+        height: 40;
+    }
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-bar {
+        float: left;
+        border-right: 1px solid #e9e9e9;
+        margin-right: -1px;
+        margin-bottom: 0;
+        margin-left: 0;
+    }
+    .ant-tabs-vertical.ant-tabs-left > .ant-tabs-content {
+        padding-left: 0px;
+        border-left: 1px solid #e9e9e9;
+    }
+    .tab-title {
+        margin-right: 8px;
+    }
+    .ant-tabs-nav .ant-tabs-tab-active .tab-title{
+        color: #2491F7;
+    }
+    .ant-tabs-vertical > .ant-tabs-bar .ant-tabs-tab {
+        float: none;
+        margin-right: 0;
+        margin-bottom: 16px;
+        display: block;
+        padding: 8px 10px 8px 24px;
+    }
+    .ant-tabs-nav .ant-tabs-tab .tab-title:hover {
+        color: #58abf9;
+    }
+    .ant-tabs-nav .ant-tabs-tab-active {
+        color: #2491F7;
+        background: rgba(36, 145, 247, .1);
+    }
+}
+.border-table {
+    .ant-table-thead > tr > th.ant-table-selection-column, .ant-table-tbody > tr > td.ant-table-selection-column {
+        text-align: center;
+        padding-right: 0;
+        min-width: 40px;
+        width: 40px;
+    }
+    .ant-table-bordered .ant-table-thead > tr > th {
+        border-bottom: none;
+    }
+    .ant-table-bordered .ant-table-thead > tr > th, .ant-table-bordered .ant-table-tbody > tr > td {
+        border-right: none;
+    }
+    .ant-table.ant-table-bordered .ant-table-footer {
+        border-bottom: none;
+        border-left: none;
+        border-right: none;
     }
 }
 
