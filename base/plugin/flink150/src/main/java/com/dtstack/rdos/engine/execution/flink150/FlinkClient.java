@@ -44,6 +44,7 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
+import org.apache.flink.shaded.curator.org.apache.curator.framework.recipes.locks.InterProcessMutex;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
 import org.apache.flink.yarn.YarnClusterClient;
@@ -140,6 +141,8 @@ public class FlinkClient extends AbsClient {
 
     private Properties flinkExtProp;
 
+    private FlinkYarnSessionStarter flinkYarnSessionStarter;
+
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     public FlinkClient(){
@@ -149,6 +152,7 @@ public class FlinkClient extends AbsClient {
     @Override
     public void init(Properties prop) throws Exception {
             this.flinkExtProp = prop;
+
             String propStr = PublicUtil.objToString(prop);
             flinkConfig = PublicUtil.jsonStrToObject(propStr, FlinkConfig.class);
             prometheusGatewayConfig = PublicUtil.jsonStrToObject(propStr, FlinkPrometheusGatewayConfig.class);
@@ -166,16 +170,20 @@ public class FlinkClient extends AbsClient {
             if (yarnCluster){
                 initYarnClient();
             }
+
+            flinkClientBuilder.initFLinkConf(flinkConfig, flinkExtProp);
+
             initClient();
+
             if(yarnCluster){
                 Configuration flinkConfig = new Configuration(flinkClientBuilder.getFlinkConfiguration());
-                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".");
+                AbstractYarnClusterDescriptor perJobYarnClusterDescriptor = flinkClientBuilder.getClusterDescriptor(flinkConfig, yarnConf, ".", true);
                 clusterClientCache = new ClusterClientCache(perJobYarnClusterDescriptor);
                 yarnMonitorES = new ThreadPoolExecutor(1, 1,
                         0L, TimeUnit.MILLISECONDS,
                         new LinkedBlockingQueue<>(), new CustomThreadFactory("flink_yarn_monitor"));
                 //启动守护线程---用于获取当前application状态和更新flink对应的application
-                yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClient));
+                yarnMonitorES.submit(new YarnAppStatusMonitor(this, yarnClient, flinkYarnSessionStarter));
             }
     }
 
@@ -209,8 +217,16 @@ public class FlinkClient extends AbsClient {
         }
     }
 
-    public void initClient(){
-        flinkClient = flinkClientBuilder.create(flinkConfig, flinkExtProp);
+    public void initClient() throws Exception {
+        if(flinkConfig.getClusterMode().equals(Deploy.standalone.name())) {
+            flinkClient = flinkClientBuilder.createStandalone(flinkConfig);
+        } else if (flinkConfig.getClusterMode().equals(Deploy.yarn.name())) {
+            if (flinkYarnSessionStarter == null) {
+                this.flinkYarnSessionStarter = new FlinkYarnSessionStarter(flinkClientBuilder, flinkConfig, prometheusGatewayConfig);
+            }
+            flinkYarnSessionStarter.startFlinkYarnSession();
+            flinkClient = flinkYarnSessionStarter.getClusterClient();
+        }
         setClientOn(true);
     }
 
@@ -326,7 +342,7 @@ public class FlinkClient extends AbsClient {
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification) throws Exception{
         JobClient jobClient = jobClientThreadLocal.get();
 
-        AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createPerJobClusterDescriptor(flinkConfig, prometheusGatewayConfig, jobClient);
+        AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(null, flinkConfig, prometheusGatewayConfig, jobClient, true);
         descriptor.setName(jobClient.getJobName());
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true);
 
