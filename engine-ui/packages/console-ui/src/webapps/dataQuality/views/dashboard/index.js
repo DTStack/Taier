@@ -47,7 +47,7 @@ class DashBoard extends Component {
     componentDidMount () {
         this.props.getUsage();
         this.props.getAlarmSum();
-        this.props.getTopRecord({ date: 7 });
+        this.props.getTopRecord({ date: this.state.currentDate });
         DBApi.getAlarmTrend().then(res => {
             if (res.code === 1) {
                 this.initLineChart(res.data);
