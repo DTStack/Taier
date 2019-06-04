@@ -23,12 +23,14 @@ import { operation } from './modules/operation';
 import { visibleSearchTask } from './modules/comm';
 
 import { uploader } from './modules/uploader';
+import tenant from './modules/tenant';
 
 const rootReducer = combineReducers({
     routing,
     user,
     app,
     apps,
+    tenant,
     licenseApps,
     projectUsers, // 项目用户列表
     notProjectUsers, // 非项目用户列表
