@@ -70,6 +70,18 @@ class RunningLogModal extends Component {
         this.setState({
             spinning: false
         });
+        this.editorRefresh();
+    }
+    editorRefresh () {
+        if (!this.$editor) {
+            return;
+        }
+        window.setTimeout(() => {
+            this.$editor.refresh();
+        }, 300);
+    }
+    editorRef = (editor) => {
+        this.$editor = editor;
     }
 
     renderLogContent = () => {
@@ -91,7 +103,7 @@ class RunningLogModal extends Component {
                         : ''
                 }
                 <Row style={logContainerStyle}>
-                    <Editor key={data && data.id} sync value={logText} options={editorOptions} />
+                    <Editor editorRef={ this.editorRef } key={data && data.id} sync value={logText} options={editorOptions} />
                 </Row>
             </div>
         )
