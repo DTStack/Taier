@@ -158,7 +158,7 @@ class TaskGraphView extends Component {
         const vertexStyle = this.getDefaultVertexStyle()
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle)
         // 转换value显示的内容
-        graph.convertValueToString = this.corvertValueToString
+        graph.convertValueToString = this.corvertValueToString;
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip;
         // 转换value显示的内容
