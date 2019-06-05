@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { cloneDeep, get } from 'lodash'
+import { connect } from 'react-redux';
 import moment from 'moment';
 import { Tooltip, Modal, message, Icon } from 'antd'
 
@@ -14,19 +15,20 @@ import { taskStatusText } from '../../../../components/display'
 import JobGraphView, {
     mergeTreeNodes, replacTreeNodeField
 } from './jobGraphView';
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxEvent,
     mxCellHighlight,
     mxPopupMenu
 } = Mx
 
+@connect(state => {
+    return {
+        project: state.project
+    }
+})
 class TaskJobFlowView extends Component {
     state = {
         selectedJob: '', // 选中的Job
@@ -52,7 +54,17 @@ class TaskJobFlowView extends Component {
             this.loadByJobId(taskJob.id);
         }
     }
-
+    isCurrentProjectTask = (node) => {
+        if (!node) {
+            return true;
+        }
+        const { project = {} } = this.props;
+        const projectId = project.id;
+        if (node.projectId == projectId) {
+            return true;
+        }
+        return false;
+    }
     renderGraph = (data) => {
         const originData = this._originData;
         if (originData) {
@@ -207,7 +219,7 @@ class TaskJobFlowView extends Component {
                 if (!cell) return;
 
                 const currentNode = cell.data;
-
+                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
                 const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId !== 0;
                 const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
@@ -231,23 +243,25 @@ class TaskJobFlowView extends Component {
                 menu.addItem('查看任务属性', null, function () {
                     ctx.setState({ visible: true })
                 })
-                // const frontPeriods = menu.addItem('转到前一周期实例', null, null);
-                // const frontParams = {
-                //     jobId: currentNode.id,
-                //     isAfter: false,
-                //     limit: 6
-                // }
-                // ctx.loadPeriodsData(menu, frontParams, frontPeriods)
-                // const nextPeriods = menu.addItem('转到下一周期实例', null, null);
-                // const nextParams = {
-                //     jobId: currentNode.id,
-                //     isAfter: true,
-                //     limit: 6
-                // }
-                // ctx.loadPeriodsData(menu, nextParams, nextPeriods)
-                menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                    ctx.props.goToTaskDev(taskId)
-                })
+                const frontPeriods = menu.addItem('转到前一周期实例', null, null);
+                const frontParams = {
+                    jobId: currentNode.id,
+                    isAfter: false,
+                    limit: 6
+                }
+                ctx.loadPeriodsData(menu, frontParams, frontPeriods)
+                const nextPeriods = menu.addItem('转到下一周期实例', null, null);
+                const nextParams = {
+                    jobId: currentNode.id,
+                    isAfter: true,
+                    limit: 6
+                }
+                ctx.loadPeriodsData(menu, nextParams, nextPeriods)
+                if (isCurrentProjectTask) {
+                    menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                        ctx.props.goToTaskDev(taskId)
+                    })
+                }
                 menu.addItem('终止', null, function () {
                     ctx.stopTask({
                         jobId: currentNode.id
@@ -385,9 +399,10 @@ class TaskJobFlowView extends Component {
                 }}
             >
                 <JobGraphView
-                    data={taskJob}
+                    data={selectedJob}
                     isPro={isPro}
                     graphData={graphData}
+                    isCurrentProjectTask={this.isCurrentProjectTask}
                     loading={loading}
                     goToTaskDev={goToTaskDev}
                     showJobLog={this.showJobLog}
@@ -409,6 +424,7 @@ class TaskJobFlowView extends Component {
                 >
                     <JobGraphView
                         isPro={isPro}
+                        isCurrentProjectTask={this.isCurrentProjectTask}
                         loading={loading}
                         data={selectedJob}
                         goToTaskDev={goToTaskDev}
@@ -416,7 +432,7 @@ class TaskJobFlowView extends Component {
                         registerEvent={this.initGraphEvent}
                         registerContextMenu={this.initContextMenu}
                         graphData={workflowData && workflowData.subNodes}
-                        key={`graph-${workflowData && workflowData.id}`}
+                        key={`graph-workflow-${workflowData && workflowData.id}`}
                         refresh={this.loadWorkflowNodes.bind(this, workflowData)}
                     />
                 </Modal>

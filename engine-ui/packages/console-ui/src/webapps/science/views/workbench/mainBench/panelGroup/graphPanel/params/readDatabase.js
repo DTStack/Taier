@@ -11,8 +11,8 @@ const Option = Select.Option;
 class ChooseTable extends PureComponent {
     constructor (props) {
         super(props);
-        this.fetchTables = debounce(this.fetchTables, 800);
-        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+        this.fetchTables = debounce(this.fetchTables, 500);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 500);
     }
     state = {
         tables: [],
@@ -43,6 +43,7 @@ class ChooseTable extends PureComponent {
     }
     handleBlur = () => {
         const value = this.props.form.getFieldValue('tableName');
+        this.props.toggleLock();
         api.isPartitionTable({ tableName: value }).then((res) => {
             if (res.code === 1) {
                 this.props.form.setFieldsValue({
@@ -50,6 +51,8 @@ class ChooseTable extends PureComponent {
                     tableName: value
                 })
                 this.handleSaveComponent(value);
+            } else {
+                this.props.toggleLock();
             }
             this.setState({
                 tables: [],
@@ -77,6 +80,7 @@ class ChooseTable extends PureComponent {
             } else {
                 message.warning('保存失败');
             }
+            this.props.toggleLock();
         })
     }
     renderTooltips = () => {

@@ -13,6 +13,7 @@ import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 import DataManageAction from '../store/modules/dataManage/actionCreator';
 import { getTaskTypes } from '../store/modules/offlineTask/comm';
+import { getTenantList } from '../store/modules/tenant';
 const propType = {
     children: PropTypes.node
 }
@@ -29,6 +30,7 @@ class Container extends Component {
         dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
         dispatch(getTaskTypes());
         dispatch(updateApp(rdosApp))
+        dispatch(getTenantList());
         this.initProject();
     }
     initProject () {

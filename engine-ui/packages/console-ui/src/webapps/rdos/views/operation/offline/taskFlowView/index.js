@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { hashHistory } from 'react-router'
+import { connect } from 'react-redux';
 import { cloneDeep, get } from 'lodash'
 
 import {
@@ -11,20 +12,21 @@ import OperaRecordModal from './operaRecordModal';
 import { SCHEDULE_STATUS, TASK_TYPE } from '../../../../comm/const'
 
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView'
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxEvent,
     mxCellHighlight,
     mxPopupMenu
 } = Mx
 
-export default class TaskFlowView extends Component {
+@connect(state => {
+    return {
+        project: state.project
+    }
+})
+class TaskFlowView extends Component {
     state = {
         loading: 'success',
         selectedTask: '', // 选中的节点
@@ -53,7 +55,14 @@ export default class TaskFlowView extends Component {
             })
         }
     }
-
+    isCurrentProjectTask = (node) => {
+        const { project } = this.props;
+        const projectId = project.id;
+        if (node.projectId == projectId) {
+            return true;
+        }
+        return false;
+    }
     renderGraph = (data) => {
         const originData = this._originData;
         if (originData) {
@@ -149,7 +158,7 @@ export default class TaskFlowView extends Component {
 
     initContextMenu = (graph) => {
         const ctx = this
-        const { goToTaskDev, clickPatchData } = this.props
+        const { goToTaskDev, clickPatchData } = this.props;
         var mxPopupMenuShowMenu = mxPopupMenu.prototype.showMenu;
         mxPopupMenu.prototype.showMenu = function () {
             var cells = this.graph.getSelectionCells()
@@ -162,6 +171,7 @@ export default class TaskFlowView extends Component {
             if (!cell) return
 
             const currentNode = cell.value || {};
+            const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
             const isWorkflowNode = currentNode.flowId && currentNode.flowId !== 0;
             // 如果为工作流节点，且工作流处于冻结状态时，需要禁用子节点的解冻或者调用功能
             const disableRunCtrl = isWorkflowNode && currentNode.workflow && currentNode.workflow.scheduleStatus === SCHEDULE_STATUS.STOPPED;
@@ -196,13 +206,15 @@ export default class TaskFlowView extends Component {
             }, null, null,
             currentNode.scheduleStatus === SCHEDULE_STATUS.STOPPED && !disableRunCtrl
             ) // 冻结状态
-            menu.addItem('查看代码', null, function () {
-                goToTaskDev(currentNode.id)
-            })
-            if (!isWorkflowNode) {
-                menu.addItem('查看实例', null, function () {
-                    hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
+            if (isCurrentProjectTask) {
+                menu.addItem('查看代码', null, function () {
+                    goToTaskDev(currentNode.id)
                 })
+                if (!isWorkflowNode) {
+                    menu.addItem('查看实例', null, function () {
+                        hashHistory.push(`/operation/offline-operation?job=${currentNode.name}`)
+                    })
+                }
             }
         }
     }
@@ -287,6 +299,7 @@ export default class TaskFlowView extends Component {
             >
                 <TaskGraphView
                     data={selectedTask}
+                    isCurrentProjectTask={this.isCurrentProjectTask}
                     graphData={graphData}
                     loading={loading}
                     goToTaskDev={goToTaskDev}
@@ -309,6 +322,7 @@ export default class TaskFlowView extends Component {
                     <TaskGraphView
                         loading={loading}
                         data={selectedWorkflowNode}
+                        isCurrentProjectTask={this.isCurrentProjectTask}
                         goToTaskDev={goToTaskDev}
                         registerEvent={this.initGraphEvent}
                         registerContextMenu={this.initContextMenu}
@@ -326,3 +340,4 @@ export default class TaskFlowView extends Component {
         )
     }
 }
+export default TaskFlowView;

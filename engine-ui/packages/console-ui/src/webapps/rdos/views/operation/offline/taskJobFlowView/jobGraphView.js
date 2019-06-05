@@ -15,13 +15,9 @@ import { taskTypeText, taskStatusText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxGraph,
     mxEvent,
@@ -168,7 +164,7 @@ class JobGraphView extends Component {
         this.loadEditor(editor)
         this.initRender(graphData);
         console.log('initGraph:', graphData);
-        this.hideMenu();
+        // this.hideMenu();
     }
 
     loadEditor = (container) => {
@@ -185,7 +181,7 @@ class JobGraphView extends Component {
         graph.setTooltips(true);
         graph.view.setScale(1);
         // Enables HTML labels
-        graph.setHtmlLabels(false);
+        graph.setHtmlLabels(true);
 
         graph.setAllowDanglingEdges(false);
         // 禁止连接
@@ -209,7 +205,7 @@ class JobGraphView extends Component {
         // 重置tooltip
         graph.getTooltipForCell = this.formatTooltip;
         // 转换value显示的内容
-
+        graph.convertValueToString = this.corvertValueToString
         // 默认边界样式
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
@@ -225,13 +221,39 @@ class JobGraphView extends Component {
         this.graph = graph;
     }
 
+    corvertValueToString = (cell) => {
+        const { isCurrentProjectTask } = this.props;
+        if (cell.vertex && cell.value) {
+            const task = get(cell, 'value.batchTask', {});
+            const taskType = taskTypeText(task.taskType);
+            if (task) {
+                return `<div class="vertex">
+                <span class="vertex-title">
+                    ${task.name}
+                </span>
+                <br>
+                <span class="vertex-desc">${taskType}</span>
+                ${!isCurrentProjectTask(task) ? "<img class='vertex-across-logo' src='/public/rdos/img/across.svg' />" : ''}
+                </div>`.replace(/(\r\n|\n)/g, '');
+            }
+        }
+        return '';
+    }
     formatTooltip = (cell) => {
         if (cell.vertex) {
             const currentNode = cell.data;
-            return currentNode.batchTask.name;
+            return this.getNodeDisplayName(currentNode.batchTask);
         }
     }
-
+    getNodeDisplayName (node = {}) {
+        const { isCurrentProjectTask } = this.props;
+        const taskName = node.name || '';
+        if (isCurrentProjectTask(node)) {
+            return taskName;
+        } else {
+            return `${taskName} (${node.projectName || ''})`;
+        }
+    }
     /**
      * 该方法渲染cell内容为纯字符串，
      * 而非HTML渲染，可以提高绘制效率
@@ -356,7 +378,7 @@ class JobGraphView extends Component {
             if (!data) return null;
 
             let style = getVertxtStyle(data.status);
-            const showText = this.getShowStr(data);
+            // const showText = this.getShowStr(data);
 
             const isWorkflow = data.batchTask.taskType === TASK_TYPE.WORKFLOW;
             const isWorkflowNode = data.batchTask.flowId && data.batchTask.flowId !== 0;
@@ -374,19 +396,17 @@ class JobGraphView extends Component {
             if (isWorkflowNode) {
                 style += 'rounded=1;arcSize=60;';
             }
-
             nodeGeo = getGeoByStartPoint(startPoint, nodeGeo);
             console.log('nodeGeo:', data.batchTask.name, startPoint, nodeGeo);
 
             const cell = graph.insertVertex(
                 isWorkflow ? null : parentCell,
                 data.id,
-                showText,
+                data,
                 nodeGeo.x, nodeGeo.y,
                 nodeGeo.width, nodeGeo.height,
                 style
             )
-
             if (isWorkflow) {
                 cell.collapsed = true;
                 // Mock node
@@ -519,7 +539,7 @@ class JobGraphView extends Component {
     }
 
     render () {
-        const { goToTaskDev, data, isPro, showJobLog } = this.props;
+        const { goToTaskDev, data, isPro, showJobLog, isCurrentProjectTask } = this.props;
         return (
             <div className="graph-editor"
                 style={{
@@ -563,12 +583,12 @@ class JobGraphView extends Component {
                         lineHeight: '35px'
                     }}
                 >
-                    <span>{(data && data.batchTask && data.batchTask.name) || '-'}</span>
+                    <span>{this.getNodeDisplayName(data.batchTask)}</span>
                     <span style={{ marginLeft: '15px' }}>{get(data, 'batchTask.createUser.userName', '-')}</span>&nbsp;
                     { isPro ? '发布' : '提交' }于&nbsp;
                     <span>{ utils.formatDateTime(get(data, 'batchTask.gmtModified')) }</span>&nbsp;
                     <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId' )) }} style={{ marginRight: '8' }}>查看日志</a>
-                    <a onClick={() => { goToTaskDev(get(data, 'batchTask.id')) }}>查看代码</a>
+                    {isCurrentProjectTask(data.batchTask) && (<a onClick={() => { goToTaskDev(get(data, 'batchTask.id')) }}>查看代码</a>)}
                 </div>
             </div>
         )
@@ -727,7 +747,7 @@ class JobGraphView extends Component {
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTFAMILY] = 'PingFangSC-Regular';
         style[mxConstants.FONT_BOLD] = 'normal';
-        style[mxConstants.STYLE_OVERFLOW] = 'hidden';
+        // style[mxConstants.STYLE_OVERFLOW] = 'hidden';
 
         return style;
     }

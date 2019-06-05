@@ -14,13 +14,9 @@ import { taskTypeText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-const Mx = require('public/main/mxgraph')({
-    mxBasePath: 'public/main/mxgraph',
-    mxImageBasePath: 'public/main/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 const {
     mxGraph,
     mxEvent,
@@ -185,18 +181,32 @@ class TaskGraphView extends Component {
     formatTooltip = (cell) => {
         if (cell.vertex) {
             const currentNode = cell.value;
-            return currentNode.name;
+            return this.getNodeDisplayName(currentNode);
         }
     }
-
+    getNodeDisplayName (node) {
+        const { isCurrentProjectTask } = this.props;
+        const taskName = node.name || '';
+        if (isCurrentProjectTask(node)) {
+            return taskName;
+        } else {
+            return `${taskName} (${node.projectName})`;
+        }
+    }
     corvertValueToString = (cell) => {
+        const { isCurrentProjectTask } = this.props;
         if (cell.vertex && cell.value) {
             const task = cell.value || {};
             const taskType = taskTypeText(task.taskType);
             if (task) {
-                return `<div class="vertex"><span class="vertex-title" title="${task.name || ''}">${task.name || ''}</span>
+                return `<div class="vertex">
+                <span class="vertex-title">
+                    ${task.name}
+                </span>
+                <br>
                 <span class="vertex-desc">${taskType}</span>
-                </div>`
+                ${!isCurrentProjectTask(task) ? "<img class='vertex-across-logo' src='/public/rdos/img/across.svg' />" : ''}
+                </div>`.replace(/(\r\n|\n)/g, '');
             }
         }
         return '';
@@ -479,7 +489,7 @@ class TaskGraphView extends Component {
     }
 
     render () {
-        const { goToTaskDev, data, hideFooter } = this.props;
+        const { goToTaskDev, data, hideFooter, isCurrentProjectTask } = this.props;
         const editorHeight = hideFooter ? '100%' : 'calc(100% - 35px)';
         return (
             <div className="graph-editor"
@@ -507,7 +517,7 @@ class TaskGraphView extends Component {
                 </Spin>
                 <div className="graph-toolbar">
                     <Tooltip placement="bottom" title="刷新">
-                        <Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }}/>
+                        <Icon type="reload" onClick={this.refresh} style={{ color: '#333333' }} />
                     </Tooltip>
                     <Tooltip placement="bottom" title="放大">
                         <MyIcon onClick={this.zoomIn} type="zoom-in" />
@@ -526,11 +536,11 @@ class TaskGraphView extends Component {
                                 lineHeight: '35px'
                             }}
                         >
-                            <span>{get(data, 'name', '-')}</span>
+                            <span>{this.getNodeDisplayName(data)}</span>
                             <span style={{ marginLeft: '15px' }}>{get(data, 'createUser.userName', '-')}</span>&nbsp;
                             发布于&nbsp;
-                            <span>{ utils.formatDateTime(get(data, 'gmtModified')) }</span>&nbsp;
-                            <a onClick={() => { goToTaskDev(get(data, 'id')) }}>查看代码</a>
+                            <span>{utils.formatDateTime(get(data, 'gmtModified'))}</span>&nbsp;
+                            {isCurrentProjectTask(data) && (<a onClick={() => { goToTaskDev(get(data, 'id')) }}>查看代码</a>)}
                         </div>
                         : ''
                 }

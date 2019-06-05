@@ -312,10 +312,10 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_TOTAL_BPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'KB',
+                                            unit: 'Bytes',
                                             legend: ['累计输入数据量', '累计输出数据量']
                                         }}
-                                        desc="累计输入/输出数据量，单位是KB或其他存储单位"
+                                        desc="累计输入/输出数据量，单位是Bytes或其他存储单位"
                                         title="累计输入/输出数据量" />
                                 </section>
                             </div>

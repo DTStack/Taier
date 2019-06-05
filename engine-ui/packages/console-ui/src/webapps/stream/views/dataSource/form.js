@@ -950,7 +950,7 @@ class BaseForm extends Component {
                         }],
                         initialValue: sourceData.dataName || ''
                     })(
-                        <Input autoComplete="off" disabled={status === 'edit'} />
+                        <Input autoComplete="off" disabled={status === 'edit' && sourceData.active === 1} />
                     )}
                 </FormItem>
                 <FormItem
