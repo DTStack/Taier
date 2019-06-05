@@ -367,7 +367,7 @@ public class ClientArguments {
         queue = "default";
         userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
         exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
-        maxAppAttempts = 1;
+        maxAppAttempts = 3;
 
 
         allOptions = new Options();
