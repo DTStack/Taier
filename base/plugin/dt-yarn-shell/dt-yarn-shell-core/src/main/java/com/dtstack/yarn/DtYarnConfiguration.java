@@ -61,6 +61,8 @@ public class DtYarnConfiguration extends YarnConfiguration {
 
     public static final String APP_PRIORITY = "yarn.app.priority";
 
+    public static final String CONTAINER_MAX_ATTEMPTS = "container.maxattempts";
+
     public static final int DEFAULT_LEARNING_APP_PRIORITY = 3;
 
     public static final String  DEFAULT_LEARNING_PYTHON_VERSION = "3.x";
