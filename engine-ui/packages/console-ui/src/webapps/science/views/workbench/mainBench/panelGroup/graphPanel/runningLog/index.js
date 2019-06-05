@@ -17,7 +17,8 @@ const editorOptions = {
     autofocus: false,
     indentWithTabs: true,
     lineWrapping: true,
-    smartIndent: true
+    smartIndent: true,
+    autoRefresh: true
 };
 
 function wrappTitle (title) {
@@ -73,6 +74,7 @@ class RunningLogModal extends Component {
 
     renderLogContent = () => {
         const { runningIndexData, logData } = this.state;
+        const { data } = this.props;
         const logText = prettifyLogText(logData.msg, logData.download);
         return (
             <div>
@@ -89,7 +91,7 @@ class RunningLogModal extends Component {
                         : ''
                 }
                 <Row style={logContainerStyle}>
-                    <Editor sync value={logText} options={editorOptions} />
+                    <Editor key={data && data.id} sync value={logText} options={editorOptions} />
                 </Row>
             </div>
         )
