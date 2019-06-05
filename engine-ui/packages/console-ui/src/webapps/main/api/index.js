@@ -353,6 +353,14 @@ export default {
                 return http.post(req.SCIENCE_UPDATE_USER_ROLE, params)
             default:
         }
-    }
+    },
 
+    getSafeAuditList (app, params) {
+        switch (app) {
+            case MY_APPS.RDOS:
+                params.appTag = 'BATCH'; // app类型：BATCH,STREAM,ANALYZE,QUALITY,API,SCIENCE
+                return http.post(req.GET_AUDIT_LIST, params)
+            default:
+        }
+    }
 }
