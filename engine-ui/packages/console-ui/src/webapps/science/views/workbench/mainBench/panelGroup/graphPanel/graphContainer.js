@@ -613,9 +613,34 @@ class GraphContainer extends React.Component {
         }
         this._graph.clearSelection();
     }
+    /*
+    ** 设置输入域(input/textarea)光标的位置
+    ** @param {HTMLInputElement/HTMLTextAreaElement} elem
+    ** @param {Number} index
+    **/
+    setCursorPosition = function (elem, index) {
+        var val = elem.value
+        var len = val.length
+        // 超过文本长度直接返回
+        if (len < index) return;
+        setTimeout(function () {
+            elem.focus()
+            if (elem.setSelectionRange) { // 标准浏览器
+                elem.setSelectionRange(index, index)
+            } else { // IE9-
+                var range = elem.createTextRange()
+                range.moveStart('character', -len)
+                range.moveEnd('character', -len)
+                range.moveStart('character', index)
+                range.moveEnd('character', 0)
+                range.select()
+            }
+        }, 10)
+    }
     initEditTaskCell = (cell, task) => {
         const ctx = this;
         const editTarget = document.getElementById(`JS_cell_${task.id}`);
+        this.setCursorPosition(editTarget, editTarget.value.length);
         const { data } = this.props;
         const checkNodeName = function (name) {
             if (name === '') {
@@ -629,6 +654,7 @@ class GraphContainer extends React.Component {
         }
 
         const editSucc = (evt) => {
+            console.log(evt)
             const originName = task.name;
             if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
