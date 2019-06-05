@@ -15,6 +15,7 @@ import AdminUser from './views/admin/user'
 import AdminRole from './views/admin/role'
 import RoleAdd from './views/admin/role/add'
 import RoleEdit from './views/admin/role/edit'
+import Audit from './views/admin/audit'
 
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
@@ -35,6 +36,7 @@ export default (
             <Route path="role" component={ AdminRole } />
             <Route path="role/add" component={ RoleAdd } />
             <Route path="role/edit/:roleId" component={ RoleEdit } />
+            <Route path="audit" component={ Audit } />
         </Route>
         <Route path="/*" component={NotFund} />
         {/* <Route path="/rdos" onEnter={() => openNewWindow('/rdos.html')}/> */}
