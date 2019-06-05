@@ -23,6 +23,7 @@ import { operation } from './modules/operation';
 import { visibleSearchTask } from './modules/comm';
 
 import { uploader } from './modules/uploader';
+import tenant from './modules/tenant';
 
 import { tableTypes } from './modules/tableType';
 
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
     user,
     app,
     apps,
+    tenant,
     licenseApps,
     projectUsers, // 项目用户列表
     notProjectUsers, // 非项目用户列表

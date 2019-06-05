@@ -1,5 +1,6 @@
 import moment from 'moment'
 import React, { Component } from 'react'
+import { connect } from 'react-redux';
 import { hashHistory } from 'react-router'
 
 import {
@@ -27,6 +28,11 @@ function replaceTreeNode (treeNode, replace, replaceKey) {
     }
 }
 
+@connect(state => {
+    return {
+        project: state.project
+    }
+})
 class PatchData extends Component {
     state = {
         treeData: [],
@@ -52,7 +58,7 @@ class PatchData extends Component {
             this.loadTaskTree({
                 taskId: task.id,
                 level: 2,
-                directType: 2 // 获取下游
+                type: 2 // 获取下游
             })
         }
     }
@@ -241,7 +247,7 @@ class PatchData extends Component {
                 Api.getTaskChildren({
                     taskId: node.id,
                     level: 2,
-                    directType: 2 // 获取下游
+                    type: 2 // 获取下游
                 }).then(res => {
                     if (res.code === 1) {
                         const updated = ctx.state.treeData[0]
@@ -259,9 +265,13 @@ class PatchData extends Component {
     getTreeNodes = (data) => {
         if (data && data.length > 0) {
             const nodes = data.map((item) => {
+                const { project = {} } = this.props;
+                const isCurrentProject = project.id == item.projectId;
+                const name = isCurrentProject ? item.name : `${item.name}（跨项目）`
                 const content = <Row>
-                    <Col span="12" className="ellipsis" title={item.name}>{item.name}</Col>
-                    <Col span="12"><TaskType value={item.taskType} /></Col>
+                    <Col span="12" className="ellipsis" title={name}>{name}</Col>
+                    <Col span="6"><TaskType value={item.taskType} /></Col>
+                    <Col style={{ textAlign: 'right', paddingRight: '8px' }} span="6">{item.projectName}</Col>
                 </Row>
                 if (item.subTaskVOS) {
                     return (<TreeNode
@@ -275,7 +285,7 @@ class PatchData extends Component {
                 return (<TreeNode
                     data={item}
                     disableCheckbox={item.key === '0'}
-                    name={item.name}
+                    name={name}
                     value={`${item.id}`}
                     title={content}
                     key={item.key}
@@ -366,6 +376,7 @@ class PatchData extends Component {
                 title="补数据"
                 okText="运行选中任务"
                 visible={visible}
+                width={650}
                 onOk={this.addData}
                 onCancel={this.cancleModal}
                 confirmLoading={confirmLoading}
@@ -476,7 +487,8 @@ class PatchData extends Component {
                 <Row className="section patch-data">
                     <Row className="patch-header">
                         <Col span="12">任务名称</Col>
-                        <Col span="12">任务类型</Col>
+                        <Col span="6">任务类型</Col>
+                        <Col style={{ textAlign: 'right', paddingRight: '8px' }} span="6">项目</Col>
                     </Row>
                     <Tree
                         autoExpandParent={false}

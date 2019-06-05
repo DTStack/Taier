@@ -1,13 +1,13 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router'
 import { connect } from 'react-redux'
-import { cloneDeep } from 'lodash';
 
 import {
-    Row, Col, Modal, Tooltip,
+    Modal, Tooltip,
     Input, Form, message, Icon,
-    Switch, Select
+    Switch
 } from 'antd'
+import BindProjectModal from './bindProject';
 
 import utils from 'utils'
 
@@ -16,7 +16,6 @@ import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
 
 const FormItem = Form.Item
-const Option = Select.Option;
 
 function myFrom (props) {
     const { getFieldDecorator } = props.form;
@@ -61,10 +60,7 @@ class ProjectConfig extends Component {
         visibleUpdateDesc: false,
         scheduleStatusLoading: false,
         isAllowDownloadLoading: false,
-        bindLoading: false,
-        visibleChangeProduce: false,
-        bindProject: {},
-        projectBindList: []
+        visibleChangeProduce: false
     }
 
     updateProjectDesc = () => {
@@ -135,69 +131,7 @@ class ProjectConfig extends Component {
                 }
             )
     }
-    bindProject () {
-        const { bindProject } = this.state;
-        const { project, dispatch } = this.props;
-        if (!bindProject.name) {
-            message.warning('请选择发布目标');
-            return;
-        }
-        Modal.confirm({
-            title: '确认绑定发布目标',
-            content: (<div style={{ color: 'ff0000', fontWeight: 'bold' }}>
-                <p>是否确定将{bindProject.name}项目指定为发布目标？</p>
-                <p>此配置不可逆，确认后不可修改</p>
-            </div>),
-            iconType: 'exclamation-circle',
-            onOk: () => {
-                this.setState({
-                    bindLoading: true
-                })
-                Api.bindProductionProject({
-                    produceProjectId: bindProject.id
-                }).then(
-                    (res) => {
-                        this.setState({
-                            bindLoading: false
-                        })
-                        if (res.code == 1) {
-                            message.success('绑定成功！')
-                            const newProject = cloneDeep(Object.assign(project,
-                                {
-                                    produceProject: bindProject.name,
-                                    produceProjectId: bindProject.id,
-                                    projectType: PROJECT_TYPE.TEST
-                                }
-                            ))
-                            dispatch(ProjectAction.setProject(newProject))
-                            dispatch(ProjectAction.getProjects())
-                            this.changeBindModalVisible(false);
-                        }
-                    }
-                )
-            },
-            onCancel () {
-
-            }
-        });
-    }
     changeBindModalVisible (isShow) {
-        const { project } = this.props;
-        if (!isShow) {
-            this.setState({
-                bindProject: {}
-            })
-        } else {
-            Api.getBindingProjectList({
-                projectAlias: project.projectAlias
-            }).then(
-                (res) => {
-                    this.setState({
-                        projectBindList: res.data
-                    })
-                }
-            )
-        }
         this.setState({
             visibleChangeProduce: isShow
         })
@@ -250,7 +184,7 @@ class ProjectConfig extends Component {
         }
     }
     render () {
-        const { visibleUpdateDesc, scheduleStatusLoading, isAllowDownloadLoading, visibleChangeProduce, bindProject, bindLoading, projectBindList } = this.state
+        const { visibleUpdateDesc, scheduleStatusLoading, isAllowDownloadLoading, visibleChangeProduce } = this.state
         let { params, project } = this.props;
         project = project || {};
         const { isAllowDownload, scheduleStatus } = project;
@@ -330,52 +264,10 @@ class ProjectConfig extends Component {
                 >
                     <DescForm ref={(e) => { this.myForm = e }} {...this.props} />
                 </Modal>
-                <Modal
-                    title="绑定发布目标"
+                <BindProjectModal
                     visible={visibleChangeProduce}
-                    onOk={this.bindProject.bind(this)}
-                    onCancel={this.changeBindModalVisible.bind(this, false)}
-                    confirmLoading={bindLoading}
-                >
-                    <FormItem
-                        label="指定发布目标"
-                        {...formItemLayout}
-                        required
-                    >
-                        <Select
-                            placeholder="请选择发布项目"
-                            style={{ width: '100%' }}
-                            showSearch
-                            optionFilterProp="children"
-                            value={bindProject.id}
-                            onSelect={(value, option) => {
-                                this.setState({
-                                    bindProject: {
-                                        id: value,
-                                        name: option.props.children
-                                    }
-                                })
-                            }}
-                        >
-                            {projectBindList.map(
-                                (project) => {
-                                    return <Option
-                                        key={project.id}
-                                        value={project.id}>
-                                        {project.projectAlias}
-                                    </Option>
-                                }
-                            ).filter(Boolean)}
-                        </Select>
-                    </FormItem>
-                    <Row>
-                        <Col offset={1} span={23}>
-                            <p style={{ color: '#ff0000', fontWeight: 'bold' }}>此配置不可逆，请确认后操作</p>
-                            <p>可以选择同一租户下的其他项目作为发布目标，您在数据开发界面中选择发布内容，将所选择的内容发布（迁移）至目标项目，可将本项目作为开发环境，目标项目作为生产环境，保障生产环境的安全稳定。</p>
-                            <p>发布目标的项目必须是空的，不能包含任何的任务、资源、函数、表。</p>
-                        </Col>
-                    </Row>
-                </Modal>
+                    onClose={this.changeBindModalVisible.bind(this, false)}
+                />
             </div>
         )
     }
