@@ -251,7 +251,8 @@ class OfflineTaskMana extends Component {
             startTime: '',
             endTime: '',
             scheduleStatus: '',
-            checkVals: checkedList
+            checkVals: checkedList,
+            current: 1
         };
         checkedList.forEach(item => {
             if (item === 'person') {
