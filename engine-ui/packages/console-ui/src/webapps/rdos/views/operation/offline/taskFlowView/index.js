@@ -58,10 +58,7 @@ class TaskFlowView extends Component {
     isCurrentProjectTask = (node) => {
         const { project } = this.props;
         const projectId = project.id;
-        if (node.projectId == projectId) {
-            return true;
-        }
-        return false;
+        return node.projectId == projectId;
     }
     renderGraph = (data) => {
         const originData = this._originData;
