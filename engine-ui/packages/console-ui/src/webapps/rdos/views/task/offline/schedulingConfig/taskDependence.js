@@ -243,7 +243,7 @@ class TaskDependence extends React.Component {
                                     columns={this.initColumn()}
                                     bordered={false}
                                     dataSource={tabData.taskVOS}
-                                    rowKey={record => record.id.lable}
+                                    rowKey={record => record.id}
                                 />
                             </Col>
                         </Row> : ''

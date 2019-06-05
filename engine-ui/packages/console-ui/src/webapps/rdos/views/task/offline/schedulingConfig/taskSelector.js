@@ -8,6 +8,7 @@ import {
 class TaskSelector extends React.Component {
     constructor (props) {
         super(props);
+        this.$input = React.createRef();
         this.searchVOS = this.fetchVOS.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.selectVOS = this.props.onSelect;
@@ -55,13 +56,14 @@ class TaskSelector extends React.Component {
         })
             .then(res => {
                 if (res.code === 1) {
-                    if (res.data) message.error(`添加失败，该任务循环依赖任务${res.data.name || ''}!`)
-                    else {
-                        this.selectVOS(task);
-                        this.$input.value = '';
+                    if (res.data) {
+                        message.error(`添加失败，该任务循环依赖任务${res.data.name || ''}!`)
+                    } else {
+                        this.$input.current.value = '';
                         this.setState({
                             list: []
                         });
+                        this.selectVOS(task);
                     }
                 }
             })
@@ -87,7 +89,7 @@ class TaskSelector extends React.Component {
                     this.resetError();
                     debounceEventHander(this.searchVOS, 500, { 'maxWait': 2000 })(event);
                 }}
-                ref={el => this.$input = el}
+                ref={this.$input}
                 className="ant-input"
                 placeholder="根据任务名称搜索"
             />
