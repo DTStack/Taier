@@ -260,9 +260,9 @@ public class FlinkClientBuilder {
         Configuration newConf = new Configuration(configuration);
         if (isPerjob){
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
+            newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
+            perJobMetricConfigConfig(newConf, metricConfig);
         }
-        newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
-        perJobMetricConfigConfig(newConf, metricConfig);
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", isPerjob);
         String flinkJarPath = null;
