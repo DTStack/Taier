@@ -1,5 +1,6 @@
 package com.dtstack.yarn.am;
 
+import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.api.ApplicationContainerProtocol;
 import com.dtstack.yarn.api.ApplicationContext;
 import com.dtstack.yarn.common.DTYarnShellConstant;
@@ -50,7 +51,7 @@ public class ApplicationContainerListener
 
     private static final Log LOG = LogFactory.getLog(ApplicationContainerListener.class);
 
-    private final int maxAttempts = 3;
+    private int maxAttempts = 3;
 
     private Server server;
 
@@ -76,6 +77,9 @@ public class ApplicationContainerListener
         super("slotManager");
         setConfig(conf);
         this.conf = conf;
+        if (conf.get(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS) != null){
+            maxAttempts = Integer.parseInt(conf.get(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS));
+        }
         this.applicationContext = applicationContext;
         this.entities = Collections.synchronizedList(new ArrayList<>());
         this.containerLostDetector = new ContainerLostDetector(this);
