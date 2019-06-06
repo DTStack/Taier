@@ -1,9 +1,8 @@
 import React from 'react';
-import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input } from 'antd';
+import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
 import Api from '../../api/console';
-import { ENGINE_TYPE } from '../../consts';
-import BindTenantModal from '../../components/bindTenant';
-import SwitchQueue from '../../components/switchQueue';
+// import { ENGINE_TYPE } from '../../consts';
+import BindCommModal from '../../components/bindCommModal';
 const FormItem = Form.Item;
 const Option = Select.Option;
 const TabPane = Tabs.TabPane;
@@ -11,22 +10,7 @@ const Search = Input.Search;
 const PAGESIZE = 20;
 class ResourceManage extends React.Component {
     state = {
-        tableData: [{
-            'tenantId': 1,
-            'tenantName': 'dtstack',
-            'queue': 'default.a',
-            'queueId': 1,
-            'maxCapacity': 10.1,
-            'minCapacity': 10.1
-        },
-        {
-            'tenantId': 1,
-            'tenantName': 'dtstack.b',
-            'queue': 'default.b',
-            'queueId': 1,
-            'maxCapacity': 10.1,
-            'minCapacity': 10.1
-        }],
+        tableData: [],
         allClusterList: [],
         engineList: [
             'hadoop',
@@ -42,7 +26,7 @@ class ResourceManage extends React.Component {
         total: 0,
         tenantModal: false,
         queueModal: false,
-        tenantInfo: {},
+        tenantInfo: '',
         clusterInfo: {}, // 集群信息
         isHaveHadoop: false,
         isHaveLibra: false,
@@ -69,6 +53,34 @@ class ResourceManage extends React.Component {
             }
         })
     }
+    bindTenant (params) {
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.bindTenant({ ...reqParams }).then(res => {
+                if (res.code === 1) {
+                    this.setState({
+                        tenantModal: false
+                    })
+                    message.success('租户绑定成功')
+                    this.searchTenant() // 舒心当前列表数据
+                }
+            })
+        }
+    }
+    switchQueue (params) {
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.switchQueue({ ...reqParams }).then(res => {
+                if (res.code === 1) {
+                    this.setState({
+                        queueModal: false
+                    })
+                    message.success('切换队列成功')
+                    this.searchTenant() // 舒心当前列表数据
+                }
+            })
+        }
+    }
     getAllClusterLists = async () => {
         const res = await Api.getAllCluster();
         if (res.code === 1) {
@@ -84,53 +96,6 @@ class ResourceManage extends React.Component {
         })
     }
     handleChangeCluster = (value) => {
-        // Api.getEngineListByCluster({
-        //     clusterId: value
-        // }).then(res => {
-        //     if (res.code === 1) {
-        //         this.setState({
-        //             engineList: res.data || [],
-        //             queryParams: Object.assign(this.state.queryParams, { clusterId: value, engineType: res.data[0] })
-        //         }, this.searchTenant)
-        //     }
-        // })
-        const { allClusterList } = this.state;
-        // let engines = []
-        // 选中集群
-        allClusterList.forEach(item => {
-            if (item.clusterId === value) {
-                this.setState({
-                    clusterInfo: item || {}
-                })
-                item.engines && item.engines.map(engine => {
-                    if (engine.engineType === ENGINE_TYPE.HADOOP) {
-                        this.setState({
-                            queueList: engine.queues,
-                            isHaveHadoop: true
-                        })
-                    }
-                    if (engine.engineType === ENGINE_TYPE.LIBRA) {
-                        this.setState({
-                            isHaveLibra: true
-                        })
-                    }
-                })
-            }
-        })
-        // 区分engine
-        // engines.forEach(item => {
-        //     if (item.engineType === ENGINE_TYPE.HADOOP) {
-        //         this.setState({
-        //             queueList: item.queues,
-        //             isShowHadoop: true
-        //         })
-        //     }
-        //     if (item.engineType === ENGINE_TYPE.LIBRA) {
-        //         this.setState({
-        //             isShowHadoop: true
-        //         })
-        //     }
-        // })
     }
     changeTenantName = (value) => {
         const queryParams = Object.assign(this.state.queryParams, { tenantName: value })
@@ -198,7 +163,7 @@ class ResourceManage extends React.Component {
                 title: '操作',
                 dataIndex: 'deal',
                 render: (text, record) => {
-                    return <a onClick={this.clickSwitchQueue.bind(this, record)}>
+                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
                         切换队列
                     </a>
                 }
@@ -208,8 +173,7 @@ class ResourceManage extends React.Component {
     render () {
         const columns = this.initColumns();
         const { tableData, queryParams, total, engineList,
-            tenantModal, queueModal, tenantInfo, clusterInfo,
-            queueList, isHaveHadoop, isHaveLibra, modalKey, editModalKey } = this.state;
+            tenantModal, queueModal, modalKey, editModalKey } = this.state;
         const pagination = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -235,7 +199,7 @@ class ResourceManage extends React.Component {
                         </Form>
                     </Col>
                     <Col span='12'>
-                        <Button className='terent-button' type='primary' onClick={() => { this.showTenant() }}>绑定新租户</Button>
+                        <Button className='terent-button' type='primary' onClick={() => { this.setState({ editModalKey: Math.random(), tenantModal: true }) }}>绑定新租户</Button>
                     </Col>
                 </Row>
                 <div className="resource-content">
@@ -280,21 +244,24 @@ class ResourceManage extends React.Component {
                         </Tabs>
                     </Card>
                 </div>
-                <BindTenantModal
+                <BindCommModal
                     key={editModalKey}
+                    title='绑定新租户'
                     visible={tenantModal}
+                    isBindTenant={true}
                     onCancel={() => { this.setState({ tenantModal: false }) }}
+                    onOk={this.bindTenant.bind(this)}
                 />
-                <SwitchQueue
+                <BindCommModal
                     key={modalKey}
+                    title='切换队列'
                     visible={queueModal}
-                    tenantInfo={tenantInfo}
-                    queueList={queueList}
-                    clusterInfo={clusterInfo}
-                    isHaveHadoop={isHaveHadoop}
-                    isHaveLibra={isHaveLibra}
-                    searchTenant={this.searchTenant}
+                    isBindTenant={false}
+                    tenantInfo={this.state.tenantInfo}
+                    clusterId={this.state.queryParams.clusterId}
+                    disabled={true}
                     onCancel={() => { this.setState({ queueModal: false }) }}
+                    onOk={this.switchQueue.bind(this)}
                 />
             </div>
         )

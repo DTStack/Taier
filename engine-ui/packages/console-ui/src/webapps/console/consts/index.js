@@ -214,7 +214,7 @@ export const validateLearningParams = [
     'learningConf.learningPython3Path'
 ]
 export const validateLibraParams = [
-    'libraConf.tempParam'
+    'libraSqlConf.jdbcUrl'
 ]
 // key_map
 export const SPARK_KEY_MAP = {

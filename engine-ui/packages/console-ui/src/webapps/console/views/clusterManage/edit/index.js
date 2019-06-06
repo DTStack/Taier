@@ -1,29 +1,26 @@
 import React from 'react';
 import utils from 'utils';
-/* eslint-disable */
-import { Form, Input, Row, Col, Select, Icon, Tooltip, Button, message, Card, Radio, Tabs, Modal } from 'antd';
-import { cloneDeep } from 'lodash';
+import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Radio, Tabs, Modal } from 'antd';
 import { connect } from 'react-redux'
-// import { hashHistory } from 'react-router'
 
-import { getUser, updateEngineList, updateHadoopComponentList, updateLibraComponentList } from '../../../actions/console'
+import { getTenantList, updateEngineList, updateHadoopComponentList, updateLibraComponentList } from '../../../actions/console'
 import Api from '../../../api/console'
-import { getComponentConfKey, validateEngine, myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
+import { getComponentConfKey, validateCompParams, myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, DTYARNSHELL_KEY_MAP,
     notExtKeysFlink, notExtKeysSpark, notExtKeysLearning, notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts'
 import GoBack from 'main/components/go-back';
 import SparkConfig from './sparkConfig'
 import FlinkConfig from './flinkConfig';
-import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData'
-import AddEngineModal from '../addEngineModal';
-import AddComponentModal from '../addComponentModal';
+import LearningConfig from './learningConfig';
+import DtyarnShellConfig from './dtYarnshellConfig';
+import LibraSqlConfig from './libraSqlConfig';
+import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
+import AddCommModal from '../../../components/addCommModal';
 const FormItem = Form.Item;
-const Option = Select.Option;
 const RadioGroup = Radio.Group;
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
 const TEST_STATUS = {
-    NOTHING: 0,
     SUCCESS: true,
     FAIL: false
 }
@@ -38,7 +35,7 @@ function mapStateToProps (state) {
 function mapDispatchToProps (dispatch) {
     return {
         getTenantList () {
-            dispatch(getUser())
+            dispatch(getTenantList())
         },
         updateEngineList (params) {
             dispatch(updateEngineList(params))
@@ -76,7 +73,7 @@ class EditCluster extends React.Component {
         fileHaveChange: false,
         checked: false,
         allComponentConf: {},
-        engineId: '',
+        engineId: 1,
         // 以下字段为填补关闭复选框数据无法获取输入数据情况
         gatewayHostValue: undefined,
         gatewayPortValue: undefined,
@@ -91,16 +88,16 @@ class EditCluster extends React.Component {
         modalKey: '',
         // 组件testLoading
         allTestLoading: false,
-        // 组件testStatus
-        flinkTestStatus: TEST_STATUS.NOTHING,
-        sparkTestStatus: TEST_STATUS.NOTHING,
-        dtYarnShellTestStatus: TEST_STATUS.NOTHING,
-        learningTestStatus: TEST_STATUS.NOTHING,
-        hdfsTestStatus: TEST_STATUS.NOTHING,
-        yarnTestStatus: TEST_STATUS.NOTHING,
-        hiveTestStatus: TEST_STATUS.NOTHING,
-        carbonTestStatus: TEST_STATUS.NOTHING,
-        libraTestStatus: TEST_STATUS.NOTHING,
+        // 组件testResult
+        flinkTestResult: {},
+        sparkTestResult: {},
+        dtYarnShellTestResult: {},
+        learningTestResult: {},
+        hdfsTestResult: {},
+        yarnTestResult: {},
+        sparkThriftTestResult: {},
+        carbonTestResult: {},
+        libraSqlTestResult: {},
         // 控制组件必填项为全部填写时 出现红色*
         flinkShowRequired: false,
         sparkShowRequired: false,
@@ -119,12 +116,12 @@ class EditCluster extends React.Component {
         // this.refreshSaveEngine();
     }
     // 新增入口刷新无数据
-    refreshSaveEngine () {
-        const { mode, enginelist } = this.props.location.state;
-        if (mode === 'new') {
-            this.props.updateEngineList(enginelist)
-        }
-    }
+    // refreshSaveEngine () {
+    //     const { mode } = this.props.location.state;
+    //     if (mode === 'new') {
+    //         this.props.updateEngineList(enginelist)
+    //     }
+    // }
     getEngineData = (data) => {
         let engineConf = {
             hadoopConf: {},
@@ -203,7 +200,7 @@ class EditCluster extends React.Component {
                     })
                     break;
                 }
-                case COMPONENT_TYPE_VALUE.LIBRASQLSQL: {
+                case COMPONENT_TYPE_VALUE.LIBRASQL: {
                     componentConf = Object.assign(componentConf, {
                         libraSqlConf: item.config
                     })
@@ -214,6 +211,7 @@ class EditCluster extends React.Component {
         return componentConf
     }
     // 填充表单数据
+    // 新增入口刷调用？
     getDataList () {
         const { location, form } = this.props;
         const params = location.state || {};
@@ -229,22 +227,24 @@ class EditCluster extends React.Component {
                             const engineConf = this.getEngineData(enginesData);
                             const hadoopConf = engineConf.hadoopConf || {}; // hadoop engine 总数据
                             const libraConf = engineConf.libraConf || {}; // libra engine 总数据
+                            const resource = hadoopConf.resource || {};
                             const hadoopComponentData = hadoopConf.components || []; // 组件信息
                             const libraComponentData = libraConf.components || [];
                             let componentConf = this.exChangeComponentConf(hadoopComponentData, libraComponentData);
                             componentConf = JSON.parse(componentConf)
+                            console.log(componentConf)
                             const flinkData = componentConf.flinkConf;
                             const extParams = this.exchangeServerParams(componentConf)
                             const flinkConf = componentConf.flinkConf;
                             myUpperCase(flinkConf);
-                            this.props.updateHadoopComponentList(hadoopComponentData) // dispatch engines
+                            // this.props.updateHadoopComponentList(hadoopComponentData) // dispatch engines
                             this.setState({
                                 // checked: true,
                                 allComponentConf: componentConf,
                                 securityStatus: hadoopConf.security,
-                                core: hadoopConf.resource.totalCore,
-                                memory: hadoopConf.resource.totalMemory,
-                                nodeNumber: hadoopConf.resource.totalNode,
+                                core: resource.totalCore,
+                                memory: resource.totalMemory,
+                                nodeNumber: resource.totalNode,
                                 zipConfig: JSON.stringify({
                                     yarnConf: componentConf.yarnConf,
                                     hdfsConf: componentConf.hdfsConf,
@@ -277,22 +277,15 @@ class EditCluster extends React.Component {
                                 libraSqlConf: componentConf.libraSqlConf
                             })
                         } else {
-                            this.props.updateEngineList([])
+                            // this.props.updateEngineList([])
                         }
                     }
                 )
-        } else { // 新增集群填充集群名称、节点数、资源数
-            this.setState({
-                core: params.totalCore,
-                memory: params.totalMemory,
-                nodeNumber: params.totalNode
-            })
-            form.setFieldsValue({
-                clusterName: params.clusterName
-            })
+        } else {
+            // 新增集群填充集群名称、节点数、资源数
         }
     }
-    /* eslint-disable */
+
     /**
      * 从服务端配置中抽取出自定义参数
      * hdfs、yarn、carbondata不可自定义参数
@@ -332,7 +325,7 @@ class EditCluster extends React.Component {
 
         setDefault(flinkConfig, notExtKeysFlink, 'flink', result.flinkKeys)
         setDefault(sparkConfig, notExtKeysSpark, 'spark', result.sparkKeys)
-        setDefault(sparkThriftConfig, notExtKeysSparkThrift, 'hive', result.sparkThriftKeys)
+        setDefault(sparkThriftConfig, notExtKeysSparkThrift, 'sparkThrift', result.sparkThriftKeys)
         setDefault(learningConfig, notExtKeysLearning, 'learning', result.learningKeys)
         setDefault(dtyarnshellConfig, notExtKeysDtyarnShell, 'dtyarnshell', result.dtyarnshellKeys)
         setDefault(libraSqlConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
@@ -348,13 +341,12 @@ class EditCluster extends React.Component {
         callback();
     }
     fileChange (e) {
-        const { clusterId, cluster, mode } = this.props.location.state || {};
-        const isNew = mode === 'new';
+        const { cluster } = this.props.location.state || {};
         const file = e.target;
         this.setState({ file: {}, uploadLoading: true, zipConfig: '', fileHaveChange: true });
-        Api.uploadClusterResource({
+        Api.uploadResource({
             resources: file.files[0],
-            clusterId : isNew ? clusterId : cluster.id,
+            clusterId: cluster.id || cluster.clusterId,
             useDefaultConfig: false
         })
             .then(
@@ -381,12 +373,11 @@ class EditCluster extends React.Component {
     }
     onChangeRadio = (e) => {
         const checkValue = e.target.value; // true则默认配置不上传文件
-        const { clusterId, cluster, mode } = this.props.location.state || {};
-        const isNew = mode === 'new';
-        if(checkValue) {
-            Api.uploadClusterResource({
+        const { cluster } = this.props.location.state || {};
+        if (checkValue) {
+            Api.uploadResource({
                 resources: '',
-                clusterId : isNew ? clusterId : cluster.id,
+                clusterId: cluster.id || cluster.clusterId,
                 useDefaultConfig: true
             }).then(res => {
                 if (res.code === 1) {
@@ -399,77 +390,16 @@ class EditCluster extends React.Component {
             })
         }
     }
-    // 控制engine前是否出现为填小图标 *
-    showRequireIcon = (componentValue, isShow) => {
-        let isShowRequiredIcon = {};
-        switch (componentValue) {
-            case COMPONENT_TYPE_VALUE.FLINK: {
-                isShowRequiredIcon = {
-                    flinkShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                isShowRequiredIcon = {
-                    hiveShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                isShowRequiredIcon = {
-                    carbonShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.SPARK: {
-                isShowRequiredIcon = {
-                    sparkShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                isShowRequiredIcon = {
-                    dtYarnShellShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.LEARNING: {
-                isShowRequiredIcon = {
-                    learningShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.HDFS: {
-                isShowRequiredIcon = {
-                    hdfsShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.YARN: {
-                isShowRequiredIcon = {
-                    yarnShowRequired: isShow
-                }
-                break;
-            }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                isShowRequiredIcon = {
-                    libraShowRequired: isShow
-                }
-                break;
-            }
-            //  全部校验
-            case null : {
-                return this.validateAllRequired()
-            }
-        }
-    }
-    // 全部校验表单是否必填
+    /**
+     * 校验组件必填项未填标识 *
+     */
     validateAllRequired = () => {
-        const { engineList } = this.props.consoleUser;
+        const { hadoopComponentList, libraComponentList } = this.props.consoleUser;
+        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentList : libraComponentList; // 不同engine的组件数据
         let obj = {}
-        engineList && engineList.map(item => {
-            this.props.form.validateFields(validateEngine(item), {}, (err, values) => {
-                if (item === COMPONENT_TYPE_VALUE.FLINK) {
+        tabCompData && tabCompData.map(item => {
+            this.props.form.validateFields(validateCompParams(item.componentTypeCode), {}, (err, values) => {
+                if (item.componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             flinkShowRequired: false
@@ -479,7 +409,7 @@ class EditCluster extends React.Component {
                             flinkShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             hiveShowRequired: false
@@ -489,7 +419,7 @@ class EditCluster extends React.Component {
                             hiveShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.CARBONDATA) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.CARBONDATA) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             carbonShowRequired: false
@@ -499,7 +429,7 @@ class EditCluster extends React.Component {
                             carbonShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.SPARK) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             sparkShowRequired: false
@@ -509,7 +439,7 @@ class EditCluster extends React.Component {
                             sparkShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.DTYARNSHELL) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             dtYarnShellShowRequired: false
@@ -519,7 +449,7 @@ class EditCluster extends React.Component {
                             dtYarnShellShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.LEARNING) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LEARNING) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             learningShowRequired: false
@@ -529,7 +459,7 @@ class EditCluster extends React.Component {
                             learningShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.HDFS) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             hdfsShowRequired: false
@@ -539,7 +469,7 @@ class EditCluster extends React.Component {
                             hdfsShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.YARN) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.YARN) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             yarnShowRequired: false
@@ -549,7 +479,7 @@ class EditCluster extends React.Component {
                             yarnShowRequired: true
                         })
                     }
-                } else if (item === COMPONENT_TYPE_VALUE.LIBRASQL) {
+                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LIBRASQL) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             libraShowRequired: false
@@ -593,7 +523,7 @@ class EditCluster extends React.Component {
                 if (carbonShowRequired) {
                     return <span className='icon_required'>*</span>
                 }
-                break;
+                return null
             }
             case COMPONENT_TYPE_VALUE.SPARK: {
                 if (sparkShowRequired) {
@@ -631,9 +561,6 @@ class EditCluster extends React.Component {
                 }
                 return null
             }
-            case null : {
-                return null
-            }
             default: {
                 return null
             }
@@ -646,12 +573,8 @@ class EditCluster extends React.Component {
             content: `${engine.errorMsg}`
         })
     }
-
-    matchEngineTest (engineResult) {
-        switch (engineResult.result) {
-            case TEST_STATUS.NOTHING: {
-                return null
-            }
+    matchCompTest (testResult) {
+        switch (testResult.result) {
             case TEST_STATUS.SUCCESS: {
                 return <Icon className='success-icon' type="check-circle" />
             }
@@ -660,9 +583,9 @@ class EditCluster extends React.Component {
                     title={
                         <a
                             style={{ color: '#fff' }}
-                            onClick={ this.showDetailErrMessage.bind(this, engineResult)}
+                            onClick={ this.showDetailErrMessage.bind(this, testResult)}
                         >
-                            {engineResult.errorMsg}
+                            {testResult.errorMsg}
                         </a>
                     }
                     placement='right'
@@ -671,53 +594,57 @@ class EditCluster extends React.Component {
                     <Icon className='err-icon' type="close-circle" />
                 </Tooltip>
             }
+            default: {
+                return null
+            }
         }
     }
 
-    // 控制engine测试结果图标
+    // 组件成功失败图标
     renderTestIcon = (componentValue) => {
-        const { flinkTestStatus,
-            hiveTestStatus,
-            carbonTestStatus,
-            sparkTestStatus,
-            dtYarnShellTestStatus,
-            learningTestStatus,
-            hdfsTestStatus,
-            yarnTestStatus,
-            libraTestStatus } = this.state;
+        const { flinkTestResult,
+            sparkThriftTestResult,
+            carbonTestResult,
+            sparkTestResult,
+            dtYarnShellTestResult,
+            learningTestResult,
+            hdfsTestResult,
+            yarnTestResult,
+            libraSqlTestResult } = this.state;
         switch (componentValue) {
             case COMPONENT_TYPE_VALUE.FLINK: {
-                return this.matchEngineTest(flinkTestStatus)
+                return this.matchCompTest(flinkTestResult)
             }
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                return this.matchEngineTest(hiveTestStatus)
+                return this.matchCompTest(sparkThriftTestResult)
             }
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                return this.matchEngineTest(carbonTestStatus)
+                return this.matchCompTest(carbonTestResult)
             }
             case COMPONENT_TYPE_VALUE.SPARK: {
-                return this.matchEngineTest(sparkTestStatus)
+                return this.matchCompTest(sparkTestResult)
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                return this.matchEngineTest(dtYarnShellTestStatus)
+                return this.matchCompTest(dtYarnShellTestResult)
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
-                return this.matchEngineTest(learningTestStatus)
+                return this.matchCompTest(learningTestResult)
             }
             case COMPONENT_TYPE_VALUE.HDFS: {
-                return this.matchEngineTest(hdfsTestStatus)
+                return this.matchCompTest(hdfsTestResult)
             }
             case COMPONENT_TYPE_VALUE.YARN: {
-                return this.matchEngineTest(yarnTestStatus)
+                return this.matchCompTest(yarnTestResult)
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                return this.matchEngineTest(libraTestStatus)
+                return this.matchCompTest(libraSqlTestResult)
             }
             default: {
                 return null
             }
         }
     }
+    /* eslint-disable */
     addParam (type) {
         const { flink_params, spark_params, sparkThrif_params, learning_params, dtyarnshell_params, libraSql_params } = this.state;
         if (type == 'flink') {
@@ -845,6 +772,20 @@ class EditCluster extends React.Component {
             }
         )
     }
+    /* eslint-enable */
+    // 添加自定义参数
+    showAddCustomParam = (isView, type) => {
+        return (
+            isView ? null : (
+                <Row>
+                    <Col span={formItemLayout.labelCol.sm.span}></Col>
+                    <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                        <a onClick={this.addParam.bind(this, type)}>添加自定义参数</a>
+                    </Col>
+                </Row>
+            )
+        )
+    }
     exchangeMemory (totalMemory) {
         if (!totalMemory) {
             return '--';
@@ -853,61 +794,61 @@ class EditCluster extends React.Component {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
-    renderTestStatus = (testResults) =>{
+    showTestResult = (testResults) => {
         let testStatus = {}
-        testResults && testResults.map(engine => {
-            switch (engine.engineName) {
+        testResults && testResults.map(comp => {
+            switch (comp.componentTypeCode) {
                 case COMPONENT_TYPE_VALUE.FLINK: {
                     testStatus = Object.assign(testStatus, {
-                        flinkTestStatus: engine
+                        flinkTestResult: comp
                     })
                     break;
                 }
-                case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
+                case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                     testStatus = Object.assign(testStatus, {
-                        hiveTestStatus: engine
+                        sparkThriftTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.CARBONDATA: {
                     testStatus = Object.assign(testStatus, {
-                        carbonTestStatus: engine
+                        carbonTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.SPARK: {
                     testStatus = Object.assign(testStatus, {
-                        sparkTestStatus: engine
+                        sparkTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                     testStatus = Object.assign(testStatus, {
-                        dtYarnShellTestStatus: engine
+                        dtYarnShellTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.LEARNING: {
                     testStatus = Object.assign(testStatus, {
-                        learningTestStatus: engine
+                        learningTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.HDFS: {
                     testStatus = Object.assign(testStatus, {
-                        hdfsTestStatus: engine
+                        hdfsTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.YARN: {
                     testStatus = Object.assign(testStatus, {
-                        yarnTestStatus: engine
+                        yarnTestResult: comp
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.LIBRASQL: {
                     testStatus = Object.assign(testStatus, {
-                        libraTestStatus: engine
+                        libraSqlTestResult: comp
                     })
                     break;
                 }
@@ -916,42 +857,39 @@ class EditCluster extends React.Component {
                 }
             }
         })
-        console.log(testStatus)
         return testStatus
     }
     /**
      * 保存组件
      */
     saveComponent (componentValue) {
-        const { clusterId, mode, cluster } = this.props.location.state || {};
         const { getFieldsValue } = this.props.form;
-        const isNew = mode === 'new' // clusterId
         const componentConf = this.getComponentConf(getFieldsValue());
         Api.saveComponent({
             engineId: this.state.engineId,
             configString: JSON.stringify(componentConf[getComponentConfKey(componentValue)])
         }).then(res => {
-            if (res.code ===1) {
+            if (res.code === 1) {
                 this.renderTestIcon()
                 this.setState({
-                    ...this.renderTestStatus(res.data.testResults)
+                    ...this.showTestResult(res.data.testResults)
                 })
                 message.success(`${componentValue}保存成功`)
             }
         })
     }
-    addComponent (componentTypeCodeList, callback) {
-        const hasSub = callback()
-        if (hasSub) {
+    addComponent (params) {
+        const { canSubmit, reqParams } = params
+        if (canSubmit) {
             Api.addComponent({
-                engineId: this.state.engineId,
-                componentTypeCodeList
+                engineId: reqParams.engineId,
+                componentTypeCodeList: reqParams.componentTypeCodeList
             }).then(res => {
                 if (res.code === 1) {
                     // 添加dispatch updateEngineList
                     // componentTypeCodeList获取value, 无法获取新增加的组件详细信息，需后端返回
-                    let hadoopComponentList = this.props.consoleUser.hadoopComponentList;
-                    const compList = hadoopComponentList.concat(componentTypeCodeList)
+                    let { hadoopComponentList } = this.props.consoleUser;
+                    const compList = hadoopComponentList.concat(res.data)
                     this.props.updateHadoopComponentList(compList)
                     this.closeAddModal()
                     message.success('添加组件成功!')
@@ -959,21 +897,18 @@ class EditCluster extends React.Component {
             })
         }
     }
-    addEngine (componentValue, callback) {
-        callback()
-        const { clusterId, mode, cluster } = this.props.location.state || {};
-        const isNew = mode === 'new' // clusterId
-        let hadoopComponentList = this.props.consoleUser.hadoopComponentList;
-        const newEngineList = hadoopComponentList.concat(componentValue)
-        if (callback()) {
-            Api.saveOrAddEngine({
-                clusterId: !isNew ? cluster.id : clusterId,
-                componentValue,
-                engineConfig: ''
+    addEngine (params) {
+        const { cluster } = this.props.location.state || {};
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.addEngine({
+                clusterId: cluster.id || cluster.clusterId,
+                engineName: reqParams.engineName,
+                componentTypeCodeList: reqParams.componentTypeCodeList
             }).then(res => {
                 if (res.code === 1) {
                     // 添加dispatch updateEngineList
-                    this.props.updateEngineList(newEngineList)
+                    this.props.updateEngineList(res.data)
                     this.onCancel()
                     message.success('添加引擎成功!')
                 }
@@ -984,16 +919,24 @@ class EditCluster extends React.Component {
      * 测试全部连通性
      * @param componentValue 组件类型 为null则全部测试
      */
-    test (componentValue) {
+    test () {
         this.props.form.validateFields(null, {}, (err, values) => {
             if (!err) {
                 this.setState({
-                    ...this.showRequireIcon(componentValue, false), // 不出现红标
+                    flinkShowRequired: false,
+                    sparkShowRequired: false,
+                    dtYarnShellShowRequired: false,
+                    learningShowRequired: false,
+                    hdfsShowRequired: false,
+                    yarnShowRequired: false,
+                    hiveShowRequired: false,
+                    carbonShowRequired: false,
+                    libraShowRequired: false,
                     allTestLoading: true
                 })
                 const componentConf = this.getComponentConf(values);
-                Api.testCluster({
-                    clusterConf: JSON.stringify(componentConf)
+                Api.testComponent({
+                    componentConfigs: JSON.stringify(componentConf)
                 })
                     .then(
                         (res) => {
@@ -1004,7 +947,7 @@ class EditCluster extends React.Component {
                                     core: description ? description.totalCores : 0,
                                     memory: description ? description.totalMemory : 0,
                                     testResults: testResults,
-                                    ...this.renderTestStatus(testResults),
+                                    ...this.showTestResult(testResults),
                                     allTestLoading: false
                                 })
                                 // message.success('连通成功')
@@ -1017,7 +960,7 @@ class EditCluster extends React.Component {
                     )
             } else {
                 this.setState({
-                    ...this.showRequireIcon(componentValue, true) // 出现红标
+                    ...this.validateAllRequired() // 出现红标
                 })
                 message.error('你有必填配置项未填写！')
             }
@@ -1050,6 +993,7 @@ class EditCluster extends React.Component {
                 form.setFieldsValue({
                     sparkConf: toChsKeys(allComponentConf.sparkConf || {}, SPARK_KEY_MAP)
                 })
+                break;
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 form.setFieldsValue({
@@ -1103,8 +1047,6 @@ class EditCluster extends React.Component {
     }
 
     deleteComponent (componentValue) {
-        const { clusterId, mode, cluster } = this.props.location.state || {};
-        const isNew = mode === 'new' // clusterId
         const { consoleUser } = this.props;
         let hadoopComponentList = consoleUser.hadoopComponentList
         Api.deleteComponent({
@@ -1124,14 +1066,16 @@ class EditCluster extends React.Component {
     }
     /**
      * 引擎配置模块底部 测试连通性、取消、保存、删除 Button
-     * @param isView 是否显示 
-     * @param componentValue 组件 
+     * @param isView 是否显示
+     * @param componentValue 组件
      */
     renderExtFooter = (isView, componentValue) => {
+        const { engineId } = this.state;
+        const isHadoop = engineId == ENGINE_TYPE.HADOOP;
         return (
-            <div>
+            <React.Fragment>
                 {isView ? null : (
-                    <div className='config-bottom'>
+                    <div className={ isHadoop ? 'config-bottom-long' : 'config-bottom-short' }>
                         <Row>
                             <Col span={4}></Col>
                             <Col span={formItemLayout.wrapperCol.sm.span}>
@@ -1144,7 +1088,7 @@ class EditCluster extends React.Component {
                         </Row>
                     </div>
                 )}
-            </div>
+            </React.Fragment>
         )
     }
     // 转化数据
@@ -1366,6 +1310,118 @@ class EditCluster extends React.Component {
             randomJobNameSuffixOption: value
         })
     }
+    /**
+     * LIBA不显示集群信息，hadoop查看不显示配置文件radio
+     */
+    displayResource = (engineType) => {
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const { file, uploadLoading, core, nodeNumber, memory, fileHaveChange } = this.state;
+        const { mode } = this.props.location.state || {};
+        const isView = mode == 'view';
+        return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20 20 10 20' }} noHovering>
+            <div style={{ marginTop: '20px', borderBottom: '1px solid #DDDDDD' }}>
+                <Row>
+                    <Col span={14} pull={2}>
+                        <FormItem
+                            label="集群标识"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('clusterName', {
+                                rules: [{
+                                    required: true,
+                                    message: '请输入集群标识'
+                                }, {
+                                    pattern: /^[a-z0-9_]{1,64}$/i,
+                                    message: '集群标识不能超过64字符，支持英文、数字、下划线'
+                                }]
+                            })(
+                                <Input disabled={true} placeholder="请输入集群标识" style={{ width: '200px' }} />
+                            )}
+                            <span style={{ marginLeft: '20px' }}>节点数：{nodeNumber || '--'} </span>
+                            <span style={{ marginLeft: '5px' }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
+                        </FormItem>
+                    </Col>
+                </Row>
+            </div>
+            {
+                isView ? null : (
+                    <div>
+                        <div className='config-title'>配置方式</div>
+                        <Row>
+                            <Col span={14} pull={2}>
+                                <FormItem
+                                    label="配置方式"
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator('useDefaultConfig', {
+                                        rules: [{
+                                            required: true,
+                                            message: '请选择配置方式'
+                                        }],
+                                        initialValue: true
+                                    })(
+                                        <RadioGroup onChange={this.onChangeRadio}>
+                                            <Radio value={true}>使用默认配置</Radio>
+                                            <Radio value={false}>上传配置文件</Radio>
+                                        </RadioGroup>
+                                    )}
+                                </FormItem>
+                            </Col>
+                        </Row>
+                        {/* 上传配置文件 */}
+                        {
+                            getFieldValue('useDefaultConfig') ? null : (
+                                <div>
+                                    <div className="upload-config" style={{ width: '750px' }}>
+                                        <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
+
+                                        <FormItem
+                                            label="配置文件"
+                                            {...formItemLayout}
+                                        >
+                                            {getFieldDecorator('file', {
+                                                rules: [{
+                                                    required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
+                                                }, {
+                                                    validator: this.validateFileType
+                                                }]
+                                            })(
+                                                <div>
+                                                    {
+                                                        uploadLoading
+                                                            ? <label
+                                                                style={{ lineHeight: '28px' }}
+                                                                className="ant-btn disble"
+                                                            >选择文件</label>
+                                                            : <label
+                                                                style={{ lineHeight: '28px' }}
+                                                                className="ant-btn"
+                                                                htmlFor="myOfflinFile">选择文件</label>
+                                                    }
+                                                    {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
+                                                    <span> {file.files && file.files[0].name}</span>
+                                                    <input
+                                                        name="file"
+                                                        type="file"
+                                                        id="myOfflinFile"
+                                                        onChange={this.fileChange.bind(this)}
+                                                        accept=".zip"
+                                                        style={{ display: 'none' }}
+                                                    />
+                                                    <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
+                                                </div>
+                                            )}
+                                        </FormItem>
+                                        如何获取这些配置文件？请您参考<a>《帮助文档》</a>
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </div>
+                )
+            }
+        </Card> : null
+    }
     // 渲染 Component Config
     renderComponentConf = (componentValue) => {
         const { checked, securityStatus, zipConfig } = this.state;
@@ -1380,17 +1436,10 @@ class EditCluster extends React.Component {
                         isView={isView}
                         getFieldDecorator={getFieldDecorator}
                         customView={(
-                            <div>
+                            <>
                                 {this.renderExtraParam('sparkThrift')}
-                                {isView ? null : (
-                                    <Row>
-                                        <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                        <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                            <a onClick={this.addParam.bind(this, 'sparkThrift')}>添加自定义参数</a>
-                                        </Col>
-                                    </Row>
-                                )}
-                            </div>
+                                {this.showAddCustomParam(isView, 'sparkThrift')}
+                            </>
                         )}
                         singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER)}
                     />
@@ -1451,14 +1500,7 @@ class EditCluster extends React.Component {
                         customView={(
                             <div>
                                 {this.renderExtraParam('flink')}
-                                {isView ? null : (
-                                    <Row>
-                                        <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                        <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                            <a onClick={this.addParam.bind(this, 'flink')}>添加自定义参数</a>
-                                        </Col>
-                                    </Row>
-                                )}
+                                {this.showAddCustomParam(isView, 'flink')}
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.FLINK)}
@@ -1474,14 +1516,7 @@ class EditCluster extends React.Component {
                         customView={(
                             <div>
                                 {this.renderExtraParam('spark')}
-                                {isView ? null : (
-                                    <Row>
-                                        <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                        <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                            <a onClick={this.addParam.bind(this, 'spark')}>添加自定义参数</a>
-                                        </Col>
-                                    </Row>
-                                )}
+                                {this.showAddCustomParam(isView, 'spark')}
                             </div>
                         )}
                         singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.SPARK)}
@@ -1490,217 +1525,63 @@ class EditCluster extends React.Component {
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
                 return (
-                    <div>
-                        <div className="engine-config-content" style={{ width: '680px' }}>
-                            <FormItem
-                                label="learning.python3.path"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('learningConf.learningPython3Path', {
-                                })(
-                                    <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="learning.python2.path"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('learningConf.learningPython2Path', {
-                                })(
-                                    <Input disabled={isView} placeholder="/root/anaconda2/bin/python2" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="learning.history.address"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('learningConf.learningHistoryAddress', {
-                                })(
-                                    <Input disabled={isView} placeholder="rdos1:10021" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label={<Tooltip title="learning.history.webapp.address">learning.history.webapp.address</Tooltip>}
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('learningConf.learningHistoryWebappAddress', {
-                                })(
-                                    <Input disabled={isView} placeholder="rdos1:19886" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label={<Tooltip title="learning.history.webapp.https.address">learning.history.webapp.https.address</Tooltip>}
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('learningConf.learningHistoryWebappHttpsAddress', {
-                                })(
-                                    <Input disabled={isView} placeholder="rdos1:19885" />
-                                )}
-                            </FormItem>
-                            {this.renderExtraParam('learning')}
-                            {isView ? null : (
-                                <Row>
-                                    <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                    <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                        <a onClick={this.addParam.bind(this, 'learning')}>添加自定义参数</a>
-                                    </Col>
-                                </Row>
-                            )}
-                        </div>
-                        {/* config底部功能按钮（测试连通性、取消、保存） */}
-                        {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LEARNING)}
-                    </div>
+                    <LearningConfig
+                        getFieldDecorator={getFieldDecorator}
+                        isView={isView}
+                        customView={(
+                            <div>
+                                {this.renderExtraParam('learning')}
+                                {this.showAddCustomParam(isView, 'learning')}
+                            </div>
+                        )}
+                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LEARNING)}
+                    />
                 )
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 return (
-                    <div>
-                        <div className="engine-config-content" style={{ width: '680px' }}>
-                            <FormItem
-                                label="jlogstash.root"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('dtyarnshellConf.jlogstashRoot', {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入jlogstash.root'
-                                    }]
-                                })(
-                                    <Input disabled={isView} placeholder="/opt/dtstack/jlogstash" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="java.home"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('dtyarnshellConf.javaHome', {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入java.home'
-                                    }]
-                                })(
-                                    <Input disabled={isView} placeholder="/opt/java/bin" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="hadoop.home.dir"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('dtyarnshellConf.hadoopHomeDir', {
-                                    rules: [{
-                                        required: true,
-                                        message: '请输入hadoop.home.dir'
-                                    }]
-                                })(
-                                    <Input disabled={isView} placeholder="/opt/dtstack/hadoop-2.7.3" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label="python2.path"
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('dtyarnshellConf.python2Path', {
-                                })(
-                                    <Input disabled={isView} placeholder="/root/anaconda3/bin/python2" />
-                                )}
-                            </FormItem>
-                            <FormItem
-                                label={<Tooltip title="python3.path">python3.path</Tooltip>}
-                                {...formItemLayout}
-                            >
-                                {getFieldDecorator('dtyarnshellConf.python3Path', {
-                                })(
-                                    <Input disabled={isView} placeholder="/root/anaconda3/bin/python3" />
-                                )}
-                            </FormItem>
-                            {
-                                securityStatus ? <div>
-                                    <FormItem
-                                        label="hdfsPrincipal"
-                                        {...formItemLayout}
-                                    >
-                                        {getFieldDecorator('dtyarnshellConf.hdfsPrincipal', {
-                                            rules: [{
-                                                required: true,
-                                                message: '请输入hdfsPrincipal'
-                                            }]
-                                        })(
-                                            <Input disabled={isView} />
-                                        )}
-                                    </FormItem>
-                                    <FormItem
-                                        label="hdfsKeytabPath"
-                                        {...formItemLayout}
-                                    >
-                                        {getFieldDecorator('dtyarnshellConf.hdfsKeytabPath', {
-                                            rules: [{
-                                                required: true,
-                                                message: '请输入hdfsKeytabPath'
-                                            }]
-                                        })(
-                                            <Input disabled={isView} />
-                                        )}
-                                    </FormItem>
-                                    <FormItem
-                                        label="hdfsKrb5ConfPath"
-                                        {...formItemLayout}
-                                    >
-                                        {getFieldDecorator('dtyarnshellConf.hdfsKrb5ConfPath', {
-                                            rules: [{
-                                                required: true,
-                                                message: '请输入hdfsKrb5ConfPath'
-                                            }]
-                                        })(
-                                            <Input disabled={isView} />
-                                        )}
-                                    </FormItem>
-                                </div> : null
-                            }
-                            {this.renderExtraParam('dtyarnshell')}
-                            {isView ? null : (
-                                <Row>
-                                    <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                    <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                        <a onClick={this.addParam.bind(this, 'dtyarnshell')}>添加自定义参数</a>
-                                    </Col>
-                                </Row>
-                            )}
-                        </div>
-                        {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.DTYARNSHELL)}
-                    </div>
+                    <DtyarnShellConfig
+                        getFieldDecorator={getFieldDecorator}
+                        isView={isView}
+                        securityStatus={securityStatus}
+                        customView={(
+                            <div>
+                                {this.renderExtraParam('dtyarnshell')}
+                                {this.showAddCustomParam(isView, 'dtyarnshell')}
+                            </div>
+                        )}
+                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.DTYARNSHELL)}
+                    />
                 )
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 return (
-                    <div>
-                        <div className="engine-config-content" style={{ width: '680px' }}>
-                            {this.renderExtraParam('libra')}
-                            {isView ? null : (
-                                <Row>
-                                    <Col span={formItemLayout.labelCol.sm.span}></Col>
-                                    <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
-                                        <a onClick={this.addParam.bind(this, 'libra')}>添加自定义参数</a>
-                                    </Col>
-                                </Row>
-                            )}
-                        </div>
-                        {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LIBRASQL)}
-                    </div>
+                    <LibraSqlConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        customView={(
+                            <div>
+                                <div className="engine-config-content" style={{ width: '680px' }}>
+                                    {this.renderExtraParam('libra')}
+                                    {this.showAddCustomParam(isView, 'libra')}
+                                </div>
+                                {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LIBRASQL)}
+                            </div>
+                        )}
+                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LIBRASQL)}
+                    />
                 )
             }
             default:
-                return (
-                    <div>目前暂无该组件配置</div>
-                )
+                return <div>目前暂无该组件配置</div>
         }
     }
     render () {
-        const { file, uploadLoading, core, nodeNumber, memory, fileHaveChange, allTestLoading } = this.state;
-        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const { allTestLoading } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
-        const isNew = mode == 'new';
         const { engineList, hadoopComponentList, libraComponentList } = this.props.consoleUser;
+        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentList : libraComponentList; // 不同engine的组件数据
         return (
             <div className='console-wrapper'>
                 <div>
@@ -1708,7 +1589,7 @@ class EditCluster extends React.Component {
                     <div className='config-title'>集群信息</div>
                 </div>
                 <Tabs
-                    defaultActiveKey={engineList && engineList[0].engineId}
+                    defaultActiveKey={engineList && `${engineList[0].engineId}`}
                     tabPosition='top'
                     onChange={this.onTabChange}
                 >
@@ -1719,194 +1600,84 @@ class EditCluster extends React.Component {
                                     tab={item.engineName}
                                     key={`${item.engineId}`}
                                 >
-                                   {item.engineId == ENGINE_TYPE.HADOOP ? <React.Fragment>
-                                    <Card
-                                        className='shadow'
-                                        style={{ margin: '20 20 10 20' }}
-                                        noHovering
-                                    >
-                                        <div style={{ marginTop: '20px', borderBottom: '1px solid #DDDDDD' }}>
-                                            <Row>
-                                                <Col span={14} pull={2}>
-                                                    <FormItem
-                                                        label="集群标识"
-                                                        {...formItemLayout}
-                                                    >
-                                                        {getFieldDecorator('clusterName', {
-                                                            rules: [{
-                                                                required: true,
-                                                                message: '请输入集群标识'
-                                                            }, {
-                                                                pattern: /^[a-z0-9_]{1,64}$/i,
-                                                                message: '集群标识不能超过64字符，支持英文、数字、下划线'
-                                                            }]
-                                                        })(
-                                                            <Input disabled={true} placeholder="请输入集群标识" style={{ width: '200px' }} />
-                                                        )}
-                                                        <span style={{ marginLeft: '20px' }}>节点数：{nodeNumber || '--'} </span>
-                                                        <span style={{ marginLeft: '5px' }}>资源数：{core || '--'}VCore {this.exchangeMemory(memory)} </span>
-                                                    </FormItem>
-                                                </Col>
-                                            </Row>
-                                        </div>
+                                    <React.Fragment>
+                                        {this.displayResource(item.engineId)}
                                         {
                                             isView ? null : (
-                                                <div>
-                                                    <div className='config-title'>配置方式</div>
-                                                    <Row>
-                                                        <Col span={14} pull={2}>
-                                                            <FormItem
-                                                                label="配置方式"
-                                                                {...formItemLayout}
-                                                            >
-                                                                {getFieldDecorator('useDefaultConfig', {
-                                                                    rules: [{
-                                                                        required: true,
-                                                                        message: '请选择配置方式'
-                                                                    }],
-                                                                    initialValue: true
-                                                                })(
-                                                                    <RadioGroup onChange={this.onChangeRadio}>
-                                                                        <Radio value={true}>使用默认配置</Radio>
-                                                                        <Radio value={false}>上传配置文件</Radio>
-                                                                    </RadioGroup>
-                                                                )}
-                                                            </FormItem>
-                                                        </Col>
-                                                    </Row>
-                                                    {/* 上传配置文件 */}
-                                                    {
-                                                        getFieldValue('useDefaultConfig') ? null : (
-                                                            <div>
-                                                                <div className="upload-config" style={{ width: '750px' }}>
-                                                                    <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
-
-                                                                    <FormItem
-                                                                        label="配置文件"
-                                                                        {...formItemLayout}
-                                                                    >
-                                                                        {getFieldDecorator('file', {
-                                                                            rules: [{
-                                                                                required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
-                                                                            }, {
-                                                                                validator: this.validateFileType
-                                                                            }]
-                                                                        })(
-                                                                            <div>
-                                                                                {
-                                                                                    uploadLoading
-                                                                                        ? <label
-                                                                                            style={{ lineHeight: '28px' }}
-                                                                                            className="ant-btn disble"
-                                                                                        >选择文件</label>
-                                                                                        : <label
-                                                                                            style={{ lineHeight: '28px' }}
-                                                                                            className="ant-btn"
-                                                                                            htmlFor="myOfflinFile">选择文件</label>
-                                                                                }
-                                                                                {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                                                <span> {file.files && file.files[0].name}</span>
-                                                                                <input
-                                                                                    name="file"
-                                                                                    type="file"
-                                                                                    id="myOfflinFile"
-                                                                                    onChange={this.fileChange.bind(this)}
-                                                                                    accept=".zip"
-                                                                                    style={{ display: 'none' }}
-                                                                                />
-                                                                                <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
-                                                                            </div>
-                                                                        )}
-                                                                    </FormItem>
-                                                                    如何获取这些配置文件？请您参考<a>《帮助文档》</a>
-                                                                </div>
-                                                            </div>
-                                                        )
-                                                    }
+                                                <div style={{ margin: '0 20 0 20', textAlign: 'right' }}>
+                                                    <Button onClick={() => {
+                                                        this.setState({
+                                                            modalKey: Math.random(),
+                                                            addComponentVisible: true
+                                                        })
+                                                    }} type="primary" style={{ marginLeft: '5px' }}>增加组件</Button>
+                                                    <Button onClick={() => {
+                                                        this.setState({
+                                                            editModalKey: Math.random(),
+                                                            addEngineVisible: true
+                                                        })
+                                                    }} type="primary" style={{ marginLeft: '5px' }}>增加引擎</Button>
+                                                    <Button onClick={this.test.bind(this, null)} loading={allTestLoading} type="primary" style={{ marginLeft: '5px' }}>测试全部连通性</Button>
                                                 </div>
                                             )
                                         }
-                                        {/* <ZipConfig zipConfig={zipConfig} /> */}
-                                    </Card>
-                                    {
-                                        isView ? null : (
-                                            <div style={{ margin: '5 20 5 20', textAlign: 'right' }}>
-                                                <Button  onClick={() => {
-                                                    this.setState({
-                                                        modalKey: Math.random(),
-                                                        addComponentVisible: true
-                                                    })
-                                                }} type="primary" style={{ marginLeft: '5px' }}>增加组件</Button>
-                                                <Button  onClick={() => {
-                                                    this.setState({
-                                                        editModalKey: Math.random(),
-                                                        addEngineVisible: true
-                                                    })
-                                                }} type="primary" style={{ marginLeft: '5px' }}>增加引擎</Button>
-                                                <Button  onClick={this.test.bind(this, null)} loading={allTestLoading} type="primary" style={{ marginLeft: '5px' }}>测试全部连通性</Button>
-                                            </div>
-                                        )
-                                    }
-
-                                    {/* 组件配置 */}
-                                    <Card
-                                        className='shadow console-tabs cluster-tab-width'
-                                        style={{ margin: '0 20 20 20' }}
-                                        noHovering
-                                    >
-                                        <Tabs
-                                            defaultActiveKey={hadoopComponentList && hadoopComponentList[0]}
-                                            tabPosition='left'
-                                            style={{ height: '550' }}
+                                        {/* 组件配置 */}
+                                        <Card
+                                            className='shadow console-tabs cluster-tab-width'
+                                            style={{ margin: '10 20 20 20' }}
+                                            noHovering
                                         >
-                                            {/* 循环出tabPane */}
-                                            {
-                                                hadoopComponentList && hadoopComponentList.map(item => {
-                                                    return (
-                                                        <TabPane
-                                                            tab={
-                                                                <span>
-                                                                    {this.renderRequiredIcon(item.componentTypeCode)}
-                                                                    <span className='tab-title'>{item.componentName}</span>
-                                                                    {this.renderTestIcon(item.componentTypeCode)}
-                                                                </span>
-                                                            }
-                                                            forceRender={true}
-                                                            key={`${item.componentTypeCode}`}
-                                                        >
-                                                            <div style={{ height: '550', paddingBottom: '150px', overflow: 'auto' }}>
-                                                                {this.renderComponentConf(item.componentTypeCode)}
-                                                            </div>
-                                                        </TabPane>
-                                                    )
-                                                })
-                                            }
-                                        </Tabs>
-                                    </Card>
-                                    </React.Fragment> : <CarbonDataConfig
-                                                        isView={isView}
-                                                        getFieldDecorator={getFieldDecorator}
-                                                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.CARBONDATA)}
-                                                    />
-                                    }
+                                            <Tabs
+                                                defaultActiveKey={tabCompData && `${tabCompData[0].componentTypeCode}`}
+                                                tabPosition='left'
+                                            >
+                                                {/* 循环组件tabPane */}
+                                                {
+                                                    tabCompData && tabCompData.map(item => {
+                                                        return (
+                                                            <TabPane
+                                                                tab={
+                                                                    <span>
+                                                                        {this.renderRequiredIcon(item.componentTypeCode)}
+                                                                        <span className='tab-title'>{item.componentName}</span>
+                                                                        {this.renderTestIcon(item.componentTypeCode)}
+                                                                    </span>
+                                                                }
+                                                                forceRender={true}
+                                                                key={`${item.componentTypeCode}`}
+                                                            >
+                                                                <div style={{ height: '550', paddingBottom: '190px', overflow: 'auto' }}>
+                                                                    {this.renderComponentConf(item.componentTypeCode)}
+                                                                </div>
+                                                            </TabPane>
+                                                        )
+                                                    })
+                                                }
+                                            </Tabs>
+                                        </Card>
+                                    </React.Fragment>
                                 </TabPane>
                             )
                         })
                     }
                 </Tabs>
-                <AddEngineModal
+                <AddCommModal
                     key={this.state.editModalKey}
+                    title='增加引擎'
+                    isAddCluster={false}
                     visible={this.state.addEngineVisible}
-                    engineSelectedLists={engineList}
-                    clusterType={!isNew ? this.state.clusterType : clusterType} // 集群类型
                     onCancel={() => this.onCancel()}
                     onOk={this.addEngine.bind(this)}
                 />
-                <AddComponentModal
+                <AddCommModal
                     key={this.state.modalKey}
+                    title='增加组件'
+                    isRequired={true}
+                    isAddCluster={false}
+                    isAddComp={true}
                     visible={this.state.addComponentVisible}
                     onCancel={() => { this.closeAddModal() }}
-                    addComponent={this.addComponent.bind(this)}
+                    onOk={this.addComponent.bind(this)}
                 />
             </div>
         )

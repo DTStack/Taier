@@ -1,27 +1,42 @@
 import React from 'react';
-import { Modal, Form, Select, Icon, message } from 'antd';
+import { Modal, Form, Select, Icon } from 'antd';
 import { formItemLayout, ENGINE_TYPE } from '../../consts'
+import { getTenantList } from '../../actions/console'
 import Api from '../../api/console';
+import { connect } from 'react-redux';
 const Option = Select.Option;
-class BindTenantModal extends React.Component {
+
+function mapStateToProps (state) {
+    return {
+        consoleUser: state.consoleUser
+    }
+}
+function mapDispatchToProps (dispatch) {
+    return {
+        getTenantList () {
+            dispatch(getTenantList())
+        }
+    }
+}
+@connect(mapStateToProps, mapDispatchToProps)
+class BindCommModal extends React.Component {
     state = {
-        tenantList: [],
-        clusterList: [], // 含engine信息
-        queueList: [], // 队列
-        isShowHadoop: false,
-        isShowLibra: false
+        clusterList: [], // 含engine、队列信息
+        queueList: [],
+        hasHadoop: false,
+        hasLibra: false
     }
     componentDidMount () {
-        this.getAllTenantLists();
-        this.getAllClusterLists();
+        // this.props.getTenantList(); // 租户列表
+        // this.getAllClusterLists();
+        // 切花队列需要调用一次handleChangeCluster(clusterId)
     }
-    getAllTenantLists = () => {
-        Api.getAllTenant().then(res => {
-            if (res.code === 1) {
-                this.setState({
-                    tenantList: res.data || []
-                })
-            }
+    setInitialVal = () => { // 切换队列默认值
+        const { setFieldsValue } = this.props.form;
+        const { tenantInfo } = this.props;
+        console.log(tenantInfo)
+        setFieldsValue({
+            tenantId: `${tenantInfo.tenantId}`
         })
     }
     getAllClusterLists = async () => {
@@ -32,79 +47,60 @@ class BindTenantModal extends React.Component {
             })
         }
     }
-    changeCluster = (value) => {
+    // 切换集群
+    handleChangeCluster = (value) => {
         const { clusterList } = this.state;
-        let engines = []
-        // 选中集群
-        clusterList.forEach(item => {
-            if (item.clusterId === value) {
-                engines = item.engines
-            }
-        })
-        // 区分engine
-        engines.forEach(item => {
-            if (item.engineType === ENGINE_TYPE.HADOOP) {
-                this.setState({
-                    queueList: item.queues,
-                    isShowHadoop: true
-                })
-            }
-            if (item.engineType === ENGINE_TYPE.LIBRA) {
-                this.setState({
-                    isShowHadoop: true
-                })
-            }
+        let currentCluster;
+        currentCluster = clusterList.filter(clusItem => clusItem.clusterId == value); // 选中当前集群
+        const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
+        const hadoopEngine = currentEngineList.filter(item => item.engineType == ENGINE_TYPE.HADOOP)
+        const libraEngine = currentEngineList.filter(item => item.engineType == ENGINE_TYPE.LIBRA)
+        const hasHadoop = hadoopEngine.length >= 1;
+        const hasLibra = libraEngine.length >= 1;
+        const queueList = hasHadoop && hadoopEngine[0] && hadoopEngine[0].queues;
+        this.setState({
+            hasHadoop,
+            hasLibra,
+            queueList
         })
     }
-    tenantOptions = () => {
-        const { tenantList } = this.state;
-        tenantList.map(item => {
-            return <Option key={`${item.tenantId}`} value={`${item.tenantId}`}>{item.tenantName}</Option>
-        })
-    }
-    clusterOptions = () => {
-        const { clusterList } = this.state;
-        clusterList.map(item => {
-            return <Option key={`${item.clusterId}`} value={`${item.clusterId}`}>{item.clusterName}</Option>
-        })
-    }
-    queueOptions = () => {
-        const { queueList } = this.state;
-        queueList.map(item => {
-            return <Option key={`${item.clusterId}`} value={`${item.queueId}`}>{item.queue}</Option>
-        })
-    }
-    confirmBind = () => {
+    /* eslint-disable */
+    getServiceParam () {
+        let params = {
+            canSubmit: false,
+            reqParams: {}
+        }
         const { getFieldsValue, validateFields } = this.props.form;
         const reqParams = getFieldsValue();
         validateFields(err => {
             if (!err) {
-                Api.bindTenant(reqParams).then(res => {
-                    if (res.code === 1) {
-                        message.success('租户绑定成功')
-                        this.props.onCancel();
-                    }
-                })
+                params.canSubmit = true,
+                params.reqParams = reqParams
             }
         })
+        return params
     }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { visible } = this.props;
-        const { isShowHadoop, isShowLibra } = this.state;
+        const { visible, onOk, onCancel, title, isBindTenant,
+            disabled, consoleUser } = this.props;
+        const { tenantList } = consoleUser
+        const { hasHadoop, hasLibra, clusterList, queueList } = this.state;
         return (
             <Modal
-                title='绑定新租户'
+                title={title}
                 visible={visible}
-                onOk={this.confirmBind}
-                onCancel={this.props.onCancel}
-                className='no-padding-modal'
+                onOk={() => { onOk(this.getServiceParam()) }}
+                onCancel={onCancel}
+                className={isBindTenant ? 'no-padding-modal' : ''}
             >
                 <React.Fragment>
-                    <div className='info-title'>
-                        <Icon type="info-circle" style={{ color: '#2491F7' }} />
-                        <span className='info-text'>将租户绑定到集群，可使用集群内的每种计算引擎，绑定后，不能切换其他集群。</span>
-                    </div>
+                    {
+                        isBindTenant && <div className='info-title'>
+                            <Icon type="info-circle" style={{ color: '#2491F7' }} />
+                            <span className='info-text'>将租户绑定到集群，可使用集群内的每种计算引擎，绑定后，不能切换其他集群。</span>
+                        </div>
+                    }
                     <Form>
                         <Form.Item
                             label="租户"
@@ -119,8 +115,11 @@ class BindTenantModal extends React.Component {
                                 <Select
                                     allowClear
                                     placeholder='请选择租户'
+                                    disabled={disabled}
                                 >
-                                    {this.tenantOptions()}
+                                    {tenantList && tenantList.map(tenantItem => {
+                                        return <Option key={`${tenantItem.tenantId}`} value={`${tenantItem.tenantId}`}>{tenantItem.tenantName}</Option>
+                                    })}
                                 </Select>
                             )}
                         </Form.Item>
@@ -137,14 +136,17 @@ class BindTenantModal extends React.Component {
                                 <Select
                                     allowClear
                                     placeholder='请选择集群'
-                                    onChange={this.changeCluster}
+                                    disabled={disabled}
+                                    onChange={this.handleChangeCluster}
                                 >
-                                    {this.clusterOptions()}
+                                    {clusterList.map(clusterItem => {
+                                        return <Option key={`${clusterItem.clusterId}`} value={`${clusterItem.clusterId}`}>{clusterItem.clusterName}</Option>
+                                    })}
                                 </Select>
                             )}
                         </Form.Item>
                         {
-                            isShowHadoop ? (
+                            hasHadoop ? (
                                 <div
                                     className='border-item'
                                 >
@@ -163,7 +165,9 @@ class BindTenantModal extends React.Component {
                                                 allowClear
                                                 placeholder='请选择资源队列'
                                             >
-                                                {this.queueOptions()}
+                                                {queueList.map(item => {
+                                                    return <Option key={`${item.queueId}`} value={`${item.queueId}`}>{item.queueName}</Option>
+                                                })}
                                             </Select>
                                         )}
                                     </Form.Item>
@@ -171,7 +175,7 @@ class BindTenantModal extends React.Component {
                             ) : null
                         }
                         {
-                            isShowLibra ? (
+                            hasLibra ? (
                                 <div
                                     className='border-item'
                                 >
@@ -188,4 +192,4 @@ class BindTenantModal extends React.Component {
         )
     }
 }
-export default Form.create()(BindTenantModal);
+export default Form.create()(BindCommModal);

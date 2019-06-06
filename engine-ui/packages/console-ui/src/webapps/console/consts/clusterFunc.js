@@ -1,12 +1,12 @@
 // cluster function
 import { COMPONENT_TYPE_VALUE, validateFlinkParams, validateHiveParams,
-    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams } from './index';
+    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateLibraParams } from './index';
 export function getComponentConfKey (componentValue) { // 不同component显示不同配置项参数
     switch (componentValue) {
         case COMPONENT_TYPE_VALUE.FLINK: {
             return 'flinkConf'
         }
-        case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
+        case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
             return 'sparkThriftConf'
         }
         case COMPONENT_TYPE_VALUE.CARBONDATA: {
@@ -37,8 +37,8 @@ export function getComponentConfKey (componentValue) { // 不同component显示�
 }
 
 // 单引擎校验
-// hdfs yarn libra 暂不知其确定参数
-export function validateEngine (componentValue) {
+// hdfs yarn 不校验
+export function validateCompParams (componentValue) {
     switch (componentValue) {
         case COMPONENT_TYPE_VALUE.FLINK: {
             return validateFlinkParams
@@ -65,10 +65,7 @@ export function validateEngine (componentValue) {
             return []
         }
         case COMPONENT_TYPE_VALUE.LIBRASQL: {
-            return []
-        }
-        case null: {
-            return null
+            return validateLibraParams
         }
         default: {
             return null

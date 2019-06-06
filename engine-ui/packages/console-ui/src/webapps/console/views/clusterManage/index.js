@@ -1,7 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Button } from 'antd';
-import NewClusterModal from './newClusterModal';
+import { Card, Table, Button, message } from 'antd';
+import AddCommModal from '../../components/addCommModal';
 import moment from 'moment';
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
@@ -101,7 +101,6 @@ class ClusterManage extends React.Component {
         ]
     }
     editCluster (item) {
-        console.log('表单数据', item)
         hashHistory.push({
             pathname: '/console/clusterManage/editCluster',
             state: {
@@ -124,9 +123,28 @@ class ClusterManage extends React.Component {
             editModalKey: Math.random(),
             newClusterModal: true
         })
-        // hashHistory.push({
-        //     pathname: '/console/clusterManage/editCluster'
-        // })
+    }
+    onCancel () {
+        this.setState({ newClusterModal: false })
+    }
+    onSubmit (params) {
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.addCluster({ ...reqParams }).then(res => {
+                if (res.code === 1) {
+                    this.onCancel()
+                    // 采用接口返回数据
+                    hashHistory.push({
+                        pathname: '/console/clusterManage/editCluster',
+                        state: {
+                            mode: 'new',
+                            cluster: res.data
+                        }
+                    })
+                    message.success('集群新增成功！')
+                }
+            })
+        }
     }
     render () {
         const { dataSource, table, newClusterModal, editModalKey } = this.state;
@@ -153,10 +171,14 @@ class ClusterManage extends React.Component {
                         columns={columns}
                     />
                 </Card>
-                <NewClusterModal
-                    visible={newClusterModal}
-                    onCancel={() => { this.setState({ newClusterModal: false }) }}
+                <AddCommModal
                     key={editModalKey}
+                    title='新增集群'
+                    visible={newClusterModal}
+                    isAddCluster={true}
+                    isRequired={false}
+                    onCancel={this.onCancel.bind(this)}
+                    onOk={this.onSubmit.bind(this)}
                 />
             </div>
         )
