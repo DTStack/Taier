@@ -96,12 +96,12 @@ class AdminAudit extends Component {
             }
         }, {
             title: '操作人',
-            dataIndex: 'userName',
-            key: 'userName'
+            dataIndex: 'operator',
+            key: 'operator'
         }, {
             title: '动作',
-            dataIndex: 'operation',
-            key: 'operation',
+            dataIndex: 'action',
+            key: 'action',
             render (text) {
                 return text;
             }
@@ -121,6 +121,7 @@ class AdminAudit extends Component {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
+                currentPage: 1,
                 operator: value
             }
         }, this.fetchData)
@@ -139,6 +140,7 @@ class AdminAudit extends Component {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
+                currentPage: 1,
                 startTime: arr[0] ? arr[0].unix() : null,
                 endTime: arr[1] ? arr[1].unix() : null
             }
