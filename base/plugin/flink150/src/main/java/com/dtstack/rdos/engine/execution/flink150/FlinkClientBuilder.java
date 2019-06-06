@@ -227,17 +227,17 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     @Deprecated
-    public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
+    public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration, FlinkConfig flinkConfig) {
 
         ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig);
 
         ClusterClient<ApplicationId> clusterClient = null;
 
-        if(!flinkConfiguration.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
-            flinkConfiguration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
+        if(!configuration.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
+            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
         }
 
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(flinkConfiguration, yarnConf, ".", false);
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(configuration, yarnConf, ".", false);
 
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
@@ -258,11 +258,9 @@ public class FlinkClientBuilder {
             configuration = flinkConfiguration;
         }
         Configuration newConf = new Configuration(configuration);
-        String clusterId = flinkConfig.getCluster() + "_" + flinkConfig.getQueue();
         if (isPerjob){
-            clusterId = jobClient.getTaskId();
+            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
         }
-        newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
         newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
         perJobMetricConfigConfig(newConf, metricConfig);
 
@@ -331,7 +329,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    public ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig) {
+    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
