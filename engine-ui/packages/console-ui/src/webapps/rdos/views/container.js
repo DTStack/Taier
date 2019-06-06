@@ -14,6 +14,8 @@ import * as UserAction from '../store/modules/user'
 import DataManageAction from '../store/modules/dataManage/actionCreator';
 import { getTaskTypes } from '../store/modules/offlineTask/comm';
 import { getTenantList } from '../store/modules/tenant';
+import API from '../api';
+
 const propType = {
     children: PropTypes.node
 }
@@ -32,6 +34,7 @@ class Container extends Component {
         dispatch(updateApp(rdosApp))
         dispatch(getTenantList());
         this.initProject();
+        this.trackUser();
     }
     initProject () {
         const { dispatch, router } = this.props
@@ -42,6 +45,14 @@ class Container extends Component {
                 dispatch(ProjectAction.getProject(pid))
             }
         }
+    }
+
+    trackUser () {
+        // 跟踪用户
+        API.trackUserActions(rdosApp.id, {
+            action: 'visit',
+            target: rdosApp.id
+        })
     }
 
     // eslint-disable-next-line
