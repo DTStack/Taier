@@ -19,7 +19,7 @@ class OperaRecordModal extends Component {
         const { currentNodeData } = nextProps;
         if (this.props.currentNodeData && currentNodeData.id && this.props.currentNodeData.id != currentNodeData.id) {
             this.setState({
-                queryParams: Object.assign(this.state.queryParams, {
+                queryParams: Object.assign({}, this.state.queryParams, {
                     taskId: currentNodeData.id
                 })
             }, () => {
@@ -47,7 +47,7 @@ class OperaRecordModal extends Component {
     }
     handleTableChange = (pagination, filter) => {
         this.setState({
-            queryParams: Object.assign(this.state.queryParams, {
+            queryParams: Object.assign({}, this.state.queryParams, {
                 currentPage: pagination.current
             })
         }, this.getOperaRecordData(this.state.queryParams))
