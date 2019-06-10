@@ -17,7 +17,8 @@ const editorOptions = {
     autofocus: false,
     indentWithTabs: true,
     lineWrapping: true,
-    smartIndent: true
+    smartIndent: true,
+    autoRefresh: true
 };
 
 function wrappTitle (title) {
@@ -69,10 +70,23 @@ class RunningLogModal extends Component {
         this.setState({
             spinning: false
         });
+        this.editorRefresh();
+    }
+    editorRefresh () {
+        if (!this.$editor) {
+            return;
+        }
+        window.setTimeout(() => {
+            this.$editor.refresh();
+        }, 300);
+    }
+    editorRef = (editor) => {
+        this.$editor = editor;
     }
 
     renderLogContent = () => {
         const { runningIndexData, logData } = this.state;
+        const { data } = this.props;
         const logText = prettifyLogText(logData.msg, logData.download);
         return (
             <div>
@@ -89,7 +103,7 @@ class RunningLogModal extends Component {
                         : ''
                 }
                 <Row style={logContainerStyle}>
-                    <Editor sync value={logText} options={editorOptions} />
+                    <Editor editorRef={ this.editorRef } key={data && data.id} sync value={logText} options={editorOptions} />
                 </Row>
             </div>
         )

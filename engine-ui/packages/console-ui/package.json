@@ -12,7 +12,7 @@
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
-    "dt-sql-parser": "^1.1.10",
+    "dt-sql-parser": "~1.2.0",
     "echarts": "3.8.5",
     "handsontable": "^6.2.2",
     "highlight.js": "9.14.2",
@@ -100,7 +100,8 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
+    "dev:win": "./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
+    "dev": "node --max_old_space_size=4096 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install --unsafe-perm=true --allow-root && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "test",
