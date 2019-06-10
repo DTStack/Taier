@@ -423,15 +423,17 @@ class DataCheck extends Component {
 
     // table搜索
     onTableSearch = name => {
+        this.props.getLists(this.state.params);
+    };
+
+    onTableNameChange = e => {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            tableName: name || undefined
+            tableName: e.target.value || undefined
         };
-
-        this.props.getLists(params);
         this.setState({ params });
-    };
+    }
 
     // 时间不能超过当天
     disabledDate = current => {
@@ -457,6 +459,7 @@ class DataCheck extends Component {
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.onTableSearch}
+                    onChange={this.onTableNameChange}
                     style={{ width: 200, margin: '10px 0' }}
                 />
 
