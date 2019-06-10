@@ -196,8 +196,6 @@ class TaskJobFlowView extends Component {
             if (res.code === 1) {
                 message.success(`${msg}命令已提交!`)
                 if (reload) reload();
-            } else {
-                message.error(`${msg}提交失败！`)
             }
             this.refresh()
         })
