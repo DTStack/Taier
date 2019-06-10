@@ -40,7 +40,7 @@ export default {
     GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/cluster/getCluster`,
     UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传资源配置（hdfs、yarn）
     TEST_COMPONENT_CONNECT: `${CONSOLE_BASE_URL}/component/testConnections`,
-    ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/add`, // 新增集群
+    ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/addCluster`, // 新增集群
     ADD_COMPONENT: `${CONSOLE_BASE_URL}/component/addComponent`,
     SAVE_COMPONENT: `${CONSOLE_BASE_URL}/component/update`,
     DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,

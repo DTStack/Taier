@@ -72,6 +72,16 @@ export const hadoopEngineOptionsValue = [ // 非华为集群支持的引擎类�
     { label: 'SparkThrift', value: 6 },
     { label: 'CarbonData', value: 7 }
 ];
+export const noDisablehadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
+    { label: 'Flink', value: 0 },
+    { label: 'Spark', value: 1 },
+    { label: 'Learning', value: 2 },
+    { label: 'DTYarnShell', value: 3 },
+    { label: 'HDFS', value: 4 },
+    { label: 'YARN', value: 5 },
+    { label: 'SparkThrift', value: 6 },
+    { label: 'CarbonData', value: 7 }
+];
 export const hadoopEngineOptions = [ // 华为集群支持的引擎 options
     'Flink',
     'Spark',
@@ -214,7 +224,7 @@ export const validateLearningParams = [
     'learningConf.learningPython3Path'
 ]
 export const validateLibraParams = [
-    'libraSqlConf.jdbcUrl'
+    'libraConf.jdbcUrl'
 ]
 // key_map
 export const SPARK_KEY_MAP = {

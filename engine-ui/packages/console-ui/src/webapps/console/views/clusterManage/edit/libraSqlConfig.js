@@ -14,7 +14,7 @@ export default class LibraSqlConfig extends React.Component {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraSqlConf.jdbcUrl', {
+                        {getFieldDecorator('libraConf.jdbcUrl', {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -27,7 +27,7 @@ export default class LibraSqlConfig extends React.Component {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraSqlConf.username')(
+                        {getFieldDecorator('libraConf.username')(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -35,7 +35,7 @@ export default class LibraSqlConfig extends React.Component {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('libraSqlConf.password')(
+                        {getFieldDecorator('libraConf.password')(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

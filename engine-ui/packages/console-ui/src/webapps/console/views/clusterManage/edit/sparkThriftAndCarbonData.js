@@ -15,7 +15,7 @@ export class SparkThriftConfig extends React.Component {
                         label="JDBC URL"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkThriftConf.jdbcUrl', {
+                        {getFieldDecorator('hiveConf.jdbcUrl', {
                             rules: [{
                                 required: true,
                                 message: '请输入jdbcUrl'
@@ -28,7 +28,7 @@ export class SparkThriftConfig extends React.Component {
                         label="用户名"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkThriftConf.username')(
+                        {getFieldDecorator('hiveConf.username')(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -36,7 +36,7 @@ export class SparkThriftConfig extends React.Component {
                         label="密码"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkThriftConf.password')(
+                        {getFieldDecorator('hiveConf.password')(
                             <Input disabled={isView} />
                         )}
                     </FormItem>

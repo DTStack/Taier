@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Form, Input, Checkbox, message } from 'antd';
 import EngineSelect from '../../../../webapps/rdos/components/engineSelect';
-import { formItemLayout, ENGINE_TYPE, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME, COMPONENT_TYPE_VALUE, hadoopEngineOptionsValue } from '../../consts';
+import { formItemLayout, ENGINE_TYPE, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
+    COMPONENT_TYPE_VALUE, hadoopEngineOptionsValue, noDisablehadoopEngineOptionsValue } from '../../consts';
 import { updateEngineList } from '../../actions/console';
 // import Api from '../../api/console';
 
@@ -24,10 +25,13 @@ function mapDispatchToProps (dispatch) {
 }
 @connect(mapStateToProps, mapDispatchToProps)
 class AddCommModal extends Component {
-    state = {
-        checkedList: defaultCheckedValue,
-        checkAll: false,
-        isAdd: false // 添加引擎
+    constructor (props) {
+        super(props);
+        this.state = {
+            checkedList: props.isAddComp ? [] : defaultCheckedValue,
+            checkAll: false,
+            isAdd: false // 添加引擎
+        }
     }
     tranEngineData = () => {
         let hadoopOptionValue = [];
@@ -43,8 +47,9 @@ class AddCommModal extends Component {
         })
     }
     onCheckAllChange = (e) => {
+        const { isAddComp } = this.props;
         this.setState({
-            checkedList: e.target.checked ? this.tranEngineData() : defaultCheckedValue,
+            checkedList: e.target.checked ? this.tranEngineData() : isAddComp ? [] : defaultCheckedValue,
             checkAll: e.target.checked
         })
     }
@@ -143,8 +148,10 @@ class AddCommModal extends Component {
     }
     renderDiffentEngine = (flag) => {
         const { getFieldDecorator } = this.props.form;
-        const { isRequired, isAddComp } = this.props;
+        const { isAddComp } = this.props;
         const { checkAll, checkedList } = this.state;
+        // 新增组件都可选
+        const options = isAddComp ? noDisablehadoopEngineOptionsValue : hadoopEngineOptionsValue;
         return (
             flag ? <React.Fragment>
                 {
@@ -165,7 +172,7 @@ class AddCommModal extends Component {
                 <FormItem
                     label={<span>
                         <span style={{ color: '#f04134', fontSize: '12px', fontFamily: 'SimSun' }}>* </span>
-                        <span>{isRequired ? '增加组件' : '可选组件'}</span>
+                        <span>{isAddComp ? '增加组件' : '可选组件'}</span>
                     </span>}
                     {...formItemLayout}
                 >
@@ -177,7 +184,7 @@ class AddCommModal extends Component {
                                 checked={checkAll}
                             >全选</Checkbox>
                             <CheckboxGroup
-                                options={hadoopEngineOptionsValue}
+                                options={options}
                                 value={checkedList}
                                 onChange={this.onChange}
                             />

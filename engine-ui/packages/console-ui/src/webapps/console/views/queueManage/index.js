@@ -84,7 +84,7 @@ class QueueManage extends Component {
     }
     // 获取集群下拉数据
     getClusterSelect () {
-        return Api.getClusterSelect().then((res) => {
+        return Api.getAllCluster().then((res) => {
             if (res.code == 1) {
                 const data = res.data;
                 this.setState({

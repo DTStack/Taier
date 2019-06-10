@@ -7,7 +7,7 @@ export function getComponentConfKey (componentValue) { // 不同component显示�
             return 'flinkConf'
         }
         case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
-            return 'sparkThriftConf'
+            return 'hiveConf'
         }
         case COMPONENT_TYPE_VALUE.CARBONDATA: {
             return 'carbonConf'
@@ -28,7 +28,7 @@ export function getComponentConfKey (componentValue) { // 不同component显示�
             return 'yarnConf'
         }
         case COMPONENT_TYPE_VALUE.LIBRASQL: {
-            return 'libraSqlConf'
+            return 'libraConf'
         }
         default: {
             return ''

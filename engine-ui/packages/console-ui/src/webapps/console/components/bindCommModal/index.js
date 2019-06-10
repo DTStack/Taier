@@ -26,15 +26,24 @@ class BindCommModal extends React.Component {
         hasHadoop: false,
         hasLibra: false
     }
-    componentDidMount () {
-        // this.props.getTenantList(); // 租户列表
-        // this.getAllClusterLists();
-        // 切花队列需要调用一次handleChangeCluster(clusterId)
+    // componentDidMount () {
+    //     this.props.getTenantList(); // 租户列表
+    //     this.getAllClusterLists();
+    // }
+    // eslint-disable-next-line
+    UNSAFE_componentWillReceiveProps (nextProps) {
+        // if (this.props.visible && nextProps.clusterId && !nextProps.isBindTenant) {
+        //     this.getAllClusterLists();
+        //     this.handleChangeCluster(nextProps.clusterId)
+        // }
+        // if (this.props.visible && nextProps.isBindTenant) {
+        //     this.props.getTenantList(); // 租户列表
+        //     this.getAllClusterLists();
+        // }
     }
     setInitialVal = () => { // 切换队列默认值
         const { setFieldsValue } = this.props.form;
         const { tenantInfo } = this.props;
-        console.log(tenantInfo)
         setFieldsValue({
             tenantId: `${tenantInfo.tenantId}`
         })
@@ -114,7 +123,10 @@ class BindCommModal extends React.Component {
                             })(
                                 <Select
                                     allowClear
+                                    showSearch
                                     placeholder='请选择租户'
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     disabled={disabled}
                                 >
                                     {tenantList && tenantList.map(tenantItem => {

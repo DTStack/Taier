@@ -3,7 +3,7 @@ import utils from 'utils';
 import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Radio, Tabs, Modal } from 'antd';
 import { connect } from 'react-redux'
 
-import { getTenantList, updateEngineList, updateHadoopComponentList, updateLibraComponentList } from '../../../actions/console'
+import { getTenantList } from '../../../actions/console'
 import Api from '../../../api/console'
 import { getComponentConfKey, validateCompParams, myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, DTYARNSHELL_KEY_MAP,
@@ -36,21 +36,17 @@ function mapDispatchToProps (dispatch) {
     return {
         getTenantList () {
             dispatch(getTenantList())
-        },
-        updateEngineList (params) {
-            dispatch(updateEngineList(params))
-        },
-        updateHadoopComponentList (params) {
-            dispatch(updateHadoopComponentList(params))
-        },
-        updateLibraComponentList (params) {
-            dispatch(updateLibraComponentList(params))
         }
     }
 }
 @connect(mapStateToProps, mapDispatchToProps)
 class EditCluster extends React.Component {
     state = {
+        engineList: [],
+        // hadoopConf: {},
+        // libraConf: {},
+        hadoopComponentData: [],
+        libraComponentData: [],
         selectUserMap: {},
         selectUser: '', // select输入value
         file: '', // 上传的文件
@@ -122,16 +118,19 @@ class EditCluster extends React.Component {
     //         this.props.updateEngineList(enginelist)
     //     }
     // }
+    // shouldComponentUpdate () {
+    //     return this.props.router.location.action === 'POP'
+    // }
     getEngineData = (data) => {
         let engineConf = {
             hadoopConf: {},
             libraConf: {}
         };
         data.map(item => {
-            if (item.engineTypeCode === ENGINE_TYPE.HADOOP) {
+            if (item.engineType === ENGINE_TYPE.HADOOP) {
                 engineConf.hadoopConf = item
             }
-            if (item.engineTypeCode === ENGINE_TYPE.LIBRASQL) {
+            if (item.engineType === ENGINE_TYPE.LIBRA) {
                 engineConf.libraConf = item
             }
         })
@@ -144,11 +143,11 @@ class EditCluster extends React.Component {
             sparkConf: {},
             learningConf: {},
             dtyarnshellConf: {},
-            hdfsConf: {}, // 对应hadoopConf
+            hadoopConf: {},
             yarnConf: {},
-            sparkThriftConf: {}, // 对应hiveConf
+            hiveConf: {}, // 对应hiveConf
             carbonConf: {},
-            libraSqlConf: {}
+            libraConf: {}
         };
         comp.map(item => {
             switch (item.componentTypeCode) {
@@ -178,7 +177,7 @@ class EditCluster extends React.Component {
                 }
                 case COMPONENT_TYPE_VALUE.HDFS: {
                     componentConf = Object.assign(componentConf, {
-                        hdfsConf: item.config
+                        hadoopConf: item.config
                     })
                     break;
                 }
@@ -190,7 +189,7 @@ class EditCluster extends React.Component {
                 }
                 case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                     componentConf = Object.assign(componentConf, {
-                        sparkThriftConf: item.config
+                        hiveConf: item.config
                     })
                     break;
                 }
@@ -202,7 +201,7 @@ class EditCluster extends React.Component {
                 }
                 case COMPONENT_TYPE_VALUE.LIBRASQL: {
                     componentConf = Object.assign(componentConf, {
-                        libraSqlConf: item.config
+                        libraConf: item.config
                     })
                     break;
                 }
@@ -215,9 +214,9 @@ class EditCluster extends React.Component {
     getDataList () {
         const { location, form } = this.props;
         const params = location.state || {};
-        if (params.mode == 'edit' || params.mode == 'view') {
+        if (params.mode == 'edit' || params.mode == 'view' || params.mode == 'new') {
             Api.getClusterInfo({
-                clusterId: params.cluster.id
+                clusterId: params.cluster.id || params.cluster.clusterId
             })
                 .then(
                     (res) => {
@@ -231,23 +230,25 @@ class EditCluster extends React.Component {
                             const hadoopComponentData = hadoopConf.components || []; // 组件信息
                             const libraComponentData = libraConf.components || [];
                             let componentConf = this.exChangeComponentConf(hadoopComponentData, libraComponentData);
-                            componentConf = JSON.parse(componentConf)
-                            console.log(componentConf)
                             const flinkData = componentConf.flinkConf;
                             const extParams = this.exchangeServerParams(componentConf)
                             const flinkConf = componentConf.flinkConf;
                             myUpperCase(flinkConf);
-                            // this.props.updateHadoopComponentList(hadoopComponentData) // dispatch engines
                             this.setState({
                                 // checked: true,
                                 allComponentConf: componentConf,
+                                engineList: enginesData,
+                                // hadoopConf,
+                                // libraConf,
+                                hadoopComponentData,
+                                libraComponentData,
                                 securityStatus: hadoopConf.security,
                                 core: resource.totalCore,
                                 memory: resource.totalMemory,
                                 nodeNumber: resource.totalNode,
                                 zipConfig: JSON.stringify({
                                     yarnConf: componentConf.yarnConf,
-                                    hdfsConf: componentConf.hdfsConf,
+                                    hadoopConf: componentConf.hadoopConf,
                                     hiveMeta: componentConf.hiveMeta // (暂无用数据)
                                 }),
                                 flink_params: extParams.flinkKeys,
@@ -268,13 +269,13 @@ class EditCluster extends React.Component {
                             }
                             form.setFieldsValue({
                                 clusterName: data.clusterName,
-                                sparkThriftConf: componentConf.sparkThriftConf,
+                                hiveConf: componentConf.hiveConf,
                                 carbonConf: componentConf.carbonConf,
                                 sparkConf: toChsKeys(componentConf.sparkConf || {}, SPARK_KEY_MAP),
                                 flinkConf: componentConf.flinkConf,
                                 learningConf: myUpperCase(componentConf.learningConf),
                                 dtyarnshellConf: toChsKeys(componentConf.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP),
-                                libraSqlConf: componentConf.libraSqlConf
+                                libraConf: componentConf.libraConf
                             })
                         } else {
                             // this.props.updateEngineList([])
@@ -303,10 +304,10 @@ class EditCluster extends React.Component {
         };
         let flinkConfig = config.flinkConf || {};
         let sparkConfig = config.sparkConf || {};
-        let sparkThriftConfig = config.sparkThriftConf || {};
+        let hiveConfig = config.hiveConf || {};
         let learningConfig = config.learningConf || {};
         let dtyarnshellConfig = config.dtyarnshellConf || {};
-        let libraSqlConfig = config.libraSqlConf || {};
+        let libraConfig = config.libraConf || {};
         function setDefault (config, notExtKeys, type, keys) {
             const keyAndValue = Object.entries(config);
             keyAndValue.map(
@@ -325,10 +326,10 @@ class EditCluster extends React.Component {
 
         setDefault(flinkConfig, notExtKeysFlink, 'flink', result.flinkKeys)
         setDefault(sparkConfig, notExtKeysSpark, 'spark', result.sparkKeys)
-        setDefault(sparkThriftConfig, notExtKeysSparkThrift, 'sparkThrift', result.sparkThriftKeys)
+        setDefault(hiveConfig, notExtKeysSparkThrift, 'sparkThrift', result.sparkThriftKeys)
         setDefault(learningConfig, notExtKeysLearning, 'learning', result.learningKeys)
         setDefault(dtyarnshellConfig, notExtKeysDtyarnShell, 'dtyarnshell', result.dtyarnshellKeys)
-        setDefault(libraSqlConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
+        setDefault(libraConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
         return result;
     }
     validateFileType (rule, value, callback) {
@@ -352,11 +353,15 @@ class EditCluster extends React.Component {
             .then(
                 (res) => {
                     if (res.code == 1) {
+                        const conf = res.data.componentConfig;
                         this.setState({
                             uploadLoading: false,
                             file: file,
                             securityStatus: res.data.security,
-                            zipConfig: res.data.componentConfig
+                            zipConfig: {
+                                hadoopConf: conf.HDFS,
+                                yarnConf: conf.YARN
+                            }
                         })
                     } else {
                         this.props.form.setFieldsValue({
@@ -384,7 +389,7 @@ class EditCluster extends React.Component {
                     this.setState({
                         file: null,
                         securityStatus: res.data.security,
-                        zipConfig: res.data.zipConfig
+                        zipConfig: res.data.componentConfig
                     })
                 }
             })
@@ -394,12 +399,12 @@ class EditCluster extends React.Component {
      * 校验组件必填项未填标识 *
      */
     validateAllRequired = () => {
-        const { hadoopComponentList, libraComponentList } = this.props.consoleUser;
-        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentList : libraComponentList; // 不同engine的组件数据
+        const { hadoopComponentData, libraComponentData } = this.state;
+        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         let obj = {}
         tabCompData && tabCompData.map(item => {
             this.props.form.validateFields(validateCompParams(item.componentTypeCode), {}, (err, values) => {
-                if (item.componentTypeCode === COMPONENT_TYPE_VALUE.FLINK) {
+                if (item.componentTypeCode == COMPONENT_TYPE_VALUE.FLINK) {
                     if (!err) {
                         obj = Object.assign(obj, {
                             flinkShowRequired: false
@@ -496,6 +501,9 @@ class EditCluster extends React.Component {
         })
         return obj
     }
+    asterisk = () => {
+        return <span className='icon_required'>*</span>
+    }
     renderRequiredIcon = (componentValue) => {
         const { flinkShowRequired,
             hiveShowRequired,
@@ -509,55 +517,55 @@ class EditCluster extends React.Component {
         switch (componentValue) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 if (flinkShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
+            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                 if (hiveShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 if (carbonShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.SPARK: {
                 if (sparkShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 if (dtYarnShellShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
                 if (learningShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.HDFS: {
                 if (hdfsShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.YARN: {
                 if (yarnShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 if (libraShowRequired) {
-                    return <span className='icon_required'>*</span>
+                    return this.asterisk()
                 }
                 return null
             }
@@ -794,61 +802,62 @@ class EditCluster extends React.Component {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
-    showTestResult = (testResults) => {
+    showTestResult = (testResults, engineType) => {
         let testStatus = {}
+        const isHadoop = engineType == ENGINE_TYPE.HADOOP;
         testResults && testResults.map(comp => {
             switch (comp.componentTypeCode) {
                 case COMPONENT_TYPE_VALUE.FLINK: {
                     testStatus = Object.assign(testStatus, {
-                        flinkTestResult: comp
+                        flinkTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                     testStatus = Object.assign(testStatus, {
-                        sparkThriftTestResult: comp
+                        sparkThriftTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.CARBONDATA: {
                     testStatus = Object.assign(testStatus, {
-                        carbonTestResult: comp
+                        carbonTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.SPARK: {
                     testStatus = Object.assign(testStatus, {
-                        sparkTestResult: comp
+                        sparkTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                     testStatus = Object.assign(testStatus, {
-                        dtYarnShellTestResult: comp
+                        dtYarnShellTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.LEARNING: {
                     testStatus = Object.assign(testStatus, {
-                        learningTestResult: comp
+                        learningTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.HDFS: {
                     testStatus = Object.assign(testStatus, {
-                        hdfsTestResult: comp
+                        hdfsTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.YARN: {
                     testStatus = Object.assign(testStatus, {
-                        yarnTestResult: comp
+                        yarnTestResult: isHadoop ? comp : {}
                     })
                     break;
                 }
                 case COMPONENT_TYPE_VALUE.LIBRASQL: {
                     testStatus = Object.assign(testStatus, {
-                        libraSqlTestResult: comp
+                        libraSqlTestResult: !isHadoop ? comp : {}
                     })
                     break;
                 }
@@ -862,19 +871,19 @@ class EditCluster extends React.Component {
     /**
      * 保存组件
      */
-    saveComponent (componentValue) {
+    saveComponent (component) {
         const { getFieldsValue } = this.props.form;
         const componentConf = this.getComponentConf(getFieldsValue());
         Api.saveComponent({
-            engineId: this.state.engineId,
-            configString: JSON.stringify(componentConf[getComponentConfKey(componentValue)])
+            componentId: component.componentId,
+            configString: JSON.stringify(componentConf[getComponentConfKey(component.componentTypeCode)])
         }).then(res => {
             if (res.code === 1) {
                 this.renderTestIcon()
-                this.setState({
-                    ...this.showTestResult(res.data.testResults)
-                })
-                message.success(`${componentValue}保存成功`)
+                // this.setState({
+                //     ...this.showTestResult(res.data.testResults)
+                // })
+                message.success(`${component.componentName}保存成功`)
             }
         })
     }
@@ -886,11 +895,7 @@ class EditCluster extends React.Component {
                 componentTypeCodeList: reqParams.componentTypeCodeList
             }).then(res => {
                 if (res.code === 1) {
-                    // 添加dispatch updateEngineList
-                    // componentTypeCodeList获取value, 无法获取新增加的组件详细信息，需后端返回
-                    let { hadoopComponentList } = this.props.consoleUser;
-                    const compList = hadoopComponentList.concat(res.data)
-                    this.props.updateHadoopComponentList(compList)
+                    this.getDataList();
                     this.closeAddModal()
                     message.success('添加组件成功!')
                 }
@@ -907,9 +912,8 @@ class EditCluster extends React.Component {
                 componentTypeCodeList: reqParams.componentTypeCodeList
             }).then(res => {
                 if (res.code === 1) {
-                    // 添加dispatch updateEngineList
-                    this.props.updateEngineList(res.data)
                     this.onCancel()
+                    this.getDataList();
                     message.success('添加引擎成功!')
                 }
             })
@@ -917,7 +921,7 @@ class EditCluster extends React.Component {
     }
     /**
      * 测试全部连通性
-     * @param componentValue 组件类型 为null则全部测试
+     * @param componentValue 组件类型值
      */
     test () {
         this.props.form.validateFields(null, {}, (err, values) => {
@@ -947,7 +951,7 @@ class EditCluster extends React.Component {
                                     core: description ? description.totalCores : 0,
                                     memory: description ? description.totalMemory : 0,
                                     testResults: testResults,
-                                    ...this.showTestResult(testResults),
+                                    ...this.showTestResult(testResults, this.state.engineId),
                                     allTestLoading: false
                                 })
                                 // message.success('连通成功')
@@ -967,10 +971,10 @@ class EditCluster extends React.Component {
         })
     }
     // 取消操作
-    handleCancel (componentValue) {
+    handleCancel (component) {
         const { form } = this.props;
         const { allComponentConf } = this.state;
-        switch (componentValue) {
+        switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 form.setFieldsValue({
                     flinkConf: allComponentConf.flinkConf
@@ -979,7 +983,7 @@ class EditCluster extends React.Component {
             }
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
                 form.setFieldsValue({
-                    sparkThriftConf: allComponentConf.sparkThriftConf
+                    hiveConf: allComponentConf.hiveConf
                 })
                 break;
             }
@@ -1010,7 +1014,7 @@ class EditCluster extends React.Component {
             case COMPONENT_TYPE_VALUE.HDFS: {
                 this.setState({
                     zipConfig: JSON.stringify({
-                        hdfsConf: allComponentConf.hdfsConf
+                        hadoopConf: allComponentConf.hadoopConf
                     })
                 })
                 break;
@@ -1025,20 +1029,20 @@ class EditCluster extends React.Component {
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 form.setFieldsValue({
-                    libraSqlConf: allComponentConf.libraSqlConf
+                    libraConf: allComponentConf.libraConf
                 })
                 break;
             }
         }
     }
-    showDeleteConfirm (componentValue) {
+    showDeleteConfirm (component) {
         confirm({
             title: '是否确定删除该组件？',
             okText: '是',
             okType: 'danger',
             cancelText: '否',
             onOk: () => {
-                this.deleteComponent(componentValue)
+                this.deleteComponent(component)
             },
             onCancel () {
                 console.log('cancel')
@@ -1046,16 +1050,16 @@ class EditCluster extends React.Component {
         })
     }
 
-    deleteComponent (componentValue) {
-        const { consoleUser } = this.props;
-        let hadoopComponentList = consoleUser.hadoopComponentList
+    deleteComponent (component) {
+        // const { consoleUser } = this.props;
         Api.deleteComponent({
-            componentId: componentValue
+            componentId: component.componentId
         }).then(res => {
             if (res.code === 1) {
-                const newComponentList = hadoopComponentList.filter(currentComp => { return currentComp.componentTypeCode != componentValue })
-                this.props.updateHadoopComponentList(newComponentList) // 更新 Hadoop Component
-                message.success('删除组件成功！')
+                // const newComponentList = hadoopComponentData.filter(currentComp => { return currentComp.componentTypeCode != component.componentId })
+                // this.props.updateHadoopComponentList(newComponentList) // 更新 Hadoop Component
+                this.getDataList()
+                message.success(`${component.componentName}删除组件成功！`)
             }
         })
     }
@@ -1069,7 +1073,7 @@ class EditCluster extends React.Component {
      * @param isView 是否显示
      * @param componentValue 组件
      */
-    renderExtFooter = (isView, componentValue) => {
+    renderExtFooter = (isView, component) => {
         const { engineId } = this.state;
         const isHadoop = engineId == ENGINE_TYPE.HADOOP;
         return (
@@ -1080,9 +1084,9 @@ class EditCluster extends React.Component {
                             <Col span={4}></Col>
                             <Col span={formItemLayout.wrapperCol.sm.span}>
                                 <span>
-                                    <Button onClick={this.saveComponent.bind(this, componentValue, false)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
-                                    <Button onClick={this.handleCancel.bind(this, componentValue)} style={{ marginLeft: '5px' }}>取消</Button>
-                                    <Button type="danger" style={{ marginLeft: '5px' }} onClick={this.showDeleteConfirm.bind(this, componentValue)}>删除</Button>
+                                    <Button onClick={this.saveComponent.bind(this, component)} style={{ marginLeft: '5px' }} type="primary">保存</Button>
+                                    <Button onClick={this.handleCancel.bind(this, component)} style={{ marginLeft: '5px' }}>取消</Button>
+                                    <Button type="danger" style={{ marginLeft: '5px' }} onClick={this.showDeleteConfirm.bind(this, component)}>删除</Button>
                                 </span>
                             </Col>
                         </Row>
@@ -1094,7 +1098,7 @@ class EditCluster extends React.Component {
     // 转化数据
     getComponentConf (formValues) {
         let { zipConfig } = this.state;
-        zipConfig = JSON.parse(zipConfig || '{}');
+        zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let componentConf = {};
         const sparkExtParams = this.getCustomParams(formValues, 'spark')
         const flinkExtParams = this.getCustomParams(formValues, 'flink')
@@ -1108,19 +1112,19 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
-        componentConf['hdfsConf'] = zipConfig.hdfsConf;
+        componentConf['hadoopConf'] = zipConfig.hadoopConf;
         componentConf['yarnConf'] = zipConfig.yarnConf;
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
-        componentConf['sparkThriftConf'] = { ...formValues.sparkThriftConf, ...sparkThriftExtParams } || {};
+        componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP), ...sparkExtParams };
         componentConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
         componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP), ...dtyarnshellExtParams };
-        componentConf['libraSqlConf'] = { ...formValues.libraSqlConf, ...libraExtParams };
+        componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         // 服务端兼容，不允许null
-        componentConf['sparkThriftConf'].username = componentConf['sparkThriftConf'].username || '';
-        componentConf['sparkThriftConf'].password = componentConf['sparkThriftConf'].password || '';
+        componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';
+        componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
         componentConf['carbonConf'].username = componentConf['carbonConf'].username || '';
         componentConf['carbonConf'].password = componentConf['carbonConf'].password || '';
         return componentConf;
@@ -1148,11 +1152,11 @@ class EditCluster extends React.Component {
     }
 
     renderZipConfig (type) {
-        let { zipConfig } = this.state;
-        zipConfig = JSON.parse(zipConfig || '{}');
+        let { zipConfig } = this.state
+        zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let keyAndValue;
         if (type == 'hdfs') {
-            keyAndValue = Object.entries(zipConfig.hdfsConf || {})
+            keyAndValue = Object.entries(zipConfig.hadoopConf || {})
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
                     if (key == 'fs.defaultFS') {
@@ -1195,7 +1199,7 @@ class EditCluster extends React.Component {
                     }
                 });
         } else {
-            keyAndValue = Object.entries(zipConfig.yarnConf)
+            keyAndValue = Object.entries(zipConfig.yarnConf || {})
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
                     if (key == 'yarn.resourcemanager.ha.rm-ids') {
@@ -1423,13 +1427,13 @@ class EditCluster extends React.Component {
         </Card> : null
     }
     // 渲染 Component Config
-    renderComponentConf = (componentValue) => {
+    renderComponentConf = (component) => {
         const { checked, securityStatus, zipConfig } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
         const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
-        switch (componentValue) {
+        switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                 return (
                     <SparkThriftConfig
@@ -1441,7 +1445,7 @@ class EditCluster extends React.Component {
                                 {this.showAddCustomParam(isView, 'sparkThrift')}
                             </>
                         )}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1453,7 +1457,7 @@ class EditCluster extends React.Component {
                             <div className="engine-config-content" style={{ width: '800px' }}>
                                 {this.renderZipConfig('hdfs')}
                             </div>
-                            {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.HDFS)}
+                            {this.renderExtFooter(isView, component)}
                         </div>
                     ) : null
                 )
@@ -1465,7 +1469,7 @@ class EditCluster extends React.Component {
                             <div className="engine-config-content" style={{ width: '800px' }}>
                                 {this.renderZipConfig('yarn')}
                             </div>
-                            {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.YARN)}
+                            {this.renderExtFooter(isView, component)}
                         </div>
                     ) : null
                 )
@@ -1475,7 +1479,7 @@ class EditCluster extends React.Component {
                     <CarbonDataConfig
                         isView={isView}
                         getFieldDecorator={getFieldDecorator}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.CARBONDATA)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1503,7 +1507,7 @@ class EditCluster extends React.Component {
                                 {this.showAddCustomParam(isView, 'flink')}
                             </div>
                         )}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.FLINK)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1519,7 +1523,7 @@ class EditCluster extends React.Component {
                                 {this.showAddCustomParam(isView, 'spark')}
                             </div>
                         )}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.SPARK)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1534,7 +1538,7 @@ class EditCluster extends React.Component {
                                 {this.showAddCustomParam(isView, 'learning')}
                             </div>
                         )}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LEARNING)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1550,7 +1554,7 @@ class EditCluster extends React.Component {
                                 {this.showAddCustomParam(isView, 'dtyarnshell')}
                             </div>
                         )}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.DTYARNSHELL)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1565,10 +1569,9 @@ class EditCluster extends React.Component {
                                     {this.renderExtraParam('libra')}
                                     {this.showAddCustomParam(isView, 'libra')}
                                 </div>
-                                {this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LIBRASQL)}
                             </div>
                         )}
-                        singleButton={this.renderExtFooter(isView, COMPONENT_TYPE_VALUE.LIBRASQL)}
+                        singleButton={this.renderExtFooter(isView, component)}
                     />
                 )
             }
@@ -1577,11 +1580,11 @@ class EditCluster extends React.Component {
         }
     }
     render () {
-        const { allTestLoading } = this.state;
+        const { allTestLoading, hadoopComponentData, libraComponentData, engineList } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
-        const { engineList, hadoopComponentList, libraComponentList } = this.props.consoleUser;
-        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentList : libraComponentList; // 不同engine的组件数据
+        // const { engineList } = this.props.consoleUser;
+        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         return (
             <div className='console-wrapper'>
                 <div>
@@ -1589,19 +1592,19 @@ class EditCluster extends React.Component {
                     <div className='config-title'>集群信息</div>
                 </div>
                 <Tabs
-                    defaultActiveKey={engineList && `${engineList[0].engineId}`}
+                    // defaultActiveKey={engineList && `${engineList[0].engineId}`}
                     tabPosition='top'
                     onChange={this.onTabChange}
                 >
                     {
-                        engineList && engineList.map(item => {
+                        engineList && engineList.map((item, index) => {
                             return (
                                 <TabPane
                                     tab={item.engineName}
-                                    key={`${item.engineId}`}
+                                    key={`${item.engineType}`}
                                 >
                                     <React.Fragment>
-                                        {this.displayResource(item.engineId)}
+                                        {this.displayResource(item.engineType)}
                                         {
                                             isView ? null : (
                                                 <div style={{ margin: '0 20 0 20', textAlign: 'right' }}>
@@ -1617,7 +1620,7 @@ class EditCluster extends React.Component {
                                                             addEngineVisible: true
                                                         })
                                                     }} type="primary" style={{ marginLeft: '5px' }}>增加引擎</Button>
-                                                    <Button onClick={this.test.bind(this, null)} loading={allTestLoading} type="primary" style={{ marginLeft: '5px' }}>测试全部连通性</Button>
+                                                    <Button onClick={this.test.bind(this)} loading={allTestLoading} type="primary" style={{ marginLeft: '5px' }}>测试全部连通性</Button>
                                                 </div>
                                             )
                                         }
@@ -1628,12 +1631,12 @@ class EditCluster extends React.Component {
                                             noHovering
                                         >
                                             <Tabs
-                                                defaultActiveKey={tabCompData && `${tabCompData[0].componentTypeCode}`}
+                                                // defaultActiveKey={tabCompData && `${tabCompData[0].componentTypeCode}`}
                                                 tabPosition='left'
                                             >
                                                 {/* 循环组件tabPane */}
                                                 {
-                                                    tabCompData && tabCompData.map(item => {
+                                                    tabCompData && tabCompData.map((item, index) => {
                                                         return (
                                                             <TabPane
                                                                 tab={
@@ -1647,7 +1650,7 @@ class EditCluster extends React.Component {
                                                                 key={`${item.componentTypeCode}`}
                                                             >
                                                                 <div style={{ height: '550', paddingBottom: '190px', overflow: 'auto' }}>
-                                                                    {this.renderComponentConf(item.componentTypeCode)}
+                                                                    {this.renderComponentConf(item)}
                                                                 </div>
                                                             </TabPane>
                                                         )
@@ -1672,7 +1675,6 @@ class EditCluster extends React.Component {
                 <AddCommModal
                     key={this.state.modalKey}
                     title='增加组件'
-                    isRequired={true}
                     isAddCluster={false}
                     isAddComp={true}
                     visible={this.state.addComponentVisible}
