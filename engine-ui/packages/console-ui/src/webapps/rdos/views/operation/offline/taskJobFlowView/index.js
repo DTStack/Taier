@@ -216,7 +216,7 @@ class TaskJobFlowView extends Component {
             };
             graph.popupMenuHandler.autoExpand = true
             graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-                if (!cell) return;
+                if (!cell || !cell.vertex) return;
 
                 const currentNode = cell.data;
                 const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
