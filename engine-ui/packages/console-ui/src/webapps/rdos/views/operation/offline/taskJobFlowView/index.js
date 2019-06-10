@@ -390,7 +390,7 @@ class TaskJobFlowView extends Component {
 
     render () {
         const { selectedJob, taskLog, workflowData, graphData, loading } = this.state;
-        const { project, taskJob, goToTaskDev, isPro } = this.props;
+        const { taskJob, goToTaskDev, isPro } = this.props;
         return (
             <div
                 style={{
@@ -444,7 +444,7 @@ class TaskJobFlowView extends Component {
                     onCancel={() => { this.setState({ visible: false }) }}
                     footer={null}
                 >
-                    <TaskInfo task={selectedJob} project={project} />
+                    <TaskInfo task={selectedJob} />
                 </Modal>
                 <Modal
                     key={taskJob && taskJob.id}
