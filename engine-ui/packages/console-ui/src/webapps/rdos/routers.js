@@ -17,6 +17,7 @@ import AdminUser from 'main/views/admin/user'
 import AdminRole from 'main/views/admin/role'
 import GRoleAdd from 'main/views/admin/role/add'
 import GRoleEdit from 'main/views/admin/role/edit'
+import Audit from 'main/views/admin/audit'
 
 import Container from './views/container'
 import Dashboard from './views/dashboard'
@@ -127,6 +128,7 @@ export default (
             <Route path="role" component={ AdminRole } />
             <Route path="role/add" component={ GRoleAdd } />
             <Route path="role/edit/:roleId" component={ GRoleEdit } />
+            <Route path="audit" component={ Audit } />
         </Route>
         <Route path="/rdos" component={Container}>
             <Route path="/metaDataImport" component={MetaDataImport} />

@@ -107,3 +107,8 @@
   content: "\e675";
 }
 
+.icon-safeaudit:before {
+  content: "\E6EA";
+  font-family: "anticon";
+}
+
