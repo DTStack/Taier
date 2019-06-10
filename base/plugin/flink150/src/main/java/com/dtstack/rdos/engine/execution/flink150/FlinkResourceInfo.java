@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.util.StringUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
@@ -134,6 +135,9 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     }
 
     private FlinkConfig getJobFlinkConf(String pluginInfo) {
+        if (StringUtils.isNullOrWhitespaceOnly(pluginInfo)){
+            return null;
+        }
         try {
             return PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
         } catch (IOException e) {
