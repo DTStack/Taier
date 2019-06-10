@@ -5,7 +5,8 @@ import {
     RDOS_BASE_URL,
     DQ_BASE_URL,
     DL_BASE_URL,
-    CONSOLE_BASE_URL
+    CONSOLE_BASE_URL,
+    SCIENCE_BASE_URL
 } from 'config/base';
 
 export default {
@@ -83,5 +84,25 @@ export default {
     STREAM_ROLE_PERMISSION: `${STREAM_BASE_URL}/permission/getPermissionIdsByRoleId`, // 获取角色的权限
     STREAM_ROLE_PERMISSION_ADD_OR_EDIT: `${STREAM_BASE_URL}/role/addOrUpdateRole`, // 更新或添加角色权限
     STREAM_REMOVE_ROLE: `${STREAM_BASE_URL}/role/deleteRole`, // 删除角色
-    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/project/getUicUsersNotInProject` // 获取UIC用户列表
+    STREAM_SEARCH_UIC_USERS: `${STREAM_BASE_URL}/project/getUicUsersNotInProject`, // 获取UIC用户列表
+
+    //= ==== 算法平台 ====//
+    //* *消息**//
+    SCIENCE_MASSAGE_QUERY: `${SCIENCE_BASE_URL}/service/notifyRecord/pageQuery`,
+    SCIENCE_GET_MASSAGE_BY_ID: `${SCIENCE_BASE_URL}/service/notifyRecord/getOne`,
+    SCIENCE_MASSAGE_MARK_AS_READ: `${SCIENCE_BASE_URL}/service/notifyRecord/tabRead`,
+    SCIENCE_MASSAGE_MARK_AS_ALL_READ: `${SCIENCE_BASE_URL}/service/notifyRecord/allRead`,
+    SCIENCE_MASSAGE_DELETE: `${SCIENCE_BASE_URL}/service/notifyRecord/delete`,
+
+    //* * 用户角色 *//
+    SCIENCE_QUERY_USER: `${SCIENCE_BASE_URL}/service/project/getProjectUsers`, // 查询系统用户信息
+    SCIENCE_REMOVE_USER: `${SCIENCE_BASE_URL}/service/roleUser/removeRoleUserFromProject`, // 删除用户
+    SCIENCE_UPDATE_USER_ROLE: `${SCIENCE_BASE_URL}/service/roleUser/updateUserRole`, // 更改用户角色
+    SCIENCE_ADD_USER: `${SCIENCE_BASE_URL}/service/roleUser/addRoleUserNew`, // 添加用户
+    SCIENCE_ROLE_QUERY: `${SCIENCE_BASE_URL}/service/role/pageQuery`, // 角色列表
+    SCIENCE_GET_ROLE_TREE: `${SCIENCE_BASE_URL}/service/permission/tree`, // 获取权限树
+    SCIENCE_ROLE_PERMISSION: `${SCIENCE_BASE_URL}/service/permission/getPermissionIdsByRoleId`, // 获取角色的权限
+    SCIENCE_ROLE_PERMISSION_ADD_OR_EDIT: `${SCIENCE_BASE_URL}/service/roleUser/updateUserRole`, // 更新或添加角色权限
+    SCIENCE_REMOVE_ROLE: `${SCIENCE_BASE_URL}/role/deleteRole`, // 删除角色
+    SCIENCE_SEARCH_UIC_USERS: `${SCIENCE_BASE_URL}/service/project/getUicUsersNotInProject` // 获取UIC用户列表
 }

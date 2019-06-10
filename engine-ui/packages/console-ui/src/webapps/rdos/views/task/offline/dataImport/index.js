@@ -171,7 +171,7 @@ class ImportLocalData extends Component {
         const arr = []
         const splitVal = this.parseSplitSymbol(splitSymbol)
 
-        data = data.split('\n');
+        data = data.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
 
         // 防卡死
         if (data && data[0].length > 5000) {

@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { isArray, get } from 'lodash';
 
 import { Modal, Button, Form, Input, Select, Radio, message } from 'antd';
-import { isArray, get } from 'lodash';
 
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
@@ -132,7 +132,9 @@ class TaskForm extends React.Component {
         } else if (isCreateNormal || isCreateFromMenu) {
             value = isValueEmpty ? (taskTypes.length > 0 && taskTypes[0].key) : taskTypeValue
         } else {
-            value = defaultData.taskType;
+            value = isValueEmpty ? defaultData.taskType : taskTypeValue;
+            // 当通过下拉框更改任务类型后，需要重置create源为normal
+            isCreateNormal = true;
         }
 
         const taskOptions = taskTypes.map(item =>
@@ -240,7 +242,7 @@ class TaskForm extends React.Component {
                                 {...formItemLayout}
                                 label="操作模式"
                             >
-                                {getFieldDecorator('operateModel', {
+                                {getFieldDecorator('operateModel@py23', {
                                     rules: [{
                                         required: true, message: '请选择操作模式'
                                     }],
@@ -307,7 +309,7 @@ class TaskForm extends React.Component {
                             {...formItemLayout}
                             label="操作模式"
                         >
-                            {getFieldDecorator('operateModel', {
+                            {getFieldDecorator('operateModel@py', {
                                 rules: [{
                                     required: true, message: '请选择操作模式'
                                 }],
@@ -630,7 +632,13 @@ class TaskModal extends React.Component {
             if (!err) {
                 values.lockVersion = 0;
                 values.version = 0;
-
+                for (let key in values) {
+                    const keys = key.split('@');
+                    if (keys.length > 1) {
+                        values[keys[0]] = values[key];
+                        values[key] = undefined;
+                    }
+                }
                 // 编辑基本信息标识
                 if (isEditExist) values.isEditBaseInfo = true;
 

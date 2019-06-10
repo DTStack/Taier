@@ -111,57 +111,52 @@ class ApplyBox extends Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         return (
-            <div>
+            <Modal
+                title="申请API"
+                visible={this.props.show}
+                onOk={this.handleOk.bind(this)}
+                onCancel={this.handleCancel.bind(this)}
+                footer={[
+                    <Button key="back" size="large" onClick={this.handleCancel.bind(this)}>取消</Button>,
+                    <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={this.handleOk.bind(this)}>
+                        提交
+                    </Button>
+                ]}
+            >
 
-                <Modal
-                    title="申请API"
-                    visible={this.props.show}
-                    onOk={this.handleOk.bind(this)}
-                    onCancel={this.handleCancel.bind(this)}
-                    footer={[
-                        <Button key="back" size="large" onClick={this.handleCancel.bind(this)}>取消</Button>,
-                        <Button key="submit" type="primary" size="large" loading={this.state.loading} onClick={this.handleOk.bind(this)}>
-                            提交
-                        </Button>
-                    ]}
-                >
+                <Form onSubmit={this.handleSubmit.bind(this)}>
+                    <FormItem
+                        label="API名称"
+                        hasFeedback
+                        {...formLayout}
+                    >
+                        {this.props.apiName}
+                    </FormItem>
+                    <CallCountFormItem
+                        form={this.props.form}
+                        formItemLayout={formLayout}
+                    />
+                    <CallDateRangeFormItem
+                        form={this.props.form}
+                        formItemLayout={formLayout}
+                    />
+                    <FormItem
+                        label="申请说明"
+                        required
+                        hasFeedback
+                        {...formLayout}
+                    >
+                        {getFieldDecorator('applyMsg',
+                            {
+                                rules: [
+                                    { required: true, message: '请输入申请信息' },
+                                    { max: 200, message: '最大字符不能超过200' }]
+                            })(<TextArea style={{ width: 300 }} rows={4} />)}
 
-                    <Form onSubmit={this.handleSubmit.bind(this)}>
-                        <FormItem
-                            label="API名称"
-                            hasFeedback
-                            {...formLayout}
-                        >
-                            {this.props.apiName}
-                        </FormItem>
-                        <CallCountFormItem
-                            form={this.props.form}
-                            formItemLayout={formLayout}
-                        />
-                        <CallDateRangeFormItem
-                            form={this.props.form}
-                            formItemLayout={formLayout}
-                        />
-                        <FormItem
-                            label="申请说明"
-                            required
-                            hasFeedback
-                            {...formLayout}
-                        >
-                            {getFieldDecorator('applyMsg',
-                                {
-                                    rules: [
-                                        { required: true, message: '请输入申请信息' },
-                                        { max: 200, message: '最大字符不能超过200' }]
-                                })(<TextArea style={{ width: 300 }} rows={4} />)}
+                    </FormItem>
 
-                        </FormItem>
-
-                    </Form>
-                </Modal>
-
-            </div>
-
+                </Form>
+            </Modal>
         )
     }
 }

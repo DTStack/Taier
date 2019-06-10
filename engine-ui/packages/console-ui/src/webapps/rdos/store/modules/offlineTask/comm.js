@@ -7,6 +7,7 @@ import assign from 'object-assign';
 import {
     commAction
 } from './actionType';
+import { TASK_TYPE } from '../../../comm/const';
 
 import Api from '../../../api';
 
@@ -91,7 +92,7 @@ export const getTaskTypes = () => {
 
                 dispatch({
                     type: commAction.GET_TASK_TYPE_FILTER,
-                    payload: offlineTaskTypeFilter || []
+                    payload: (offlineTaskTypeFilter || []).concat({ id: TASK_TYPE.NOTEBOOK, value: TASK_TYPE.NOTEBOOK, text: 'Notebook' }, { id: TASK_TYPE.EXPERIMENT, value: TASK_TYPE.EXPERIMENT, text: '算法实验' })
                 })
             }
         })

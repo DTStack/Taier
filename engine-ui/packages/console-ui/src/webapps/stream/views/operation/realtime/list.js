@@ -533,7 +533,7 @@ class RealTimeTaskList extends Component {
                         className="m-table full-screen-table-90"
                         rowClassName={
                             (record, index) => {
-                                if (selectTask == index) {
+                                if (selectTask == record.id) {
                                     return 'row-select'
                                 } else {
                                     return '';

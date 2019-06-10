@@ -77,6 +77,7 @@ class DataSourceMana extends Component {
 
     searchDataSources = (query) => {
         const { params } = this.state;
+        params.currentPage = 1; // 此处需要重置currentPage 为1
         this.setState({
             params: {
                 ...params,

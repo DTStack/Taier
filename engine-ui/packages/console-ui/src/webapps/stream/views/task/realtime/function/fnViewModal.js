@@ -51,7 +51,7 @@ class FnViewModal extends React.Component {
                 onCancel={ handCancel }
                 key={ fnId }
                 footer={[
-                    <Button size="large" onClick={ handCancel } key="cancel">取消</Button>
+                    <Button size="large" onClick={ handCancel } key="cancel">关闭</Button>
                 ]}
                 getContainer={() => getContainer('JS_func_detail')}
             >

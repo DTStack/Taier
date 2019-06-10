@@ -17,6 +17,13 @@ table{
 .text-middle{
     text-align: center;
 }
-.ant-table-thead > tr > th.text-middle{
+.text-left {
+    text-align: left;
+}
+.text-right {
+    text-align: right;
+    float: right;
+}
+.ant-table-thead > tr > th:text-middle {
     text-align: center;
 }

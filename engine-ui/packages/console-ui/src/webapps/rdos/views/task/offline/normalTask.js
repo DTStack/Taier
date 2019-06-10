@@ -67,10 +67,11 @@ class NormalTaskForm extends React.Component {
         const isDeepLearning = taskType == TASK_TYPE.DEEP_LEARNING;
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
         const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
-        const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning && !isHadoopMR;
-        const exeArgsShow = !isPyTask && !isVirtual && !isPython23 && !isDeepLearning;
+        const isScienceTask = TASK_TYPE.NOTEBOOK == taskType || TASK_TYPE.EXPERIMENT == taskType
+        const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning && !isHadoopMR && !isScienceTask;
+        const exeArgsShow = !isPyTask && !isVirtual && !isPython23 && !isDeepLearning && !isScienceTask;
         const optionsShow = isDeepLearning || isPython23 || isPyTask;
-        const couldEdit = isProjectCouldEdit(project, user);
+        const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
 
@@ -101,14 +102,14 @@ class NormalTaskForm extends React.Component {
                     initialValue: taskType
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
-                        {taskTypes.map(item =>
+                        {taskTypes.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' }).map(item =>
                             <Radio key={item.key} value={item.key}>{item.value}</Radio>
                         )}
                     </RadioGroup>
                 )}
             </FormItem>
             {
-                !isVirtual &&
+                (!isVirtual && !isScienceTask) &&
                 <FormItem
                     {...formItemLayout}
                     label={resourceLable}
@@ -262,7 +263,7 @@ class NormalTaskForm extends React.Component {
                     }],
                     initialValue: taskData.taskDesc
                 })(
-                    <Input disabled={!couldEdit} type="textarea" rows={4} placeholder="请输入任务描述" />
+                    <Input disabled={!couldEdit} type="textarea" rows={4} />
                 )}
             </FormItem>
             <FormItem style={{ display: 'none' }}>

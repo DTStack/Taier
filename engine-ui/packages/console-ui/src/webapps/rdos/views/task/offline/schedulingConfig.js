@@ -23,7 +23,7 @@ import ajax from '../../../api';
 import { workbenchAction } from '../../../store/modules/offlineTask/actionType';
 import { TASK_TYPE } from '../../../comm/const';
 import { debounceEventHander } from '../../../comm';
-import HelpDoc, { relativeStyle } from '../../helpDoc';
+import HelpDoc from '../../helpDoc';
 import RecommentTaskModal from './recommentTaskModal';
 
 const Panel = Collapse.Panel;
@@ -52,9 +52,8 @@ class ScheduleForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { status, scheduleConf, isWorkflowNode, wFScheduleConf } = this.props;
+        const { status, scheduleConf, isWorkflowNode, wFScheduleConf, isWorkflowRoot, isScienceTask } = this.props;
         const { periodType, isFailRetry } = scheduleConf;
-
         // 当工作流节点的调度周期为小时-1， 分-0时禁用调用时间选项
         const disabledInvokeTime = wFScheduleConf && (
             wFScheduleConf.periodType === '0' ||
@@ -66,7 +65,7 @@ class ScheduleForm extends React.Component {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
             }
             return <Select
-                disabled={disabledInvokeTime}
+                disabled={disabledInvokeTime || isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >
                 {options}
@@ -78,7 +77,7 @@ class ScheduleForm extends React.Component {
                 options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
             }
             return <Select
-                disabled={disabledInvokeTime}
+                disabled={disabledInvokeTime || isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >
                 {options}
@@ -92,6 +91,7 @@ class ScheduleForm extends React.Component {
             return <Select
                 mode="multiple"
                 style={{ width: '100%' }}
+                disabled={isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >{options}</Select>;
         };
@@ -99,6 +99,7 @@ class ScheduleForm extends React.Component {
             return <Select
                 mode="multiple"
                 style={{ width: '100%' }}
+                disabled={isScienceTask}
                 onChange={this.changeScheduleConf.bind(this)}
             >
                 <Option key={1} value="1">星期一</Option>
@@ -120,49 +121,56 @@ class ScheduleForm extends React.Component {
                     initialValue: status === 0 || status === 2
                 })(
                     <Checkbox
+                        disabled={isScienceTask}
                         onChange={this.changeScheduleStatus.bind(this)}
                     >冻结</Checkbox>
                 )}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="出错重试"
-            >
-                {getFieldDecorator('isFailRetry', {
-                    valuePropName: 'checked',
-                    initialValue: get(scheduleConf, 'isFailRetry', true)
-                })(
-                    <Checkbox
-                        onChange={this.changeScheduleConf.bind(this)}
-                    >是</Checkbox>
-                )}
-                <HelpDoc style={relativeStyle} doc="taskFailRetry" />
-            </FormItem>
-            {isFailRetry && (
-                <FormItem
-                    {...formItemLayout}
-                    label="重试次数"
-                >
-                    <Col span="6">
-                        {getFieldDecorator('maxRetryNum', {
-                            rules: [{
-                                required: true, message: '请选择重试次数'
-                            }],
-                            initialValue: get(scheduleConf, 'maxRetryNum', 3)
+            {!isWorkflowRoot && (
+                <React.Fragment>
+                    <FormItem
+                        {...formItemLayout}
+                        label="出错重试"
+                    >
+                        {getFieldDecorator('isFailRetry', {
+                            valuePropName: 'checked',
+                            initialValue: get(scheduleConf, 'isFailRetry')
                         })(
-                            <Select
+                            <Checkbox
+                                disabled={isScienceTask}
                                 onChange={this.changeScheduleConf.bind(this)}
-                            >
-                                <Option key='1' value='1'>1</Option>
-                                <Option key='2' value='2'>2</Option>
-                                <Option key='3' value='3'>3</Option>
-                                <Option key='4' value='4'>4</Option>
-                                <Option key='5' value='5'>5</Option>
-                            </Select>
+                            >是</Checkbox>
                         )}
-                    </Col>
-                    <span className="split-text">次，每次间隔2分钟</span>
-                </FormItem>
+                    </FormItem>
+                    {isFailRetry && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="重试次数"
+                        >
+                            <Col span="6">
+                                {getFieldDecorator('maxRetryNum', {
+                                    rules: [{
+                                        required: true, message: '请选择重试次数'
+                                    }],
+                                    initialValue: get(scheduleConf, 'maxRetryNum', 3)
+                                })(
+                                    <Select
+                                        disabled={isScienceTask}
+                                        onChange={this.changeScheduleConf.bind(this)}
+                                    >
+                                        <Option key='1' value='1'>1</Option>
+                                        <Option key='2' value='2'>2</Option>
+                                        <Option key='3' value='3'>3</Option>
+                                        <Option key='4' value='4'>4</Option>
+                                        <Option key='5' value='5'>5</Option>
+                                    </Select>
+                                )}
+                            </Col>
+                            <span className="split-text">次，每次间隔2分钟</span>
+                        </FormItem>
+                    )}
+                </React.Fragment>
+
             )}
             {
                 !isWorkflowNode && <div>
@@ -175,6 +183,7 @@ class ScheduleForm extends React.Component {
                             initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                         })(
                             <DatePicker
+                                disabled={isScienceTask}
                                 style={{ width: '140px' }}
                                 onChange={this.changeScheduleConf.bind(this)}
                             />
@@ -184,6 +193,7 @@ class ScheduleForm extends React.Component {
                             initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
                         })(
                             <DatePicker
+                                disabled={isScienceTask}
                                 style={{ width: '140px' }}
                                 onChange={this.changeScheduleConf.bind(this)}
                             />
@@ -200,7 +210,7 @@ class ScheduleForm extends React.Component {
                                     required: true
                                 }]
                             })(
-                                <Select onChange={this.changeScheduleType.bind(this)}>
+                                <Select disabled={isScienceTask} onChange={this.changeScheduleType.bind(this)}>
                                     <Option key={0} value="0">分钟</Option>
                                     <Option key={1} value="1">小时</Option>
                                     <Option key={2} value="2">天</Option>
@@ -217,7 +227,7 @@ class ScheduleForm extends React.Component {
                 {getFieldDecorator('selfReliance', {
                     initialValue: scheduleConf.selfReliance
                 })(
-                    <Input type="hidden"></Input>
+                    <Input disabled={isScienceTask} type="hidden"></Input>
                 )}
             </FormItem>
             {(function (type, ctx) {
@@ -273,6 +283,7 @@ class ScheduleForm extends React.Component {
                                         initialValue: `${scheduleConf.gapMin}`
                                     })(
                                         <Select
+                                            disabled={isScienceTask}
                                             onChange={ctx.changeScheduleConf.bind(ctx)}
                                         >
                                             {(function () {
@@ -373,6 +384,7 @@ class ScheduleForm extends React.Component {
                                     })(
                                         <Select
                                             onChange={ctx.changeScheduleConf.bind(ctx)}
+                                            disabled={isScienceTask}
                                         >
                                             {(function () {
                                                 let options = [];
@@ -595,6 +607,7 @@ class ScheduleForm extends React.Component {
         if (beginHour * 60 + beginMin > endHour) {
             /* eslint-disable-next-line */
             callback('开始时间不能晚于结束时间');
+            return;
         }
         callback();
     }
@@ -607,6 +620,7 @@ class ScheduleForm extends React.Component {
         if (beginHour * 60 + beginMin > endHour) {
             /* eslint-disable-next-line */
             callback('结束时间不能早于开始时间');
+            return;
         }
         callback();
     }
@@ -745,7 +759,7 @@ class SchedulingConfig extends React.Component {
             defaultScheduleConf = this.getDefaultScheduleConf(2);
         }
         setTimeout(() => {
-            this.form.props.form.validateFields((err, values) => {
+            this.form.props.form.validateFields({ force: true }, (err, values) => {
                 if (!err) {
                     let formData = this.form.props.form.getFieldsValue();
                     formData.selfReliance = this.state.selfReliance;
@@ -848,10 +862,11 @@ class SchedulingConfig extends React.Component {
             loading, wFScheduleConf, selfReliance
         } = this.state;
 
-        const { tabData, isWorkflowNode, couldEdit, isIncrementMode } = this.props;
+        const { tabData, isWorkflowNode, couldEdit, isIncrementMode, isScienceTask } = this.props;
 
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isSql = tabData.taskType == TASK_TYPE.SQL;
+        const isWorkflowRoot = tabData.taskType == TASK_TYPE.WORKFLOW;
 
         let initConf = tabData.scheduleConf;
 
@@ -907,14 +922,16 @@ class SchedulingConfig extends React.Component {
         };
 
         return <div className="m-scheduling" style={{ position: 'relative' }}>
-            {isLocked || !couldEdit ? <div className="cover-mask"></div> : null}
+            {isLocked || (!couldEdit && !isScienceTask) ? <div className="cover-mask"></div> : null}
             <Collapse bordered={false} defaultActiveKey={['1', '2', '3']}>
                 <Panel key="1" header="调度属性">
                     <FormWrap
                         scheduleConf={scheduleConf}
+                        isScienceTask={isScienceTask}
                         wFScheduleConf={wFScheduleConf}
                         status={tabData.scheduleStatus}
                         isWorkflowNode={isWorkflowNode}
+                        isWorkflowRoot={isWorkflowRoot}
                         handleScheduleStatus={this.handleScheduleStatus.bind(this)}
                         handleScheduleConf={this.handleScheduleConf.bind(this)}
                         handleScheduleType={this.handleScheduleType.bind(this)}
@@ -960,7 +977,7 @@ class SchedulingConfig extends React.Component {
                         <Row style={{ marginBottom: 16 }}>
                             <Col span="1" />
                             <Col>
-                                <RadioGroup onChange={this.setSelfReliance.bind(this)}
+                                <RadioGroup disabled={isScienceTask} onChange={this.setSelfReliance.bind(this)}
                                     value={selfReliance}
                                 >
                                     {!isIncrementMode && <Radio style={radioStyle} value={0}>不依赖上一调度周期</Radio>}

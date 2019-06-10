@@ -1,0 +1,20 @@
+.app-science {
+    .sidebar {
+        height: 100%;
+        position: relative;
+    }
+    .container{
+        background: #ffffff;
+        .ant-layout{
+            background: #ffffff;
+        }
+    }
+    
+    header {
+        .menu {
+            .my-menu-item.ant-menu-submenu-horizontal.ant-menu-submenu{
+                font-size: 14px;
+            }
+        }
+    }
+}

@@ -8,6 +8,7 @@ import { showAdminMsg } from '../../components/adminMsgModal';
 
 import { API_METHOD, API_METHOD_KEY } from '../../consts';
 import { getApiMarketValue } from '../../utils';
+import HelpDoc from '../../views/helpDoc'
 
 class Content extends Component {
     state = {
@@ -57,7 +58,9 @@ class Content extends Component {
             endTime,
             mode, // 管理模式/用户模式
             isRegister,
+            apiVersionCode, // 是否使用TOKEN
             showRecord,
+            token, // token
             showMarketInfo, // 是否显示订购情况
             showUserInfo, // 是否显示用户个人的调用信息
             showReqLimit, // 是否显示调用限制
@@ -104,7 +107,7 @@ class Content extends Component {
                         )}
                         {showUserInfo && <div>
                             <p data-title="调用URL：" className="pseudo-title p-line">{callUrl}</p>
-                            <p data-title="申请调用次数：" className="pseudo-title p-line">
+                            <p data-title="支持调用次数：" className="pseudo-title p-line">
                                 {callLimit == -1 ? '无限制' : callLimit}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {
                                     showAdminMsg(apiId)
@@ -112,7 +115,7 @@ class Content extends Component {
                                     申请修改
                                 </a>
                             </p>
-                            <p data-title="申请调用周期：" className="pseudo-title p-line">
+                            <p data-title="支持调用周期：" className="pseudo-title p-line">
                                 {beginTime ? `${moment(beginTime).format('YYYY-MM-DD')} ~ ${moment(endTime).format('YYYY-MM-DD')}` : '无限制'}
                                 <a style={{ marginLeft: '5px' }} onClick={() => {
                                     showAdminMsg(apiId)
@@ -131,6 +134,9 @@ class Content extends Component {
                                 <p data-title="最近修改时间：" className="pseudo-title p-line">{moment(showRecord.gmtModified).format('YYYY-MM-DD HH:mm:ss')}</p>
                             </div>
                         )}
+                        <p data-title="备注：" className="pseudo-title p-line">
+                            {apiVersionCode && apiVersionCode === 'API_WITH_TOKEN' ? <span>API-TOKEN（{token}）<HelpDoc doc="tokenSpecification" /></span> : null }
+                        </p>
                     </div>
                 </section>
                 {showMarketInfo && <section style={{ marginTop: 19.3 }}>

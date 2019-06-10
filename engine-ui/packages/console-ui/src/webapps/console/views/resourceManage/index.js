@@ -140,11 +140,19 @@ class ResourceManage extends React.Component {
                     if (!tenants) {
                         return null;
                     }
-                    return tenants.map(
-                        (tenant) => {
-                            return tenant.tenantName
+                    // tenantName去空字符串
+                    let noEmptyTenant = [];
+                    let tenantName = tenants.map(item => {
+                        return item.tenantName
+                    })
+                    tenantName.map(item => {
+                        if (item != '') {
+                            noEmptyTenant.push(item)
                         }
-                    ).join('，') || '无'
+                    })
+                    return noEmptyTenant.map(item => {
+                        return item
+                    }).join('，') || '无'
                 }
             },
             {
@@ -190,6 +198,7 @@ class ResourceManage extends React.Component {
         this.setState({
             changeModalVisible: false
         })
+        this.getResourceList();
     }
     resourceUserChange () {
         this.setState({

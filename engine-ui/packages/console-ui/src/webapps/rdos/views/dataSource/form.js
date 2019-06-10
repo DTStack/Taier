@@ -936,6 +936,7 @@ class BaseForm extends Component {
         )
         const sourceType = this.state.sourceType || (types[0] && types[0].value)
         const isEdit = status == 'edit';
+        const { active } = sourceData;
 
         return (
             <Form autoComplete="off">
@@ -974,7 +975,7 @@ class BaseForm extends Component {
                         }],
                         initialValue: sourceData.dataName || ''
                     })(
-                        <Input autoComplete="off" disabled={status === 'edit'} />
+                        <Input autoComplete="off" disabled={status === 'edit' && active === 1} />
                     )}
                 </FormItem>
                 <FormItem

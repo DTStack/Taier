@@ -1,12 +1,13 @@
 {
   "name": "data-stack-web",
-  "version": "3.5.0",
+  "version": "3.6.0-beta.2.1",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
   "dependencies": {
     "@handsontable/react": "^2.1.0",
     "@types/lodash": "^4.14.118",
+    "@types/react": "^16.8.10",
     "antd": "2.13.14",
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",
@@ -87,7 +88,6 @@
     "monaco-editor-webpack-plugin": "~1.4.0",
     "node-notifier": "^5.2.1",
     "node-sass": "4.11.0",
-    "postcss-loader": "0.9.1",
     "progress-bar-webpack-plugin": "1.11.0",
     "react-test-renderer": "16.8.4",
     "sass-loader": "^7.0.1",
@@ -106,8 +106,8 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "webpack-dev-server --progress --inline --config build/dev.js --open",
-    "build": "npm install --unsafe-perm=true --allow-root --save-dev && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
+    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
+    "build": "npm install --unsafe-perm=true --allow-root && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "jest --no-cache",
     "release": "./scripts/release.sh",

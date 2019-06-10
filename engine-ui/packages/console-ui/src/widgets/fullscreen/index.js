@@ -64,8 +64,8 @@ export default class FullScreenButton extends Component {
     }
 
     fullScreen = () => {
-        const { target } = this.props;
-
+        const { target, onFullscreen } = this.props;
+        if (onFullscreen) { onFullscreen(this.state.isFullScreen) };
         if (this.state.isFullScreen) {
             if (document.exitFullscreen) {
                 document.exitFullscreen();
@@ -82,18 +82,17 @@ export default class FullScreenButton extends Component {
             if (domEle.requestFullscreen) {
                 domEle.requestFullscreen();
             } else if (domEle.msRequestFullscreen) { // IE
-                domEle.msRequestFUllscreen();
+                domEle.msRequestFullscreen();
             } else if (domEle.mozRequestFullscreen) { // Firefox (Gecko)
                 domEle.mozRequestFullscreen();
             } else if (domEle.webkitRequestFullscreen) { // Webkit
                 domEle.webkitRequestFullscreen();
             }
         }
-        // this.setState({ isFullScreen: !this.state.isFullScreen });
     }
 
     render () {
-        const { themeDark, fullIcon, exitFullIcon, ...other } = this.props;
+        const { themeDark, fullIcon, exitFullIcon, iconStyle, ...other } = this.props;
         const title = this.state.isFullScreen ? '退出全屏' : '全屏';
         const iconType = this.state.isFullScreen ? 'exit-fullscreen' : 'fullscreen';
         const customIcon = this.state.isFullScreen ? exitFullIcon : fullIcon;
@@ -103,9 +102,10 @@ export default class FullScreenButton extends Component {
                 91: true,
                 16: true
             }}>
-                {customIcon ? <span onClick={this.fullScreen}>{customIcon}</span>
+                {customIcon ? <span {...other} onClick={this.fullScreen}>{customIcon}</span>
                     : <Button {...other} onClick={this.fullScreen}>
                         <MyIcon
+                            style={iconStyle}
                             className="my-icon"
                             type={iconType}
                             themeDark={themeDark}

@@ -8,15 +8,9 @@ import {
 import Api from '../../../../api'
 import { TASK_TYPE } from '../../../../comm/const'
 import TaskGraphView, { mergeTreeNodes } from '../../../operation/offline/taskFlowView/taskGraphView'
+import * as MxFactory from 'widgets/mxGraph';
 
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-})
-
+const Mx = MxFactory.create();
 const {
     mxEvent,
     mxCellHighlight

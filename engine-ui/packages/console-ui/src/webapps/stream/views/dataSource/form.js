@@ -200,53 +200,33 @@ class BaseForm extends Component {
                         })(
                             <Input placeholder="hdfs://host:port" />
                         )}
-                    </FormItem>,
-                    <FormItem
-                        key="hasHdfsConfig"
-                        {...tailFormItemLayout}
-                    >
-                        {getFieldDecorator('hasHdfsConfig', {
-                            initialValue: hasHdfsConfig
-                        })(
-                            <Checkbox
-                                checked={hasHdfsConfig}
-                                onChange={this.enableHdfsConfig}>
-                                高可用配置
-                            </Checkbox>
-                        )}
                     </FormItem>
                 ]
-                if (hasHdfsConfig) {
-                    formItems.push(
-                        <FormItem
-                            {...formItemLayout}
-                            label="高可用配置"
-                            key="hadoopConfig"
-                            hasFeedback
-                            style={{ display: hasHdfsConfig ? 'block' : 'none' }}
-                        >
-                            {getFieldDecorator('dataJson.hadoopConfig', {
-                                rules: [{
-                                    required: true, message: 'Hadoop配置不可为空！'
-                                }],
-                                initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
-                                    ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
-                            })(
-                                <Input
-                                    rows={5}
-                                    className="no-scroll-bar"
-                                    type="textarea"
-                                    placeholder={hdfsConf}
-                                />
-                            )}
-                            <HelpDoc doc="hdfsConfig" />
-                            <CopyIcon
-                                style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
-                                copyText={hdfsConf}
+                formItems.push(
+                    <FormItem
+                        {...formItemLayout}
+                        label="高可用配置"
+                        key="hadoopConfig"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.hadoopConfig', {
+                            initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
+                                ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
+                        })(
+                            <Input
+                                rows={5}
+                                className="no-scroll-bar"
+                                type="textarea"
+                                placeholder={hdfsConf}
                             />
-                        </FormItem>
-                    )
-                }
+                        )}
+                        <HelpDoc doc="hdfsConfig" />
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={hdfsConf}
+                        />
+                    </FormItem>
+                )
                 return formItems;
             }
             case DATA_SOURCE.HIVE: {
@@ -970,7 +950,7 @@ class BaseForm extends Component {
                         }],
                         initialValue: sourceData.dataName || ''
                     })(
-                        <Input autoComplete="off" disabled={status === 'edit'} />
+                        <Input autoComplete="off" disabled={status === 'edit' && sourceData.active === 1} />
                     )}
                 </FormItem>
                 <FormItem

@@ -68,7 +68,7 @@ class EditorContainer extends Component {
     }
 
     // eslint-disable-next-line
-   UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const current = nextProps.currentTabData
         const old = this.props.currentTabData
         const project = nextProps.project
@@ -311,27 +311,21 @@ class EditorContainer extends Component {
                             }
                             _tmpCache[value[0]] = true;
                             // 在当前语境为column的情况下，提升该表所有column的优先级
-                            if (context.columnContext && context.columnContext.indexOf(value[0]) > -1) {
-                                defaultItems = defaultItems.concat(
-                                    customCompletionItemsCreater(value[1].map(
-                                        (column) => {
-                                            return [column.columnName, value[0], '100', 'Variable']
-                                        }
-                                    ))
-                                )
-                            } else {
+                            let priority = '100';
+                            if (!context.columnContext || context.columnContext.indexOf(value[0]) == -1) {
                                 // 当触发上下文是点，则不显示其余补全项
                                 if (context.completionContext.triggerCharacter == '.') {
                                     continue;
                                 }
-                                defaultItems = defaultItems.concat(
-                                    customCompletionItemsCreater(value[1].map(
-                                        (column) => {
-                                            return [column.columnName, value[0], '1100', 'Variable']
-                                        }
-                                    ))
-                                )
+                                priority = '1100';
                             }
+                            defaultItems = defaultItems.concat(
+                                customCompletionItemsCreater(value[1].concat(value[3]).map(
+                                    (column) => {
+                                        return [column.columnName, value[0], priority, 'Variable']
+                                    }
+                                ))
+                            )
                         }
                         resolve(defaultItems);
                     }
@@ -353,7 +347,7 @@ class EditorContainer extends Component {
         if (_tableColumns[tableName]) {
             return Promise.resolve(_tableColumns[tableName])
         }
-        // 共用现有请求线程
+        // 共用现有请求线.
         if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName]
         }

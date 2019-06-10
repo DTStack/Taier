@@ -2,13 +2,9 @@ import React, { Component } from 'react'
 
 import './style.scss'
 
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLoadResources: false,
-    mxLanguage: 'none',
-    mxLoadStylesheets: false
-})
+import * as MxFactory from 'widgets/mxGraph';
+
+const Mx = MxFactory.create();
 
 const {
     // mxClient,

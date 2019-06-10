@@ -419,7 +419,7 @@ class DataSourceModal extends Component {
                         })(
                             <Input
                                 autoComplete="off"
-                                disabled={status === 'edit'}
+                                disabled={status === 'edit' && sourceData.active === 1}
                             />
                         )}
                     </FormItem>

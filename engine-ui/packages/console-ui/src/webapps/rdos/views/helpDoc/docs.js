@@ -53,7 +53,7 @@ export const splitCharacter = (
 export const jobSpeedLimit = ( // 作业上限速度
     <div>
         设置作业速率上限，则数据同步作业的总速率将尽可能按照这个上限进行同步，
-        需根据实际硬件配置调整，默认为1
+        需根据实际硬件配置调整，默认为5
     </div>
 )
 

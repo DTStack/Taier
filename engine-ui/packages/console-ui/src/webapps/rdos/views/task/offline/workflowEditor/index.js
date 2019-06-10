@@ -22,15 +22,9 @@ import {
 } from '../../../../store/modules/offlineTask/offlineAction';
 import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../comm';
+import * as MxFactory from 'widgets/mxGraph';
 
-const Mx = require('public/rdos/mxgraph')({
-    mxBasePath: 'public/rdos/mxgraph',
-    mxImageBasePath: 'public/rdos/mxgraph/images',
-    mxLanguage: 'none',
-    mxLoadResources: false,
-    mxLoadStylesheets: false
-});
-
+const Mx = MxFactory.create();
 const {
     mxGraph,
     mxShape,
@@ -142,6 +136,9 @@ class WorkflowEditor extends Component {
             return true;
         }
         if (nextState.searchResult !== this.state.searchResult) {
+            return true;
+        }
+        if (nextProps.taskTypes.length !== this.props.taskTypes.length){
             return true;
         }
         return false;

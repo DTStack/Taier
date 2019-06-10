@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Button, Select, Form, Table, message } from 'antd';
 
+import utils from 'utils';
+
 import ColumnsConfig from './container'
 import ColumnsModel from '../../../../model/columnsModel'
 import ApiSqlEditor from './sql'
@@ -307,11 +309,36 @@ class ManageParamsConfig extends Component {
     }
     async pass () {
         const { mode } = this.props;
-        const { InputColumns, OutputColums, editor } = this.state;
-        this.setPassLoading(true)
+        this.setPassLoading(true);
+        const { editor } = this.state;
+
+        const nextStep = async () => {
+            const { InputColumns, OutputColums } = this.state;
+
+            if (!OutputColums || OutputColums.length == 0) {
+                message.warning('输出参数不能为空')
+                this.setPassLoading(false)
+                return;
+            }
+            let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
+            this.setPassLoading(false)
+            if (!isPass) {
+                return false;
+            }
+            if (!this.checkRepeat(InputColumns)) {
+                message.warning('输入参数不能相同')
+                return;
+            }
+            if (!this.checkRepeat(OutputColums)) {
+                message.warning('输出参数不能相同')
+                return;
+            }
+            this.props.dataChange(this.getSaveData())
+        }
+
         if (mode == API_MODE.SQL) {
-            if (!editor.sql) {
-                message.warning('sql不能为空')
+            if (!utils.trim(editor.sql)) {
+                message.warning('SQL 不能为空')
                 this.setPassLoading(false)
                 return
             }
@@ -320,26 +347,10 @@ class ManageParamsConfig extends Component {
                 this.setPassLoading(false)
                 return;
             }
+            nextStep();
+        } else {
+            nextStep();
         }
-        if (!OutputColums || OutputColums.length == 0) {
-            message.warning('输出参数不能为空')
-            this.setPassLoading(false)
-            return;
-        }
-        let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
-        this.setPassLoading(false)
-        if (!isPass) {
-            return false;
-        }
-        if (!this.checkRepeat(InputColumns)) {
-            message.warning('输入参数不能相同')
-            return;
-        }
-        if (!this.checkRepeat(OutputColums)) {
-            message.warning('输出参数不能相同')
-            return;
-        }
-        this.props.dataChange(this.getSaveData())
     }
     prev () {
         this.props.saveData(this.getSaveData());
@@ -363,7 +374,8 @@ class ManageParamsConfig extends Component {
         isHide = typeof isHide == 'boolean' ? isHide : false;
         const { sqlModeShow, editor } = this.state;
         const dataSource = this.props.form.getFieldValue('dataSource');
-        const sql = editor.sql;
+        const sql = utils.trim(editor.sql);
+
         /**
          * 是否在参数编辑页面
          */
@@ -382,7 +394,7 @@ class ManageParamsConfig extends Component {
             return;
         }
         if (!sql) {
-            message.warning('sql不能为空!');
+            message.warning('SQL 不能为空');
             return;
         }
         this.setState({

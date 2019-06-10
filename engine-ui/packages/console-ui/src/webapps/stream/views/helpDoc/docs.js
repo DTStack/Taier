@@ -1,6 +1,7 @@
 // 帮助文档
 import React from 'react'
 import { HELP_DOC_URL } from '../../comm/const'
+/* eslint-disable */
 
 export const dataFilterDoc = (
     <div>
@@ -210,5 +211,11 @@ export const newStreamTask = (
 export const binlogPortHelp = (
     <div>
         端口号可手动指定，若不指定，任务运行时会自动分配
+    </div>
+)
+
+export const splitCharacter = (
+    <div>
+        配置不可见字符，可通过“\”作为转义字符，例如\001
     </div>
 )

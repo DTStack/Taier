@@ -14,7 +14,7 @@ import {
     Tooltip,
     InputNumber
 } from 'antd';
-import { debounce } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser';
@@ -24,6 +24,7 @@ import { haveTableList, haveCustomParams, haveTableColumn } from './sidePanel/pa
 import Editor from 'widgets/code-editor';
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 import { switchPartition } from '../../../views/helpDoc/docs';
+import LockPanel from '../../../components/lockPanel';
 
 const Option = Select.Option;
 const Panel = Collapse.Panel;
@@ -46,6 +47,13 @@ class OutputOrigin extends Component {
         let result = {};
         this.props.form.validateFields((err, values) => {
             if (!err) {
+                const { panelColumn, index } = this.props;
+                const data = panelColumn[index];
+                if ((!data.columnsText || !data.columnsText.trim()) && !data.columns.filter((item) => { return !isEmpty(item) }).length) {
+                    result.status = false;
+                    result.message = '字段信息不能为空！'
+                    return;
+                }
                 result.status = true;
             } else {
                 result.status = false;
@@ -1153,7 +1161,7 @@ export default class OutputPanel extends Component {
                         type="exclamation-circle"
                         style={{ color: '#faad14' }}
                     />{' '}
-                    你确定要删除此输出源吗？
+                    你确定要删除此维表吗？
                 </div>
                 <div style={{ textAlign: 'right', padding: '0 0 8' }}>
                     <Button
@@ -1221,7 +1229,7 @@ export default class OutputPanel extends Component {
             tableColumnOptionType,
             sync
         } = this.state;
-        const { isShow } = this.props;
+        const { isShow, currentPage, isLocked } = this.props;
         return (
             <div className="m-taksdetail panel-content">
                 <Collapse
@@ -1234,7 +1242,7 @@ export default class OutputPanel extends Component {
                             <Panel
                                 header={this.panelHeader(index)}
                                 key={index + 1}
-                                style={{ borderRadius: 5 }}
+                                style={{ borderRadius: 5, position: 'relative' }}
                                 className="input-panel"
                             >
                                 <OutputForm
@@ -1258,11 +1266,13 @@ export default class OutputPanel extends Component {
                                         })
                                     }}
                                 />
+                                <LockPanel lockTarget={currentPage} />
                             </Panel>
                         );
                     })}
                 </Collapse>
                 <Button
+                    disabled={isLocked}
                     className="stream-btn"
                     onClick={() => {
                         this.changeInputTabs('add');
@@ -1270,7 +1280,7 @@ export default class OutputPanel extends Component {
                     style={{ borderRadius: 5 }}
                 >
                     <Icon type="plus" />
-                    <span> 添加输入</span>
+                    <span>添加维表</span>
                 </Button>
             </div>
         );
