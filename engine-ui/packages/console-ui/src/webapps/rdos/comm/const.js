@@ -234,7 +234,8 @@ export const TASK_STATUS = { // 任务状态
     TASK_STATUS_NOT_FOUND: 15, // 暂时无法获取任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
-    FROZEN: 18
+    FROZEN: 18,
+    DO_FAIL: 22
 }
 
 // 表模型规则
