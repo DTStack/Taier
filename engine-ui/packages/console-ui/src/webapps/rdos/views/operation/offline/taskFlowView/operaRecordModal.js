@@ -95,7 +95,7 @@ class OperaRecordModal extends Component {
                 <Table
                     className='m-table'
                     loading={loading}
-                    rowKey="operateTime"
+                    rowKey={(r, index) => index}
                     dataSource={dataSource}
                     columns={columns}
                     pagination={pagination}
