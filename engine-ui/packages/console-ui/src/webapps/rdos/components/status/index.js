@@ -82,6 +82,11 @@ export function TaskStatus (props) {
                 <Circle className="status_wait_submit" />&nbsp;
                 等待提交
             </span>
+        case TASK_STATUS.DO_FAIL:
+            return <span>
+                <Circle className="status_submit_failed" />&nbsp;
+                失败
+            </span>
         default:
             return <span>
                 <Circle className="status_submit_failed" />&nbsp;
