@@ -56,7 +56,7 @@ public class FlinkYarnSessionStarter {
         initZk();
 
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
-        String clusterId = flinkConfig.getCluster() + "_" + flinkConfig.getQueue();
+        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
 
         this.configuration = configuration;
