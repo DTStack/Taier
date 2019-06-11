@@ -1,6 +1,8 @@
 import React from 'react';
 import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
 import Api from '../../api/console';
+import { connect } from 'react-redux';
+import { getTenantList } from '../../actions/console'
 import { ENGINE_TYPE, ENGINE_TYPE_NAME } from '../../consts';
 import BindCommModal from '../../components/bindCommModal';
 const FormItem = Form.Item;
@@ -8,6 +10,21 @@ const Option = Select.Option;
 const TabPane = Tabs.TabPane;
 const Search = Input.Search;
 const PAGESIZE = 20;
+
+function mapStateToProps (state) {
+    return {
+        consoleUser: state.consoleUser
+    }
+}
+function mapDispatchToProps (dispatch) {
+    return {
+        getTenantList () {
+            dispatch(getTenantList())
+        }
+    }
+}
+@connect(mapStateToProps, mapDispatchToProps)
+
 class ResourceManage extends React.Component {
     state = {
         tableData: [],
@@ -32,6 +49,7 @@ class ResourceManage extends React.Component {
         editModalKey: ''
     }
     componentDidMount () {
+        this.props.getTenantList(); // 租户列表
         this.initList()
     }
     searchTenant = () => {
@@ -90,6 +108,7 @@ class ResourceManage extends React.Component {
             const initEngine = engineList[0] || [];
             this.setState({
                 clusterList: data,
+                queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId }),
                 engineList,
                 loading: true
             })
@@ -220,8 +239,9 @@ class ResourceManage extends React.Component {
     render () {
         const hadoopColumns = this.initHadoopColumns();
         const libraColumns = this.initLibraColumns()
-        const { tableData, queryParams, total, loading, engineList,
+        const { tableData, queryParams, total, loading, engineList, clusterList,
             tenantModal, queueModal, modalKey, editModalKey } = this.state;
+        const { tenantList } = this.props.consoleUser;
         const pagination = {
             current: queryParams.currentPage,
             pageSize: PAGESIZE,
@@ -239,6 +259,7 @@ class ResourceManage extends React.Component {
                                     className='cluster-select'
                                     style={{ width: '180' }}
                                     placeholder='请选择集群'
+                                    value={`${queryParams.clusterId}`}
                                     onChange={this.handleChangeCluster}
                                 >
                                     {this.clusterOptions()}
@@ -307,6 +328,8 @@ class ResourceManage extends React.Component {
                     key={editModalKey}
                     title='绑定新租户'
                     visible={tenantModal}
+                    tenantList={tenantList}
+                    clusterList={clusterList}
                     isBindTenant={true}
                     onCancel={() => { this.setState({ tenantModal: false }) }}
                     onOk={this.bindTenant.bind(this)}
@@ -316,12 +339,15 @@ class ResourceManage extends React.Component {
                     title='切换队列'
                     visible={queueModal}
                     isBindTenant={false}
+                    tenantList={tenantList}
+                    clusterList={clusterList}
                     tenantInfo={this.state.tenantInfo}
-                    clusterId={this.state.queryParams.clusterId}
+                    clusterId={queryParams.clusterId}
                     disabled={true}
                     onCancel={() => {
                         this.setState({
-                            queueModal: false
+                            queueModal: false,
+                            tenantInfo: ''
                         })
                     }}
                     onOk={this.switchQueue.bind(this)}

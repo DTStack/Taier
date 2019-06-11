@@ -1,9 +1,6 @@
 import React from 'react';
 import utils from 'utils';
 import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Radio, Tabs, Modal } from 'antd';
-import { connect } from 'react-redux'
-
-import { getTenantList } from '../../../actions/console'
 import Api from '../../../api/console'
 import { getComponentConfKey, validateCompParams, myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, DTYARNSHELL_KEY_MAP,
@@ -27,24 +24,9 @@ const TEST_STATUS = {
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
-function mapStateToProps (state) {
-    return {
-        consoleUser: state.consoleUser
-    }
-}
-function mapDispatchToProps (dispatch) {
-    return {
-        getTenantList () {
-            dispatch(getTenantList())
-        }
-    }
-}
-@connect(mapStateToProps, mapDispatchToProps)
 class EditCluster extends React.Component {
     state = {
         engineList: [],
-        // hadoopConf: {},
-        // libraConf: {},
         hadoopComponentData: [],
         libraComponentData: [],
         selectUserMap: {},
@@ -53,8 +35,6 @@ class EditCluster extends React.Component {
         zipConfig: '', // 解析的配置文件信息
         securityStatus: false, // 根据配置文件是否显示spark， flink等其他参数
         uploadLoading: false, // 上传loading
-        // testLoading: false,
-        // testStatus: TEST_STATUS.NOTHING,
         testResults: [], // 测试连通性返回数据
         flink_params: [],
         spark_params: [],
@@ -69,7 +49,7 @@ class EditCluster extends React.Component {
         fileHaveChange: false,
         checked: false,
         allComponentConf: {},
-        engineId: 1,
+        defaultEngineType: ENGINE_TYPE.HADOOP, // 默认hadoop engineType
         // 以下字段为填补关闭复选框数据无法获取输入数据情况
         gatewayHostValue: undefined,
         gatewayPortValue: undefined,
@@ -108,19 +88,7 @@ class EditCluster extends React.Component {
 
     componentDidMount () {
         this.getDataList();
-        // this.props.getTenantList();
-        // this.refreshSaveEngine();
     }
-    // 新增入口刷新无数据
-    // refreshSaveEngine () {
-    //     const { mode } = this.props.location.state;
-    //     if (mode === 'new') {
-    //         this.props.updateEngineList(enginelist)
-    //     }
-    // }
-    // shouldComponentUpdate () {
-    //     return this.props.router.location.action === 'POP'
-    // }
     getEngineData = (data) => {
         let engineConf = {
             hadoopConf: {},
@@ -145,7 +113,7 @@ class EditCluster extends React.Component {
             dtyarnshellConf: {},
             hadoopConf: {},
             yarnConf: {},
-            hiveConf: {}, // 对应hiveConf
+            hiveConf: {}, // 对应sparkThrift
             carbonConf: {},
             libraConf: {}
         };
@@ -210,81 +178,73 @@ class EditCluster extends React.Component {
         return componentConf
     }
     // 填充表单数据
-    // 新增入口刷调用？
     getDataList () {
         const { location, form } = this.props;
         const params = location.state || {};
-        if (params.mode == 'edit' || params.mode == 'view' || params.mode == 'new') {
-            Api.getClusterInfo({
-                clusterId: params.cluster.id || params.cluster.clusterId
-            })
-                .then(
-                    (res) => {
-                        if (res.code == 1) {
-                            const data = res.data;
-                            const enginesData = data.engines || [];
-                            const engineConf = this.getEngineData(enginesData);
-                            const hadoopConf = engineConf.hadoopConf || {}; // hadoop engine 总数据
-                            const libraConf = engineConf.libraConf || {}; // libra engine 总数据
-                            const resource = hadoopConf.resource || {};
-                            const hadoopComponentData = hadoopConf.components || []; // 组件信息
-                            const libraComponentData = libraConf.components || [];
-                            let componentConf = this.exChangeComponentConf(hadoopComponentData, libraComponentData);
-                            const flinkData = componentConf.flinkConf;
-                            const extParams = this.exchangeServerParams(componentConf)
-                            const flinkConf = componentConf.flinkConf;
-                            myUpperCase(flinkConf);
+        Api.getClusterInfo({
+            clusterId: params.cluster.id || params.cluster.clusterId
+        })
+            .then(
+                (res) => {
+                    if (res.code == 1) {
+                        const data = res.data;
+                        const enginesData = data.engines || [];
+                        const engineConf = this.getEngineData(enginesData);
+                        const hadoopConf = engineConf.hadoopConf || {}; // hadoop engine 总数据
+                        const libraConf = engineConf.libraConf || {}; // libra engine 总数据
+                        const resource = hadoopConf.resource || {};
+                        const hadoopComponentData = hadoopConf.components || []; // 组件信息
+                        const libraComponentData = libraConf.components || [];
+                        let componentConf = this.exChangeComponentConf(hadoopComponentData, libraComponentData);
+                        const flinkData = componentConf.flinkConf;
+                        const extParams = this.exchangeServerParams(componentConf)
+                        const flinkConf = componentConf.flinkConf;
+                        myUpperCase(flinkConf);
+                        this.setState({
+                            allComponentConf: componentConf,
+                            engineList: enginesData,
+                            hadoopComponentData,
+                            libraComponentData,
+                            defaultEngineType: enginesData[0].engineType,
+                            securityStatus: hadoopConf.security,
+                            core: resource.totalCore,
+                            memory: resource.totalMemory,
+                            nodeNumber: resource.totalNode,
+                            zipConfig: JSON.stringify({
+                                yarnConf: componentConf.yarnConf,
+                                hadoopConf: componentConf.hadoopConf,
+                                hiveMeta: componentConf.hiveMeta // (暂无用数据)
+                            }),
+                            flink_params: extParams.flinkKeys,
+                            spark_params: extParams.sparkKeys,
+                            sparkThrif_params: extParams.sparkThriftKeys,
+                            learning_params: extParams.learningKeys,
+                            dtyarnshell_params: extParams.dtyarnshellKeys,
+                            libraSql_params: extParams.libraSqlKeys,
+                            extDefaultValue: extParams.default,
+                            flinkPrometheus: componentConf.flinkConf,
+                            flinkData: flinkData
+                        })
+                        // 判断是有Prometheus参数
+                        if (flinkData && flinkData.hasOwnProperty('gatewayHost')) {
                             this.setState({
-                                // checked: true,
-                                allComponentConf: componentConf,
-                                engineList: enginesData,
-                                // hadoopConf,
-                                // libraConf,
-                                hadoopComponentData,
-                                libraComponentData,
-                                securityStatus: hadoopConf.security,
-                                core: resource.totalCore,
-                                memory: resource.totalMemory,
-                                nodeNumber: resource.totalNode,
-                                zipConfig: JSON.stringify({
-                                    yarnConf: componentConf.yarnConf,
-                                    hadoopConf: componentConf.hadoopConf,
-                                    hiveMeta: componentConf.hiveMeta // (暂无用数据)
-                                }),
-                                flink_params: extParams.flinkKeys,
-                                spark_params: extParams.sparkKeys,
-                                sparkThrif_params: extParams.sparkThriftKeys,
-                                learning_params: extParams.learningKeys,
-                                dtyarnshell_params: extParams.dtyarnshellKeys,
-                                libraSql_params: extParams.libraSqlKeys,
-                                extDefaultValue: extParams.default,
-                                flinkPrometheus: componentConf.flinkConf,
-                                flinkData: flinkData
+                                checked: true
                             })
-                            // 判断是有Prometheus参数
-                            if (flinkData && flinkData.hasOwnProperty('gatewayHost')) {
-                                this.setState({
-                                    checked: true
-                                })
-                            }
-                            form.setFieldsValue({
-                                clusterName: data.clusterName,
-                                hiveConf: componentConf.hiveConf,
-                                carbonConf: componentConf.carbonConf,
-                                sparkConf: toChsKeys(componentConf.sparkConf || {}, SPARK_KEY_MAP),
-                                flinkConf: componentConf.flinkConf,
-                                learningConf: myUpperCase(componentConf.learningConf),
-                                dtyarnshellConf: toChsKeys(componentConf.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP),
-                                libraConf: componentConf.libraConf
-                            })
-                        } else {
-                            // this.props.updateEngineList([])
                         }
+                        form.setFieldsValue({
+                            clusterName: data.clusterName,
+                            hiveConf: componentConf.hiveConf,
+                            carbonConf: componentConf.carbonConf,
+                            sparkConf: toChsKeys(componentConf.sparkConf || {}, SPARK_KEY_MAP),
+                            flinkConf: componentConf.flinkConf,
+                            learningConf: myUpperCase(componentConf.learningConf),
+                            dtyarnshellConf: toChsKeys(componentConf.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP),
+                            libraConf: componentConf.libraConf
+                        })
+                    } else {
                     }
-                )
-        } else {
-            // 新增集群填充集群名称、节点数、资源数
-        }
+                }
+            )
     }
 
     /**
@@ -373,8 +333,6 @@ class EditCluster extends React.Component {
                     }
                 }
             )
-
-        // this.props.handleFileChange(file);
     }
     onChangeRadio = (e) => {
         const checkValue = e.target.value; // true则默认配置不上传文件
@@ -399,8 +357,8 @@ class EditCluster extends React.Component {
      * 校验组件必填项未填标识 *
      */
     validateAllRequired = () => {
-        const { hadoopComponentData, libraComponentData } = this.state;
-        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
+        const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
+        const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         let obj = {}
         tabCompData && tabCompData.map(item => {
             this.props.form.validateFields(validateCompParams(item.componentTypeCode), {}, (err, values) => {
@@ -802,6 +760,9 @@ class EditCluster extends React.Component {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
+    /**
+     * engineType  分引擎显示
+     */
     showTestResult = (testResults, engineType) => {
         let testStatus = {}
         const isHadoop = engineType == ENGINE_TYPE.HADOOP;
@@ -868,9 +829,6 @@ class EditCluster extends React.Component {
         })
         return testStatus
     }
-    /**
-     * 保存组件
-     */
     saveComponent (component) {
         const { getFieldsValue } = this.props.form;
         const componentConf = this.getComponentConf(getFieldsValue());
@@ -880,9 +838,6 @@ class EditCluster extends React.Component {
         }).then(res => {
             if (res.code === 1) {
                 this.renderTestIcon()
-                // this.setState({
-                //     ...this.showTestResult(res.data.testResults)
-                // })
                 message.success(`${component.componentName}保存成功`)
             }
         })
@@ -951,10 +906,9 @@ class EditCluster extends React.Component {
                                     core: description ? description.totalCores : 0,
                                     memory: description ? description.totalMemory : 0,
                                     testResults: testResults,
-                                    ...this.showTestResult(testResults, this.state.engineId),
+                                    ...this.showTestResult(testResults, this.state.defaultEngineType),
                                     allTestLoading: false
                                 })
-                                // message.success('连通成功')
                             } else {
                                 this.setState({
                                     allTestLoading: false
@@ -1051,13 +1005,10 @@ class EditCluster extends React.Component {
     }
 
     deleteComponent (component) {
-        // const { consoleUser } = this.props;
         Api.deleteComponent({
             componentId: component.componentId
         }).then(res => {
             if (res.code === 1) {
-                // const newComponentList = hadoopComponentData.filter(currentComp => { return currentComp.componentTypeCode != component.componentId })
-                // this.props.updateHadoopComponentList(newComponentList) // 更新 Hadoop Component
                 this.getDataList()
                 message.success(`${component.componentName}删除组件成功！`)
             }
@@ -1065,7 +1016,7 @@ class EditCluster extends React.Component {
     }
     onTabChange = (key) => {
         this.setState({
-            engineId: key
+            defaultEngineType: key
         })
     }
     /**
@@ -1074,8 +1025,8 @@ class EditCluster extends React.Component {
      * @param componentValue 组件
      */
     renderExtFooter = (isView, component) => {
-        const { engineId } = this.state;
-        const isHadoop = engineId == ENGINE_TYPE.HADOOP;
+        const { defaultEngineType } = this.state;
+        const isHadoop = defaultEngineType == ENGINE_TYPE.HADOOP;
         return (
             <React.Fragment>
                 {isView ? null : (
@@ -1268,7 +1219,6 @@ class EditCluster extends React.Component {
             });
         }
     }
-
     changeCheckbox (e) {
         this.setState({
             checked: e.target.checked
@@ -1323,7 +1273,7 @@ class EditCluster extends React.Component {
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
         return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20 20 10 20' }} noHovering>
-            <div style={{ marginTop: '20px', borderBottom: '1px solid #DDDDDD' }}>
+            <div style={{ marginTop: '20px', borderBottom: '1px dashed #DDDDDD' }}>
                 <Row>
                     <Col span={14} pull={2}>
                         <FormItem
@@ -1351,10 +1301,9 @@ class EditCluster extends React.Component {
                 isView ? null : (
                     <div>
                         <div className='config-title'>配置方式</div>
-                        <Row>
-                            <Col span={14} pull={2}>
+                        <Row style={{ marginLeft: '20' }}>
+                            <Col span={16}>
                                 <FormItem
-                                    label="配置方式"
                                     {...formItemLayout}
                                 >
                                     {getFieldDecorator('useDefaultConfig', {
@@ -1375,50 +1324,54 @@ class EditCluster extends React.Component {
                         {/* 上传配置文件 */}
                         {
                             getFieldValue('useDefaultConfig') ? null : (
-                                <div>
-                                    <div className="upload-config" style={{ width: '750px' }}>
+                                <React.Fragment>
+                                    <div className="upload-file">
+                                        <div className='upload-title'>上传配置文件</div>
                                         <p style={{ marginBottom: '24px' }}>您需要获取Hadoop、Spark、Flink集群的配置文件，至少包括：<strong>core-site.xml、hdfs-site.xml、hive-site.xml、yarn-site.xml</strong>文件</p>
-
-                                        <FormItem
-                                            label="配置文件"
-                                            {...formItemLayout}
-                                        >
-                                            {getFieldDecorator('file', {
-                                                rules: [{
-                                                    required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
-                                                }, {
-                                                    validator: this.validateFileType
-                                                }]
-                                            })(
-                                                <div>
-                                                    {
-                                                        uploadLoading
-                                                            ? <label
-                                                                style={{ lineHeight: '28px' }}
-                                                                className="ant-btn disble"
-                                                            >选择文件</label>
-                                                            : <label
-                                                                style={{ lineHeight: '28px' }}
-                                                                className="ant-btn"
-                                                                htmlFor="myOfflinFile">选择文件</label>
-                                                    }
-                                                    {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
-                                                    <span> {file.files && file.files[0].name}</span>
-                                                    <input
-                                                        name="file"
-                                                        type="file"
-                                                        id="myOfflinFile"
-                                                        onChange={this.fileChange.bind(this)}
-                                                        accept=".zip"
-                                                        style={{ display: 'none' }}
-                                                    />
-                                                    <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
-                                                </div>
-                                            )}
-                                        </FormItem>
-                                        如何获取这些配置文件？请您参考<a>《帮助文档》</a>
+                                        <Row style={{ marginLeft: '8px' }}>
+                                            <Col span={14} pull={2}>
+                                                <FormItem
+                                                    label="配置文件"
+                                                    {...formItemLayout}
+                                                >
+                                                    {getFieldDecorator('file', {
+                                                        rules: [{
+                                                            required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
+                                                        }, {
+                                                            validator: this.validateFileType
+                                                        }]
+                                                    })(
+                                                        <div>
+                                                            {
+                                                                uploadLoading
+                                                                    ? <label
+                                                                        style={{ lineHeight: '28px' }}
+                                                                        className="ant-btn disble"
+                                                                    >选择文件</label>
+                                                                    : <label
+                                                                        style={{ lineHeight: '28px' }}
+                                                                        className="ant-btn"
+                                                                        htmlFor="myOfflinFile">选择文件</label>
+                                                            }
+                                                            {uploadLoading ? <Icon className="blue-loading" type="loading" /> : null}
+                                                            <span> {file.files && file.files[0].name}</span>
+                                                            <input
+                                                                name="file"
+                                                                type="file"
+                                                                id="myOfflinFile"
+                                                                onChange={this.fileChange.bind(this)}
+                                                                accept=".zip"
+                                                                style={{ display: 'none' }}
+                                                            />
+                                                            <span style={{ marginLeft: '10px' }}>支持扩展名：.zip</span>
+                                                        </div>
+                                                    )}
+                                                </FormItem>
+                                            </Col>
+                                        </Row>
+                                        <div className='upload-help'>如何获取这些配置文件？请您参考<a>《帮助文档》</a></div>
                                     </div>
-                                </div>
+                                </React.Fragment>
                             )
                         }
                     </div>
@@ -1580,11 +1533,10 @@ class EditCluster extends React.Component {
         }
     }
     render () {
-        const { allTestLoading, hadoopComponentData, libraComponentData, engineList } = this.state;
+        const { allTestLoading, hadoopComponentData, libraComponentData, engineList, defaultEngineType } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
-        // const { engineList } = this.props.consoleUser;
-        const tabCompData = this.state.engineId == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
+        const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         return (
             <div className='console-wrapper'>
                 <div>
@@ -1607,7 +1559,7 @@ class EditCluster extends React.Component {
                                         {this.displayResource(item.engineType)}
                                         {
                                             isView ? null : (
-                                                <div style={{ margin: '0 20 0 20', textAlign: 'right' }}>
+                                                <div style={{ margin: '5 20 0 20', textAlign: 'right' }}>
                                                     <Button onClick={() => {
                                                         this.setState({
                                                             modalKey: Math.random(),
@@ -1634,7 +1586,6 @@ class EditCluster extends React.Component {
                                                 // defaultActiveKey={tabCompData && `${tabCompData[0].componentTypeCode}`}
                                                 tabPosition='left'
                                             >
-                                                {/* 循环组件tabPane */}
                                                 {
                                                     tabCompData && tabCompData.map((item, index) => {
                                                         return (

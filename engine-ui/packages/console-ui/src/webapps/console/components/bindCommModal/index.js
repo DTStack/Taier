@@ -1,64 +1,27 @@
 import React from 'react';
 import { Modal, Form, Select, Icon } from 'antd';
 import { formItemLayout, ENGINE_TYPE } from '../../consts'
-import { getTenantList } from '../../actions/console'
-import Api from '../../api/console';
-import { connect } from 'react-redux';
 const Option = Select.Option;
 
-function mapStateToProps (state) {
-    return {
-        consoleUser: state.consoleUser
-    }
-}
-function mapDispatchToProps (dispatch) {
-    return {
-        getTenantList () {
-            dispatch(getTenantList())
+class BindCommModal extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            queueList: [],
+            hasHadoop: false,
+            hasLibra: false,
+            clusterId: props.clusterId
         }
     }
-}
-@connect(mapStateToProps, mapDispatchToProps)
-class BindCommModal extends React.Component {
-    state = {
-        clusterList: [], // 含engine、队列信息
-        queueList: [],
-        hasHadoop: false,
-        hasLibra: false
-    }
-    // componentDidMount () {
-    //     this.props.getTenantList(); // 租户列表
-    //     this.getAllClusterLists();
-    // }
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
-        // if (this.props.visible && nextProps.clusterId && !nextProps.isBindTenant) {
-        //     this.getAllClusterLists();
-        //     this.handleChangeCluster(nextProps.clusterId)
-        // }
-        // if (this.props.visible && nextProps.isBindTenant) {
-        //     this.props.getTenantList(); // 租户列表
-        //     this.getAllClusterLists();
-        // }
-    }
-    setInitialVal = () => { // 切换队列默认值
-        const { setFieldsValue } = this.props.form;
-        const { tenantInfo } = this.props;
-        setFieldsValue({
-            tenantId: `${tenantInfo.tenantId}`
-        })
-    }
-    getAllClusterLists = async () => {
-        const res = await Api.getAllCluster();
-        if (res.code === 1) {
-            this.setState({
-                clusterList: res.data || []
-            })
+    componentDidMount () {
+        const { clusterId } = this.state;
+        if (clusterId) { // 新增租户初始化
+            this.handleChangeCluster(clusterId)
         }
     }
     // 切换集群
     handleChangeCluster = (value) => {
-        const { clusterList } = this.state;
+        const { clusterList } = this.props;
         let currentCluster;
         currentCluster = clusterList.filter(clusItem => clusItem.clusterId == value); // 选中当前集群
         const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
@@ -92,9 +55,8 @@ class BindCommModal extends React.Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { visible, onOk, onCancel, title, isBindTenant,
-            disabled, consoleUser } = this.props;
-        const { tenantList } = consoleUser
-        const { hasHadoop, hasLibra, clusterList, queueList } = this.state;
+            disabled, tenantList, clusterList, tenantInfo, clusterId } = this.props;
+        const { hasHadoop, hasLibra, queueList } = this.state;
         return (
             <Modal
                 title={title}
@@ -119,7 +81,8 @@ class BindCommModal extends React.Component {
                                 rules: [{
                                     required: true,
                                     message: '租户不可为空！'
-                                }]
+                                }],
+                                initialValue: tenantInfo && `${tenantInfo.tenantId}`
                             })(
                                 <Select
                                     allowClear
@@ -143,7 +106,8 @@ class BindCommModal extends React.Component {
                                 rules: [{
                                     required: true,
                                     message: '集群不可为空！'
-                                }]
+                                }],
+                                initialValue: clusterId && `${clusterId}`
                             })(
                                 <Select
                                     allowClear

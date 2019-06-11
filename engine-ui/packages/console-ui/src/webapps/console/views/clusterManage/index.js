@@ -61,26 +61,27 @@ class ClusterManage extends React.Component {
         return [
             {
                 title: '集群名称',
-                dataIndex: 'clusterName'
+                dataIndex: 'clusterName',
+                width: '400px'
             },
-            {
-                title: '节点数量',
-                dataIndex: 'totalNode'
-            },
-            {
-                title: '总资源数',
-                dataIndex: 'totalCore',
-                width: '200px',
-                render (text, record) {
-                    const memory = record.totalMemory / 1024;
-                    const haveDot = Math.floor(memory) != memory
-                    return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
-                }
-            },
+            // {
+            //     title: '节点数量',
+            //     dataIndex: 'totalNode'
+            // },
+            // {
+            //     title: '总资源数',
+            //     dataIndex: 'totalCore',
+            //     width: '200px',
+            //     render (text, record) {
+            //         const memory = record.totalMemory / 1024;
+            //         const haveDot = Math.floor(memory) != memory
+            //         return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
+            //     }
+            // },
             {
                 title: '修改时间',
                 dataIndex: 'gmtModified',
-                width: '200px',
+                width: '300px',
                 render (text) {
                     return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
@@ -88,6 +89,7 @@ class ClusterManage extends React.Component {
             {
                 title: '操作',
                 dataIndex: 'deal',
+                width: '400px',
                 render: (text, record) => {
                     return (
                         <div>

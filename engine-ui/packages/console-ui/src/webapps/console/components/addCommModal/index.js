@@ -1,29 +1,12 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { Modal, Form, Input, Checkbox, message } from 'antd';
 import EngineSelect from '../../../../webapps/rdos/components/engineSelect';
 import { formItemLayout, ENGINE_TYPE, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
     COMPONENT_TYPE_VALUE, hadoopEngineOptionsValue, noDisablehadoopEngineOptionsValue } from '../../consts';
-import { updateEngineList } from '../../actions/console';
-// import Api from '../../api/console';
-
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
 const defaultCheckedValue = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN]; // 必选引擎值
 const defaultEngine = ENGINE_TYPE_NAME.HADOOP // hadoop
-function mapStateToProps (state) {
-    return {
-        consoleUser: state.consoleUser
-    }
-}
-function mapDispatchToProps (dispatch) {
-    return {
-        updateEngineList (params) {
-            dispatch(updateEngineList(params))
-        }
-    }
-}
-@connect(mapStateToProps, mapDispatchToProps)
 class AddCommModal extends Component {
     constructor (props) {
         super(props);
