@@ -31,7 +31,7 @@ import java.net.MalformedURLException;
  */
 public class FlinkYarnSessionStarter {
 
-    private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlinkYarnSessionStarter.class);
 
     public static final String FLINK_CONF_FILENAME = "flink-conf.yaml";
     private static final String SPLIT = "_";
@@ -56,7 +56,7 @@ public class FlinkYarnSessionStarter {
         initZk();
 
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
-        String clusterId = flinkConfig.getCluster() + "_" + flinkConfig.getQueue();
+        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
         configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
 
         this.configuration = configuration;
@@ -88,7 +88,6 @@ public class FlinkYarnSessionStarter {
 
             try {
                 clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
-                clusterClient.setDetached(true);
             } catch (FlinkException e) {
                 logger.info("Couldn't deploy Yarn session cluster, {}", e);
                 throw e;

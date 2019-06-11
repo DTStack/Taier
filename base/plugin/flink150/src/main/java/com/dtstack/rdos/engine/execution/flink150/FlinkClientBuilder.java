@@ -229,15 +229,17 @@ public class FlinkClientBuilder {
     @Deprecated
     public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration, FlinkConfig flinkConfig) {
 
-        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig);
+        Configuration newConf = new Configuration(configuration);
+
+        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig, newConf);
 
         ClusterClient<ApplicationId> clusterClient = null;
 
-        if(!configuration.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
-            configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
+        if(!newConf.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
+            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
         }
 
-        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(configuration, yarnConf, ".", false);
+        AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", false);
 
         try {
             clusterClient = clusterDescriptor.retrieve(applicationId);
@@ -329,7 +331,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig) {
+    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
@@ -340,6 +342,8 @@ public class FlinkClientBuilder {
             int maxMemory = -1;
             int maxCores = -1;
             ApplicationId applicationId = null;
+
+
             for (ApplicationReport report : reportList) {
                 if (!report.getName().startsWith(flinkConfig.getFlinkSessionName())) {
                     continue;
@@ -359,6 +363,9 @@ public class FlinkClientBuilder {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
+                    if (!report.getName().endsWith(flinkConfig.getCluster() + "_" + flinkConfig.getQueue())){
+                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+                    }
                 }
 
             }
