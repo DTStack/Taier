@@ -441,7 +441,6 @@ class EditorContainer extends Component {
     renderExtraPane = () => {
         const { editor, currentTabData, updateSyntaxPane } = this.props;
         const { columns, partition, extraPaneLoading } = this.state;
-
         if (isTableTipPane(editor)) {
             return <TableTipPane
                 data={columns}
@@ -463,7 +462,7 @@ class EditorContainer extends Component {
     renderRightButton = () => {
         const {
             hideRightPane, editor,
-            showRightTablePane, showRightSyntaxPane
+            showRightTablePane, showRightSyntaxPane, notShowSyntax
         } = this.props;
         const { options } = editor;
         return (
@@ -476,6 +475,7 @@ class EditorContainer extends Component {
                 />
                 <RightSyntaxButton
                     theme={options.theme}
+                    notShowSyntax={notShowSyntax}
                     showRightSyntaxPane={showRightSyntaxPane}
                     hideRightPane={hideRightPane}
                     showSyntaxPane={isSQLSyntaxTipPane(editor)}

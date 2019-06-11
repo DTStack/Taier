@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Form, Select, Input, Row, Switch, Checkbox, Alert } from 'antd';
+import { Form, Input, Row, Switch, Checkbox, Alert } from 'antd';
 
 import EngineConfigItem from '../../components/engineForm/configItem';
 import {
@@ -8,7 +8,6 @@ import {
 } from '../../comm/const';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 const TextArea = Input.TextArea;
 
 export const metaFormLayout = {
@@ -23,14 +22,9 @@ export const metaFormLayout = {
 }
 
 class WorkspaceForm extends React.Component {
-    getProjectOptions () {
-        const { projectList = [] } = this.props;
-        return projectList.map((project) => {
-            return <Option key={project}>{project}</Option>
-        });
-    }
     render () {
         const { getFieldDecorator } = this.props.form;
+        const { projectList = {}, hasHadoop, hasLibra } = this.props;
         return (
             <Form>
                 <FormItem
@@ -40,15 +34,16 @@ class WorkspaceForm extends React.Component {
                     {getFieldDecorator('projectName', {
                         rules: [{
                             required: true,
-                            message: '请选择工作空间标识'
+                            message: '请输入工作空间标识'
+                        }, {
+                            pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
+                            message: '工作空间标识只能由字母、数字、下划线组成，且长度不超过64个字符!'
                         }]
                     })(
-                        <Select
+                        <Input
                             style={{ width: '340px' }}
-                            placeholder="请选择工作空间标识"
-                        >
-                            {this.getProjectOptions()}
-                        </Select>
+                            placeholder='英文字母开头，由英文字母、数字、下划线组成'
+                        />
                     )}
                 </FormItem>
                 <FormItem
@@ -127,54 +122,72 @@ class WorkspaceForm extends React.Component {
                     </FormItem>
                 </Row>
                 <Row>
-                    <span className="c-createWorkspace__h1">
-                        计算引擎配置
-                    </span>
-                    <FormItem
-                        style={{ marginBottom: 0 }}
-                    >
-                        {getFieldDecorator('enableSpark', {
-                            rules: []
-                        })(
-                            <Checkbox defaultChecked>Hadoop</Checkbox>
-                        )}
-                    </FormItem>
-                    <Alert
-                        className='l-createWorkspace__wanring'
-                        message={<div>
-                            <p>系统需对接到Spark Thrift Server上，并使用Hive Metastore存储元数据，默认由Spark作为计算引擎，同时支持Python、Shell等类型。</p>
-                            <p>创建：建立一个新的Spark Thrift Server</p>
-                            <p>对接已有Database / Schema，可将已有表导入本平台进行管理，原系统内的数据本身不会移动或改变，在导入进行过程中，请勿执行表结构变更操作。</p>
-                        </div>}
-                        type="warning"
-                        showIcon
-                        closable
-                    />
-                    <div className="bd" style={{ background: '#f5f5f5', padding: '10px' }}>
-                        <EngineConfigItem
-                            {...this.props}
-                            formParentField="spark"
-                            formItemLayout={metaFormLayout}
-                            engineType={ENGINE_SOURCE_TYPE.HADOOP}
-                        />
-                    </div>
-                    <FormItem
-                        style={{ marginBottom: 0, marginTop: 20 }}
-                    >
-                        {getFieldDecorator('enableLibrA', {
-                            rules: []
-                        })(
-                            <Checkbox defaultChecked>HUAWEI LibrA</Checkbox>
-                        )}
-                    </FormItem>
-                    <div className="bd" style={{ background: '#f5f5f5', padding: '10px' }}>
-                        <EngineConfigItem
-                            {...this.props}
-                            formParentField="libra"
-                            formItemLayout={metaFormLayout}
-                            engineType={ENGINE_SOURCE_TYPE.LIBRA}
-                        />
-                    </div>
+                    {(hasHadoop || hasLibra) ? (
+                        <span className="c-createWorkspace__h1">
+                            计算引擎配置
+                        </span>
+                    ) : null}
+                    {
+                        hasHadoop ? (
+                            <React.Fragment>
+                                <FormItem
+                                    style={{ marginBottom: 0 }}
+                                >
+                                    {getFieldDecorator('enableHadoop', {
+                                        rules: [],
+                                        initialValue: true
+                                    })(
+                                        <Checkbox defaultChecked={true}>Hadoop</Checkbox>
+                                    )}
+                                </FormItem>
+                                <Alert
+                                    className='l-createWorkspace__wanring'
+                                    message={<div>
+                                        <p>系统需对接到Spark Thrift Server上，并使用Hive Metastore存储元数据，默认由Spark作为计算引擎，同时支持Python、Shell等类型。</p>
+                                        <p>创建：建立一个新的Spark Thrift Server</p>
+                                        <p>对接已有Database / Schema，可将已有表导入本平台进行管理，原系统内的数据本身不会移动或改变，在导入进行过程中，请勿执行表结构变更操作。</p>
+                                    </div>}
+                                    type="warning"
+                                    showIcon
+                                    closable
+                                />
+                                <div className="bd" style={{ background: '#f5f5f5', padding: '10px' }}>
+                                    <EngineConfigItem
+                                        {...this.props}
+                                        formParentField="hadoop"
+                                        formItemLayout={metaFormLayout}
+                                        targetDb={projectList}
+                                        engineType={ENGINE_SOURCE_TYPE.HADOOP}
+                                    />
+                                </div>
+                            </React.Fragment>
+                        ) : null
+                    }
+                    {
+                        hasLibra ? (
+                            <React.Fragment>
+                                <FormItem
+                                    style={{ marginBottom: 0, marginTop: 20 }}
+                                >
+                                    {getFieldDecorator('enableLibrA', {
+                                        rules: [],
+                                        initialValue: true
+                                    })(
+                                        <Checkbox defaultChecked={true}>HUAWEI LibrA</Checkbox>
+                                    )}
+                                </FormItem>
+                                <div className="bd" style={{ background: '#f5f5f5', padding: '10px' }}>
+                                    <EngineConfigItem
+                                        {...this.props}
+                                        formParentField="libra"
+                                        formItemLayout={metaFormLayout}
+                                        targetDb={projectList}
+                                        engineType={ENGINE_SOURCE_TYPE.LIBRA}
+                                    />
+                                </div>
+                            </React.Fragment>
+                        ) : null
+                    }
                 </Row>
             </Form>
         )

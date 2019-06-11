@@ -5,7 +5,6 @@ export const ENGINE_SOURCE_TYPE = {
     HADOOP: 1,
     LIBRA: 2
 }
-
 // Engine source 类型选项
 export const ENGINE_SOURCE_TYPE_OPTIONS = [
     {
@@ -33,7 +32,8 @@ export const DATA_SOURCE = {
     REDIS: 12,
     MONGODB: 13,
     DB2: 19,
-    CARBONDATA: 20
+    CARBONDATA: 20,
+    LIBRASQL: 21
 }
 
 /**
@@ -60,7 +60,8 @@ export const DATA_SOURCE_TEXT = {
     12: 'Redis',
     13: 'MongoDB',
     19: 'DB2',
-    20: 'DTinsightAnalytics'
+    20: 'DTinsightAnalytics',
+    21: 'LibrA'
 }
 
 // 锁类型
@@ -113,7 +114,7 @@ export const COLLECT_TYPE = {
     FILE: 2
 }
 /**
- * 项目创建方式
+ * 项目创建方式 (引擎 创建 or 对接)
  */
 export const PROJECT_CREATE_MODEL = {
     NORMAL: 0,
@@ -188,7 +189,8 @@ export const TASK_TYPE = { // 任务类型
     DATA_COLLECTION: 11, // 实时采集
     CARBONSQL: 12, // CarbonSQL
     NOTEBOOK: 13,
-    EXPERIMENT: 14
+    EXPERIMENT: 14,
+    LIBRASQL: 15
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
@@ -483,6 +485,10 @@ export const offlineTaskTypeFilter = [
         id: 14,
         text: '算法实验',
         value: TASK_TYPE.EXPERIMENT
+    }, {
+        id: 15,
+        text: 'LibraSQL',
+        value: TASK_TYPE.LIBRASQL
     }]
 
 export const offlineTaskPeriodFilter = [{

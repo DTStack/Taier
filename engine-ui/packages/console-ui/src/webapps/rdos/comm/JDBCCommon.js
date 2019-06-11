@@ -11,5 +11,6 @@ export const jdbcUrlExample = {
     [DATA_SOURCE.POSTGRESQL]: 'jdbc:postgresql://host:port/database',
     [DATA_SOURCE.HIVE]: 'jdbc:hive2://host:port/dbName',
     [DATA_SOURCE.CARBONDATA]: 'jdbc:hive2://host:port/dbName',
+    [DATA_SOURCE.LIBRASQL]: 'jdbc:librasql://host:port/database',
     [DATA_SOURCE.DB2]: 'jdbc:db2://host:port/dbName'
 };

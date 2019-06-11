@@ -197,6 +197,15 @@ export default class MainBench extends React.Component {
                         currentTab={tabData.id}
                         currentTabData={tabData}
                     />
+                case TASK_TYPE.LIBRASQL:
+                    return <EditorContainer
+                        notShowSyntax={true} // libra不显示语法提示
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData}
+                    />
                 case TASK_TYPE.CARBONSQL:
                     return <CommonEditor
                         mode="sql"

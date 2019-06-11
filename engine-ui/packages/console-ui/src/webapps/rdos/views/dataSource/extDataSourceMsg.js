@@ -19,6 +19,10 @@ const showMapArr = {
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']
     ],
+    [DATA_SOURCE.LIBRASQL]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名']
+    ],
     [DATA_SOURCE.DB2]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']

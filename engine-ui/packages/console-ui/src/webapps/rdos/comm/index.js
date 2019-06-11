@@ -100,6 +100,9 @@ export function taskTypeIcon (type, task = {}) {
             case TASK_TYPE.EXPERIMENT: {
                 return 's-experiment';
             }
+            case TASK_TYPE.LIBRASQL: {
+                return 's-librasql';
+            }
             default:
                 return '';
         }

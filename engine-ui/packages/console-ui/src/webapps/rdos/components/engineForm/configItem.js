@@ -1,12 +1,12 @@
 import React from 'react';
 
-import { Form, Select, Radio } from 'antd';
+import { Form, Select, Radio, Input } from 'antd';
 
 import CatalogueSelect from '../../components/catalogueSelect';
 import LifeCycleSelect from '../../components/lifeCycleSelect';
 
 import {
-    ENGINE_SOURCE_TYPE
+    ENGINE_SOURCE_TYPE, PROJECT_CREATE_MODEL
 } from '../../comm/const';
 
 const FormItem = Form.Item;
@@ -14,85 +14,79 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class EngineConfigItem extends React.Component {
-    state = {
-        createType: 1
-    }
-    componentDidUpdate (prevProps, prevState, snapshot) {
-        if (prevProps.engineType !== this.props.engineType) {
-            this.setState({
-                createType: 1
-            })
-        }
-    }
-
     initialTypeRadios () {
         const { engineType } = this.props;
         switch (engineType) {
             case ENGINE_SOURCE_TYPE.HADOOP: {
                 return [
-                    <Radio value={1} key={1}>创建</Radio>,
-                    <Radio value={2} key={2}>对接已有Spark Thrift Server</Radio>
+                    <Radio value={PROJECT_CREATE_MODEL.NORMAL} key={PROJECT_CREATE_MODEL.NORMAL}>创建</Radio>,
+                    <Radio value={PROJECT_CREATE_MODEL.IMPORT} key={PROJECT_CREATE_MODEL.IMPORT}>对接已有Spark Thrift Server</Radio>
                 ]
             }
             case ENGINE_SOURCE_TYPE.LIBRA: {
                 return [
-                    <Radio value={1} key={1}>创建Schema</Radio>,
-                    <Radio value={2} key={2}>对接已有LibrA Schema</Radio>
+                    <Radio value={PROJECT_CREATE_MODEL.NORMAL} key={PROJECT_CREATE_MODEL.NORMAL}>创建Schema</Radio>,
+                    <Radio value={PROJECT_CREATE_MODEL.IMPORT} key={PROJECT_CREATE_MODEL.IMPORT}>对接已有LibrA Schema</Radio>
                 ]
             }
             default: return '对接未知类型';
         }
     }
-
-    onInitialTypeChange = (e) => {
-        this.setState({ createType: parseInt(e.target.value, 10) })
+    renderDbOptions = (dataBase) => {
+        return [].map(item => {
+            return <Option key={`${item}`} value={item}>{item}</Option>
+        })
     }
-
     render () {
         const {
             onPreviewMetaData,
-            targets,
+            targetDb,
             formParentField,
-            formItemLayout,
-            disabledTargets
+            formItemLayout
+            // disabledTargets
         } = this.props;
-        const { createType } = this.state;
-        const { getFieldDecorator } = this.props.form;
-        console.log('createType:', createType);
-        const addTargets = targets && targets.map(
-            item => (
-                <Option
-                    key={item.value}
-                    disabled={disabledTargets && disabledTargets.indexOf(item.value) > -1} // 禁用指定目标
-                    value={item.value.toString()}
-                >
-                    {item.name}
-                </Option>
-            )
-        )
-
-        const parentField = formParentField ? `${formParentField}.` : '';
-
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const hadoopDb = targetDb[ENGINE_SOURCE_TYPE.HADOOP] || [];
+        const libraDb = targetDb[ENGINE_SOURCE_TYPE.LIBRA] || [];
+        const parentField = formParentField ? `${formParentField}` : '';
+        const isHadoop = formParentField == 'hadoop';
+        const dataBase = isHadoop ? hadoopDb : libraDb
+        const engineType = isHadoop ? ENGINE_SOURCE_TYPE.HADOOP : ENGINE_SOURCE_TYPE.LIBRA;
+        const createModel = getFieldValue(`${parentField}.createModel`);
         return (
             <React.Fragment>
                 <FormItem
-                    label='初始化方式'
-                    style={{ marginBottom: createType === 1 ? 0 : 24 }}
+                    label='引擎类型'
+                    style={{ display: 'none' }}
                     {...formItemLayout}
                 >
-                    <RadioGroup
-                        value={this.state.createType}
-                        onChange={this.onInitialTypeChange}>
-                        {this.initialTypeRadios()}
-                    </RadioGroup>
+                    {getFieldDecorator(`${parentField}.engineType`, {
+                        initialValue: `${engineType}`
+                    })(
+                        <Input/>
+                    )}
+                </FormItem>
+                <FormItem
+                    label='初始化方式'
+                    style={{ marginBottom: createModel === PROJECT_CREATE_MODEL.NORMAL ? 0 : 24 }}
+                    {...formItemLayout}
+                >
+                    {getFieldDecorator(`${parentField}.createModel`, {
+                        rules: [],
+                        initialValue: PROJECT_CREATE_MODEL.NORMAL
+                    })(
+                        <RadioGroup>
+                            {this.initialTypeRadios()}
+                        </RadioGroup>
+                    )}
                 </FormItem>
                 {
-                    createType === 2 ? <React.Fragment>
+                    createModel === PROJECT_CREATE_MODEL.IMPORT ? <React.Fragment>
                         <FormItem
                             label='对接目标'
                             {...formItemLayout}
                         >
-                            {getFieldDecorator(`${parentField}.target`, {
+                            {getFieldDecorator(`${parentField}.database`, {
                                 rules: [{
                                     required: true,
                                     message: '请选择对接目标'
@@ -102,7 +96,7 @@ class EngineConfigItem extends React.Component {
                                     style={{ maxWidth: '400px' }}
                                     placeholder="请选择对接目标"
                                 >
-                                    { addTargets }
+                                    {this.renderDbOptions(dataBase)}
                                 </Select>
                             )}
                             <a onClick={onPreviewMetaData} style={{ marginLeft: 5 }}>预览元数据</a>

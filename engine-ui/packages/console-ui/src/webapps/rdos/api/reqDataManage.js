@@ -1,6 +1,14 @@
 import { RDOS_BASE_URL } from 'config/base';
 
 export default {
+    // isTableExist(); 添加参数tableType
+    // createTable(); 添加参数tableType
+    // alterTable();  添加参数tableType
+    // ddlCreateTable();添加参数tableType;  --- >todo 修改解析器
+    // isPartitionTable() 添加参数tableType;
+    // dropAndCreateTable 添加参数tableType;
+    // addTableMeta 添加参数tableType
+    //  copyTableStructure: 添加参数tableType
     CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/createTable`,
     SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/showTables`,
     GET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getTable`,
@@ -11,6 +19,10 @@ export default {
     GET_CREATE_CODE: `${RDOS_BASE_URL}/batch/batchTableInfo/createSql`,
     DROP_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/dropTable`,
     DDL_CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/ddlCreateTable`,
+    DROP_CREATE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/dropAndCreateTable`,
+    IS_PARTITION_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/isPartitionTable`,
+    ADD_TABLE_META: `${RDOS_BASE_URL}/batch/batchTableInfo/addTableMeta`,
+    COPY_TABLE_STRUCTURE: `${RDOS_BASE_URL}/batch/batchTableInfo/copyTableStructure`,
     CHECK_TABLE_EXIST: `${RDOS_BASE_URL}/batch/batchTableInfo/isTableExist`,
     GET_TABLES_BY_NAME: `${RDOS_BASE_URL}/batch/batchTableInfo/getTableList`, // 查询指定名称表信息(支持模糊查询)
     CHECK_HDFSLOC_EXIST: `${RDOS_BASE_URL}/batch/batchTableInfo/isHdfsDirExist`,

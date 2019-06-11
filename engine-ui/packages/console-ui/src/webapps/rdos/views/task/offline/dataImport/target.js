@@ -84,7 +84,7 @@ class ImportTarget extends Component {
 
     onTableEngineChange = (value) => {
         this.props.changeStatus({
-            engineType: value,
+            tableType: value,
             sqlText: null,
             sync: true
         });
@@ -161,13 +161,13 @@ class ImportTarget extends Component {
         }
     }
     createTable = () => {
-        const { sqlText, engineType } = this.props.formState;
+        const { sqlText, tableType } = this.props.formState;
 
-        if (!engineType) {
+        if (!tableType) {
             message.error('请先选择表类型！');
             return;
         }
-        API.createDdlTable({ sql: sqlText, engineType }).then((res) => {
+        API.createDdlTable({ sql: sqlText, tableType }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     visible: false,
@@ -364,7 +364,7 @@ class ImportTarget extends Component {
 
     render () {
         const { data, display, formState, tableTypes } = this.props
-        const { tableList, tableData, queryTable, asTitle, sync, sqlText, engineType } = formState
+        const { tableList, tableData, queryTable, asTitle, sync, sqlText, tableType } = formState
         const { pagination } = this.state;
 
         const columns = this.generateCols(data, tableData)
@@ -378,7 +378,7 @@ class ImportTarget extends Component {
             </Option>
         )
 
-        const DDL_TEMPLATE = isLibrAEngine(engineType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
+        const DDL_TEMPLATE = isLibrAEngine(tableType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
 
         return (
             <div style={{ display: display === 'target' ? 'block' : 'none' }}>

@@ -21,7 +21,7 @@ const defaultState = {
     splitSymbol: ',',
     charset: 'UTF-8',
     step: 'source',
-    engineType: '', // 引擎类型
+    tableType: '', // 表类型
     tableData: {}, // 表数据
     targetTable: '', // 目标表
     tableList: [], // table列表
@@ -73,8 +73,8 @@ class ImportLocalData extends Component {
         const { originPartitions, columnMap, matchType } = this.state
         const partitions = params.partitions
 
-        if (!params.engineType) {
-            message.error('请选择目标引擎！')
+        if (!params.tableType) {
+            message.error('请选择目标表！')
             return false;
         }
 
@@ -123,7 +123,7 @@ class ImportLocalData extends Component {
             file, targetTable, splitSymbol,
             charset, startLine, asTitle,
             matchType, columnMap, partitions,
-            overwriteFlag, engineType
+            overwriteFlag, tableType
         } = this.state
         return {
             tableId: targetTable.id,
@@ -135,7 +135,7 @@ class ImportLocalData extends Component {
             matchType,
             startLine,
             partitions,
-            engineType,
+            tableType,
             overwriteFlag
         }
     }

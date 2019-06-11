@@ -472,6 +472,7 @@ class TargetForm extends React.Component {
         const showCreateTable = (
             sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
             sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
+            sourceType == DATA_SOURCE.LIBRASQL ||
             sourceType == DATA_SOURCE.DB2 || sourceType == DATA_SOURCE.HIVE ||
             sourceType == DATA_SOURCE.MAXCOMPUTE
         );
@@ -483,6 +484,7 @@ class TargetForm extends React.Component {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
                     !selectHack && <FormItem

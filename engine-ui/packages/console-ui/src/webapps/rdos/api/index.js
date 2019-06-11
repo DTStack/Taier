@@ -139,8 +139,8 @@ export default {
     getRetainDBList (params) {
         return http.post(req.GET_RETAINDB_LIST, params)
     },
-    queryEngineSource (params) { // 查询引擎列表
-        return http.post(req.GET_ENGINE_LIST, params)
+    getSupportEngineType (params) { // 项目支持的引擎类型
+        return http.post(req.GET_SUPPORT_ENGINE_TYPE, params)
     },
     // ========== Role ========== //
     getRoleList (params) {

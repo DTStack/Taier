@@ -11,7 +11,7 @@ class RightButton extends React.Component {
         }
     }
     render () {
-        const { theme, showSyntaxPane } = this.props;
+        const { theme, showSyntaxPane, notShowSyntax } = this.props;
         const src = {
             open: '/public/rdos/img/tip-syntax-active.svg',
             close: '/public/rdos/img/tip-syntax.svg',
@@ -30,7 +30,7 @@ class RightButton extends React.Component {
                 <img
                     onClick={this.changeTableTipVisible.bind(this)}
                     className="pointer"
-                    style={{ marginTop: '4px', marginLeft: '5px', height: '16px' }}
+                    style={{ display: notShowSyntax ? 'none' : 'inline-block', marginTop: '4px', marginLeft: '5px', height: '16px' }}
                     src={url}
                 />
             </Tooltip>

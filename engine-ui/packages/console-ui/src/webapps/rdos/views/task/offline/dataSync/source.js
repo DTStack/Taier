@@ -831,6 +831,7 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
+            case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
                     !selectHack ? (
