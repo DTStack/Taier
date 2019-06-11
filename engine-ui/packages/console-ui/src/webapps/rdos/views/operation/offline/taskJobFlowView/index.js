@@ -196,8 +196,6 @@ class TaskJobFlowView extends Component {
             if (res.code === 1) {
                 message.success(`${msg}命令已提交!`)
                 if (reload) reload();
-            } else {
-                message.error(`${msg}提交失败！`)
             }
             this.refresh()
         })
@@ -216,7 +214,7 @@ class TaskJobFlowView extends Component {
             };
             graph.popupMenuHandler.autoExpand = true
             graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-                if (!cell) return;
+                if (!cell || !cell.vertex) return;
 
                 const currentNode = cell.data;
                 const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
@@ -390,7 +388,7 @@ class TaskJobFlowView extends Component {
 
     render () {
         const { selectedJob, taskLog, workflowData, graphData, loading } = this.state;
-        const { project, taskJob, goToTaskDev, isPro } = this.props;
+        const { taskJob, goToTaskDev, isPro } = this.props;
         return (
             <div
                 style={{
@@ -444,7 +442,7 @@ class TaskJobFlowView extends Component {
                     onCancel={() => { this.setState({ visible: false }) }}
                     footer={null}
                 >
-                    <TaskInfo task={selectedJob} project={project} />
+                    <TaskInfo task={selectedJob} />
                 </Modal>
                 <Modal
                     key={taskJob && taskJob.id}

@@ -231,9 +231,9 @@ class JobGraphView extends Component {
                 <span class="vertex-title">
                     ${task.name}
                 </span>
+                ${!isCurrentProjectTask(task) ? "<img class='vertex-across-logo' src='/public/rdos/img/across.svg' />" : ''}
                 <br>
                 <span class="vertex-desc">${taskType}</span>
-                ${!isCurrentProjectTask(task) ? "<img class='vertex-across-logo' src='/public/rdos/img/across.svg' />" : ''}
                 </div>`.replace(/(\r\n|\n)/g, '');
             }
         }

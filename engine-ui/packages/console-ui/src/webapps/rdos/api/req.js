@@ -13,6 +13,7 @@ export default {
     GET_USER_BY_ID: `${RDOS_BASE_URL}/common/user/getUserById`, // 根据用户ID获取用户
     SEARCH_UIC_USERS: `${RDOS_BASE_URL}/common/project/getUicUsersNotInProject`,
     GET_TENANT_LIST: `${RDOS_BASE_URL}/batch/tenant/getUserTenants`,
+    TRACK_USER_ACTIONS: `${RDOS_BASE_URL}/common/securityAudit/enterApp`, // 捕获用户行为
 
     // ===== 项目模块 ===== //
     CREATE_PROJECT: `${RDOS_BASE_URL}/common/project/createProject`, // 创建项目
