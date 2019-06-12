@@ -25,7 +25,11 @@ export default {
 
     // ========== User ========== //
     logout () { // 注销退出
-        UserAPI.logout();
+        http.post(req.APP_LOGOUT).then(res => {
+            if (res.code === 1) {
+                UserAPI.openLogin();
+            }
+        })
     },
 
     addRoleUser (user) {
