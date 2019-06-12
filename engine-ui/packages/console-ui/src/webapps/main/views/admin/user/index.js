@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { assign } from 'lodash';
+import { assign, get } from 'lodash';
 import { connect } from 'react-redux';
 import {
     Select, Table, Card,
@@ -232,7 +232,7 @@ class AdminUser extends Component {
                     ctx.setState({
                         dataBase: res.data,
                         selecteDatabase: res.data[0].id
-                    }, this.loadData.bind(true))
+                    }, this.loadData.bind(this, false, true))
                 }
             }
         })
@@ -248,7 +248,7 @@ class AdminUser extends Component {
                 /**
                  * 不同应用设置不同的state
                  */
-                const projectId = res.data[0].id;
+                const projectId = get(res, 'data[0].id', null);
                 if (app == MY_APPS.STREAM) {
                     cookiesProject = utils.getCookie('stream_project_id')
                     ctx.setState({
