@@ -327,7 +327,7 @@ class Header extends Component {
         const settingMenus = [{
             id: 'admin/audit',
             name: '安全审计',
-            link: `${basePath}/admin/audit`,
+            link: `/admin/audit?app=rdos`,
             enable: user.isRoot,
             enableIcon: true,
             className: 'safeaudit'
