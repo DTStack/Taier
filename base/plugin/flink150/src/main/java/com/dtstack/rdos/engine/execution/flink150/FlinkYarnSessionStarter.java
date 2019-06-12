@@ -88,6 +88,7 @@ public class FlinkYarnSessionStarter {
 
             try {
                 clusterClient = yarnSessionDescriptor.deploySessionCluster(yarnSessionSpecification);
+                clusterClient.setDetached(true);
             } catch (FlinkException e) {
                 logger.info("Couldn't deploy Yarn session cluster, {}", e);
                 throw e;
