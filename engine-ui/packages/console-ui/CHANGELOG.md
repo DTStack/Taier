@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Bug Fixes
 
+* **rdos:** change sort of method ([8ffcd29](http://git.dtstack.cn/dtstack/data-stack-web/commits/8ffcd29))
+* alter request logout from uic to rdos ([25697d9](http://git.dtstack.cn/dtstack/data-stack-web/commits/25697d9))
 * **dq,rdos:** fix bugs ([1f49ce2](http://git.dtstack.cn/dtstack/data-stack-web/commits/1f49ce2)), closes [#16359](http://redmine.prod.dtstack.cn/issues/16359) [#16351](http://redmine.prod.dtstack.cn/issues/16351)
 * delete exist tag when create new ([ce13fab](http://git.dtstack.cn/dtstack/data-stack-web/commits/ce13fab))
 * **audit:** alter the link of audit ([8e08a29](http://git.dtstack.cn/dtstack/data-stack-web/commits/8e08a29)), closes [#16502](http://redmine.prod.dtstack.cn/issues/16502)
@@ -22,7 +24,6 @@ All notable changes to this project will be documented in this file. See [standa
 * **mxgraph:** fix require bug ([41a20e5](http://git.dtstack.cn/dtstack/data-stack-web/commits/41a20e5))
 * **rdos:** add job flow style ([7f7ca7f](http://git.dtstack.cn/dtstack/data-stack-web/commits/7f7ca7f))
 * **rdos:** change opera record table key type ([2101253](http://git.dtstack.cn/dtstack/data-stack-web/commits/2101253))
-* **rdos:** change sort of method ([8ffcd29](http://git.dtstack.cn/dtstack/data-stack-web/commits/8ffcd29))
 * **rdos:** change vertex width ([0694fdd](http://git.dtstack.cn/dtstack/data-stack-web/commits/0694fdd)), closes [#16479](http://redmine.prod.dtstack.cn/issues/16479)
 * **rdos:** disable context menu of edge ([1c2bdb1](http://git.dtstack.cn/dtstack/data-stack-web/commits/1c2bdb1)), closes [#16451](http://redmine.prod.dtstack.cn/issues/16451)
 * **rdos:** fix bug ([f329294](http://git.dtstack.cn/dtstack/data-stack-web/commits/f329294))
