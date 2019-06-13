@@ -26,8 +26,8 @@ class CreateWorkSpace extends React.Component {
     }
     form = React.createRef()
     componentDidMount () {
-        this.getProjectList();
         this.getSupportEngineType()
+        this.getProjectList();
     }
     async getSupportEngineType () {
         let res = await api.getSupportEngineType();
@@ -107,7 +107,7 @@ class CreateWorkSpace extends React.Component {
         })
     }
     render () {
-        const { formData, projectList, loading } = this.state;
+        const { formData, projectList, loading, hasHadoop, hasLibra } = this.state;
         const title = (
             <div>
                 <GoBack
@@ -135,6 +135,8 @@ class CreateWorkSpace extends React.Component {
                         ref={(ref) => { this.form = ref; }}
                         projectList={projectList}
                         {...formData}
+                        hasHadoop={hasHadoop}
+                        hasLibra={hasLibra}
                         onChange={this.formChange}
                     />
                     <Row style={{ marginTop: 30, textAlign: 'right' }}>

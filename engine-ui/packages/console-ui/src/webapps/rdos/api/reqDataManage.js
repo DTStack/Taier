@@ -37,11 +37,11 @@ export default {
     GET_USERS_IN_TENANT: `${RDOS_BASE_URL}/common/user/getUsersInTenant`, // 用户列表
 
     // ========= 数据类目 =========
-    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/getHiveCatalogue`, // 获取表目录
-    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/addCatalogue`, // 增加目录
-    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/deleteCatalogue`, // 删除目录
-    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchCatalogue/updateHiveCatalogue`, // 更新目录
-    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
+    GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchDataCatalogue/getCatalogue`, // 获取表目录
+    ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchDataCatalogue/addCatalogue`, // 增加目录
+    DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchDataCatalogue/deleteCatalogue`, // 删除目录
+    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/batchDataCatalogue/updateCatalogue`, // 更新目录
+    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateCatalogue`, // 添加表到数据类目
     DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
     APPLY_TABLE: `${RDOS_BASE_URL}/batch/batchApply/apply`, // 申请资源
 

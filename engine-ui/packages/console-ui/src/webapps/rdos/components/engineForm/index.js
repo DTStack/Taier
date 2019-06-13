@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Form, Select } from 'antd';
+import { Form } from 'antd';
 import { isEmpty } from 'lodash';
 
 import EngineConfigItem from './configItem';
@@ -12,7 +12,7 @@ import {
 } from '../../comm/const';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+// const Option = Select.Option;
 
 export const customItemLayout = {
     labelCol: {
@@ -38,12 +38,12 @@ class EngineForm extends React.Component {
         return null
     }
 
-    getProjectOptions () {
-        const { projectList = [] } = this.props;
-        return projectList.map((project) => {
-            return <Option key={project}>{project}</Option>
-        });
-    }
+    // getProjectOptions () {
+    //     const { projectList = [] } = this.props;
+    //     return projectList.map((project) => {
+    //         return <Option key={project}>{project}</Option>
+    //     });
+    // }
 
     onTypeChange = (value) => {
         this.setState({ engineType: parseInt(value, 10) })
@@ -52,7 +52,7 @@ class EngineForm extends React.Component {
 
     render () {
         const {
-            disabledEngineTypes
+            disabledEngineTypes, engineList
         } = this.props;
         const { getFieldDecorator } = this.props.form;
 
@@ -72,6 +72,7 @@ class EngineForm extends React.Component {
                         <EngineSelect
                             disabledEngineTypes={disabledEngineTypes}
                             onChange={this.onTypeChange}
+                            tableTypes={engineList}
                             placeholder="请选择引擎类型"
                         />
                     )}
@@ -80,6 +81,11 @@ class EngineForm extends React.Component {
                     {...this.props}
                     formItemLayout={formItemLayout}
                     engineType={this.state.engineType}
+                    // formParentField={this.state.engineType == ENGINE_SOURCE_TYPE.HADOOP ? 'hadoop' : 'libra'}
+                    targetDb={{
+                        1: ['db1', 'db2'],
+                        2: ['libra']
+                    }}
                 />
             </Form>
         )

@@ -80,7 +80,7 @@ export default {
     SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
     GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/getIncreColumn`, // 获取增量字段
     CHECK_SYNC_MODE: `${RDOS_BASE_URL}/batch/batchDataSource/canSetIncreConf`, // 检测是否满足增量
-    CHECK_HIVE_PARTITIONS: `${RDOS_BASE_URL}/batch/batchDataSource/getHivePartitions`, // 获取hive表分区值
+    CHECK_HIVE_PARTITIONS: `${RDOS_BASE_URL}/batch/batchDataSource/getPartitions`, // 获取hive表分区值
 
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计
@@ -103,7 +103,7 @@ export default {
     GET_WORKFLOW_RELATED_TASKS: `${RDOS_BASE_URL}/batch/batchTask/dealFlowWorkTask`, // 获取工作流的子任务
     GET_WORKFLOW_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobs`, // 获取工作流实例的子任务
     GET_WORKFLOW_FILLDATA_RELATED_JOBS: `${RDOS_BASE_URL}/batch/batchJob/getRelatedJobsForFillData`, // 补数据工作流子节点
-    IS_NATIVE_HIVE: `${RDOS_BASE_URL}/batch/batchDataSource/isNativeHive`, // 校验是不是标准分区
+    IS_NATIVE_HIVE: `${RDOS_BASE_URL}/batch/batchDataSource/isNative`, // 校验是不是标准分区
 
     // 离线文件操作
     DEL_OFFLINE_TASK: `${RDOS_BASE_URL}/batch/batchTask/deleteTask`,
@@ -139,8 +139,8 @@ export default {
     GET_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/getHiveCatalogue`, // 获取表目录
     ADD_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/addCatalogue`, // 增加目录
     DEL_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/deleteCatalogue`, // 删除目录
-    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/updateHiveCatalogue`, // 更新目录
-    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateHiveCatalogue`, // 添加表到数据类目
+    UPDATE_TABLE_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveCatalogue/updateCatalogue`, // 更新目录
+    ADD_TABLE_TO_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/updateCatalogue`, // 添加表到数据类目
     DEL_TABLE_IN_CATALOGUE: `${RDOS_BASE_URL}/batch/hiveTableCatalogue/deleteTableCatalogue`, // 删除数据类目中的表
 
     SAVE_SYNC_CONFIG: `${RDOS_BASE_URL}/batch/batchDataSourceMigration/saveConfig`, // 保存整库同步配置

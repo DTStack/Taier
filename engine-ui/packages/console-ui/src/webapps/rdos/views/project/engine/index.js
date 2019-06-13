@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Tabs, Button, message } from 'antd';
+import { Tabs, Button } from 'antd';
 
-import EngineSourceForm from './form';
+// import EngineSourceForm from './form';
 import CreateEngineModal from './create';
 import Api from '../../../api';
 
@@ -9,13 +9,21 @@ const TabPane = Tabs.TabPane;
 
 class EngineConfig extends Component {
     state = {
-        data: [],
+        engineList: [{
+            name: 'hadoop',
+            value: '1'
+        }, {
+            name: 'libra',
+            value: '2'
+        }],
+        modalKey: '',
         createEngineVisible: false,
         formStatus: 'add' // 表单状态， add, edit
     }
 
     componentDidMount () {
-        this.fetchData();
+        // 先调获取支持引擎的类型以及列表然后搜索
+        // this.fetchData();
     }
 
     fetchData = () => {
@@ -31,55 +39,43 @@ class EngineConfig extends Component {
                 loading: false
             })
             if (res.code === 1) {
-                ctx.setState({ data: res.data })
+                ctx.setState({ engineList: res.data })
             }
         })
     }
 
     addOrUpdateEngineSource = (sourceFormData, formObj, callback) => {
-        const ctx = this
-        const { title, formStatus, source } = this.state
-        let reqSource = sourceFormData
-        if (formStatus === 'edit') { // 编辑数据
-            reqSource = Object.assign(source, sourceFormData)
-        }
-        Api.addOrUpdateSource(reqSource).then((res) => {
-            if (res.code === 1) {
-                formObj.resetFields()
-                message.success(`${title}成功！`)
-                ctx.setState({
-                    visible: false
-                })
-                ctx.fetchData()
-                if (callback) callback();
-            }
-        })
-    }
-
-    testConnection = (source) => { // 测试数据源连通性
-        Api.testDSConnection(source).then((res) => {
-            if (res.code === 1 && res.data) {
-                message.success('数据源连接正常！')
-            } else if (res.code === 1 && !res.data) {
-                message.error('数据源连接异常')
-            }
-        })
+        // const ctx = this
+        // const { title, formStatus, source } = this.state
+        // let reqSource = sourceFormData
+        // if (formStatus === 'edit') { // 编辑数据
+        //     reqSource = Object.assign(source, sourceFormData)
+        // }
+        // Api.addOrUpdateSource(reqSource).then((res) => {
+        //     if (res.code === 1) {
+        //         formObj.resetFields()
+        //         message.success(`${title}成功！`)
+        //         ctx.setState({
+        //             visible: false
+        //         })
+        //         ctx.fetchData()
+        //         if (callback) callback();
+        //     }
+        // })
     }
 
     onCancelCreate = () => { this.setState({ createEngineVisible: false }) }
-    onActiveCreate = () => { this.setState({ createEngineVisible: true }) }
+    onActiveCreate = () => { this.setState({ createEngineVisible: true, modalKey: Math.random() }) }
 
     renderTabPanes = () => {
-        const { data } = this.state;
-        const tabPanes = data.map(paneItem => {
+        const { engineList } = this.state;
+        const tabPanes = engineList.map(paneItem => {
             return (
-                <TabPane tab={paneItem.name} key={paneItem.id} style={{ paddingTop: 20 }}>
-                    <EngineSourceForm
-                        formMode="edit"
-                        sourceData={paneItem}
-                        testConnection={this.testConnection}
-                        handOk={this.addOrUpdateEngineSource}
-                    />
+                <TabPane tab={paneItem.name} key={paneItem.value} style={{ paddingTop: 20 }}>
+                    <section className='engine-wrapper'>
+                        <p>dbcUrl：jdbc:hive2://node005:10000/zhedates</p>
+                        <p>defaultFS：hdfs://ns1</p>
+                    </section>
                 </TabPane>
             )
         })
@@ -110,6 +106,7 @@ class EngineConfig extends Component {
                 <CreateEngineModal
                     onOk={this.addOrUpdateEngineSource}
                     onCancel={this.onCancelCreate}
+                    key={this.state.modalKey}
                     visible={this.state.createEngineVisible}
                 />
             </div>

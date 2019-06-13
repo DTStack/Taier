@@ -91,7 +91,7 @@ export default {
     GET_SYS_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/getSystemFunctions`, // 获取系统函数
     GET_TABLE_LIST_BY_NAME: `${RDOS_BASE_URL}/batch/batchCatalogue/getTableList`, // 根据表名的表查询
     GET_RECOMMEND_TASK: `${RDOS_BASE_URL}/batch/batchTask/recommendDependencyTask`, // 获取推荐的依赖任务
-    CONVERT_TO_HIVE_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/convertToHiveColumns`, // 转换成hive类型的数据类型
+    CONVERT_TO_HIVE_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/convertToColumns`, // 转换成hive类型的数据类型
 
     // ===== resource资源模块 ===== //
     UPLOAD_RES: `${RDOS_BASE_URL}/upload/stream/streamResource/addResource`, // 资源上传
