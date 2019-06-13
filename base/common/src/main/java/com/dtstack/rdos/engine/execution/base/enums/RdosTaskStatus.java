@@ -30,9 +30,15 @@ public enum RdosTaskStatus {
             DEPLOYING.getStatus(), RUNNING.getStatus(),
             SUBMITTING.getStatus(), RESTARTING.getStatus(),
             SUBMITTED.getStatus(), WAITENGINE.getStatus(),
-//            ENGINEACCEPTED.getStatus(),
-//            ENGINEDISTRIBUTE.getStatus(),
             WAITCOMPUTE.getStatus()
+    );
+
+    private final static List<Integer> STOPPED_STATUS = Lists.newArrayList(
+            RdosTaskStatus.FAILED.getStatus(),
+            RdosTaskStatus.CANCELED.getStatus(),
+            RdosTaskStatus.SUBMITFAILD.getStatus(),
+            RdosTaskStatus.KILLED.getStatus(),
+            RdosTaskStatus.FINISHED.getStatus()
     );
 
 	private static final Logger logger = LoggerFactory.getLogger(RdosTaskStatus.class);
@@ -55,7 +61,10 @@ public enum RdosTaskStatus {
         if(Strings.isNullOrEmpty(taskStatus)){
             return null;
         }else if("error".equalsIgnoreCase(taskStatus)){
-            taskStatus = "FAILED";
+            return RdosTaskStatus.FAILED;
+        } else if ("RESTARTING".equalsIgnoreCase(taskStatus)) {
+            //yarn做重试认为运行中
+            return RdosTaskStatus.RUNNING;
         }
 
 	    try {
@@ -78,9 +87,7 @@ public enum RdosTaskStatus {
     
     public static boolean needClean(Integer status){
 
-        if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.FAILED.getStatus().equals(status)
-                || RdosTaskStatus.SUBMITFAILD.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
-                || RdosTaskStatus.KILLED.getStatus().equals(status) || RdosTaskStatus.RESTARTING.getStatus().equals(status)){
+        if(STOPPED_STATUS.contains(status) || RdosTaskStatus.RESTARTING.getStatus().equals(status)){
             return true;
         }
         return false;
@@ -97,16 +104,16 @@ public enum RdosTaskStatus {
 
     public static boolean canReset(Byte currStatus){
         int sta = currStatus.intValue();
-        return RdosTaskStatus.FAILED.getStatus().equals(sta)
-                || RdosTaskStatus.CANCELED.getStatus().equals(sta)
-                || RdosTaskStatus.SUBMITFAILD.getStatus().equals(sta)
-                || RdosTaskStatus.KILLED.getStatus().equals(sta)
-                || RdosTaskStatus.FINISHED.getStatus().equals(sta);
+        return STOPPED_STATUS.contains(sta) || sta == RdosTaskStatus.UNSUBMIT.getStatus();
 
     }
 
     public static List<Integer> getCanStopStatus(){
         return canStopStatus;
     }
-    
+
+
+    public static List<Integer> getStoppedStatus() {
+        return STOPPED_STATUS;
+    }
 }
