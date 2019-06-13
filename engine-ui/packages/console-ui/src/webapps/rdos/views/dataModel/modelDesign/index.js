@@ -2,15 +2,17 @@ import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import {
-    Input, Button, Table, Form,
+    Button, Table, Form,
     Modal, message, Card, Select
 } from 'antd';
 
 import { Link } from 'react-router';
-
+import { getProjectTableTypes } from '../../../store/modules/tableType';
+import EngineSelect from '../../../components/engineSelect';
 import Editor from 'widgets/editor';
 import CopyIcon from 'main/components/copy-icon';
-import { DDL_PLACEHOLDER } from '../../../comm/DDLCommon'
+import { DDL_PLACEHOLDER, LIBRA_DDL_IDE_PLACEHOLDER } from '../../../comm/DDLCommon'
+import { isLibraTable } from '../../../comm';
 import SlidePane from 'widgets/slidePane';
 import TableLog from '../../dataManage/tableLog';
 
@@ -29,6 +31,7 @@ class TableList extends Component {
             params: {
                 pageIndex: 1,
                 tableName: '',
+                tableType: '',
                 isDeleted: 0, // 添加删除标记
                 isDirtyDataTable: 0 // 非脏数据标记
             },
@@ -44,6 +47,11 @@ class TableList extends Component {
     }
 
     componentDidMount () {
+        const { getProjectTableTypes, project } = this.state;
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         this.search();
         this.loadOptionData();
     }
@@ -130,24 +138,29 @@ class TableList extends Component {
     }
 
     handleOk () {
-        if (this._DDL) {
-            ajax.createTableByDDL({
-                sql: this._DDL
-            }).then(res => {
-                if (res.code === 1) {
-                    this._DDL = undefined;
-                    // 设置值
-                    this.DDLEditor.setValue('');
-                    this.setState({
-                        visible: false
-                    });
-                    message.success('建表成功');
-                    this.search();
+        this.props.form.validateFields((err, value) => {
+            if (!err) {
+                if (this._DDL) {
+                    ajax.createTableByDDL({
+                        sql: this._DDL,
+                        ...value
+                    }).then(res => {
+                        if (res.code === 1) {
+                            this._DDL = undefined;
+                            // 设置值
+                            this.DDLEditor.setValue('');
+                            this.setState({
+                                visible: false
+                            });
+                            message.success('建表成功');
+                            this.search();
+                        }
+                    })
+                } else {
+                    message.error('请输入建表语句!');
                 }
-            })
-        } else {
-            message.error('请输入建表语句!');
-        }
+            }
+        })
     }
 
     handleCancel () {
@@ -187,7 +200,9 @@ class TableList extends Component {
         const ROUTER_BASE = '/data-model/table';
         const { subjectFields, modelLevels, params, tableLog } = this.state
         const tableList = this.state.table;
-        const { project } = this.props;
+        const { project, projectTableTypes } = this.props;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const DDL_TEMPLATE = isLibraTable(getFieldValue('tableType')) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_PLACEHOLDER
         const { totalCount, data } = tableList;
         const projectUsers = [];
         const pagination = {
@@ -195,7 +210,6 @@ class TableList extends Component {
             defaultPageSize: 10,
             current: params.pageIndex
         };
-
         const marginTop10 = { marginTop: '8px' };
 
         const subjectFieldsOptions = subjectFields && subjectFields.map(field =>
@@ -232,6 +246,11 @@ class TableList extends Component {
                 render (text, record) {
                     return project && project.projectName;
                 }
+            },
+            {
+                title: '表类型',
+                key: 'tableType',
+                dataIndex: 'tableType'
             },
             {
                 title: '模型层级',
@@ -298,14 +317,13 @@ class TableList extends Component {
                         {modelLevelOptions}
                     </Select>
                 </FormItem>
-                <FormItem>
-                    <Input.Search
-                        placeholder="按表名搜索"
-                        style={{ width: 200 }}
-                        size="default"
-                        onChange={this.onTableNameChange}
-                        onSearch={this.search}
-                        ref={el => this.searchInput = el}
+                <FormItem label="表类型">
+                    <EngineSelect
+                        allowClear
+                        placeholder="表类型"
+                        tableTypes={projectTableTypes}
+                        style={{ width: '120px' }}
+                        onChange={(value) => this.changeParams('tableType', value)}
                     />
                 </FormItem>
             </Form>
@@ -340,22 +358,47 @@ class TableList extends Component {
                         />
                         <Modal className="m-codemodal"
                             width={750}
-                            title={(
-                                <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_PLACEHOLDER} /></span>
-                            )}
+                            title='DDL建表'
                             visible={this.state.visible}
                             onOk={this.handleOk.bind(this)}
                             onCancel={this.handleCancel.bind(this)}
                             maskClosable={false}
                         >
-                            <Editor
-                                style={{ height: '400px' }}
-                                placeholder={DDL_PLACEHOLDER}
-                                language="dtsql"
-                                options={{ readOnly: false }}
-                                onChange={this.handleDdlChange.bind(this)}
-                                value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
-                            />
+                            <React.Fragment>
+                                <div style={{ margin: '15 0 15 25' }}>
+                                    <Form className="m-form-inline" layout="inline">
+                                        <FormItem label="表类型">
+                                            {getFieldDecorator('tableType', {
+                                                rules: [{
+                                                    required: true,
+                                                    message: '请选择表类型'
+                                                }],
+                                                initialValue: projectTableTypes[0] && `${projectTableTypes[0].value}`
+                                            })(
+                                                <EngineSelect
+                                                    allowClear
+                                                    placeholder="表类型"
+                                                    tableTypes={projectTableTypes}
+                                                    style={{ width: '200px' }}
+                                                />
+                                            )}
+                                        </FormItem>
+                                        <FormItem>
+                                            <CopyIcon title="复制模版" copyText={DDL_TEMPLATE} customView={
+                                                <Button type='primary'>复制建表模板</Button>
+                                            } />
+                                        </FormItem>
+                                    </Form>
+                                </div>
+                                <Editor
+                                    style={{ height: '400px' }}
+                                    placeholder={DDL_TEMPLATE}
+                                    language="dtsql"
+                                    options={{ readOnly: false }}
+                                    onChange={this.handleDdlChange.bind(this)}
+                                    value={this._DDL} editorInstanceRef={(e) => { this.DDLEditor = e }}
+                                />
+                            </React.Fragment>
                         </Modal>
                     </div>
                 </Card>
@@ -377,6 +420,13 @@ class TableList extends Component {
 
 export default connect((state) => {
     return {
-        project: state.project
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
     }
-}, null)(TableList);
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
+        }
+    }
+})(Form.create()(TableList));

@@ -142,6 +142,12 @@ export default {
     getSupportEngineType (params) { // 项目支持的引擎类型
         return http.post(req.GET_SUPPORT_ENGINE_TYPE, params)
     },
+    getProjectTableTypes (params) { // 项目支持的表类型
+        return http.post(req.GET_SUPPORT_TABLE_TYPE, params)
+    },
+    getTenantTableTypes (params) { // 租户支持的表类型
+        return http.post(req.GET_TENANT_TABLE_TYPE, params)
+    },
     // ========== Role ========== //
     getRoleList (params) {
         return http.post(req.GET_ROLE_LIST, params)

@@ -83,6 +83,10 @@ export default class TabIcon extends Component {
                     iconName = 'experiment.svg';
                     break;
                 }
+                case TASK_TYPE.LIBRASQL: {
+                    iconName = 'librasql.svg';
+                    break;
+                }
                 default:
                     return '';
             }

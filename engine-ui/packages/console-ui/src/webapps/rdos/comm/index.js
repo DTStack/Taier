@@ -11,7 +11,8 @@ import {
     SCRIPT_TYPE,
     DATA_SOURCE,
     PROJECT_TYPE,
-    ENGINE_SOURCE_TYPE
+    ENGINE_SOURCE_TYPE,
+    TABLE_TYPE
 } from './const';
 
 // 请求防抖动
@@ -387,4 +388,10 @@ export function isSparkEngine (engineType) {
 // Judge libra engine
 export function isLibrAEngine (engineType) {
     return ENGINE_SOURCE_TYPE.LIBRA === parseInt(engineType, 10);
+}
+export function isHiveTable (tableType) {
+    return TABLE_TYPE.HIVE === parseInt(tableType, 10);
+}
+export function isLibraTable (tableType) {
+    return TABLE_TYPE.LIBRA === parseInt(tableType, 10);
 }

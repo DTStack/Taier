@@ -4,7 +4,7 @@ import {
     Select, Radio
 } from 'antd';
 import { isEmpty, cloneDeep } from 'lodash';
-
+import EngineSelect from '../../../components/engineSelect';
 import ajax from '../../../api/dataManage'
 
 import {
@@ -220,6 +220,23 @@ export default class BaseForm extends React.Component {
         const isShowDelim = storedType == 'textfile';
 
         return <Form>
+            <FormItem
+                {...formItemLayout}
+                label="表类型"
+            >
+                {getFieldDecorator('tableType', {
+                    rules: [{
+                        required: true,
+                        message: '表类型不可为空！'
+                    }]
+                })(
+                    <EngineSelect
+                        allowClear
+                        placeholder="表类型"
+                        tableTypes={this.props.projectTableTypes}
+                    />
+                )}
+            </FormItem>
             <FormItem
                 {...formItemLayout}
                 label="表名"

@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
     Steps, Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber
@@ -6,7 +7,8 @@ import {
 import assign from 'object-assign';
 import { range, isObject } from 'lodash';
 import { browserHistory, hashHistory } from 'react-router'
-
+import EngineSelect from '../../components/engineSelect';
+import { getProjectTableTypes } from '../../store/modules/tableType';
 import ajax from '../../api/dataManage';
 import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
@@ -16,6 +18,19 @@ const Step = Steps.Step;
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+
+@connect(state => {
+    return {
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
+    }
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
+        }
+    }
+})
 
 /**
  * @description step1:基本信息
@@ -34,6 +49,11 @@ class BaseForm extends React.Component {
     }
 
     componentDidMount () {
+        const { getProjectTableTypes, project } = this.state;
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         this.loadCatalogue();
     }
 
@@ -51,11 +71,29 @@ class BaseForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { tableName, desc, delim, location, lifeDay, catalogueId } = this.props;
+        const { tableName, desc, delim, location, lifeDay, catalogueId, projectTableTypes } = this.props;
         const { type, dataCatalogue, storedType } = this.state;
         const isShowDelim = storedType == 'textfile';
 
         return <Form>
+            <FormItem
+                {...formItemLayout}
+                label="表类型"
+            >
+                {getFieldDecorator('tableType', {
+                    rules: [{
+                        required: true,
+                        message: '表类型不可为空！'
+                    }]
+                })(
+                    <EngineSelect
+                        allowClear
+                        placeholder="表类型"
+                        tableTypes={projectTableTypes}
+                        // onChange={(value) => this.changeParams('tableType', value)}
+                    />
+                )}
+            </FormItem>
             <FormItem
                 {...formItemLayout}
                 label="表名"

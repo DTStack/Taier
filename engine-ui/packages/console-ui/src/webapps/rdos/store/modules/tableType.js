@@ -1,39 +1,65 @@
 import mc from 'mirror-creator';
-
 import Api from '../../api'
 
 const tableTypeAction = mc([
-    'GET_TABLE_TYPES' // 获取表类型
+    'GET_PROJECT_TABLE_TYPES', // 获取项目表类型
+    'GET_TENANT_TABLE_TYPES' // 获取租户下的表类型
 ], { prefix: 'tableType/' })
 
-const initialState = [
-    {
-        name: 'Hadoop',
-        value: 1
-    },
-    {
-        name: 'LibrA',
-        value: 2
-    }
-];
-
+const initialState = {
+    teantTableTypes: [],
+    projectTableTypes: []
+}
+// 不做处理
+// const exChangeData = (data = []) => {
+//     let params = [];
+//     data.forEach((obj, index) => {
+//         Object.keys(obj).forEach(key => {
+//             params.push({
+//                 name: data[index][key],
+//                 value: key
+//             })
+//         })
+//     })
+//     return params
+// }
 // Actions
-export function getTableTypes (params) {
+export function getProjectTableTypes (projectId) {
     return async (dispatch) => {
-        const res = await Api.getTableTypes(params);
+        const res = await Api.getProjectTableTypes({
+            projectId: projectId
+        });
         if (res.code === 1) {
             return dispatch({
-                type: tableTypeAction.GET_TABLE_TYPES,
-                data: res.data
+                type: tableTypeAction.GET_PROJECT_TABLE_TYPES,
+                data: res.data || []
             })
         }
     }
 }
-
+export function getTenantTableTypes (params) {
+    return async (dispatch) => {
+        const res = await Api.getTenantTableTypes(params);
+        if (res.code === 1) {
+            return dispatch({
+                type: tableTypeAction.GET_TENANT_TABLE_TYPES,
+                data: res.data || []
+            })
+        }
+    }
+}
+// reducer
 export function tableTypes (state = initialState, action) {
     switch (action.type) {
-        case tableTypeAction.GET_USER: {
-            return action.data
+        case tableTypeAction.GET_PROJECT_TABLE_TYPES: {
+            return Object.assign({}, state, {
+                projectTableTypes: action.data
+            })
+        }
+        case tableTypeAction.GET_TENANT_TABLE_TYPES: {
+            return Object.assign({}, state, {
+                teantTableTypes: action.data
+            })
         }
         default:
             return state

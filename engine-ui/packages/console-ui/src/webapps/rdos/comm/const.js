@@ -16,7 +16,10 @@ export const ENGINE_SOURCE_TYPE_OPTIONS = [
         value: ENGINE_SOURCE_TYPE.LIBRA
     }
 ]
-
+export const TABLE_TYPE = {
+    HIVE: 1,
+    LIBRA: 2
+}
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,

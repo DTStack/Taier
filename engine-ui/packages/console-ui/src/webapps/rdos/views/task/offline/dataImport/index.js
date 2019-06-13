@@ -8,7 +8,7 @@ import {
 import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../../api/dataManage'
-
+import { getProjectTableTypes } from '../../../../store/modules/tableType'
 import { getUploadStatus } from '../../../../store/modules/uploader'
 
 const defaultState = {
@@ -21,7 +21,7 @@ const defaultState = {
     splitSymbol: ',',
     charset: 'UTF-8',
     step: 'source',
-    tableType: '', // 表类型
+    tableType: '', // 项目表类型
     tableData: {}, // 表数据
     targetTable: '', // 目标表
     tableList: [], // table列表
@@ -37,10 +37,27 @@ const defaultState = {
     originLineCount: 0, // 原数据总条数
     targetExchangeWarning: false// target界面是否提示未选择源字段
 }
-@connect()
+@connect(state => {
+    return {
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
+    }
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId));
+        }
+    }
+})
 class ImportLocalData extends Component {
     state = Object.assign({}, defaultState)
-
+    componentDidMount () {
+        // const { getProjectTableTypes, project } = this.props;
+        // const projectId = project.id;
+        // if (projectId) {
+        //     getProjectTableTypes(projectId)
+        // }
+    }
     importData = () => {
         const { dispatch } = this.props;
         const { file } = this.state;
@@ -135,8 +152,8 @@ class ImportLocalData extends Component {
             matchType,
             startLine,
             partitions,
-            tableType,
-            overwriteFlag
+            overwriteFlag,
+            tableType
         }
     }
 

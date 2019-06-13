@@ -27,6 +27,7 @@ class CreateWorkSpace extends React.Component {
     form = React.createRef()
     componentDidMount () {
         this.getProjectList();
+        this.getSupportEngineType()
     }
     async getSupportEngineType () {
         let res = await api.getSupportEngineType();

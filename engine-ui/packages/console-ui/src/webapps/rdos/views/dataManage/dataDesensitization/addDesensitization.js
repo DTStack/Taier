@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
-import { formItemLayout } from '../../../comm/const';
+import { formItemLayout, TABLE_TYPE } from '../../../comm/const';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -60,11 +60,12 @@ class AddDesensitization extends Component {
     tableListOption () {
         const { tableList } = this.state;
         return tableList.map((item, index) => {
+            const tableType = item.tableType == TABLE_TYPE.HIVE ? '(hive)' : '(libra)'
             return <Option
                 key={item.id}
                 value={`${item.id}`}
             >
-                {item.tableName}
+                {`${item.tableName}${tableType}`}
             </Option>
         })
     }
@@ -116,11 +117,12 @@ class AddDesensitization extends Component {
     rulesOption () {
         const { rulesList } = this.state;
         return rulesList.map((item, index) => {
+            const tableType = item.tableType == TABLE_TYPE.HIVE ? '(hive)' : '(libra)'
             return <Option
                 key={item.id}
                 value={`${item.id}`}
             >
-                {item.name}
+                {`${item.name}${tableType}`}
             </Option>
         })
     }

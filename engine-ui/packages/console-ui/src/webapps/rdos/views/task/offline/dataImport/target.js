@@ -14,8 +14,9 @@ import CopyIcon from 'main/components/copy-icon';
 import API from '../../../../api/dataManage';
 import { formItemLayout } from '../../../../comm/const';
 import { DDL_IDE_PLACEHOLDER, LIBRA_DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon'
-import { isLibrAEngine } from '../../../../comm';
+import { isLibraTable } from '../../../../comm';
 import { getTableList } from '../../../../store/modules/offlineTask/comm';
+import { getProjectTableTypes } from '../../../../store/modules/tableType';
 import HelpDoc, { relativeStyle } from '../../../helpDoc';
 
 const RadioGroup = Radio.Group
@@ -27,12 +28,15 @@ const Option = Select.Option
     return {
         project: state.project,
         tables: state.offlineTask.comm.tables,
-        tableTypes: state.tableTypes
+        projectTableTypes: state.tableTypes.projectTableTypes
     }
 }, dispatch => {
     return {
         getTableList: (projectId) => {
             dispatch(getTableList(projectId));
+        },
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId));
         }
     }
 })
@@ -44,11 +48,17 @@ class ImportTarget extends Component {
             pageSize: 10
         }
     }
-
+    componentDidMount () {
+        const { project, getProjectTableTypes } = this.props;
+        const projectId = project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId)
+        }
+    }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { visible } = this.props;
-        const { visible: visibleNext } = nextProps;
+        const { visible: visibleNext } = nextProps.visible;
         if (visible != visibleNext && !visibleNext) {
             this.setState({
                 pagination: {
@@ -363,7 +373,7 @@ class ImportTarget extends Component {
     }
 
     render () {
-        const { data, display, formState, tableTypes } = this.props
+        const { data, display, formState, projectTableTypes = [] } = this.props
         const { tableList, tableData, queryTable, asTitle, sync, sqlText, tableType } = formState
         const { pagination } = this.state;
 
@@ -378,7 +388,7 @@ class ImportTarget extends Component {
             </Option>
         )
 
-        const DDL_TEMPLATE = isLibrAEngine(tableType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
+        const DDL_TEMPLATE = isLibraTable(tableType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
 
         return (
             <div style={{ display: display === 'target' ? 'block' : 'none' }}>
@@ -390,7 +400,7 @@ class ImportTarget extends Component {
                             {...formItemLayout}
                         >
                             <TableEngineSelect
-                                tableTypes={tableTypes}
+                                tableTypes={projectTableTypes}
                                 placeholder="请选择表类型"
                                 onChange={this.onTableEngineChange}
                             />

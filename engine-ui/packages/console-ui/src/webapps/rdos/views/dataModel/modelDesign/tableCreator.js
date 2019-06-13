@@ -1,17 +1,30 @@
 import React from 'react';
 import assign from 'object-assign';
-
+import { connect } from 'react-redux';
 import {
     Steps, Button, message, Form, Icon
 } from 'antd';
 
 import api from '../../../api/dataManage';
 import ajax from '../../../api/dataModel';
-
+import { getProjectTableTypes } from '../../../store/modules/tableType';
 import BaseForm from './baseForm';
 import ColumnsPartition from './columnsPartition';
 
 const Step = Steps.Step;
+
+@connect(state => {
+    return {
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
+    }
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
+        }
+    }
+})
 
 class TableCreator extends React.Component {
     constructor (props) {
@@ -54,6 +67,11 @@ class TableCreator extends React.Component {
     }
 
     componentDidMount () {
+        const { getProjectTableTypes, project } = this.state;
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         this.loadTableNameRules();
         this.loadOptionsData();
         this.loadCatalogue();
@@ -348,6 +366,7 @@ class TableCreator extends React.Component {
                 subjectFields={subjectFields}
                 incrementCounts={incrementCounts}
                 freshFrequencies={freshFrequencies}
+                projectTableTypes={this.props.projectTableTypes}
                 dataCatalogue={dataCatalogue}
                 ref={ el => this.baseForm = el }
                 resetLoc={ this.resetLoc.bind(this) }

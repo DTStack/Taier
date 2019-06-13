@@ -5,7 +5,7 @@ const Option = Select.Option;
 
 export default function EngineSelect (props) {
     const { disabledEngineTypes, tableTypes } = props;
-    const engineOptionsList = tableTypes && tableTypes.map(
+    const engineOptionsList = tableTypes && (!tableTypes.indexOf(null) != -1) && tableTypes.map(
         item => (
             <Option
                 key={item.value}

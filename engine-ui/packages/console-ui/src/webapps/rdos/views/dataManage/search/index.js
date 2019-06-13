@@ -7,6 +7,8 @@ import {
 import { Link, hashHistory } from 'react-router';
 import utils from 'utils';
 import { APPLY_RESOURCE_TYPE } from '../../../comm/const';
+import { getTenantTableTypes } from '../../../store/modules/tableType'
+import EngineSelect from '../../../components/engineSelect';
 import CatalogueTree from '../catalogTree';
 import TableApplyModal from './tableApply';
 import ajax from '../../../api/dataManage';
@@ -19,13 +21,20 @@ const ROUTER_BASE = '/data-manage/table';
 @connect(state => {
     return {
         allProjects: state.allProjects,
-        dataCatalogues: state.dataManage.dataCatalogues
+        dataCatalogues: state.dataManage.dataCatalogues,
+        teantTableTypes: state.tableTypes.teantTableTypes
+    }
+}, dispatch => {
+    return {
+        getTenantTableTypes: (params) => {
+            dispatch(getTenantTableTypes(params))
+        }
     }
 })
 class SearchTable extends Component {
     constructor (props) {
         super(props);
-        const { pId, pageIndex, permissionStatus, tableName, catalogueId } = this.props.location.query;
+        const { pId, pageIndex, permissionStatus, tableName, catalogueId, tableType } = this.props.location.query;
         this.state = {
             visible: false,
             table: [],
@@ -38,12 +47,14 @@ class SearchTable extends Component {
                 catalogueId,
                 permissionStatus,
                 tableName,
+                tableType,
                 pageSize: 20
             }
         }
     }
 
     componentDidMount () {
+        this.props.getTenantTableTypes();
         this.search();
     }
 
@@ -161,6 +172,11 @@ class SearchTable extends Component {
                 dataIndex: 'project'
             },
             {
+                title: '表类型',
+                key: 'tableType',
+                dataIndex: 'tableType'
+            },
+            {
                 title: '项目显示名称',
                 key: 'projectAlias',
                 dataIndex: 'projectAlias'
@@ -229,7 +245,7 @@ class SearchTable extends Component {
 
     render () {
         const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
-        const { allProjects } = this.props;
+        const { allProjects, teantTableTypes } = this.props;
         const marginTop10 = { marginTop: '8px' };
         const projectOptions = allProjects.map(proj => <Option
             title={proj.projectAlias}
@@ -280,6 +296,17 @@ class SearchTable extends Component {
                     >
                         {projectOptions}
                     </Select>
+                </FormItem>
+                <FormItem label="表类型">
+                    <EngineSelect
+                        allowClear
+                        showSearch
+                        style={{ width: 126 }}
+                        placeholder="选择表类型"
+                        tableTypes={teantTableTypes}
+                        value={queryParams.tableType}
+                        onChange={(value) => this.changeParams('tableType', value)}
+                    />
                 </FormItem>
                 <FormItem>
                     <Input.Search

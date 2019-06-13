@@ -8,7 +8,8 @@ import {
 import { Link, hashHistory } from 'react-router';
 
 import utils from 'utils';
-
+import { getTenantTableTypes } from '../../store/modules/tableType';
+import EngineSelect from '../../components/engineSelect';
 import SlidePane from 'widgets/slidePane';
 import TableLog from './tableLog';
 import CatalogueTree from './catalogTree';
@@ -24,13 +25,20 @@ const ROUTER_BASE = '/data-manage/table';
     return {
         allProjects: state.allProjects,
         user: state.user,
-        dataCatalogues: state.dataManage.dataCatalogues
+        dataCatalogues: state.dataManage.dataCatalogues,
+        teantTableTypes: state.tableTypes.teantTableTypes
+    }
+}, dispatch => {
+    return {
+        getTenantTableTypes: (params) => {
+            dispatch(getTenantTableTypes(params))
+        }
     }
 })
 class TableList extends Component {
     constructor (props) {
         super(props);
-        const { listType, pId, tableName, pageIndex, catalogueId } = props.location.query;
+        const { listType, pId, tableName, pageIndex, catalogueId, tableType } = props.location.query;
 
         this.state = {
             table: [],
@@ -47,6 +55,7 @@ class TableList extends Component {
                 pageIndex: pageIndex || 1,
                 pageSize: 20,
                 catalogueId,
+                tableType,
                 pId,
                 tableName,
                 showDeleted: false
@@ -56,6 +65,11 @@ class TableList extends Component {
     }
 
     componentDidMount () {
+        const { getProjectTableTypes, project } = this.state;
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         this.search();
     }
 
@@ -188,6 +202,11 @@ class TableList extends Component {
                 dataIndex: 'projectAlias'
             },
             {
+                title: '表类型',
+                key: 'tableType',
+                dataIndex: 'tableType'
+            },
+            {
                 title: '创建时间',
                 key: 'gmtCreate',
                 dataIndex: 'gmtCreate',
@@ -269,7 +288,7 @@ class TableList extends Component {
 
     renderPane = () => {
         const { table, queryParams, dataCatalogue, loading } = this.state;
-        const { allProjects } = this.props;
+        const { allProjects, teantTableTypes } = this.props;
         const projectOptions = allProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
@@ -306,6 +325,17 @@ class TableList extends Component {
                     >
                         {projectOptions}
                     </Select>
+                </FormItem>
+                <FormItem label="表类型">
+                    <EngineSelect
+                        allowClear
+                        showSearch
+                        style={{ width: 126 }}
+                        placeholder="选择表类型"
+                        tableTypes={teantTableTypes}
+                        value={queryParams.tableType}
+                        onChange={(value) => this.changeParams('tableType', value)}
+                    />
                 </FormItem>
                 <FormItem>
                     <Input.Search
