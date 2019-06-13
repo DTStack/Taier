@@ -159,10 +159,27 @@ public class ActionServiceImpl {
             jobIds.add(taskId);
         }
         List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
-        for(RdosEngineJobCache jobCache : jobCaches){
-            ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-            fillJobClientEngineId(paramAction);
-            workNode.addStopJob(paramAction);
+
+        //为了下面兼容异常状态的任务停止
+        Map<String,RdosEngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
+        for (RdosEngineJobCache jobCache : jobCaches){
+            jobCacheMap.put(jobCache.getJobId(), jobCache);
+        }
+        for(String jobId : jobIds){
+            RdosEngineJobCache jobCache = jobCacheMap.get(jobId);
+            if (jobCache != null){
+                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
+                fillJobClientEngineId(paramAction);
+                workNode.addStopJob(paramAction);
+            } else {
+                //异常状态下的任务停止
+                logger.warn("[Unnormal Job] jobId:{}", jobId);
+                if (engineStreamTaskDAO.getRdosTaskByTaskId(jobId) != null){
+                    engineStreamTaskDAO.updateTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+                } else {
+                    batchJobDAO.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
+                }
+            }
         }
     }
 
