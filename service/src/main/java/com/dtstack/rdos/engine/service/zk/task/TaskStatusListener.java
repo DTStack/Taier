@@ -376,7 +376,6 @@ public class TaskStatusListener implements Runnable{
     }
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId){
-
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
