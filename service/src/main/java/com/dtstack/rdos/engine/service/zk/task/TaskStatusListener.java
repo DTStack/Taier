@@ -322,7 +322,7 @@ public class TaskStatusListener implements Runnable{
             checkpointGetTotalNumCache.put(engineTaskId, checkpointCallNum + 1);
         }
 
-        if(RdosTaskStatus.needClean(status)){
+        if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
 
@@ -378,7 +378,7 @@ public class TaskStatusListener implements Runnable{
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId){
 
-        if(RdosTaskStatus.needClean(status)){
+        if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
         }
