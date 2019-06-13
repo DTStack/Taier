@@ -104,7 +104,7 @@ public enum RdosTaskStatus {
 
     public static boolean canReset(Byte currStatus){
         int sta = currStatus.intValue();
-        return STOPPED_STATUS.contains(sta);
+        return STOPPED_STATUS.contains(sta) || sta == RdosTaskStatus.UNSUBMIT.getStatus();
 
     }
 
