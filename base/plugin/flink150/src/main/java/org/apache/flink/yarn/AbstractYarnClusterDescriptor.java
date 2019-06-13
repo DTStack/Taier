@@ -567,7 +567,7 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 clusterSpecification.getSlotsPerTaskManager(),
                 report,
                 flinkConfiguration,
-                true);
+                false);
     }
 
     private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{

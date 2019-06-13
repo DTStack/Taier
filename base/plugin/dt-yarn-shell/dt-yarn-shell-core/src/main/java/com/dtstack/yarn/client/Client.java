@@ -115,6 +115,7 @@ public class Client {
         taskConf.set(DtYarnConfiguration.DT_WORKER_NUM, String.valueOf(clientArguments.workerNum));
         taskConf.set(DtYarnConfiguration.APP_PRIORITY, String.valueOf(clientArguments.priority));
         taskConf.setBoolean(DtYarnConfiguration.LEARNING_USER_CLASSPATH_FIRST, clientArguments.userClasspathFirst);
+        taskConf.set(DtYarnConfiguration.CONTAINER_MAX_ATTEMPTS, String.valueOf(clientArguments.maxAppAttempts));
 
         taskConf.setBoolean(DtYarnConfiguration.APP_NODEMANAGER_EXCLUSIVE, clientArguments.exclusive);
 
@@ -154,6 +155,7 @@ public class Client {
         applicationContext.setApplicationId(applicationId);
         applicationContext.setApplicationName(clientArguments.appName);
         applicationContext.setApplicationType(clientArguments.appType.name());
+        applicationContext.setMaxAppAttempts(clientArguments.maxAppAttempts);
 
         localResources.put(DtYarnConstants.APP_MASTER_JAR,
                 Utilities.createApplicationResource(dfs, appMasterJar, LocalResourceType.FILE));

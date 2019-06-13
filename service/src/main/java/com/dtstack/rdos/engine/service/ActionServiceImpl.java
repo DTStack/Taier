@@ -59,8 +59,6 @@ public class ActionServiceImpl {
 
     private WorkNode workNode = WorkNode.getInstance();
 
-    private JobStopAction stopAction = new JobStopAction(workNode);
-
     private static int length = 8;
 
     private Random random = new Random();

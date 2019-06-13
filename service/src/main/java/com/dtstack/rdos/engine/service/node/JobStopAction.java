@@ -91,12 +91,12 @@ public class JobStopAction {
     }
 
     private Byte getJobStatus(JobClient jobClient) {
-        if(ComputeType.STREAM == jobClient.getComputeType()){
+        if(ComputeType.BATCH == jobClient.getComputeType()){
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             if (batchJob != null) {
                 return batchJob.getStatus();
             }
-        } else if (ComputeType.BATCH == jobClient.getComputeType()) {
+        } else if (ComputeType.STREAM == jobClient.getComputeType()) {
             RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             if (streamJob != null){
                 return streamJob.getStatus();
