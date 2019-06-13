@@ -27,7 +27,7 @@ export function authAfterFormated (response) {
         case 1:
             return response;
         case 0: // 无权限，需要登录
-            UserApi.openLogin()
+            UserApi.logout()
             return Promise.reject(response);
         case 3: // 功能无权限
             notification['error']({

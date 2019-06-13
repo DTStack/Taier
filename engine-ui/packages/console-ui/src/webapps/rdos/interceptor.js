@@ -50,7 +50,7 @@ export function authAfterFormated (response) {
         case 1:
             return response;
         case 0: // 需要登录
-            Api.openLogin()
+            Api.logout()
             return Promise.reject(response);
         case 3: { // 功能无权限
             // 通过判断dom数量，限制通知数量

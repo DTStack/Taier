@@ -1,5 +1,6 @@
-import localDb from 'utils/localDb'
 import utils from 'utils'
+
+import UserAPI from 'main/api/user';
 
 import req from './req'
 import http from './http'
@@ -7,9 +8,6 @@ import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
 import { publishType, TASK_TYPE } from '../comm/const';
-
-// eslint-disable-next-line
-const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
 
 export default {
 
@@ -29,15 +27,9 @@ export default {
     logout () { // 注销退出
         http.post(req.APP_LOGOUT).then(res => {
             if (res.code === 1) {
-                this.openLogin();
+                UserAPI.openLogin();
             }
         })
-    },
-
-    openLogin () {
-        localDb.clear();
-        utils.deleteAllCookies('*', '/');
-        window.location.href = `${UIC_URL_TARGET}`
     },
 
     addRoleUser (user) {
