@@ -198,6 +198,8 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -208,7 +210,6 @@ public class TaskStatusListener implements Runnable{
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     rdosStreamTaskDAO.updateTaskStatus(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
                 }
@@ -245,6 +246,8 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -255,7 +258,6 @@ public class TaskStatusListener implements Runnable{
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
 
                     dealBatchJobAfterGetStatus(status, taskId);
                 }
