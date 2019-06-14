@@ -198,6 +198,8 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -211,7 +213,6 @@ public class TaskStatusListener implements Runnable{
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
 
                     rdosStreamTaskDAO.updateTaskStatus(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)
@@ -246,6 +247,8 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -259,7 +262,6 @@ public class TaskStatusListener implements Runnable{
                     dealBatchJobAfterGetStatus(status, taskId);
 
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
