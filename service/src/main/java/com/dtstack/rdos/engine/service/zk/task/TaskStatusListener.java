@@ -207,10 +207,11 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                    //数据的更新顺序，先更新job_cache，再更新engine_stream_job
+                    dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
+
                     rdosStreamTaskDAO.updateTaskStatus(taskId, status);
                     updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
-
-                    dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)
@@ -254,10 +255,11 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
+                    //数据的更新顺序，先更新job_cache，再更新engine_batch_job
+                    dealBatchJobAfterGetStatus(status, taskId);
+
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                     updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
-
-                    dealBatchJobAfterGetStatus(status, taskId);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
