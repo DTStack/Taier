@@ -29,7 +29,7 @@ export default class FlinkConfig extends React.Component {
             changeRandomJobNameSuffixOption
         } = this.props;
         return (
-            <div>
+            <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
                     <FormItem
                         label="flinkZkAddress"
@@ -358,7 +358,7 @@ export default class FlinkConfig extends React.Component {
                     {customView}
                 </div>
                 {singleButton}
-            </div>
+            </React.Fragment>
         )
     }
 }

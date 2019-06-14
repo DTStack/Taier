@@ -8,7 +8,7 @@ export default class LibraSqlConfig extends React.Component {
     render () {
         const { isView, getFieldDecorator, singleButton } = this.props;
         return (
-            <div>
+            <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
                     <FormItem
                         label="JDBC URL"
@@ -41,7 +41,7 @@ export default class LibraSqlConfig extends React.Component {
                     </FormItem>
                 </div>
                 {singleButton}
-            </div>
+            </React.Fragment>
         )
     }
 }

@@ -1,16 +1,18 @@
 import React from 'react';
-import utils from 'utils';
 import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Radio, Tabs, Modal } from 'antd';
 import Api from '../../../api/console'
-import { getComponentConfKey, validateCompParams, myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
-import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, DTYARNSHELL_KEY_MAP,
-    notExtKeysFlink, notExtKeysSpark, notExtKeysLearning, notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts'
+import { getComponentConfKey, exChangeComponentConf, showTestResult, validateCompParams,
+    myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
+import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP,
+    DTYARNSHELL_KEY_MAP, notExtKeysFlink, notExtKeysSpark, notExtKeysLearning,
+    notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts'
 import GoBack from 'main/components/go-back';
 import SparkConfig from './sparkConfig'
 import FlinkConfig from './flinkConfig';
 import LearningConfig from './learningConfig';
 import DtyarnShellConfig from './dtYarnshellConfig';
 import LibraSqlConfig from './libraSqlConfig';
+import ZipConfig from './zipConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
 import AddCommModal from '../../../components/addCommModal';
 const FormItem = Form.Item;
@@ -62,8 +64,7 @@ class EditCluster extends React.Component {
         addComponentVisible: false,
         editModalKey: '',
         modalKey: '',
-        // 组件testLoading
-        allTestLoading: false,
+        allTestLoading: false, // 测试连通性loading
         // 组件testResult
         flinkTestResult: {},
         sparkTestResult: {},
@@ -104,79 +105,6 @@ class EditCluster extends React.Component {
         })
         return engineConf
     }
-    exChangeComponentConf = (hadoopComp, libraComp) => {
-        const comp = hadoopComp.concat(libraComp);
-        let componentConf = {
-            flinkConf: {},
-            sparkConf: {},
-            learningConf: {},
-            dtyarnshellConf: {},
-            hadoopConf: {},
-            yarnConf: {},
-            hiveConf: {}, // 对应sparkThrift
-            carbonConf: {},
-            libraConf: {}
-        };
-        comp.map(item => {
-            switch (item.componentTypeCode) {
-                case COMPONENT_TYPE_VALUE.FLINK: {
-                    componentConf = Object.assign(componentConf, {
-                        flinkConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.SPARK: {
-                    componentConf = Object.assign(componentConf, {
-                        sparkConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.LEARNING: {
-                    componentConf = Object.assign(componentConf, {
-                        learningConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                    componentConf = Object.assign(componentConf, {
-                        dtyarnshellConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.HDFS: {
-                    componentConf = Object.assign(componentConf, {
-                        hadoopConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.YARN: {
-                    componentConf = Object.assign(componentConf, {
-                        yarnConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
-                    componentConf = Object.assign(componentConf, {
-                        hiveConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                    componentConf = Object.assign(componentConf, {
-                        carbonConf: item.config
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                    componentConf = Object.assign(componentConf, {
-                        libraConf: item.config
-                    })
-                    break;
-                }
-            }
-        })
-        return componentConf
-    }
     // 填充表单数据
     getDataList () {
         const { location, form } = this.props;
@@ -195,7 +123,7 @@ class EditCluster extends React.Component {
                         const resource = hadoopConf.resource || {};
                         const hadoopComponentData = hadoopConf.components || []; // 组件信息
                         const libraComponentData = libraConf.components || [];
-                        let componentConf = this.exChangeComponentConf(hadoopComponentData, libraComponentData);
+                        let componentConf = exChangeComponentConf(hadoopComponentData, libraComponentData);
                         const flinkData = componentConf.flinkConf;
                         const extParams = this.exchangeServerParams(componentConf)
                         const flinkConf = componentConf.flinkConf;
@@ -459,9 +387,6 @@ class EditCluster extends React.Component {
         })
         return obj
     }
-    asterisk = () => {
-        return <span className='icon_required'>*</span>
-    }
     renderRequiredIcon = (componentValue) => {
         const { flinkShowRequired,
             hiveShowRequired,
@@ -472,58 +397,61 @@ class EditCluster extends React.Component {
             hdfsShowRequired,
             yarnShowRequired,
             libraShowRequired } = this.state;
+        const asterisk = () => {
+            return <span className='icon_required'>*</span>
+        }
         switch (componentValue) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 if (flinkShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                 if (hiveShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 if (carbonShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.SPARK: {
                 if (sparkShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
                 if (dtYarnShellShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
                 if (learningShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.HDFS: {
                 if (hdfsShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.YARN: {
                 if (yarnShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 if (libraShowRequired) {
-                    return this.asterisk()
+                    return asterisk()
                 }
                 return null
             }
@@ -565,7 +493,6 @@ class EditCluster extends React.Component {
             }
         }
     }
-
     // 组件成功失败图标
     renderTestIcon = (componentValue) => {
         const { flinkTestResult,
@@ -760,75 +687,6 @@ class EditCluster extends React.Component {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
-    /**
-     * engineType  分引擎显示
-     */
-    showTestResult = (testResults, engineType) => {
-        let testStatus = {}
-        const isHadoop = engineType == ENGINE_TYPE.HADOOP;
-        testResults && testResults.map(comp => {
-            switch (comp.componentTypeCode) {
-                case COMPONENT_TYPE_VALUE.FLINK: {
-                    testStatus = Object.assign(testStatus, {
-                        flinkTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
-                    testStatus = Object.assign(testStatus, {
-                        sparkThriftTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                    testStatus = Object.assign(testStatus, {
-                        carbonTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.SPARK: {
-                    testStatus = Object.assign(testStatus, {
-                        sparkTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                    testStatus = Object.assign(testStatus, {
-                        dtYarnShellTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.LEARNING: {
-                    testStatus = Object.assign(testStatus, {
-                        learningTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.HDFS: {
-                    testStatus = Object.assign(testStatus, {
-                        hdfsTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.YARN: {
-                    testStatus = Object.assign(testStatus, {
-                        yarnTestResult: isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                    testStatus = Object.assign(testStatus, {
-                        libraSqlTestResult: !isHadoop ? comp : {}
-                    })
-                    break;
-                }
-                default: {
-                    testStatus = Object.assign(testStatus, {})
-                }
-            }
-        })
-        return testStatus
-    }
     saveComponent (component) {
         const { getFieldsValue } = this.props.form;
         const componentConf = this.getComponentConf(getFieldsValue());
@@ -906,7 +764,7 @@ class EditCluster extends React.Component {
                                     core: description ? description.totalCores : 0,
                                     memory: description ? description.totalMemory : 0,
                                     testResults: testResults,
-                                    ...this.showTestResult(testResults, this.state.defaultEngineType),
+                                    ...showTestResult(testResults, this.state.defaultEngineType),
                                     allTestLoading: false
                                 })
                             } else {
@@ -968,7 +826,8 @@ class EditCluster extends React.Component {
             case COMPONENT_TYPE_VALUE.HDFS: {
                 this.setState({
                     zipConfig: JSON.stringify({
-                        hadoopConf: allComponentConf.hadoopConf
+                        hadoopConf: allComponentConf.hadoopConf,
+                        yarnConf: allComponentConf.yarnConf
                     })
                 })
                 break;
@@ -976,6 +835,7 @@ class EditCluster extends React.Component {
             case COMPONENT_TYPE_VALUE.YARN: {
                 this.setState({
                     zipConfig: JSON.stringify({
+                        hadoopConf: allComponentConf.hadoopConf,
                         yarnConf: allComponentConf.yarnConf
                     })
                 })
@@ -990,8 +850,9 @@ class EditCluster extends React.Component {
         }
     }
     showDeleteConfirm (component) {
+        const { componentName } = component
         confirm({
-            title: '是否确定删除该组件？',
+            title: `是否确定删除${componentName}组件？`,
             okText: '是',
             okType: 'danger',
             cancelText: '否',
@@ -1101,110 +962,6 @@ class EditCluster extends React.Component {
         }
         return params;
     }
-
-    renderZipConfig (type) {
-        let { zipConfig } = this.state
-        zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
-        let keyAndValue;
-        if (type == 'hdfs') {
-            keyAndValue = Object.entries(zipConfig.hadoopConf || {})
-            utils.sortByCompareFunctions(keyAndValue,
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key == 'fs.defaultFS') {
-                        return -1;
-                    }
-                    if (compareKey == 'fs.defaultFS') {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key == 'dfs.nameservices') {
-                        return -1;
-                    }
-                    if (compareKey == 'dfs.nameservices') {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key.indexOf('dfs.ha.namenodes') > -1) {
-                        return -1;
-                    }
-                    if (compareKey.indexOf('dfs.ha.namenodes') > -1) {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf('dfs.namenode.rpc-address') > -1
-                    const checkCompareKey = compareKey.indexOf('dfs.namenode.rpc-address') > -1
-                    if (checkKey && checkCompareKey) {
-                        return key > compareKey ? 1 : -1
-                    } else if (checkKey) {
-                        return -1;
-                    } else if (checkCompareKey) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-        } else {
-            keyAndValue = Object.entries(zipConfig.yarnConf || {})
-            utils.sortByCompareFunctions(keyAndValue,
-                ([key, value], [compareKey, compareValue]) => {
-                    if (key == 'yarn.resourcemanager.ha.rm-ids') {
-                        return -1;
-                    }
-                    if (compareKey == 'yarn.resourcemanager.ha.rm-ids') {
-                        return 1;
-                    }
-                    return 0;
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf('yarn.resourcemanager.address') > -1
-                    const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.address') > -1
-                    if (checkKey && checkCompareKey) {
-                        return key > compareKey ? 1 : -1
-                    } else if (checkKey) {
-                        return -1;
-                    } else if (checkCompareKey) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                },
-                ([key, value], [compareKey, compareValue]) => {
-                    const checkKey = key.indexOf('yarn.resourcemanager.webapp.address') > -1
-                    const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.webapp.address') > -1
-                    if (checkKey && checkCompareKey) {
-                        return key > compareKey ? 1 : -1
-                    } else if (checkKey) {
-                        return -1;
-                    } else if (checkCompareKey) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                });
-        }
-
-        return keyAndValue.map(
-            ([key, value]) => {
-                return (<Row key={key} className="zipConfig-item">
-                    <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
-                        {key.length > 40
-                            ? <Tooltip title={key}>{key.substr(0, 40) + '...'}</Tooltip>
-                            : key}：
-                    </Col>
-                    <Col className="formitem-textvalue" span={formItemLayout.wrapperCol.sm.span - 1}>
-                        {value}
-                    </Col>
-                </Row>)
-            }
-        )
-    }
-
     getPrometheusValue = () => {
         const { flinkPrometheus, flinkData } = this.state;
         const { form } = this.props;
@@ -1406,24 +1163,22 @@ class EditCluster extends React.Component {
             case COMPONENT_TYPE_VALUE.HDFS: {
                 return (
                     zipConfig ? (
-                        <div>
-                            <div className="engine-config-content" style={{ width: '800px' }}>
-                                {this.renderZipConfig('hdfs')}
-                            </div>
-                            {this.renderExtFooter(isView, component)}
-                        </div>
+                        <ZipConfig
+                            zipConfig={this.state.zipConfig}
+                            type='hdfs'
+                            singleButton={this.renderExtFooter(isView, component)}
+                        />
                     ) : null
                 )
             }
             case COMPONENT_TYPE_VALUE.YARN: {
                 return (
                     zipConfig ? (
-                        <div>
-                            <div className="engine-config-content" style={{ width: '800px' }}>
-                                {this.renderZipConfig('yarn')}
-                            </div>
-                            {this.renderExtFooter(isView, component)}
-                        </div>
+                        <ZipConfig
+                            zipConfig={this.state.zipConfig}
+                            type='yarn'
+                            singleButton={this.renderExtFooter(isView, component)}
+                        />
                     ) : null
                 )
             }
@@ -1518,7 +1273,7 @@ class EditCluster extends React.Component {
                         getFieldDecorator={getFieldDecorator}
                         customView={(
                             <div>
-                                <div className="engine-config-content" style={{ width: '680px' }}>
+                                <div className="engine-config-content">
                                     {this.renderExtraParam('libra')}
                                     {this.showAddCustomParam(isView, 'libra')}
                                 </div>
@@ -1533,7 +1288,8 @@ class EditCluster extends React.Component {
         }
     }
     render () {
-        const { allTestLoading, hadoopComponentData, libraComponentData, engineList, defaultEngineType } = this.state;
+        const { allTestLoading, hadoopComponentData, libraComponentData,
+            engineList, defaultEngineType } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
         const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
@@ -1550,36 +1306,39 @@ class EditCluster extends React.Component {
                 >
                     {
                         engineList && engineList.map((item, index) => {
+                            const { engineType } = item;
+                            const isHadoop = engineType == ENGINE_TYPE.HADOOP;
+                            console.log('engineType', engineType)
                             return (
                                 <TabPane
                                     tab={item.engineName}
-                                    key={`${item.engineType}`}
+                                    key={`${engineType}`}
                                 >
                                     <React.Fragment>
-                                        {this.displayResource(item.engineType)}
+                                        {this.displayResource(engineType)}
                                         {
                                             isView ? null : (
                                                 <div style={{ margin: '5 20 0 20', textAlign: 'right' }}>
-                                                    <Button onClick={() => {
+                                                    {isHadoop && <Button onClick={() => {
                                                         this.setState({
                                                             modalKey: Math.random(),
                                                             addComponentVisible: true
                                                         })
-                                                    }} type="primary" style={{ marginLeft: '5px' }}>增加组件</Button>
+                                                    }} type="primary" style={{ marginLeft: '5px' }}>增加组件</Button>}
                                                     <Button onClick={() => {
                                                         this.setState({
                                                             editModalKey: Math.random(),
                                                             addEngineVisible: true
                                                         })
                                                     }} type="primary" style={{ marginLeft: '5px' }}>增加引擎</Button>
-                                                    <Button onClick={this.test.bind(this)} loading={allTestLoading} type="primary" style={{ marginLeft: '5px' }}>测试全部连通性</Button>
+                                                    <Button onClick={this.test.bind(this)} loading={allTestLoading} type="primary" style={{ float: 'left' }}>测试全部连通性</Button>
                                                 </div>
                                             )
                                         }
                                         {/* 组件配置 */}
                                         <Card
                                             className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10 20 20 20' }}
+                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : '100%' }}
                                             noHovering
                                         >
                                             <Tabs
@@ -1588,19 +1347,21 @@ class EditCluster extends React.Component {
                                             >
                                                 {
                                                     tabCompData && tabCompData.map((item, index) => {
+                                                        const { componentTypeCode } = item;
+                                                        console.log('componentTypeCode', componentTypeCode)
                                                         return (
                                                             <TabPane
                                                                 tab={
                                                                     <span>
-                                                                        {this.renderRequiredIcon(item.componentTypeCode)}
+                                                                        {this.renderRequiredIcon(componentTypeCode)}
                                                                         <span className='tab-title'>{item.componentName}</span>
-                                                                        {this.renderTestIcon(item.componentTypeCode)}
+                                                                        {this.renderTestIcon(componentTypeCode)}
                                                                     </span>
                                                                 }
                                                                 forceRender={true}
-                                                                key={`${item.componentTypeCode}`}
+                                                                key={`${componentTypeCode}`}
                                                             >
-                                                                <div style={{ height: '550', paddingBottom: '190px', overflow: 'auto' }}>
+                                                                <div className='tabpane-content'>
                                                                     {this.renderComponentConf(item)}
                                                                 </div>
                                                             </TabPane>

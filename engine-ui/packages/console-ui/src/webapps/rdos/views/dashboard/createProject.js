@@ -65,11 +65,12 @@ class CreateWorkSpace extends React.Component {
         })
     }
     exChangeReqParams = (values) => {
+        console.log(values);
         const copyVal = cloneDeep(values);
         const enableHadoop = copyVal.enableHadoop;
         const enableLibrA = copyVal.enableLibrA;
-        const hadoopParams = copyVal.hadoop || {}
-        const libraParams = copyVal.libra || {}
+        const hadoopParams = copyVal.hadoop && copyVal.hadoop[""] || {}
+        const libraParams = copyVal.libra && copyVal.libra[""] || {}
         let projectEngineList = [];
         if (enableHadoop) {
             projectEngineList.push(hadoopParams)
@@ -85,6 +86,7 @@ class CreateWorkSpace extends React.Component {
         delAttr(copyVal, 'libra');
         delAttr(copyVal, 'enableHadoop');
         delAttr(copyVal, 'enableLibrA');
+        console.log(copyVal)
         return copyVal;
     }
     create = () => {

@@ -9,7 +9,7 @@ export class SparkThriftConfig extends React.Component {
     render () {
         const { isView, getFieldDecorator, customView, singleButton } = this.props;
         return (
-            <div>
+            <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
                     <FormItem
                         label="JDBC URL"
@@ -43,7 +43,7 @@ export class SparkThriftConfig extends React.Component {
                     { customView }
                 </div>
                 {singleButton}
-            </div>
+            </React.Fragment>
         )
     }
 }
@@ -51,7 +51,7 @@ export class CarbonDataConfig extends React.Component {
     render () {
         const { isView, getFieldDecorator, singleButton } = this.props;
         return (
-            <div>
+            <React.Fragment>
                 <div className="engine-config-content" style={{ width: '680px' }}>
                     <FormItem
                         label="JDBC URL"
@@ -84,7 +84,7 @@ export class CarbonDataConfig extends React.Component {
                     </FormItem>
                 </div>
                 {singleButton}
-            </div>
+            </React.Fragment>
         )
     }
 }

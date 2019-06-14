@@ -284,10 +284,12 @@ class ResourceManage extends React.Component {
                         >
                             {
                                 engineList && engineList.map(item => {
-                                    const isHadoop = item.engineType == ENGINE_TYPE.HADOOP
+                                    const { engineType } = item
+                                    const isHadoop = engineType == ENGINE_TYPE.HADOOP
                                     const engineName = isHadoop ? ENGINE_TYPE_NAME.HADOOP : ENGINE_TYPE_NAME.LIBRA
+                                    console.log('engineType', engineType)
                                     return (
-                                        <TabPane className='tab-pane-wrapper' tab={engineName} key={`${item.engineType}`}>
+                                        <TabPane className='tab-pane-wrapper' tab={engineName} key={`${engineType}`}>
                                             <Tabs
                                                 className='engine-detail-tabs'
                                                 tabPosition='top'
