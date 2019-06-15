@@ -46,7 +46,7 @@ class ResourceManage extends React.Component {
         isHaveLibra: false,
         queueList: [], // hadoop资源队列
         modalKey: '',
-        editModalKey: ''
+        editModalKey: null
     }
     componentDidMount () {
         this.props.getTenantList(); // 租户列表
@@ -171,7 +171,6 @@ class ResourceManage extends React.Component {
             tenantName: '',
             currentPage: 1
         })
-        console.log('key', key)
         this.setState({
             queryParams
         }, this.searchTenant)
@@ -287,14 +286,13 @@ class ResourceManage extends React.Component {
                                     const { engineType } = item
                                     const isHadoop = engineType == ENGINE_TYPE.HADOOP
                                     const engineName = isHadoop ? ENGINE_TYPE_NAME.HADOOP : ENGINE_TYPE_NAME.LIBRA
-                                    console.log('engineType', engineType)
                                     return (
                                         <TabPane className='tab-pane-wrapper' tab={engineName} key={`${engineType}`}>
                                             <Tabs
                                                 className='engine-detail-tabs'
                                                 tabPosition='top'
                                             >
-                                                <TabPane tab="租户绑定" key="tenant">
+                                                <TabPane tab="租户绑定" key={`${engineType}-tenant`}>
                                                     <div style={{ margin: 15 }}>
                                                         <Search
                                                             style={{ width: '200px', marginBottom: '20' }}

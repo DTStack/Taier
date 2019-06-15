@@ -6,7 +6,7 @@ import {
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
-
+import { TABLE_NAME_BY_TABLE_TYPE } from '../../comm/const';
 import utils from 'utils';
 import { getTenantTableTypes } from '../../store/modules/tableType';
 import EngineSelect from '../../components/engineSelect';
@@ -204,7 +204,10 @@ class TableList extends Component {
             {
                 title: '表类型',
                 key: 'tableType',
-                dataIndex: 'tableType'
+                dataIndex: 'tableType',
+                render (text) {
+                    return TABLE_NAME_BY_TABLE_TYPE[text]
+                }
             },
             {
                 title: '创建时间',

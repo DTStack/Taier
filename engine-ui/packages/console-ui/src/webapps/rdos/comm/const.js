@@ -20,6 +20,14 @@ export const TABLE_TYPE = {
     HIVE: 1,
     LIBRA: 2
 }
+export const TABLE_NAME_BY_TABLE_TYPE = {
+    1: 'hive',
+    2: 'libra'
+}
+export const INTERNAL_OR_EXTERNAL_TABLE = {
+    EXTERNAL: 'EXTERNAL',
+    MANAGED: 'MANAGED'
+}
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,

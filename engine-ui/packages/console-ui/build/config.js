@@ -17,7 +17,7 @@ module.exports = {
                 // target: 'http://172.16.10.86:9020', // test
                 // target: "http://172.16.8.107:9020", // dev server
                 // target: "http://172.16.0.14:9020", // dev server
-                target: "http://172.16.0.122:9020", // dev server
+                target: "http://172.16.1.22:9020", // dev server
                 // target: "http://172.16.10.51:9020", // test
                 // target: "http://172.16.10.97:9020",
                 // target: "http://127.0.0.1:3001", // tmp server

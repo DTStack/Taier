@@ -140,6 +140,15 @@ export default {
     getTenantTableTypes (params) { // 租户支持的表类型
         return http.post(req.GET_TENANT_TABLE_TYPE, params)
     },
+    getProjectUsedEngineInfo (params) { // 获取项目在用引擎信息
+        return http.post(req.GET_PRO_USE_ENGINE, params)
+    },
+    getProjectUnUsedEngine (params) { // 获取项目未接入的引擎信息
+        return http.post(req.GET_PRO_UNUSE_ENGINE, params)
+    },
+    addNewEngine (params) {
+        return http.post(req.ADD_NEW_ENGINE, params)
+    },
     // ========== Role ========== //
     getRoleList (params) {
         return http.post(req.GET_ROLE_LIST, params)

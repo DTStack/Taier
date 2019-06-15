@@ -60,12 +60,12 @@ class AddDesensitization extends Component {
     tableListOption () {
         const { tableList } = this.state;
         return tableList.map((item, index) => {
-            const tableType = item.tableType == TABLE_TYPE.HIVE ? '(hive)' : '(libra)'
+            const tableTypeName = item.tableType == TABLE_TYPE.HIVE ? '(hive)' : '(libra)'
             return <Option
                 key={item.id}
                 value={`${item.id}`}
             >
-                {`${item.tableName}${tableType}`}
+                {`${item.tableName}${tableTypeName}`}
             </Option>
         })
     }

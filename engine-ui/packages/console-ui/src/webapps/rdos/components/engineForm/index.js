@@ -37,14 +37,6 @@ class EngineForm extends React.Component {
         }
         return null
     }
-
-    // getProjectOptions () {
-    //     const { projectList = [] } = this.props;
-    //     return projectList.map((project) => {
-    //         return <Option key={project}>{project}</Option>
-    //     });
-    // }
-
     onTypeChange = (value) => {
         this.setState({ engineType: parseInt(value, 10) })
         this.props.form.resetFields([{ initialType: 1 }]);
@@ -52,7 +44,7 @@ class EngineForm extends React.Component {
 
     render () {
         const {
-            disabledEngineTypes, engineList
+            disabledEngineTypes, engineList = [], targetDb
         } = this.props;
         const { getFieldDecorator } = this.props.form;
 
@@ -63,7 +55,7 @@ class EngineForm extends React.Component {
                     {...formItemLayout}
                 >
                     {getFieldDecorator('engineType', {
-                        initialValue: `${ENGINE_SOURCE_TYPE.HADOOP}`,
+                        // initialValue: `${ENGINE_SOURCE_TYPE.HADOOP}`,
                         rules: [{
                             required: true,
                             message: '请选择引擎类型'
@@ -82,10 +74,7 @@ class EngineForm extends React.Component {
                     formItemLayout={formItemLayout}
                     engineType={this.state.engineType}
                     // formParentField={this.state.engineType == ENGINE_SOURCE_TYPE.HADOOP ? 'hadoop' : 'libra'}
-                    targetDb={{
-                        1: ['db1', 'db2'],
-                        2: ['libra']
-                    }}
+                    targetDb={targetDb}
                 />
             </Form>
         )

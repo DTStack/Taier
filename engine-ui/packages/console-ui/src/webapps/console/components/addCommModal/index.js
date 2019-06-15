@@ -71,6 +71,9 @@ class AddCommModal extends Component {
         }
         return flag
     }
+    /**
+     * 添加引擎时校验
+     */
     isSelectComp = () => {
         let validate = false
         if (this.state.checkedList.length === 0) {
@@ -96,6 +99,18 @@ class AddCommModal extends Component {
         })
         return params
     }
+    isSameEngine = () => {
+        const { getFieldValue } = this.props.form;
+        const { engineList } = this.props;
+        const engineSelected = getFieldValue('engineName');
+        const flag = engineList.some(item => item.engineName == engineSelected)
+        if (flag) {
+            message.error(`引擎已存在！`)
+            return false
+        } else {
+            return true
+        }
+    }
     getEngineAndCompParams () {
         const { getFieldValue } = this.props.form;
         const engineName = getFieldValue('engineName');
@@ -106,7 +121,8 @@ class AddCommModal extends Component {
             reqParams: {},
             canSubmit: false
         }
-        if (this.isSelectComp) { // 增加组件校验
+        const validate = isAddComp ? this.isSelectComp() : this.isSameEngine();
+        if (validate) { // 添加校验
             params.reqParams = {
                 engineName,
                 engineId,

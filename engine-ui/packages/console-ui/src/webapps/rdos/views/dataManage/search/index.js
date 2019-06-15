@@ -6,7 +6,7 @@ import {
 } from 'antd';
 import { Link, hashHistory } from 'react-router';
 import utils from 'utils';
-import { APPLY_RESOURCE_TYPE } from '../../../comm/const';
+import { APPLY_RESOURCE_TYPE, TABLE_NAME_BY_TABLE_TYPE } from '../../../comm/const';
 import { getTenantTableTypes } from '../../../store/modules/tableType'
 import EngineSelect from '../../../components/engineSelect';
 import CatalogueTree from '../catalogTree';
@@ -174,7 +174,10 @@ class SearchTable extends Component {
             {
                 title: '表类型',
                 key: 'tableType',
-                dataIndex: 'tableType'
+                dataIndex: 'tableType',
+                render (text, record) {
+                    return TABLE_NAME_BY_TABLE_TYPE[text]
+                }
             },
             {
                 title: '项目显示名称',

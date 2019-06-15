@@ -66,7 +66,8 @@ class EngineConfigItem extends React.Component {
             targetDb,
             formParentField,
             formItemLayout,
-            engineType
+            engineType,
+            isCreateEngine
             // disabledTargets
         } = this.props;
         const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -79,17 +80,21 @@ class EngineConfigItem extends React.Component {
         const createModel = getFieldValue(`${parentField}.createModel`);
         return (
             <React.Fragment>
-                <FormItem
-                    label='引擎类型'
-                    style={{ display: 'none' }}
-                    {...formItemLayout}
-                >
-                    {getFieldDecorator(`${parentField}.engineType`, {
-                        initialValue: `${engineType}`
-                    })(
-                        <Input/>
-                    )}
-                </FormItem>
+                {
+                    isCreateEngine && (
+                        <FormItem
+                            label='引擎类型'
+                            style={{ display: 'none' }}
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator(`${parentField}.engineType`, {
+                                initialValue: `${engineType}`
+                            })(
+                                <Input/>
+                            )}
+                        </FormItem>
+                    )
+                }
                 <FormItem
                     label='初始化方式'
                     style={{ marginBottom: createModel === PROJECT_CREATE_MODEL.NORMAL ? 0 : 24 }}

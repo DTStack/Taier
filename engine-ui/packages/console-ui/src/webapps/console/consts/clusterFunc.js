@@ -85,17 +85,7 @@ export function validateCompParams (componentValue) {
  */
 export function exChangeComponentConf (hadoopComp, libraComp) {
     const comp = hadoopComp.concat(libraComp);
-    let componentConf = {
-        flinkConf: {},
-        sparkConf: {},
-        learningConf: {},
-        dtyarnshellConf: {},
-        hadoopConf: {},
-        yarnConf: {},
-        hiveConf: {}, // 对应sparkThrift
-        carbonConf: {},
-        libraConf: {}
-    };
+    let componentConf = {};
     comp.map(item => {
         const componentTypeCode = item.componentTypeCode;
         switch (componentTypeCode) {
