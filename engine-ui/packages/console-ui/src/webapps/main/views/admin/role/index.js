@@ -81,6 +81,10 @@ class AdminRole extends Component {
     }
 
     loadRoles = (app, params) => {
+        if (params.projectId == '无项目') {
+            this.setState({ loading: 'success' })
+            return;
+        }
         this.setState({
             data: [],
             loading: 'loading'
