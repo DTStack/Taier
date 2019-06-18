@@ -149,6 +149,9 @@ export default {
     addNewEngine (params) {
         return http.post(req.ADD_NEW_ENGINE, params)
     },
+    getDBTableList (params) {
+        return http.post(req.GET_DB_TABLE_LIST, params)
+    },
     // ========== Role ========== //
     getRoleList (params) {
         return http.post(req.GET_ROLE_LIST, params)

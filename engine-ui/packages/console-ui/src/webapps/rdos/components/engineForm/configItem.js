@@ -51,7 +51,8 @@ class EngineConfigItem extends React.Component {
             if (engineType == ENGINE_SOURCE_TYPE.HADOOP) {
                 this.setState({
                     visible: true,
-                    dbName
+                    dbName,
+                    engineType
                 })
             } else {
                 hashHistory.push(`/data-manage/table/view/1870`)
@@ -170,6 +171,7 @@ class EngineConfigItem extends React.Component {
                 <PreviewMetaData
                     visible={this.state.visible}
                     dbName={this.state.dbName}
+                    engineType={engineType}
                     onCancel={() => { this.setState({ visible: false }) }}
                 />
             </React.Fragment>
