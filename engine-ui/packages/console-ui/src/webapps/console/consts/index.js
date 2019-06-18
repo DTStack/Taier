@@ -69,7 +69,7 @@ export const hadoopEngineOptionsValue = [ // 非华为集群支持的引擎类�
     { label: 'DTYarnShell', value: 3 },
     { label: 'HDFS', value: 4, disabled: true },
     { label: 'YARN', value: 5, disabled: true },
-    { label: 'SparkThrift', value: 6 },
+    { label: 'SparkThrift', value: 6, disabled: true },
     { label: 'CarbonData', value: 7 }
 ];
 export const noDisablehadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式

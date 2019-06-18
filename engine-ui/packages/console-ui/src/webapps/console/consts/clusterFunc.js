@@ -1,5 +1,5 @@
 // cluster function
-import { COMPONENT_TYPE_VALUE, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
+import { TASK_STATE, COMPONENT_TYPE_VALUE, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
     validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateLibraParams } from './index';
 
 /**
@@ -217,6 +217,55 @@ export function showTestResult (testResults, engineType) {
         }
     })
     return testStatus
+}
+
+export function displayTaskStatus (status) {
+    switch (status) {
+        case TASK_STATE.UNSUBMIT:
+            return 'UNSUBMIT';
+        case TASK_STATE.CREATED:
+            return 'CREATED';
+        case TASK_STATE.SCHEDULED:
+            return 'SCHEDULED';
+        case TASK_STATE.DEPLOYING:
+            return 'DEPLOYING';
+        case TASK_STATE.RUNNING:
+            return 'RUNNING';
+        case TASK_STATE.FINISHED:
+            return 'FINISHED';
+        case TASK_STATE.CANCELLING:
+            return 'CANCELLING';
+        case TASK_STATE.CANCELED:
+            return 'CANCELED';
+        case TASK_STATE.FAILED:
+            return 'FAILED';
+        case TASK_STATE.SUBMITFAILD:
+            return 'SUBMITFAILD';
+        case TASK_STATE.SUBMITTING:
+            return 'SUBMITTING';
+        case TASK_STATE.RESTARTING:
+            return 'RESTARTING';
+        case TASK_STATE.MANUALSUCCESS:
+            return 'MANUALSUCCESS';
+        case TASK_STATE.KILLED:
+            return 'KILLED';
+        case TASK_STATE.SUBMITTED:
+            return 'SUBMITTED';
+        case TASK_STATE.NOTFOUND:
+            return 'NOTFOUND';
+        case TASK_STATE.WAITENGINE:
+            return 'WAITENGINE';
+        case TASK_STATE.WAITCOMPUTE:
+            return 'WAITCOMPUTE';
+        case TASK_STATE.FROZEN:
+            return 'FROZEN';
+        case TASK_STATE.ENGINEACCEPTED:
+            return 'ENGINEACCEPTED';
+        case TASK_STATE.ENGINEDISTRIBUTE:
+            return 'ENGINEDISTRIBUTE';
+        default:
+            return null;
+    }
 }
 
 // 表单字段. => 驼峰转化

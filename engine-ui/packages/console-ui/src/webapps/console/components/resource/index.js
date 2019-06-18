@@ -56,7 +56,7 @@ class Resource extends Component {
         })
     }
     // 资源不足提示信息
-    yarnMessage = (data) => {
+    yarnMessage = (data = []) => {
         // virtualCores总数
         const virtualCores = data.map(item => {
             return item.virtualCores
@@ -114,7 +114,7 @@ class Resource extends Component {
             return null
         }
     }
-    flinkMessage = (data) => {
+    flinkMessage = (data = []) => {
         // freeSlots
         const freeSlots = data.map(item => {
             return item.freeSlots

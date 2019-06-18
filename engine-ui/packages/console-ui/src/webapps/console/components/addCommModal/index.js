@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import { Modal, Form, Input, Checkbox, message } from 'antd';
 import EngineSelect from '../../../../webapps/rdos/components/engineSelect';
-import { formItemLayout, ENGINE_TYPE, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
+import { formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
     COMPONENT_TYPE_VALUE, hadoopEngineOptionsValue, noDisablehadoopEngineOptionsValue } from '../../consts';
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
-const defaultCheckedValue = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN]; // 必选引擎值
+const defaultCheckedValue = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN, COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER]; // 必选引擎值
 const defaultEngine = ENGINE_TYPE_NAME.HADOOP // hadoop
 class AddCommModal extends Component {
     constructor (props) {
@@ -75,11 +75,14 @@ class AddCommModal extends Component {
      * 添加引擎时校验
      */
     isSelectComp = () => {
-        let validate = false
-        if (this.state.checkedList.length === 0) {
+        let validate = false;
+        const addCompOptionLength = this.compOptions().length;
+        if (this.state.checkedList.length > 0) {
+            validate = true
+        } else if (this.state.checkedList.length === 0 && addCompOptionLength != 0) {
             message.error('请选择增加的组件！')
         } else {
-            validate = true
+            return;
         }
         return validate
     }
@@ -116,7 +119,6 @@ class AddCommModal extends Component {
         const engineName = getFieldValue('engineName');
         const { isAddComp } = this.props;
         const isHadoop = engineName == ENGINE_TYPE_NAME.HADOOP;
-        let engineId = isHadoop || isAddComp ? ENGINE_TYPE.HADOOP : ENGINE_TYPE.LIBRA // 增加组件无引擎选择，目前只有hadoop可以添加
         let params = {
             reqParams: {},
             canSubmit: false
@@ -125,7 +127,6 @@ class AddCommModal extends Component {
         if (validate) { // 添加校验
             params.reqParams = {
                 engineName,
-                engineId,
                 componentTypeCodeList: isHadoop || isAddComp ? this.state.checkedList : [COMPONENT_TYPE_VALUE.LIBRASQL]
             }
             params.canSubmit = true
@@ -145,12 +146,18 @@ class AddCommModal extends Component {
         })
         setFieldsValue({ libraEngineName: '' })
     }
+    compOptions = () => {
+        const { hadoopComponentData = [] } = this.props;
+        return noDisablehadoopEngineOptionsValue
+            .filter(obj => !hadoopComponentData.some(item => item.componentTypeCode == obj.value))
+    }
     renderDiffentEngine = (flag) => {
         const { getFieldDecorator } = this.props.form;
         const { isAddComp } = this.props;
         const { checkAll, checkedList } = this.state;
+        const addCompOptions = this.compOptions();
         // 新增组件都可选
-        const options = isAddComp ? noDisablehadoopEngineOptionsValue : hadoopEngineOptionsValue;
+        const options = isAddComp ? addCompOptions : hadoopEngineOptionsValue;
         return (
             flag ? <React.Fragment>
                 {
@@ -168,28 +175,34 @@ class AddCommModal extends Component {
                         )}
                     </FormItem>
                 }
-                <FormItem
-                    label={<span>
-                        <span style={{ color: '#f04134', fontSize: '12px', fontFamily: 'SimSun' }}>* </span>
-                        <span>{isAddComp ? '增加组件' : '可选组件'}</span>
-                    </span>}
-                    {...formItemLayout}
-                >
-                    {getFieldDecorator('engines', {
-                    })(
-                        <div>
-                            <Checkbox
-                                onChange={this.onCheckAllChange}
-                                checked={checkAll}
-                            >全选</Checkbox>
-                            <CheckboxGroup
-                                options={options}
-                                value={checkedList}
-                                onChange={this.onChange}
-                            />
-                        </div>
-                    )}
-                </FormItem>
+                {
+                    addCompOptions.length == 0 ? (
+                        <div style={{ textAlign: 'center' }}>暂无组件可添加</div>
+                    ) : (
+                        <FormItem
+                            label={<span>
+                                <span style={{ color: '#f04134', fontSize: '12px', fontFamily: 'SimSun' }}>* </span>
+                                <span>{isAddComp ? '增加组件' : '可选组件'}</span>
+                            </span>}
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('engines', {
+                            })(
+                                <div>
+                                    <Checkbox
+                                        onChange={this.onCheckAllChange}
+                                        checked={checkAll}
+                                    >全选</Checkbox>
+                                    <CheckboxGroup
+                                        options={options}
+                                        value={checkedList}
+                                        onChange={this.onChange}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                    )
+                }
             </React.Fragment> : <React.Fragment>
                 <FormItem
                     label="必选组件"
