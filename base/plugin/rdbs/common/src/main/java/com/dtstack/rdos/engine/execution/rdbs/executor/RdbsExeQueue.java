@@ -235,6 +235,8 @@ public class RdbsExeQueue {
                 sql += SEMICOLON;
             }
 
+            sb.append(connFactory.getCreateProcedureTailer());
+
             return sql;
         }
 
