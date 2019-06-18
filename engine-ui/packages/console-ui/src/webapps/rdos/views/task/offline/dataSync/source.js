@@ -46,7 +46,7 @@ const TextArea = Input.TextArea;
 
 class SourceForm extends React.Component {
     _isMounted = false;
-
+    isMysqlTable = false;
     constructor (props) {
         super(props);
         this.state = {
@@ -57,8 +57,7 @@ class SourceForm extends React.Component {
             tablePartitionList: [], // 表分区列表
             incrementColumns: [], // 增量字段
             loading: false, // 请求
-            isChecked: {}, // checkbox默认是否选中
-            isMysqlTable: false // 只有mysql类型数据表可以批量选择
+            isChecked: {} // checkbox默认是否选中
         };
     }
 
@@ -125,8 +124,7 @@ class SourceForm extends React.Component {
             return;
         }
 
-        // 判断数据表类型是否为 MYSQL
-        sourceMap.type.type === DATA_SOURCE.MYSQL ? this.setState({ isMysqlTable: true }) : this.setState({ isMysqlTable: false });
+        this.isMysqlTable = sourceMap.type.type === DATA_SOURCE.MYSQL;
 
         // 保证不同mySql类型表切换是批量选择出现的数据错误问题
         this.state.isChecked[sourceMap.sourceId] && this.setState(preState => ({ isChecked: { ...preState.isChecked, ...{ [sourceMap.sourceId]: !preState.isChecked[sourceMap.sourceId] } } }));
@@ -669,7 +667,7 @@ class SourceForm extends React.Component {
     });
 
     renderExtDataSource = () => {
-        const { selectHack, isChecked, isMysqlTable, tableListMap } = this.state;
+        const { selectHack, isChecked, tableListMap } = this.state;
         const { sourceMap, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
@@ -793,7 +791,7 @@ class SourceForm extends React.Component {
                                         />
                                     </Tooltip>
                                     {
-                                        (isMysqlTable && isChecked[`extTable.${source.key}`]) ? (
+                                        (this.isMysqlTable && isChecked[`extTable.${source.key}`]) ? (
                                             <Row>
                                                 <Col>
                                                     <BatchSelect sourceKey={ source.key } sourceMap={ sourceMap } key={ tableValue } tabData={ tableListMap[source.sourceId] } handleSelectFinish={ this.handleSelectFinishFromBatch } />
@@ -803,7 +801,7 @@ class SourceForm extends React.Component {
                                     }
                                 </FormItem>
                                 {
-                                    this.state.isMysqlTable ? (
+                                    this.isMysqlTable ? (
                                         <Row className="form-item-follow-text">
                                             <Col
                                                 style={{ textAlign: 'right', fontSize: '13PX' }}
@@ -882,7 +880,7 @@ class SourceForm extends React.Component {
 
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
-        const { selectHack, isChecked, tableListMap, isMysqlTable } = this.state;
+        const { selectHack, isChecked, tableListMap } = this.state;
         const { sourceMap, isIncrementMode } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
 
@@ -909,7 +907,7 @@ class SourceForm extends React.Component {
                 formItem = [
                     !selectHack ? (
                         <div>
-                            <FormItem {...formItemLayout} label={ isMysqlTable ? '表名(批量)' : '表名' } key="rdbtable">
+                            <FormItem {...formItemLayout} label={ this.isMysqlTable ? '表名(批量)' : '表名' } key="rdbtable">
                                 {getFieldDecorator('table', {
                                     rules: [
                                         {
@@ -921,7 +919,7 @@ class SourceForm extends React.Component {
                                 })(
                                     <Select
                                         style={{ 'display': isChecked[ sourceMap.sourceId ] ? 'none' : 'block' }}
-                                        disabled={ isMysqlTable && isChecked[sourceMap.sourceId] }
+                                        disabled={ this.isMysqlTable && isChecked[sourceMap.sourceId] }
                                         getPopupContainer={getPopupContainer}
                                         mode={
                                             supportSubLibrary ? 'tags' : 'combobox'
@@ -950,7 +948,7 @@ class SourceForm extends React.Component {
                                     </Select>
                                 )}
                                 {
-                                    (isMysqlTable && isChecked[sourceMap.sourceId]) ? (
+                                    (this.isMysqlTable && isChecked[sourceMap.sourceId]) ? (
                                         <Row>
                                             <Col>
                                                 <BatchSelect sourceMap={ sourceMap } key={ tableValue } tabData={ tableListMap[sourceMap.sourceId] } handleSelectFinish={ this.handleSelectFinishFromBatch } />
@@ -972,7 +970,7 @@ class SourceForm extends React.Component {
                                 }
                             </FormItem>
                             {
-                                this.state.isMysqlTable ? (
+                                this.isMysqlTable ? (
                                     <Row className="form-item-follow-text">
                                         <Col
                                             style={{ textAlign: 'right', fontSize: '13PX' }}
