@@ -3,9 +3,9 @@ package com.dtstack.rdos.engine.execution.postgresql;
 import com.dtstack.rdos.engine.execution.rdbs.RdbsClient;
 import com.dtstack.rdos.engine.execution.rdbs.executor.ConnFactory;
 
-public class PostgreSQLlClient extends RdbsClient {
+public class PostgreSQLClient extends RdbsClient {
 
-    public PostgreSQLlClient() {
+    public PostgreSQLClient() {
         this.dbType = "postgresql";
     }
 
