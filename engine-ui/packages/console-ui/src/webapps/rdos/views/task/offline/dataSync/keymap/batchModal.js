@@ -23,11 +23,13 @@ export default function BatchModal (props) {
         title, desc,
         visible, onOk,
         placeholder, value, columns, sourceType,
-        onCancel, onChange, columnFamily
-    } = props
+        onCancel, onChange,
+        columnFamily
+    } = props;
 
     let initialVal = '';
-    if (sourceType !== DATA_SOURCE.HBASE) {
+    const isNotHBase = sourceType !== DATA_SOURCE.HBASE;
+    if (isNotHBase) {
         columns && columns.forEach(item => {
             const field = utils.checkExist(item.index) ? item.index : utils.checkExist(item.key) ? item.key : undefined;
             if (field !== undefined) initialVal += `${field}:${item.type},\n`;
@@ -35,35 +37,49 @@ export default function BatchModal (props) {
     } else {
         columns && columns.forEach(item => {
             const field = utils.checkExist(item.key) ? item.key : undefined;
-            if (field !== undefined) initialVal += `${item.cf || '-'}:${field}:${item.type},\n`;
+            if (field !== undefined) initialVal += `${item.cf || '-'}:${field},\n`;
         })
     }
-
     return (
         <Modal
             title={title}
             onOk={onOk}
             onCancel={onCancel}
             visible={visible}>
-            <p>
-                批量导入的语法格式（index 从 0 开始）：
+            <div>
+                { isNotHBase ? '批量导入的语法格式（index 从 0 开始）：' : '批量添加的语法格式:' }
                 <b style={{ color: 'rgb(255, 102, 0)' }}>
-                    {desc}
+                    {
+                        Object.prototype.toString.call(desc).slice(8, -1) === 'String' ? (
+                            desc.split(',').map(item => (
+                                <p key={item}>{item}</p>
+                            ))
+                        ) : { desc }
+                    }
                 </b>
-            </p>
-            <p>
-            </p>
-            <p>常用数据类型（type)：
-                <span style={{ color: 'rgb(255, 102, 0)' }}>
-                    {renderHDFSTypes()}
-                </span>
-            </p>
-            {columnFamily ? <p>已有列族：
-                <span style={{ color: 'rgb(255, 102, 0)' }}>
-                    {columnFamily.map(col => `${col},`) }
-                </span>
-            </p> : ''}
-
+            </div>
+            {
+                isNotHBase ? columnFamily ? (
+                    <div>
+                        <p>常用数据类型（type)：
+                            <span style={{ color: 'rgb(255, 102, 0)' }}>
+                                {renderHDFSTypes()}
+                            </span>
+                        </p>
+                        <p>已有列族：
+                            <span style={{ color: 'rgb(255, 102, 0)' }}>
+                                {columnFamily.map(col => `${col},`) }
+                            </span>
+                        </p>
+                    </div>
+                ) : (
+                    <p>常用数据类型（type)：
+                        <span style={{ color: 'rgb(255, 102, 0)' }}>
+                            {renderHDFSTypes()}
+                        </span>
+                    </p>
+                ) : null
+            }
             <br/>
             <Input
                 type="textarea"
