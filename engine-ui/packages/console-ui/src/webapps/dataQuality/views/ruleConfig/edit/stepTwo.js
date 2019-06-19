@@ -1,27 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isEmpty } from 'lodash';
+
 import {
     Button,
     Form,
-    Select,
-    Input,
-    Table,
-    message,
-    Popconfirm,
-    InputNumber
+    message
 } from 'antd';
+import RuleList from '../ruleList';
 
 import { ruleConfigActions } from '../../../actions/ruleConfig';
-import {
-    rowFormItemLayout,
-    operatorSelect,
-    operatorSelect1
-} from '../../../consts';
-
-const FormItem = Form.Item;
-const Option = Select.Option;
-const TextArea = Input.TextArea;
 
 const mapStateToProps = state => {
     const { ruleConfig, common } = state;
@@ -104,91 +92,6 @@ class StepTwo extends Component {
         // } else {
         //     message.error('请添加监控规则');
         // }
-    };
-
-    // 规则列表配置
-    initColumns = () => {
-        return [
-            {
-                title: '字段/数据表',
-                dataIndex: 'columnName',
-                key: 'columnName',
-                render: (text, record) =>
-                    this.renderColumns(text, record, 'columnName'),
-                width: '15%'
-            },
-            {
-                title: '统计函数',
-                dataIndex: 'functionId',
-                key: 'functionId',
-                render: (text, record) =>
-                    this.renderColumns(text, record, 'functionId'),
-                width: '15%'
-            },
-            {
-                title: '过滤条件',
-                dataIndex: 'filter',
-                key: 'filter',
-                render: (text, record) =>
-                    this.renderColumns(text, record, 'filter'),
-                width: '25%'
-            },
-            {
-                title: '校验方法',
-                dataIndex: 'verifyType',
-                key: 'verifyType',
-                render: (text, record) =>
-                    this.renderColumns(text, record, 'verifyType'),
-                width: '15%'
-            },
-            {
-                title: '阈值配置（不符合阈值条件时触发告警）',
-                dataIndex: 'threshold',
-                key: 'threshold',
-                render: (text, record) =>
-                    this.renderColumns(text, record, 'threshold'),
-                width: '20%'
-            },
-            {
-                title: '操作',
-                width: '10%',
-                render: (text, record) => {
-                    const { editable } = record;
-                    return (
-                        <div>
-                            {editable ? (
-                                <span>
-                                    <a
-                                        className="m-r-8"
-                                        onClick={() => this.save(record.id)}
-                                    >
-                                        保存
-                                    </a>
-                                    <a onClick={() => this.cancel(record.id)}>
-                                        取消
-                                    </a>
-                                </span>
-                            ) : (
-                                <span>
-                                    <a
-                                        className="m-r-8"
-                                        onClick={() => this.edit(record.id)}
-                                    >
-                                        编辑
-                                    </a>
-                                    <Popconfirm
-                                        title="确定要删除吗？"
-                                        onConfirm={() => this.delete(record.id)}
-                                    >
-                                        <a>删除</a>
-                                    </Popconfirm>
-                                </span>
-                            )}
-                        </div>
-                    );
-                }
-            }
-        ];
     };
 
     renderColumns (text, record, type) {
@@ -301,303 +204,6 @@ class StepTwo extends Component {
         }
 
         this.setState({ currentRule });
-    };
-
-    // 编辑状态的TD
-    renderEditTD = (text, record, type) => {
-        const { form, common, ruleConfig } = this.props;
-        const { getFieldDecorator } = form;
-        const { tableColumn } = ruleConfig;
-        const { verifyType } = common.allDict;
-        const { currentRule, functionList } = this.state;
-
-        const isStringLength = name => {
-            return name === '字符串最大长度' || name === '字符串最小长度';
-        };
-
-        let operatorMap = isStringLength(currentRule.functionName)
-            ? operatorSelect1
-            : operatorSelect;
-
-        switch (type) {
-            case 'columnName': {
-                if (record.isCustomizeSql) {
-                    return (
-                        <FormItem
-                            {...rowFormItemLayout}
-                            className="rule-edit-td cell-center"
-                        >
-                            {getFieldDecorator(`customizeSql@${record.id}`, {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '自定义SQL不可为空'
-                                    }
-                                ],
-                                initialValue: record.customizeSql
-                            })(
-                                record.isCustomizeSql ? (
-                                    <TextArea
-                                        style={{ resize: 'vertical' }}
-                                        autosize={{ minRows: 3, maxRows: 8 }}
-                                        placeholder="查询结果为一个数值类型"
-                                        onChange={this.changeRuleParams.bind(
-                                            this,
-                                            'customizeSql'
-                                        )}
-                                    />
-                                ) : (
-                                    <Input
-                                        placeholder="查询结果为一个数值类型"
-                                        onChange={this.changeRuleParams.bind(
-                                            this,
-                                            'customizeSql'
-                                        )}
-                                        disabled={record.editStatus === 'edit'}
-                                    />
-                                )
-                            )}
-                        </FormItem>
-                    );
-                } else {
-                    return (
-                        <FormItem
-                            {...rowFormItemLayout}
-                            className="rule-edit-td cell-center"
-                        >
-                            {getFieldDecorator(`columnName@${record.id}`, {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '字段不可为空'
-                                    }
-                                ],
-                                initialValue: record.columnName
-                            })(
-                                <Select
-                                    showSearch
-                                    onChange={this.onColumnNameChange}
-                                    disabled={record.isTable}
-                                >
-                                    {tableColumn.map(item => {
-                                        return (
-                                            <Option
-                                                key={item.key}
-                                                value={item.key}
-                                            >
-                                                {item.key}
-                                            </Option>
-                                        );
-                                    })}
-                                </Select>
-                            )}
-                        </FormItem>
-                    );
-                }
-            }
-
-            case 'functionId': {
-                return (
-                    <FormItem
-                        {...rowFormItemLayout}
-                        className="rule-edit-td cell-center"
-                    >
-                        {getFieldDecorator(`functionId@${record.id}`, {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '统计函数不可为空'
-                                }
-                            ],
-                            initialValue: record.functionId
-                        })(
-                            <Select onChange={this.onFunctionChange}>
-                                {functionList.map(item => {
-                                    return (
-                                        <Option
-                                            key={item.id}
-                                            value={item.id.toString()}
-                                        >
-                                            {item.nameZc}
-                                        </Option>
-                                    );
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>
-                );
-            }
-
-            case 'filter': {
-                return (
-                    <FormItem
-                        {...rowFormItemLayout}
-                        className="rule-edit-td cell-center"
-                    >
-                        {getFieldDecorator(`filter@${record.id}`, {
-                            rules: [],
-                            initialValue: record.filter
-                        })(
-                            <Input
-                                placeholder={`以"and"开头的条件语句，例：and colA = "value"`}
-                                onChange={this.changeRuleParams.bind(
-                                    this,
-                                    'filter'
-                                )}
-                            />
-                        )}
-                    </FormItem>
-                );
-            }
-
-            case 'verifyType': {
-                return (
-                    <FormItem
-                        {...rowFormItemLayout}
-                        className="rule-edit-td cell-center"
-                    >
-                        {getFieldDecorator(`verifyType@${record.id}`, {
-                            rules: [
-                                {
-                                    required: true,
-                                    message: '校验方法不可为空'
-                                }
-                            ],
-                            initialValue: record.verifyType
-                        })(
-                            <Select
-                                onChange={this.onVerifyTypeChange}
-                                disabled={currentRule.operator === 'in'}
-                            >
-                                {verifyType.map(item => {
-                                    return (
-                                        <Option
-                                            key={item.value}
-                                            value={item.value.toString()}
-                                        >
-                                            {item.name}
-                                        </Option>
-                                    );
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>
-                );
-            }
-
-            case 'threshold': {
-                if (currentRule.operator === 'in') {
-                    return (
-                        <FormItem
-                            {...rowFormItemLayout}
-                            className="rule-edit-td cell-center"
-                        >
-                            {getFieldDecorator(`thresholdEnum@${record.id}`, {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '范围不可为空'
-                                    }
-                                ],
-                                initialValue: record.threshold
-                            })(
-                                <Input
-                                    placeholder="枚举格式为(value1,value2,.....)"
-                                    onChange={this.changeRuleParams.bind(
-                                        this,
-                                        'threshold'
-                                    )}
-                                />
-                            )}
-                        </FormItem>
-                    );
-                } else {
-                    return (
-                        <div className="cell-center-box">
-                            <FormItem className="cell-multiple-center">
-                                {getFieldDecorator(`operator@${record.id}`, {
-                                    rules: [
-                                        {
-                                            required: true,
-                                            message: '设置不可为空'
-                                        }
-                                    ],
-                                    initialValue: record.operator
-                                })(
-                                    <Select
-                                        style={{ width: 80 }}
-                                        onChange={this.changeRuleParams.bind(
-                                            this,
-                                            'operator'
-                                        )}
-                                    >
-                                        {operatorMap.map(item => {
-                                            return (
-                                                <Option
-                                                    key={item.value}
-                                                    value={item.value}
-                                                >
-                                                    {item.text}
-                                                </Option>
-                                            );
-                                        })}
-                                    </Select>
-                                )}
-                            </FormItem>
-                            <FormItem className="cell-multiple-center">
-                                {getFieldDecorator(`threshold@${record.id}`, {
-                                    rules: [
-                                        {
-                                            required: true,
-                                            message: '阈值不可为空'
-                                        }
-                                    ],
-                                    initialValue: record.threshold
-                                })(
-                                    <InputNumber
-                                        style={{ width: 80, marginRight: 10 }}
-                                        onChange={this.changeRuleParams.bind(
-                                            this,
-                                            'threshold'
-                                        )}
-                                    />
-                                )}
-                            </FormItem>
-                            {currentRule.isPercentage === 1 && (
-                                <span
-                                    style={{ height: 32, lineHeight: '32px' }}
-                                >
-                                    %
-                                </span>
-                            )}
-                        </div>
-                    );
-                }
-            }
-        }
-    };
-
-    // 已有数据
-    renderTD = (text, record, type) => {
-        switch (type) {
-            case 'columnName': {
-                return record.isCustomizeSql ? record.customizeSql : text;
-            }
-            case 'functionId': {
-                return record.functionName;
-            }
-            case 'verifyType': {
-                return record.verifyTypeValue;
-            }
-            case 'threshold': {
-                let value = `${
-                    record.operator ? record.operator : ''
-                }  ${text}`;
-                return record.isPercentage ? `${value} %` : value;
-            }
-            default:
-                return text;
-        }
     };
 
     // 编辑规则
@@ -820,7 +426,9 @@ class StepTwo extends Component {
     };
 
     render () {
-        const { rules } = this.props.editParams;
+        const { editParams, ruleConfig } = this.props;
+        const { rules } = editParams;
+        const { tableColumn } = ruleConfig;
         return (
             <div>
                 <div className="steps-content">
@@ -846,15 +454,17 @@ class StepTwo extends Component {
                             添加自定义SQL
                         </Button>
                     </div>
-
-                    <Table
-                        rowKey="id"
-                        className="m-table rule-edit-table"
-                        style={{ margin: '0 20px' }}
-                        columns={this.initColumns()}
-                        pagination={false}
-                        dataSource={rules}
-                        onChange={this.onTableChange}
+                    <RuleList
+                        tableColumn={tableColumn}
+                        data={editParams}
+                        onDeleteRule={this.deleteRule}
+                        onSaveRule={this.onSaveRule}
+                        getInitData={function () {
+                            return rules;
+                        }}
+                        onRuleListChange={(ruleList) => {
+                            this.props.changeParams({ rules: ruleList });
+                        }}
                     />
                 </div>
 

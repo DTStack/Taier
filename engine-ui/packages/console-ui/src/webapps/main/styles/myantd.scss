@@ -513,3 +513,11 @@
 .ant-calendar table {
     font-size: 12px;
 }
+.c-tabs--scroll {
+    > .ant-tabs {
+        > .ant-tabs-content {
+            height: calc(100% - 32px);
+            overflow: auto;
+        }
+    }
+}

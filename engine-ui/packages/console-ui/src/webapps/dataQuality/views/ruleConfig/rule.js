@@ -1,0 +1,87 @@
+import React from 'react';
+import { connect } from 'react-redux';
+import { get } from 'lodash';
+
+import RuleForm from './ruleForm';
+
+@connect(state => {
+    return {
+        monitorFunction: get(state, 'ruleConfig.monitorFunction')
+    }
+})
+class Rule extends React.Component {
+    constructor (props) {
+        super(props);
+        this.state = {
+            copyData: props.data
+        }
+    }
+    getTableFunction () {
+        const { monitorFunction } = this.props;
+        return monitorFunction.all.filter(
+            item => item.level === 1
+        );
+    }
+    getColumnFunction (columnName) {
+        const { monitorFunction, tableColumn } = this.props;
+        let columnType = get(tableColumn.filter(
+            item => item.key === columnName
+        )[0], 'type');
+        return columnType ? monitorFunction[columnType] : [];
+    }
+    getFunction () {
+        const { copyData } = this.state;
+        const { type } = this.props;
+        switch (type) {
+            case 'column': {
+                return this.getColumnFunction(copyData.columnName);
+            }
+            case 'table': {
+                return this.getTableFunction();
+            }
+            default: {
+                return [];
+            }
+        }
+    }
+    onValuesChange = (values) => {
+        let newData = { ...this.state.copyData, ...values };
+        if (values.hasOwnProperty('columnName')) {
+            newData.functionId = null;
+            newData.functionName = null;
+            newData.isPercentage = false;
+            newData.operator = null;
+            newData.threshold = null;
+        }
+        if (values.hasOwnProperty('functionId')) {
+            let f = this.getFunction().find((func) => {
+                return func.id == values.functionId
+            });
+            newData.functionName = f.nameZc;
+            newData.isPercentage = f.isPercent;
+            newData.operator = null;
+            newData.threshold = null;
+        }
+        this.setState({
+            copyData: newData
+        })
+    }
+    onCancel = (id) => {
+        this.setState({
+            copyData: this.props.data
+        });
+        this.props.onCancel(id);
+    }
+    render () {
+        return (
+            <RuleForm
+                {...this.props}
+                data={this.state.copyData}
+                onValuesChange={this.onValuesChange}
+                functionList={this.getFunction()}
+                onCancel={this.onCancel}
+            />
+        )
+    }
+}
+export default Rule
