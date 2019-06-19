@@ -81,6 +81,7 @@
     "jest": "*",
     "less": "3.8.1",
     "less-loader": "^4.1.0",
+    "lint-md": "0.1.1",
     "lodash-webpack-plugin": "0.11.4",
     "mini-css-extract-plugin": "0.4.1",
     "monaco-editor-webpack-plugin": "~1.4.0",
@@ -115,7 +116,7 @@
     "hotfix": "./scripts/hotfix.sh --b",
     "push-dev": "./scripts/push-dev.sh",
     "scp": "./scripts/scp.sh",
-    "lint": "eslint ./src/**/*.js && lint-md ./*.md docs/*.md",
+    "lint": "node ./node_modules/eslint ./src/**/*.js && node ./node_modules/lint-md ./*.md docs/*.md",
     "fix-lint": "eslint ./src/**/*.js --fix && lint-md ./*.md docs/*.md --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
     "changeissueurl": "replace 'http://git.dtstack.cn/dtstack/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
