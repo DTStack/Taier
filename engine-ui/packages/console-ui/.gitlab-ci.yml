@@ -4,7 +4,10 @@ before_script:
   - npm install -g eslint
   - npm install -g lint-md
 
-lint:
+lint: 
   script:
     - npm run lint
+
+test:
+  script:
     - npm test
