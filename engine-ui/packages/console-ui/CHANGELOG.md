@@ -2,6 +2,87 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0-beta.3.1"></a>
+# [3.6.0-beta.3.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.3...3.6.0-beta.3.1) (2019-06-19)
+
+
+### Bug Fixes
+
+* **interceptor:** do not throw logout error ([29b768e](http://git.dtstack.cn/dtstack/data-stack-web/commits/29b768e)), closes [#16647](http://redmine.prod.dtstack.cn/issues/16647)
+
+
+
+<a name="3.6.0-beta.3"></a>
+# [3.6.0-beta.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.2.1...3.6.0-beta.3) (2019-06-12)
+
+
+### Bug Fixes
+
+* **rdos:** change sort of method ([8ffcd29](http://git.dtstack.cn/dtstack/data-stack-web/commits/8ffcd29))
+* alter request logout from uic to rdos ([25697d9](http://git.dtstack.cn/dtstack/data-stack-web/commits/25697d9))
+* **dq,rdos:** fix bugs ([1f49ce2](http://git.dtstack.cn/dtstack/data-stack-web/commits/1f49ce2)), closes [#16359](http://redmine.prod.dtstack.cn/issues/16359) [#16351](http://redmine.prod.dtstack.cn/issues/16351)
+* delete exist tag when create new ([ce13fab](http://git.dtstack.cn/dtstack/data-stack-web/commits/ce13fab))
+* **audit:** alter the link of audit ([8e08a29](http://git.dtstack.cn/dtstack/data-stack-web/commits/8e08a29)), closes [#16502](http://redmine.prod.dtstack.cn/issues/16502)
+* **code-editor:** code-editor ([f4510ea](http://git.dtstack.cn/dtstack/data-stack-web/commits/f4510ea)), closes [#16265](http://redmine.prod.dtstack.cn/issues/16265)
+* **code-editor runningLog:** fix issue with code mirror linenumber error ([e6bd23b](http://git.dtstack.cn/dtstack/data-stack-web/commits/e6bd23b)), closes [#16265](http://redmine.prod.dtstack.cn/issues/16265)
+* **dq:** sync value of search ([eeb42c8](http://git.dtstack.cn/dtstack/data-stack-web/commits/eeb42c8)), closes [#16411](http://redmine.prod.dtstack.cn/issues/16411)
+* **interceptor:** add hashHistory import ([c251cce](http://git.dtstack.cn/dtstack/data-stack-web/commits/c251cce))
+* **logout:** user logout can't clear cookies ([085d7e5](http://git.dtstack.cn/dtstack/data-stack-web/commits/085d7e5)), closes [#16488](http://redmine.prod.dtstack.cn/issues/16488)
+* **mxgraph:** add mx factory ([a06bfee](http://git.dtstack.cn/dtstack/data-stack-web/commits/a06bfee))
+* **mxgraph:** change path ([3c159b9](http://git.dtstack.cn/dtstack/data-stack-web/commits/3c159b9))
+* **mxgraph:** fix bug ([8062472](http://git.dtstack.cn/dtstack/data-stack-web/commits/8062472))
+* **mxgraph:** fix require bug ([41a20e5](http://git.dtstack.cn/dtstack/data-stack-web/commits/41a20e5))
+* **rdos:** add job flow style ([7f7ca7f](http://git.dtstack.cn/dtstack/data-stack-web/commits/7f7ca7f))
+* **rdos:** change opera record table key type ([2101253](http://git.dtstack.cn/dtstack/data-stack-web/commits/2101253))
+* **rdos:** change vertex width ([0694fdd](http://git.dtstack.cn/dtstack/data-stack-web/commits/0694fdd)), closes [#16479](http://redmine.prod.dtstack.cn/issues/16479)
+* **rdos:** disable context menu of edge ([1c2bdb1](http://git.dtstack.cn/dtstack/data-stack-web/commits/1c2bdb1)), closes [#16451](http://redmine.prod.dtstack.cn/issues/16451)
+* **rdos:** fix bug ([f329294](http://git.dtstack.cn/dtstack/data-stack-web/commits/f329294))
+* **rdos:** fix display of project name ([e3d0938](http://git.dtstack.cn/dtstack/data-stack-web/commits/e3d0938)), closes [#16444](http://redmine.prod.dtstack.cn/issues/16444)
+* **rdos:** fix mxgraph ([3e31346](http://git.dtstack.cn/dtstack/data-stack-web/commits/3e31346))
+* **rdos:** fix opera record shadow copy bug ([74381e8](http://git.dtstack.cn/dtstack/data-stack-web/commits/74381e8)), closes [#16453](http://redmine.prod.dtstack.cn/issues/16453)
+* **rdos:** fix patch data bug ([3811125](http://git.dtstack.cn/dtstack/data-stack-web/commits/3811125))
+* **science:** change param of date, add task jump button ([8db86e5](http://git.dtstack.cn/dtstack/data-stack-web/commits/8db86e5))
+* **science:** fix operation bug ([288b021](http://git.dtstack.cn/dtstack/data-stack-web/commits/288b021))
+* **science:** fix precision recall chart dont show markpoint ([124a761](http://git.dtstack.cn/dtstack/data-stack-web/commits/124a761))
+* **stream:** add debounce of save task ([0580237](http://git.dtstack.cn/dtstack/data-stack-web/commits/0580237))
+* **stream:** change palceholder of input panel editor ([48cb194](http://git.dtstack.cn/dtstack/data-stack-web/commits/48cb194))
+* **stream:** change unit of graph ([9ef035f](http://git.dtstack.cn/dtstack/data-stack-web/commits/9ef035f))
+* **stream:** fix select bug ([219ef53](http://git.dtstack.cn/dtstack/data-stack-web/commits/219ef53))
+* **user:** check if the project is empty ([fcc91f9](http://git.dtstack.cn/dtstack/data-stack-web/commits/fcc91f9)), closes [#16491](http://redmine.prod.dtstack.cn/issues/16491)
+
+
+### Features
+
+* **all:** fix bugs ([683eb26](http://git.dtstack.cn/dtstack/data-stack-web/commits/683eb26))
+* **audit:** add safe audit module ([f685b39](http://git.dtstack.cn/dtstack/data-stack-web/commits/f685b39))
+* **audit:** add safe audit module ([e903426](http://git.dtstack.cn/dtstack/data-stack-web/commits/e903426))
+* **rdos:** add across project ([9528eda](http://git.dtstack.cn/dtstack/data-stack-web/commits/9528eda))
+* **rdos:** add api ([72eb0e0](http://git.dtstack.cn/dtstack/data-stack-web/commits/72eb0e0))
+* **rdos:** add new status of task ([1ec5332](http://git.dtstack.cn/dtstack/data-stack-web/commits/1ec5332)), closes [#16239](http://redmine.prod.dtstack.cn/issues/16239)
+* **rdos:** change params of api ([1015b68](http://git.dtstack.cn/dtstack/data-stack-web/commits/1015b68))
+* **rdos:** complete  across project ([4195138](http://git.dtstack.cn/dtstack/data-stack-web/commits/4195138))
+* **rdos:** track user visit batch app ([18bd0af](http://git.dtstack.cn/dtstack/data-stack-web/commits/18bd0af))
+* **rdos:** track user visit batch app ([ef517bf](http://git.dtstack.cn/dtstack/data-stack-web/commits/ef517bf))
+* **readDatabase.js:** fix read data table component to save problems ([d32351b](http://git.dtstack.cn/dtstack/data-stack-web/commits/d32351b)), closes [#16313](http://redmine.prod.dtstack.cn/issues/16313)
+* **science:** add schedule folder ([3ce1e65](http://git.dtstack.cn/dtstack/data-stack-web/commits/3ce1e65))
+* **science:** print detail log when task is runnning ([c8ce227](http://git.dtstack.cn/dtstack/data-stack-web/commits/c8ce227))
+* **science:** read Database cannot check log ([1bc17d8](http://git.dtstack.cn/dtstack/data-stack-web/commits/1bc17d8))
+* **stream:** add diff-editor of code to tabs ([75632dd](http://git.dtstack.cn/dtstack/data-stack-web/commits/75632dd))
+* **stream:** cbange the desc of eventtime in  input panel ([e280373](http://git.dtstack.cn/dtstack/data-stack-web/commits/e280373)), closes [#15601](http://redmine.prod.dtstack.cn/issues/15601)
+* **stream:** remove some fields when filetype is equal to orc ([a603d37](http://git.dtstack.cn/dtstack/data-stack-web/commits/a603d37))
+
+
+### Performance Improvements
+
+* **code editor:** fix codemirror line number problem ([486ff6b](http://git.dtstack.cn/dtstack/data-stack-web/commits/486ff6b)), closes [#16265](http://redmine.prod.dtstack.cn/issues/16265)
+* **code-editor:** code-editor[C[C ([3a5acda](http://git.dtstack.cn/dtstack/data-stack-web/commits/3a5acda)), closes [#16265](http://redmine.prod.dtstack.cn/issues/16265)
+* **graphContainer.js:** fix a issue with component renaming ([b7f5df5](http://git.dtstack.cn/dtstack/data-stack-web/commits/b7f5df5)), closes [#16295](http://redmine.prod.dtstack.cn/issues/16295)
+* **package.json:** add build cli for windows ([a9232cd](http://git.dtstack.cn/dtstack/data-stack-web/commits/a9232cd))
+* **runningLog:** fix issue about code mirror plugins linenumber error ([a7a3b7a](http://git.dtstack.cn/dtstack/data-stack-web/commits/a7a3b7a)), closes [#16265](http://redmine.prod.dtstack.cn/issues/16265)
+* **writeDatabase.js:** fix issue with writeDatabase component to save ([ff71377](http://git.dtstack.cn/dtstack/data-stack-web/commits/ff71377)), closes [#16187](http://redmine.prod.dtstack.cn/issues/16187)
+
+
+
 <a name="3.6.0-beta.2.1"></a>
 # [3.6.0-beta.2.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.2...3.6.0-beta.2.1) (2019-05-28)
 

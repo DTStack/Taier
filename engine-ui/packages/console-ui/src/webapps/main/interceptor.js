@@ -26,7 +26,7 @@ export function authAfterFormated (response, extOptions = {}) {
             return response;
         case 0: // 无权限，需要登录
             UserApi.logout()
-            return Promise.reject(response);
+            return response;
         case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
             // hashHistory.push('/');
             return Promise.reject(response);
