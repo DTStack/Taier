@@ -158,7 +158,9 @@ export const TASK_TYPE = { // 任务类型
     HAHDOOPMR: 9,
     WORKFLOW: 10, // 工作流
     DATA_COLLECTION: 11, // 实时采集
-    CARBONSQL: 12 // CarbonSQL
+    CARBONSQL: 12, // CarbonSQL
+    NOTEBOOK: 13,
+    EXPERIMENT: 14
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
@@ -201,10 +203,10 @@ export const TASK_TYPE_ARRAY = [ //
 ]
 
 export const HELP_DOC_URL = {
-    INDEX: '/public/helpSite/dtinsight-batch/v3.0/Summary.html',
-    DATA_SOURCE: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/Overview.html',
-    DATA_SYNC: '/public/helpSite/dtinsight-batch/v3.0/DataIntegration/JobConfig.html',
-    TASKPARAMS: '/public/helpSite/dtinsight-batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
+    INDEX: '/public/helpSite/batch/v3.0/Summary.html',
+    DATA_SOURCE: '/public/helpSite/batch/v3.0/DataIntegration/Overview.html',
+    DATA_SYNC: '/public/helpSite/batch/v3.0/DataIntegration/JobConfig.html',
+    TASKPARAMS: '/public/helpSite/batch/v3.0/DataDevelop/ScheduleConfig.html#ParamConfig'
 }
 export const HADOOPMR_INITIAL_VALUE = {
     'mapper': 'org.apache.hadoop.examples.WordCount$TokenizerMapper',
@@ -229,9 +231,11 @@ export const TASK_STATUS = { // 任务状态
     RESTARTING: 11,
     SET_SUCCESS: 12,
     KILLED: 13,
+    TASK_STATUS_NOT_FOUND: 15, // 暂时无法获取任务状态
     WAIT_RUN: 16,
     WAIT_COMPUTE: 17,
-    FROZEN: 18
+    FROZEN: 18,
+    DO_FAIL: 22
 }
 
 // 表模型规则
@@ -443,6 +447,14 @@ export const offlineTaskTypeFilter = [
         id: 12,
         text: 'CarbonSQL',
         value: TASK_TYPE.CARBONSQL
+    }, {
+        id: 13,
+        text: 'Notebook',
+        value: TASK_TYPE.NOTEBOOK
+    }, {
+        id: 14,
+        text: '算法实验',
+        value: TASK_TYPE.EXPERIMENT
     }]
 
 export const offlineTaskPeriodFilter = [{

@@ -6,18 +6,18 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             '/api/dq': {
-                target: 'http://172.16.8.104:8089',
+                target: 'http://172.16.8.108:8089', // 开发环境
                 // target: "http://172.16.6.135:8089", // tmp server
-                // target: "http://172.16.0.79:8089",
+                // target: "http://172.16.10.45:8089",
                 // ignorePath: true,
                 changeOrigin: true,
                 secure: false
             },
             '/api/rdos': {
-                target: 'http://172.16.10.86:9020', // test
-                // target: "http://172.16.8.104:9020", // dev server
+                // target: 'http://172.16.10.86:9020', // test
+                target: "http://172.16.8.107:9020", // dev server
                 // target: "http://172.16.10.51:9020", // test
-                // target: "http://172.16.1.191:9020",
+                // target: "http://172.16.10.97:9020",
                 // target: "http://127.0.0.1:3001", // tmp server
                 // ignorePath: true,
                 // Mock
@@ -43,9 +43,17 @@ module.exports = {
                 // pathRewrite:{"^/uic":"/"},
                 secure: false
             },
+            '/api/dataScience': { // 算法平台
+                target: 'http://172.16.8.107:9029', // 开发环境
+                // target: 'http://127.0.0.1:3000', // 测试环境
+                // target: 'http://172.16.3.30:9029', // 联调环境
+                // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
+                changeOrigin: true,
+                secure: false
+            },
             '/api/da': { // da地址
-                target: 'http://172.16.10.45:8087',
-                // target: "http://172.16.8.107:8087",//开发环境
+                // target: 'http://172.16.10.45:8087',
+                target: "http://172.16.8.108:8087",//开发环境
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,
@@ -58,7 +66,7 @@ module.exports = {
                 secure: false
             },
             '/api/console': { // 控制台
-                target: 'http://172.16.8.104:8084', // 开发环境
+                target: 'http://172.16.8.109:8084', // 开发环境
                 // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
@@ -72,8 +80,8 @@ module.exports = {
                 secure: false
             },
             '/public/helpSite': { // 分析引擎
-                target: 'http://172.16.8.104', // 开发环境
-                // target: "http://172.16.10.45:9022", // 测试环境
+                // target: 'http://172.16.8.104', // 开发环境
+                target: 'http://172.16.10.34', // 测试环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false

@@ -314,15 +314,17 @@ class RuleConfig extends Component {
 
     // table搜索
     handleSearch = name => {
+        this.props.getMonitorLists(this.state.params);
+    };
+
+    handleChange = e => {
         let params = {
             ...this.state.params,
             pageIndex: 1,
-            tableName: name || undefined
+            tableName: e.target.value || undefined
         };
-
-        this.props.getMonitorLists(params);
         this.setState({ params });
-    };
+    }
 
     openSlidePane = record => {
         this.setState({
@@ -367,6 +369,7 @@ class RuleConfig extends Component {
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.handleSearch}
+                    onChange={this.handleChange}
                     defaultValue={params.tableName}
                     style={{ width: 200, margin: '10px 0' }}
                 />

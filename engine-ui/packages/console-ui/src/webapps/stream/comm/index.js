@@ -304,3 +304,14 @@ export function isProjectCouldEdit (project, user) {
 export function isKafka (type) {
     return type == DATA_SOURCE.KAFKA || type == DATA_SOURCE.KAFKA_09 || type == DATA_SOURCE.KAFKA_10;
 }
+
+/**
+ * 是不是HDFS
+ */
+export function isHDFS (type) {
+    return type == DATA_SOURCE.HDFS;
+}
+
+export function isSupportedTargetSource (type) {
+    return isKafka(type) || isHDFS(type);
+}

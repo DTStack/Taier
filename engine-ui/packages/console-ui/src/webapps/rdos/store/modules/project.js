@@ -32,13 +32,16 @@ export function getProject (id) {
                 type: workbenchAction.CLOSE_ALL_TABS
             });
         }
-        Api.getProjectByID({
+        return Api.getProjectByID({
             projectId: id
         }).then((res) => {
-            return dispatch({
-                type: projectAction.GET_PROJECT,
-                data: res.data || {}
-            })
+            if (res && res.code == 1) {
+                dispatch({
+                    type: projectAction.GET_PROJECT,
+                    data: res.data || {}
+                })
+                return res.data
+            }
         })
     }
 }

@@ -2,6 +2,7 @@ import http from './http'
 
 import RdosApi from 'rdos/api'
 import StreamApi from 'stream/api'
+import ScienceApi from 'science/api'
 import DqSysApi from 'dataQuality/api/sysAdmin'
 import DqApi from 'dataQuality/api'
 
@@ -33,6 +34,8 @@ export default {
                 return RdosApi.getProjects(params);
             case MY_APPS.STREAM:
                 return StreamApi.getProjects(params);
+            case MY_APPS.SCIENCE:
+                return ScienceApi.comm.getAllProject(params);
             default:
         }
     },
@@ -59,6 +62,8 @@ export default {
                 return http.post(req.DATAAPI_ROLE_QUERY, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_ROLE_QUERY, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_ROLE_QUERY, params);
             case MY_APPS.RDOS:
             default:
                 return RdosApi.getRoleList(params);
@@ -79,6 +84,8 @@ export default {
                 return http.post(req.DATAAPI_ROLE_PERMISSION_ADD_OR_EDIT, params)
             case MY_APPS.LABEL:
                 return http.post(req.DL_ROLE_PERMISSION_ADD_OR_EDIT, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_ROLE_PERMISSION_ADD_OR_EDIT, params);
             default:
         }
     },
@@ -97,6 +104,8 @@ export default {
                 return http.post(req.DATAAPI_REMOVE_ROLE, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_REMOVE_ROLE, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_REMOVE_ROLE, params)
             default:
         }
     },
@@ -115,6 +124,8 @@ export default {
                 return http.post(req.DATAAPI_ROLE_PERMISSION, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_ROLE_PERMISSION, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_ROLE_PERMISSION, params)
             default:
         }
     },
@@ -133,6 +144,8 @@ export default {
                 return http.post(req.DATAAPI_GET_ROLE_TREE, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_GET_ROLE_TREE, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_GET_ROLE_TREE, params)
             default:
         }
     },
@@ -152,6 +165,8 @@ export default {
                 return http.post(req.DATAAPI_MASSAGE_QUERY, params)
             case MY_APPS.LABEL:
                 return http.post(req.DL_MASSAGE_QUERY, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_MASSAGE_QUERY, params)
             default: return null;
         }
     },
@@ -170,6 +185,8 @@ export default {
                 return http.post(req.DATAAPI_GET_MASSAGE_BY_ID, params)
             case MY_APPS.LABEL:
                 return http.post(req.DL_GET_MASSAGE_BY_ID, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_GET_MASSAGE_BY_ID, params)
             default: return null;
         }
     },
@@ -188,6 +205,8 @@ export default {
                 return http.post(req.DATAAPI_MASSAGE_MARK_AS_READ, params)
             case MY_APPS.LABEL:
                 return http.post(req.DL_MASSAGE_MARK_AS_READ, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_MASSAGE_MARK_AS_READ, params)
             default: return null;
         }
     },
@@ -206,6 +225,8 @@ export default {
                 return http.post(req.DATAAPI_MASSAGE_MARK_AS_ALL_READ, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_MASSAGE_MARK_AS_ALL_READ, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_MASSAGE_MARK_AS_ALL_READ, params)
             default: return null;
         }
     },
@@ -224,6 +245,8 @@ export default {
                 return http.post(req.DATAAPI_MASSAGE_DELETE, params)
             case MY_APPS.LABEL:
                 return http.post(req.DL_MASSAGE_DELETE, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_MASSAGE_DELETE, params)
             default: return null;
         }
     },
@@ -243,6 +266,8 @@ export default {
                 return http.post(req.DATAAPI_QUERY_USER, params)
             case MY_APPS.LABEL:
                 return http.post(req.DL_QUERY_USER, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_QUERY_USER, params)
             default:
         }
     },
@@ -264,6 +289,8 @@ export default {
                 return http.post(req.DL_SEARCH_UIC_USERS, params)
             case MY_APPS.API:
                 return http.post(req.DATAAPI_SEARCH_UIC_USERS, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_SEARCH_UIC_USERS, params)
             default:
         }
     },
@@ -282,6 +309,8 @@ export default {
                 return http.post(req.DL_ADD_USER, params)
             case MY_APPS.API:
                 return http.post(req.DATAAPI_ADD_USER, params)
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_ADD_USER, params)
             default:
         }
     },
@@ -300,6 +329,8 @@ export default {
                 return http.post(req.DATAAPI_REMOVE_USER, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_REMOVE_USER, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_REMOVE_USER, params)
             default:
         }
     },
@@ -318,8 +349,18 @@ export default {
                 return http.post(req.DATAAPI_UPDATE_USER_ROLE, params);
             case MY_APPS.LABEL:
                 return http.post(req.DL_UPDATE_USER_ROLE, params);
+            case MY_APPS.SCIENCE:
+                return http.post(req.SCIENCE_UPDATE_USER_ROLE, params)
+            default:
+        }
+    },
+
+    getSafeAuditList (app, params) {
+        switch (app) {
+            case MY_APPS.RDOS:
+                params.appTag = 'BATCH'; // app类型：BATCH,STREAM,ANALYZE,QUALITY,API,SCIENCE
+                return http.post(req.GET_AUDIT_LIST, params)
             default:
         }
     }
-
 }

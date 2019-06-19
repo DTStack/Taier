@@ -91,6 +91,7 @@ class ResFormModal extends Component {
                     onOk={this.submit}
                     onCancel={handCancel}
                     confirmLoading={loading}
+                    cancelText="关闭"
                     getContainer={() => getContainer('JS_res_modal')}
                 >
                     <Form>

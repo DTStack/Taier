@@ -1,5 +1,6 @@
-import localDb from 'utils/localDb'
 import utils from 'utils'
+
+import UserAPI from 'main/api/user';
 
 import req from './req'
 import http from './http'
@@ -8,11 +9,14 @@ import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
 import { publishType, TASK_TYPE } from '../comm/const';
 
+<<<<<<< HEAD
 /* eslint-disable-next-line */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
 /* eslint-disable-next-line */
 const UIC_DOMAIN_URL = APP_CONF.UIC_DOMAIN || '';
 
+=======
+>>>>>>> xiaowei/feat-yml
 export default {
 
     sqlFormat (params) { // SQL格式化
@@ -31,11 +35,12 @@ export default {
     logout () { // 注销退出
         http.post(req.APP_LOGOUT).then(res => {
             if (res.code === 1) {
-                this.openLogin();
+                UserAPI.openLogin();
             }
         })
     },
 
+<<<<<<< HEAD
     openLogin () {
         localDb.clear()
         utils.deleteCookie('dt_user_id', UIC_DOMAIN_URL, '/')
@@ -51,6 +56,8 @@ export default {
         window.location.href = `${UIC_URL_TARGET}`
     },
 
+=======
+>>>>>>> xiaowei/feat-yml
     addRoleUser (user) {
         return http.post(req.ADD_ROLE_USRE, user)
     },
@@ -67,11 +74,35 @@ export default {
     searchUICUsers (params) {
         return http.post(req.SEARCH_UIC_USERS, params)
     },
+    getTenantList (params) {
+        return http.post(req.GET_TENANT_LIST, params)
+    },
 
+    /**
+     * 跟踪采集用户行为
+     * @param {string} target
+     * @param {object} params
+     */
+    async trackUserActions (target, params) {
+        const trackTarget = `track_${target}`;
+        const tracked = utils.getCookie(trackTarget);
+        if (!tracked) {
+            const res = await http.post(req.TRACK_USER_ACTIONS, params);
+            if (res.code === 1) {
+                utils.setCookie(trackTarget, true);
+            }
+        }
+    },
     // ========== Project ========== //
     queryProjects (params) {
         return http.post(req.QUERY_PROJECT_LIST, params)
     },
+<<<<<<< HEAD
+=======
+    getProjectByTenant (params) {
+        return http.post(req.GET_PROJECT_BY_TENANT, params)
+    },
+>>>>>>> xiaowei/feat-yml
     getProjects (params) { // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)
     },

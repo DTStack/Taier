@@ -25,7 +25,7 @@ export const MyIcon = styled.span`
 function renderMenuItems (menuItems) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
         menu.enable ? <Menu.Item key={menu.id}>
-            <Link to={menu.link} target={menu.target}>{menu.name}</Link>
+            <Link to={menu.link} target={menu.target} className="dropdown-content">{menu.name}</Link>
         </Menu.Item> : ''
     ) : []
 }
@@ -55,7 +55,7 @@ function renderATagMenuItems (menuItems, isRoot, isRenderIcon = false) {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target} className="dropdown-content">
-                {isRenderIcon && <span className={`iconfont icon-${menu.className || ''}`}></span>}
+                {(isRenderIcon || menu.enableIcon) && <span className={`iconfont icon-${menu.className || ''}`}></span>}
                 {menu.name}
             </a>
         </Menu.Item>) : ''
@@ -69,7 +69,7 @@ export function Logo (props) {
 }
 
 export function MenuLeft (props) {
-    const { activeKey, onClick, menuItems, user, licenseApps } = props;
+    const { activeKey, onClick, menuItems, user, licenseApps, customItems = [] } = props;
     return (
         <div className="menu left">
             <Menu
@@ -77,8 +77,8 @@ export function MenuLeft (props) {
                 onClick={onClick}
                 selectedKeys={[activeKey]}
                 mode="horizontal"
-            >
-                {renderATagMenuItems(menuItems, user.isRoot)}
+            >   
+                {customItems.concat(renderATagMenuItems(menuItems, user.isRoot))}
             </Menu>
         </div>
     )
@@ -125,7 +125,7 @@ export function MenuRight (props) {
                     角色管理
                 </a>
             </Menu.Item>
-            {renderMenuItems(settingMenus)}
+            {renderATagMenuItems(settingMenus)}
         </Menu>
     )
     // 右下拉菜单
@@ -190,10 +190,9 @@ class Navigator extends Component {
         this.updateSelected()
     }
 
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
+    componentDidUpdate (prevProps){
         if (this.props.routing) {
-            if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
+            if (this.props.routing.locationBeforeTransitions.pathname != prevProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();
             }
         }
@@ -235,7 +234,7 @@ class Navigator extends Component {
         const {
             user, logo, menuItems,
             settingMenus, apps, app, licenseApps,
-            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl
+            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl, customItems
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
@@ -248,6 +247,7 @@ class Navigator extends Component {
                     menuLeft || <MenuLeft
                         user={user}
                         activeKey={current}
+                        customItems={customItems}
                         menuItems={menuItems}
                         licenseApps={licenseApps}
                         onClick={this.handleClick}

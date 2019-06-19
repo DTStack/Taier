@@ -545,7 +545,7 @@ export const keymap = (state = { source: [], target: [] }, action) => {
             const clone = cloneDeep(state);
             if (map) {
                 const index = clone.source.findIndex((item) => isFieldMatch(item, old))
-                if (index > 0) {
+                if (index > -1) {
                     clone.source[index] = assign({}, clone.source[index], replace);
                     return clone;
                 }
@@ -559,7 +559,7 @@ export const keymap = (state = { source: [], target: [] }, action) => {
             const clone = cloneDeep(state);
             if (map) {
                 const index = clone.target.findIndex((item) => isFieldMatch(item, old))
-                if (index > 0) {
+                if (index > -1) {
                     clone.target[index] = replace;
                     return clone;
                 }
@@ -581,7 +581,6 @@ export const keymap = (state = { source: [], target: [] }, action) => {
                 }
             } else if (target) {
                 const index = clone.target.findIndex((item) => isFieldMatch(item, target))
-                console.log('removeKeyMap:', target, index)
                 if (index > -1) {
                     clone.source.splice(index, 1)
                     clone.target.splice(index, 1)
@@ -598,10 +597,10 @@ export const keymap = (state = { source: [], target: [] }, action) => {
     }
 };
 
-const setting = (state = { speed: 1, channel: 1, record: 100, isSaveDirty: false }, action) => {
+const setting = (state = { speed: 5, channel: 1, record: 100, isSaveDirty: false }, action) => {
     switch (action.type) {
         case dataSyncAction.INIT_JOBDATA: {
-            if (action.payload === null) return { speed: 1, channel: 1, record: 100 };
+            if (action.payload === null) return { speed: 5, channel: 1, record: 100 };
             const { setting } = action.payload;
             return setting;
         }

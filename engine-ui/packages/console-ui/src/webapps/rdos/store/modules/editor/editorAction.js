@@ -246,15 +246,10 @@ export function stopSql (currentTab, currentTabData, isSilent) {
  */
 export function execDataSync (currentTab, params) {
     return async dispatch => {
+        stopSign[currentTab] = false;
         dispatch(setOutput(currentTab, `同步任务【${params.name}】开始执行`));
         dispatch(addLoadingTab(currentTab));
         const res = await API.execDataSyncImmediately(params);
-        // 假如已经是停止状态，则弃用结果
-        if (stopSign[currentTab]) {
-            console.log('find stop sign in succCall')
-            stopSign[currentTab] = false;
-            return;
-        }
         if (res && res.code && res.message) dispatch(output(currentTab, createLog(`${res.message}`, 'error')))
         // 执行结束
         if (!res || (res && res.code != 1)) {
@@ -280,11 +275,11 @@ export function execDataSync (currentTab, params) {
  */
 export function stopDataSync (currentTab, isSilent) {
     return async (dispatch, getState) => {
-        stopSign[currentTab] = true;
         // 静默关闭，不通知任何人（服务器，用户）
         if (isSilent) {
             const running = getState().editor.running;
             if (running.indexOf(currentTab) > -1) {
+                stopSign[currentTab] = true;
                 dispatch(output(currentTab, createLog('执行停止', 'warning')))
                 dispatch(removeLoadingTab(currentTab))
                 if (intervalsStore[currentTab]) {

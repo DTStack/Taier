@@ -1,11 +1,9 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Row, Col, Tabs, Tooltip } from 'antd';
 
 import DiffCodeEditor from 'widgets/editor/diff';
 
-import ajax from '../../../api/index';
-import { TASK_TYPE } from '../../../comm/const';
+import { TASK_TYPE } from '../../../../comm/const';
 
 const TabPane = Tabs.TabPane;
 
@@ -14,24 +12,22 @@ class TaskInfo extends React.Component {
         super(props);
         this.state = {
             currentValue: this.props.currentValue || {},
-            historyvalue: this.props.historyvalue || {},
+            historyValue: this.props.historyValue || {},
             contrastResults: this.props.contrastResults || {}
         }
     }
 
-    /* eslint-disable */
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
         if (nextProps != this.props) {
             this.getvalue(nextProps)
         }
     }
-    /* eslint-disable */
 
     getvalue = (nextProps) => {
         this.setState({
             currentValue: nextProps.currentValue || {},
-            historyvalue: nextProps.historyvalue || {},
+            historyValue: nextProps.historyValue || {},
             contrastResults: nextProps.contrastResults || {}
         })
     }
@@ -139,67 +135,40 @@ class TaskInfo extends React.Component {
          )
      }
      render () {
-         const { currentValue, historyvalue, contrastResults } = this.state;
+         const { currentValue, historyValue, contrastResults } = this.state;
          return (
              <Row gutter={16} className="diff-params" style={{ padding: '0 10px' }}>
                  {this.versionInfo('当前版本', currentValue, contrastResults)}
-                 {this.versionInfo('历史版本', historyvalue)}
+                 {this.versionInfo('历史版本', historyValue)}
              </Row>
          )
      }
 }
 
-class DiffParams extends React.Component {
+class DiffTask extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            historyvalue: {},
             historyParse: {},
             contrastResults: {
                 attributes: false,
                 upstreamTask: false,
                 crosscycleDependence: false
             },
-            currentValue: this.props.currentTabData,
             currentParse: {},
-            tabKey: this.props.taskType === 'realTimeTask' ? 'params' : 'config'
+            tabKey: ''
         }
-        this.versionId = this.props.diffParams && this.props.diffParams.id;
     }
 
-    /* eslint-disable */
+    componentDidMount = () => {
+        this.contrastData(this.props.historyValue);
+    }
+
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
-        if (!this.props.taskType && nextProps.diffParams.id != this.props.diffParams.id) {
-            if (nextProps.diffParams.id) {
-                this.getData(nextProps.diffParams.id);
-                this.setState({
-                    currentValue: nextProps.currentTabData
-                })
-            }
-
-            this.setState({
-                tabKey: 'config'
-            })
+        if (nextProps.historyValue !== this.props.historyValue) {
+            this.contrastData(nextProps.historyValue);
         }
-    }
-    /* eslint-disable */
-
-    getData = (id) => {
-        this.setState({
-            historyvalue: {}
-        })
-        ajax.taskVersionScheduleConf({ versionId: id }).then(res => {
-            if (res.code == 1) {
-                this.setState({
-                    historyvalue: res.data || {}
-                }, this.contrastData)
-            } else {
-                this.setState({
-                    historyvalue: {}
-                }, this.contrastData)
-            }
-        })
     }
 
     checkTime = (time) => {
@@ -243,7 +212,7 @@ class DiffParams extends React.Component {
 
     parseScheduleConf = (data, type) => {
         const parseScheduleConf = {};
-        const scheduleConf = data.scheduleConf && (JSON.parse(data.scheduleConf) || {});
+        const scheduleConf = data.scheduleConf ? (JSON.parse(data.scheduleConf) || {}) : {};
 
         if (data.scheduleStatus == 2) {
             parseScheduleConf.scheduleStatus = '已冻结'
@@ -263,38 +232,38 @@ class DiffParams extends React.Component {
 
         let schedulingCycle = {};
         switch (scheduleConf.periodType) {
-        case '0':
-            schedulingCycle.period = '分钟'
-            schedulingCycle.gapTime = scheduleConf.gapMin ? `${scheduleConf.gapMin}分钟` : ' ';
-            schedulingCycle.beginTime = `${this.checkTime(scheduleConf.beginHour)}:${this.checkTime(scheduleConf.beginMin)}`;
-            schedulingCycle.endTime = `${this.checkTime(scheduleConf.endHour)}:${this.checkTime(scheduleConf.endMin)}`;
-            break;
-        case '1':
-            schedulingCycle.period = '小时';
-            schedulingCycle.gapTime = scheduleConf.gapHour ? `${scheduleConf.gapHour}小时` : ' ';
-            schedulingCycle.beginTime = `${this.checkTime(scheduleConf.beginHour)}:${this.checkTime(scheduleConf.beginMin)}`;
-            schedulingCycle.endTime = `${this.checkTime(scheduleConf.endHour)}:${this.checkTime(scheduleConf.endMin)}`;
-            break;
-        case '2':
-            schedulingCycle.period = '天';
-            schedulingCycle.specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
-            break;
-        case '3':
-            schedulingCycle.period = '周'
-            let weekDay = scheduleConf.weekDay ? scheduleConf.weekDay.split(',').map(v => {
-                return this.dealWeekDay(v);
-            }) : []
-            schedulingCycle.selectTime = weekDay ? weekDay.join(',') : ' ';
-            schedulingCycle.specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
-            break;
-        case '4':
-            schedulingCycle.period = '月'
-            schedulingCycle.selectTime = scheduleConf.day ? `每月${scheduleConf.day}号` : ' ';
-            schedulingCycle.specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
-            break;
-        default:
-            schedulingCycle.period = ''
-            break;
+            case '0':
+                schedulingCycle.period = '分钟'
+                schedulingCycle.gapTime = scheduleConf.gapMin ? `${scheduleConf.gapMin}分钟` : ' ';
+                schedulingCycle.beginTime = `${this.checkTime(scheduleConf.beginHour)}:${this.checkTime(scheduleConf.beginMin)}`;
+                schedulingCycle.endTime = `${this.checkTime(scheduleConf.endHour)}:${this.checkTime(scheduleConf.endMin)}`;
+                break;
+            case '1':
+                schedulingCycle.period = '小时';
+                schedulingCycle.gapTime = scheduleConf.gapHour ? `${scheduleConf.gapHour}小时` : ' ';
+                schedulingCycle.beginTime = `${this.checkTime(scheduleConf.beginHour)}:${this.checkTime(scheduleConf.beginMin)}`;
+                schedulingCycle.endTime = `${this.checkTime(scheduleConf.endHour)}:${this.checkTime(scheduleConf.endMin)}`;
+                break;
+            case '2':
+                schedulingCycle.period = '天';
+                schedulingCycle.specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
+                break;
+            case '3':
+                schedulingCycle.period = '周'
+                let weekDay = scheduleConf.weekDay ? scheduleConf.weekDay.split ? scheduleConf.weekDay.split(',').map(v => {
+                    return this.dealWeekDay(v);
+                }) : [`${scheduleConf.weekDay}`] : [];
+                schedulingCycle.selectTime = weekDay ? weekDay.join(',') : ' ';
+                schedulingCycle.specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
+                break;
+            case '4':
+                schedulingCycle.period = '月'
+                schedulingCycle.selectTime = scheduleConf.day ? `每月${scheduleConf.day}号` : ' ';
+                schedulingCycle.specificTime = `${this.checkTime(scheduleConf.hour)}:${this.checkTime(scheduleConf.min)}`;
+                break;
+            default:
+                schedulingCycle.period = ''
+                break;
         }
         parseScheduleConf.schedulingCycle = schedulingCycle;
 
@@ -312,40 +281,43 @@ class DiffParams extends React.Component {
 
         let crosscycleDependence;
         switch (scheduleConf.selfReliance) {
-        case 0:
-        case false:
-            crosscycleDependence = '不依赖上一调度周期'
-            break;
-        case 1:
-        case true:
-            crosscycleDependence = '自依赖，等待上一调度周期成功，才能继续运行'
-            break;
-        case 3:
-            crosscycleDependence = '自依赖，等待上一调度周期结束，才能继续运行'
-            break;
-        case 2:
-            crosscycleDependence = '等待下游任务的上一周期成功，才能继续运行'
-            break;
-        case 4:
-            crosscycleDependence = '等待下游任务的上一周期结束，才能继续运行'
-            break;
-        default:
-            crosscycleDependence = '不依赖上一调度周期'
-            break;
+            case 0:
+            case false:
+                crosscycleDependence = '不依赖上一调度周期'
+                break;
+            case 1:
+            case true:
+                crosscycleDependence = '自依赖，等待上一调度周期成功，才能继续运行'
+                break;
+            case 3:
+                crosscycleDependence = '自依赖，等待上一调度周期结束，才能继续运行'
+                break;
+            case 2:
+                crosscycleDependence = '等待下游任务的上一周期成功，才能继续运行'
+                break;
+            case 4:
+                crosscycleDependence = '等待下游任务的上一周期结束，才能继续运行'
+                break;
+            default:
+                crosscycleDependence = '不依赖上一调度周期'
+                break;
         }
         parseScheduleConf.crosscycleDependence = crosscycleDependence;
         return parseScheduleConf;
     }
 
-    contrastData = () => {
-        const { historyvalue, contrastResults } = this.state;
+    contrastData = (historyValue) => {
+        const { contrastResults } = this.state;
+        const { currentTabData } = this.props;
+
         contrastResults.attributes = false;
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
-        const historyParse = this.parseScheduleConf(historyvalue, 1);
-        const currentParse = this.parseScheduleConf(this.state.currentValue, 2);
 
-        const currentAttributes = ['scheduleStatus', 'effectiveDate', 'schedulingCycle'];
+        const historyParse = this.parseScheduleConf(historyValue, 1);
+        const currentParse = this.parseScheduleConf(currentTabData, 2);
+
+        const currentAttributes = ['scheduleStatus', 'effectiveDate', 'isFailRetry', 'schedulingCycle'];
 
         currentAttributes.forEach(v => {
             if (JSON.stringify(historyParse[v]) != JSON.stringify(currentParse[v])) {
@@ -368,43 +340,44 @@ class DiffParams extends React.Component {
         });
     }
 
-    componentDidMount = () => {
-        if (this.props.taskType != 'realTimeTask') {
-            this.getData(this.versionId)
-        }
-    }
-
     callback = (key) => {
         this.setState({
             tabKey: key
         })
     }
 
-    codeChange = (old, newVal) => {
-        this.props.setTaskParams(newVal)
-    }
-
     render () {
-        const { taskType, editor } = this.props;
+        const { editor, diffCode, showDiffCode, currentTabData, historyValue } = this.props;
         const {
-            contrastResults, historyParse, currentParse,
-            historyvalue, tabKey
+            contrastResults, historyParse, currentParse, tabKey
         } = this.state;
+        let activeTabKey = tabKey;
+        if (showDiffCode && !tabKey) {
+            activeTabKey = 'code';
+        } else if (!showDiffCode && !tabKey) {
+            activeTabKey = 'config';
+        }
+
         return <div className="m-taksdetail diff-params-modal" style={{ marginTop: '5px' }}>
-            <Tabs onChange={this.callback} type="card" activeKey={tabKey}>
-                {
-                    taskType === 'realTimeTask' ? ''
-                        : <TabPane tab="调度配置" key="config">
-                            <TaskInfo
-                                historyvalue={historyParse}
-                                contrastResults={contrastResults}
-                                currentValue={currentParse}
-                            />
-                        </TabPane>
+            <Tabs onChange={this.callback} type="card" activeKey={activeTabKey}>
+                { showDiffCode
+                    ? <TabPane tab="代码" key="code">
+                        <DiffCodeEditor
+                            {...diffCode}
+                            className="merge-text"
+                            style={{ height: '500px' }}
+                        />
+                    </TabPane> : ''
                 }
+                <TabPane tab="调度配置" key="config">
+                    <TaskInfo
+                        historyValue={historyParse}
+                        contrastResults={contrastResults}
+                        currentValue={currentParse}
+                    />
+                </TabPane>
                 {
-                    this.state.currentValue.taskType !== TASK_TYPE.SYNC &&
-                    this.state.currentValue.taskType !== TASK_TYPE.WORKFLOW &&
+                    currentTabData.taskType !== TASK_TYPE.WORKFLOW &&
                     <TabPane tab="环境参数" key="params">
                         <DiffCodeEditor
                             language="ini"
@@ -413,9 +386,8 @@ class DiffParams extends React.Component {
                             options={{ readOnly: true }}
                             theme={ editor.options.theme }
                             sync={true}
-                            modified={{ value: historyvalue && (historyvalue.taskParams || ' ') }}
-                            original={{ value: this.state.currentValue && (this.state.currentValue.taskParams || ' ') }}
-                            value={ this.state.currentValue && (this.state.currentValue.taskParams || ' ') }
+                            modified={{ value: historyValue ? historyValue.taskParams : '' }}
+                            original={{ value: currentTabData ? currentTabData.taskParams : '' }}
                         />
                     </TabPane>
                 }
@@ -424,15 +396,4 @@ class DiffParams extends React.Component {
     }
 }
 
-const mapState = state => {
-    const { currentTab, tabs } = state.offlineTask.workbench;
-    const currentTabData = tabs.filter(tab => {
-        return tab.id === currentTab;
-    })[0];
-    return {
-        currentTabData,
-        editor: state.editor
-    };
-};
-
-export default connect(mapState)(DiffParams);
+export default DiffTask;

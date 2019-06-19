@@ -111,9 +111,10 @@ class MyAPI extends Component {
                 <p className="o-box__title">我的API</p>
                 <Card
                     className="no-card-border"
+                    style={{ minHeight: 'calc(100% - 65px)' }}
                     noHovering>
                     <Tabs
-                        style={{ overflow: 'unset' }}
+                        style={{ overflow: 'unset', minHeight: 'calc(100% - 67px)' }}
                         animated={false}
                         defaultActiveKey={nowView}
                         onChange={this.handleClick.bind(this)}

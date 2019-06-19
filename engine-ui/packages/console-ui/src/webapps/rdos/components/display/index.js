@@ -31,6 +31,10 @@ export function taskTypeText (type) {
             return '工作流';
         case TASK_TYPE.CARBONSQL:
             return 'CarbonSQL';
+        case TASK_TYPE.NOTEBOOK:
+            return 'Notebook';
+        case TASK_TYPE.EXPERIMENT:
+            return '算法实验';
         default:
             return '未知';
     }
@@ -47,6 +51,7 @@ export function taskStatusText (type) {
         case TASK_STATUS.DEPLOYING:
             return '部署中';
         case TASK_STATUS.RUNNING:
+        case TASK_STATUS.TASK_STATUS_NOT_FOUND:
             return '运行中';
         case TASK_STATUS.FINISHED:
             return '成功';
@@ -73,7 +78,7 @@ export function taskStatusText (type) {
         case TASK_STATUS.FROZEN:
             return '冻结';
         default:
-            return '';
+            return '异常';
     }
 }
 

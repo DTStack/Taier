@@ -8,7 +8,7 @@ import { TaskType } from '../../../components/status';
 import { getProjectUsers } from '../../../store/modules/user';
 import LockPanel from '../../../components/lockPanel'
 
-import TaskVersion from './taskVersion';
+import TaskVersion from './taskVersion/taskVersion';
 import Api from '../../../api';
 
 import { workbenchActions } from '../../../store/modules/offlineTask/offlineAction';
@@ -127,7 +127,7 @@ class TaskDetail extends React.Component {
 
     render () {
         const { visible } = this.state;
-        const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit, editor } = this.props;
+        const { tabData, projectUsers, isWorkflowNode, project, tabs, couldEdit, editor, updateTaskField } = this.props;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
 
         const labelPrefix = isWorkflowNode ? '节点' : '任务';
@@ -167,6 +167,7 @@ class TaskDetail extends React.Component {
                         isPro={isPro}
                         taskInfo={tabData}
                         editor={editor}
+                        updateTaskField={updateTaskField}
                         changeSql={this.setSqlText}
                     />
                 </Panel>

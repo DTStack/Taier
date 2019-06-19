@@ -93,6 +93,12 @@ export function taskTypeIcon (type, task = {}) {
             case TASK_TYPE.CARBONSQL: {
                 return 's-carbonsql';
             }
+            case TASK_TYPE.NOTEBOOK: {
+                return 's-notebook';
+            }
+            case TASK_TYPE.EXPERIMENT: {
+                return 's-experiment';
+            }
             default:
                 return '';
         }
@@ -244,6 +250,7 @@ export function getVertxtStyle (type) {
         case TASK_STATUS.SET_SUCCESS:
             return 'whiteSpace=wrap;fillColor=#F6FFED;strokeColor=#B7EB8F;';
         case TASK_STATUS.SUBMITTING:
+        case TASK_STATUS.TASK_STATUS_NOT_FOUND:
         case TASK_STATUS.RUNNING:
             return 'whiteSpace=wrap;fillColor=#E6F7FF;strokeColor=#90D5FF;';
         case TASK_STATUS.RESTARTING:

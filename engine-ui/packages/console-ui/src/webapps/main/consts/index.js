@@ -13,7 +13,8 @@ export const MY_APPS = {
     DATA_MAP: 'map',
     META_DATA: 'metaData',
     ANALYTICS_ENGINE: 'analyticsEngine',
-    CONSOLE: 'console'
+    CONSOLE: 'console',
+    SCIENCE: 'science'
 }
 
 export const mainApp = {
@@ -121,5 +122,13 @@ export function getThemeBanner (theme) {
         default: {
             return 'public/main/img/pic_banner.png';
         }
+    }
+}
+
+export const appUriDict = {
+    RDOS: {
+        OPERATION: 'operation',
+        OPERATION_MANAGER: 'operation_manager',
+        DEVELOP: 'offline/task'
     }
 }

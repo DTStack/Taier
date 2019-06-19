@@ -75,6 +75,14 @@ export default class TabIcon extends Component {
                     iconName = 'carbonsql.svg';
                     break;
                 }
+                case TASK_TYPE.NOTEBOOK: {
+                    iconName = 'notebook.svg';
+                    break;
+                }
+                case TASK_TYPE.EXPERIMENT: {
+                    iconName = 'experiment.svg';
+                    break;
+                }
                 default:
                     return '';
             }

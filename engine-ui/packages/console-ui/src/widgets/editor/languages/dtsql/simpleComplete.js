@@ -189,6 +189,9 @@ export function registeCompleteItemsProvider (completeProvideFunc, _editor) {
  * 注销自定义补全函数
  */
 export function disposeProvider (_editor) {
+    if (!_editor) {
+        return;
+    }
     const id = _editor.getModel().id;
     _completeProvideFunc[id] = undefined;
 }

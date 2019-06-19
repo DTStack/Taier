@@ -33,6 +33,7 @@ class ApiCallMethod extends Component {
         callUrl: '',
         beginTime: undefined,
         endTime: undefined,
+        apiVersionCode: undefined,
         callLimit: 0,
         token: '',
         apiConfig: {},
@@ -50,7 +51,8 @@ class ApiCallMethod extends Component {
                             beginTime: res.data.beginTime,
                             endTime: res.data.endTime,
                             callLimit: res.data.callLimit,
-                            token: res.data.token
+                            token: res.data.token,
+                            apiVersionCode: res.data.apiVersionCode
                         })
                     }
                 }
@@ -149,7 +151,8 @@ class ApiCallMethod extends Component {
             callLimit,
             apiConfig,
             registerInfo,
-            token
+            token,
+            apiVersionCode
         } = this.state;
         const { showRecord = {}, apiMarket, mode, showUserInfo } = this.props;
         let { apiId, id, apiType } = showRecord;
@@ -173,6 +176,7 @@ class ApiCallMethod extends Component {
                         callUrl={callUrl}
                         token={token}
                         apiMarket={apiMarket}
+                        apiVersionCode={apiVersionCode}
                         apiId={apiId} />
                 </div>
             </div>

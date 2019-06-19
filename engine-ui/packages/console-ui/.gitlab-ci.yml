@@ -1,0 +1,8 @@
+before_script:
+  - npm -v
+  - npm install --unsafe-perm=true --allow-root
+  - npm install -g lint-md
+lint:
+  script:
+    - npm run lint
+    - npm test

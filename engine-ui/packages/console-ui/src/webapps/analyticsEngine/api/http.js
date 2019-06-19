@@ -1,7 +1,6 @@
 import 'whatwg-fetch'
 
 import ProgressBar from 'widgets/progress-bar'
-import { singletonNotification } from 'funcs';
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 
 class Http {
@@ -46,7 +45,6 @@ class Http {
         .catch( err => { 
             ProgressBar.hide() 
             console.error(url + ":" + err)
-            singletonNotification('请求异常', '服务器可能出了点问题, 请稍后再试！');
             return err //错误信息返回
         })
     }

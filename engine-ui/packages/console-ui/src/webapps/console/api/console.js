@@ -32,7 +32,12 @@ export default {
     updateCluster (params) {
         return http.postAsFormData(req.UPDATE_CLUSTER, params);
     },
-
+    getQueueLists (params) {
+        return http.post(req.GET_QUEUE_LISTS, params);
+    },
+    confirmSwitchQueue (params) {
+        return http.post(req.CONFIRM_SWITCH_QUEUE, params);
+    },
     // 任务管理模块
     // 概览-获取集群
     getClusterDetail (params) {

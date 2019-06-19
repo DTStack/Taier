@@ -4,7 +4,8 @@ export const defaultEditorOptions = {
     indentWithTabs: true,
     smartIndent: true,
     lineNumbers: true,
-    autofocus: false
+    autofocus: false,
+    lineWrapping: true
 };
 
 export const propEditorOptions = { // 编辑器选项

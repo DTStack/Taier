@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { Tabs } from 'antd';
-
+import { debounce } from 'lodash';
 import utils from 'utils'
 
 import SQLEditor from 'widgets/editor';
@@ -23,9 +23,14 @@ class SiderBench extends React.Component {
         selected: '',
         expanded: false
     }
+    _updateKey = 0;
 
-    constructor (props) {
-        super(props);
+    componentDidUpdate (prevProps) {
+        const tabData = this.props.tabData
+        const { tabData: oldData } = prevProps
+        if (tabData && tabData !== oldData) {
+            this._updateKey++;
+        }
     }
 
     handleTaskParamChange (newVal) {
@@ -37,6 +42,8 @@ class SiderBench extends React.Component {
     handleCustomParamsChange = (params) => {
         this.props.setTaskParams(params)
     }
+
+    debounceChange = debounce(this.handleCustomParamsChange, 300, { 'maxWait': 2000 })
 
     tabClick = (activeKey) => {
         const { selected, expanded } = this.state
@@ -52,7 +59,8 @@ class SiderBench extends React.Component {
     getTabPanes = () => {
         const { tabData, project, user, editor } = this.props;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
-        const couldEdit = isProjectCouldEdit(project, user);
+        const isScienceTask = tabData.taskType == TASK_TYPE.NOTEBOOK || tabData.taskType == TASK_TYPE.EXPERIMENT;
+        const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
         if (!tabData) return null;
 
         const isLocked = tabData && tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock;
@@ -77,8 +85,9 @@ class SiderBench extends React.Component {
                     <SchedulingConfig
                         isPro={isPro}
                         couldEdit={couldEdit}
+                        isScienceTask={isScienceTask}
                         tabData={tabData}
-                        key={`schedule-${tabData && tabData.version}`}
+                        key={`schedule-${tabData && tabData.version}-${this._updateKey}`}
                         isIncrementMode={isIncrementMode}
                     >
                     </SchedulingConfig>
@@ -104,7 +113,7 @@ class SiderBench extends React.Component {
                         isPro={isPro}
                         couldEdit={couldEdit}
                         tabData={tabData}
-                        onChange={this.handleCustomParamsChange}
+                        onChange={this.debounceChange}
                     />
                 </TabPane>
             )
@@ -112,8 +121,8 @@ class SiderBench extends React.Component {
                 <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
                     <SQLEditor
                         options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false }, theme: editor.options.theme }}
-                        key={`env-parmas-${tabData.id}-${editor.options.theme}`}
                         value={tabData.taskParams}
+                        sync={true}
                         onFocus={() => { }}
                         focusOut={() => { }}
                         language="ini"

@@ -201,9 +201,9 @@ export const TASK_TYPE_ARRAY = [ //
 ]
 
 export const HELP_DOC_URL = {
-    DATA_SOURCE: '/public/helpSite/dtinsight-stream/v3.0/04_DTinsightStreamHelp_DataCollection.html#collection_jobConfig_demo',
-    DATA_SYNC: '/public/helpSite/dtinsight-stream/v3.0/04_DTinsightStreamHelp_DataCollection.html#collection_jobConfig',
-    TASKPARAMS: '/public/helpSite/dtinsight-stream/v3.0/04_DTinsightStreamHelp_DataCollection.html#collection_jobConfig'
+    DATA_SOURCE: '/public/helpSite/stream/v3.0/DataCollection.html#collection_jobConfig_demo',
+    DATA_SYNC: '/public/helpSite/stream/v3.0/DataCollection.html#collection_jobConfig',
+    TASKPARAMS: '/public/helpSite/stream/v3.0/DataCollection.html#collection_jobConfig'
 }
 
 export const TASK_STATUS = { // 任务状态

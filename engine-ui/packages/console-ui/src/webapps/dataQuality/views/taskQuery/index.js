@@ -366,15 +366,17 @@ class TaskQuery extends Component {
 
     // table搜索
     onTableSearch = name => {
+        this.props.getTaskList(this.state.params);
+    };
+
+    onTableNameChange = e => {
         let params = {
             ...this.state.params,
             currentPage: 1,
-            fuzzyName: name || undefined
+            fuzzyName: e.target.value || undefined
         };
-
-        this.props.getTaskList(params);
         this.setState({ params });
-    };
+    }
 
     showDetailLogInfo (id, tableName, info) {
         this.tooltipChange(id, false);
@@ -455,6 +457,7 @@ class TaskQuery extends Component {
                 <Search
                     placeholder="输入表名搜索"
                     onSearch={this.onTableSearch}
+                    onChange={this.onTableNameChange}
                     defaultValue={params.fuzzyName}
                     style={{ width: 200, margin: '10px 0' }}
                 />

@@ -41,8 +41,7 @@ class TargetForm extends React.Component {
             visible: false,
             modalLoading: false,
             tablePartitionList: [], // 表分区列表
-            loading: false, // 请求
-            selectedDataSourceType: undefined // 选中的dataSourceType
+            loading: false // 请求
         };
     }
 
@@ -53,9 +52,9 @@ class TargetForm extends React.Component {
         sourceId && this.getTableList(sourceId);
         if (type) {
             this.checkIsNativeHive(type.tableName);
-            // 加载分区
+            // 如果是已经添加过分区信息，则加载其分区列表信息
             if (type.partition) {
-                this.getHivePartions(type.table);
+                this.getHivePartitions(type.table);
             }
         }
     }
@@ -88,6 +87,78 @@ class TargetForm extends React.Component {
         })
     }
 
+    /**
+     * 根据数据源id获取数据源信息
+     * @param {*} id
+     */
+    getDataObjById (id) {
+        const { dataSourceList } = this.props;
+        return dataSourceList.filter(src => {
+            return src.id == id;
+        })[0];
+    }
+
+    changeSource (value) {
+        const { handleSourceChange } = this.props;
+        setTimeout(() => {
+            this.getTableList(value);
+        }, 0);
+        handleSourceChange(this.getDataObjById(value));
+        this.resetTable();
+    }
+
+    resetTable () {
+        const { form } = this.props;
+        this.changeTable('');
+        // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
+        this.setState({
+            selectHack: true
+        }, () => {
+            form.resetFields(['table'])
+            this.setState({
+                selectHack: false
+            })
+        })
+    }
+
+    getHivePartitions = (tableName) => {
+        const {
+            targetMap, handleTargetMapChange
+        } = this.props;
+
+        const { sourceId, type } = targetMap;
+        // TODO 这里获取 Hive 分区的条件有点模糊
+        if (type && (
+            type.type === DATA_SOURCE.HIVE ||
+            type.type === DATA_SOURCE.CARBONDATA
+        )) {
+            ajax.getHivePartitions({
+                sourceId: sourceId,
+                tableName
+            }).then(res => {
+                this.setState({
+                    tablePartitionList: res.data || []
+                });
+                const havePartition = res.data && res.data.length > 0;
+                handleTargetMapChange({ havePartition });
+            });
+        }
+    }
+
+    changeTable (value) {
+        if (value) {
+            // Reset partition
+            this.props.form.setFieldsValue({ partition: '' });
+            // 获取表列字段
+            this.getTableColumn(value);
+            // 检测是否有 native hive
+            this.checkIsNativeHive(value);
+            // 获取 Hive 分区字段
+            this.getHivePartitions(value);
+        }
+        this.submitForm();
+    }
+
     getTableColumn = (tableName) => {
         const { form, handleTableColumnChange, targetMap } = this.props;
         const sourceId = form.getFieldValue('sourceId');
@@ -112,12 +183,12 @@ class TargetForm extends React.Component {
             })
             if (res.code === 1) {
                 handleTableColumnChange(res.data);
-                this.checkIsNativeHive(tableName);
             } else {
                 handleTableColumnChange([]);
             }
         })
     }
+
     checkIsNativeHive (tableName) {
         const { form, targetMap, changeNativeHive } = this.props;
         const sourceId = form.getFieldValue('sourceId');
@@ -136,82 +207,11 @@ class TargetForm extends React.Component {
                     loading: false
                 })
                 if (res.code == 1) {
-                    changeNativeHive(res.data)
+                    const isNativeHive = res.data;
+                    changeNativeHive(isNativeHive);
                 }
             })
         }
-    }
-    /**
-     * 根据数据源id获取数据源信息
-     * @param {*} id
-     */
-    getDataObjById (id) {
-        const { dataSourceList } = this.props;
-        return dataSourceList.filter(src => {
-            return src.id == id;
-        })[0];
-    }
-
-    changeSource (value) {
-        const { handleSourceChange, dataSourceList } = this.props;
-        const selectedDataSource = dataSourceList.filter(item => {
-            return `${item.id}` === value
-        })
-        this.setState({
-            selectedDataSourceType: selectedDataSource[0].type
-        })
-        setTimeout(() => {
-            this.getTableList(value);
-        }, 0);
-        handleSourceChange(this.getDataObjById(value));
-        this.resetTable();
-    }
-
-    resetTable () {
-        const { form } = this.props;
-        this.changeTable('');
-        // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
-        this.setState({
-            selectHack: true
-        }, () => {
-            form.resetFields(['table'])
-            this.setState({
-                selectHack: false
-            })
-        })
-    }
-
-    getHivePartions = (tableName) => {
-        const {
-            targetMap, handleTargetMapChange
-        } = this.props;
-
-        const { isNativeHive, sourceId, type } = targetMap;
-        if (type && (
-            type.type === DATA_SOURCE.HIVE ||
-            (isNativeHive && type.type !== DATA_SOURCE.CARBONDATA)
-        )) {
-            ajax.getHivePartitions({
-                sourceId: sourceId,
-                tableName
-            }).then(res => {
-                this.setState({
-                    tablePartitionList: res.data || []
-                });
-                const havePartition = res.data && res.data.length > 0;
-                handleTargetMapChange({ havePartition });
-            });
-        }
-    }
-
-    changeTable (value) {
-        if (value) {
-            this.getTableColumn(value);
-            // Reset partition
-            this.props.form.setFieldsValue({ partition: '' });
-            this.getHivePartions(value);
-        }
-        this.submitForm();
     }
 
     submitForm = () => {
@@ -309,7 +309,7 @@ class TargetForm extends React.Component {
         this.setState({
             modalLoading: true
         })
-        ajax.createDdlTable({ sql: textSql }).then((res) => {
+        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId }).then((res) => {
             this.setState({
                 modalLoading: false
             })
@@ -325,7 +325,7 @@ class TargetForm extends React.Component {
         })
     }
     showCreateModal = () => {
-        const { sourceMap } = this.props;
+        const { sourceMap, targetMap } = this.props;
         this.setState({
             loading: true
         })
@@ -333,7 +333,8 @@ class TargetForm extends React.Component {
         ajax.getCreateTargetTable({
             originSourceId: sourceMap.sourceId,
             tableName: tableName,
-            partition: sourceMap.type.partition
+            partition: sourceMap.type.partition,
+            targetSourceId: targetMap.sourceId
         })
             .then(
                 (res) => {
@@ -358,12 +359,11 @@ class TargetForm extends React.Component {
     }
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { modalLoading, selectedDataSourceType } = this.state;
+        const { modalLoading } = this.state;
         const {
             targetMap, dataSourceList, navtoStep, isIncrementMode
         } = this.props;
         const getPopupContainer = this.props.getPopupContainer;
-        const isDTinsightAnalytics = selectedDataSourceType === DATA_SOURCE.CARBONDATA;
         return <div className="g-step2">
             <Modal className="m-codemodal"
                 title={(
@@ -443,14 +443,6 @@ class TargetForm extends React.Component {
                     </FormItem>
                 ) : null}
             </Form>
-            {
-                isDTinsightAnalytics ? (
-                    <div style={{ width: '358px', margin: '0 auto' }}>
-                        <Icon type='info-circle-o' /> 向分析引擎写入数据时，目标表已存在的DataMap不会自动更新,自动更新需要新建“CarbonSQL”类型的任务/节点实现<br/>
-                        <Icon type='info-circle-o' /> 本任务需设置为自依赖
-                    </div>
-                ) : null
-            }
             {!this.props.readonly && <div className="steps-action">
                 <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
                 <Button
