@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0-beta.3.1"></a>
+# [3.6.0-beta.3.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.3...3.6.0-beta.3.1) (2019-06-19)
+
+
+### Bug Fixes
+
+* **interceptor:** do not throw logout error ([29b768e](http://git.dtstack.cn/dtstack/data-stack-web/commits/29b768e)), closes [#16647](http://redmine.prod.dtstack.cn/issues/16647)
+
+
+
 <a name="3.6.0-beta.3"></a>
 # [3.6.0-beta.3](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.2.1...3.6.0-beta.3) (2019-06-12)
 
