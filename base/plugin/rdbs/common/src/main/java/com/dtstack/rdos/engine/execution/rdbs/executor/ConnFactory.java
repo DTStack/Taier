@@ -114,6 +114,8 @@ public abstract class ConnFactory {
 
     public abstract String getCreateProcedureHeader(String procName);
 
+    public String getCreateProcedureTailer() { return ""; }
+
     public String getCallProc(String procName) {
         return String.format("call \"%s\"()", procName);
     }

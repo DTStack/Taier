@@ -18,6 +18,7 @@
         <module>oracle</module>
         <module>sqlserver</module>
         <module>hive</module>
+        <module>postgresql</module>
     </modules>
 
 
