@@ -1,6 +1,7 @@
 import configureMockStore from 'redux-mock-store'; // eslint-disable-line
 import thunk from 'redux-thunk';
 import api from '../../../../api';
+
 import { message } from 'antd';
 import { MENU_TYPE } from '../../../../comm/const';
 import {
@@ -12,11 +13,12 @@ import {
 } from '../actionType';
 
 jest.mock('../../../../api');
-const middlewares = [thunk]
+const middlewares = [thunk];
 const mockStore = configureMockStore(middlewares)
 function $ (className) {
     return document.body.querySelectorAll(className);
 }
+
 describe('workbenchActions', () => {
     afterEach(() => {
         // 重置store
@@ -28,6 +30,7 @@ describe('workbenchActions', () => {
     let store = mockStore({});
     let actions = workbenchActions(store.dispatch);
     const task = { id: 10, name: 'testTask' };
+
     test('reloadTaskTab action', async () => {
         const response = { code: 1, data: task };
         api.getOfflineTaskDetail
@@ -36,17 +39,19 @@ describe('workbenchActions', () => {
             .mockResolvedValueOnce({ ...response, code: 1 })
 
         const expectedActions = [{
+            type: workbenchAction.MAKE_TAB_CLEAN
+        }, {
             type: workbenchAction.UPDATE_TASK_TAB,
             payload: response.data
         }];
         // 测试失败的情况
-        await actions.reloadTaskTab();
+        await actions.reloadTaskTab(10, false);
         let nextActions = store.getActions();
         expect(nextActions).toEqual([]);
         // 测试成功的情况
-        await actions.reloadTaskTab();
+        await actions.reloadTaskTab(10, false);
         nextActions = store.getActions();
-        expect(nextActions).toEqual(expectedActions)
+        expect(nextActions).toEqual(expectedActions);
     })
 
     test('updateTabData', () => {
@@ -177,6 +182,7 @@ describe('workbenchActions', () => {
 
     test('saveTask success when lockStatus equals to 0', async () => {
         const data = {
+
             readWriteLockVO: {
                 result: 0
             },
@@ -191,6 +197,11 @@ describe('workbenchActions', () => {
             submitStatus: 0,
             taskVOS: ['taskVOS1', 'taskVOS2']
         }
+        api.getOfflineTaskDetail
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 })
+
         api.saveOfflineJobData
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
@@ -280,12 +291,14 @@ describe('workbenchActions', () => {
             submitStatus: 0,
             taskVOS: ['taskVOS1', 'taskVOS2']
         }
-        api.saveOfflineJobData
-            .mockResolvedValue(response);
         api.getOfflineTaskDetail
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
+
+        api.saveOfflineJobData
+            .mockResolvedValue(response);
+
         const expectedActions = [{
             type: workbenchAction.UPDATE_TASK_TAB,
             payload: {
@@ -312,7 +325,8 @@ describe('workbenchActions', () => {
         const argument = {
             params: {
                 readWriteLockVO: {
-                    version: 1
+                    version: 1,
+                    result: 0
                 }
             },
             isSave: true,
@@ -328,28 +342,25 @@ describe('workbenchActions', () => {
         }
         const response = { data: task, code: 1 };
         const expectedActions = [{
-            type: workbenchAction.SET_TASK_FIELDS_VALUE,
-            payload: {
-                version: task.version,
-                readWriteLockVO: task.readWriteLockVO
-            }
-        }, {
             type: workbenchAction.MAKE_TAB_CLEAN
-        }]
+        }, {
+            type: workbenchAction.UPDATE_TASK_TAB,
+            payload: task
+        }];
         const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.getOfflineTaskDetail
+            .mockResolvedValue(response);
+
         api.saveOfflineJobData
-            .mockResolvedValue(response)
-            .mockResolvedValueOnce({ ...response, code: 0 })
-            .mockResolvedValueOnce({ ...response, code: 1 });
-        // 测试请求失败
-        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
-        let nextActions = store.getActions();
-        expect(nextActions).toEqual([]);
+            .mockResolvedValue(response);
+
         // 测试请求成功
         await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
-        nextActions = store.getActions();
-        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+        const nextActions = store.getActions();
+        expect(api.saveOfflineJobData).toHaveBeenCalled();
         expect(messageSuccess).toHaveBeenCalled();
+        expect(api.getOfflineTaskDetail).toHaveBeenCalled();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
     })
     test('saveTab when type is task and lockStatus equals to 1', async () => {
         const argument = {
@@ -455,14 +466,18 @@ describe('workbenchActions', () => {
         const argument = {
             params: {
                 readWriteLockVO: {
-                    version: 1
-                }
+                    version: 1,
+                    result: 0
+                },
+                type: 'script'
             },
             isSave: true,
             type: 'script',
             isButtonSubmit: true
         }
         const task = {
+            id: 10,
+            type: 'script',
             readWriteLockVO: {
                 result: 0
             },
@@ -470,30 +485,26 @@ describe('workbenchActions', () => {
             version: 'v1.0.0'
         }
         const response = { data: task, code: 1 };
+
         const expectedActions = [{
-            type: workbenchAction.SET_TASK_FIELDS_VALUE,
-            payload: {
-                version: task.version,
-                readWriteLockVO: task.readWriteLockVO
-            }
-        }, {
-            type: workbenchAction.MAKE_TAB_CLEAN
+            type: workbenchAction.UPDATE_TASK_TAB,
+            payload: task
         }]
+
         const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.getScriptById
+            .mockResolvedValue(response);
         api.saveScript
-            .mockResolvedValue(response)
-            .mockResolvedValueOnce({ ...response, code: 0 })
-            .mockResolvedValueOnce({ ...response, code: 1 });
-        // 测试请求失败
-        await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
-        let nextActions = store.getActions();
-        expect(nextActions).toEqual([]);
+            .mockResolvedValue(response);
+
         // 测试请求成功
         await actions.saveTab(argument.params, argument.isSave, argument.type, argument.isButtonSubmit);
-        nextActions = store.getActions();
-        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
+        const nextActions = store.getActions();
         expect(messageSuccess).toHaveBeenCalled();
+        expect(api.getScriptById).toHaveBeenCalled();
+        expect(nextActions).toEqual(expect.arrayContaining(expectedActions))
     })
+
     test('saveTab when type is script and lockStatus equals to 1', async () => {
         const argument = {
             params: {
@@ -523,6 +534,11 @@ describe('workbenchActions', () => {
             type: workbenchAction.MAKE_TAB_CLEAN
         }]
         const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        api.getScriptById
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+
         api.saveScript
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -572,7 +588,13 @@ describe('workbenchActions', () => {
             }
         }, {
             type: workbenchAction.MAKE_TAB_CLEAN
-        }]
+        }];
+
+        api.getScriptById
+            .mockResolvedValue(response)
+            .mockResolvedValueOnce({ ...response, code: 0 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
+
         api.saveScript
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 1 });
