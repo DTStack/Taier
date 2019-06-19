@@ -122,8 +122,7 @@
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -c ./commitlint.config.js -E HUSKY_GIT_PARAMS",
-      "pre-push": "npm test"
+      "commit-msg": "commitlint -c ./commitlint.config.js -E HUSKY_GIT_PARAMS"
     }
   },
   "standard-version": {
