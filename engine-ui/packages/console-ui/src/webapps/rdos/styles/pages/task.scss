@@ -250,7 +250,6 @@
                 background-image: url(/public/rdos/img/table.svg)
             }
         }
-
         .menu-content {
             height: 100%;
             display: flex;
@@ -258,7 +257,6 @@
             &::-webkit-scrollbar-track {
                 border-right: none;
             }
-
             header {
                 flex-grow: 0;
                 flex-shrink: 0;

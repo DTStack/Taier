@@ -23,6 +23,9 @@ import {
     taskTreeAction,
     resTreeAction,
     fnTreeAction,
+    sparkFnTreeAction,
+    libraFnTreeAction,
+    libraSysFnTreeActon,
     sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction,
@@ -848,51 +851,76 @@ export const workbenchActions = (dispatch) => {
                     }
                 )
         },
-
-        loadTreeNode: (nodePid, type, option = {}) => {
-            ajax.getOfflineCatalogue({
+        /**
+         * @param isFunc // 函数管理，默认请求第一层数据
+         */
+        loadTreeNode: async (nodePid, type, option = {}, isFunc) => {
+            const res = await ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,
                 catalogueType: type,
                 ...option
-            }).then(res => {
-                if (res.code === 1) {
-                    let { data } = res;
-                    let action;
-
-                    switch (type) {
-                        case MENU_TYPE.TASK:
-                        case MENU_TYPE.TASK_DEV:
-                            action = taskTreeAction;
-                            break;
-                        case MENU_TYPE.RESOURCE:
-                            action = resTreeAction;
-                            break;
-                        case MENU_TYPE.FUNCTION:
-                        case MENU_TYPE.COSTOMFUC:
-                            action = fnTreeAction;
-                            break;
-                        case MENU_TYPE.SYSFUC:
-                            action = sysFnTreeActon;
-                            break;
-                        case MENU_TYPE.SCRIPT:
-                            action = scriptTreeAction;
-                            break;
-                        case MENU_TYPE.TABLE:
-                            action = tableTreeAction
-                            break;
-                        default:
-                            action = taskTreeAction;
-                    }
-
-                    data.children && dispatch({
-                        type: action.LOAD_FOLDER_CONTENT,
-                        payload: data
-                    });
-                }
             });
-        },
+            if (res.code === 1) {
+                let { data } = res;
+                let action;
 
+                switch (type) {
+                    case MENU_TYPE.TASK:
+                    case MENU_TYPE.TASK_DEV:
+                        action = taskTreeAction;
+                        break;
+                    case MENU_TYPE.RESOURCE:
+                        action = resTreeAction;
+                        break;
+                    case MENU_TYPE.SPARKFUNC:
+                        action = sparkFnTreeAction;
+                        break;
+                    case MENU_TYPE.LIBRAFUNC:
+                        action = libraFnTreeAction;
+                        break;
+                    case MENU_TYPE.LIBRASYSFUN:
+                        action = libraSysFnTreeActon;
+                        break;
+                    case MENU_TYPE.FUNCTION:
+                    case MENU_TYPE.COSTOMFUC:
+                        action = fnTreeAction;
+                        break;
+                    case MENU_TYPE.SYSFUC:
+                        action = sysFnTreeActon;
+                        break;
+                    case MENU_TYPE.SCRIPT:
+                        action = scriptTreeAction;
+                        break;
+                    case MENU_TYPE.TABLE:
+                        action = tableTreeAction
+                        break;
+                    default:
+                        action = taskTreeAction;
+                }
+
+                data.children && dispatch({
+                    type: action.LOAD_FOLDER_CONTENT,
+                    payload: data
+                });
+                if (isFunc) {
+                    const cusFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.COSTOMFUC);
+                    const sysFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.SYSFUC)
+                    dispatch({
+                        type: fnTreeAction.RESET_FUC_TREE, // spark自定义函数
+                        payload: cusFunc
+                    })
+                    dispatch({
+                        type: sysFnTreeActon.RESET_SYSFUC_TREE, // spark系统函数
+                        payload: sysFunc
+                    })
+                    dispatch({
+                        type: libraSysFnTreeActon.RESET_SYSFUC_TREE,
+                        payload: data.children[0] // libra系统函数
+                    })
+                }
+            }
+        },
         delOfflineTask (params, nodePid, type) {
             return ajax.delOfflineTask(params)
                 .then(res => {
@@ -981,7 +1009,12 @@ export const workbenchActions = (dispatch) => {
                     }
                 })
         },
-
+        saveEngineType (data) { // 保存节点engineType
+            dispatch({
+                type: modalAction.SET_ENGINE_TYPE,
+                payload: data
+            })
+        },
         setModalDefault (data) {
             dispatch({
                 type: modalAction.SET_MODAL_DEFAULT,
