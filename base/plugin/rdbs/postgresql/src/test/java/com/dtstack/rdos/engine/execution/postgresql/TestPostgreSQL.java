@@ -15,13 +15,14 @@ public class TestPostgreSQL {
         String user = "postgres";
         String pass = "password";
 
-        StringBuffer sb = new StringBuffer("CREATE FUNCTION proc() ");
-        sb.append("begin\n");
-        sb.append("\tinsert into my_time values (now());\n");
-        sb.append("end\n");
+        StringBuffer sb = new StringBuffer("CREATE FUNCTION zhaojiemotest() RETURNS void AS $body$ ");
+        sb.append(" begin ");
+        sb.append(" insert into time_test values(now(),now(),now(),now()); ");
+        sb.append(" end; ");
+        sb.append("$body$ LANGUAGE PLPGSQL;");
         String createProc = sb.toString();
-        String callProc = "call hyf_proc()";
-        String deleteProc = "drop function hyf_proc";
+        String selectProc = "select zhaojiemotest()";
+        String deleteProc = "drop  function if EXISTS zhaojiemotest()";
 
         Connection conn = DriverManager.getConnection(url, user, pass);
 
@@ -32,7 +33,7 @@ public class TestPostgreSQL {
         stmt = conn.prepareCall(createProc);
         stmt.execute();
 
-        stmt = conn.prepareCall(callProc);
+        stmt = conn.prepareCall(selectProc);
         stmt.execute();
 
     }

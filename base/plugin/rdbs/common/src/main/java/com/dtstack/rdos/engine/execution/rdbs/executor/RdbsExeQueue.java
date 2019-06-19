@@ -230,14 +230,13 @@ public class RdbsExeQueue {
 
             sb.append(exeSql);
 
-            String sql = sb.toString();
-            if(!sql.endsWith(SEMICOLON)) {
-                sql += SEMICOLON;
+            if(!exeSql.trim().endsWith(SEMICOLON)) {
+                sb.append(SEMICOLON);
             }
 
             sb.append(connFactory.getCreateProcedureTailer());
 
-            return sql;
+            return sb.toString();
         }
 
         public void cancelJob(){

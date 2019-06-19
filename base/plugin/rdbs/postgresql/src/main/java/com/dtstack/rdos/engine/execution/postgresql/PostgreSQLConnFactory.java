@@ -13,12 +13,12 @@ public class PostgreSQLConnFactory extends ConnFactory {
 
     @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("CREATE FUNCTION %s() RETURNS void AS $$ \n", procName);
+        return String.format("CREATE FUNCTION %s() RETURNS void AS $body$ ", procName);
     }
 
     @Override
     public String getCreateProcedureTailer() {
-        return " $$ LANGUAGE PLPGSQL; ";
+        return " $body$ LANGUAGE PLPGSQL; ";
     }
 
     @Override
