@@ -835,6 +835,23 @@ class Keymap extends React.Component {
         />
     }
 
+    getBatIntVal = (type, typeCol) => {
+        const isNotHBase = type !== DATA_SOURCE.HBASE;
+        let initialVal = '';
+        if (isNotHBase) {
+            typeCol && typeCol.forEach(item => {
+                const field = utils.checkExist(item.index) ? item.index : utils.checkExist(item.key) ? item.key : undefined;
+                if (field !== undefined) initialVal += `${field}:${item.type},\n`;
+            })
+        } else {
+            typeCol && typeCol.forEach(item => {
+                const field = utils.checkExist(item.key) ? item.key : undefined;
+                if (field !== undefined) initialVal += `${item.cf || '-'}:${field},\n`;
+            })
+        }
+        return initialVal;
+    }
+
     renderBatchModal = () => {
         const {
             batchModal, batchSourceModal,
@@ -1253,7 +1270,8 @@ class Keymap extends React.Component {
     importFields = () => {
         this.setState({
             batchModal: {
-                visible: true
+                visible: true,
+                batchText: this.getBatIntVal(this.props.targetSrcType, this.props.targetCol)
             }
         })
     }
@@ -1261,7 +1279,8 @@ class Keymap extends React.Component {
     importSourceFields = () => {
         this.setState({
             batchSourceModal: {
-                visible: true
+                visible: true,
+                batchText: this.getBatIntVal(this.props.sourceSrcType, this.props.sourceCol)
             }
         })
     }
@@ -1272,7 +1291,7 @@ class Keymap extends React.Component {
         const {
             sourceSrcType,
             replaceBatchSourceKeyRow
-        } = this.props
+        } = this.props;
 
         if (!batchText) {
             this.hideBatchSourceModal();
@@ -1319,20 +1338,15 @@ class Keymap extends React.Component {
                     if (map.length < 2) { break; };
                     const cf = utils.trim(map[0]);
                     const name = utils.trim(map[1]);
-                    // const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
-                    // if (hdfsFieldTypes.includes(type)) {
                     params.push({
                         cf: cf,
                         key: name
                     });
-                    // } else {
-                    //     message.error(`字段${name}的数据类型错误！`)
-                    //     return
-                    // }
                 }
                 break;
             }
         }
+
         replaceBatchSourceKeyRow(params);
         this.hideBatchSourceModal();
     }

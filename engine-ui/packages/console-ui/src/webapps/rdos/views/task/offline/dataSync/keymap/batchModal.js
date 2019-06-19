@@ -2,7 +2,6 @@ import React from 'react';
 import {
     Modal, Input
 } from 'antd';
-import utils from 'utils';
 
 import {
     DATA_SOURCE
@@ -22,24 +21,12 @@ export default function BatchModal (props) {
     const {
         title, desc,
         visible, onOk,
-        placeholder, value, columns, sourceType,
+        placeholder, value, sourceType,
         onCancel, onChange,
         columnFamily
     } = props;
 
-    let initialVal = '';
     const isNotHBase = sourceType !== DATA_SOURCE.HBASE;
-    if (isNotHBase) {
-        columns && columns.forEach(item => {
-            const field = utils.checkExist(item.index) ? item.index : utils.checkExist(item.key) ? item.key : undefined;
-            if (field !== undefined) initialVal += `${field}:${item.type},\n`;
-        })
-    } else {
-        columns && columns.forEach(item => {
-            const field = utils.checkExist(item.key) ? item.key : undefined;
-            if (field !== undefined) initialVal += `${item.cf || '-'}:${field},\n`;
-        })
-    }
     return (
         <Modal
             title={title}
@@ -84,7 +71,7 @@ export default function BatchModal (props) {
             <Input
                 type="textarea"
                 rows={6}
-                value={value || initialVal}
+                value={value}
                 onChange={onChange}
                 placeholder={placeholder}
             />
