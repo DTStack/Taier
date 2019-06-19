@@ -32,7 +32,7 @@ export function authAfterFormated (response) {
         case 0: // 无权限，需要登录
 
             UserApi.logout()
-            return Promise.reject(response);
+            return response;
         case 3: // 功能无权限
             notification['error']({
                 message: '权限通知',
