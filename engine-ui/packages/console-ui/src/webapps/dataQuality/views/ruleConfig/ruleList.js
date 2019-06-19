@@ -70,6 +70,14 @@ class RuleList extends React.Component {
             ruleList: [newData, ...this.state.ruleList]
         }, this.emitChangeEvent)
     }
+    renderSaveAll () {
+        const { ruleList } = this.state;
+        const { couldSaveAll } = this.props;
+        const rule = ruleList.find((r) => {
+            return r.isEdit;
+        })
+        return (couldSaveAll && rule) ? (<Button onClick={this.saveAll}>保存全部</Button>) : null;
+    }
     renderHeader () {
         const menu = (
             <Menu onClick={this.handleMenuClick}>
@@ -82,7 +90,7 @@ class RuleList extends React.Component {
         return (
             <div className='c-ruleList__header'>
                 <div className='c-ruleList__header__left'>
-                    <Button>保存全部</Button>
+                    {/* {this.renderSaveAll()} */}
                 </div>
                 <div className='c-ruleList__header__right'>
                     <Dropdown overlay={menu}>
@@ -146,10 +154,12 @@ class RuleList extends React.Component {
         const newRuleList = [...ruleList];
         const rule = ruleList[ruleIndex];
         if (!rule.isNew) {
-            let isSuccess = await this.props.onDeleteRule(rule);
-            if (!isSuccess) {
-                next(false);
-                return;
+            if (this.props.onDeleteRule) {
+                let isSuccess = await this.props.onDeleteRule(rule);
+                if (!isSuccess) {
+                    next(false);
+                    return;
+                }
             }
         }
         newRuleList.splice(ruleIndex, 1)
@@ -168,10 +178,12 @@ class RuleList extends React.Component {
             return;
         }
         const newRuleList = [...ruleList];
-        let isSuccess = await this.props.onSaveRule(saveRule);
-        if (!isSuccess) {
-            next(false);
-            return;
+        if (this.props.onSaveRule) {
+            let isSuccess = await this.props.onSaveRule(saveRule);
+            if (!isSuccess) {
+                next(false);
+                return;
+            }
         }
         newRuleList.splice(ruleIndex, 1, { ...saveRule, isEdit: false, isNew: false });
         next(true);
@@ -181,9 +193,9 @@ class RuleList extends React.Component {
     }
     render () {
         const { ruleList = [] } = this.state;
-        const { tableColumn } = this.props;
+        const { style, tableColumn } = this.props;
         return (
-            <div className='c-ruleList'>
+            <div style={style} className='c-ruleList'>
                 {this.renderHeader()}
                 {ruleList.map(
                     (rule) => {
