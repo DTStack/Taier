@@ -137,6 +137,9 @@ export const MENU_TYPE = {
     SCRIPT: 'ScriptManager',
     RESOURCE: 'ResourceManager',
     FUNCTION: 'FunctionManager',
+    SPARKFUNC: 'SparkSQLFunction',
+    LIBRAFUNC: 'LibraSQLFunction',
+    LIBRASYSFUN: 'LibraSysFunc',
     COSTOMFUC: 'CustomFunction',
     SYSFUC: 'SystemFunction',
     TABLE: 'TableQuery'

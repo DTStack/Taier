@@ -245,6 +245,7 @@ class FolderTree extends React.Component {
                 }
                 break;
             case MENU_TYPE.SYSFUC:
+            case MENU_TYPE.LIBRASYSFUN:
                 operations = [];
                 break;
             case MENU_TYPE.SCRIPT:

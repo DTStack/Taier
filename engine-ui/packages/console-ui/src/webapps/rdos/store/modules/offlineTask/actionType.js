@@ -55,6 +55,21 @@ export const resTreeAction = mc([
     'EDIT_FOLDER_CHILD'
 ], { prefix: 'offline/resTree/' });
 
+export const sparkFnTreeAction = mc([
+    'GET_SPARK_ROOT',
+    'LOAD_FOLDER_CONTENT'
+], { prefix: 'offline/sparkTree' })
+
+export const libraFnTreeAction = mc([
+    'GET_LIBRA_ROOT',
+    'LOAD_FOLDER_CONTENT'
+], { prefix: 'offline/libraTree' })
+
+export const libraSysFnTreeActon = mc([
+    'RESET_SYSFUC_TREE',
+    'LOAD_FOLDER_CONTENT'
+], { prefix: 'offline/libraSysTree' })
+
 export const fnTreeAction = mc([
     'RESET_FUC_TREE',
     'LOAD_FOLDER_CONTENT',

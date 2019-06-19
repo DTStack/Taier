@@ -4,6 +4,9 @@ import { cloneDeep } from 'lodash';
 import {
     taskTreeAction,
     resTreeAction,
+    sparkFnTreeAction,
+    libraFnTreeAction,
+    libraSysFnTreeActon,
     fnTreeAction,
     sysFnTreeActon,
     scriptTreeAction,
@@ -179,6 +182,41 @@ export const resourceTreeReducer = (state = {}, action) => {
         case resTreeAction.EDIT_FOLDER_CHILD: {
             let payload = assign({}, action.payload, { parentId: action.payload.originPid });
             return addFolderChild(action, deleteFolderChild({ payload: payload }, state));
+        }
+        default:
+            return state;
+    }
+};
+
+export const sparkFnTreeReducer = (state = {}, action) => {
+    switch (action.type) {
+        case sparkFnTreeAction.GET_SPARK_ROOT:
+            return assign({}, state, action.payload)
+        case sparkFnTreeAction.LOAD_FOLDER_CONTENT:
+            return assign({}, state, action.payload)
+        default:
+            return state;
+    }
+}
+
+export const libraFnTreeReducer = (state = {}, action) => {
+    switch (action.type) {
+        case libraFnTreeAction.GET_LIBRA_ROOT:
+            return assign({}, state, action.payload)
+        case libraFnTreeAction.LOAD_FOLDER_CONTENT:
+            return assign({}, state, action.payload)
+        default:
+            return state;
+    }
+}
+
+export const libraSysFnTreeReducer = (state = {}, action) => {
+    switch (action.type) {
+        case libraSysFnTreeActon.RESET_SYSFUC_TREE:
+            return assign({}, state, action.payload);
+
+        case libraSysFnTreeActon.LOAD_FOLDER_CONTENT: {
+            return loadFolderContent(action, state);
         }
         default:
             return state;

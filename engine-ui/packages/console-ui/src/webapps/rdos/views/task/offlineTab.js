@@ -16,6 +16,8 @@ import {
     taskTreeAction,
     resTreeAction,
     fnTreeAction,
+    sparkFnTreeAction,
+    libraFnTreeAction,
     sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction
@@ -44,6 +46,9 @@ const Panel = Collapse.Panel;
         project: state.project,
         taskTreeData: offlineTask.taskTree,
         resourceTreeData: offlineTask.resourceTree,
+        sparkTreeData: offlineTask.sparkTree,
+        libraTreeData: offlineTask.libraTree,
+        libraSysTreeData: offlineTask.libraSysFnTree,
         functionTreeData: offlineTask.functionTree,
         sysFunctionTreeData: offlineTask.sysFunctionTree,
         scriptTreeData: offlineTask.scriptTree,
@@ -282,14 +287,32 @@ class OfflineTabPane extends Component {
                             break;
                         }
                         case MENU_TYPE.FUNCTION: {
-                            dispatch({
-                                type: fnTreeAction.RESET_FUC_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            dispatch({
-                                type: sysFnTreeActon.RESET_SYSFUC_TREE,
-                                payload: menuItem.children[1]
-                            });
+                            const sparkSql = menuItem.children.find(item => item.catalogueType == MENU_TYPE.SPARKFUNC);
+                            const libraSql = menuItem.children.find(item => item.catalogueType == MENU_TYPE.LIBRAFUNC);
+                            dispatch({ // dispatch spark  第一级目录文件
+                                type: sparkFnTreeAction.GET_SPARK_ROOT,
+                                payload: sparkSql
+                            })
+                            dispatch({ // dispatch libra  第一级目录文件
+                                type: libraFnTreeAction.GET_LIBRA_ROOT,
+                                payload: libraSql
+                            })
+                            // spark
+                            this.props.loadTreeNode(sparkSql.id,
+                                MENU_TYPE.SPARKFUNC,
+                                {
+                                    taskType: sparkSql.taskType,
+                                    parentId: sparkSql.parentId
+                                }, true)
+                            expandedKeys.push(`${MENU_TYPE.SPARKFUNC}-${sparkSql.type}-${sparkSql.id}`)
+                            // libra
+                            this.props.loadTreeNode(libraSql.id,
+                                MENU_TYPE.LIBRAFUNC,
+                                {
+                                    taskType: libraSql.taskType,
+                                    parentId: libraSql.parentId
+                                }, true)
+                            expandedKeys.push(`${MENU_TYPE.LIBRAFUNC}-${libraSql.type}-${libraSql.id}`)
                             break;
                         }
                         case MENU_TYPE.TABLE: {
@@ -361,6 +384,7 @@ class OfflineTabPane extends Component {
         const {
             taskTreeData,
             resourceTreeData,
+            libraSysTreeData,
             functionTreeData,
             sysFunctionTreeData,
             scriptTreeData,
@@ -369,7 +393,7 @@ class OfflineTabPane extends Component {
             project,
             user
         } = this.props;
-
+        console.log('spark', this.props.sparkTreeData, functionTreeData, sysFunctionTreeData, 'libra自定义', this.props.libraTreeData, libraSysTreeData)
         const { subMenus, expandedKeys, expandedKeys2 } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
         const isPro = project && project.projectType == PROJECT_TYPE.PRO;
@@ -576,14 +600,14 @@ class OfflineTabPane extends Component {
                                         </Panel>
                                         <Panel header="LibrA SQL" key="librA">
                                             {
-                                                !isEmpty(sysFunctionTreeData) &&
+                                                !isEmpty(libraSysTreeData) &&
                                                 <FolderTree
                                                     isPro={isPro}
                                                     couldEdit={couldEdit}
-                                                    type={MENU_TYPE.SYSFUC}
+                                                    type={MENU_TYPE.LIBRASYSFUN}
                                                     expandedKeys={expandedKeys2}
                                                     onExpand={this.onExpand2}
-                                                    treeData={sysFunctionTreeData}
+                                                    treeData={libraSysTreeData}
                                                 />
                                             }
                                         </Panel>
