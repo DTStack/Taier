@@ -9,14 +9,6 @@ import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
 import { publishType, TASK_TYPE } from '../comm/const';
 
-<<<<<<< HEAD
-/* eslint-disable-next-line */
-const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
-/* eslint-disable-next-line */
-const UIC_DOMAIN_URL = APP_CONF.UIC_DOMAIN || '';
-
-=======
->>>>>>> xiaowei/feat-yml
 export default {
 
     sqlFormat (params) { // SQL格式化
@@ -40,24 +32,6 @@ export default {
         })
     },
 
-<<<<<<< HEAD
-    openLogin () {
-        localDb.clear()
-        utils.deleteCookie('dt_user_id', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_token', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_tenant_id', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_tenant_name', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_username', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('project_id', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('project_id', null, '/')
-        utils.deleteCookie('stream_project_id', null, '/')
-        window.location.href = `${UIC_URL_TARGET}`
-    },
-
-=======
->>>>>>> xiaowei/feat-yml
     addRoleUser (user) {
         return http.post(req.ADD_ROLE_USRE, user)
     },
@@ -97,12 +71,9 @@ export default {
     queryProjects (params) {
         return http.post(req.QUERY_PROJECT_LIST, params)
     },
-<<<<<<< HEAD
-=======
     getProjectByTenant (params) {
         return http.post(req.GET_PROJECT_BY_TENANT, params)
     },
->>>>>>> xiaowei/feat-yml
     getProjects (params) { // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)
     },
