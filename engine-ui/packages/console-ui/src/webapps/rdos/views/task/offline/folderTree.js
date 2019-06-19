@@ -496,6 +496,9 @@ class FolderTree extends React.Component {
 
     onRightClick = (e) => {
         console.log(e);
+        const { saveEngineType } = this.props;
+        const engineType = e.node.props.data.engineType;
+        saveEngineType(engineType)
     }
 
     genetateTreeNode () {

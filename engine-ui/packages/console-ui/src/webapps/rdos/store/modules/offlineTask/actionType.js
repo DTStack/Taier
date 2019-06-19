@@ -7,6 +7,7 @@ export const commAction = mc([
 ], { prefix: 'offline/comm/' });
 
 export const modalAction = mc([
+    'SET_ENGINE_TYPE',
     'TOGGLE_CREATE_TASK',
     'TOGGLE_EDIT_TASK',
     'TOGGLE_CLONE_TASK',
