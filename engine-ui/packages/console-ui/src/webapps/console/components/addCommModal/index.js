@@ -16,12 +16,13 @@ class AddCommModal extends Component {
             isAdd: false // 添加引擎
         }
     }
-    tranEngineData = () => {
-        let hadoopOptionValue = [];
-        hadoopEngineOptionsValue.map(item => {
-            hadoopOptionValue.push(item.value)
+    // 转化成checkedList可用数据
+    tranEngineData = (data) => {
+        let recoginzeValue = [];
+        data.map(item => {
+            recoginzeValue.push(item.value)
         })
-        return hadoopOptionValue
+        return recoginzeValue
     }
     onChange = (checkedList) => {
         this.setState({
@@ -31,8 +32,10 @@ class AddCommModal extends Component {
     }
     onCheckAllChange = (e) => {
         const { isAddComp } = this.props;
+        const canSelectOption = this.compOptions();
         this.setState({
-            checkedList: e.target.checked ? this.tranEngineData() : isAddComp ? [] : defaultCheckedValue,
+            checkedList: e.target.checked ? (isAddComp ? this.tranEngineData(canSelectOption) : this.tranEngineData(hadoopEngineOptionsValue))
+                : (isAddComp ? [] : defaultCheckedValue),
             checkAll: e.target.checked
         })
     }
@@ -146,6 +149,9 @@ class AddCommModal extends Component {
         })
         setFieldsValue({ libraEngineName: '' })
     }
+    /**
+     * 添加组件option需要与已存在的组件筛选
+     */
     compOptions = () => {
         const { hadoopComponentData = [] } = this.props;
         return noDisablehadoopEngineOptionsValue
@@ -156,7 +162,7 @@ class AddCommModal extends Component {
         const { isAddComp } = this.props;
         const { checkAll, checkedList } = this.state;
         const addCompOptions = this.compOptions();
-        // 新增组件都可选
+        // 新增组件筛选已添加组件
         const options = isAddComp ? addCompOptions : hadoopEngineOptionsValue;
         return (
             flag ? <React.Fragment>

@@ -1,6 +1,5 @@
 import React from 'react';
-import { hashHistory } from 'react-router';
-import { Form, Select, Radio, Input, message } from 'antd';
+import { Form, Select, Radio, message } from 'antd';
 
 import CatalogueSelect from '../../components/catalogueSelect';
 import LifeCycleSelect from '../../components/lifeCycleSelect';
@@ -41,24 +40,15 @@ class EngineConfigItem extends React.Component {
             return <Option key={`${item}`} value={item}>{item}</Option>
         })
     }
-    onPreviewMetaData = (engineType) => {
-        const { getFieldValue } = this.props.form;
-        const { formParentField } = this.props;
-        const parentField = formParentField ? `${formParentField}` : '';
-        const dbName = getFieldValue(`${parentField}.database`)
-        console.log(engineType, dbName)
+    onPreviewMetaData (engineType, dbName) {
         if (dbName) {
-            if (engineType == ENGINE_SOURCE_TYPE.HADOOP) {
-                this.setState({
-                    visible: true,
-                    dbName,
-                    engineType
-                })
-            } else {
-                hashHistory.push(`/data-manage/table/view/1870`)
-            }
+            this.setState({
+                visible: true,
+                dbName,
+                engineType
+            })
         } else {
-            message.error('请选择对接目标！')
+            message.error('请先选择对接目标！')
         }
     }
     render () {
@@ -67,8 +57,7 @@ class EngineConfigItem extends React.Component {
             targetDb,
             formParentField,
             formItemLayout,
-            engineType,
-            isCreateEngine
+            engineType
             // disabledTargets
         } = this.props;
         const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -79,23 +68,9 @@ class EngineConfigItem extends React.Component {
         const dataBase = isHadoop ? hadoopDb : libraDb
         // const engineType = isHadoop ? ENGINE_SOURCE_TYPE.HADOOP : ENGINE_SOURCE_TYPE.LIBRA;
         const createModel = getFieldValue(`${parentField}.createModel`);
+        const dbName = getFieldValue(`${parentField}.database`);
         return (
             <React.Fragment>
-                {
-                    isCreateEngine && (
-                        <FormItem
-                            label='引擎类型'
-                            style={{ display: 'none' }}
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator(`${parentField}.engineType`, {
-                                initialValue: `${engineType}`
-                            })(
-                                <Input/>
-                            )}
-                        </FormItem>
-                    )
-                }
                 <FormItem
                     label='初始化方式'
                     style={{ marginBottom: createModel === PROJECT_CREATE_MODEL.NORMAL ? 0 : 24 }}
@@ -130,9 +105,9 @@ class EngineConfigItem extends React.Component {
                                 </Select>
                             )}
                             {
-                                <a onClick={() => {
-                                    this.onPreviewMetaData(engineType)
-                                }} style={{ marginLeft: 5 }}>预览元数据</a>
+                                <a onClick={
+                                    () => { this.onPreviewMetaData(engineType, dbName) }
+                                } style={{ marginLeft: 5 }}>预览元数据</a>
                             }
                         </FormItem>
                         <FormItem

@@ -4,8 +4,8 @@ import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Tabs, Moda
 import Api from '../../../api/console'
 import { getComponentConfKey, exChangeComponentConf, showTestResult, validateCompParams,
     myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
-import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP,
-    DTYARNSHELL_KEY_MAP, notExtKeysFlink, notExtKeysSpark, notExtKeysLearning,
+import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, SPARK_KEY_MAP_DOTS,
+    DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS, notExtKeysFlink, notExtKeysSpark, notExtKeysLearning,
     notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts'
 import GoBack from 'main/components/go-back';
 import SparkConfig from './sparkConfig'
@@ -625,6 +625,8 @@ class EditCluster extends React.Component {
             tmpParams = sparkThrif_params
         } else if (type == 'libra') {
             tmpParams = libraSql_params
+        } else if (type == 'dtyarnshell') {
+            tmpParams = dtyarnshell_params
         } else {
             tmpParams = dtyarnshell_params;
         }
@@ -941,10 +943,10 @@ class EditCluster extends React.Component {
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
-        componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP), ...sparkExtParams };
+        componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
-        componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP), ...dtyarnshellExtParams };
+        componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
         // 服务端兼容，不允许null
         componentConf['hiveConf'].username = componentConf['hiveConf'].username || '';

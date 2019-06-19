@@ -44,10 +44,11 @@ class BindCommModal extends React.Component {
         }
         const { getFieldsValue, validateFields } = this.props.form;
         const reqParams = getFieldsValue();
+        const { tenantInfo = {}, isBindTenant } = this.props;
         validateFields(err => {
             if (!err) {
                 params.canSubmit = true,
-                params.reqParams = reqParams
+                params.reqParams = isBindTenant ? reqParams : Object.assign(reqParams, { tenantId: tenantInfo.tenantId }) // 切换队列覆盖默认值name
             }
         })
         return params
@@ -82,7 +83,7 @@ class BindCommModal extends React.Component {
                                     required: true,
                                     message: '租户不可为空！'
                                 }],
-                                initialValue: tenantInfo && `${tenantInfo.tenantId}`
+                                initialValue: tenantInfo && `${tenantInfo.tenantName}`
                             })(
                                 <Select
                                     allowClear

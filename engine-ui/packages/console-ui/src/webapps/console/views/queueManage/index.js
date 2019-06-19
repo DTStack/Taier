@@ -187,7 +187,7 @@ class QueueManage extends Component {
                 title: '组件',
                 dataIndex: 'engine',
                 render (text, record) {
-                    return record.componentType;
+                    return record.engineType;
                 }
             },
             {

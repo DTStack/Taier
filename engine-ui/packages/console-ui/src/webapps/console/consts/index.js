@@ -231,12 +231,23 @@ export const SPARK_KEY_MAP = {
     'spark.yarn.appMasterEnv.PYSPARK_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_PYTHON',
     'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON'
 }
+export const SPARK_KEY_MAP_DOTS = {
+    'sparkYarnAppMasterEnvPYSPARK_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+    'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
+}
 export const DTYARNSHELL_KEY_MAP = {
     'jlogstash.root': 'jlogstashRoot',
     'java.home': 'javaHome',
     'hadoop.home.dir': 'hadoopHomeDir',
     'python2.path': 'python2Path',
     'python3.path': 'python3Path'
+}
+export const DTYARNSHELL_KEY_MAP_DOTS = {
+    'jlogstashRoot': 'jlogstash.root',
+    'javaHome': 'java.home',
+    'hadoopHomeDir': 'hadoop.home.dir',
+    'python2Path': 'python2.path',
+    'python3Path': 'python3.path'
 }
 // 非用户自定义参数
 export const notExtKeysFlink = [

@@ -4,7 +4,7 @@ import { Button, message, Card, Alert, Row } from 'antd';
 import { cloneDeep } from 'lodash';
 import { hashHistory } from 'react-router';
 import {
-    ENGINE_SOURCE_TYPE
+    ENGINE_SOURCE_TYPE, ENGINE_TYPE
 } from '../../comm/const';
 import api from '../../api';
 import GoBack from 'main/components/go-back'
@@ -73,10 +73,10 @@ class CreateWorkSpace extends React.Component {
         const libraParams = copyVal.libra && copyVal.libra[""] || {}
         let projectEngineList = [];
         if (enableHadoop) {
-            projectEngineList.push(hadoopParams)
+            projectEngineList.push(Object.assign(hadoopParams, { engineType: ENGINE_SOURCE_TYPE.HADOOP }))
         }
         if (enableLibrA) {
-            projectEngineList.push(libraParams)
+            projectEngineList.push(Object.assign(libraParams, { engineType: ENGINE_SOURCE_TYPE.LIBRA }))
         }
         copyVal.projectEngineList = projectEngineList;
         const delAttr = (obj, attr) => {
