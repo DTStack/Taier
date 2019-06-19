@@ -238,9 +238,10 @@ export const workbenchActions = (dispatch) => {
         })
     };
 
-    const reloadTaskTab = (taskId) => {
+    const reloadTaskTab = (taskId, isScript) => {
+        let method = isScript ? 'getScriptById' : 'getOfflineTaskDetail'
         // 更新tabs数据
-        ajax.getOfflineTaskDetail({
+        ajax[method]({
             id: taskId
         }).then(res => {
             if (res.code === 1) {
@@ -627,7 +628,7 @@ export const workbenchActions = (dispatch) => {
                                 isSaveFInish(true);
                             }
                         }, 500)
-                        reloadTaskTab(fileData.id);
+                        reloadTaskTab(fileData.id, typeof params.type !== 'undefined');
                         // 如果是锁定状态，点击确定按钮，强制更新，否则，取消保存
                     } else if (lockStatus === 1) { // 2-被锁定
                         confirm({
