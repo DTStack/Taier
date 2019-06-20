@@ -1,35 +1,43 @@
 cache:
   paths:
    - node_modules/
-
 before_script:
-  - "npm -v"
   - "npm install --unsafe-perm=true --allow-root"
 
 stages:
   - lintjs
   - lintdoc
   - test
+  - deploy
 
 code_quality: 
   stage: lintjs
   script: 
     - "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js"
   only:
-    - branches
-    - tags
+    - merge_requests
 test:
   stage: test
   script: 
     - "node ./node_modules/jest/bin/jest.js --no-cahe"
   only:
-    - branches
-    - tags
+    - merge_requests
+
 doc_quality:
   stage: lintdoc
   script: 
     - "node ./node_modules/lint-md/bin ./*.md docs/*.md"
   only:
-    - branches
-    - tags
+    - merge_requests
+  except:
+      - ./**/*.md
 
+build_to_dev: # deploy dev environment
+  stage: deploy
+  script:
+    - "./scripts/build_dev.sh"
+  only:
+    - dev
+  except:
+    - branches
+  
