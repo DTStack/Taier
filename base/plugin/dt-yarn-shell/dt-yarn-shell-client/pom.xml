@@ -115,20 +115,20 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>2.5</version>
-                <configuration>
-                    <filesets>
-                        <fileset>
-                            <directory>${basedir}/../target</directory>
-                            <includes>
-                                <include>${project.name}-${project.version}.jar</include>
-                            </includes>
-                        </fileset>
-                    </filesets>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<artifactId>maven-clean-plugin</artifactId>-->
+                <!--<version>2.5</version>-->
+                <!--<configuration>-->
+                    <!--<filesets>-->
+                        <!--<fileset>-->
+                            <!--<directory>${basedir}/../target</directory>-->
+                            <!--<includes>-->
+                                <!--<include>${project.name}-${project.version}.jar</include>-->
+                            <!--</includes>-->
+                        <!--</fileset>-->
+                    <!--</filesets>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
 
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -145,8 +145,12 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/../../../../plugin/dtyarnshell/"
+                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
                                 <delete>
-                                    <fileset dir="${basedir}/../dt-yarn-shell-core/target" includes="dt-yarn-shell-core-${project.version}.jar"/>
+                                    <fileset dir="${basedir}/../../../../plugin/dtyarnshell/"
+                                             includes="${project.name}-*.jar"
+                                             excludes="${project.name}-${git.branch}.jar"/>
                                 </delete>
                             </tasks>
                         </configuration>
