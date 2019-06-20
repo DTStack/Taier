@@ -67,7 +67,7 @@ export default class PreviewMetaData extends Component {
         }, this.getDBTableList(dbName, engineType))
     }
     render () {
-        const { tableData, loading, total, currentPage } = this.state;
+        const { tableData, loading, total, currentPage, dbName } = this.state;
         const { visible, onCancel } = this.props;
         const columns = this.initColumns();
         const pagination = {
@@ -81,8 +81,9 @@ export default class PreviewMetaData extends Component {
                 visible={visible}
                 onCancel={onCancel}
             >
-                <span></span>
+                <div style={{ padding: '0 0 10 5' }}>{`数据库名：${dbName}`}</div>
                 <Table
+                    className='m-table'
                     loading={loading}
                     columns={columns}
                     onChange={this.handleTable}
