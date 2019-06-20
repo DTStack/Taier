@@ -7,15 +7,25 @@ stages:
   - lintdoc
   - test
 
-lint-js: 
+code_quality: 
   stage: lintjs
-  script: "npm run lint-js"
-
+  script: 
+    - "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js"
+  only:
+    - branches
+    - tags
 test:
   stage: test
-  script: "npm test"
-
-lint-doc:
+  script: 
+    - "jest --no-cache"
+  only:
+    - branches
+    - tags
+doc_quality:
   stage: lintdoc
-  script: "npm run lint-doc"
+  script: 
+    - "node ./node_modules/lint-md/bin ./*.md docs/*.md"
+  only:
+    - branches
+    - tags
 
