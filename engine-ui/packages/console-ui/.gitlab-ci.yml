@@ -1,3 +1,7 @@
+cache:
+  paths:
+   - node_modules/
+
 before_script:
   - "npm -v"
   - "npm install --unsafe-perm=true --allow-root"
