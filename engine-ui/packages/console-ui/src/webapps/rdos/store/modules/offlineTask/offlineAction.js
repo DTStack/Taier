@@ -417,7 +417,7 @@ export const workbenchActions = (dispatch) => {
                 let path = get(sourceMap, 'type.path')
                 if (path) {
                     if (isArray(path)) {
-                        path = path.map(o => `${o},`)
+                        path = path.map(o => `${o}`).join(',')
                     }
                     const vbs = matchTaskParams(taskCustomParams, path)
                     taskVariables = taskVariables.concat(vbs);
@@ -447,7 +447,7 @@ export const workbenchActions = (dispatch) => {
                 let path = get(targetMap, 'type.path')
                 if (path) {
                     if (isArray(path)) {
-                        path = path.map(o => `${o},`)
+                        path = path.map(o => `${o}`).join(',')
                     }
                     const vbs = matchTaskParams(taskCustomParams, path)
                     taskVariables = taskVariables.concat(vbs);

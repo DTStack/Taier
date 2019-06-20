@@ -142,33 +142,36 @@
 
 - 公有配置
 
-	配置地址在`common/config.js` 中。
-	> 这里存放应用公有的配置信息，你可以在这边配置`主题`，`应用前缀`等信息
-	
-	```json
-	UIC_URL: 'http://dtuic.dtstack.net', // UIC中心地址
-    UIC_DOMAIN: '.dtstack.net', // UIC域名
+    配置地址:
+    > common/config.js
+    这里存放应用公有的配置信息，你可以在这边配置`主题`，`应用前缀`等信息
+
+```properties
+    UIC_URL: 'http://dtuic.dtstack.net', // UIC中心地址
+    UIC_DOMAIN: '.dtstack.net', // UIC 域名
     prefix: 'DTinsight', // 应用前缀
     name: '数栈', // 应用名字
-    titleName: '数栈', // 网页title
-    loadingTitle: '数栈', // loading的应用名字
+    titleName: '数栈', // 网页 title
+    loadingTitle: '数栈', // loading 的应用名字
     theme: 'default', // 主题
     hideUserCenter: false, // 隐藏用户中心按钮
     disableHelp: true // 禁用帮助文档
-	```
-	
+```
+
 - 门户页面自定义
 
-    配置地址在`mian/config/config.js` 中，具体如下：
+    配置地址:
+    > mian/config/config.js
+    具体如下：
 
-``` json
-   titleName: '数栈', // 网页title应用名
-   loadingTitle: '数栈', // loading的应用名字
-   indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
-   indexDesc: '企业级一站式数据中台-让数据产生价值', // 大标题下的简介
-   showCopyright: true, // 是否显示版权信息
-   showSummary: true, // 是否显示首页的功能简介
-   summary: { // summary内容
+```properties
+    titleName: '数栈', // 网页title应用名
+    loadingTitle: '数栈', // loading的应用名字
+    indexTitle: '袋鼠云·数栈V3.0', // 主页的大标题
+    indexDesc: '企业级一站式数据中台-让数据产生价值', // 大标题下的简介
+    showCopyright: true, // 是否显示版权信息
+    showSummary: true, // 是否显示首页的功能简介
+    summary: { // summary内容
         title: '功能模块',
         content: '数据资源平台将数据转化成产业发展的基础资源，为ET大脑提供全量、标准、干净、智能的数据资源'
     }
