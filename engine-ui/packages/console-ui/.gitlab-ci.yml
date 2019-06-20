@@ -17,7 +17,7 @@ code_quality:
 test:
   stage: test
   script: 
-    - "jest --no-cache"
+    - "node ./node_modules/jest/bin/jest.js --no-cahe"
   only:
     - branches
     - tags
