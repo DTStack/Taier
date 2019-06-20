@@ -155,6 +155,13 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/../../../plugin/hadoop/"
+                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../plugin/hadoop/"
+                                             includes="${project.name}-*.jar"
+                                             excludes="${project.name}-${git.branch}.jar"/>
+                                </delete>
                             </tasks>
                         </configuration>
                     </execution>
