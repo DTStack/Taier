@@ -1,16 +1,21 @@
 before_script:
-  - npm -v
-  - npm install --unsafe-perm=true --allow-root
+  - "npm -v"
+  - "npm install --unsafe-perm=true --allow-root"
+
+stages:
+  - lintjs
+  - lintdoc
+  - test
 
 lint-js: 
-  script:
-    - npm run lint-js
+  stage: lintjs
+  script: "npm run lint-js"
 
 test:
-  script:
-    - npm test
+  stage: test
+  script: "npm test"
 
 lint-doc:
-  script:
-    - npm run lint-doc
+  stage: lintdoc
+  script: "npm run lint-doc"
 
