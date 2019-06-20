@@ -12,6 +12,8 @@ import http from '../api';
 import { cloneDeep } from 'lodash';
 import Header from './layout/header';
 import utils from 'utils/index';
+import * as apps from 'config/base';
+
 const propType = {
     children: PropTypes.node
 }
@@ -230,17 +232,45 @@ class Main extends Component {
         const pathAddress = this.getCurrentPath();
         // 成功返回数据
         if (licenseApps && licenseApps.length) {
-            let fixLicenseApps = cloneDeep(licenseApps)
+            let fixLicenseApps = cloneDeep(licenseApps);
+            let licenseMap = {};
             console.log('license', licenseApps)
             console.log('fixlicense', fixLicenseApps)
-            fixLicenseApps[0].children = this.fixRdosChildrenApps(fixLicenseApps[0].children)
-            fixLicenseApps[1].children = this.fixStreamChildrenApps(fixLicenseApps[1].children)
-            fixLicenseApps[2].children = this.fixAnalyChildrenApps(fixLicenseApps[2].children)
-            fixLicenseApps[3].children = this.fixQualityChildrenApps(fixLicenseApps[3].children)
-            fixLicenseApps[4].children = this.fixApiChildrenApps(fixLicenseApps[4].children)
-            fixLicenseApps[5].children = this.fixScienceChildrenApps(fixLicenseApps[5].children)
+            fixLicenseApps.forEach((licenseApp) => {
+                let newChildren = [];
+                switch (licenseApp.id) {
+                    case apps.rdosApp.id: {
+                        newChildren = this.fixRdosChildrenApps(licenseApp.children);
+                        break;
+                    }
+                    case apps.streamApp.id: {
+                        newChildren = this.fixStreamChildrenApps(licenseApp.children)
+                        break;
+                    }
+                    case apps.aeApp.id: {
+                        newChildren = this.fixAnalyChildrenApps(licenseApp.children)
+                        break;
+                    }
+                    case apps.dqApp.id: {
+                        newChildren = this.fixQualityChildrenApps(licenseApp.children)
+                        break;
+                    }
+                    case apps.daApp.id: {
+                        newChildren = this.fixApiChildrenApps(licenseApp.children)
+                        break;
+                    }
+                    case apps.scienceApp.id: {
+                        newChildren = this.fixScienceChildrenApps(licenseApp.children)
+                        break;
+                    }
+                }
+                licenseMap[licenseApp.id] = {
+                    ...licenseApp,
+                    children: newChildren
+                }
+            });
             // rdosAPP
-            const rdosApp = fixLicenseApps[0];
+            const rdosApp = licenseMap[apps.rdosApp.id];
             const isRdosShow = rdosApp.isShow;
             const isRdosDataSource = rdosApp.children[0] && rdosApp.children[0].isShow;
             const isRdosTask = rdosApp.children[1] && rdosApp.children[1].isShow;
@@ -249,17 +279,17 @@ class Main extends Component {
             const isRdosModal = rdosApp.children[4] && rdosApp.children[4].isShow;
             const isRdosPro = rdosApp.children[5] && rdosApp.children[5].isShow;
             // streamAPP
-            const streamApp = fixLicenseApps[1];
+            const streamApp = licenseMap[apps.streamApp.id];
             const isStream = streamApp.isShow;
             const isStreamDataSource = streamApp.children[0] && streamApp.children[0].isShow;
             const isStreamTask = streamApp.children[1] && streamApp.children[1].isShow;
             const isStreamOpera = streamApp.children[2] && streamApp.children[2].isShow;
             const isStreamPro = streamApp.children[3] && streamApp.children[3].isShow;
             // analyticsEngine
-            const analyApp = fixLicenseApps[2];
+            const analyApp = licenseMap[apps.aeApp.id];
             const isAna = analyApp.isShow;
             // dataQuality
-            const qualityApp = fixLicenseApps[3];
+            const qualityApp = licenseMap[apps.dqApp.id];
             const isQuali = qualityApp.isShow;
             const isQualiOver = qualityApp.children[0] && qualityApp.children[0].isShow;
             const isQualiTaskSearch = qualityApp.children[1] && qualityApp.children[1].isShow;
@@ -267,7 +297,7 @@ class Main extends Component {
             const isQualiVali = qualityApp.children[3] && qualityApp.children[3].isShow;
             const isQualiDataSource = qualityApp.children[4] && qualityApp.children[4].isShow;
             // dataApi
-            const apiApp = fixLicenseApps[4];
+            const apiApp = licenseMap[apps.daApp.id];
             const isDataApi = apiApp.isShow;
             const isApiover = apiApp.children[0] && apiApp.children[0].isShow;
             const isApiMarket = apiApp.children[1] && apiApp.children[1].isShow;
@@ -276,7 +306,7 @@ class Main extends Component {
             const isApiSafe = apiApp.children[4] && apiApp.children[4].isShow;
             const isApiDataSource = apiApp.children[5] && apiApp.children[5].isShow;
             // science
-            const scienceApp = fixLicenseApps[5];
+            const scienceApp = licenseMap[apps.scienceApp.id];
             const isScience = scienceApp.isShow;
             const isScienceDevelop = scienceApp.children[0] && scienceApp.children[0].isShow;
             const isScienceOperation = scienceApp.children[1] && scienceApp.children[1].isShow;
