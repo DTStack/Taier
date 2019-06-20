@@ -2,6 +2,8 @@ import React from 'react';
 
 import { Button, Dropdown, Icon, Menu } from 'antd';
 import Rule from './rule';
+
+import { getRuleType } from '../../consts/helper';
 import utils from 'utils';
 
 class RuleList extends React.Component {
@@ -23,16 +25,6 @@ class RuleList extends React.Component {
             })
         }
     }
-    getType (data) {
-        const { level, isCustomizeSql } = data;
-        if (isCustomizeSql) {
-            return 'sql'
-        } else if (level == 1) {
-            return 'table';
-        } else {
-            return 'column'
-        }
-    }
     handleMenuClick = (e) => {
         const { data } = this.props;
         const key = e.key;
@@ -48,6 +40,7 @@ class RuleList extends React.Component {
         switch (key) {
             case 'column': {
                 newData.isCustomizeSql = 0;
+                newData.level = 0;
                 break;
             }
             case 'table': {
@@ -63,7 +56,10 @@ class RuleList extends React.Component {
                 break;
             }
             case 'typeCheck': {
-
+                newData.level = 2;
+                newData.isCustomizeSql = 0;
+                newData.isFormat = true;
+                break;
             }
         }
         this.setState({
@@ -191,24 +187,40 @@ class RuleList extends React.Component {
             ruleList: newRuleList
         }, this.emitChangeEvent);
     }
+    onClone = (cloneRule) => {
+        const { ruleList = [] } = this.state;
+        const newRuleList = [ ...ruleList ];
+        const ruleIndex = newRuleList.findIndex((rule) => {
+            return rule.id == cloneRule.id;
+        });
+        if (ruleIndex == -1) {
+            return;
+        }
+        newRuleList.splice(ruleIndex + 1, 0, { ...cloneRule, id: utils.generateAKey(), isNew: true, isEdit: true })
+        this.setState({
+            ruleList: newRuleList
+        }, this.emitChangeEvent);
+    }
     render () {
         const { ruleList = [] } = this.state;
-        const { style, tableColumn } = this.props;
+        const { style, tableColumn, data } = this.props;
         return (
             <div style={style} className='c-ruleList'>
                 {this.renderHeader()}
                 {ruleList.map(
                     (rule) => {
                         return <Rule
+                            tableName={data.tableName}
                             tableColumn={tableColumn}
                             key={rule.id}
                             isEdit={rule.isEdit}
-                            type={this.getType(rule)}
+                            type={getRuleType(rule)}
                             data={rule}
                             onEdit={this.onEditRule}
                             onCancel={this.onCancelEdit}
                             onDelete={this.onDeleteRule}
                             onSave={this.onSave}
+                            onClone={this.onClone}
                         />
                     }
                 )}

@@ -14,6 +14,8 @@ import {
 import moment from 'moment';
 
 import ToolTipCopy from '../../../components/tooltipCopy';
+import RuleView from '../../../components/ruleView';
+
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { rowFormItemLayout, DATA_SOURCE, HELP_DOC_URL } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
@@ -483,7 +485,9 @@ class RemoteTriggerPane extends Component {
                         dataSource={monitorRules}
                         columns={this.initRulesColumns()}
                     />
-
+                    {monitorRules.map((rule) => {
+                        return <RuleView key={rule.id} data={rule} />
+                    })}
                     <Form>
                         <FormItem
                             {...rowFormItemLayout}

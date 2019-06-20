@@ -45,6 +45,7 @@ class Rule extends React.Component {
         }
     }
     onValuesChange = (values) => {
+        const { type } = this.props;
         let newData = { ...this.state.copyData, ...values };
         if (values.hasOwnProperty('columnName')) {
             newData.functionId = null;
@@ -59,8 +60,10 @@ class Rule extends React.Component {
             });
             newData.functionName = f.nameZc;
             newData.isPercentage = f.isPercent;
-            newData.operator = null;
-            newData.threshold = null;
+            if (type == 'column') {
+                newData.operator = null;
+                newData.threshold = null;
+            }
         }
         this.setState({
             copyData: newData
@@ -72,6 +75,9 @@ class Rule extends React.Component {
         });
         this.props.onCancel(id);
     }
+    onClone = () => {
+        this.props.onClone(this.state.copyData);
+    }
     render () {
         return (
             <RuleForm
@@ -80,6 +86,7 @@ class Rule extends React.Component {
                 onValuesChange={this.onValuesChange}
                 functionList={this.getFunction()}
                 onCancel={this.onCancel}
+                onClone={this.onClone}
             />
         )
     }

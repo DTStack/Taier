@@ -8,6 +8,7 @@ import {
     operatorSelect,
     operatorSelect1
 } from '../../consts';
+import HelpDoc, { relativeStyle } from '../helpDoc';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -60,7 +61,7 @@ class RuleForm extends React.Component {
             {getFieldDecorator('filter', {
                 initialValue: get(data, 'filter')
             })(
-                <Input.TextArea disabled={!isEdit} style={{ width: '90%', resize: 'vertical' }} autosize={{ minRows: 2, maxRows: 4 }} />
+                <Input.TextArea disabled={!isEdit} style={{ width: '100%', resize: 'vertical' }} autosize={{ minRows: 2, maxRows: 4 }} />
             )}
         </FormItem>
     }
@@ -90,7 +91,7 @@ class RuleForm extends React.Component {
             )}
         </FormItem>
     }
-    renderOperator () {
+    renderOperator (isTypeCheck) {
         const { isEdit, data } = this.props;
         const { getFieldDecorator } = this.props.form;
         const isStringLength = functionId => {
@@ -102,7 +103,23 @@ class RuleForm extends React.Component {
             : operatorSelect;
 
         return <React.Fragment>
-            <FormItem label="期望值">
+            {isTypeCheck ? (
+                <FormItem label="期望值">
+                    {getFieldDecorator('operatorType', {
+                        rules: [{
+                            required: true,
+                            message: '请选择计算类型'
+                        }],
+                        initialValue: get(data, 'operatorType')
+                    })(
+                        <Select disabled={!isEdit} style={{ width: '80px' }}>
+                            <Option key='1' value={1} >绝对值</Option>
+                            <Option key='2' value={2} >占比</Option>
+                        </Select>
+                    )}
+                </FormItem>
+            ) : null}
+            <FormItem label={isTypeCheck ? null : '期望值'}>
                 {getFieldDecorator('operator', {
                     rules: [{
                         required: true,
@@ -214,7 +231,7 @@ class RuleForm extends React.Component {
         </React.Fragment>
     }
     renderTypeRule () {
-        const { isEdit, data, tableColumn } = this.props;
+        const { isEdit, data, tableColumn, functionList, tableName } = this.props;
         const { getFieldDecorator } = this.props.form;
         return <React.Fragment>
             <FormItem label="字段">
@@ -240,21 +257,33 @@ class RuleForm extends React.Component {
                 )}
             </FormItem>
             <FormItem label="校验格式">
-                {getFieldDecorator('verifyStyle', {
+                {getFieldDecorator('functionId', {
                     rules: [{
                         required: true,
                         message: '请选择校验格式'
                     }],
-                    initialValue: get(data, 'verifyStyle')
+                    initialValue: get(data, 'functionId')
                 })(
                     <Select disabled={!isEdit} style={{ width: '150px' }}>
+                        {functionList.map((item) => {
+                            return (
+                                <Option
+                                    key={item.id}
+                                    value={item.id}
+                                >
+                                    {item.nameZc}
+                                </Option>
+                            );
+                        })}
                     </Select>
                 )}
             </FormItem>
-            <span style={{ lineHeight: '32px' }}>不符合格式要求的数据，将存储至：temp_tableName表</span>
+            <span style={{ lineHeight: '32px' }}>
+                不符合格式要求的数据，将存储至：{tableName}表
+                <HelpDoc doc='ruleConfigSaveTable' style={{ ...relativeStyle, marginLeft: '3px' }} />
+            </span>
             {this.renderFilter()}
-            {this.renderVerifyType()}
-            {this.renderOperator()}
+            {this.renderOperator(true)}
         </React.Fragment>
     }
     renderRule () {
@@ -295,7 +324,7 @@ class RuleForm extends React.Component {
             </div>
             {form}
             <div className='c-rule__buttons'>
-                <a className='c-rule__button'>克隆</a>
+                <a onClick={this.props.onClone} className='c-rule__button'>克隆</a>
             </div>
         </React.Fragment>
     }

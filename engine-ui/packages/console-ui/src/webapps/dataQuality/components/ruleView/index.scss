@@ -1,0 +1,22 @@
+.c-ruleView {
+    padding: 15px 10px 5px 10px; 
+    border: 1px solid #dcdcdc;
+    margin-bottom: 10px;
+    overflow: hidden;
+    .c-ruleView__item__box {
+    }
+    .c-ruleView__bottom {
+        float: right;
+    }
+    .c-ruleView__common__label {
+        padding-left: 8px;
+        color: #333;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .c-ruleView__common__text {
+        padding-left: 5px;
+        color: #333;
+        font-size: 13px;
+    }
+}
