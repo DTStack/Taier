@@ -116,7 +116,8 @@
     "hotfix": "./scripts/hotfix.sh --b",
     "push-dev": "./scripts/push-dev.sh",
     "scp": "./scripts/scp.sh",
-    "lint": "node ./node_modules/eslint ./src/**/*.js && node ./node_modules/lint-md ./*.md docs/*.md",
+    "lint-js": "node ./node_modules/eslint ./src/**/*.js",
+    "lint-doc": "node ./node_modules/lint-md ./*.md docs/*.md",
     "fix-lint": "eslint ./src/**/*.js --fix && lint-md ./*.md docs/*.md --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
     "changeissueurl": "replace 'http://git.dtstack.cn/dtstack/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"

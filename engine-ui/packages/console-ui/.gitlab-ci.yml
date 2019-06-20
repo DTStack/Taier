@@ -2,10 +2,15 @@ before_script:
   - npm -v
   - npm install --unsafe-perm=true --allow-root
 
-lint: 
+lint-js: 
   script:
-    - npm run lint
+    - npm run lint-js
 
 test:
   script:
     - npm test
+
+lint-doc:
+  script:
+    - npm run lint-doc
+
