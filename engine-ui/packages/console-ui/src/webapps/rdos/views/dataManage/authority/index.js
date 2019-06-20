@@ -57,6 +57,7 @@ const selectStatusList = [
 @connect(state => {
     return {
         allProjects: state.allProjects,
+        allTenantsProjects: state.allTenantsProjects,
         user: state.user,
         teantTableTypes: state.tableTypes.teantTableTypes
     }
@@ -650,12 +651,12 @@ class AuthMana extends Component {
     renderPane = (isShowRowSelection = false) => {
         const { table, selectedRowKeys, queryParams, rangeTime, loading, userList } = this.state;
 
-        const { allProjects, teantTableTypes } = this.props;
+        const { allTenantsProjects, teantTableTypes } = this.props;
 
         const today0 = new Date(new Date().toLocaleDateString()).getTime();
         const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
 
-        const projectOptions = allProjects.map(proj => <Option
+        const projectOptions = allTenantsProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
             name={proj.projectAlias}

@@ -80,7 +80,7 @@ export default {
     SELECT_DATA_SYNC_RESULT: `${RDOS_BASE_URL}/batch/batchJob/getSyncTaskStatus`, // 获取数据同步执行状态
     GET_INCREMENT_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/getIncreColumn`, // 获取增量字段
     CHECK_SYNC_MODE: `${RDOS_BASE_URL}/batch/batchDataSource/canSetIncreConf`, // 检测是否满足增量
-    CHECK_HIVE_PARTITIONS: `${RDOS_BASE_URL}/batch/batchDataSource/getPartitions`, // 获取hive表分区值
+    CHECK_HIVE_PARTITIONS: `${RDOS_BASE_URL}/batch/batchDataSource/getHivePartitions`, // 获取hive表分区值
 
     // ===== catalogue目录模块 ===== //
     // GET_OFFLINE_CATALOGUE: `${RDOS_BASE_URL}/batch/streamCatalogue/getCatalogue`, // 离线报警记录数量统计

@@ -80,6 +80,9 @@ export default {
     getAllProjects (params) { // 获取所有项目
         return http.post(req.GET_ALL_PROJECTS, params);
     },
+    getTenantProjects (params) { // 获取租户下所有项目
+        return http.post(req.GET_ALL_TENANT_PROJECTS, params);
+    },
     removeProjectUser (params) {
         return http.post(req.REMOVE_USER_FROM_PROJECT, params)
     },

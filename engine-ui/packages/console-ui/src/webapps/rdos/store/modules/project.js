@@ -11,6 +11,7 @@ const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
     'GET_ALL_PROJECTS',
+    'GET_TENANT_PROJECTS',
     'SET_PROJECT'
 ], { prefix: 'project/' })
 
@@ -77,6 +78,17 @@ export function getAllProjects (params) {
         })
     }
 }
+// 获取租户下所有项目
+export function getTenantProjects (params) {
+    return function fn (dispatch) {
+        Api.getTenantProjects(params).then((res) => {
+            return dispatch({
+                type: projectAction.GET_TENANT_PROJECTS,
+                data: res.data
+            })
+        })
+    }
+}
 
 // Reducer
 // 获取系统下登录用户有权限的项目
@@ -106,6 +118,15 @@ export function project (state = defaultProject, action) {
         case projectAction.SET_PROJECT: {
             return action.data || state
         }
+        default:
+            return state
+    }
+}
+// 获取系统所以项目
+export function allTenantsProjects (state = [], action) {
+    switch (action.type) {
+        case projectAction.GET_TENANT_PROJECTS:
+            return action.data || state
         default:
             return state
     }

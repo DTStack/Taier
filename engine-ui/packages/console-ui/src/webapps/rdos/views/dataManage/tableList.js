@@ -24,6 +24,7 @@ const ROUTER_BASE = '/data-manage/table';
 @connect(state => {
     return {
         allProjects: state.allProjects,
+        allTenantsProjects: state.allTenantsProjects,
         user: state.user,
         dataCatalogues: state.dataManage.dataCatalogues,
         teantTableTypes: state.tableTypes.teantTableTypes
@@ -291,8 +292,8 @@ class TableList extends Component {
 
     renderPane = () => {
         const { table, queryParams, dataCatalogue, loading } = this.state;
-        const { allProjects, teantTableTypes } = this.props;
-        const projectOptions = allProjects.map(proj => <Option
+        const { allTenantsProjects, teantTableTypes } = this.props;
+        const projectOptions = allTenantsProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
             name={proj.projectAlias}
