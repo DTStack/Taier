@@ -17,14 +17,21 @@ code_quality:
     - "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js"
   only:
     - branches
-    - merge_requests
+    - merge_requests # not support current version
+  except:
+    - dev
+    - master
+
 test:
   stage: test
   script: 
     - "node ./node_modules/jest/bin/jest.js --no-cahe"
   only:
     - branches
-    - merge_requests
+    - merge_requests # not support current version
+  except:
+    - dev
+    - master
 
 doc_quality:
   stage: lintdoc
@@ -32,7 +39,10 @@ doc_quality:
     - "node ./node_modules/lint-md/bin ./*.md docs/*.md"
   only:
     - branches
-    - merge_requests
+    - merge_requests # not support current version
+  except:
+    - dev
+    - master
 
 build_to_dev: # deploy dev environment
   stage: deploy
