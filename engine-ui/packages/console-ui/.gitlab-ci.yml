@@ -15,12 +15,14 @@ code_quality:
   script: 
     - "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js"
   only:
+    - branches
     - merge_requests
 test:
   stage: test
   script: 
     - "node ./node_modules/jest/bin/jest.js --no-cahe"
   only:
+    - branches
     - merge_requests
 
 doc_quality:
@@ -28,16 +30,14 @@ doc_quality:
   script: 
     - "node ./node_modules/lint-md/bin ./*.md docs/*.md"
   only:
+    - branches
     - merge_requests
-  except:
-      - ./**/*.md
 
 build_to_dev: # deploy dev environment
   stage: deploy
   script:
     - "./scripts/build_dev.sh"
   only:
-    - dev
-  except:
     - branches
+    - dev
   
