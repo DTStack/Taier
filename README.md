@@ -1,6 +1,6 @@
 # Engine
 
-## 1 什么是Engine
+## 1. 什么是Engine
 
 > Engine！！！
 ><br/>~~~ 是数栈平台的核心应用，核心功能是将不同类型的任务（Job）提交到对应类型的执行引擎组件之上运行。
@@ -14,7 +14,7 @@
 	<img src=docs/images/dtinsight_artifact.png width=600 />
 </div>
 
-## 2 Engine 架构
+## 2. Engine 架构
 
 Engine 在实现上仅依赖于mysql数据库与zookeeper分布式一致性服务，支持分布式部署。
 
@@ -22,7 +22,7 @@ Engine 在实现上仅依赖于mysql数据库与zookeeper分布式一致性服�
 	<img src=docs/images/engine_artifact.png width=600 />
 </div>
 
-## 3 快速起步
+## 3. 快速起步
 
 ### 3.1 engine 运行环境
 
@@ -56,7 +56,7 @@ bin/bash.sh
 ```
 
 
-## 4 任务（Job）模版
+## 4. 任务（Job）模版
 
 从最高空俯视，一个engine任务（Job）的主要构成很简单，如下：
 
@@ -68,7 +68,7 @@ bin/bash.sh
     "engineType": "...",
     "taskType": "...",
     "sqlText": "...",
-    "exeArgs" "...",
+    "exeArgs": "...",
     "taskParams": "...",
     "maxRetryNum": "...",
     "groupName": "...",
@@ -206,3 +206,26 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
     }
 
 ```
+
+## 5. 执行引擎组件的插件
+
+目前使用的频繁度，由上到下排序
+
+* [flink150插件](docs/flink150.md)
+* [spark_yarn插件](docs/spark_yarn.md)
+* [dtyarnshell插件](docs/dtyarnshell.md)
+* [mysql插件](docs/mysql.md)
+* [oracle插件](docs/oracle.md)
+* [sqlserver插件](docs/sqlserver.md)
+* [maxcompute插件](docs/maxcompute.md)
+* [hive插件](docs/hive.md)
+* [postgresql插件](docs/postgresql.md)
+* [learning插件](docs/learning.md)
+* [hadoop插件](docs/hadoop.md)
+
+
+## 6. 其他参考资料
+
+* [engine引擎](docs/engine.key)
+* [在CDH集群中启用及配置Kerberos](docs/在CDH集群中启用及配置Kerberos.docx)
+* [开源集群配置Kerberos认证](docs/开源集群配置Kerberos认证.docx)
