@@ -49,10 +49,10 @@ doc_quality:
     - /.*(docs?|release).*$/
     - master
 
-build_to_dev: # deploy dev environment
-  stage: deploy
-  script:
-    - "./scripts/build_dev.sh"
-  only:
-    - dev
+# build_to_dev: # deploy dev environment
+#   stage: deploy
+#   script:
+#     - "./scripts/build_dev.sh"
+#   only:
+#     - dev
   
