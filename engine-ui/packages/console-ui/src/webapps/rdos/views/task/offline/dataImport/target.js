@@ -172,7 +172,6 @@ class ImportTarget extends Component {
     }
     createTable = () => {
         const { sqlText, tableType } = this.props.formState;
-
         if (!tableType) {
             message.error('请先选择表类型！');
             return;
@@ -376,7 +375,7 @@ class ImportTarget extends Component {
         const { data, display, formState, projectTableTypes = [] } = this.props
         const { tableList, tableData, queryTable, asTitle, sync, sqlText, tableType } = formState
         const { pagination } = this.state;
-
+        const { getFieldDecorator } = this.props.form;
         const columns = this.generateCols(data, tableData)
 
         const paritions = this.generatePartitions(tableData.partition || [])
@@ -399,11 +398,15 @@ class ImportTarget extends Component {
                             label="表类型"
                             {...formItemLayout}
                         >
-                            <TableEngineSelect
-                                tableTypes={projectTableTypes}
-                                placeholder="请选择表类型"
-                                onChange={this.onTableEngineChange}
-                            />
+                            {getFieldDecorator('tableType', {
+
+                            })(
+                                <TableEngineSelect
+                                    tableTypes={projectTableTypes}
+                                    placeholder="请选择表类型"
+                                    onChange={this.onTableEngineChange}
+                                />
+                            )}
                         </FormItem>
                         <FormItem
                             {...formItemLayout}
@@ -504,4 +507,4 @@ class ImportTarget extends Component {
     }
 }
 
-export default ImportTarget;
+export default Form.create()(ImportTarget);

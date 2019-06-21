@@ -7,25 +7,26 @@ import assign from 'object-assign';
 import utils from 'utils';
 import { singletonNotification, filterValueOption } from 'funcs';
 import Editor from 'widgets/editor';
-
+import { getProjectTableTypes } from '../../../../store/modules/tableType';
 import ajax from '../../../../api';
 import {
     targetMapAction,
     dataSyncAction,
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
-
+import CopyIcon from 'main/components/copy-icon';
+import EngineSelect from '../../../../components/engineSelect';
 import {
     formItemLayout,
     DATA_SOURCE,
     DATA_SOURCE_TEXT
 } from '../../../../comm/const';
 
-import { formJsonValidator } from '../../../../comm'
+import { formJsonValidator, isLibraTable } from '../../../../comm'
 
 import HelpDoc from '../../../helpDoc';
 
-import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon';
+import { DDL_IDE_PLACEHOLDER, LIBRA_DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -46,9 +47,12 @@ class TargetForm extends React.Component {
     }
 
     componentDidMount () {
-        const { targetMap } = this.props;
+        const { targetMap, getProjectTableTypes, project } = this.props;
         const { sourceId, type } = targetMap;
-
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         sourceId && this.getTableList(sourceId);
         if (type) {
             this.checkIsNativeHive(type.tableName);
@@ -358,12 +362,13 @@ class TargetForm extends React.Component {
         })
     }
     render () {
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
         const { modalLoading } = this.state;
         const {
-            targetMap, dataSourceList, navtoStep, isIncrementMode
+            targetMap, dataSourceList, navtoStep, isIncrementMode, projectTableTypes
         } = this.props;
         const getPopupContainer = this.props.getPopupContainer;
+        const DDL_TEMPLATE = isLibraTable(getFieldValue('tableType')) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER
         return <div className="g-step2">
             <Modal className="m-codemodal"
                 title={(
@@ -376,7 +381,34 @@ class TargetForm extends React.Component {
                 onCancel={this.handleCancel.bind(this)}
                 onOk={this.createTable.bind(this)}
             >
-                <Editor language="dtsql" value={this.state.textSql} sync={this.state.sync} placeholder={DDL_IDE_PLACEHOLDER} onChange={this.ddlChange} />
+                <React.Fragment>
+                    <div style={{ margin: '15 0 15 25' }}>
+                        <Form className="m-form-inline" layout="inline">
+                            <FormItem label="表类型">
+                                {getFieldDecorator('tableType', {
+                                    rules: [{
+                                        required: true,
+                                        message: '请选择表类型'
+                                    }],
+                                    initialValue: projectTableTypes[0] && `${projectTableTypes[0].value}`
+                                })(
+                                    <EngineSelect
+                                        allowClear
+                                        placeholder="表类型"
+                                        tableTypes={projectTableTypes}
+                                        style={{ width: '200px' }}
+                                    />
+                                )}
+                            </FormItem>
+                            <FormItem>
+                                <CopyIcon title="复制模版" copyText={DDL_TEMPLATE} customView={
+                                    <Button type='primary'>复制建表模板</Button>
+                                } />
+                            </FormItem>
+                        </Form>
+                    </div>
+                    <Editor language="dtsql" value={this.state.textSql} sync={this.state.sync} placeholder={DDL_TEMPLATE} onChange={this.ddlChange} />
+                </React.Fragment>
             </Modal>
             <Form>
                 <FormItem
@@ -1072,14 +1104,14 @@ class Target extends React.Component {
 const mapState = state => {
     const { workbench, dataSync } = state.offlineTask;
     const { isCurrentTabNew, currentTab } = workbench;
-
     return {
         currentTab,
         isCurrentTabNew,
         project: state.project,
         sourceMap: dataSync.sourceMap,
         targetMap: dataSync.targetMap,
-        dataSourceList: dataSync.dataSourceList
+        dataSourceList: dataSync.dataSourceList,
+        projectTableTypes: state.tableTypes.projectTableTypes
     };
 };
 
@@ -1135,6 +1167,9 @@ const mapDispatch = (dispatch, ownProps) => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
             });
+        },
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
         }
     };
 }

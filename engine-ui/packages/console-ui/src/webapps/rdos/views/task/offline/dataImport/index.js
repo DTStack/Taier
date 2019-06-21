@@ -51,6 +51,7 @@ const defaultState = {
 })
 class ImportLocalData extends Component {
     state = Object.assign({}, defaultState)
+    form = React.createRef()
     componentDidMount () {
         // const { getProjectTableTypes, project } = this.props;
         // const projectId = project.id;
@@ -249,6 +250,7 @@ class ImportLocalData extends Component {
 
     onCancel = () => {
         this.setState({ ...defaultState });
+        this.form.resetFields();
     }
 
     footer () {
@@ -256,7 +258,7 @@ class ImportLocalData extends Component {
         return (
             <div>
                 <Button onClick={() => {
-                    this.setState({ ...defaultState })
+                    this.onCancel()
                 }}>取消</Button>
                 <Button
                     style={{
@@ -307,7 +309,7 @@ class ImportLocalData extends Component {
                     maskClosable={false}
                     title="本地数据导入"
                     visible={visible}
-                    onCancel={this.onCancel}
+                    onCancel={() => { this.onCancel() }}
                     footer={this.footer()}
                 >
                     <DataSource
@@ -318,6 +320,7 @@ class ImportLocalData extends Component {
                         changeStatus={this.changeStatus}
                     />
                     <DataTarget
+                        ref={(ref) => { this.form = ref; }}
                         visible={visible}
                         warning={targetExchangeWarning}
                         data={data}

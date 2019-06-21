@@ -47,7 +47,7 @@ class TableList extends Component {
     }
 
     componentDidMount () {
-        const { getProjectTableTypes, project } = this.state;
+        const { getProjectTableTypes, project } = this.props;
         const projectId = project && project.id;
         if (projectId) {
             getProjectTableTypes(projectId);
