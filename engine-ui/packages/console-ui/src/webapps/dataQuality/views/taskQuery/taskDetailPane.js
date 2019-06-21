@@ -157,7 +157,7 @@ export default class TaskDetailPane extends Component {
         }
 
         return (
-            <div style={{ padding: 10 }}>
+            <div style={{ padding: '15px 20px' }}>
                 <Checkbox value={showSnapshot} style={{ marginBottom: '10px' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
                 {filterTaskDetail.map((rule) => {
                     return <RuleView

@@ -29,6 +29,10 @@ class Rule extends React.Component {
         )[0], 'type');
         return columnType ? monitorFunction[columnType] : [];
     }
+    typeCheckFunction () {
+        const { monitorFunction } = this.props;
+        return monitorFunction.format;
+    }
     getFunction () {
         const { copyData } = this.state;
         const { type } = this.props;
@@ -38,6 +42,9 @@ class Rule extends React.Component {
             }
             case 'table': {
                 return this.getTableFunction();
+            }
+            case 'typeCheck': {
+                return this.typeCheckFunction();
             }
             default: {
                 return [];

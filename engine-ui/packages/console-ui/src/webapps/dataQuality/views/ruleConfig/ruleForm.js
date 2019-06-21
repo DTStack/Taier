@@ -8,7 +8,6 @@ import {
     operatorSelect,
     operatorSelect1
 } from '../../consts';
-import HelpDoc, { relativeStyle } from '../helpDoc';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -231,7 +230,7 @@ class RuleForm extends React.Component {
         </React.Fragment>
     }
     renderTypeRule () {
-        const { isEdit, data, tableColumn, functionList, tableName } = this.props;
+        const { isEdit, data, tableColumn, functionList } = this.props;
         const { getFieldDecorator } = this.props.form;
         return <React.Fragment>
             <FormItem label="字段">
@@ -278,10 +277,6 @@ class RuleForm extends React.Component {
                     </Select>
                 )}
             </FormItem>
-            <span style={{ lineHeight: '32px' }}>
-                不符合格式要求的数据，将存储至：{tableName}表
-                <HelpDoc doc='ruleConfigSaveTable' style={{ ...relativeStyle, marginLeft: '3px' }} />
-            </span>
             {this.renderFilter()}
             {this.renderOperator(true)}
         </React.Fragment>
