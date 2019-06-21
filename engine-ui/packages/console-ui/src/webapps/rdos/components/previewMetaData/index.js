@@ -80,6 +80,7 @@ export default class PreviewMetaData extends Component {
                 title='预览元数据'
                 visible={visible}
                 onCancel={onCancel}
+                onOk={onCancel}
             >
                 <div style={{ padding: '0 0 10 5' }}>{`数据库名：${dbName}`}</div>
                 <Table

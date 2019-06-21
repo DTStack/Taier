@@ -799,7 +799,7 @@ class TaskDetail extends Component {
                         </Select>
                         组件：
                         <Select
-                            placeholder="请选择引擎"
+                            placeholder="请选择组件"
                             style={{ width: '150px', marginRight: '10px' }}
                             onChange={this.changeEngineValue.bind(this)}
                             value={this.state.engineType}

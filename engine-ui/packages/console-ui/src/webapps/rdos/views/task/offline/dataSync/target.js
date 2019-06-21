@@ -309,11 +309,12 @@ class TargetForm extends React.Component {
     }
     createTable () {
         const { textSql } = this.state;
-        const { targetMap } = this.props;
+        const { targetMap, form } = this.props;
+        const tableType = form.getFieldValue('tableType')
         this.setState({
             modalLoading: true
         })
-        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId }).then((res) => {
+        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId, tableType }).then((res) => {
             this.setState({
                 modalLoading: false
             })
