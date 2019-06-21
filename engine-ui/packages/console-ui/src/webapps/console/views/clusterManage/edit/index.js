@@ -1116,7 +1116,8 @@ class EditCluster extends React.Component {
                                     </FormItem>
                                 </Col>
                             </Row>
-                            <div className='upload-help'>如何获取这些配置文件？请您参考<a>《帮助文档》</a></div>
+                            {/* 暂无控制台帮助文档 */}
+                            <div className='upload-help'>如何获取这些配置文件？请您参考<span>《帮助文档》</span></div>
                         </div>
                     </React.Fragment>
                 )
