@@ -251,19 +251,25 @@ class BaseForm extends React.Component {
 
     validateTableName (rule, value, callback) {
         const ctx = this;
-        value ? ajax.checkTableExist({
-            tableName: value
-        }).then(res => {
-            if (res.code === 1) {
-                // 转换为小写
-                ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
-                if (res.data) {
-                    const error = '该表已经存在！'
-                    callback(error);
+        const tableType = ctx.props.form.getFieldValue('tableType')
+        if (tableType) {
+            value ? ajax.checkTableExist({
+                tableName: value,
+                tableType
+            }).then(res => {
+                if (res.code === 1) {
+                    // 转换为小写
+                    ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
+                    if (res.data) {
+                        const error = '该表已经存在！'
+                        callback(error);
+                    }
                 }
-            }
-        })
-            .then(callback) : callback();
+            })
+                .then(callback) : callback();
+        } else {
+            message.error('请先选择表类型！')
+        }
     }
 
     validateLoc (rule, value, callback) {
