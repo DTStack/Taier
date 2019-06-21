@@ -743,7 +743,7 @@ class AuthMana extends Component {
                 <FormItem>
                     <Input.Search
                         placeholder="按表名搜索"
-                        style={{ width: 140 }}
+                        style={{ width: queryParams.listType == 2 ? '145px' : '200px' }}
                         size="default"
                         value={queryParams.resourceName}
                         onChange={this.onTableNameChange}
@@ -752,7 +752,7 @@ class AuthMana extends Component {
                 </FormItem>
                 <FormItem label="申请时间">
                     <RangePicker
-                        style={{ width: '250px' }}
+                        style={{ width: queryParams.listType == 2 ? '200px' : '220px' }}
                         onChange={this.onChangeTime}
                         format="YYYY-MM-DD HH:mm:ss"
                         value={rangeTime}
