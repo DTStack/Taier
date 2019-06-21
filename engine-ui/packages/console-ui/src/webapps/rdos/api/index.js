@@ -1,5 +1,6 @@
-import localDb from 'utils/localDb'
 import utils from 'utils'
+
+import UserAPI from 'main/api/user';
 
 import req from './req'
 import http from './http'
@@ -7,11 +8,6 @@ import offlineReq from './reqOffline';
 import stremReq from './reqStrem';
 import dataManageReq from './reqDataManage';
 import { publishType, TASK_TYPE } from '../comm/const';
-
-/* eslint-disable-next-line */
-const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
-/* eslint-disable-next-line */
-const UIC_DOMAIN_URL = APP_CONF.UIC_DOMAIN || '';
 
 export default {
 
@@ -31,24 +27,9 @@ export default {
     logout () { // 注销退出
         http.post(req.APP_LOGOUT).then(res => {
             if (res.code === 1) {
-                this.openLogin();
+                UserAPI.openLogin();
             }
         })
-    },
-
-    openLogin () {
-        localDb.clear()
-        utils.deleteCookie('dt_user_id', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_token', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_tenant_id', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_tenant_name', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_username', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_is_tenant_admin', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('dt_is_tenant_creator', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('project_id', UIC_DOMAIN_URL, '/')
-        utils.deleteCookie('project_id', null, '/')
-        utils.deleteCookie('stream_project_id', null, '/')
-        window.location.href = `${UIC_URL_TARGET}`
     },
 
     addRoleUser (user) {
@@ -67,10 +48,31 @@ export default {
     searchUICUsers (params) {
         return http.post(req.SEARCH_UIC_USERS, params)
     },
+    getTenantList (params) {
+        return http.post(req.GET_TENANT_LIST, params)
+    },
 
+    /**
+     * 跟踪采集用户行为
+     * @param {string} target
+     * @param {object} params
+     */
+    async trackUserActions (target, params) {
+        const trackTarget = `track_${target}`;
+        const tracked = utils.getCookie(trackTarget);
+        if (!tracked) {
+            const res = await http.post(req.TRACK_USER_ACTIONS, params);
+            if (res.code === 1) {
+                utils.setCookie(trackTarget, true);
+            }
+        }
+    },
     // ========== Project ========== //
     queryProjects (params) {
         return http.post(req.QUERY_PROJECT_LIST, params)
+    },
+    getProjectByTenant (params) {
+        return http.post(req.GET_PROJECT_BY_TENANT, params)
     },
     getProjects (params) { // 获取项目
         return http.post(req.GET_PROJECT_LIST, params)

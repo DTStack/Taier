@@ -11,7 +11,6 @@ const maxHeightStyle = {
     overflowY: 'auto'
 }
 
-/* eslint-disable */
 export function authBeforeFormate (response) {
     switch (response.status) {
         case 500:
@@ -22,17 +21,20 @@ export function authBeforeFormate (response) {
                 '服务器出现了点问题',
                 'error'
             );
+            return Promise.reject(response);
         case 402:
         case 200:
             return response;
         case 302:
             message.info('登录超时, 请重新登录！')
+            return Promise.reject(response);
         case 413:
             singletonNotification(
                 '异常',
                 '请求内容过大！',
                 'error'
             );
+            return Promise.reject(response);
         default:
             if (process.env.NODE_ENV !== 'production') {
                 console.error('Request error: ', response.code, response.message)
@@ -48,8 +50,8 @@ export function authAfterFormated (response) {
         case 1:
             return response;
         case 0: // 需要登录
-            Api.openLogin()
-            return Promise.reject(response);
+            Api.logout()
+            return response;
         case 3: { // 功能无权限
             // 通过判断dom数量，限制通知数量
             if (response.message) {
@@ -57,20 +59,21 @@ export function authAfterFormated (response) {
                     '权限通知',
                     response.message,
                     'error',
-                    maxHeightStyle,
+                    maxHeightStyle
                 );
             }
             return response;
         }
         case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
             hashHistory.push('/');
+            return Promise.reject(response);
         default:
             if (response.message) {
                 singletonNotification(
                     '异常',
                     response.message,
                     'error',
-                    { ...maxHeightStyle, wordBreak: "break-all" },
+                    { ...maxHeightStyle, wordBreak: 'break-all' }
                 );
             }
             return response

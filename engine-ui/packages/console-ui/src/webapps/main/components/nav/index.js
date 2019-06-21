@@ -25,7 +25,7 @@ export const MyIcon = styled.span`
 function renderMenuItems (menuItems) {
     return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
         menu.enable ? <Menu.Item key={menu.id}>
-            <Link to={menu.link} target={menu.target}>{menu.name}</Link>
+            <Link to={menu.link} target={menu.target} className="dropdown-content">{menu.name}</Link>
         </Menu.Item> : ''
     ) : []
 }
@@ -55,7 +55,7 @@ function renderATagMenuItems (menuItems, isRoot, isRenderIcon = false) {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target} className="dropdown-content">
-                {isRenderIcon && <span className={`iconfont icon-${menu.className || ''}`}></span>}
+                {(isRenderIcon || menu.enableIcon) && <span className={`iconfont icon-${menu.className || ''}`}></span>}
                 {menu.name}
             </a>
         </Menu.Item>) : ''
@@ -125,7 +125,7 @@ export function MenuRight (props) {
                     角色管理
                 </a>
             </Menu.Item>
-            {renderMenuItems(settingMenus)}
+            {renderATagMenuItems(settingMenus)}
         </Menu>
     )
     // 右下拉菜单

@@ -3,7 +3,7 @@ import React from 'react'
 import { TaskStatus, TaskTimeType, TaskType } from '../../../../components/status'
 
 export function TaskInfo (props) {
-    const { task, project } = props
+    const { task } = props
     return (
         <div className="ant-table bd task-detail">
             <table>
@@ -30,7 +30,7 @@ export function TaskInfo (props) {
                     </tr>
                     <tr>
                         <td>所属项目：</td>
-                        <td>{project.projectName}</td>
+                        <td>{task.batchTask.projectName}</td>
                         <td>责任人：</td>
                         <td>
                             {task.batchTask && task.batchTask.createUser

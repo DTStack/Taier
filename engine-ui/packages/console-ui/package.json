@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.6.0-beta.2.1",
+  "version": "3.6.0-beta.3.1",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "codemirror": "5.25.0",
     "d3-selection": "1.1.0",
     "diff-match-patch": "1.0.0",
-    "dt-sql-parser": "^1.1.10",
+    "dt-sql-parser": "~1.2.0",
     "echarts": "3.8.5",
     "handsontable": "^6.2.2",
     "highlight.js": "9.14.2",
@@ -83,6 +83,7 @@
     "jest": "*",
     "less": "3.8.1",
     "less-loader": "^4.1.0",
+    "lint-md": "0.1.1",
     "lodash-webpack-plugin": "0.11.4",
     "mini-css-extract-plugin": "0.4.1",
     "monaco-editor-webpack-plugin": "~1.4.0",
@@ -106,7 +107,8 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
+    "dev:win": "./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
+    "dev": "node --max_old_space_size=4096 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install --unsafe-perm=true --allow-root && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "jest --no-cache",
@@ -115,14 +117,15 @@
     "hotfix": "./scripts/hotfix.sh --b",
     "push-dev": "./scripts/push-dev.sh",
     "scp": "./scripts/scp.sh",
-    "lint": "eslint ./src/**/*.js --fix",
+    "lint-js": "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js",
+    "lint-doc": "node ./node_modules/lint-md/bin ./*.md docs/*.md",
+    "fix-lint": "eslint ./src/**/*.js --fix && lint-md ./*.md docs/*.md --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
     "changeissueurl": "replace 'http://git.dtstack.cn/dtstack/data-stack-web/issues/' 'http://redmine.prod.dtstack.cn/issues/' CHANGELOG.md"
   },
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -c ./commitlint.config.js -E HUSKY_GIT_PARAMS",
-      "pre-push": "npm test"
+      "commit-msg": "commitlint -c ./commitlint.config.js -E HUSKY_GIT_PARAMS"
     }
   },
   "standard-version": {

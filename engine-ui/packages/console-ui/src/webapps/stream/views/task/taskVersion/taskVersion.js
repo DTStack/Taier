@@ -48,7 +48,7 @@ class TaskVersion extends React.Component {
                     pagination={false}
                 />
                 <Modal
-                    key={this._modelKey}
+                    key={this.state._modelKey}
                     wrapClassName="vertical-center-modal modal-body-nopadding"
                     title="版本对比"
                     width="900px"

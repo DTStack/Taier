@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { cloneDeep, get } from 'lodash'
+import { connect } from 'react-redux';
 import moment from 'moment';
 import { Tooltip, Modal, message, Icon } from 'antd'
 
@@ -23,6 +24,11 @@ const {
     mxPopupMenu
 } = Mx
 
+@connect(state => {
+    return {
+        project: state.project
+    }
+})
 class TaskJobFlowView extends Component {
     state = {
         selectedJob: '', // 选中的Job
@@ -48,7 +54,17 @@ class TaskJobFlowView extends Component {
             this.loadByJobId(taskJob.id);
         }
     }
-
+    isCurrentProjectTask = (node) => {
+        if (!node) {
+            return true;
+        }
+        const { project = {} } = this.props;
+        const projectId = project.id;
+        if (node.projectId == projectId) {
+            return true;
+        }
+        return false;
+    }
     renderGraph = (data) => {
         const originData = this._originData;
         if (originData) {
@@ -180,8 +196,6 @@ class TaskJobFlowView extends Component {
             if (res.code === 1) {
                 message.success(`${msg}命令已提交!`)
                 if (reload) reload();
-            } else {
-                message.error(`${msg}提交失败！`)
             }
             this.refresh()
         })
@@ -200,10 +214,10 @@ class TaskJobFlowView extends Component {
             };
             graph.popupMenuHandler.autoExpand = true
             graph.popupMenuHandler.factoryMethod = function (menu, cell, evt) {
-                if (!cell) return;
+                if (!cell || !cell.vertex) return;
 
                 const currentNode = cell.data;
-
+                const isCurrentProjectTask = ctx.isCurrentProjectTask(currentNode);
                 const isWorkflowNode = currentNode.batchTask && currentNode.batchTask.flowId !== 0;
                 const taskId = currentNode.batchTask && currentNode.batchTask.id;
                 const isDelete = currentNode.batchTask && currentNode.batchTask.isDeleted === 1; // 已删除
@@ -241,9 +255,11 @@ class TaskJobFlowView extends Component {
                     limit: 6
                 }
                 ctx.loadPeriodsData(menu, nextParams, nextPeriods)
-                menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
-                    ctx.props.goToTaskDev(taskId)
-                })
+                if (isCurrentProjectTask) {
+                    menu.addItem(`${isPro ? '查看' : '修改'}任务`, null, function () {
+                        ctx.props.goToTaskDev(taskId)
+                    })
+                }
                 menu.addItem('终止', null, function () {
                     ctx.stopTask({
                         jobId: currentNode.id
@@ -372,7 +388,7 @@ class TaskJobFlowView extends Component {
 
     render () {
         const { selectedJob, taskLog, workflowData, graphData, loading } = this.state;
-        const { project, taskJob, goToTaskDev, isPro } = this.props;
+        const { taskJob, goToTaskDev, isPro } = this.props;
         return (
             <div
                 style={{
@@ -381,9 +397,10 @@ class TaskJobFlowView extends Component {
                 }}
             >
                 <JobGraphView
-                    data={taskJob}
+                    data={selectedJob}
                     isPro={isPro}
                     graphData={graphData}
+                    isCurrentProjectTask={this.isCurrentProjectTask}
                     loading={loading}
                     goToTaskDev={goToTaskDev}
                     showJobLog={this.showJobLog}
@@ -405,6 +422,7 @@ class TaskJobFlowView extends Component {
                 >
                     <JobGraphView
                         isPro={isPro}
+                        isCurrentProjectTask={this.isCurrentProjectTask}
                         loading={loading}
                         data={selectedJob}
                         goToTaskDev={goToTaskDev}
@@ -424,7 +442,7 @@ class TaskJobFlowView extends Component {
                     onCancel={() => { this.setState({ visible: false }) }}
                     footer={null}
                 >
-                    <TaskInfo task={selectedJob} project={project} />
+                    <TaskInfo task={selectedJob} />
                 </Modal>
                 <Modal
                     key={taskJob && taskJob.id}

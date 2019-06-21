@@ -19,7 +19,7 @@ class SysAdmin extends Component {
     componentDidMount () {}
 
     render () {
-        const { apps, children, licenseApps } = this.props;
+        const { apps, children, licenseApps, user } = this.props;
         const logo = (<Link to="/admin/user">
             <MyIcon>
                 <Icon type="setting" />
@@ -41,7 +41,21 @@ class SysAdmin extends Component {
             name: '角色管理',
             link: '/admin/role',
             enable: true
+        }, {
+            id: 'admin/audit',
+            name: '安全审计',
+            link: '/admin/audit',
+            enable: user.isRoot
         }]
+
+        const settingMenus = [{
+            id: 'admin/audit',
+            name: '安全审计',
+            link: `/admin/audit`,
+            enable: user.isRoot,
+            enableIcon: true,
+            className: 'safeaudit'
+        }];
 
         return (
             <div className="message">
@@ -49,6 +63,7 @@ class SysAdmin extends Component {
                     logo={logo}
                     licenseApps={licenseApps}
                     menuItems={menuItems}
+                    settingMenus={settingMenus}
                     {...this.props}
                 />
                 <div className="container">

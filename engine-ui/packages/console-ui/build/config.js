@@ -6,9 +6,9 @@ module.exports = {
         host: '0.0.0.0',
         proxy: {
             '/api/dq': {
-                // target: 'http://172.16.8.104:8089',
+                target: 'http://172.16.8.108:8089', // 开发环境
                 // target: "http://172.16.6.135:8089", // tmp server
-                target: "http://172.16.10.45:8089",
+                // target: "http://172.16.10.45:8089",
                 // ignorePath: true,
                 changeOrigin: true,
                 secure: false
@@ -52,8 +52,8 @@ module.exports = {
                 secure: false
             },
             '/api/da': { // da地址
-                target: 'http://172.16.10.45:8087',
-                // target: "http://172.16.8.107:8087",//开发环境
+                // target: 'http://172.16.10.45:8087',
+                target: "http://172.16.8.108:8087",//开发环境
 
                 // pathRewrite:{"^/api/da/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/da"},
                 changeOrigin: true,

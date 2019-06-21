@@ -2,15 +2,16 @@ import { hashHistory } from 'react-router'
 import { message, notification } from 'antd'
 import localDb from 'utils/localDb'
 import utils from 'utils'
-import Api from './api'
+import UserApi from 'main/api/user'
+
+import { singletonNotification } from 'funcs';
 
 const maxHeightStyle = {
     maxHeight: '500px',
     overflowY: 'auto'
 }
 
-/* eslint-disable */
-export function authBeforeFormate(response) {
+export function authBeforeFormate (response) {
     switch (response.status) {
         case 500:
         case 502:
@@ -20,17 +21,20 @@ export function authBeforeFormate(response) {
                 '服务器出现了点问题',
                 'error'
             );
+            return Promise.reject(response);
         case 402:
         case 200:
             return response;
         case 302:
-            message.info('登录超时, 请重新登录！')
+            message.info('登录超时, 请重新登录！');
+            return Promise.reject(response);
         case 413:
             singletonNotification(
                 '异常',
                 '请求内容过大！',
                 'error'
             );
+            return Promise.reject(response);
         default:
             if (process.env.NODE_ENV !== 'production') {
                 console.error('Request error: ', response.code, response.message)
@@ -40,13 +44,13 @@ export function authBeforeFormate(response) {
 }
 
 // TODO 状态码这块还是太乱
-export function authAfterFormated(response) {
+export function authAfterFormated (response) {
     switch (response.code) {
         case 1:
             return response;
         case 0: // 需要登录
-            Api.openLogin()
-            return Promise.reject(response);
+            UserApi.logout()
+            return response;
         case 3: { // 功能无权限
             // 通过判断dom数量，限制通知数量
             const notifyMsgs = document.querySelectorAll('.ant-notification-notice');
@@ -61,19 +65,20 @@ export function authAfterFormated(response) {
         }
         case 16: // 项目不存在，需要重新进入Web首页选择项目，并进入
             hashHistory.push('/');
+            return Promise.reject(response);
         default:
             if (response.message) {
                 notification['error']({
                     message: '异常',
                     description: response.message,
-                    style: { ...maxHeightStyle, wordBreak: "break-all" }
+                    style: { ...maxHeightStyle, wordBreak: 'break-all' }
                 });
             }
             return response
     }
 }
 
-export function isSelectedProject() {
+export function isSelectedProject () {
     const pid = utils.getCookie('stream_project_id')
     if (!pid || pid === 'undefined') {
         utils.deleteCookie('stream_project_id')
@@ -81,8 +86,6 @@ export function isSelectedProject() {
     }
 }
 
-export function isLogin() {
+export function isLogin () {
     return localDb.get('session')
 }
-
-/* eslint-enable */

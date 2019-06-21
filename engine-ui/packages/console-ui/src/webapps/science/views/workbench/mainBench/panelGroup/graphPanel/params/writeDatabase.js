@@ -9,12 +9,18 @@ const Option = Select.Option;
 // 表选择
 class ChooseTable extends PureComponent {
     state = {
-        tables: []
+        tables: [],
+        isTableNameChanged: false
     }
     constructor (props) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 500);
         this.handleChange = debounce(this.handleChange, 500);
+    }
+    componentWillUnmount () {
+        if (this.state.isTableNameChanged) {
+            this.handleBlur();
+        }
     }
     handleBlur = () => {
         const value = this.props.form.getFieldValue('tableName');
@@ -24,10 +30,13 @@ class ChooseTable extends PureComponent {
                     partitionCheck: res.data
                 })
             }
-            this.handleSaveComponent();
+            this.handleSaveComponent(value);
         })
     }
     handleChange = (value) => {
+        this.state.isTableNameChanged || this.setState({
+            isTableNameChanged: true
+        });
         this.props.form.setFieldsValue({
             tableName: String(value)
         })
@@ -39,7 +48,7 @@ class ChooseTable extends PureComponent {
             }
         })
     }
-    handleSaveComponent = () => {
+    handleSaveComponent = (value) => {
         const { currentTab, componentId, changeContent } = this.props;
         const form = this.props.form;
         const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
@@ -47,7 +56,7 @@ class ChooseTable extends PureComponent {
             ...currentComponentData.data,
             writeTableComponent: {
                 ...currentComponentData.data.writeTableComponent,
-                table: form.getFieldValue('tableName'),
+                table: form.getFieldValue('tableName') || value,
                 lifecycle: form.getFieldValue('lifeCycle'),
                 isPartition: form.getFieldValue('partitionCheck'),
                 partitions: form.getFieldValue('partitionParam')

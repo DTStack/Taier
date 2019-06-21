@@ -323,7 +323,16 @@ class Header extends Component {
 
         // 如果是数据地图模块，隐藏项目下拉选择菜单
         const showProjectSelect = !isIndex;
-        // const projectTypeView = this.renderProjectType();
+
+        const settingMenus = [{
+            id: 'admin/audit',
+            name: '安全审计',
+            link: `/admin/audit?app=rdos`,
+            enable: user.isRoot,
+            enableIcon: true,
+            className: 'safeaudit'
+        }];
+
         return (
             <div className={`header ${window.APP_CONF.theme || 'default'}`}>
                 <div onClick={this.goIndex} className="logo left txt-left">
@@ -344,14 +353,6 @@ class Header extends Component {
                         mode="horizontal"
                     >
                         {showProjectSelect && this.renderProjectSelect()}
-                        {/* {showProjectSelect && projectTypeView && <Menu.Item
-                            className="my-menu-item tip"
-                            key="env_logo"
-                            style={{ display }}
-                            disabled
-                        >
-                            {this.renderProjectType()}
-                        </Menu.Item>} */}
                         {isIndex ? (
                             <Menu.Item
                                 className="my-menu-item"
@@ -473,6 +474,7 @@ class Header extends Component {
                     licenseApps={licenseApps}
                     onClick={this.clickUserMenu}
                     showHelpSite={true}
+                    settingMenus={settingMenus}
                     helpUrl={HELP_DOC_URL.INDEX}
                 />
             </div>

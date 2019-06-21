@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux';
 import { cloneDeep, get } from 'lodash'
 
 import {
@@ -16,7 +17,12 @@ const {
     mxCellHighlight
 } = Mx
 
-export default class TaskView extends Component {
+@connect(state => {
+    return {
+        project: state.project
+    }
+})
+class TaskView extends Component {
     state = {
         loading: 'success',
         selectedTask: '', // 选中的节点
@@ -153,7 +159,11 @@ export default class TaskView extends Component {
     onCloseWorkflow = () => {
         this.setState({ visibleWorkflow: false, workflowData: null, selectedTask: this.props.tabData });
     }
-
+    isCurrentProjectTask = (node) => {
+        const { project } = this.props;
+        const projectId = project.id;
+        return node.projectId == projectId;
+    }
     render () {
         const {
             selectedTask, loading,
@@ -170,6 +180,7 @@ export default class TaskView extends Component {
                     data={selectedTask}
                     graphData={graphData}
                     loading={loading}
+                    isCurrentProjectTask={this.isCurrentProjectTask}
                     hideFooter={true}
                     refresh={this.refresh}
                     registerEvent={this.initGraphEvent}
@@ -189,6 +200,7 @@ export default class TaskView extends Component {
                 >
                     <TaskGraphView
                         loading={loading}
+                        isCurrentProjectTask={this.isCurrentProjectTask}
                         data={selectedWorkflowNode}
                         hideFooter={true}
                         registerEvent={this.initGraphEvent}
@@ -202,3 +214,4 @@ export default class TaskView extends Component {
         )
     }
 }
+export default TaskView;

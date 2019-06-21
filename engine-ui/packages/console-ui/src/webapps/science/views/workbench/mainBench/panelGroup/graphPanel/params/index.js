@@ -32,6 +32,21 @@ export const formItemLayout = {
     return bindActionCreators({ ...experimentActions }, dispatch);
 })
 class Params extends Component {
+    state = {
+        lock: false
+    }
+    toggleLock = () => {
+        this.setState((prev) => {
+            return { lock: !prev.lock }
+        });
+    }
+    shouldComponentUpdate (nextProps, nextState) {
+        console.log(nextProps, nextState);
+        if (nextState.lock) {
+            return false
+        }
+        return true;
+    }
     initRender = () => {
         const { selectedCell, changeContent, currentTabIndex, tabs } = this.props;
         if (isEmpty(selectedCell)) return '';
@@ -46,7 +61,8 @@ class Params extends Component {
             data: componentData,
             changeContent,
             currentTab,
-            componentId
+            componentId,
+            toggleLock: this.toggleLock
         }
         switch (selectedCell.data.componentType) {
             case COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE:

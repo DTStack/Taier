@@ -21,20 +21,6 @@ this.addEventListener('activate', function (e) {
     )
 });
 
-// 网络优先
-function firstNet (cacheName, request) {
-    return fetch(request).then(function (response) {
-        caches.open(cacheName).then(function (cache) {
-            cache.put(request, response);
-        });
-        return response.clone();
-    }).catch(function () {
-        return caches.open(cacheName).then(function (cache) {
-            return cache.match(request);
-        });
-    });
-}
-
 // 缓存优先
 function firstCache (cacheName, request) {
     // request.mode = 'cors';
@@ -94,23 +80,10 @@ function firstCache (cacheName, request) {
     })
 }
 
-function postMsg (data) {
-    self.clients.matchAll().then(function (clientList) {
-        clientList.forEach(function (client) {
-            client.postMessage({
-                src: data.src,
-                blob: data.blob
-            });
-        });
-    });
-}
-
 // 竞速模式
 // 网络好的时候优先使用
 function networkCacheRace (cacheName, request) {
     var timeId; var TIMEOUT = 500;
-
-    var options = {};
 
     return Promise.race([new Promise(function (resolve, reject) {
         timeId = setTimeout(function () {

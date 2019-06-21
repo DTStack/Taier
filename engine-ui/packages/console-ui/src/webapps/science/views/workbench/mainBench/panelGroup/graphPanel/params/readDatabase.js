@@ -11,12 +11,18 @@ const Option = Select.Option;
 class ChooseTable extends PureComponent {
     constructor (props) {
         super(props);
-        this.fetchTables = debounce(this.fetchTables, 800);
-        this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
+        this.fetchTables = debounce(this.fetchTables, 500);
+        this.handleSaveComponent = debounce(this.handleSaveComponent, 500);
     }
     state = {
         tables: [],
-        fetching: false
+        fetching: false,
+        isTableNameChanged: false
+    }
+    componentWillUnmount () {
+        if (this.state.isTableNameChanged) {
+            this.handleBlur();
+        }
     }
     fetchTables = (value) => {
         this.setState({
@@ -35,14 +41,18 @@ class ChooseTable extends PureComponent {
             }
         })
     }
-    handleChange = (value) => {
+    handleBlur = () => {
+        const value = this.props.form.getFieldValue('tableName');
+        this.props.toggleLock();
         api.isPartitionTable({ tableName: value }).then((res) => {
             if (res.code === 1) {
                 this.props.form.setFieldsValue({
                     partitionCheck: res.data,
                     tableName: value
                 })
-                this.handleSaveComponent();
+                this.handleSaveComponent(value);
+            } else {
+                this.props.toggleLock();
             }
             this.setState({
                 tables: [],
@@ -50,7 +60,7 @@ class ChooseTable extends PureComponent {
             })
         })
     }
-    handleSaveComponent = () => {
+    handleSaveComponent = (value) => {
         const { currentTab, changeContent, componentId } = this.props;
         const form = this.props.form;
         const currentComponentData = currentTab.graphData.find(o => o.vertex && o.data.id === componentId);
@@ -58,7 +68,7 @@ class ChooseTable extends PureComponent {
             ...currentComponentData.data,
             readTableComponent: {
                 ...currentComponentData.data.readTableComponent,
-                table: form.getFieldValue('tableName'),
+                table: form.getFieldValue('tableName') || value,
                 isPartition: form.getFieldValue('partitionCheck'),
                 partitions: form.getFieldValue('partitionParam')
             }
@@ -70,6 +80,7 @@ class ChooseTable extends PureComponent {
             } else {
                 message.warning('保存失败');
             }
+            this.props.toggleLock();
         })
     }
     renderTooltips = () => {
@@ -93,14 +104,20 @@ class ChooseTable extends PureComponent {
                         rules: [{ required: true, message: '请选择表名' }]
                     })(
                         <Select
+                            mode="combobox"
                             showSearch
                             placeholder="请选择表名"
                             showArrow={false}
                             notFoundContent={fetching ? <Spin size="small" /> : null}
                             filterOption={false}
                             onSearch={this.fetchTables}
-                            onChange={this.handleChange}
+                            onBlur={this.handleBlur}
                             style={{ width: '100%' }}
+                            onChange={() => (
+                                this.state.isTableNameChanged || this.setState({
+                                    isTableNameChanged: true
+                                })
+                            )}
                         >
                             {tables.map((item, index) => {
                                 return <Option key={index} value={item}>{item}</Option>
