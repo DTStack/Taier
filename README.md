@@ -11,7 +11,7 @@
 * ***向下*** 负责将各种类型的任务（Job）真正地提交（submit）到具体的执行引擎组件上
 
 <div align=center>
-	<img src=docs/images/dtinsight_artifact.png width=400 />
+	<img src=docs/images/dtinsight_artifact.png width=600 />
 </div>
 
 ## 2 Engine 架构
@@ -19,7 +19,7 @@
 Engine 在实现上仅依赖于mysql数据库与zookeeper分布式一致性服务，支持分布式部署。
 
 <div align=center>
-	<img src=docs/images/engine_artifact.png width=400 />
+	<img src=docs/images/engine_artifact.png width=600 />
 </div>
 
 ## 3 快速起步
