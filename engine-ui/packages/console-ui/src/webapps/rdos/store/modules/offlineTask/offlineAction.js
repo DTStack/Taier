@@ -509,7 +509,6 @@ export const workbenchActions = (dispatch) => {
         },
 
         saveTask (task, noMsg) {
-            console.log('saveTask:', task)
             // 删除不必要的字段
             delete task.taskVersions;
 
