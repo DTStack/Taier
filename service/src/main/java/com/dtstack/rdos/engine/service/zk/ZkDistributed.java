@@ -419,7 +419,7 @@ public class ZkDistributed implements Closeable{
 		} catch (Exception e) {
 			logger.error("{}/{}/{}:getBrokerDataShard error:{}", this.localNode, this.metaDataNode, shard, ExceptionUtil.getErrorMessage(e));
 		}
-		return null;
+		return BrokerDataShard.initBrokerDataShard();
 	}
 
 	public boolean createBrokerDataShard(String shard) {
@@ -468,7 +468,7 @@ public class ZkDistributed implements Closeable{
 			logger.error("{}:getBrokerHeartNode error:{}", node,
 					ExceptionUtil.getErrorMessage(e));
 		}
-		return null;
+		return BrokerHeartNode.initNullBrokerHeartNode();
 	}
 
 	public Map<String, BrokerQueueNode> getAllBrokerQueueNode(){
@@ -492,8 +492,8 @@ public class ZkDistributed implements Closeable{
             logger.error("{} getBrokerQueueNode error:{}", node, ExceptionUtil.getErrorMessage(e));
         }
 
-        return null;
-    }
+		return BrokerQueueNode.initBrokerQueueNode();
+	}
 
 	public List<String> getBrokersChildren() {
 		try {
