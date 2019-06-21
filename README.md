@@ -124,7 +124,7 @@ pluginInfo内容包括执行引擎插件的基础配置信息和hiveConf、hadoo
 }
 ```
 
-#### 4.3 hiveConf
+### 4.3 hiveConf
 
 hiveConf内容包括hive数据源的 jdbcUrl、username和password，用户名或密码为空填写空字符串
 
@@ -137,12 +137,12 @@ hiveConf内容包括hive数据源的 jdbcUrl、username和password，用户名�
 
 ```
 
-#### 4.4 hadoopConf
+### 4.4 hadoopConf
 
 hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
 
 
-##### 4.4.1 HA模式
+#### 4.4.1 HA模式
 
 以 nameservices=ns1、namenode=nn1,nn2 为例
 
@@ -161,7 +161,7 @@ hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
 
 ```
 
-##### 4.4.2 非HA模式
+#### 4.4.2 非HA模式
 ```非HA模式
 
     "hadoopConf":{
@@ -172,12 +172,12 @@ hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
 
 ```
 
-#### 4.5 yarnConf
+### 4.5 yarnConf
 
 yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 
 
-##### 4.5.1 HA模式
+#### 4.5.1 HA模式
 
 以 rm-ids=rm1,rm2 为例
 
@@ -195,7 +195,7 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 
 ```
 
-##### 4.5.2 非HA模式
+#### 4.5.2 非HA模式
 ```非HA模式
 
     "yarnConf":{
