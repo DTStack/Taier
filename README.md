@@ -56,7 +56,7 @@ bin/bash.sh
 ```
 
 
-## 4 engine任务模版
+## 4 任务（Job）模版
 
 从最高空俯视，一个engine任务（Job）的主要构成很简单，如下：
 
@@ -76,7 +76,7 @@ bin/bash.sh
 }
 ```
 
-##### 名词解释：
+### 4.1 名词解释
 1. name: 任务名称
 
 2. taskId: 全局唯一标识，定位任务（Job）时的主要条件之一
@@ -110,3 +110,99 @@ bin/bash.sh
 9. maxRetryNum: 最大重试次数
 10. groupName: 队列名称
 11. pluginInfo: 插件信息
+
+### 4.2 pluginInfo
+
+pluginInfo内容包括执行引擎插件的基础配置信息和hiveConf、hadoopConf和yarnConf三部分，分别描述hive、hadoop和yarn的配置信息
+
+```
+"pluginInfo":{
+    "...":"...",//此处省略具体某一种执行引擎插件的基础配置信息，详情见控制台（Console）多集群管理
+    "hiveConf": {...},
+    "hadoopConf": {...},
+    "yarnConf": {...},
+}
+```
+
+#### 4.3 hiveConf
+
+hiveConf内容包括hive数据源的 jdbcUrl、username和password，用户名或密码为空填写空字符串
+
+```
+    "hiveConf":{
+        "password": "...",
+        "jdbcUrl": "...",
+        "username": "..."
+    }
+
+```
+
+#### 4.4 hadoopConf
+
+hadoopConf内容包括hadoop的链接信息，支持HA模式与非HA模式
+
+
+##### 4.4.1 HA模式
+
+以 nameservices=ns1、namenode=nn1,nn2 为例
+
+```HA模式
+
+    "hadoopConf":{
+        "fs.defaultFS": "hdfs://ns1",
+        "dfs.ha.namenodes.ns1": "nn1,nn2",
+        "dfs.client.failover.proxy.provider.ns1": "...",
+        "dfs.namenode.rpc-address.ns1.nn2": "...",
+        "dfs.namenode.rpc-address.ns1.nn1": "...",
+        "dfs.nameservices": "ns1",
+        "fs.hdfs.impl.disable.cache": "true",
+        "fs.hdfs.impl": "..."
+    }
+
+```
+
+##### 4.4.2 非HA模式
+```非HA模式
+
+    "hadoopConf":{
+        "fs.defaultFS": "...",
+        "fs.hdfs.impl.disable.cache": "true",
+        "fs.hdfs.impl": "..."
+    }
+
+```
+
+#### 4.5 yarnConf
+
+yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
+
+
+##### 4.5.1 HA模式
+
+以 rm-ids=rm1,rm2 为例
+
+```HA模式
+
+    "yarnConf":{
+        "yarn.resourcemanager.ha.enabled": "true",
+        "yarn.resourcemanager.ha.rm-ids": "rm1,rm2",
+        "yarn.resourcemanager.address.rm1": "...",
+        "yarn.resourcemanager.address.rm2": "...",
+        "yarn.resourcemanager.webapp.address.rm2": "...",
+        "yarn.resourcemanager.webapp.address.rm1": "...",
+        "yarn.nodemanager.remote-app-log-dir": "..."
+    }
+
+```
+
+##### 4.5.2 非HA模式
+```非HA模式
+
+    "yarnConf":{
+        "yarn.resourcemanager.ha.enabled": "false",
+        "yarn.resourcemanager.address": "...",
+        "yarn.resourcemanager.webapp.address": "...",
+        "yarn.nodemanager.remote-app-log-dir": "..."
+    }
+
+```
