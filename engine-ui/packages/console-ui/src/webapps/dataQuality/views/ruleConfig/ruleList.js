@@ -175,11 +175,12 @@ class RuleList extends React.Component {
         }
         const newRuleList = [...ruleList];
         if (this.props.onSaveRule) {
-            let isSuccess = await this.props.onSaveRule(saveRule);
-            if (!isSuccess) {
+            let newRule = await this.props.onSaveRule(saveRule);
+            if (!newRule) {
                 next(false);
                 return;
             }
+            saveRule = { ...saveRule, ...newRule };
         }
         newRuleList.splice(ruleIndex, 1, { ...saveRule, isEdit: false, isNew: false });
         next(true);

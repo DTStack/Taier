@@ -113,7 +113,7 @@ class RuleForm extends React.Component {
                         initialValue: get(data, 'operatorType')
                     })(
                         <Select disabled={!isEdit} style={{ width: '80px' }}>
-                            <Option key='1' value={1} >绝对值</Option>
+                            <Option key='1' value={1} >固定值</Option>
                             <Option key='2' value={2} >占比</Option>
                         </Select>
                     )}

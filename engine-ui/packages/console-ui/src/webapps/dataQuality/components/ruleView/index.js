@@ -1,55 +1,77 @@
 import React from 'react';
 import './index.scss';
+
+import utils from 'utils';
 import { getRuleType } from '../../consts/helper';
 
 class RuleView extends React.Component {
     renderItem (label, text) {
         return (
             <div className='c-ruleView__item'>
-                <div className='c-ruleView__item__header'>
-                    {label}
-                </div>
-                <div className='c-ruleView__item__content'>
+                <span className='c-ruleView__common__label'>
+                    {label}:
+                </span>
+                <span className='c-ruleView__common__text'>
                     {text}
-                </div>
+                </span>
             </div>
         )
     }
     renderColumn () {
         const { data } = this.props;
         return <React.Fragment>
-            {this.renderItem('字段', data.columnName)}
-            {this.renderItem('统计函数', data.functionName)}
-            {this.renderItem('过滤条件', data.filter)}
-            {this.renderItem('校验方法', data.verifyTypeValue)}
-            {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('字段', data.columnName)}
+                {this.renderItem('统计函数', data.functionName)}
+            </div>
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('过滤条件', data.filter)}
+                {this.renderItem('校验方法', data.verifyTypeValue)}
+                {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            </div>
         </React.Fragment>
     }
     renderTable () {
         const { data, tableName } = this.props;
         return <React.Fragment>
-            {this.renderItem('表', tableName)}
-            {this.renderItem('统计函数', data.functionName)}
-            {this.renderItem('过滤条件', data.filter)}
-            {this.renderItem('校验方法', data.verifyTypeValue)}
-            {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('表', tableName)}
+                {this.renderItem('统计函数', data.functionName)}
+            </div>
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('过滤条件', data.filter)}
+            </div>
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('校验方法', data.verifyTypeValue)}
+                {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            </div>
         </React.Fragment>
     }
     renderSql () {
         const { data } = this.props;
         return <React.Fragment>
-            {this.renderItem('sql', data.customizeSql)}
-            {this.renderItem('校验方法', data.verifyTypeValue)}
-            {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('sql', data.customizeSql)}
+            </div>
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('校验方法', data.verifyTypeValue)}
+                {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            </div>
         </React.Fragment>
     }
     renderTypeCheck () {
         const { data } = this.props;
         return <React.Fragment>
-            {this.renderItem('字段', data.columnName)}
-            {this.renderItem('校验格式', data.functionName)}
-            {this.renderItem('过滤条件', data.filter)}
-            {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('字段', data.columnName)}
+                {this.renderItem('校验格式', data.functionName)}
+            </div>
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('过滤条件', data.filter)}
+            </div>
+            <div className='c-ruleView__item__line'>
+                {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+            </div>
         </React.Fragment>
     }
     renderContent () {
@@ -71,22 +93,41 @@ class RuleView extends React.Component {
         }
     }
     renderDate () {
+        const { data } = this.props;
         return (
             <div className='c-ruleView__bottom'>
                 <span className='c-ruleView__common__label'>最近修改人:</span>
-                <span className='c-ruleView__common__text'>admin@</span>
+                <span className='c-ruleView__common__text'>{data.modifyUser}</span>
                 <span className='c-ruleView__common__label'>最近修改时间:</span>
-                <span className='c-ruleView__common__text'>2019-09-01</span>
+                <span className='c-ruleView__common__text'>{utils.formatDateTime(data.gmtModified)}</span>
             </div>
         )
+    }
+    renderLeftView () {
+        const { leftView } = this.props;
+        return leftView ? (
+            <div className='c-ruleView__leftView'>
+                {leftView}
+            </div>
+        ) : null;
+    }
+    renderRightView () {
+        const { rightView } = this.props;
+        return rightView ? (
+            <div className='c-ruleView__rightView'>
+                {rightView}
+            </div>
+        ) : null;
     }
     render () {
         return (
             <section className='c-ruleView'>
-                <div className='c-ruleView__item__box'>
+                {this.renderLeftView()}
+                <div className='c-ruleView__content'>
                     {this.renderContent()}
                 </div>
                 {this.renderDate()}
+                {this.renderRightView()}
             </section>
         )
     }

@@ -1,22 +1,39 @@
 .c-ruleView {
-    padding: 15px 10px 5px 10px; 
+    padding: 12px 8px; 
     border: 1px solid #dcdcdc;
+    background: #fefefe;
     margin-bottom: 10px;
     overflow: hidden;
-    .c-ruleView__item__box {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    .c-ruleView__content {
+        flex-grow: 1;
+    }
+    .c-ruleView__item__line ~ .c-ruleView__item__line {
+        margin-top: 8px;
+    }
+    .c-ruleView__item ~ .c-ruleView__item {
+        margin-left: 18px;
+    }
+    .c-ruleView__item {
+        display: inline-block;
     }
     .c-ruleView__bottom {
-        float: right;
+        position: absolute;
+        bottom: 12px;
+        right: 8px;
     }
     .c-ruleView__common__label {
-        padding-left: 8px;
-        color: #333;
-        font-size: 12px;
-        font-weight: bold;
+        color: #888;
+        font-size: 14px;
+    }
+    .c-ruleView__common__text ~ .c-ruleView__common__label {
+        margin-left: 18px;
     }
     .c-ruleView__common__text {
         padding-left: 5px;
         color: #333;
-        font-size: 13px;
+        font-size: 14px;
     }
 }

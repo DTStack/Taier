@@ -165,18 +165,6 @@
         }
     }
 }
-.dt-ant-table--border {
-    .ant-table-body{
-        border-width: 1px 1px 0px 1px;
-        border-color: #dcdcdc;
-        border-style: solid;
-    }
-    .ant-table-placeholder{
-        border-width: 0px 1px 1px 1px;
-        border-style: solid;
-        border-color: #dcdcdc;
-    }
-}
 .m-table {
     
     &.m-table-showselect{
@@ -251,7 +239,18 @@
         border-bottom: 0;
     }
 }
-
+.dt-ant-table--border {
+    .ant-table-body{
+        border-width: 1px 1px 0px 1px;
+        border-color: #dcdcdc;
+        border-style: solid;
+    }
+    .ant-table-placeholder{
+        border-width: 0px 1px 1px 1px;
+        border-style: solid;
+        border-color: #dcdcdc;
+    }
+}
 .m-card {
     .ant-card {
         .ant-card-head {

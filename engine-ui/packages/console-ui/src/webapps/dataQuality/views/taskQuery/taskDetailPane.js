@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { isEmpty, cloneDeep } from 'lodash';
-import { Table, Card, Checkbox } from 'antd';
+import { Card, Checkbox, Icon, Tooltip } from 'antd';
 import moment from 'moment';
 
 import Resize from 'widgets/resize';
+import RuleView from '../../components/ruleView';
+import RuleDetailTableModal from './ruleDetailTable';
 
 import { lineAreaChartOptions } from '../../consts';
-import { DetailCheckStatus } from '../../components/display';
 import TQApi from '../../api/taskQuery';
+import { getRuleType } from '../../consts/helper';
 const echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
@@ -22,12 +24,14 @@ export default class TaskDetailPane extends Component {
             visible: false,
             taskDetail: [],
             currentRecord: {},
-            showSnapshot: false
+            showSnapshot: false,
+            ruleRecord: null,
+            ruleDetailTableModalVisible: false
         };
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         let oldData = this.props.data;
 
         let newData = nextProps.data;
@@ -59,98 +63,6 @@ export default class TaskDetailPane extends Component {
 
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
-    }
-
-    initRulesColumns = () => {
-        return [{
-            title: '字段',
-            dataIndex: 'columnName',
-            key: 'columnName',
-            render: (text, record) => {
-                const snapshotText = record.isSnapshot ? ' (已删除)' : '';
-                let obj = {
-                    children: (record.isCustomizeSql ? record.customizeSql : text) + snapshotText,
-                    props: {
-                        colSpan: record.isCustomizeSql ? 3 : 1
-                    }
-                };
-                return obj;
-            },
-            width: '100px'
-        }, {
-            title: '统计函数',
-            dataIndex: 'functionId',
-            key: 'functionId',
-            render: (text, record) => {
-                let obj = {
-                    children: record.functionName,
-                    props: {
-                        colSpan: record.isCustomizeSql ? 0 : 1
-                    }
-                };
-                return obj;
-            },
-            width: '100px'
-        }, {
-            title: '过滤条件',
-            dataIndex: 'filter',
-            key: 'filter',
-            render: (text, record) => {
-                let obj = {
-                    children: text,
-                    props: {
-                        colSpan: record.isCustomizeSql ? 0 : 1
-                    }
-                };
-                return obj;
-            },
-            width: '100px'
-        }, {
-            title: '校验方法',
-            dataIndex: 'verifyTypeValue',
-            key: 'verifyTypeValue',
-            width: '10%'
-        }, {
-            title: '状态',
-            dataIndex: 'status',
-            key: 'status',
-            render: text => <DetailCheckStatus value={text} />,
-            width: '8%'
-        }, {
-            title: '统计值',
-            dataIndex: 'statistic',
-            key: 'statistic',
-            width: '8%'
-        }, {
-            title: '阈值',
-            dataIndex: 'threshold',
-            key: 'threshold',
-            render: (text, record) => {
-                if (record.isPercentage) {
-                    return `${record.operator}  ${text}  %`;
-                } else {
-                    return `${record.operator}  ${text}`;
-                }
-            },
-            width: '8%'
-        }, {
-            title: '最近修改人',
-            key: 'modifyUser',
-            dataIndex: 'modifyUser',
-            width: '12%'
-        }, {
-            title: '最近修改时间',
-            key: 'gmtModified',
-            dataIndex: 'gmtModified',
-            width: '12%',
-            render: (text) => (moment(text).format('YYYY-MM-DD HH:mm'))
-        }, {
-            title: '操作',
-            width: '8%',
-            render: (text, record) => {
-                return <a onClick={this.onCheckReport.bind(this, record)}>查看趋势</a>
-            }
-        }]
     }
 
     onCheckReport = (record) => {
@@ -225,8 +137,8 @@ export default class TaskDetailPane extends Component {
     }
 
     render () {
-        const { visible, currentRecord, taskDetail, showSnapshot } = this.state;
-
+        const { visible, currentRecord, taskDetail, showSnapshot, ruleDetailTableModalVisible, ruleRecord } = this.state;
+        const { data } = this.props;
         const filterTaskDetail = taskDetail ? taskDetail.filter(
             (item) => {
                 if (showSnapshot) {
@@ -247,15 +159,34 @@ export default class TaskDetailPane extends Component {
         return (
             <div style={{ padding: 10 }}>
                 <Checkbox value={showSnapshot} style={{ marginBottom: '10px' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
-                <Table
-                    rowKey="id"
-                    className="m-table"
-                    columns={this.initRulesColumns()}
-                    pagination={false}
-                    dataSource={filterTaskDetail}
-                    style={{ marginBottom: 15 }}
-                    scroll={{ y: 250 }}
-                />
+                {filterTaskDetail.map((rule) => {
+                    return <RuleView
+                        key={rule.id}
+                        tableName={data.tableName}
+                        data={rule}
+                        rightView={(
+                            <React.Fragment>
+                                {getRuleType(rule) == 'typeCheck' && (
+                                    <Tooltip title='查看明细'>
+                                        <a onClick={() => { this.setState({ ruleDetailTableModalVisible: true, ruleRecord: rule }) }} style={{ marginRight: '5px' }}>
+                                            <Icon type='file-text' />
+                                        </a>
+                                    </Tooltip>
+                                )}
+                                {currentRecord.id == rule.id ? (
+                                    <Icon type='line-chart' />
+                                )
+                                    : (
+                                        <Tooltip title='查看趋势'>
+                                            <a onClick={this.onCheckReport.bind(this, rule)}>
+                                                <Icon type='line-chart' />
+                                            </a>
+                                        </Tooltip>
+                                    )}
+                            </React.Fragment>
+                        )}
+                    />
+                })}
 
                 {
                     visible &&
@@ -271,6 +202,16 @@ export default class TaskDetailPane extends Component {
                         </Resize>
                     </Card>
                 }
+                <RuleDetailTableModal
+                    visible={ruleDetailTableModalVisible}
+                    data={ruleRecord}
+                    onCancel={() => {
+                        this.setState({
+                            ruleDetailTableModalVisible: false,
+                            ruleRecord: null
+                        })
+                    }}
+                />
             </div>
         );
     }

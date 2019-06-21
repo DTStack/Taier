@@ -117,7 +117,7 @@ class RuleEditPane extends Component {
             let res = await RCApi.saveMonitorRule(params);
             if (res && res.code == 1) {
                 message.success('保存成功');
-                return true;
+                return res.data;
             }
             return false;
         } catch {
