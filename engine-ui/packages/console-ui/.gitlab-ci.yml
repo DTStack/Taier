@@ -1,3 +1,5 @@
+# Read more: https://gitlab.com/gitlab-org/gitlab-ce/tree/v8.6.4/doc/ci/yaml
+
 cache:
   paths:
    - node_modules/
@@ -16,32 +18,35 @@ code_quality:
   script: 
     - "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js"
   only:
-    - branches
-    - merge_requests # not support current version
+    # Just support (fix, dev_, feat, issue) trigger test
+    - /.*((f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|style|perf|).*$/
+    - merge_requests
   except:
     - dev
     - master
+    - /.*docs?.*$/
 
 test:
   stage: test
   script: 
     - "node ./node_modules/jest/bin/jest.js --no-cahe"
   only:
-    - branches
-    - merge_requests # not support current version
+    # merge_requests # not support current version
+    # Just support (fix, dev_, feat, issue) trigger test
+    - /.*((f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf).*$/
+    - merge_requests
   except:
     - dev
     - master
+    - /.*docs?.*$/
 
 doc_quality:
   stage: lintdoc
   script: 
     - "node ./node_modules/lint-md/bin ./*.md docs/*.md"
   only:
-    - branches
     - merge_requests # not support current version
-  except:
-    - dev
+    - /.*(docs?|release).*$/
     - master
 
 build_to_dev: # deploy dev environment
