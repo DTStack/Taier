@@ -226,6 +226,6 @@ yarnConf内容包括yarn的链接信息，支持HA模式与非HA模式
 
 ## 6. 其他参考资料
 
-* [engine引擎](docs/engine.key)
-* [在CDH集群中启用及配置Kerberos](docs/在CDH集群中启用及配置Kerberos.docx)
-* [开源集群配置Kerberos认证](docs/开源集群配置Kerberos认证.docx)
+* [在CDH集群中启用及配置Kerberos](docs/在CDH集群中启用及配置Kerberos.docx) @言蹊
+* [开源集群配置Kerberos认证](docs/开源集群配置Kerberos认证.docx) @言蹊
+* [engine引擎](docs/engine.key) @偷天
