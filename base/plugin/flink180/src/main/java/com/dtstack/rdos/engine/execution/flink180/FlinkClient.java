@@ -606,7 +606,7 @@ public class FlinkClient extends AbsClient {
     public String getReqUrl(ClusterClient clusterClient){
         //return clusterClient.getWebInterfaceURL();
         String ip = clusterClient.getFlinkConfiguration().getString("jobmanager.rpc.address", "");
-        String port = clusterClient.getFlinkConfiguration().getString("rest.port", "8081");
+        String port = clusterClient.getFlinkConfiguration().getString("rest.bind-port", "8081");
         return "http://" + ip + ":" + port;
     }
 
