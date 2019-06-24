@@ -6,7 +6,7 @@
 	<meta charset="utf-8">
     <link rel="Shortcut Icon" href="public/analyticsEngine/favicon.png">
     <script>
-        if (!!window.ActiveXObject || "ActiveXObject" in window) {
+        if (/Edge\/|Trident\/|MSIE /.test(window.navigator.userAgent)) {
             window.location.href = "/public/compatibility/tips.html"
         }
     </script>
