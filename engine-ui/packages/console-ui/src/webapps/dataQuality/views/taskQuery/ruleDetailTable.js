@@ -38,6 +38,8 @@ class RuleDetailTable extends React.Component {
             total: 0,
             pageSize: 10
         },
+        timeList: [],
+        tableName: null,
         cyctime: null,
         loading: false
     }
@@ -64,7 +66,9 @@ class RuleDetailTable extends React.Component {
             });
             if (res && res.code == 1) {
                 this.setState({
-                    dataSource: res.data.data,
+                    dataSource: res.data.result,
+                    tableName: res.data.table,
+                    timeList: res.data.timeList,
                     pagination: {
                         ...pagination,
                         total: res.data.totalCount
@@ -106,8 +110,7 @@ class RuleDetailTable extends React.Component {
         }, this.initData);
     }
     render () {
-        const { tableName } = this.props;
-        const { dataSource, cyctime, pagination } = this.state;
+        const { dataSource, cyctime, pagination, tableName, timeList } = this.state;
         return (
             <div>
                 <div style={{ marginBottom: '10px', overflow: 'hidden' }}>
@@ -115,7 +118,9 @@ class RuleDetailTable extends React.Component {
                     <span style={{ float: 'right' }}>
                         运行时间：
                         <Select value={cyctime} onChange={(value) => { this.setState({ cyctime: value }) }} style={{ width: '200px' }}>
-                            <Option key='20190101' value={20190101} >2019-01-01</Option>
+                            {timeList.map((time) => {
+                                return <Option key={time} value={time}>{time}</Option>
+                            })}
                         </Select>
                     </span>
                 </div>

@@ -115,3 +115,9 @@ export const ruleConfigSaveTable = (
         <p>保存最近10次的结果，并自动删除过期的数据</p>
     </div>
 )
+
+export const usernameMsg = (
+    <div>
+        <p>为存储校验结果，需要读、写、删除表权限的账号</p>
+    </div>
+)
