@@ -141,7 +141,7 @@ class TableLog extends React.Component {
                     <Pagination
                         pageSize={10}
                         style={{ float: 'right', margin: '30px' }}
-                        current={logs.pageIndex}
+                        current={logs.currentPage}
                         total={logs.totalCount}
                         onChange={this.showPage.bind(this)}
                     />
