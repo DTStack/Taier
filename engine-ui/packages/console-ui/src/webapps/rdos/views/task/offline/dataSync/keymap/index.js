@@ -453,8 +453,7 @@ class Keymap extends React.Component {
                 {remove}
                 {edit}
             </div>
-
-            const typeValue = col ? col.value ? `常量(${col.value})` : `${col.type.toUpperCase()}${col.format ? `(${col.format})` : ''}` : '';
+            const typeValue = col ? col.value ? `常量(${col.value})` : `${col.type ? col.type.toUpperCase() : ''}${col.format ? `(${col.format})` : ''}` : '';
             const type = col ? scrollText(typeValue) : '类型';
 
             switch (sourceType) {
@@ -478,11 +477,10 @@ class Keymap extends React.Component {
                     // 仅允许常量删除操作
                     const opt = col && col.key === 'rowkey' ? cellOperation(null, editOption)
                         : cellOperation(removeOption, editOption);
-
                     return <div className="four-cells">
                         <div className="cell" title={cf}>{ cf || '-' }</div>
                         <div className="cell" title={name}>{ name }</div>
-                        <div className="cell" title={typeValue}>{ type }</div>
+                        {/* <div className="cell" title={typeValue}>{ type }</div> */}
                         <div className="cell">
                             { col ? opt : '操作' }
                         </div>
@@ -666,7 +664,7 @@ class Keymap extends React.Component {
                     return <div className="four-cells">
                         <div className="cell">{col ? col.cf : '列族' }</div>
                         <div className="cell">{col ? scrollText(col.key) : '列名' }</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                        {/* <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div> */}
                         <div className="cell">{ col ? operations : '操作' }</div>
                     </div>
                 }
@@ -837,6 +835,23 @@ class Keymap extends React.Component {
         />
     }
 
+    getBatIntVal = (type, typeCol) => {
+        const isNotHBase = type !== DATA_SOURCE.HBASE;
+        let initialVal = '';
+        if (isNotHBase) {
+            typeCol && typeCol.forEach(item => {
+                const field = utils.checkExist(item.index) ? item.index : utils.checkExist(item.key) ? item.key : undefined;
+                if (field !== undefined) initialVal += `${field}:${item.type},\n`;
+            })
+        } else {
+            typeCol && typeCol.forEach(item => {
+                const field = utils.checkExist(item.key) ? item.key : undefined;
+                if (field !== undefined) initialVal += `${item.cf || '-'}:${field},\n`;
+            })
+        }
+        return initialVal;
+    }
+
     renderBatchModal = () => {
         const {
             batchModal, batchSourceModal,
@@ -855,8 +870,8 @@ class Keymap extends React.Component {
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
-                sDesc = 'columnFamily: fieldName: type,'
+                sPlaceholder = 'cf1: field1,\ncf1: field2,...'
+                sDesc = 'columnFamily: fieldName,'
                 break;
             }
         }
@@ -869,8 +884,8 @@ class Keymap extends React.Component {
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                tPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
-                tDesc = 'columnFamily: fieldName: type,'
+                tPlaceholder = 'cf1: field1,\ncf1: field2,...'
+                tDesc = 'columnFamily: fieldName,'
                 break;
             }
         }
@@ -1064,7 +1079,7 @@ class Keymap extends React.Component {
             const arr = []
             if (sourceSrcType === DATA_SOURCE.HBASE) {
                 let regx = /([\w]+:[\w]+)/g
-                const arr = type.rowkey.match(regx)
+                const arr = type.rowkey.match(regx) ? type.rowkey.match(regx) : '';
                 for (let i = 0; i < arr.length; i++) {
                     const val = arr[i].split(':')
                     if (val && val.length === 2) {
@@ -1221,17 +1236,10 @@ class Keymap extends React.Component {
                     const map = item.split(':')
                     const cf = utils.trim(map[0])
                     const name = utils.trim(map[1])
-                    const type = utils.trim(map[2])
-                    if (hdfsFieldTypes.includes(type)) {
-                        params.push({
-                            cf: cf,
-                            key: name,
-                            type
-                        })
-                    } else {
-                        message.error(`字段${name}的数据类型错误！`)
-                        return
-                    }
+                    params.push({
+                        cf: cf,
+                        key: name
+                    });
                 }
                 break;
             }
@@ -1262,7 +1270,8 @@ class Keymap extends React.Component {
     importFields = () => {
         this.setState({
             batchModal: {
-                visible: true
+                visible: true,
+                batchText: this.getBatIntVal(this.props.targetSrcType, this.props.targetCol)
             }
         })
     }
@@ -1270,7 +1279,8 @@ class Keymap extends React.Component {
     importSourceFields = () => {
         this.setState({
             batchSourceModal: {
-                visible: true
+                visible: true,
+                batchText: this.getBatIntVal(this.props.sourceSrcType, this.props.sourceCol)
             }
         })
     }
@@ -1281,7 +1291,7 @@ class Keymap extends React.Component {
         const {
             sourceSrcType,
             replaceBatchSourceKeyRow
-        } = this.props
+        } = this.props;
 
         if (!batchText) {
             this.hideBatchSourceModal();
@@ -1290,7 +1300,6 @@ class Keymap extends React.Component {
 
         const arr = batchText.split(',');
         const params = []
-
         switch (sourceSrcType) {
             case DATA_SOURCE.FTP:
             case DATA_SOURCE.HDFS: {
@@ -1329,21 +1338,15 @@ class Keymap extends React.Component {
                     if (map.length < 2) { break; };
                     const cf = utils.trim(map[0]);
                     const name = utils.trim(map[1]);
-                    const type = map[2] ? utils.trim(map[2]).toUpperCase() : null;
-                    if (hdfsFieldTypes.includes(type)) {
-                        params.push({
-                            cf: cf,
-                            key: name,
-                            type
-                        })
-                    } else {
-                        message.error(`字段${name}的数据类型错误！`)
-                        return
-                    }
+                    params.push({
+                        cf: cf,
+                        key: name
+                    });
                 }
                 break;
             }
         }
+
         replaceBatchSourceKeyRow(params);
         this.hideBatchSourceModal();
     }

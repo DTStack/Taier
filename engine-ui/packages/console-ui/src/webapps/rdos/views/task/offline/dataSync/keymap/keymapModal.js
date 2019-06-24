@@ -122,28 +122,6 @@ class KeyForm extends React.Component {
                                     {this.columnFamily(sourceColumnFamily)}
                                 </Select>
                             )}
-                        </FormItem>,
-                        <FormItem
-                            {...formItemLayout}
-                            label="类型"
-                            key="type"
-                        >
-                            {getFieldDecorator('type', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: (editField && editField.type) || 'STRING'
-                            })(
-                                <Select placeholder="请选择类型">
-                                    <Option value="STRING">STRING</Option>
-                                    <Option value="BOOLEAN">BOOLEAN</Option>
-                                    <Option value="SHORT">SHORT</Option>
-                                    <Option value="INT">INT</Option>
-                                    <Option value="LONG">LONG</Option>
-                                    <Option value="FLOAT">FLOAT</Option>
-                                    <Option value="DOUBLE">DOUBLE</Option>
-                                </Select>
-                            )}
                         </FormItem>
                     ];
                 }
@@ -259,28 +237,6 @@ class KeyForm extends React.Component {
                             })(
                                 <Select placeholder="请选择列族">
                                     {this.columnFamily(targetColumnFamily)}
-                                </Select>
-                            )}
-                        </FormItem>,
-                        <FormItem
-                            {...formItemLayout}
-                            label="选择类型"
-                            key="type"
-                        >
-                            {getFieldDecorator('type', {
-                                rules: [{
-                                    required: true
-                                }],
-                                initialValue: (editField && editField.type) || 'STRING'
-                            })(
-                                <Select placeholder="请选择类型">
-                                    <Option value="STRING">STRING</Option>
-                                    <Option value="BOOLEAN">BOOLEAN</Option>
-                                    <Option value="SHORT">SHORT</Option>
-                                    <Option value="INT">INT</Option>
-                                    <Option value="LONG">LONG</Option>
-                                    <Option value="FLOAT">FLOAT</Option>
-                                    <Option value="DOUBLE">DOUBLE</Option>
                                 </Select>
                             )}
                         </FormItem>
