@@ -179,7 +179,6 @@ class EditorContainer extends Component {
         if (sqls && sqls.length > 0) {
             let i = 0;
             this.props.setOutput(currentTab, `正在提交...`);
-            this.props.addLoadingTab(currentTab);
             this.reqExecSQL(currentTabData, params, sqls, i);
         }
     };
