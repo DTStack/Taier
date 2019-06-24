@@ -87,6 +87,7 @@ export default {
     GET_TASK_DETAIL: `${DQ_BASE_URL}/monitorRecord/detailReport`, // 任务详细报告
     GET_TABLE_REPORT: `${DQ_BASE_URL}/monitorRecord/tableReport`, // 任务表级报告
     GET_TASK_ALARM_NUM: `${DQ_BASE_URL}/monitorRecord/ruleMonth`, // 任务报警统计值
+    GET_FORMAT_TABLE_RESULT: `${DQ_BASE_URL}/monitorRecord/getFormatTableResult`, // 获取格式化临时表数据
 
     // ===== common ===== //
     DQ_GET_ALL_DICT: `${DQ_BASE_URL}/dict/allDicts`

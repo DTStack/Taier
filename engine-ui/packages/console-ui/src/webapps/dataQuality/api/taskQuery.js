@@ -15,6 +15,9 @@ export default {
     },
     getTaskAlarmNum (params) {
         return http.post(req.GET_TASK_ALARM_NUM, params);
+    },
+    getFormatTableResult (params) {
+        return http.post(req.GET_FORMAT_TABLE_RESULT, params);
     }
 
 }

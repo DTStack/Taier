@@ -204,7 +204,8 @@ export default class TaskDetailPane extends Component {
                 }
                 <RuleDetailTableModal
                     visible={ruleDetailTableModalVisible}
-                    data={ruleRecord}
+                    ruleData={ruleRecord}
+                    recordId={data.id}
                     onCancel={() => {
                         this.setState({
                             ruleDetailTableModalVisible: false,

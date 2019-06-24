@@ -104,16 +104,16 @@ class RuleForm extends React.Component {
         return <React.Fragment>
             {isTypeCheck ? (
                 <FormItem label="期望值">
-                    {getFieldDecorator('operatorType', {
+                    {getFieldDecorator('verifyType', {
                         rules: [{
                             required: true,
                             message: '请选择计算类型'
                         }],
-                        initialValue: get(data, 'operatorType')
+                        initialValue: get(data, 'verifyType')
                     })(
                         <Select disabled={!isEdit} style={{ width: '80px' }}>
                             <Option key='1' value={1} >固定值</Option>
-                            <Option key='2' value={2} >占比</Option>
+                            <Option key='7' value={7} >占比</Option>
                         </Select>
                     )}
                 </FormItem>
@@ -148,10 +148,24 @@ class RuleForm extends React.Component {
                     }],
                     initialValue: get(data, 'threshold')
                 })(
-                    <Input disabled={!isEdit} addonAfter={data.isPercentage ? '%' : null} />
+                    <Input disabled={!isEdit} addonAfter={this.isPercentage(data) ? '%' : null} />
                 )}
             </FormItem>
         </React.Fragment>
+    }
+    isPercentage (data) {
+        const { type } = this.props;
+        if (!data) {
+            return false;
+        }
+        const { isPercentage, verifyType } = data;
+        if (type == 'typeCheck') {
+            if (verifyType == 7) {
+                return true;
+            }
+            return false;
+        }
+        return isPercentage;
     }
     renderSqlRule () {
         const { isEdit, data } = this.props;
