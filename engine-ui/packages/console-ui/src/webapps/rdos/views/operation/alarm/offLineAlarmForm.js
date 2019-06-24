@@ -156,8 +156,8 @@ class AlarmForm extends Component {
                             rules: [{
                                 required: true, message: '告警规则名称不可为空！'
                             }, {
-                                max: 30,
-                                message: '告警规则名称不得超过30个字符！'
+                                max: 64,
+                                message: '告警规则名称不得超过64个字符！'
                             }],
                             initialValue: alarmInfo.alarmName || ''
                         })(
