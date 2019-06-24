@@ -30,11 +30,18 @@ public class YarnAppStatusMonitor implements Runnable{
 
     private YarnClient yarnClient;
 
+    private FlinkYarnSessionStarter flinkYarnSessionStarter;
+
     private ApplicationId applicationId;
 
-    public YarnAppStatusMonitor(FlinkClient flinkClient, YarnClient yarnClient) {
+    private YarnApplicationState lastAppState;
+    private long startTime = System.currentTimeMillis();
+
+    public YarnAppStatusMonitor(FlinkClient flinkClient, YarnClient yarnClient, FlinkYarnSessionStarter flinkYarnSessionStarter) {
         this.flinkClient = flinkClient;
         this.yarnClient = yarnClient;
+        this.flinkYarnSessionStarter = flinkYarnSessionStarter;
+        this.lastAppState = YarnApplicationState.NEW;
     }
 
     @Override
@@ -54,13 +61,31 @@ public class YarnAppStatusMonitor implements Runnable{
                         return;
                     }
 
-                    YarnApplicationState yarnApplicationState = applicationReport.getYarnApplicationState();
+                    YarnApplicationState appState = applicationReport.getYarnApplicationState();
 
-                    if (YarnApplicationState.RUNNING != yarnApplicationState) {
-                        LOG.error("-------Flink session is down----");
-                        //限制任务提交---直到恢复
-                        flinkClient.setClientOn(false);
+                    switch(appState) {
+                        case FAILED:
+                        case KILLED:
+                        case FINISHED:
+                            flinkYarnSessionStarter.stopFlinkYarnSession();
+                            LOG.error("-------Flink session is down----");
+                            //限制任务提交---直到恢复
+                            flinkClient.setClientOn(false);
+                            break;
+                        case RUNNING:
+                            if (lastAppState != appState) {
+                                LOG.info("YARN application has been deployed successfully.");
+                            }
+                            break;
+                        default:
+                            if (appState != lastAppState) {
+                                LOG.info("Deploying cluster, current state " + appState);
+                            }
+                            if (System.currentTimeMillis() - startTime > 60000) {
+                                LOG.info("Deployment took more than 60 seconds. Please check if the requested resources are available in the YARN cluster");
+                            }
                     }
+                    lastAppState = appState;
                 } else {
                     LOG.error("Yarn client is no longer in state STARTED. Stopping the Yarn application status monitor.");
                     flinkClient.setClientOn(false);
@@ -83,6 +108,8 @@ public class YarnAppStatusMonitor implements Runnable{
         //重试
         try {
             LOG.warn("--retry flink client with yarn session----");
+            startTime = System.currentTimeMillis();
+            this.lastAppState = YarnApplicationState.NEW;
             flinkClient.initClient();
         } catch (Exception e) {
             LOG.error("", e);

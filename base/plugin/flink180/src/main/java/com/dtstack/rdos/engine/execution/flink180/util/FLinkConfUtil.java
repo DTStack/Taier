@@ -73,4 +73,22 @@ public class FLinkConfUtil {
                 .createClusterSpecification();
     }
 
+    public static ClusterSpecification createYarnSessionSpecification(Configuration configuration) {
+        // JobManager Memory
+        final int jobManagerMemoryMB = configuration.getInteger("yarn.jobmanager.heap.mb", 1024);
+
+        // Task Managers memory
+        final int taskManagerMemoryMB = configuration.getInteger("yarn.taskmanager.heap.mb", 1024);
+
+        int slotsPerTaskManager = configuration.getInteger("yarn.taskmanager.numberOfTaskSlots", 2);
+        int numberOfTaskManager = configuration.getInteger("yarn.taskmanager.numberOfTaskManager", 2);
+
+        return new ClusterSpecification.ClusterSpecificationBuilder()
+                .setMasterMemoryMB(jobManagerMemoryMB)
+                .setTaskManagerMemoryMB(taskManagerMemoryMB)
+                .setNumberTaskManagers(numberOfTaskManager)
+                .setSlotsPerTaskManager(slotsPerTaskManager)
+                .createClusterSpecification();
+    }
+
 }

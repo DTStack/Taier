@@ -6,10 +6,12 @@ import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -29,7 +31,7 @@ public class SqlPluginInfo {
 
     private static final String sqlPluginDirName = "sqlplugin";
 
-    private static final String CORE_JAR = "core.jar";
+    private static final String coreJarNamePrefix = "core";
 
     private static String SP = File.separator;
 
@@ -97,10 +99,6 @@ public class SqlPluginInfo {
 
     public List<String> buildExeArgs(JobClient jobClient) throws IOException {
         List<String> args = Lists.newArrayList();
-
-        args.add("-mode");
-        args.add("yarnPer");
-
         args.add("-sql");
         args.add(URLEncoder.encode(jobClient.getSql(), Charsets.UTF_8.name()));
 
@@ -122,9 +120,33 @@ public class SqlPluginInfo {
 
     public JarFileInfo createCoreJarInfo(){
         JarFileInfo jarFileInfo = new JarFileInfo();
-        String jarFilePath  = localSqlRootJar + SP + CORE_JAR;
+        String coreJarFileName = getCoreJarFileName();
+        String jarFilePath  = localSqlRootJar + File.separator + coreJarFileName;
         jarFileInfo.setJarPath(jarFilePath);
         return jarFileInfo;
+    }
+
+    private String getCoreJarFileName (){
+        String coreJarFileName = null;
+        File pluginDir = new File(localSqlRootJar);
+        if (pluginDir.exists() && pluginDir.isDirectory()){
+            File[] jarFiles = pluginDir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase().startsWith(coreJarNamePrefix) && name.toLowerCase().endsWith(".jar");
+                }
+            });
+
+            if (jarFiles != null && jarFiles.length > 0){
+                coreJarFileName = jarFiles[0].getName();
+            }
+        }
+
+        if (StringUtils.isEmpty(coreJarFileName)){
+            throw new RdosException("Can not find core jar file in path:" + localSqlRootJar);
+        }
+
+        return coreJarFileName;
     }
 
 }
