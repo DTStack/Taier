@@ -82,6 +82,14 @@
             <version>${flink.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-runtime -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime_2.11</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+
 
         <dependency>
             <groupId>com.google.code.gson</groupId>

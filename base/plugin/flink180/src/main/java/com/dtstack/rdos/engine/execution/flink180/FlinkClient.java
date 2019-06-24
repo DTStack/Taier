@@ -44,6 +44,7 @@ import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.jobgraph.JobGraph;
+import org.apache.flink.runtime.jobgraph.JobVertex;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
 import org.apache.flink.yarn.AbstractYarnClusterDescriptor;
@@ -603,7 +604,10 @@ public class FlinkClient extends AbsClient {
     }
 
     public String getReqUrl(ClusterClient clusterClient){
-        return clusterClient.getWebInterfaceURL();
+        //return clusterClient.getWebInterfaceURL();
+        String ip = clusterClient.getFlinkConfiguration().getString("jobmanager.rpc.address", "");
+        String port = clusterClient.getFlinkConfiguration().getString("rest.port", "8081");
+        return "http://" + ip + ":" + port;
     }
 
     /**

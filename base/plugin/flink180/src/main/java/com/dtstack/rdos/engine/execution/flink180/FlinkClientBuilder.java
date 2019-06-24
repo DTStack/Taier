@@ -322,7 +322,7 @@ public class FlinkClientBuilder {
             }
         }
 
-        //clusterDescriptor.setProvidedUserJarFiles(classpaths);
+        clusterDescriptor.setProvidedUserJarFiles(classpaths);
         clusterDescriptor.setQueue(flinkConfig.getQueue());
         return clusterDescriptor;
     }

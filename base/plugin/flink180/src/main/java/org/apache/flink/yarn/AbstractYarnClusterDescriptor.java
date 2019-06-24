@@ -84,6 +84,7 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.SimpleFileVisitor;
@@ -219,6 +220,21 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
     public void setDynamicPropertiesEncoded(String dynamicPropertiesEncoded) {
         this.dynamicPropertiesEncoded = dynamicPropertiesEncoded;
     }
+
+    /**
+     * Sets the user jar which is included in the system classloader of all nodes.
+     */
+    public void setProvidedUserJarFiles(List<URL> userJarFiles) {
+        for (URL jarFile : userJarFiles) {
+            try {
+                this.userJarFiles.add(new File(jarFile.toURI()));
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("Couldn't add local user jar: " + jarFile
+                        + " Currently only file:/// URLs are supported.");
+            }
+        }
+    }
+
 
     public String getDynamicPropertiesEncoded() {
         return this.dynamicPropertiesEncoded;

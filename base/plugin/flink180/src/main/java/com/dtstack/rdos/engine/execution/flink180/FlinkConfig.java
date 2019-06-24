@@ -17,11 +17,11 @@ public class FlinkConfig {
 
     private static final String DEFAULT_REMOTE_PLUGIN_ROOT_DIR = "/opt/dtstack/flinkplugin";
 
-    private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink170";
+    private static final String DEFAULT_FLINK_ZK_NAMESPACE = "/flink180";
 
-    private static final String DEFAULT_JAR_TMP_DIR = "../tmp170";
+    private static final String DEFAULT_JAR_TMP_DIR = "../tmp180";
 
-    private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink170/ha";
+    private static final String DEFAULT_FLINK_HIGH_AVAILABILITY_STORAGE_DIR = "%s/flink180/ha";
 
     private static final String HDFS_FLAG = "hdfs";
 
