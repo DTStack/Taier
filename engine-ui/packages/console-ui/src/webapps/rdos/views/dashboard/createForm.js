@@ -28,16 +28,16 @@ class WorkspaceForm extends React.Component {
         return (
             <Form>
                 <FormItem
-                    label='工作空间标识'
+                    label='项目标识'
                     {...metaFormLayout}
                 >
                     {getFieldDecorator('projectName', {
                         rules: [{
                             required: true,
-                            message: '请输入工作空间标识'
+                            message: '请输入项目标识'
                         }, {
                             pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-                            message: '工作空间标识只能由字母、数字、下划线组成，且长度不超过64个字符!'
+                            message: '项目标识只能由字母、数字、下划线组成，且长度不超过64个字符!'
                         }]
                     })(
                         <Input
@@ -63,21 +63,21 @@ class WorkspaceForm extends React.Component {
                     )}
                 </FormItem>
                 <FormItem
-                    label='空间描述'
+                    label='描述'
                     {...metaFormLayout}
                 >
                     {getFieldDecorator('projectDesc', {
                         rules: [{
                             required: false,
-                            message: '空间描述请控制在200个字符以内'
+                            message: '描述请控制在200个字符以内'
                         }, {
                             max: 200,
-                            message: '空间描述不得超过200个字符！'
+                            message: '描述不得超过200个字符！'
                         }]
                     })(
                         <TextArea
                             style={{ width: '340px' }}
-                            placeholder="请输入空间描述"
+                            placeholder="请输入描述"
                             autosize={{ minRows: 2, maxRows: 7 }}
                         />
                     )}

@@ -78,9 +78,7 @@ class ImportLocalData extends Component {
                         queryParams: { queryKey: res.data },
                         fileName: file.name
                     }, dispatch)
-                    this.setState({
-                        ...defaultState
-                    })
+                    this.onCancel();
                 }
             })
         }
@@ -252,7 +250,6 @@ class ImportLocalData extends Component {
         this.setState({ ...defaultState });
         this.form.resetFields();
     }
-
     footer () {
         const { step, loading } = this.state
         return (

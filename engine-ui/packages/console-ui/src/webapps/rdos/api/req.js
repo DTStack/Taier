@@ -43,7 +43,7 @@ export default {
     GET_TENANT_TABLE_TYPE: `${RDOS_BASE_URL}/batch/project/getSupportTableType`, // 租户支持表类型
     GET_PRO_USE_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectUsedEngineInfo`, // 获取项目在用引擎信息
     GET_PRO_UNUSE_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectUnusedEngineInfo`, // 获取项目未接入的引擎信息
-    ADD_NEW_ENGINE: `${RDOS_BASE_URL}/common/project/createProject/addNewEngine`, // 添加引擎
+    ADD_NEW_ENGINE: `${RDOS_BASE_URL}/common/project/addNewEngine`, // 添加引擎
     GET_DB_TABLE_LIST: `${RDOS_BASE_URL}/common/project/getDBTableList`, // 预览元数据
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表

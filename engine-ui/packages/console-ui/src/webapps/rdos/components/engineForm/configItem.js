@@ -127,20 +127,23 @@ class EngineConfigItem extends React.Component {
                                 />
                             )}
                         </FormItem>
-                        <FormItem
-                            label='生命周期'
-                            {...formItemLayout}
-                        >
-                            {getFieldDecorator(`${parentField}.lifecycle`, {
-                                rules: [{
-                                    required: true,
-                                    message: '生命周期不可为空'
-                                }]
-                            })(
-                                <LifeCycleSelect width={100} inputWidth={175} />
-                            )}
-                        </FormItem>
-
+                        {
+                            isHadoop && (
+                                <FormItem
+                                    label='生命周期'
+                                    {...formItemLayout}
+                                >
+                                    {getFieldDecorator(`${parentField}.lifecycle`, {
+                                        rules: [{
+                                            required: true,
+                                            message: '生命周期不可为空'
+                                        }]
+                                    })(
+                                        <LifeCycleSelect width={100} inputWidth={175} />
+                                    )}
+                                </FormItem>
+                            )
+                        }
                     </React.Fragment> : null
                 }
                 <PreviewMetaData

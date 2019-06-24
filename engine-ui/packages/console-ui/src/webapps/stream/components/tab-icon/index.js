@@ -11,7 +11,7 @@ export default class TabIcon extends Component {
         if (scriptText == null) {
             switch (taskType) {
                 case TASK_TYPE.SQL: {
-                    iconName = 'sql.svg';
+                    iconName = 'sparksql.svg';
                     break;
                 }
                 case TASK_TYPE.MR:
@@ -73,7 +73,7 @@ export default class TabIcon extends Component {
         } else {
             switch (type) {
                 case SCRIPT_TYPE.SQL: {
-                    iconName = 'sql.svg';
+                    iconName = 'sparksql.svg';
                     break;
                 }
                 case SCRIPT_TYPE.PYTHON2: {

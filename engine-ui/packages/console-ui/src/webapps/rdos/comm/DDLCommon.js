@@ -21,5 +21,4 @@ export const LIBRA_DDL_IDE_PLACEHOLDER =
         name varChar,
         salary varChar, 
         gender int)
-        STORED AS ORC
-        lifecycle 10`;
+        STORED AS ORC`;
