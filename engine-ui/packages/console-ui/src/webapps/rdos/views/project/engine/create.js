@@ -8,7 +8,9 @@ class CreateEngineModal extends Component {
         const { onOk } = this.props;
         const form = this._refInstance.props.form;
         let formData = form.getFieldsValue();
-        const reqParams = formData[''];
+        const reqParams = Object.assign(formData[''], {
+            engineType: formData.engineType
+        })
         form.validateFields((err) => {
             if (!err) {
                 if (onOk) {

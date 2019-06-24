@@ -16,6 +16,10 @@ export const ENGINE_SOURCE_TYPE_OPTIONS = [
         value: ENGINE_SOURCE_TYPE.LIBRA
     }
 ]
+export const ENGINE_TYPE_NAME = {
+    HADOOP: 'HADOOP',
+    LIBRA: 'LIBRA'
+}
 export const TABLE_TYPE = {
     HIVE: 1,
     LIBRA: 2

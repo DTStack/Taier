@@ -405,7 +405,7 @@ class AuthMana extends Component {
                 dataIndex: 'projectAlias'
             },
             {
-                title: '类型',
+                title: '资源类型',
                 key: 'resourceType',
                 dataIndex: 'resourceType',
                 render (text) {

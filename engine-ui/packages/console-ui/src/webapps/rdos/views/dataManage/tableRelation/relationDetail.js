@@ -31,7 +31,8 @@ class RelationDetail extends React.Component {
         current: 1,
         pageSize: 5,
         visibleRecord: false,
-        recordInfo: {}
+        recordInfo: {},
+        editKey: ''
     }
 
     showRecord = (item) => {
@@ -45,7 +46,8 @@ class RelationDetail extends React.Component {
                     if (item.taskType === TASK_TYPE.SQL) {
                         this.setState({
                             recordInfo: res.data,
-                            visibleRecord: true
+                            visibleRecord: true,
+                            editKey: Math.random()
                         })
                     } else {
                         goToTaskDev(item.relationId)
@@ -59,7 +61,8 @@ class RelationDetail extends React.Component {
                 if (res.code === 1) {
                     this.setState({
                         recordInfo: res.data,
-                        visibleRecord: true
+                        visibleRecord: true,
+                        editKey: Math.random()
                     })
                 }
             })
@@ -174,6 +177,7 @@ class RelationDetail extends React.Component {
                     footer={null}
                 >
                     <Editor
+                        key={this.state.editKey}
                         sync={true}
                         value={recordInfo.sqlText || recordInfo.scriptText }
                         style={{ height: '600px' }}

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Tabs, Button, Icon } from 'antd';
-// import { ENGINE_SOURCE_TYPE } from '../../../comm/const';
-// import EngineSourceForm from './form';
+import { connect } from 'react-redux'
 import CreateEngineModal from './create';
 import Api from '../../../api';
+import { ENGINE_TYPE_NAME } from '../../../comm/const';
 
 const TabPane = Tabs.TabPane;
 
@@ -23,6 +23,16 @@ class EngineConfig extends Component {
         this.getProjectUnUsedEngine();
         this.getDbList();
     }
+    // eslint-disable-next-line
+	UNSAFE_componentWillReceiveProps (nextProps) {
+        const project = nextProps.project
+        const oldProj = this.props.project
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.getProUseEngine();
+            this.getProjectUnUsedEngine();
+            this.getDbList();
+        }
+    }
     exChangeData = (data = {}) => {
         let useEngineList = []
         for (let key in data) {
@@ -31,7 +41,6 @@ class EngineConfig extends Component {
         return useEngineList
     }
     exChangeUnuseData = (data = {}) => {
-        console.log('data', data)
         let unUseEngineList = [];
         for (let key in data) {
             unUseEngineList.push({
@@ -55,7 +64,7 @@ class EngineConfig extends Component {
     async getProjectUnUsedEngine () {
         const res = await Api.getProjectUnUsedEngine();
         if (res.code == 1) {
-            const unUseEngineList = this.exChangeUnuseData()
+            const unUseEngineList = this.exChangeUnuseData(res.data)
             this.setState({
                 unUseEngineList
             })
@@ -69,10 +78,12 @@ class EngineConfig extends Component {
             });
         }
     }
-    addEngineSource = (sourceFormData, form) => {
-        const res = Api.addNewEngine(sourceFormData);
+    async addEngineSource (sourceFormData, form) {
+        const res = await Api.addNewEngine(sourceFormData);
         if (res.code === 1) {
-            this.onCancelCreate();
+            this.getProUseEngine();
+            this.getProjectUnUsedEngine();
+            this.getDbList();
             this.onCancelCreate();
         }
     }
@@ -118,14 +129,21 @@ class EngineConfig extends Component {
                     style={{ paddingTop: 20 }}>
                     <section className='engine-wrapper'>
                         <p>{`jdbcUrl：${paneItem.jdbcURL}`}</p>
-                        <p>{`defaultFS：${paneItem.defaultFS}`}</p>
+                        {
+                            <p>{paneItem.engineType == ENGINE_TYPE_NAME.HADOOP ? `defaultFS：${paneItem.defaultFS}`
+                                : `userName：${paneItem.userName}`}
+                            </p>
+                        }
                     </section>
                 </TabPane>
             )
         })
         return tabPanes;
     }
-
+    addOrUpdateEngineSource = (params, form) => {
+        console.log(params, form)
+        this.addEngineSource(params)
+    }
     render () {
         const { unUseEngineList, dBList } = this.state;
         return (
@@ -160,5 +178,9 @@ class EngineConfig extends Component {
         )
     }
 }
-
-export default EngineConfig
+export default connect((state) => {
+    return {
+        user: state.user,
+        project: state.project
+    }
+})(EngineConfig)

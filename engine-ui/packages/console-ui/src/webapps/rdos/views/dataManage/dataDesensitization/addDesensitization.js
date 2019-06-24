@@ -117,12 +117,11 @@ class AddDesensitization extends Component {
     rulesOption () {
         const { rulesList } = this.state;
         return rulesList.map((item, index) => {
-            const tableType = item.tableType == TABLE_TYPE.HIVE ? '(hive)' : '(libra)'
             return <Option
                 key={item.id}
                 value={`${item.id}`}
             >
-                {`${item.name}${tableType}`}
+                {`${item.name}`}
             </Option>
         })
     }
