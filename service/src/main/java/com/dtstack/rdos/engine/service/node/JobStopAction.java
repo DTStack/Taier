@@ -12,8 +12,6 @@ import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.enums.StoppedStatus;
-import com.dtstack.rdos.engine.service.util.TaskIdUtil;
-import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +30,6 @@ public class JobStopAction {
     private RdosEngineStreamJobDAO streamTaskDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
-
-    private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
     private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
 
@@ -65,16 +61,6 @@ public class JobStopAction {
             }
         }
 
-        String jobId = paramAction.getTaskId();
-        Integer computeType  = paramAction.getComputeType();
-        String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
-
-        jobClient.setCallBack((jobStatus)->{
-            zkLocalCache.updateLocalMemTaskStatus(zkTaskId, jobStatus);
-            updateJobStatus(jobId, computeType, jobStatus);
-            deleteJobCache(jobId);
-        });
-
         jobClient.stopJob();
         LOG.info("job:{} is stopping.", paramAction.getTaskId());
         return StoppedStatus.STOPPING;
@@ -91,12 +77,12 @@ public class JobStopAction {
     }
 
     private Byte getJobStatus(JobClient jobClient) {
-        if(ComputeType.STREAM == jobClient.getComputeType()){
+        if(ComputeType.BATCH == jobClient.getComputeType()){
             RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             if (batchJob != null) {
                 return batchJob.getStatus();
             }
-        } else if (ComputeType.BATCH == jobClient.getComputeType()) {
+        } else if (ComputeType.STREAM == jobClient.getComputeType()) {
             RdosEngineStreamJob streamJob = streamTaskDAO.getRdosTaskByTaskId(jobClient.getTaskId());
             if (streamJob != null){
                 return streamJob.getStatus();
@@ -115,15 +101,4 @@ public class JobStopAction {
         }
     }
 
-    private void updateJobStatus(String jobId, Integer computeType, Integer status) {
-        if (ComputeType.STREAM.getType().equals(computeType)) {
-            streamTaskDAO.updateTaskStatus(jobId, status);
-        } else {
-            batchJobDAO.updateJobStatus(jobId, status);
-        }
-    }
-
-    private void deleteJobCache(String jobId){
-        engineJobCacheDao.deleteJob(jobId);
-    }
 }

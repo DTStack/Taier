@@ -93,6 +93,13 @@
                             <tasks>
                                 <move file="${basedir}/target/${project.name}-${project.version}.jar"
                                       tofile="${basedir}/target/${project.name}-${git.branch}.jar" />
+                                <copy todir="${basedir}/../../../../plugin/hive/"
+                                      file="${basedir}/target/${project.name}-${git.branch}.jar"/>
+                                <delete>
+                                    <fileset dir="${basedir}/../../../../plugin/hive/"
+                                             includes="${project.name}-*.jar"
+                                             excludes="${project.name}-${git.branch}.jar"/>
+                                </delete>
                             </tasks>
                         </configuration>
                     </execution>

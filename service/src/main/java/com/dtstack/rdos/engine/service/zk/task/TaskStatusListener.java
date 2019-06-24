@@ -198,6 +198,8 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -207,10 +209,10 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    rdosStreamTaskDAO.updateTaskStatus(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
-
+                    //数据的更新顺序，先更新job_cache，再更新engine_stream_job
                     dealStreamAfterGetStatus(status, taskId, engineTypeName, jobIdentifier, pluginInfoStr);
+
+                    rdosStreamTaskDAO.updateTaskStatus(taskId, status);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)
@@ -245,6 +247,8 @@ public class TaskStatusListener implements Runnable{
 
                 if(rdosTaskStatus != null){
 
+                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
+
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
@@ -254,10 +258,10 @@ public class TaskStatusListener implements Runnable{
                     }
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
-                    rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
-                    updateJobEngineLog(taskId, jobIdentifier, engineTypeName, computeType, pluginInfoStr);
-
+                    //数据的更新顺序，先更新job_cache，再更新engine_batch_job
                     dealBatchJobAfterGetStatus(status, taskId);
+
+                    rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                 }
 
                 if(RdosTaskStatus.FAILED.equals(rdosTaskStatus)){
@@ -321,7 +325,7 @@ public class TaskStatusListener implements Runnable{
             checkpointGetTotalNumCache.put(engineTaskId, checkpointCallNum + 1);
         }
 
-        if(RdosTaskStatus.needClean(status)){
+        if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
 
@@ -376,7 +380,7 @@ public class TaskStatusListener implements Runnable{
     }
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId){
-        if(RdosTaskStatus.needClean(status)){
+        if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
         }

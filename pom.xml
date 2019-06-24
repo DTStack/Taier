@@ -16,7 +16,7 @@
 		<module>entrance</module>
 		<module>common</module>
 		<module>base/common</module>
-		<module>base/plugin/spark</module>
+		<!--<module>base/plugin/spark</module>-->
 		<module>web</module>
 		<module>service</module>
 		<module>base/plugin/spark-yarn</module>
@@ -27,9 +27,9 @@
 		<module>base/plugin/flink150</module>
 		<module>base/plugin/flink170</module>
 		<module>base/plugin/flink180</module>
-		<module>base/plugin/flink130</module>
-		<module>base/plugin/flink140</module>
-		<module>base/plugin/spark160-yarn</module>
+<!--		<module>base/plugin/flink130</module>-->
+<!--		<module>base/plugin/flink140</module>-->
+<!--		<module>base/plugin/spark160-yarn</module>-->
 		<module>base/plugin/dt-yarn-shell</module>
 	</modules>
 

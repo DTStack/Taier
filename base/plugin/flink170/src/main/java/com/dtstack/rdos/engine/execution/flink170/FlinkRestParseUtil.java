@@ -131,19 +131,19 @@ public class FlinkRestParseUtil {
                             continue;
                         }
                         if(name.equals("numRead")) {
-                            perfMap.put("numRead", Integer.valueOf(value));
+                            perfMap.put("numRead", Long.valueOf(value));
                         } else if(name.equals("numWrite")) {
-                            perfMap.put("numWrite", Integer.valueOf(value));
+                            perfMap.put("numWrite", Long.valueOf(value));
                         } else if(name.equals("nErrors")) {
-                            perfMap.put("numError", Integer.valueOf(value));
+                            perfMap.put("numError", Long.valueOf(value));
                         } else if(name.equals("nullErrors")){
-                            perfMap.put("nullErrors", Integer.valueOf(value));
+                            perfMap.put("nullErrors", Long.valueOf(value));
                         } else if(name.equals("duplicateErrors")){
-                            perfMap.put("duplicateErrors", Integer.valueOf(value));
+                            perfMap.put("duplicateErrors", Long.valueOf(value));
                         } else if(name.equals("conversionErrors")){
-                            perfMap.put("conversionErrors", Integer.valueOf(value));
+                            perfMap.put("conversionErrors", Long.valueOf(value));
                         } else if(name.equals("otherErrors")){
-                            perfMap.put("otherErrors", Integer.valueOf(value));
+                            perfMap.put("otherErrors", Long.valueOf(value));
                         } else if(name.equals("tableCol")){
                             String[] tableCol = value.split("-");
                             increConfMap.put("table",tableCol[0]);

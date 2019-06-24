@@ -19,8 +19,8 @@
   </properties>
 
 	<modules>
-		<module>sql-proxy</module>
-		<module>spark-client</module>
+		<!--<module>sql-proxy</module>-->
+		<!--<module>spark-client</module>-->
 	</modules>
 
   <dependencies>

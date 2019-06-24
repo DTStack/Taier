@@ -8,6 +8,7 @@ import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.flink170.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink170.util.FlinkUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.flink.util.StringUtils;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.NodeState;
@@ -17,6 +18,7 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -53,11 +55,22 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             queue = flinkConfig.getQueue();
         }
 
-        if (FlinkYarnMode.isPerJob(taskRunMode)){
+        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.isPerJob(taskRunMode)){
             return judgePerjobResource(jobClient, queue);
         }
 
-        return super.judgeSessionResource();
+        int sqlEnvParallel = 1;
+        int mrParallel = 1;
+
+        if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
+            sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
+        }
+
+        if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
+            mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
+        }
+
+        return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
     private boolean judgePerjobResource(JobClient jobClient, String queue) {
@@ -121,6 +134,9 @@ public class FlinkResourceInfo extends EngineResourceInfo {
     }
 
     private FlinkConfig getJobFlinkConf(String pluginInfo) {
+        if (StringUtils.isNullOrWhitespaceOnly(pluginInfo)){
+            return null;
+        }
         try {
             return PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
         } catch (IOException e) {

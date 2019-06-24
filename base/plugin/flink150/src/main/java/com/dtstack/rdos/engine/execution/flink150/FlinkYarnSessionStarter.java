@@ -4,6 +4,7 @@ import com.dtstack.rdos.engine.execution.flink150.util.FLinkConfUtil;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.IllegalConfigurationException;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFramework;
 import org.apache.flink.shaded.curator.org.apache.curator.framework.CuratorFrameworkFactory;
@@ -30,9 +31,10 @@ import java.net.MalformedURLException;
  */
 public class FlinkYarnSessionStarter {
 
-    private static final Logger logger = LoggerFactory.getLogger(FlinkClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(FlinkYarnSessionStarter.class);
 
     public static final String FLINK_CONF_FILENAME = "flink-conf.yaml";
+    private static final String SPLIT = "_";
 
     private String lockPath = null;
     private CuratorFramework zkClient;
@@ -43,19 +45,23 @@ public class FlinkYarnSessionStarter {
     private FlinkClientBuilder flinkClientBuilder;
     private FlinkConfig flinkConfig;
     private InterProcessMutex clusterClientLock;
+    private Configuration configuration;
 
 
     public FlinkYarnSessionStarter(FlinkClientBuilder flinkClientBuilder, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig) throws MalformedURLException {
         this.flinkClientBuilder = flinkClientBuilder;
         this.flinkConfig = flinkConfig;
-        lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster()+"_"+flinkConfig.getQueue());
+        lockPath = String.format("%s/client/%s", flinkConfig.getFlinkZkNamespace(), flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue());
 
         initZk();
 
         Configuration configuration = loadConfiguration(flinkConfig.getFlinkJarPath());
+        String clusterId = flinkConfig.getCluster() + SPLIT + flinkConfig.getQueue();
+        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
 
+        this.configuration = configuration;
         this.yarnSessionDescriptor = flinkClientBuilder.createClusterDescriptorByMode(configuration, flinkConfig, metricConfig, null, false);
-        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName());
+        this.yarnSessionDescriptor.setName(flinkConfig.getFlinkSessionName() + SPLIT + clusterId);
         this.yarnSessionSpecification = FLinkConfUtil.createYarnSessionSpecification(flinkClientBuilder.getFlinkConfiguration());
         this.clusterClientLock = new InterProcessMutex(zkClient, lockPath);
     }
@@ -66,7 +72,7 @@ public class FlinkYarnSessionStarter {
 
             ClusterClient<ApplicationId> retrieveClusterClient = null;
             try {
-                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(flinkConfig);
+                retrieveClusterClient = flinkClientBuilder.initYarnClusterClient(configuration, flinkConfig);
             } catch (Exception e) {
                 logger.error("{}", e);
                 if (!e.getMessage().startsWith("No flink session")) {
@@ -90,8 +96,8 @@ public class FlinkYarnSessionStarter {
         } catch (Exception e) {
             throw new RuntimeException("Couldn't deploy Yarn session cluster" + e.getMessage());
         } finally {
-            if(this.clusterClientLock.isAcquiredInThisProcess()){
-                try{
+            if (this.clusterClientLock.isAcquiredInThisProcess()) {
+                try {
                     this.clusterClientLock.release();
                 } catch (Exception e) {
                     logger.error("lockPath:{} release clusterClientLock error:{}", lockPath, e);
