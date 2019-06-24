@@ -18,12 +18,17 @@
 
 package org.apache.flink.yarn;
 
+import org.apache.commons.compress.utils.Sets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.calcite.shaded.com.google.common.base.Strings;
 import org.apache.flink.client.deployment.ClusterDeploymentException;
 import org.apache.flink.client.deployment.ClusterDescriptor;
 import org.apache.flink.client.deployment.ClusterRetrieveException;
 import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
+import org.apache.flink.client.program.PackagedProgram;
+import org.apache.flink.client.program.PackagedProgramUtils;
 import org.apache.flink.configuration.ConfigConstants;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.CoreOptions;
@@ -81,8 +86,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
@@ -490,6 +497,10 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
         final YarnClientApplication yarnApplication = yarnClient.createApplication();
         final GetNewApplicationResponse appResponse = yarnApplication.getNewApplicationResponse();
 
+        if(clusterSpecification.isCreateProgramDelay()){
+            jobGraph = getJobGraph(appResponse.getApplicationId().toString(),clusterSpecification);
+        }
+
         Resource maxRes = appResponse.getMaximumResourceCapability();
 
         final ClusterResourceDescription freeClusterMem;
@@ -549,6 +560,97 @@ public abstract class AbstractYarnClusterDescriptor implements ClusterDescriptor
                 report,
                 flinkConfiguration,
                 true);
+    }
+
+    private JobGraph getJobGraph(String appId,ClusterSpecification clusterSpecification) throws Exception{
+        String url = getUrlFormat(clusterSpecification.getYarnConfiguration()) + "/" + appId;
+        PackagedProgram program = buildProgram(url,clusterSpecification);
+        clusterSpecification.setProgram(program);
+        JobGraph jobGraph = PackagedProgramUtils.createJobGraph(program, clusterSpecification.getConfiguration(), clusterSpecification.getParallelism());
+        jobGraph.setAllowQueuedScheduling(true);
+        fillJobGraphClassPath(jobGraph);
+        clusterSpecification.setJobGraph(jobGraph);
+        return jobGraph;
+    }
+
+    private PackagedProgram buildProgram(String monitorUrl,ClusterSpecification clusterSpecification) throws Exception{
+        String[] args = clusterSpecification.getProgramArgs();
+        for (int i = 0; i < args.length; i++) {
+            if("-monitor".equals(args[i])){
+                args[i + 1] = monitorUrl;
+                break;
+            }
+        }
+
+        PackagedProgram program = new PackagedProgram(clusterSpecification.getJarFile(),
+                clusterSpecification.getClasspaths(),clusterSpecification.getEntryPointClass(),args);
+
+        program.setSavepointRestoreSettings(clusterSpecification.getSpSetting());
+        return program;
+    }
+
+    private String getUrlFormat(YarnConfiguration yarnConf){
+        String url = "";
+        try{
+            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+            rmClientField.setAccessible(true);
+            Object rmClient = rmClientField.get(yarnClient);
+
+            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
+            hField.setAccessible(true);
+            //获取指定对象中此字段的值
+            Object h = hField.get(rmClient);
+
+            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
+            currentProxyField.setAccessible(true);
+            Object currentProxy = currentProxyField.get(h);
+
+            Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
+            proxyInfoField.setAccessible(true);
+            String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
+
+            String key = "yarn.resourcemanager.webapp.address." + proxyInfoKey;
+            String addr = yarnConf.get(key);
+
+            if(addr == null) {
+                addr = yarnConf.get("yarn.resourcemanager.webapp.address");
+            }
+
+            return String.format("http://%s/proxy",addr);
+        }catch (Exception e){
+            LOG.warn("get monitor error:{}",e);
+        }
+
+        return url;
+    }
+
+    private void fillJobGraphClassPath(JobGraph jobGraph) throws MalformedURLException {
+        Map<String, String> jobCacheFileConfig = jobGraph.getJobConfiguration().toMap();
+        Set<String> classPathKeySet = Sets.newHashSet();
+
+        for(Map.Entry<String, String> tmp : jobCacheFileConfig.entrySet()){
+            if(Strings.isNullOrEmpty(tmp.getValue())){
+                continue;
+            }
+
+            if(tmp.getValue().startsWith("class_path")){
+                //DISTRIBUTED_CACHE_FILE_NAME_1
+                //DISTRIBUTED_CACHE_FILE_PATH_1
+                String key = tmp.getKey();
+                String[] array = key.split("_");
+                if(array.length < 5){
+                    continue;
+                }
+
+                array[3] = "PATH";
+                classPathKeySet.add(StringUtils.join(array, "_"));
+            }
+        }
+
+        for(String key : classPathKeySet){
+            String pathStr = jobCacheFileConfig.get(key);
+            jobGraph.getClasspaths().add(new URL("file:" + pathStr));
+        }
     }
 
     protected ClusterSpecification validateClusterResources(
