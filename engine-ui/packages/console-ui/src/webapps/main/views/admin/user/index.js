@@ -242,6 +242,14 @@ class AdminUser extends Component {
         const ctx = this
 
         Api.getProjects(app).then((res) => {
+            function getNotNullProject (projectId, data) {
+                if (!data || !data.length) {
+                    return projectId;
+                }
+                return data.find((p) => {
+                    return p.id == projectId;
+                }) ? projectId : null
+            }
             if (res.code === 1) {
                 let cookiesProject;
 
@@ -250,19 +258,19 @@ class AdminUser extends Component {
                  */
                 const projectId = get(res, 'data[0].id', null);
                 if (app == MY_APPS.STREAM) {
-                    cookiesProject = utils.getCookie('stream_project_id')
+                    cookiesProject = getNotNullProject(utils.getCookie('stream_project_id'), res.data)
                     ctx.setState({
                         streamProjects: res.data,
                         streamSelectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
                 } else if (app == MY_APPS.RDOS) {
-                    cookiesProject = utils.getCookie('project_id')
+                    cookiesProject = getNotNullProject(utils.getCookie('project_id'), res.data)
                     ctx.setState({
                         projects: res.data,
                         selectedProject: cookiesProject || projectId
                     }, this.loadData.bind(this, true))
                 } else if (app == MY_APPS.SCIENCE) {
-                    cookiesProject = utils.getCookie('science_project_id')
+                    cookiesProject = getNotNullProject(utils.getCookie('science_project_id'), res.data)
                     ctx.setState({
                         scienceProjects: res.data,
                         scienceSelectedProject: cookiesProject || projectId
