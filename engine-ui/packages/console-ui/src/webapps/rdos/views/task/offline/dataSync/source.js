@@ -168,6 +168,9 @@ class SourceForm extends React.Component {
         }
 
         if (sourceMap.type && sourceMap.type.type === DATA_SOURCE.HBASE) {
+            this.setState({
+                loading: false
+            });
             return;
         }
 

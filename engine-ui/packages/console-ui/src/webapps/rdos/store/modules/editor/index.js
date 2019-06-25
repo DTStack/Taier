@@ -3,14 +3,14 @@ import { cloneDeep, assign } from 'lodash';
 import { editorAction } from './actionTypes'
 import localDb from 'utils/localDb';
 
-const KEY_EDITOR_OPTIONS = 'editor_options';
+export const KEY_EDITOR_OPTIONS = 'editor_options';
 
 // Console Reducers
-const console = (state = {}, action) => {
+export const console = (state = {}, action) => {
     switch (action.type) {
         case editorAction.GET_TAB: { // 初始化console
             const origin = cloneDeep(state)
-            if (action.key) {
+            if (action.key || action.key == 0) {
                 const tab = origin[action.key]
                 if (!tab) {
                     origin[action.key] = { log: '', results: [] }
@@ -20,13 +20,15 @@ const console = (state = {}, action) => {
         }
         case editorAction.RESET_CONSOLE: { // reset console
             const origin = cloneDeep(state)
-            origin[action.key] = { log: '', results: [] }
+            if (action.key || action.key == 0) {
+                origin[action.key] = { log: '', results: [] }
+            }
             return origin
         }
         case editorAction.SET_TAB: { // 设置Tab
             const obj = cloneDeep(state)
             const map = action.data
-            if (map) {
+            if (map && (map.key || map.key == 0)) {
                 obj[map.key] = map.data
             }
             return obj;
@@ -86,8 +88,6 @@ export const selection = (state = '', action) => {
         case editorAction.SET_SELECTION_CONTENT: {
             if (action.data) {
                 return action.data
-            } else if (state !== '') {
-                return '';
             }
             return '';
         }
@@ -141,7 +141,7 @@ export const options = (state = initialEditorOptions(), action) => {
 }
 
 /**
- * 是否展示左侧面板
+ * 是否展示右侧面板
 */
 export const showRightExtraPane = (state = '', action) => {
     switch (action.type) {
