@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-    Input, Button, Table, Pagination,
+    Input, Button, Table,
     Form, DatePicker, Select, Card
 } from 'antd';
 import moment from 'moment';
@@ -12,6 +12,7 @@ import * as UserAction from '../../store/modules/user'
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
 const Option = Select.Option;
+const PAGE_SIZE = 10;
 
 class LogSearchForm extends React.Component {
     render () {
@@ -68,7 +69,13 @@ class TableLog extends React.Component {
         super(props);
         this.state = {
             logs: {},
-            isDeleted: 1
+            isDeleted: 1,
+            pagination: {
+                pageSize: 10,
+                pageIndex: 1
+            },
+            loading: false,
+            total: 0
         };
     }
 
@@ -76,10 +83,24 @@ class TableLog extends React.Component {
         this.search();
         this.props.getUsers()
     }
-
+    handleTableChange = (pagination, filters, sorter) => {
+        const page = Object.assign(this.state.pagination, { pageIndex: pagination.current })
+        const form = this.getFormParams();
+        this.setState({
+            pagination: page
+        }, () => {
+            this.doSearch(Object.assign(form, page))
+        })
+    }
     render () {
         const { tableId, tableName, projectUsers } = this.props;
-
+        const { total, loading } = this.state;
+        const { pageIndex } = this.state.pagination;
+        const pagination = {
+            current: pageIndex,
+            pageSize: PAGE_SIZE,
+            total: total
+        }
         const { logs } = this.state;
         const columns = [{
             title: '变更时间',
@@ -95,13 +116,7 @@ class TableLog extends React.Component {
             dataIndex: 'userId',
             key: 'userId',
             render (text, record) {
-                let userName;
-
-                projectUsers.forEach(function (o) {
-                    if (o.userId == text) userName = o.user && o.user.userName;
-                }, this);
-
-                return <span>{userName}</span>
+                return <span>{record.userName}</span>
             }
         }, {
             title: '操作语句',
@@ -134,31 +149,16 @@ class TableLog extends React.Component {
                     <Table columns={columns}
                         className="m-table bd"
                         rowKey="id"
+                        loading={loading}
                         style={{ borderBottom: 0 }}
                         dataSource={logs.data}
-                        pagination={false}
-                    />
-                    <Pagination
-                        pageSize={10}
-                        style={{ float: 'right', margin: '30px' }}
-                        current={logs.pageIndex}
-                        total={logs.totalCount}
-                        onChange={this.showPage.bind(this)}
+                        onChange={this.handleTableChange}
+                        pagination={pagination}
                     />
                 </Card>
             </div>
         </div>
     }
-
-    showPage (pageIndex, pageSize) {
-        const form = this.getFormParams();
-        const params = Object.assign(form, {
-            pageIndex, pageSize
-        });
-
-        this.doSearch(params);
-    }
-
     search () {
         const params = this.getFormParams();
         this.doSearch(params);
@@ -177,11 +177,17 @@ class TableLog extends React.Component {
     }
 
     doSearch (params) {
-        ajax.searchLog(params).then(res => {
+        const reqParams = Object.assign(params, this.state.pagination)
+        this.setState({ loading: true })
+        ajax.searchLog(reqParams).then(res => {
             if (res.code === 1) {
                 this.setState({
-                    logs: res.data
+                    logs: res.data || [],
+                    total: res.data.totalCount,
+                    loading: false
                 });
+            } else {
+                this.setState({ loading: false })
             }
         })
     }

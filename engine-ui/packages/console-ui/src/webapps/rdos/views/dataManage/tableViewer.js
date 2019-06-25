@@ -301,10 +301,14 @@ export default class TableViewer extends React.Component {
                                         <th>物理存储量</th>
                                         <td>{tableData.table.tableSize}</td>
                                     </tr>
-                                    <tr>
-                                        <th>生命周期</th>
-                                        <td>{tableData.table.lifeDay}天</td>
-                                    </tr>
+                                    {
+                                        isHiveTable && (
+                                            <tr>
+                                                <th>生命周期</th>
+                                                <td>{tableData.table.lifeDay}天</td>
+                                            </tr>
+                                        )
+                                    }
                                     <tr>
                                         <th>是否分区</th>
                                         <td>{tableData.table.partition ? '是' : '否'}</td>

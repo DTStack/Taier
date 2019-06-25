@@ -9,7 +9,7 @@ import ajax from '../../../api/dataManage'
 
 import {
     formItemLayout,
-    TABLE_MODEL_RULE
+    TABLE_MODEL_RULE, TABLE_TYPE
 } from '../../../comm/const';
 
 import CatalogueTree from '../../dataManage/catalogTree';
@@ -208,7 +208,7 @@ export default class BaseForm extends React.Component {
     }
 
     render () {
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
 
         const {
             tableDesc, delim, dataCatalogue,
@@ -218,7 +218,7 @@ export default class BaseForm extends React.Component {
 
         const { type, tableNameArr, storedType } = this.state;
         const isShowDelim = storedType == 'textfile';
-
+        const isHiveTable = getFieldValue('tableType') == TABLE_TYPE.HIVE; // hive表
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -304,22 +304,26 @@ export default class BaseForm extends React.Component {
                     />
                 )}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="生命周期"
-            >
-                {getFieldDecorator('lifeDay', {
-                    rules: [{
-                        required: true,
-                        message: '生命周期不可为空！'
-                    }],
-                    initialValue: lifeDay || 90
-                })(
-                    <LifeCycle
-                        onChange={this.lifeCycleChange}
-                    />
-                )}
-            </FormItem>
+            {
+                isHiveTable && (
+                    <FormItem
+                        {...formItemLayout}
+                        label="生命周期"
+                    >
+                        {getFieldDecorator('lifeDay', {
+                            rules: [{
+                                required: true,
+                                message: '生命周期不可为空！'
+                            }],
+                            initialValue: lifeDay || 90
+                        })(
+                            <LifeCycle
+                                onChange={this.lifeCycleChange}
+                            />
+                        )}
+                    </FormItem>
+                )
+            }
             <FormItem
                 {...formItemLayout}
                 label="存储格式"

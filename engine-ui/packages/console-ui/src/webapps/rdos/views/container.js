@@ -58,9 +58,14 @@ class Container extends Component {
 
     // eslint-disable-next-line
     componentWillReceiveProps (nextProps) {
-        const nowId = nextProps.params.pid
+        const nowId = nextProps.params.pid;
+        const project = nextProps.project
+        const oldProj = this.props.project
         if (nowId && nowId !== this.props.params.pid) {
             this.props.dispatch(ProjectAction.getProject(nowId))
+        }
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.dispatch(getTaskTypes())
         }
     }
 

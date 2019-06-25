@@ -68,11 +68,6 @@ export const getTableList = (projectId) => {
 }
 export const getTaskTypes = () => {
     return (dispatch, getState) => {
-        const currentState = getState();
-        const { offlineTask } = currentState;
-        if (offlineTask.comm.taskTypes && offlineTask.comm.taskTypes.length > 0) {
-            return {};
-        }
         Api.getTaskTypes().then(res => {
             if (res.code === 1) {
                 const taskTypes = res.data;

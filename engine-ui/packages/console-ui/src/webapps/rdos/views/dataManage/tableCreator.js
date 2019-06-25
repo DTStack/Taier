@@ -10,7 +10,7 @@ import { browserHistory, hashHistory } from 'react-router'
 import EngineSelect from '../../components/engineSelect';
 import { getProjectTableTypes } from '../../store/modules/tableType';
 import ajax from '../../api/dataManage';
-import { formItemLayout } from '../../comm/const';
+import { formItemLayout, TABLE_TYPE } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
 
@@ -70,11 +70,11 @@ class BaseForm extends React.Component {
     }
 
     render () {
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
         const { tableName, desc, delim, location, lifeDay, catalogueId, projectTableTypes } = this.props;
         const { type, dataCatalogue, storedType } = this.state;
         const isShowDelim = storedType == 'textfile';
-
+        const isHiveTable = getFieldValue('tableType') == TABLE_TYPE.HIVE;
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -163,22 +163,26 @@ class BaseForm extends React.Component {
                     />
                 )}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="生命周期"
-            >
-                {getFieldDecorator('lifeDay', {
-                    rules: [{
-                        required: true,
-                        message: '生命周期不可为空！'
-                    }],
-                    initialValue: lifeDay || 90
-                })(
-                    <LifeCycle
-                        onChange={this.lifeCycleChange}
-                    />
-                )}
-            </FormItem>
+            {
+                isHiveTable && (
+                    <FormItem
+                        {...formItemLayout}
+                        label="生命周期"
+                    >
+                        {getFieldDecorator('lifeDay', {
+                            rules: [{
+                                required: true,
+                                message: '生命周期不可为空！'
+                            }],
+                            initialValue: lifeDay || 90
+                        })(
+                            <LifeCycle
+                                onChange={this.lifeCycleChange}
+                            />
+                        )}
+                    </FormItem>
+                )
+            }
             <FormItem
                 {...formItemLayout}
                 label="存储格式"

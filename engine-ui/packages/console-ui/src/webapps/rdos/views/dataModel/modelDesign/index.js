@@ -64,6 +64,7 @@ class TableList extends Component {
             this.setState({ current: 1 }, () => {
                 this.search()
             })
+            this.props.getProjectTableTypes(project.id)
         }
     }
 

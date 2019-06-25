@@ -16,9 +16,8 @@ export const DDL_IDE_PLACEHOLDER =
     lifecycle 10`;
 
 export const LIBRA_DDL_IDE_PLACEHOLDER =
-    `CREATE TABLE user ( 
-        eid int, 
+    `CREATE TABLE user_temp (
+        eid int,
         name varChar,
-        salary varChar, 
-        gender int)
-        STORED AS ORC`;
+        salary varChar,
+        gender int);`;
