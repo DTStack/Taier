@@ -5,7 +5,7 @@ import { uniqBy, cloneDeep, isArray, get, assign } from 'lodash'
 
 import utils from 'utils';
 import ajax from '../../../api'
-import { MENU_TYPE, DATA_SYNC_MODE } from '../../../comm/const'
+import { MENU_TYPE, DATA_SYNC_MODE, ENGINE_SOURCE_TYPE } from '../../../comm/const'
 
 import {
     stopSql,
@@ -903,19 +903,20 @@ export const workbenchActions = (dispatch) => {
                     payload: data
                 });
                 if (isFunc) {
-                    const cusFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.COSTOMFUC);
-                    const sysFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.SYSFUC)
+                    const sparkCusFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.COSTOMFUC && item.engineType == ENGINE_SOURCE_TYPE.HADOOP);
+                    const sparkSysFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.SYSFUC && item.engineType == ENGINE_SOURCE_TYPE.HADOOP);
+                    const libraSysFunc = data.children && data.children.find(item => item.catalogueType == MENU_TYPE.SYSFUC && item.engineType == ENGINE_SOURCE_TYPE.LIBRA);
                     dispatch({
                         type: fnTreeAction.RESET_FUC_TREE, // spark自定义函数
-                        payload: cusFunc
+                        payload: sparkCusFunc
                     })
                     dispatch({
                         type: sysFnTreeActon.RESET_SYSFUC_TREE, // spark系统函数
-                        payload: sysFunc
+                        payload: sparkSysFunc
                     })
                     dispatch({
                         type: libraSysFnTreeActon.RESET_SYSFUC_TREE,
-                        payload: data.children[0] // libra系统函数
+                        payload: libraSysFunc // libra系统函数
                     })
                 }
             }
