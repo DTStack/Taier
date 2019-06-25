@@ -560,7 +560,7 @@ class OfflineTabPane extends Component {
                                     />
                                 </Tooltip>
                                 {couldEdit && (
-                                    <Dropdown className='func-dropdown' overlay={
+                                    <Dropdown overlay={
                                         <Menu onClick={this.onMenuClick} mode="vertical">
                                             {
                                                 !isEmpty(sparkSql) && (
@@ -589,7 +589,7 @@ class OfflineTabPane extends Component {
                                     </Dropdown>
                                 )}
                             </header>
-                            <div className="contentBox c-funcMa__collapse">
+                            <div className="contentBox c-funcMa__collapse m-siderbench">
                                 <div className="folder-box">
                                     <Collapse defaultActiveKey={['spark']} accordion>
                                         {
