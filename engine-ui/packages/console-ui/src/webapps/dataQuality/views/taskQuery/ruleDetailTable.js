@@ -19,11 +19,11 @@ class RuleDetailTableModal extends React.Component {
                 visible={visible}
                 footer={null}
                 onCancel={this.onCancel}
+                key={this._key}
                 width='800'
                 title='查看明细'
             >
                 <RuleDetailTable
-                    key={this._key}
                     {...others}
                 />
             </Modal>
