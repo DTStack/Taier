@@ -1,12 +1,15 @@
 import React from 'react';
 import { cloneDeep } from 'lodash';
+import { connect } from 'react-redux';
 import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Tabs, Modal } from 'antd';
 import Api from '../../../api/console'
-import { getComponentConfKey, exChangeComponentConf, showTestResult, validateCompParams,
+import { getComponentConfKey, exChangeComponentConf, showTestResult, validateAllRequired,
     myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
-import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP, SPARK_KEY_MAP_DOTS,
+import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP,
+    SPARK_KEY_MAP_DOTS, DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
     DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS, notExtKeysFlink, notExtKeysSpark, notExtKeysLearning,
-    notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts'
+    notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts';
+import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
 import GoBack from 'main/components/go-back';
 import SparkConfig from './sparkConfig'
 import FlinkConfig from './flinkConfig';
@@ -26,6 +29,21 @@ const TEST_STATUS = {
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
+@connect(state => {
+    return {
+        testStatus: state.testStatus,
+        showRequireStatus: state.showRequireStatus
+    }
+}, dispatch => {
+    return {
+        updateTestStatus: (data) => {
+            dispatch(updateTestStatus(data))
+        },
+        updateRequiredStatus: (data) => {
+            dispatch(updateRequiredStatus(data))
+        }
+    }
+})
 class EditCluster extends React.Component {
     state = {
         clusterData: {},
@@ -40,7 +58,6 @@ class EditCluster extends React.Component {
         zipConfig: '', // 解析的配置文件信息
         securityStatus: false, // 根据配置文件是否显示spark， flink等其他参数
         uploadLoading: false, // 上传loading
-        testResults: [], // 测试连通性返回数据
         flink_params: [],
         spark_params: [],
         sparkThrif_params: [],
@@ -67,31 +84,13 @@ class EditCluster extends React.Component {
         addComponentVisible: false,
         editModalKey: '',
         modalKey: null, // 初始化key不要一样
-        allTestLoading: false, // 测试连通性loading
-        // 组件testResult
-        flinkTestResult: {},
-        sparkTestResult: {},
-        dtYarnShellTestResult: {},
-        learningTestResult: {},
-        hdfsTestResult: {},
-        yarnTestResult: {},
-        sparkThriftTestResult: {},
-        carbonTestResult: {},
-        libraSqlTestResult: {},
-        // 控制组件必填项为全部填写时 出现红色*
-        flinkShowRequired: false,
-        sparkShowRequired: false,
-        dtYarnShellShowRequired: false,
-        learningShowRequired: false,
-        hdfsShowRequired: false,
-        yarnShowRequired: false,
-        hiveShowRequired: false,
-        carbonShowRequired: false,
-        libraShowRequired: false
+        allTestLoading: false // 测试连通性loading
     }
 
     componentDidMount () {
         this.getDataList();
+        this.props.updateTestStatus(DEFAULT_COMP_TEST)
+        this.props.updateRequiredStatus(DEFAULT_COMP_REQUIRED)
     }
     /**
      * set formData
@@ -280,112 +279,6 @@ class EditCluster extends React.Component {
                 }
             )
     }
-    /**
-     * 校验组件必填项未填标识 *
-     */
-    validateAllRequired = () => {
-        const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
-        const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
-        let obj = {}
-        tabCompData && tabCompData.map(item => {
-            this.props.form.validateFields(validateCompParams(item.componentTypeCode), {}, (err, values) => {
-                if (item.componentTypeCode == COMPONENT_TYPE_VALUE.FLINK) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            flinkShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            flinkShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            hiveShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            hiveShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.CARBONDATA) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            carbonShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            carbonShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            sparkShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            sparkShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            dtYarnShellShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            dtYarnShellShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LEARNING) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            learningShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            learningShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            hdfsShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            hdfsShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.YARN) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            yarnShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            yarnShowRequired: true
-                        })
-                    }
-                } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LIBRASQL) {
-                    if (!err) {
-                        obj = Object.assign(obj, {
-                            libraShowRequired: false
-                        })
-                    } else {
-                        obj = Object.assign(obj, {
-                            libraShowRequired: true
-                        })
-                    }
-                } else {
-                    console.log('error')
-                }
-            })
-        })
-        return obj
-    }
     renderRequiredIcon = (componentValue) => {
         const { flinkShowRequired,
             hiveShowRequired,
@@ -395,7 +288,7 @@ class EditCluster extends React.Component {
             learningShowRequired,
             hdfsShowRequired,
             yarnShowRequired,
-            libraShowRequired } = this.state;
+            libraShowRequired } = this.props.showRequireStatus;
         const asterisk = () => {
             return <span className='icon_required'>*</span>
         }
@@ -502,7 +395,7 @@ class EditCluster extends React.Component {
             learningTestResult,
             hdfsTestResult,
             yarnTestResult,
-            libraSqlTestResult } = this.state;
+            libraSqlTestResult } = this.props.testStatus;
         switch (componentValue) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 return this.matchCompTest(flinkTestResult)
@@ -739,20 +632,10 @@ class EditCluster extends React.Component {
      * @param componentValue 组件类型值
      */
     test () {
+        const { updateRequiredStatus, updateTestStatus } = this.props;
         this.props.form.validateFields(null, {}, (err, values) => {
             if (!err) {
-                this.setState({
-                    flinkShowRequired: false,
-                    sparkShowRequired: false,
-                    dtYarnShellShowRequired: false,
-                    learningShowRequired: false,
-                    hdfsShowRequired: false,
-                    yarnShowRequired: false,
-                    hiveShowRequired: false,
-                    carbonShowRequired: false,
-                    libraShowRequired: false,
-                    allTestLoading: true
-                })
+                updateRequiredStatus(DEFAULT_COMP_REQUIRED)
                 const componentConf = this.getComponentConf(values);
                 Api.testComponent({
                     componentConfigs: JSON.stringify(componentConf)
@@ -760,15 +643,15 @@ class EditCluster extends React.Component {
                     .then(
                         (res) => {
                             if (res.code == 1) {
-                                const { description, testResults } = res.data;
+                                const { description = {}, testResults } = res.data;
+                                const testCompResult = showTestResult(testResults, this.state.defaultEngineType);
                                 this.setState({
-                                    nodeNumber: description ? description.totalNode : 0,
-                                    core: description ? description.totalCores : 0,
-                                    memory: description ? description.totalMemory : 0,
-                                    testResults: testResults,
-                                    ...showTestResult(testResults, this.state.defaultEngineType),
+                                    nodeNumber: description.totalNode,
+                                    core: description.totalCores,
+                                    memory: description.totalMemory,
                                     allTestLoading: false
                                 })
+                                updateTestStatus(testCompResult)
                             } else {
                                 this.setState({
                                     allTestLoading: false
@@ -777,9 +660,10 @@ class EditCluster extends React.Component {
                         }
                     )
             } else {
-                this.setState({
-                    ...this.validateAllRequired() // 出现红标
-                })
+                const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
+                const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData;
+                const requiredStatus = validateAllRequired(this.props.form.validateFields, tabCompData);
+                updateRequiredStatus(requiredStatus);
                 message.error('你有必填配置项未填写！')
             }
         })

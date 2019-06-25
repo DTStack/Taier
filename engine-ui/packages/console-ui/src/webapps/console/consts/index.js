@@ -61,7 +61,28 @@ export const COMPONENT_TYPE_VALUE = {
     CARBONDATA: 7,
     LIBRASQL: 8
 }
-
+export const DEFAULT_COMP_TEST = { // 测试结果默认数据
+    flinkTestResult: {},
+    sparkTestResult: {},
+    dtYarnShellTestResult: {},
+    learningTestResult: {},
+    hdfsTestResult: {},
+    yarnTestResult: {},
+    sparkThriftTestResult: {},
+    carbonTestResult: {},
+    libraSqlTestResult: {}
+}
+export const DEFAULT_COMP_REQUIRED = { // 必填默认数据
+    flinkShowRequired: false,
+    sparkShowRequired: false,
+    dtYarnShellShowRequired: false,
+    learningShowRequired: false,
+    hdfsShowRequired: false,
+    yarnShowRequired: false,
+    hiveShowRequired: false,
+    carbonShowRequired: false,
+    libraShowRequired: false
+}
 export const hadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
     { label: 'Flink', value: 0 },
     { label: 'Spark', value: 1 },

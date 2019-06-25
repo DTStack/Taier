@@ -218,6 +218,113 @@ export function showTestResult (testResults, engineType) {
     })
     return testStatus
 }
+/**
+ * 校验组件必填项未填标识
+ * @param tabCompData 不同engine的组件数据
+ */
+export function validateAllRequired (validateFields, tabCompData) {
+    // const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
+    // const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
+    let obj = {}
+    tabCompData && tabCompData.map(item => {
+        validateFields(validateCompParams(item.componentTypeCode), {}, (err, values) => {
+            if (item.componentTypeCode == COMPONENT_TYPE_VALUE.FLINK) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        flinkShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        flinkShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        hiveShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        hiveShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.CARBONDATA) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        carbonShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        carbonShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        sparkShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        sparkShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.DTYARNSHELL) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        dtYarnShellShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        dtYarnShellShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LEARNING) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        learningShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        learningShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HDFS) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        hdfsShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        hdfsShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.YARN) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        yarnShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        yarnShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.LIBRASQL) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        libraShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        libraShowRequired: true
+                    })
+                }
+            } else {
+                console.log('error')
+            }
+        })
+    })
+    return obj
+}
 
 export function displayTaskStatus (status) {
     switch (status) {

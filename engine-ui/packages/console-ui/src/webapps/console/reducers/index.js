@@ -4,6 +4,7 @@ import { routerReducer as routing } from 'react-router-redux'
 import consoleUser from './modules/consoleUser'
 import { user } from 'main/reducers/modules/user'
 import { apps, app, licenseApps } from 'main/reducers/modules/apps'
+import { testStatus, showRequireStatus } from './modules/cluster';
 
 // 全局State
 const rootReducer = combineReducers({
@@ -12,7 +13,9 @@ const rootReducer = combineReducers({
     apps,
     app,
     licenseApps,
-    consoleUser
+    consoleUser,
+    testStatus,
+    showRequireStatus
 })
 
 export default rootReducer
