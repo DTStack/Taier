@@ -40,6 +40,83 @@ export class SparkThriftConfig extends React.Component {
                             <Input disabled={isView} />
                         )}
                     </FormItem>
+                    <FormItem
+                        label="driverClassName"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.driverClassName', {
+                            rules: [{
+                                required: true,
+                                message: '请输入driverClassName'
+                            }]
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="useConnectionPool"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.useConnectionPool')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="maxPoolSize"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.maxPoolSize')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="minPoolSize"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.minPoolSize')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="initialPoolSize"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.initialPoolSize')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="jdbcIdel"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.jdbcIdel')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="maxRows"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.maxRows')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="queryTimeout"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.queryTimeout')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="checkTimeout"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('hiveConf.checkTimeout')(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
                     { customView }
                 </div>
                 {singleButton}

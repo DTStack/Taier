@@ -355,7 +355,7 @@ class EditCluster extends React.Component {
     // show err message
     showDetailErrMessage (engine) {
         Modal.error({
-            title: `${engine.engineName} 错误信息`,
+            title: `错误信息`,
             content: `${engine.errorMsg}`
         })
     }
@@ -636,6 +636,9 @@ class EditCluster extends React.Component {
         this.props.form.validateFields(null, {}, (err, values) => {
             if (!err) {
                 updateRequiredStatus(DEFAULT_COMP_REQUIRED)
+                this.setState({
+                    allTestLoading: true
+                })
                 const componentConf = this.getComponentConf(values);
                 Api.testComponent({
                     componentConfigs: JSON.stringify(componentConf)
@@ -1210,7 +1213,7 @@ class EditCluster extends React.Component {
                                         {/* 组件配置 */}
                                         <Card
                                             className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : '100%' }}
+                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : 'calc(100% - 20px)' }}
                                             noHovering
                                         >
                                             <Tabs
@@ -1232,7 +1235,7 @@ class EditCluster extends React.Component {
                                                                 forceRender={true}
                                                                 key={`${componentTypeCode}`}
                                                             >
-                                                                <div className='tabpane-content'>
+                                                                <div className={isHadoop ? 'tabpane-content-max' : 'tabpane-content-min'}>
                                                                     {this.renderComponentConf(item)}
                                                                 </div>
                                                             </TabPane>

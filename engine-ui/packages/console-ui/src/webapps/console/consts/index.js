@@ -215,7 +215,8 @@ export const validateFlinkParams = [ // flink
     'flinkConf.zkLoginName'
 ]
 export const validateHiveParams = [ // hive <=> Spark Thrift Server
-    'hiveConf.jdbcUrl'
+    'hiveConf.jdbcUrl',
+    'hiveConf.driverClassName'
 ]
 export const validateCarbonDataParams = [ // carbonData
     'carbonConf.jdbcUrl'
@@ -245,7 +246,8 @@ export const validateLearningParams = [
     'learningConf.learningPython3Path'
 ]
 export const validateLibraParams = [
-    'libraConf.jdbcUrl'
+    'libraConf.jdbcUrl',
+    'libraConf.driverClassName'
 ]
 // key_map
 export const SPARK_KEY_MAP = {
@@ -301,10 +303,16 @@ export const notExtKeysDtyarnShell = [
     'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath'
 ]
 export const notExtKeysSparkThrift = [
-    'jdbcUrl', 'username', 'password'
+    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'useConnectionPool', 'maxPoolSize',
+    'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
+    'queryTimeout', 'checkTimeout'
 ]
 export const notExtKeysLibraSql = [
-    'jdbcUrl', 'username', 'password'
+    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'useConnectionPool', 'maxPoolSize',
+    'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
+    'queryTimeout', 'checkTimeout'
 ]
 
 export const formItemLayout = { // 表单常用布局
