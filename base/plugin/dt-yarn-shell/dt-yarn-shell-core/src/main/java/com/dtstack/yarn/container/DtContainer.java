@@ -6,6 +6,7 @@ import com.dtstack.yarn.api.DtYarnConstants;
 import com.dtstack.yarn.common.DTYarnShellConstant;
 import com.dtstack.yarn.common.DtContainerStatus;
 import com.dtstack.yarn.common.LocalRemotePath;
+import com.dtstack.yarn.common.ReturnValue;
 import com.dtstack.yarn.common.type.AppType;
 import com.dtstack.yarn.common.type.DummyType;
 import com.dtstack.yarn.util.DebugUtil;
@@ -28,11 +29,7 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -155,7 +152,7 @@ public class DtContainer {
         return this.containerId;
     }
 
-    private Boolean run() throws IOException, InterruptedException {
+    private ReturnValue run() throws IOException, InterruptedException {
 
         Date now = new Date();
         containerStatusNotifier.setContainersStartTime(now.toString());
@@ -199,9 +196,12 @@ public class DtContainer {
 
         LOG.info("container_wait_for_begin");
         process.waitFor();
-        LOG.info("container_wait_for_end exitValue: " + process.exitValue());
+        int exitValue = process.exitValue();
+        LOG.info("container_wait_for_end exitValue: " + exitValue);
+        String log = readFile(logDir + "/dterror.log");
 
-        return process.exitValue() == 0;
+        ReturnValue rValue = new ReturnValue(exitValue, log);
+        return rValue;
 
     }
 
@@ -297,7 +297,7 @@ public class DtContainer {
                 }
             }
         }
-        LOG.info("uploadOutputFiles start");
+        LOG.info("uploadOutputFiles end");
     }
 
     private void printContainerInfo() throws IOException {
@@ -315,17 +315,37 @@ public class DtContainer {
         }
     }
 
+    public static String readFile(String filePath) throws IOException {
+
+        LOG.info("start read file");
+        StringBuffer sb = new StringBuffer();
+        InputStream is = new FileInputStream(filePath);
+        String line;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        line = reader.readLine();
+        while (line != null) {
+            sb.append(line);
+            sb.append("\n");
+            line = reader.readLine();
+        }
+        reader.close();
+        is.close();
+        LOG.info("end read file");
+        return sb.toString();
+    }
+
     public static void main(String[] args) {
         DtContainer container = null;
         try {
             container = new DtContainer();
             container.init();
-            if (container.run()) {
+            ReturnValue response = container.run();
+            if (response.getExitValue() == 0) {
                 LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
                 container.reportSucceededAndExit();
             } else {
                 LOG.error("DtContainer run failed! error");
-                container.reportFailedAndExit("");
+                container.reportFailedAndExit(response.getErrorLog());
             }
         } catch (Throwable e) {
             LOG.error("Some errors has occurred during container running!", e);
