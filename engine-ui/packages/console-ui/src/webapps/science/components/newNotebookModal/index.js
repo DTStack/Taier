@@ -27,6 +27,7 @@ const FormItem = Form.Item;
 })
 class NewNotebookModal extends React.Component {
     form = React.createRef();
+    _key = null;
     onSubmit = () => {
         this.form.props.form.validateFields(async (err, values) => {
             if (!err) {
@@ -34,6 +35,7 @@ class NewNotebookModal extends React.Component {
                 if (res) {
                     this.props.onOk && this.props.onOk(res);
                     this.props.openNotebook(res.data.id);
+                    this._key = Math.random();
                     this.props.resetModal();
                 }
             }
@@ -45,17 +47,19 @@ class NewNotebookModal extends React.Component {
         return <Modal
             title='新建Notebook'
             visible={visible}
-            onCancel={this.props.resetModal}
+            key={this._key}
+            onCancel={() => {
+                this._key = Math.random();
+                this.props.resetModal();
+            }}
             onOk={this.onSubmit}
         >
-            {visible && (
-                <WrapNewNotebookModalForm
-                    loadTreeData={loadTreeData}
-                    modal={modal}
-                    files={files}
-                    wrappedComponentRef={(_form) => { this.form = _form }}
-                />
-            )}
+            <WrapNewNotebookModalForm
+                loadTreeData={loadTreeData}
+                modal={modal}
+                files={files}
+                wrappedComponentRef={(_form) => { this.form = _form }}
+            />
         </Modal>
     }
 }
