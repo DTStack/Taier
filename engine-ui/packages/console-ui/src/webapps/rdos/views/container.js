@@ -30,6 +30,7 @@ class Container extends Component {
         dispatch(ProjectAction.getProjects())
         dispatch(ProjectAction.getAllProjects())
         dispatch(ProjectAction.getTenantProjects())
+        dispatch(ProjectAction.getProjectSupportEngine())
         dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
         dispatch(getTaskTypes());
         dispatch(updateApp(rdosApp))
@@ -66,6 +67,7 @@ class Container extends Component {
         }
         if (oldProj && project && oldProj.id !== project.id) {
             this.props.dispatch(getTaskTypes())
+            this.props.dispatch(ProjectAction.getProjectSupportEngine())
         }
     }
 

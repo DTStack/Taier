@@ -6,7 +6,7 @@ import { apps, app, licenseApps } from 'main/reducers/modules/apps'
 
 // 全局State
 import { user, projectUsers, notProjectUsers } from './modules/user'
-import { project, projects, allProjects, allTenantsProjects } from './modules/project'
+import { project, projects, allProjects, allTenantsProjects, projectSuppoetEngines } from './modules/project'
 
 // 离线任务
 import { offlineTask } from './modules/offlineTask';
@@ -40,6 +40,7 @@ const rootReducer = combineReducers({
     projects, // 用户有权限的项目
     allProjects, // 全局所有项目
     allTenantsProjects, // 租户下所有项目
+    projectSuppoetEngines, // 项目支持的引擎
     offlineTask, // 离线任务
     editor, // 编辑器
     operation, // 运维中心

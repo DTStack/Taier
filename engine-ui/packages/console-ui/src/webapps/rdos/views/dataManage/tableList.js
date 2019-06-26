@@ -146,7 +146,8 @@ class TableList extends Component {
         tableLog.tableName = tableName;
         tableLog.visible = true;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: table
         })
     }
 
@@ -156,7 +157,8 @@ class TableList extends Component {
         tableLog.tableId = undefined;
         tableLog.tableName = undefined;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: {}
         })
     }
 
@@ -394,7 +396,7 @@ class TableList extends Component {
     }
 
     render () {
-        const { tableLog, queryParams } = this.state;
+        const { tableLog, queryParams, editRecord } = this.state;
         const projectUsers = [];
         return (
             <div className="box-1 m-tabs">
@@ -426,7 +428,7 @@ class TableList extends Component {
                     style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                 >
                     {tableLog.visible ? <div className="m-loglist">
-                        <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
+                        <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} editRecord={editRecord} />
                     </div> : ''}
                 </SlidePane>
             </div>

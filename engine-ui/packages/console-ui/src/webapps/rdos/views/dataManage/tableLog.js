@@ -80,8 +80,9 @@ class TableLog extends React.Component {
     }
 
     componentDidMount () {
+        const { belongProjectId } = this.props.editRecord
         this.search();
-        this.props.getUsers()
+        this.props.getUsers(belongProjectId)
     }
     handleTableChange = (pagination, filters, sorter) => {
         const page = Object.assign(this.state.pagination, { pageIndex: pagination.current })
@@ -108,7 +109,7 @@ class TableLog extends React.Component {
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
             render (text, record) {
-                return moment(text).format('YYYY-MM-DD HH:mm:ss')
+                return moment(text).format('YYYY-MM-DD')
             }
         }, {
             title: '操作人',
@@ -198,8 +199,8 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-    getUsers () {
-        dispatch(UserAction.getProjectUsers())
+    getUsers (projectId) {
+        dispatch(UserAction.getProjectUsers(projectId))
     }
 });
 

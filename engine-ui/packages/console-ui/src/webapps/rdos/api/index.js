@@ -83,6 +83,9 @@ export default {
     getTenantProjects (params) { // 获取租户下所有项目
         return http.post(req.GET_ALL_TENANT_PROJECTS, params);
     },
+    getProjectSupportEngines (params) {
+        return http.post(req.GET_PROJ_SUPPORT_ENGINE, params);
+    },
     removeProjectUser (params) {
         return http.post(req.REMOVE_USER_FROM_PROJECT, params)
     },
@@ -154,6 +157,9 @@ export default {
     },
     getDBTableList (params) {
         return http.post(req.GET_DB_TABLE_LIST, params)
+    },
+    checkAddEngineStatus (parmas) {
+        return http.post(req.CHECK_ADD_ENGINE_STATUS, parmas)
     },
     // ========== Role ========== //
     getRoleList (params) {

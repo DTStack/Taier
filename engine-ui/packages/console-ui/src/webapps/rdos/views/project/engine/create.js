@@ -20,7 +20,7 @@ class CreateEngineModal extends Component {
         });
     }
     render () {
-        const { visible, onCancel, key, unUseEngineList, dBList } = this.props;
+        const { visible, onCancel, key, unUseEngineList, dBList, confirmLoading } = this.props;
         return (
             <Modal
                 title="添加计算引擎"
@@ -28,6 +28,7 @@ class CreateEngineModal extends Component {
                 visible={visible}
                 onCancel={onCancel}
                 onOk={this.onOk}
+                confirmLoading={confirmLoading}
                 maskClosable={false}
             >
                 <EngineForm wrappedComponentRef={(ins) => this._refInstance = ins }

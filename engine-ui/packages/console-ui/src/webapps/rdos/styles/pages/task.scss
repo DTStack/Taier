@@ -1148,7 +1148,25 @@
         }
     }
 }
-.ant-dropdown-menu-submenu-vertical {
-    position: relative;
-    padding: 0 10 0 5;
+.ant-dropdown-menu-submenu-title {
+    padding: 7px 13px;
+    margin: 0;
+    clear: both;
+    font-size: 12px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.65);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.ant-dropdown-menu-submenu-title:after {
+    font-family: "anticon" !important;
+    position: absolute;
+    content: "\E61F";
+    right: 0;
+    color: rgba(0, 0, 0, 0.43);
+    display: inline-block;
+    font-size: 12px;
+    transform: scale(0.83333333) rotate(0deg);
+    zoom: 1;
 }

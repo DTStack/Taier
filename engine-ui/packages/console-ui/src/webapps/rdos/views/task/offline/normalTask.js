@@ -77,7 +77,7 @@ class NormalTaskForm extends React.Component {
 
         const initialRefResourceName = taskData.refResourceList && taskData.refResourceList.length > 0
             ? taskData.refResourceList.map(res => res.resourceName) : [];
-
+        const displayTableType = taskTypes.find(item => item.key == taskType) || {};
         return (<Form>
             <FormItem
                 {...formItemLayout}
@@ -102,9 +102,7 @@ class NormalTaskForm extends React.Component {
                     initialValue: taskType
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
-                        {taskTypes.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' }).map(item =>
-                            <Radio key={item.key} value={item.key}>{item.value}</Radio>
-                        )}
+                        <Radio key={displayTableType.key} value={displayTableType.key}>{displayTableType.value}</Radio>
                     </RadioGroup>
                 )}
             </FormItem>

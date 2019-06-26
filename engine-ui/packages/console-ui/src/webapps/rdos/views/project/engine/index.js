@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
-import { Tabs, Button, Icon } from 'antd';
+import { Tabs, Button, Icon, message } from 'antd';
 import { connect } from 'react-redux'
 import CreateEngineModal from './create';
 import Api from '../../../api';
 import { ENGINE_TYPE_NAME } from '../../../comm/const';
 
 const TabPane = Tabs.TabPane;
-
+const CREATE_STATUS = {
+    INIT: 0,
+    SUCC: 1
+}
 class EngineConfig extends Component {
     state = {
         useingEngineData: {},
         useEngineList: [],
         unUseEngineList: [],
+        confirmLoading: false,
         dBList: [],
         modalKey: '',
         createEngineVisible: false,
@@ -22,6 +26,9 @@ class EngineConfig extends Component {
         this.getProUseEngine();
         this.getProjectUnUsedEngine();
         this.getDbList();
+    }
+    componentWillUnmount () {
+        this.timer && clearInterval(this.timer);
     }
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
@@ -78,13 +85,39 @@ class EngineConfig extends Component {
             });
         }
     }
+    async checkAddEngineStatus (engineType) {
+        this.setState({
+            confirmLoading: true
+        })
+        let res = await Api.checkAddEngineStatus({
+            engineType
+        })
+        if (res.code == 1) {
+            const data = res.data;
+            if (data == CREATE_STATUS.SUCC) {
+                this.timer && clearInterval(this.timer);
+                this.setState({
+                    confirmLoading: false
+                })
+                message.success('添加引擎成功！');
+                this.getProUseEngine();
+                this.getProjectUnUsedEngine();
+                this.getDbList();
+                this.onCancelCreate();
+            }
+        } else {
+            this.setState({
+                confirmLoading: false
+            })
+            message.error('添加引擎失败！')
+        }
+    }
     async addEngineSource (sourceFormData, form) {
         const res = await Api.addNewEngine(sourceFormData);
         if (res.code === 1) {
-            this.getProUseEngine();
-            this.getProjectUnUsedEngine();
-            this.getDbList();
-            this.onCancelCreate();
+            this.timer = setInterval(() => {
+                this.checkAddEngineStatus(sourceFormData.engineType)
+            }, 1500)
         }
     }
     onCancelCreate = () => { this.setState({ createEngineVisible: false }) }
@@ -115,14 +148,13 @@ class EngineConfig extends Component {
         }
     }
     renderTabPanes = () => {
-        const { useEngineList, useingEngineData } = this.state;
+        const { useEngineList } = this.state;
         const tabPanes = useEngineList.map(paneItem => {
             return (
                 <TabPane
                     tab={
                         <span>
                             {paneItem.engineType}
-                            {this.renderTitleText(useingEngineData)}
                         </span>
                     }
                     key={paneItem.engineType}
@@ -145,7 +177,7 @@ class EngineConfig extends Component {
         this.addEngineSource(params)
     }
     render () {
-        const { unUseEngineList, dBList } = this.state;
+        const { unUseEngineList, dBList, confirmLoading } = this.state;
         return (
             <div>
                 <h1 className="box-title">
@@ -172,6 +204,7 @@ class EngineConfig extends Component {
                     key={this.state.modalKey}
                     unUseEngineList={unUseEngineList}
                     dBList={dBList}
+                    confirmLoading={confirmLoading}
                     visible={this.state.createEngineVisible}
                 />
             </div>

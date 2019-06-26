@@ -107,7 +107,7 @@ class WorkspaceForm extends React.Component {
                         label='下载SELECT结果'
                         {...metaFormLayout}
                     >
-                        {getFieldDecorator('downloadSelect', {
+                        {getFieldDecorator('isAllowDownload', {
                             rules: [{
                                 required: true
                             }],

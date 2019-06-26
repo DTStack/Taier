@@ -79,6 +79,7 @@ class CreateWorkSpace extends React.Component {
             projectEngineList.push(Object.assign(libraParams, { engineType: ENGINE_SOURCE_TYPE.LIBRA }))
         }
         copyVal.projectEngineList = projectEngineList;
+        copyVal.isAllowDownload = isAllowDownload ? 1 : 0 // true为1，false为0
         const delAttr = (obj, attr) => {
             delete obj[attr]
         }

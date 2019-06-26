@@ -23,6 +23,7 @@ export default {
     GET_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getProjects`, // 获取当前用户有权限的项目列表
     GET_ALL_PROJECTS: `${RDOS_BASE_URL}/common/project/getAllProjects`, // 获取所以项目列表
     GET_ALL_TENANT_PROJECTS: `${RDOS_BASE_URL}/common/project/getTenantProjects`, // 获取租户下所有项目
+    GET_PROJ_SUPPORT_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectSupportEngineType`, // 项目支持的引擎
     GET_PROJECT_BY_TENANT: `${RDOS_BASE_URL}/batch/project/getAllByTenantId`, // 查询租户下的项目列表
     GET_USRE_PROJECTS: `${RDOS_BASE_URL}/common/project/getProjectUserIn`, // 获取用户所在的所有项目
     GET_PROJECT_USERS: `${RDOS_BASE_URL}/common/project/getProjectUsers`, // 获取所在的项目所有用户
@@ -45,6 +46,7 @@ export default {
     GET_PRO_UNUSE_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectUnusedEngineInfo`, // 获取项目未接入的引擎信息
     ADD_NEW_ENGINE: `${RDOS_BASE_URL}/common/project/addNewEngine`, // 添加引擎
     GET_DB_TABLE_LIST: `${RDOS_BASE_URL}/common/project/getDBTableList`, // 预览元数据
+    CHECK_ADD_ENGINE_STATUS: `${RDOS_BASE_URL}/common/project/hasSuccessInitEngine`, // 检查新增引擎状态
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表
     UPDATE_ROLE: `${RDOS_BASE_URL}/common/role/addOrUpdateRole`, // 新建/更新角色
