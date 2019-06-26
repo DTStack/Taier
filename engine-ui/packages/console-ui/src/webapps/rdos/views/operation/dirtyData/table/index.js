@@ -132,7 +132,7 @@ export default class TableDetail extends React.Component {
                                                 <tr>
                                                     <th>创建者：</th>
                                                     <td>
-                                                        {tableInfo.userName}
+                                                        {tableInfo.chargeUser}
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -171,7 +171,7 @@ export default class TableDetail extends React.Component {
                                                 <tr>
                                                     <th>物理存储量</th>
                                                     <td>
-                                                        {tableInfo.storeSize}
+                                                        {tableInfo.tableSize}
                                                     </td>
                                                 </tr>
                                                 <tr>

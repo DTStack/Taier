@@ -272,7 +272,7 @@ class Main extends Component {
             });
             // rdosAPP
             const rdosApp = licenseMap[apps.rdosApp.id];
-            const isRdosShow = rdosApp.isShow;
+            const isRdosShow = get(rdosApp, 'isShow');
             const isRdosDataSource = get(rdosApp, 'children[0].isShow');
             const isRdosTask = get(rdosApp, 'children[1].isShow');
             const isRdosOpera = get(rdosApp, 'children[2].isShow');
@@ -281,7 +281,7 @@ class Main extends Component {
             const isRdosPro = get(rdosApp, 'children[5].isShow');
             // streamAPP
             const streamApp = licenseMap[apps.streamApp.id];
-            const isStream = streamApp.isShow;
+            const isStream = get(streamApp, 'isShow');
             const isStreamDataSource = get(streamApp, 'children[0].isShow');
             const isStreamTask = get(streamApp, 'children[1].isShow');
             const isStreamOpera = get(streamApp, 'children[2].isShow');
@@ -291,7 +291,7 @@ class Main extends Component {
             const isAna = analyApp.isShow;
             // dataQuality
             const qualityApp = licenseMap[apps.dqApp.id];
-            const isQuali = qualityApp.isShow;
+            const isQuali = get(qualityApp, 'isShow');
             const isQualiOver = get(qualityApp, 'children[0].isShow');
             const isQualiTaskSearch = get(qualityApp, 'children[1].isShow');
             const isQualiRule = get(qualityApp, 'children[2].isShow');
@@ -299,7 +299,7 @@ class Main extends Component {
             const isQualiDataSource = get(qualityApp, 'children[4].isShow');
             // dataApi
             const apiApp = licenseMap[apps.daApp.id];
-            const isDataApi = apiApp.isShow;
+            const isDataApi = get(apiApp, 'isShow');
             const isApiover = get(apiApp, 'children[0].isShow');
             const isApiMarket = get(apiApp, 'children[1].isShow');
             const isApiMine = get(apiApp, 'children[2].isShow');
@@ -308,7 +308,7 @@ class Main extends Component {
             const isApiDataSource = get(apiApp, 'children[5].isShow');
             // science
             const scienceApp = licenseMap[apps.scienceApp.id];
-            const isScience = scienceApp.isShow;
+            const isScience = get(scienceApp, 'isShow');
             const isScienceDevelop = get(scienceApp, 'children[0].isShow');
             const isScienceOperation = get(scienceApp, 'children[1].isShow');
             const isScienceSource = get(scienceApp, 'children[2].isShow');
