@@ -42,7 +42,8 @@ class TableList extends Component {
             },
             table: { data: [] },
             subjectFields: [],
-            modelLevels: []
+            modelLevels: [],
+            editRecord: {}
         }
     }
 
@@ -183,7 +184,8 @@ class TableList extends Component {
         tableLog.tableName = tableName;
         tableLog.visible = true;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: table
         })
     }
 
@@ -193,13 +195,14 @@ class TableList extends Component {
         tableLog.tableId = undefined;
         tableLog.tableName = undefined;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: {}
         })
     }
 
     render () {
         const ROUTER_BASE = '/data-model/table';
-        const { subjectFields, modelLevels, params, tableLog } = this.state
+        const { subjectFields, modelLevels, params, tableLog, editRecord } = this.state
         const tableList = this.state.table;
         const { project, projectTableTypes } = this.props;
         const { getFieldDecorator, getFieldValue } = this.props.form;
@@ -410,7 +413,7 @@ class TableList extends Component {
                         style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                     >
                         <div className="m-loglist">
-                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
+                            <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} editRecord={editRecord} />
                         </div>
                     </SlidePane> : ''
                 }

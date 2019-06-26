@@ -70,9 +70,16 @@ class ImportTarget extends Component {
     }
 
     tableInput = (tableName) => {
-        const { changeStatus } = this.props
+        const { changeStatus, formState } = this.props
+        const { tableType } = formState;
+        let params = {
+            tableName
+        };
+        if (tableType) {
+            params.tableType = tableType
+        }
         if (tableName.length > 0) {
-            API.getTablesByName({ tableName }).then((res) => {
+            API.getTablesByName(params).then((res) => {
                 if (res.code === 1) {
                     changeStatus({
                         tableList: res.data || []

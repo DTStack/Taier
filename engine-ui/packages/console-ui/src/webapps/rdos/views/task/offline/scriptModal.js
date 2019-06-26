@@ -70,10 +70,9 @@ class ScriptForm extends React.Component {
 
         const value = isCreateNormal
             ? this.state.value
-            : (!isCreateFromMenu ? defaultData.taskType : this.state.value);
+            : (!isCreateFromMenu ? defaultData.type : this.state.value);
 
         const scriptTypes = types.map(item => <Radio key={item.value} value={item.value}>{item.name}</Radio>)
-
         return (
             <Form>
                 <FormItem
@@ -102,9 +101,9 @@ class ScriptForm extends React.Component {
                 >
                     {getFieldDecorator('type', {
                         rules: [{
-                            required: true, message: '请选择任务类型'
+                            required: true, message: '请选择脚本类型'
                         }],
-                        initialValue: types.length > 0 ? types[0].value : value
+                        initialValue: value
                     })(
                         <RadioGroup
                             disabled={ isCreateNormal ? false : !isCreateFromMenu }

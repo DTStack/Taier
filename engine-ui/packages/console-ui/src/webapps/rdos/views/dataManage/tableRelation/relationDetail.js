@@ -10,7 +10,7 @@ import { TASK_TYPE } from '../../../comm/const'
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
-
+import { getProject } from '../../../store/modules/project';
 function renderLevel (level) {
     if (level === -1) {
         return <span style={{ color: 'rgb(236, 105, 65);' }}>环形血缘</span>
@@ -23,6 +23,9 @@ function renderLevel (level) {
     return {
         goToTaskDev: (id) => {
             actions.openTaskInDev(id)
+        },
+        getProject: (projectId) => {
+            dispatch(getProject(projectId))
         }
     }
 })
@@ -36,14 +39,14 @@ class RelationDetail extends React.Component {
     }
 
     showRecord = (item) => {
-        const { goToTaskDev } = this.props;
+        const { goToTaskDev, getProject } = this.props;
 
         if (item.taskType !== -1) { // 任务
             CommApi.getOfflineTaskDetail({
                 id: item.relationId
             }).then(res => {
                 if (res.code === 1) {
-                    if (item.taskType === TASK_TYPE.SQL) {
+                    if (item.taskType === TASK_TYPE.SQL || item.taskType === TASK_TYPE.LIBRASQL) {
                         this.setState({
                             recordInfo: res.data,
                             visibleRecord: true,
@@ -51,6 +54,7 @@ class RelationDetail extends React.Component {
                         })
                     } else {
                         goToTaskDev(item.relationId)
+                        getProject(item.projectId) // 获取项目信息
                     }
                 }
             });
