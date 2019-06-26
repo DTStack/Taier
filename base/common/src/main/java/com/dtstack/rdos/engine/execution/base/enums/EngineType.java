@@ -23,7 +23,8 @@ public enum EngineType {
     Sqlserver('7'),
     Maxcompute('8'),
     Hadoop('9'),
-    Hive('a');
+    Hive('a'),
+    PostgreSQL('b');
 
     private char val;
 
@@ -60,6 +61,8 @@ public enum EngineType {
                 return EngineType.Hadoop;
             case "hive":
                 return EngineType.Hive;
+            case "postgresql":
+                return EngineType.PostgreSQL;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
