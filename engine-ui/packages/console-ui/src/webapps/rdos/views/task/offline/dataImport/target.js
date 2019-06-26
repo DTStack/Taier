@@ -103,7 +103,10 @@ class ImportTarget extends Component {
         this.props.changeStatus({
             tableType: value,
             sqlText: null,
-            sync: true
+            sync: true,
+            queryTable: '',
+            tableList: [],
+            tableData: {}
         });
     }
 

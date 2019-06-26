@@ -18,7 +18,7 @@ import actions from '../../store/modules/dataManage/actionCreator';
 // import { formItemLayout } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
-
+import { TABLE_TYPE } from '../../comm/const'
 const FormItem = Form.Item
 const confirm = Modal.confirm;
 
@@ -64,14 +64,14 @@ class TableEditor extends Component {
         const { getFieldDecorator } = this.props.form;
         const {
             tableName, project, gmtCreate,
-            desc, chargeUser, lifeDay, catalogueId
+            desc, chargeUser, lifeDay, catalogueId, tableType
         } = tableData;
 
         const formItemLayout = {
             labelCol: { span: 2 },
             wrapperCol: { span: 12 }
         };
-
+        const isHiveTable = tableType == TABLE_TYPE.HIVE;
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
@@ -140,18 +140,22 @@ class TableEditor extends Component {
                                     />
                                 )}
                             </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="生命周期"
-                            >
-                                <LifeCycle
-                                    width={80}
-                                    value={lifeDay}
-                                    onChange={(val) => {
-                                        modifyDesc({ name: 'lifeDay', value: val < 0 ? val : val })
-                                    }}
-                                />
-                            </FormItem>
+                            {
+                                isHiveTable && (
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label="生命周期"
+                                    >
+                                        <LifeCycle
+                                            width={80}
+                                            value={lifeDay}
+                                            onChange={(val) => {
+                                                modifyDesc({ name: 'lifeDay', value: val < 0 ? val : val })
+                                            }}
+                                        />
+                                    </FormItem>
+                                )
+                            }
                             <FormItem
                                 {...formItemLayout}
                                 label="描述"

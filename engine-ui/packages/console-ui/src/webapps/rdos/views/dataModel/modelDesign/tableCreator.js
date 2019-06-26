@@ -10,7 +10,6 @@ import ajax from '../../../api/dataModel';
 import { getProjectTableTypes } from '../../../store/modules/tableType';
 import BaseForm from './baseForm';
 import ColumnsPartition from './columnsPartition';
-
 const Step = Steps.Step;
 
 @connect(state => {
@@ -37,8 +36,9 @@ class TableCreator extends React.Component {
             tableNameRules: [],
 
             table: {
+                tableType: undefined,
                 tableName: '',
-                desc: '',
+                tableDesc: '',
                 delim: '',
                 lifeDay: 90,
                 location: undefined, // 存在则为外部表

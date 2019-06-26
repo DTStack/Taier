@@ -34,7 +34,8 @@ export default class BaseForm extends React.Component {
         this.state = {
             type: location ? '2' : '1', // 1: 内部表 2:外部表
             tableNameArr: cloneDeep(tableNamePropArr),
-            storedType: props.storedType
+            storedType: props.storedType,
+            tableType: props.tableType
         };
     }
 
@@ -213,7 +214,7 @@ export default class BaseForm extends React.Component {
         const {
             tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
-            subject
+            subject, tableType
         } = this.props;
 
         const { type, tableNameArr, storedType } = this.state;
@@ -228,12 +229,18 @@ export default class BaseForm extends React.Component {
                     rules: [{
                         required: true,
                         message: '表类型不可为空！'
-                    }]
+                    }],
+                    initialValue: tableType
                 })(
                     <EngineSelect
                         allowClear
                         placeholder="表类型"
                         tableTypes={this.props.projectTableTypes}
+                        onChange={(value) => {
+                            this.setState({
+                                tableType: value
+                            })
+                        }}
                     />
                 )}
             </FormItem>

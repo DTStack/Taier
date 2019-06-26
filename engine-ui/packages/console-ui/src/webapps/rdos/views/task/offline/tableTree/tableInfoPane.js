@@ -8,7 +8,7 @@ import {
 import ajax from '../../../../api/dataManage';
 import TableCell from 'widgets/tableCell'
 import TablePartition from '../../../dataManage/tablePartition';
-
+import { TABLE_TYPE } from '../../../../comm/const'
 const TabPane = Tabs.TabPane;
 
 export default class TableInfoPane extends React.Component {
@@ -147,7 +147,7 @@ export default class TableInfoPane extends React.Component {
     }
     render () {
         const { tableData, previewData } = this.state;
-
+        const isHiveTable = tableData && tableData.table.tableType == TABLE_TYPE.HIVE;
         return <div className="g-tableviewer">
             <Tabs
                 type="inline"
@@ -165,12 +165,16 @@ export default class TableInfoPane extends React.Component {
                         />
                     </div>
                 </TabPane>
-                <TabPane tab="分区信息" key="2">
-                    <TablePartition
-                        pagination={{ simple: true, size: 'small' }}
-                        table={tableData && tableData.table}
-                    />
-                </TabPane>
+                {
+                    isHiveTable && (
+                        <TabPane tab="分区信息" key="2">
+                            <TablePartition
+                                pagination={{ simple: true, size: 'small' }}
+                                table={tableData && tableData.table}
+                            />
+                        </TabPane>
+                    )
+                }
                 <TabPane tab="数据预览" key="3">
                     <div className="box">
                         {previewData ? <Table

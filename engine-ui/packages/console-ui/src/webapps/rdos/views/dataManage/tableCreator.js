@@ -44,7 +44,8 @@ class BaseForm extends React.Component {
         this.state = {
             type: props.location ? '2' : '1', // 1: 内部表 2:外部表
             dataCatalogue: [],
-            storedType: props.storedType
+            storedType: props.storedType,
+            tableType: props.tableType
         };
     }
 
@@ -72,7 +73,7 @@ class BaseForm extends React.Component {
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { tableName, desc, delim, location, lifeDay, catalogueId, projectTableTypes } = this.props;
-        const { type, dataCatalogue, storedType } = this.state;
+        const { type, dataCatalogue, storedType, tableType } = this.state;
         const isShowDelim = storedType == 'textfile';
         const isHiveTable = getFieldValue('tableType') == TABLE_TYPE.HIVE;
         return <Form>
@@ -84,13 +85,18 @@ class BaseForm extends React.Component {
                     rules: [{
                         required: true,
                         message: '表类型不可为空！'
-                    }]
+                    }],
+                    initialValue: tableType
                 })(
                     <EngineSelect
                         allowClear
                         placeholder="表类型"
                         tableTypes={projectTableTypes}
-                        // onChange={(value) => this.changeParams('tableType', value)}
+                        onChange={(value) => {
+                            this.setState({
+                                tableType: value
+                            })
+                        }}
                     />
                 )}
             </FormItem>
@@ -535,9 +541,10 @@ export class ColumnsPartition extends React.Component {
         const {
             columns,
             partition_keys,// eslint-disable-line
-            isEdit
+            isEdit,
+            tableType
         } = this.props;
-
+        const isHiveTable = tableType == TABLE_TYPE.HIVE;
         return <div className="m-columnspartition">
             <div className="columns box">
                 <h3>字段信息</h3>
@@ -562,31 +569,35 @@ export class ColumnsPartition extends React.Component {
                     </a>
                 </div>
             </div>
-            <div className="partition box">
-                <h3>分区信息</h3>
-                <div className="table">
-                    <Row className="title">
-                        <Col span={4} className="cell">字段名</Col>
-                        <Col span={8} className="cell">类型</Col>
-                        <Col span={7} className="cell">注释</Col>
-                        <Col span={5} className="cell">操作</Col>
-                    </Row>
-                    {partition_keys.map((partition, i) => <RowItem
-                        data={{ ...partition, isPartition: true }}
-                        key={partition.uuid || i}
-                        delRow={this.delRow.bind(this, 2)}
-                        replaceRow={this.replaceRow.bind(this, 2)}
-                        moveRow={this.moveRow.bind(this, 2)}
-                    />)}
-                </div>
-                <div className="fn">
-                    <a href="javascript:void(0)"
-                        disabled={isEdit}
-                        onClick={this.addRow.bind(this, 2)}>
-                        <Icon type="plus-circle-o" /> 新增分区字段
-                    </a>
-                </div>
-            </div>
+            {
+                isHiveTable && (
+                    <div className="partition box">
+                        <h3>分区信息</h3>
+                        <div className="table">
+                            <Row className="title">
+                                <Col span={4} className="cell">字段名</Col>
+                                <Col span={8} className="cell">类型</Col>
+                                <Col span={7} className="cell">注释</Col>
+                                <Col span={5} className="cell">操作</Col>
+                            </Row>
+                            {partition_keys.map((partition, i) => <RowItem
+                                data={{ ...partition, isPartition: true }}
+                                key={partition.uuid || i}
+                                delRow={this.delRow.bind(this, 2)}
+                                replaceRow={this.replaceRow.bind(this, 2)}
+                                moveRow={this.moveRow.bind(this, 2)}
+                            />)}
+                        </div>
+                        <div className="fn">
+                            <a href="javascript:void(0)"
+                                disabled={isEdit}
+                                onClick={this.addRow.bind(this, 2)}>
+                                <Icon type="plus-circle-o" /> 新增分区字段
+                            </a>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     }
 }
@@ -599,6 +610,7 @@ class TableCreator extends React.Component {
             current: 0,
 
             table: {
+                tableType: undefined,
                 tableName: '',
                 desc: '',
                 delim: '',
