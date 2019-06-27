@@ -121,6 +121,9 @@ export function taskTypeIcon (type, task = {}) {
             case SCRIPT_TYPE.SHELL: {
                 return 's-shell';
             }
+            case SCRIPT_TYPE.LIBRASQL: {
+                return 's-librasql';
+            }
             default:
                 return '';
         }

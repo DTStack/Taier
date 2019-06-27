@@ -35,6 +35,7 @@ class WelcomePage extends React.Component {
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const iconBaseUrl = themeDark ? '/public/rdos/img/theme-dark' : '/public/rdos/img/icon';
         const hasHadoop = projectSuppoetEngines.some(item => item.value == ENGINE_SOURCE_TYPE.HADOOP)
+        const taskType = hasHadoop ? TASK_TYPE.SQL : TASK_TYPE.LIBRASQL;
         return (
             <div className='c-welcome'>
                 <section className='c-welcome__section'>
@@ -43,16 +44,9 @@ class WelcomePage extends React.Component {
                         <header className='c-welcome__menu__title'>数据开发</header>
                         <nav className='c-welcome__menu__nav'>
                             <a onClick={this.newDataSource}>添加数据源</a>
-                            {
-                                hasHadoop && (
-                                    <span>
-                                        <a onClick={this.newTask.bind(this, TASK_TYPE.SYNC)}>新建同步任务</a>
-                                        <a onClick={this.newTask.bind(this, TASK_TYPE.SQL)}>新建SparkSQL任务</a>
-                                    </span>
-                                )
-                            }
+                            <a onClick={this.newTask.bind(this, taskType)}>新建任务</a>
                             <a onClick={this.newTask.bind(this, TASK_TYPE.WORKFLOW)}>新建工作流</a>
-                            <a onClick={this.uploadFile}>上传本地文件</a>
+                            {/* <a onClick={this.uploadFile}>上传本地文件</a> */}
                         </nav>
                     </div>
                 </section>

@@ -109,7 +109,7 @@ class TableLog extends React.Component {
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
             render (text, record) {
-                return moment(text).format('YYYY-MM-DD')
+                return moment(text).format('YYYY-MM-DD HH:mm')
             }
         }, {
             title: '操作人',

@@ -1,5 +1,4 @@
 import React from 'react';
-import { cloneDeep } from 'lodash';
 
 import {
     Table, Tabs, Icon, Input
@@ -10,7 +9,7 @@ import TableCell from 'widgets/tableCell'
 import TablePartition from '../../../dataManage/tablePartition';
 import { TABLE_TYPE } from '../../../../comm/const'
 const TabPane = Tabs.TabPane;
-
+var COLUMNS = []; // columns不变量
 export default class TableInfoPane extends React.Component {
     constructor (props) {
         super(props);
@@ -18,7 +17,9 @@ export default class TableInfoPane extends React.Component {
             tableData: '',
             previewData: '',
             tabKey: '',
-            filterDropdownVisible: false
+            filterDropdownVisible: false,
+            searchText: '',
+            column: []
         };
     }
 
@@ -48,13 +49,16 @@ export default class TableInfoPane extends React.Component {
         if (!tableId) return;
         ajax.getTable({ tableId }).then(res => {
             if (res.code === 1) {
+                const data = res.data;
+                const { column = [] } = data;
+                COLUMNS = column;
                 this.setState({
-                    tableData: res.data
+                    tableData: data,
+                    column: column
                 });
             }
         });
     }
-
     getPreview (key, tableId) {
         if (+key === 3) {
             ajax.previewTable({ tableId: tableId || this.props.tableId }).then(res => {
@@ -80,21 +84,31 @@ export default class TableInfoPane extends React.Component {
             return o
         });
     }
-
-    filterColumnByName = (e) => {
-        const searchText = e.target.value
-        const tableData = cloneDeep(this.state.tableData)
-        const tableColms = [...tableData.column]
-        if (searchText) {
-            const reg = new RegExp(searchText, 'gi');
-            const filteredTables = tableColms.length > 0 && tableColms.filter(col => {
-                return col.columnName.match(reg);
-            })
-            if (filteredTables.length > 0) {
-                tableData.column = filteredTables
-            }
-            this.setState({ tableData })
-        }
+    changeInputText = (e) => {
+        this.setState({ searchText: e.target.value })
+    }
+    filterColumnByName = () => {
+        const { searchText } = this.state;
+        const reg = new RegExp(searchText, 'gi');
+        this.setState({
+            filterDropdownVisible: false,
+            column: COLUMNS.map((record) => {
+                const match = record.columnName.match(reg);
+                if (!match) {
+                    return null;
+                }
+                return {
+                    ...record,
+                    columnName: (
+                        <span>
+                            {record.columnName.split(reg).map((text, i) => (
+                                i > 0 ? [<span style={{ color: '#f50' }}>{match[0]}</span>, text] : text
+                            ))}
+                        </span>
+                    ),
+                };
+            }).filter(record => !!record),
+        })
     }
 
     initColums = () => {
@@ -112,8 +126,10 @@ export default class TableInfoPane extends React.Component {
                 <div className="custom-filter-dropdown">
                     <Input
                         ref={ele => this.searchInput = ele}
+                        value={this.state.searchText}
                         placeholder="搜索字段"
-                        onChange={this.filterColumnByName}
+                        onChange={this.changeInputText}
+                        onPressEnter={this.filterColumnByName}
                     />
                 </div>
             ),
@@ -121,9 +137,9 @@ export default class TableInfoPane extends React.Component {
                 this.setState({
                     filterDropdownVisible: visible
                 }, () => this.searchInput && this.searchInput.focus());
-                if (!visible) {
-                    this.reset();
-                }
+                // if (!visible) {
+                //     this.reset();
+                // }
             }
         }, {
             title: '类型',
@@ -158,9 +174,9 @@ export default class TableInfoPane extends React.Component {
                 <TabPane tab="字段信息" key="1">
                     <div className="box">
                         <Table
-                            rowKey="columnName"
+                            rowKey="id"
                             columns={this.initColums()}
-                            dataSource={tableData.column}
+                            dataSource={this.state.column}
                             pagination={{ simple: true, size: 'small' }}
                         />
                     </div>

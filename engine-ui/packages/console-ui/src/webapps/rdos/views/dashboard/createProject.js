@@ -69,6 +69,7 @@ class CreateWorkSpace extends React.Component {
         const copyVal = cloneDeep(values);
         const enableHadoop = copyVal.enableHadoop;
         const enableLibrA = copyVal.enableLibrA;
+        const isAllowDownload = copyVal.isAllowDownload;
         const hadoopParams = copyVal.hadoop && copyVal.hadoop[""] || {}
         const libraParams = copyVal.libra && copyVal.libra[""] || {}
         let projectEngineList = [];

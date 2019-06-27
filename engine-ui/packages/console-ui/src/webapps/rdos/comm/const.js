@@ -100,8 +100,11 @@ export const RESOURCE_TYPE = {
     EGG: 4
 }
 export const RESOURCE_TYPE_MAP = {
+    0: 'other',
     1: 'jar',
-    2: 'py'
+    2: 'py',
+    3: 'zip',
+    4: 'egg'
 }
 
 // 调度状态
@@ -239,7 +242,8 @@ export const SCRIPT_TYPE = { // 脚本类型
     SQL: 0,
     PYTHON2: 1,
     PYTHON3: 2,
-    SHELL: 3
+    SHELL: 3,
+    LIBRASQL: 4
 }
 
 export const TASK_TYPE_ARRAY = [ //

@@ -108,6 +108,10 @@ export default class TabIcon extends Component {
                     iconName = 'shell.svg';
                     break;
                 }
+                case SCRIPT_TYPE.LIBRASQL: {
+                    iconName = 'librasql.svg';
+                    break;
+                }
                 default:
                     return '';
             }

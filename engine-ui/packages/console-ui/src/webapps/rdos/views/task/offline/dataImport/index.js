@@ -250,7 +250,6 @@ class ImportLocalData extends Component {
     }
 
     onCancel = () => {
-        console.log('-------关闭咯')
         this.setState({ ...defaultState });
         this.form.resetFields();
     }

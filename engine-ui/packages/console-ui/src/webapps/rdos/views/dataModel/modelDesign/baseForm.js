@@ -79,6 +79,7 @@ export default class BaseForm extends React.Component {
 
     validateTableName (rule, value, callback) {
         const { tableNameArr } = this.state;
+        const tableType = this.props.form.getFieldValue('tableType')
         const haveFilledTables = tableNameArr.filter((item) => {
             return !isEmpty(item);
         })
@@ -88,7 +89,8 @@ export default class BaseForm extends React.Component {
             callback(error);
         } else {
             value ? ajax.checkTableExist({
-                tableName: value
+                tableName: value,
+                tableType
             }).then(res => {
                 if (res.code === 1) {
                     // 如果true 则存在

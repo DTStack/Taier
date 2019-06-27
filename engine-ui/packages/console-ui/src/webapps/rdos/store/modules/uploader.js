@@ -1,3 +1,4 @@
+/* eslint-disable */
 import mc from 'mirror-creator';
 import { message } from 'antd';
 import localDb from 'utils/localDb';
@@ -22,9 +23,9 @@ export const UPLOAD_STATUS = {
 // ============= Actions =============
 
 export function getUploadStatus (params) {
-    let timeId;
-    let status = UPLOAD_STATUS.PROGRESSING;
     return (dispatch) => {
+        let timeId;
+        let status = UPLOAD_STATUS.PROGRESSING;
         dispatch({
             type: UploadAction.UPDATE,
             payload: { ...params, status: status }

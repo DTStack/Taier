@@ -2,7 +2,7 @@ import moment from 'moment'
 import utils from 'utils'
 
 import API from '../../../api';
-import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS } from '../../../comm/const'
+import { taskStatus, offlineTaskStatusFilter, TASK_TYPE, TASK_STATUS, ENGINE_SOURCE_TYPE } from '../../../comm/const'
 import { editorAction } from './actionTypes';
 import { createLinkMark, createLog, createTitle } from 'widgets/code-editor/utils'
 
@@ -168,18 +168,23 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
             if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
-
-                selectData(dispatch, res.data.jobId, currentTab)
-                    .then(
-                        (isSuccess) => {
-                            if (index < sqls.length - 1 && isSuccess) {
-                                execContinue();
-                            } else {
-                                dispatch(removeLoadingTab(currentTab))
-                                resolve(true)
+                if (res.data.engineType == ENGINE_SOURCE_TYPE.HADOOP) {
+                    selectData(dispatch, res.data.jobId, currentTab)
+                        .then(
+                            (isSuccess) => {
+                                if (index < sqls.length - 1 && isSuccess) {
+                                    execContinue();
+                                } else {
+                                    dispatch(removeLoadingTab(currentTab))
+                                    resolve(true)
+                                }
                             }
-                        }
-                    )
+                        )
+                } else {
+                    getDataOver(dispatch, currentTab, res, res.data.jobId) // libra不去轮训selectData接口，直接返回数据
+                    dispatch(removeLoadingTab(currentTab))
+                    resolve(true)
+                }
             } else {
                 // 不存在jobId，则直接返回结果
                 getDataOver(dispatch, currentTab, res)

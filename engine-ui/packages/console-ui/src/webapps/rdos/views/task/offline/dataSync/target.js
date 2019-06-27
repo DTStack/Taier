@@ -481,13 +481,11 @@ class TargetForm extends React.Component {
         );
 
         if (isEmpty(targetMap)) return null;
-
         switch (targetMap.type.type) {
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
             case DATA_SOURCE.SQLSERVER:
-            case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL: {
                 formItem = [
                     !selectHack && <FormItem
@@ -669,6 +667,7 @@ class TargetForm extends React.Component {
                 break;
             }
             case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
                     !selectHack && <FormItem

@@ -253,7 +253,8 @@ export default class MainBench extends React.Component {
             // 脚本类型
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
-                case SCRIPT_TYPE.SQL: {
+                case SCRIPT_TYPE.SQL:
+                case SCRIPT_TYPE.LIBRASQL: {
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
