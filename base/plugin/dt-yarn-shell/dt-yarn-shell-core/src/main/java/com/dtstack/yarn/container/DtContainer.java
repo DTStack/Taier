@@ -321,7 +321,7 @@ public class DtContainer {
         StringBuffer sb = new StringBuffer();
         InputStream is = new FileInputStream(filePath);
         String line;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
         line = reader.readLine();
         while (line != null) {
             sb.append(line);
