@@ -46,6 +46,9 @@ const defaultState = {
     return {
         getProjectTableTypes: (projectId) => {
             dispatch(getProjectTableTypes(projectId));
+        },
+        getUploadStatus: (params) => {
+            dispatch(getUploadStatus(params))
         }
     }
 })
@@ -60,7 +63,7 @@ class ImportLocalData extends Component {
         // }
     }
     importData = () => {
-        const { dispatch } = this.props;
+        const { getUploadStatus } = this.props;
         const { file } = this.state;
         const params = this.getParams()
         if (this.checkParams(params)) {
@@ -77,7 +80,7 @@ class ImportLocalData extends Component {
                     getUploadStatus({
                         queryParams: { queryKey: res.data },
                         fileName: file.name
-                    }, dispatch)
+                    })
                     this.onCancel();
                 }
             })
@@ -247,6 +250,7 @@ class ImportLocalData extends Component {
     }
 
     onCancel = () => {
+        console.log('-------关闭咯')
         this.setState({ ...defaultState });
         this.form.resetFields();
     }

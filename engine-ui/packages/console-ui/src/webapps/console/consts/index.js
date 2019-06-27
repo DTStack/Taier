@@ -47,7 +47,7 @@ export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
     name: 'Hadoop',
     value: 'HADOOP'
 }, {
-    name: 'Libra',
+    name: 'LibrA',
     value: 'LIBRA'
 }]
 export const COMPONENT_TYPE_VALUE = {

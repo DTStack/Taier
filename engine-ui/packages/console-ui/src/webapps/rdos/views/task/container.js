@@ -21,8 +21,14 @@ const defaultPro = {
 function mapStateToProps (state) {
     return { editor: state.editor, uploader: state.uploader };
 }
-
-@connect(mapStateToProps)
+function mapDispatchToProps (dispatch) {
+    return {
+        getUploadStatus: (params) => {
+            dispatch(getUploadStatus(params))
+        }
+    }
+}
+@connect(mapStateToProps, mapDispatchToProps)
 class Container extends Component {
     constructor (props) {
         super(props);
@@ -79,13 +85,13 @@ class Container extends Component {
      * and goto call server side to get newest upload status.
      */
     loadUploader = () => {
-        const { uploader, dispatch } = this.props;
+        const { uploader, getUploadStatus } = this.props;
         const haveUndoneUpload = uploader && uploader.status !== UPLOAD_STATUS.READY && uploader.queryParams !== '';
         if (haveUndoneUpload) {
             getUploadStatus({
                 queryParams: uploader.queryParams,
                 fileName: uploader.fileName
-            }, dispatch)
+            })
         }
     }
 
