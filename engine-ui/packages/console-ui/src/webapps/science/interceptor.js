@@ -4,7 +4,7 @@ import { message, notification } from 'antd'
 import utils from 'utils'
 import localDb from 'utils/localDb'
 
-import UserApi from './api/user'
+import UserApi from 'main/api/user'
 
 export function authBeforeFormate (response) {
     switch (response.status) {
