@@ -25,6 +25,9 @@ function mapDispatchToProps (dispatch) {
     return {
         getUploadStatus: (params) => {
             dispatch(getUploadStatus(params))
+        },
+        stopSql: (currentTab, currentTabData, isSilent) => {
+            dispatch(stopSql(currentTab, currentTabData, isSilent))
         }
     }
 }
@@ -47,11 +50,11 @@ class Container extends Component {
     }
 
     componentWillUnmount () {
-        const { dispatch, editor } = this.props;
+        const { stopSql, editor } = this.props;
         const running = editor.running;
         // 清楚所有运行中的tabs状态
         for (let i in running) {
-            dispatch(stopSql(running[i], null, true));
+            stopSql(running[i], null, true);
         }
         window.removeEventListener('beforeunload', this.beforeunload, false);
         this.unloadIDETheme();
