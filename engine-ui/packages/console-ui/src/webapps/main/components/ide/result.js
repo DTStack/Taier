@@ -44,6 +44,7 @@ class Result extends React.Component {
                 </div>
                 <div className='c-ide-result__tools'>
                     {extraView}
+                    <span className='c-ide-result__mark'>预览仅显示1000条，点击“下载”获取完整结果</span>
                     <span className='c-ide-result__tools__pagination'>
                         <Pagination
                             size='small'

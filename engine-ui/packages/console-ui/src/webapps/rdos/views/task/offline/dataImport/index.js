@@ -62,7 +62,7 @@ class ImportLocalData extends Component {
         //     getProjectTableTypes(projectId)
         // }
     }
-    importData = () => {
+    async importData () {
         const { getUploadStatus } = this.props;
         const { file } = this.state;
         const params = this.getParams()
@@ -72,18 +72,17 @@ class ImportLocalData extends Component {
             this.setState({
                 loading: true
             })
-            API.importLocalData(params).then((res) => {
+            const res = await API.importLocalData(params);
+            if (res.code === 1) {
                 this.setState({
                     loading: false
                 })
-                if (res.code === 1) {
-                    getUploadStatus({
-                        queryParams: { queryKey: res.data },
-                        fileName: file.name
-                    })
-                    this.onCancel();
-                }
-            })
+                getUploadStatus({
+                    queryParams: { queryKey: res.data },
+                    fileName: file.name
+                })
+                this.onCancel();
+            }
         }
     }
 
@@ -283,7 +282,9 @@ class ImportLocalData extends Component {
                         display: step === 'target'
                             ? 'inline-block' : 'none'
                     }}
-                    onClick={this.importData}
+                    onClick={() => {
+                        this.importData()
+                    }}
                     loading={loading}
                     type="primary">
                     导入

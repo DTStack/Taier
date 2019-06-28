@@ -210,5 +210,11 @@
 }
 .c-ide-result__tools__pagination{
     float: right;
+    padding-right: 5px;
+}
+.c-ide-result__mark {
+    float: right;
     padding-right: 18px;
+    color: #ccc;
+    line-height: 1.8;
 }
