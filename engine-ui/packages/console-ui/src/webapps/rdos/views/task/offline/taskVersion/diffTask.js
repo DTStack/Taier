@@ -116,7 +116,7 @@ class TaskInfo extends React.Component {
                      <Row>
                          <Col span="24" className="txt-left">上游任务 : </Col>
                          <Tooltip title={taskInfo.upstreamTask} overlayStyle={{ fontSize: '14px' }}>
-                             <Col span="20" className="word-break">
+                             <Col span="20" style={{ wordBreak: 'break-word', whiteSpace: 'initial', lineHeight: '30px' }}>
                                  {taskInfo.upstreamTask}
                              </Col>
                          </Tooltip>
