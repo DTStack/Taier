@@ -40,15 +40,15 @@ export const ENGINE_TYPE = {
     LIBRA: 2
 }
 export const ENGINE_TYPE_NAME = {
-    HADOOP: 'HADOOP',
-    LIBRA: 'LIBRA'
+    HADOOP: 'Hadoop',
+    LIBRA: 'LibrA'
 }
 export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
     name: 'Hadoop',
-    value: 'HADOOP'
+    value: 'Hadoop'
 }, {
     name: 'LibrA',
-    value: 'LIBRA'
+    value: 'LibrA'
 }]
 export const COMPONENT_TYPE_VALUE = {
     FLINK: 0,

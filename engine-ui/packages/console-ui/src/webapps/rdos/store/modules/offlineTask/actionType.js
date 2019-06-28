@@ -3,7 +3,8 @@ import mc from 'mirror-creator';
 export const commAction = mc([
     'GET_TASK_TYPES',
     'GET_TASK_TYPE_FILTER',
-    'SET_TABLE_LIST'
+    'SET_TABLE_LIST',
+    'GET_SCRIPT_TYPES'
 ], { prefix: 'offline/comm/' });
 
 export const modalAction = mc([
@@ -18,6 +19,7 @@ export const modalAction = mc([
     'TOGGLE_MOVE_FN',
     'SET_MODAL_DEFAULT',
     'EMPTY_MODAL_DEFAULT',
+    'SET_MODAL_KEY',
     'SHOW_FNVIEW_MODAL',
     'HIDE_FNVIEW_MODAL',
     'SHOW_RESVIEW_MODAL',

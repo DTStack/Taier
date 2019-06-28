@@ -26,6 +26,7 @@ const initModalState = {
     confirmSaveVisible: false,
     showPublish: false,
     theReqIsEnd: true,
+    editModalKey: null,
     engineType: ENGINE_SOURCE_TYPE.HADOOP // 引擎类型 默认Hadoop
 };
 
@@ -121,6 +122,11 @@ export const modalShowReducer = (state = initModalState, action) => {
             return assign({}, state, {
                 resViewModal: false,
                 resId: undefined
+            });
+        }
+        case modalAction.SET_MODAL_KEY: {
+            return assign({}, state, {
+                editModalKey: action.payload
             });
         }
         // 保存提交

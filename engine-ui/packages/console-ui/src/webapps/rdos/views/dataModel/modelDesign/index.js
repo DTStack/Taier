@@ -12,6 +12,7 @@ import EngineSelect from '../../../components/engineSelect';
 import Editor from 'widgets/editor';
 import CopyIcon from 'main/components/copy-icon';
 import { DDL_PLACEHOLDER, LIBRA_DDL_IDE_PLACEHOLDER } from '../../../comm/DDLCommon'
+import { TABLE_NAME_BY_TABLE_TYPE } from '../../../comm/const'
 import { isLibraTable } from '../../../comm';
 import SlidePane from 'widgets/slidePane';
 import TableLog from '../../dataManage/tableLog';
@@ -254,7 +255,10 @@ class TableList extends Component {
             {
                 title: '表类型',
                 key: 'tableType',
-                dataIndex: 'tableType'
+                dataIndex: 'tableType',
+                render (text) {
+                    return TABLE_NAME_BY_TABLE_TYPE[text]
+                }
             },
             {
                 title: '模型层级',

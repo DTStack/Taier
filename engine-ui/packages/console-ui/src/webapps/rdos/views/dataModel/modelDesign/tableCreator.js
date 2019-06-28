@@ -179,7 +179,12 @@ class TableCreator extends React.Component {
 
     prev () {
         const current = this.state.current - 1;
-        this.setState({ current });
+        this.setState({
+            current,
+            table: Object.assign({}, this.state.table, { // 避免切换表类型，清空columns数据
+                columns: []
+            })
+        });
     }
 
     doCreate () {

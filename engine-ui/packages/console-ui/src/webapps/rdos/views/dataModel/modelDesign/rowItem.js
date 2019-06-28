@@ -44,11 +44,11 @@ export default class RowItem extends React.Component {
         const newData = assign({}, data, { [iptName]: value });
         const TYPE = newData.columnType.toUpperCase();
 
-        if (TYPE === 'DECIMAL') {
+        if (TYPE === 'DECIMAL' || TYPE === 'NUMERIC') {
             if (!newData.precision) newData.precision = 10;
             if (!newData.scale) newData.scale = 0;
         }
-        if (TYPE === 'CHAR') {
+        if (TYPE === 'CHAR' || TYPE === 'CHARACTER' || TYPE === 'CHARACTER VARYING') {
             if (!newData.charLen) newData.charLen = 10;
         }
         if (TYPE === 'VARCHAR') {
@@ -84,19 +84,20 @@ export default class RowItem extends React.Component {
     }
 
     render () {
-        const { data, columnFileds } = this.props;
+        const { data, columnFileds, isHiveTable } = this.props;
         console.log('rowItem', this.props);
         console.log('rowItem', data);
 
         const options = columnFileds && columnFileds.map(field => <Option title={field.columnName} value={field.columnName} key={field.columnName}>{field.columnName}</Option>)
         const { isSaved, isPartition, columnType } = data;
-        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
-        const TYPES = isPartition
-            ? ['STRING', 'BIGINT']
-            : ['TINYINT', 'SMALLINT', 'INT', 'BIGINT', 'BOOLEAN',
+        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR', 'CHARACTER', 'CHARACTER VARYING', 'NUMERIC'].indexOf(columnType.toUpperCase()) !== -1;
+        const TYPES = isHiveTable
+            ? (isPartition ? ['STRING', 'BIGINT'] : ['TINYINT', 'SMALLINT', 'INT', 'BIGINT', 'BOOLEAN',
                 'FLOAT', 'DOUBLE', 'STRING', 'BINARY', 'TIMESTAMP',
                 'DECIMAL', 'DATE', 'VARCHAR', 'CHAR'
-            ];
+            ])
+            : ['SMALLINT', 'INTEGER', 'BIGINT', 'BOOLEAN', 'CHARACTER', 'CHARACTER VARYING',
+                'TEXT', 'NUMERIC', 'REAL', 'DOUBLE PRECISION', 'TIMESTAMP', 'DATE'];
 
         return <Row className="row">
             <Col span={4} className="cell">
@@ -162,6 +163,7 @@ export default class RowItem extends React.Component {
         columnType = columnType.toUpperCase();
         switch (columnType) {
             case 'DECIMAL':
+            case 'NUMERIC':
                 result = <span className="extra-ipt">
                     <Select name="precision"
                         style={{ marginLeft: '2%', width: '18%' }}
@@ -191,6 +193,8 @@ export default class RowItem extends React.Component {
                 </span>
                 break;
             case 'CHAR':
+            case 'CHARACTER':
+            case 'CHARACTER VARYING':
                 result = <span className="extra-ipt">
                     <InputNumber name="charLen" defaultValue={ charLen || 10 }
                         min={1}

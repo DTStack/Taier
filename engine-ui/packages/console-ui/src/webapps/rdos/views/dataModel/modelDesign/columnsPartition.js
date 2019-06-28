@@ -15,9 +15,10 @@ export default class ColumnsPartition extends React.Component {
     }
 
     addRow (type) {
+        const isHiveTable = this.props.tableType == TABLE_TYPE.HIVE;
         this.props.addRow({
             columnName: '',
-            columnType: 'STRING',
+            columnType: isHiveTable ? 'STRING' : 'INTEGER',
             columnDesc: '',
             uuid: Date.now()
         }, type);
@@ -55,6 +56,7 @@ export default class ColumnsPartition extends React.Component {
                         delRow={ this.delRow.bind(this, 1) }
                         replaceRow={ this.replaceRow.bind(this, 1) }
                         moveRow={ this.moveRow.bind(this, 1) }
+                        isHiveTable={isHiveTable}
                     />)}
                 </div>
                 <div className="fn">

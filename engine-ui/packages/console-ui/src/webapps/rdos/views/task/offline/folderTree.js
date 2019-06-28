@@ -440,6 +440,7 @@ class FolderTree extends React.Component {
             .then(res => {
                 if (res.code === 1) {
                     this.props.setModalDefault(res.data);
+                    this.props.setModalKey(Math.random())
                     this.props.toggleCreateScript();
                 }
             })

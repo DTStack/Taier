@@ -39,7 +39,6 @@ class TableEditor extends Component {
         });
         this.loadTableInfo();
     }
-
     loadTableInfo = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({

@@ -41,10 +41,20 @@ const tables = (state = {}, action) => {
         default: return newState;
     }
 }
+const scriptTypes = (state = [], action) => {
+    switch (action.type) {
+        case commAction.GET_SCRIPT_TYPES: {
+            return action.payload;
+        }
+        default: return state;
+    }
+}
+
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
-    tables
+    tables,
+    scriptTypes
 });
 
 /**
@@ -88,6 +98,19 @@ export const getTaskTypes = () => {
                 dispatch({
                     type: commAction.GET_TASK_TYPE_FILTER,
                     payload: (offlineTaskTypeFilter || []).concat({ id: TASK_TYPE.NOTEBOOK, value: TASK_TYPE.NOTEBOOK, text: 'Notebook' }, { id: TASK_TYPE.EXPERIMENT, value: TASK_TYPE.EXPERIMENT, text: '算法实验' })
+                })
+            }
+        })
+    }
+}
+export const getScriptTypes = () => {
+    return (dispatch, getState) => {
+        Api.getScriptTypes().then(res => {
+            if (res.code === 1) {
+                const scriptTypes = res.data;
+                dispatch({
+                    type: commAction.GET_SCRIPT_TYPES,
+                    payload: scriptTypes || []
                 })
             }
         })

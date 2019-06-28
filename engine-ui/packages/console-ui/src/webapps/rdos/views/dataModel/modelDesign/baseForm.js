@@ -211,17 +211,17 @@ export default class BaseForm extends React.Component {
     }
 
     render () {
-        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const { getFieldDecorator } = this.props.form;
 
         const {
             tableDesc, delim, dataCatalogue,
             location, lifeDay, catalogueId, grade,
-            subject, tableType
+            subject
         } = this.props;
 
-        const { type, tableNameArr, storedType } = this.state;
+        const { type, tableNameArr, storedType, tableType } = this.state;
         const isShowDelim = storedType == 'textfile';
-        const isHiveTable = getFieldValue('tableType') == TABLE_TYPE.HIVE; // hive表
+        const isHiveTable = tableType == TABLE_TYPE.HIVE; // hive表
         return <Form>
             <FormItem
                 {...formItemLayout}
@@ -264,36 +264,42 @@ export default class BaseForm extends React.Component {
                 )}
                 {this.renderTableRules()}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="类型"
-                hasFeedback
-            >
-                <RadioGroup value={this.state.type}
-                    onChange={this.handleChange.bind(this)}
-                >
-                    <Radio value={'1'}>内部表</Radio>
-                    <Radio value={'2'}>外部表</Radio>
-                </RadioGroup>
-            </FormItem>
-            {type == 2 && <FormItem
-                {...formItemLayout}
-                label="外部表地址"
-                hasFeedback
-            >
-                {getFieldDecorator('location', {
-                    rules: [{
-                        required: true,
-                        message: '外部表地址不可为空！'
-                    }, {
-                        validator: this.validateLoc.bind(this)
-                    }],
-                    initialValue: location,
-                    validateTrigger: 'onBlur'
-                })(
-                    <Input placeholder="外部表地址" />
-                )}
-            </FormItem>}
+            {
+                isHiveTable && (
+                    <>
+                        <FormItem
+                            {...formItemLayout}
+                            label="类型"
+                            hasFeedback
+                        >
+                            <RadioGroup value={this.state.type}
+                                onChange={this.handleChange.bind(this)}
+                            >
+                                <Radio value={'1'}>内部表</Radio>
+                                <Radio value={'2'}>外部表</Radio>
+                            </RadioGroup>
+                        </FormItem>
+                        {type == 2 && <FormItem
+                            {...formItemLayout}
+                            label="外部表地址"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('location', {
+                                rules: [{
+                                    required: true,
+                                    message: '外部表地址不可为空！'
+                                }, {
+                                    validator: this.validateLoc.bind(this)
+                                }],
+                                initialValue: location,
+                                validateTrigger: 'onBlur'
+                            })(
+                                <Input placeholder="外部表地址" />
+                            )}
+                        </FormItem>}
+                    </>
+                )
+            }
             <FormItem
                 {...formItemLayout}
                 label="所属类目"
@@ -315,46 +321,48 @@ export default class BaseForm extends React.Component {
             </FormItem>
             {
                 isHiveTable && (
-                    <FormItem
-                        {...formItemLayout}
-                        label="生命周期"
-                    >
-                        {getFieldDecorator('lifeDay', {
-                            rules: [{
-                                required: true,
-                                message: '生命周期不可为空！'
-                            }],
-                            initialValue: lifeDay || 90
-                        })(
-                            <LifeCycle
-                                onChange={this.lifeCycleChange}
-                            />
-                        )}
-                    </FormItem>
+                    <>
+                        <FormItem
+                            {...formItemLayout}
+                            label="生命周期"
+                        >
+                            {getFieldDecorator('lifeDay', {
+                                rules: [{
+                                    required: true,
+                                    message: '生命周期不可为空！'
+                                }],
+                                initialValue: lifeDay || 90
+                            })(
+                                <LifeCycle
+                                    onChange={this.lifeCycleChange}
+                                />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="存储格式"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('storedType', {
+                                rules: [{
+                                    required: true, message: '存储格式不可为空！'
+                                }],
+                                initialValue: storedType
+                            })(
+                                <Select onChange={(value) => {
+                                    this.setState({
+                                        storedType: value
+                                    })
+                                }}>
+                                    <Option value="textfile">textfile</Option>
+                                    <Option value="orc">orc</Option>
+                                    <Option value="parquet">parquet</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </>
                 )
             }
-            <FormItem
-                {...formItemLayout}
-                label="存储格式"
-                hasFeedback
-            >
-                {getFieldDecorator('storedType', {
-                    rules: [{
-                        required: true, message: '存储格式不可为空！'
-                    }],
-                    initialValue: storedType
-                })(
-                    <Select onChange={(value) => {
-                        this.setState({
-                            storedType: value
-                        })
-                    }}>
-                        <Option value="textfile">textfile</Option>
-                        <Option value="orc">orc</Option>
-                        <Option value="parquet">parquet</Option>
-                    </Select>
-                )}
-            </FormItem>
             {isShowDelim && (
                 <FormItem
                     {...formItemLayout}

@@ -646,12 +646,12 @@ class EditCluster extends React.Component {
                     .then(
                         (res) => {
                             if (res.code == 1) {
-                                const { description = {}, testResults } = res.data;
+                                const { description, testResults } = res.data;
                                 const testCompResult = showTestResult(testResults, this.state.defaultEngineType);
                                 this.setState({
-                                    nodeNumber: description.totalNode,
-                                    core: description.totalCores,
-                                    memory: description.totalMemory,
+                                    nodeNumber: description ? description.totalNode : 0,
+                                    core: description ? description.totalCores : 0,
+                                    memory: description ? description.totalMemory : 0,
                                     allTestLoading: false
                                 })
                                 updateTestStatus(testCompResult)
@@ -927,7 +927,7 @@ class EditCluster extends React.Component {
      */
     displayResource = (engineType) => {
         const { getFieldDecorator } = this.props.form;
-        const { clusterData, file, uploadLoading, core, nodeNumber, memory, fileHaveChange } = this.state;
+        const { clusterData, file, uploadLoading, core, nodeNumber, memory } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
         return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20 20 10 20' }} noHovering>
@@ -970,7 +970,7 @@ class EditCluster extends React.Component {
                                     >
                                         {getFieldDecorator('file', {
                                             rules: [{
-                                                required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
+                                                // required: !(!fileHaveChange && mode == 'edit'), message: '请选择上传文件'
                                             }, {
                                                 validator: this.validateFileType
                                             }]
@@ -1213,7 +1213,7 @@ class EditCluster extends React.Component {
                                         {/* 组件配置 */}
                                         <Card
                                             className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : 'calc(100% - 20px)' }}
+                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : 'calc(100% - 50px)' }}
                                             noHovering
                                         >
                                             <Tabs

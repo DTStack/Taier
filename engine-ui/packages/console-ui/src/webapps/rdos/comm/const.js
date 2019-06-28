@@ -17,16 +17,16 @@ export const ENGINE_SOURCE_TYPE_OPTIONS = [
     }
 ]
 export const ENGINE_TYPE_NAME = {
-    HADOOP: 'HADOOP',
-    LIBRA: 'LIBRA'
+    HADOOP: 'Hadoop',
+    LIBRA: 'LibrA'
 }
 export const TABLE_TYPE = {
     HIVE: 1,
     LIBRA: 2
 }
 export const TABLE_NAME_BY_TABLE_TYPE = {
-    1: 'hive',
-    2: 'libra'
+    1: 'Hive',
+    2: 'librA'
 }
 export const INTERNAL_OR_EXTERNAL_TABLE = {
     EXTERNAL: 'EXTERNAL',

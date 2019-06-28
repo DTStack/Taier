@@ -266,16 +266,20 @@ export default class TableViewer extends React.Component {
                                         <th>创建时间</th>
                                         <td>{moment(tableData.table.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
-                                    <tr>
-                                        <th>表类型</th>
-                                        <td>
-                                            {tableData.table.externalOrManaged == INTERNAL_OR_EXTERNAL_TABLE.EXTERNAL ? (
-                                                <span>外部表({tableData.table.location})</span>
-                                            ) : (
-                                                <span>内部表</span>
-                                            )}
-                                        </td>
-                                    </tr>
+                                    {
+                                        isHiveTable && (
+                                            <tr>
+                                                <th>表类型</th>
+                                                <td>
+                                                    {tableData.table.externalOrManaged == INTERNAL_OR_EXTERNAL_TABLE.EXTERNAL ? (
+                                                        <span>外部表({tableData.table.location})</span>
+                                                    ) : (
+                                                        <span>内部表</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    }
                                     <tr>
                                         <th>{isHiveTable ? 'Database' : 'Schema'}</th>
                                         <td>{table && table.dbName}</td>
@@ -321,10 +325,14 @@ export default class TableViewer extends React.Component {
                                         <th>数据最后变更时间</th>
                                         <td>{moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
-                                    <tr>
-                                        <th>存储格式</th>
-                                        <td>{tableData.table.storedType}</td>
-                                    </tr>
+                                    {
+                                        isHiveTable && (
+                                            <tr>
+                                                <th>存储格式</th>
+                                                <td>{tableData.table.storedType}</td>
+                                            </tr>
+                                        )
+                                    }
                                 </tbody>
                             </table>}
                         </Col>

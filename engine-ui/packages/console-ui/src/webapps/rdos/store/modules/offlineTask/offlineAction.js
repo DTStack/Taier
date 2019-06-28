@@ -1015,6 +1015,12 @@ export const workbenchActions = (dispatch) => {
                 payload: data
             })
         },
+        setModalKey (data) {
+            dispatch({
+                type: modalAction.SET_MODAL_KEY,
+                payload: data
+            })
+        },
         setModalDefault (data) {
             dispatch({
                 type: modalAction.SET_MODAL_DEFAULT,
