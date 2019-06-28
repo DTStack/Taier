@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Button, Form, Input, Radio } from 'antd';
-
+import ajax from '../../../api';
 import { getContainer } from 'funcs';
 
 import {
