@@ -683,7 +683,12 @@ class TableCreator extends React.Component {
 
     prev () {
         const current = this.state.current - 1;
-        this.setState({ current });
+        this.setState({
+            current,
+            table: Object.assign({}, this.state.table, {
+                columns: []
+            })
+        });
     }
 
     doCreate () {
