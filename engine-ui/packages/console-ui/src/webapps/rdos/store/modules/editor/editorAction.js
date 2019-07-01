@@ -168,7 +168,11 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
             if (res.data && res.data.sqlText) dispatch(output(currentTab, `${createTitle('任务信息')}\n${res.data.sqlText}\n${createTitle('')}`))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
-                if (res.data.engineType == ENGINE_SOURCE_TYPE.HADOOP) {
+                if (res.data.engineType == ENGINE_SOURCE_TYPE.LIBRA) {
+                    getDataOver(dispatch, currentTab, res, res.data.jobId) // libra不去轮训selectData接口，直接返回数据
+                    dispatch(removeLoadingTab(currentTab))
+                    resolve(true)
+                } else {
                     selectData(dispatch, res.data.jobId, currentTab)
                         .then(
                             (isSuccess) => {
@@ -180,10 +184,6 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
                                 }
                             }
                         )
-                } else {
-                    getDataOver(dispatch, currentTab, res, res.data.jobId) // libra不去轮训selectData接口，直接返回数据
-                    dispatch(removeLoadingTab(currentTab))
-                    resolve(true)
                 }
             } else {
                 // 不存在jobId，则直接返回结果
