@@ -57,8 +57,8 @@ class FnForm extends React.Component {
                         initialValue: 0
                     })(
                         <RadioGroup>
-                            <Radio key={0} value={0}>Scala</Radio>
-                            <Radio key={1} value={1}>Table</Radio>
+                            <Radio key={0} value={0}>UDF</Radio>
+                            <Radio key={1} value={1}>UDTF</Radio>
                         </RadioGroup>
                     )}
                 </FormItem>
