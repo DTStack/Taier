@@ -11,7 +11,6 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -32,7 +31,7 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import static com.dtstack.rdos.commom.exception.ErrorCode.HTTP_CALL_ERROR;
 
 /**
- * 
+ *
  * Reason: TODO ADD REASON(可选)
  * Date: 2017年03月10日 下午1:16:37
  * Company: www.dtstack.com
@@ -43,22 +42,20 @@ public class PoolHttpClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(PoolHttpClient.class);
 
-	private static int SocketTimeout = 60000;// 10秒
+	private static int SocketTimeout = 5000;// 5秒
 
-	private static int ConnectTimeout = 60000;// 10秒
+	private static int ConnectTimeout = 5000;// 5秒
 
 	// 将最大连接数增加到100
 	private static int maxTotal = 100;
-	
+
 	// 将每个路由基础的连接增加到20
 	private static int maxPerRoute = 20;
-	
-	private static Boolean SetTimeOut = true;
 
 	private static ObjectMapper objectMapper = new ObjectMapper();
-	
+
 	private static CloseableHttpClient httpClient = getHttpClient();
-	
+
 	private static Charset charset = Charset.forName("UTF-8");
 
 	private static CloseableHttpClient getHttpClient() {
@@ -73,8 +70,20 @@ public class PoolHttpClient {
 				registry);
 		cm.setMaxTotal(maxTotal);
 		cm.setDefaultMaxPerRoute(maxPerRoute);
-        return HttpClients.custom()
-                .setConnectionManager(cm).setRetryHandler(new RdosHttpRequestRetryHandler()).build();
+
+		//设置请求和传输超时时间
+		RequestConfig requestConfig = RequestConfig.custom()
+				//setConnectionRequestTimeout：设置从connect Manager获取Connection 超时时间，单位毫秒。这个属性是新加的属性，因为目前版本是可以共享连接池的。
+				.setConnectionRequestTimeout(ConnectTimeout)
+				//setSocketTimeout：请求获取数据的超时时间，单位毫秒。 如果访问一个接口，多少时间内无法返回数据，就直接放弃此次调用。
+				.setSocketTimeout(SocketTimeout)
+				//setConnectTimeout：设置连接超时时间，单位毫秒。
+				.setConnectTimeout(ConnectTimeout)
+				.build();
+
+		return HttpClients.custom()
+				.setDefaultRequestConfig(requestConfig)
+				.setConnectionManager(cm).setRetryHandler(new RdosHttpRequestRetryHandler()).build();
 	}
 
 	public static String post(String url, Map<String, Object> bodyData) {
@@ -82,7 +91,6 @@ public class PoolHttpClient {
 		CloseableHttpResponse response = null;
 		try {
 			HttpPost httPost = new HttpPost(url);
-			setConfig(httPost);
 			if (bodyData != null && bodyData.size() > 0) {
 				httPost.setEntity(new StringEntity(objectMapper
 						.writeValueAsString(bodyData),charset));
@@ -112,22 +120,14 @@ public class PoolHttpClient {
 		return responseBody;
 	}
 
-	private static void setConfig(HttpRequestBase httpRequest){
-		if (SetTimeOut) {
-			RequestConfig requestConfig = RequestConfig.custom()
-					.setSocketTimeout(SocketTimeout)
-					.setConnectTimeout(ConnectTimeout).build();// 设置请求和传输超时时间
-			httpRequest.setConfig(requestConfig);
-		}
-	}
-	
+
+
 	public static String get(String url) throws IOException {
 		String respBody = null;
-		HttpGet httpGet = null; 
+		HttpGet httpGet = null;
 		CloseableHttpResponse response = null;
 		try {
 			httpGet = new HttpGet(url);
-			setConfig(httpGet);
 			response = httpClient.execute(httpGet);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				HttpEntity entity = response.getEntity();
@@ -155,10 +155,11 @@ public class PoolHttpClient {
 		}
 		return respBody;
 	}
-	
+
 	public static void main(String[] args) throws IOException {
-		for(int i=0;i<10;i++){
-			System.out.println(PoolHttpClient.get("http://172.16.8.109:8081/jobs/46a3ce65bd66c46e81dead4b11274a67"));
+		for(int i=0;i<3;i++){
+//			System.out.println(PoolHttpClient.get("http://node001:8088/proxy/application_1560304503540_0049/jobs/2eeed96725faf6e281b7b23431429bca"));
+			System.out.println(PoolHttpClient.get("http://kudu1:8088/proxy/application_1560306804240_0047/jobs/d51e3fa15a259bc1918c4855f667a800"));
 		}
 	}
 }
