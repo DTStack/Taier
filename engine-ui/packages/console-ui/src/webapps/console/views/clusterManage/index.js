@@ -148,6 +148,12 @@ class ClusterManage extends React.Component {
             })
         }
     }
+    handleTableChange = (pagination, filters, sorter) => {
+        const queryParams = Object.assign(this.state.table, { pageIndex: pagination.current, loading: true })
+        this.setState({
+            table: queryParams
+        }, this.getResourceList)
+    }
     render () {
         const { dataSource, table, newClusterModal, editModalKey } = this.state;
         const { loading } = table;
@@ -171,6 +177,7 @@ class ClusterManage extends React.Component {
                         loading={loading}
                         dataSource={dataSource}
                         columns={columns}
+                        onChange={this.handleTableChange}
                     />
                 </Card>
                 <AddCommModal
