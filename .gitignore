@@ -12,3 +12,4 @@ etc
 /conf/node.yml
 dependency-reduced-pom.xml
 entrance/dependency-reduced-pom.xml
+/lib/
