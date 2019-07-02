@@ -69,6 +69,7 @@ class RuleDetailTable extends React.Component {
                     dataSource: res.data.result,
                     tableName: res.data.table,
                     timeList: res.data.timeList,
+                    cyctime: res.data.cyc_time,
                     pagination: {
                         ...pagination,
                         total: res.data.totalCount
@@ -90,7 +91,8 @@ class RuleDetailTable extends React.Component {
         return Object.keys(item).map((key) => {
             return {
                 dataIndex: key,
-                title: key
+                title: key,
+                width: Math.max(key.length * 8, 80)
             }
         });
     }
@@ -111,13 +113,14 @@ class RuleDetailTable extends React.Component {
     }
     render () {
         const { dataSource, cyctime, pagination, tableName, timeList } = this.state;
+        const columns = this.initColumns();
         return (
             <div>
                 <div style={{ marginBottom: '10px', overflow: 'hidden' }}>
                     表名：{tableName || ''}
                     <span style={{ float: 'right' }}>
                         运行时间：
-                        <Select value={cyctime} onChange={(value) => { this.setState({ cyctime: value }) }} style={{ width: '200px' }}>
+                        <Select value={cyctime} onChange={this.onSelectTime} style={{ width: '200px' }}>
                             {timeList.map((time) => {
                                 return <Option key={time} value={time}>{time}</Option>
                             })}
@@ -127,9 +130,15 @@ class RuleDetailTable extends React.Component {
                 <Table
                     className='dt-ant-table--border m-table'
                     dataSource={dataSource}
-                    columns={this.initColumns()}
+                    columns={columns}
                     onChange={this.onTableChange}
                     pagination={pagination}
+                    scroll={{
+                        x: columns.reduce((a, b) => {
+                            return a + b.width
+                        }, 0),
+                        y: 400
+                    }}
                 />
             </div>
         )
