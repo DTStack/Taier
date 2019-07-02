@@ -118,7 +118,7 @@ class Welcome extends Component {
                                 <Button className='o-button--large-font' ghost type="primary" onClick={this.handleNewProject}>创建项目</Button>
                                 <Button className='o-button--large-font' ghost type="primary" onClick={this.gotoProjectList}>项目列表</Button>
                             </>}>
-                            <img src='public/science/img/welcome.png' />,
+                            <img src='public/science/img/welcome.png' />
                         </Card>
                     </div>
                 </Col>
