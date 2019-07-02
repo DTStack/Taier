@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { get } from 'lodash';
 
 import {
     Form, Select,
@@ -24,6 +23,14 @@ function getSourceInitialField (sourceType) {
             initialFields.fieldDelimiter = ',';
             initialFields.encoding = 'utf-8';
             initialFields.writeMode = 'APPEND';
+            return initialFields;
+        }
+        case DATA_SOURCE.HIVE: {
+            // eslint-disable-next-line
+            initialFields.sourceColumn = '${table}';
+            initialFields.writeTableType = 'custom';
+            initialFields.writeMethod = 'time';
+            initialFields.interval = 10;
             return initialFields;
         }
     }
@@ -119,16 +126,18 @@ class CollectionTargetForm extends React.Component {
         /**
          * sourceId 改变,则清空表
          */
-        let clearTargetData = false;
-        this.props.updateTargetMap(initialFields, clearTargetData);
+        this.props.updateTargetMap(initialFields, true);
     }
 
     dynamicRender () {
         const { collectionData, topicList } = this.props;
-        const { isEdit, targetMap = {} } = collectionData;
+        const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
-        if (!targetMap) return [];
+        if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
+        const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+        const { writeTableType } = targetMap;
+
         switch (targetMap.type) {
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10:
@@ -171,8 +180,7 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('path', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'path', '')
+                            }]
                         })(
                             <Input placeholder="例如: /app/batch" />
                         )}
@@ -185,8 +193,7 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('fileName', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'fileName', '')
+                            }]
                         })(
                             <Input placeholder="文件名" />
                         )}
@@ -199,8 +206,7 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('fileType', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'fileType', 'orc')
+                            }]
                         })(
                             <Select>
                                 <Option value="orc">orc</Option>
@@ -214,8 +220,7 @@ class CollectionTargetForm extends React.Component {
                         key="fieldDelimiter"
                     >
                         {getFieldDecorator('fieldDelimiter', {
-                            rules: [],
-                            initialValue: get(targetMap, 'fieldDelimiter', undefined)
+                            rules: []
                         })(
                             <Input
                                 /* eslint-disable-next-line */
@@ -232,8 +237,7 @@ class CollectionTargetForm extends React.Component {
                             {getFieldDecorator('encoding', {
                                 rules: [{
                                     required: true
-                                }],
-                                initialValue: get(targetMap, 'encoding', undefined)
+                                }]
                             })(
                                 <Select>
                                     <Option value="utf-8">utf-8</Option>
@@ -251,8 +255,151 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('writeMode', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'writeMode', 'APPEND')
+                            }]
+                        })(
+                            <RadioGroup>
+                                <Radio disabled value="NONCONFLICT" style={{ float: 'left' }}>
+                                    覆盖（Insert Overwrite）
+                                </Radio>
+                                <Radio value="APPEND" style={{ float: 'left' }}>
+                                    追加（Insert Into）
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ].filter(Boolean);
+            }
+            case DATA_SOURCE.HIVE: {
+                return [
+                    <FormItem
+                        {...formItemLayout}
+                        label="k-v解析"
+                        key="sourceColumn"
+                    >
+                        {getFieldDecorator('sourceColumn', {
+                            rules: [{
+                                required: true, message: '该字段不能为空'
+                            }]
+                        })(
+                            <Input />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入表"
+                        key="writeTableType"
+                    >
+                        {getFieldDecorator('writeTableType', {
+                            rules: [{
+                                required: true
+                            }]
+                        })(
+                            <RadioGroup>
+                                {isMysqlSource ? (
+                                    <Radio disabled value="auto" style={{ float: 'left' }}>
+                                        自动建表
+                                    </Radio>
+                                ) : null}
+                                <Radio value="custom" style={{ float: 'left' }}>
+                                    手动选择
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>,
+                    writeTableType == 'custom' && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="表"
+                            key="targetTable"
+                        >
+                            {getFieldDecorator('targetTable', {
+                                rules: [{
+                                    required: true, message: '请选择表'
+                                }]
+                            })(
+                                <Select>
+
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    writeTableType == 'custom' && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="分区"
+                            key="partition"
+                        >
+                            {getFieldDecorator('partition', {
+                                rules: [{
+                                    required: true, message: '请选择分区'
+                                }]
+                            })(
+                                <Select>
+
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入策略"
+                        key="writeMethod"
+                    >
+                        {getFieldDecorator('writeMethod', {
+                            rules: [{
+                                required: true, message: '请选择写入策略'
+                            }]
+                        })(
+                            <Select>
+                                <Option value='time'>按时间</Option>
+                                <Option value='size'>按文件大小</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="间隔时间"
+                        key="interval"
+                    >
+                        {getFieldDecorator('interval', {
+                            rules: [{
+                                required: true, message: '请输入间隔时间'
+                            }]
+                        })(
+                            <Select>
+                                {[10, 20, 30, 40, 50, 60].map((time) => {
+                                    return <Option key={time} value={time}>{time}</Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="文件大小"
+                        key="fileSize"
+                    >
+                        {getFieldDecorator('fileSize', {
+                            rules: [{
+                                required: true, message: '请输入文件大小'
+                            }]
+                        })(
+                            <Select>
+                                {[5, 10, 20, 30, 40, 50].map((size) => {
+                                    return <Option key={size} value={size}>{size}</Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        className="txt-left"
+                        key="writeMode"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }]
                         })(
                             <RadioGroup>
                                 <Radio disabled value="NONCONFLICT" style={{ float: 'left' }}>
@@ -277,8 +424,12 @@ class CollectionTargetForm extends React.Component {
         const { dataSourceList = [], isEdit, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const disableOption = (targetSourceType) => {
+            const sourceType = sourceMap.type;
             // 源类型为Kafka时，目标仅能选择HDFS类型
-            return (sourceMap.type === DATA_SOURCE.KAFKA_09 || sourceMap.type === DATA_SOURCE.KAFKA_10) && targetSourceType !== DATA_SOURCE.HDFS;
+            if (sourceType == DATA_SOURCE.KAFKA_09 || sourceType == DATA_SOURCE.KAFKA_10) {
+                return targetSourceType !== DATA_SOURCE.HDFS;
+            }
+            return false;
         }
         return (
             <div>
@@ -322,6 +473,26 @@ class CollectionTargetForm extends React.Component {
 
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
+        // 建表模式
+        if (fields.hasOwnProperty('writeTableType')) {
+            fields['targetTable'] = undefined;
+            fields['partition'] = undefined;
+        }
+        // 写入表
+        if (fields.hasOwnProperty('targetTable')) {
+            fields['partition'] = undefined;
+        }
+        // 写入策略
+        if (fields.hasOwnProperty('writeMethod')) {
+            let writeMethod = fields.writeMethod;
+            if (writeMethod == 'time') {
+                fields['fileSize'] = undefined;
+                fields['interval'] = 10;
+            } else {
+                fields['fileSize'] = 10;
+                fields['interval'] = undefined;
+            }
+        }
         props.updateTargetMap(fields, false);
         if (props.onFormValuesChange) {
             props.onFormValuesChange(props, fields);
@@ -338,6 +509,45 @@ const WrapCollectionTargetForm = Form.create({
             },
             topic: {
                 value: targetMap.topic
+            },
+            sourceColumn: {
+                value: targetMap.sourceColumn
+            },
+            writeTableType: {
+                value: targetMap.writeTableType
+            },
+            targetTable: {
+                value: targetMap.targetTable
+            },
+            partition: {
+                value: targetMap.partition
+            },
+            writeMethod: {
+                value: targetMap.writeMethod
+            },
+            interval: {
+                value: targetMap.interval
+            },
+            fileSize: {
+                value: targetMap.fileSize
+            },
+            writeMode: {
+                value: targetMap.writeMode
+            },
+            encoding: {
+                value: targetMap.encoding
+            },
+            fieldDelimiter: {
+                value: targetMap.fieldDelimiter
+            },
+            fileType: {
+                value: targetMap.fileType
+            },
+            fileName: {
+                value: targetMap.fileName
+            },
+            path: {
+                value: targetMap.path
             }
         }
     }

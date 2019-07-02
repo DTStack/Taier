@@ -355,6 +355,18 @@ class CollectionSourceForm extends React.Component {
                             }
                             />
                         )}
+                    </FormItem>,
+                    <FormItem
+                        key="sourceFormat"
+                        {...formItemLayout}
+                        label="格式转换"
+                    >
+                        {getFieldDecorator('sourceFormat', {
+                            valuePropName: 'checked'
+                        })(
+                            <Checkbox>嵌套JSON平铺</Checkbox>
+                        )}
+                        <HelpDoc style={{ right: 'auto' }} doc="sourceFormat" />
                     </FormItem>
                 ]
             }
@@ -586,6 +598,9 @@ const WrapCollectionSourceForm = Form.create({
             },
             cat: {
                 value: sourceMap.cat
+            },
+            sourceFormat: {
+                value: sourceMap.sourceFormat
             },
             timestamp: {
                 value: sourceMap.timestamp ? moment(sourceMap.timestamp) : undefined

@@ -219,3 +219,10 @@ export const splitCharacter = (
         配置不可见字符，可通过“\”作为转义字符，例如\001
     </div>
 )
+
+export const sourceFormat = (
+    <div>
+        <p>用于写入Hive表，建议采用嵌套JSON平铺模式</p>
+        <p>用于流计算分析时，无需平铺</p>
+    </div>
+)
