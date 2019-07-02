@@ -273,19 +273,6 @@ class CollectionTargetForm extends React.Component {
                 return [
                     <FormItem
                         {...formItemLayout}
-                        label="k-v解析"
-                        key="sourceColumn"
-                    >
-                        {getFieldDecorator('sourceColumn', {
-                            rules: [{
-                                required: true, message: '该字段不能为空'
-                            }]
-                        })(
-                            <Input />
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
                         label="写入表"
                         key="writeTableType"
                     >
@@ -294,7 +281,7 @@ class CollectionTargetForm extends React.Component {
                                 required: true
                             }]
                         })(
-                            <RadioGroup>
+                            <RadioGroup onChange={this.getHiveTableList}>
                                 {isMysqlSource ? (
                                     <Radio disabled value="auto" style={{ float: 'left' }}>
                                         自动建表
@@ -306,6 +293,21 @@ class CollectionTargetForm extends React.Component {
                             </RadioGroup>
                         )}
                     </FormItem>,
+                    writeTableType == 'auto' && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="k-v解析"
+                            key="sourceColumn"
+                        >
+                            {getFieldDecorator('sourceColumn', {
+                                rules: [{
+                                    required: true, message: '该字段不能为空'
+                                }]
+                            })(
+                                <Input />
+                            )}
+                        </FormItem>
+                    ),
                     writeTableType == 'custom' && (
                         <FormItem
                             {...formItemLayout}
@@ -477,6 +479,8 @@ const WrapCollectionTargetForm = Form.create({
         if (fields.hasOwnProperty('writeTableType')) {
             fields['targetTable'] = undefined;
             fields['partition'] = undefined;
+            // eslint-disable-next-line
+            fields['sourceColumn'] = '${table}';
         }
         // 写入表
         if (fields.hasOwnProperty('targetTable')) {
