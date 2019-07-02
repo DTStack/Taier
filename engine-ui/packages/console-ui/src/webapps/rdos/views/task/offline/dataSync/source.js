@@ -287,7 +287,8 @@ class SourceForm extends React.Component {
                 this.loadIncrementColumn(value);
             }
         }
-        this.submitForm(null, null, value, sourceKey);
+        // 不可简化sourceKey, 在submitForm上对应的不同的逻辑，即第四个参数对应的逻辑不同，在不同场景可能不存在第四个参数，不能简化
+        this.submitForm(null, sourceKey, value, sourceKey);
         this.setState({
             showPreview: false
         });
