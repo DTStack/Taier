@@ -221,6 +221,9 @@ body:-webkit-full-screen {
 }
 .form-item-follow-text{
     margin:-14px 0px 14px 0px;
+    .ant-transfer-list-search-action {
+        padding-top: 8px;
+    }
 }
 .warning-color{
     color:#ffbf00;

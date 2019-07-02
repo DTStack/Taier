@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+
 import NotFund from 'widgets/notFund'
 import { getLicenseApp } from '../actions/app'
 import GlobalLoading from './layout/loading'
@@ -9,7 +10,7 @@ import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
 import { initNotification } from 'funcs';
 import http from '../api';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import Header from './layout/header';
 import utils from 'utils/index';
 import * as apps from 'config/base';
@@ -271,46 +272,46 @@ class Main extends Component {
             });
             // rdosAPP
             const rdosApp = licenseMap[apps.rdosApp.id];
-            const isRdosShow = rdosApp.isShow;
-            const isRdosDataSource = rdosApp.children[0] && rdosApp.children[0].isShow;
-            const isRdosTask = rdosApp.children[1] && rdosApp.children[1].isShow;
-            const isRdosOpera = rdosApp.children[2] && rdosApp.children[2].isShow;
-            const isRdosMap = rdosApp.children[3] && rdosApp.children[3].isShow;
-            const isRdosModal = rdosApp.children[4] && rdosApp.children[4].isShow;
-            const isRdosPro = rdosApp.children[5] && rdosApp.children[5].isShow;
+            const isRdosShow = get(rdosApp, 'isShow');
+            const isRdosDataSource = get(rdosApp, 'children[0].isShow');
+            const isRdosTask = get(rdosApp, 'children[1].isShow');
+            const isRdosOpera = get(rdosApp, 'children[2].isShow');
+            const isRdosMap = get(rdosApp, 'children[3].isShow');
+            const isRdosModal = get(rdosApp, 'children[4].isShow');
+            const isRdosPro = get(rdosApp, 'children[5].isShow');
             // streamAPP
             const streamApp = licenseMap[apps.streamApp.id];
-            const isStream = streamApp.isShow;
-            const isStreamDataSource = streamApp.children[0] && streamApp.children[0].isShow;
-            const isStreamTask = streamApp.children[1] && streamApp.children[1].isShow;
-            const isStreamOpera = streamApp.children[2] && streamApp.children[2].isShow;
-            const isStreamPro = streamApp.children[3] && streamApp.children[3].isShow;
+            const isStream = get(streamApp, 'isShow');
+            const isStreamDataSource = get(streamApp, 'children[0].isShow');
+            const isStreamTask = get(streamApp, 'children[1].isShow');
+            const isStreamOpera = get(streamApp, 'children[2].isShow');
+            const isStreamPro = get(streamApp, 'children[3].isShow');
             // analyticsEngine
             const analyApp = licenseMap[apps.aeApp.id];
             const isAna = analyApp.isShow;
             // dataQuality
             const qualityApp = licenseMap[apps.dqApp.id];
-            const isQuali = qualityApp.isShow;
-            const isQualiOver = qualityApp.children[0] && qualityApp.children[0].isShow;
-            const isQualiTaskSearch = qualityApp.children[1] && qualityApp.children[1].isShow;
-            const isQualiRule = qualityApp.children[2] && qualityApp.children[2].isShow;
-            const isQualiVali = qualityApp.children[3] && qualityApp.children[3].isShow;
-            const isQualiDataSource = qualityApp.children[4] && qualityApp.children[4].isShow;
+            const isQuali = get(qualityApp, 'isShow');
+            const isQualiOver = get(qualityApp, 'children[0].isShow');
+            const isQualiTaskSearch = get(qualityApp, 'children[1].isShow');
+            const isQualiRule = get(qualityApp, 'children[2].isShow');
+            const isQualiVali = get(qualityApp, 'children[3].isShow');
+            const isQualiDataSource = get(qualityApp, 'children[4].isShow');
             // dataApi
             const apiApp = licenseMap[apps.daApp.id];
-            const isDataApi = apiApp.isShow;
-            const isApiover = apiApp.children[0] && apiApp.children[0].isShow;
-            const isApiMarket = apiApp.children[1] && apiApp.children[1].isShow;
-            const isApiMine = apiApp.children[2] && apiApp.children[2].isShow;
-            const isApiMana = apiApp.children[3] && apiApp.children[3].isShow;
-            const isApiSafe = apiApp.children[4] && apiApp.children[4].isShow;
-            const isApiDataSource = apiApp.children[5] && apiApp.children[5].isShow;
+            const isDataApi = get(apiApp, 'isShow');
+            const isApiover = get(apiApp, 'children[0].isShow');
+            const isApiMarket = get(apiApp, 'children[1].isShow');
+            const isApiMine = get(apiApp, 'children[2].isShow');
+            const isApiMana = get(apiApp, 'children[3].isShow');
+            const isApiSafe = get(apiApp, 'children[4].isShow');
+            const isApiDataSource = get(apiApp, 'children[5].isShow');
             // science
             const scienceApp = licenseMap[apps.scienceApp.id];
-            const isScience = scienceApp.isShow;
-            const isScienceDevelop = scienceApp.children[0] && scienceApp.children[0].isShow;
-            const isScienceOperation = scienceApp.children[1] && scienceApp.children[1].isShow;
-            const isScienceSource = scienceApp.children[2] && scienceApp.children[2].isShow;
+            const isScience = get(scienceApp, 'isShow');
+            const isScienceDevelop = get(scienceApp, 'children[0].isShow');
+            const isScienceOperation = get(scienceApp, 'children[1].isShow');
+            const isScienceSource = get(scienceApp, 'children[2].isShow');
             // 判断条件存入数组
             const arr = [
                 // rdos

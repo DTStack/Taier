@@ -244,7 +244,7 @@ class AdminUser extends Component {
         Api.getProjects(app).then((res) => {
             function getNotNullProject (projectId, data) {
                 if (!data || !data.length) {
-                    return projectId;
+                    return null;
                 }
                 return data.find((p) => {
                     return p.id == projectId;

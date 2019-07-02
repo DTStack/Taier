@@ -939,18 +939,14 @@
             .four-cells {
                 .cell {
                     &:first-child {
-                        width: 30%;
+                        width: 40%;
                         font-weight: bold;
                     }
                     &:nth-child(2) {
-                        width: 30%;
+                        width:40%;
                         text-align: left;
                     }
                     &:nth-child(3) {
-                        width: 20%;
-                        text-align: right;
-                    }
-                    &:nth-child(4) {
                         width: 20%;
                         text-align: right;
                     }
