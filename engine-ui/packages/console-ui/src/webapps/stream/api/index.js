@@ -357,5 +357,8 @@ export default {
     //= =======运维中心=======
     getContainerInfos (params) {
         return http.post(stremReq.GET_CONTAINER_INFOS, params)
+    },
+    getResultTable (params) {
+        return http.post(stremReq.GET_RESULT_TABLE, params)
     }
 }
