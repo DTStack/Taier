@@ -26,7 +26,7 @@ import { showSeach } from '../../../store/modules/comm';
 import { updateEditorOptions } from '../../../store/modules/editor/editorAction';
 
 import TaskBrowser from './taskBrowser'
-import { MENU_TYPE, TASK_TYPE, formItemLayout, DATA_SYNC_TYPE } from '../../../comm/const';
+import { MENU_TYPE, TASK_TYPE, formItemLayout, DATA_SYNC_TYPE, DATA_SOURCE } from '../../../comm/const';
 
 const confirm = Modal.confirm;
 const FormItem = Form.Item;
@@ -95,6 +95,30 @@ class TaskIndex extends Component {
             })
         })
     }
+    checkSide = (sides) => {
+        if (sides) {
+            for (let i = 0; i < sides.length; i++) {
+                let side = sides[i];
+                const { type, primaryKey, hbasePrimaryKey } = side;
+                switch (type) {
+                    case DATA_SOURCE.ORACLE:
+                    case DATA_SOURCE.MYSQL:
+                    case DATA_SOURCE.MONGODB:
+                    case DATA_SOURCE.REDIS: {
+                        if (!primaryKey) {
+                            return `维表${i + 1}中的主键不能为空`;
+                        }
+                        return;
+                    }
+                    case DATA_SOURCE.HBASE: {
+                        if (!hbasePrimaryKey) {
+                            return `维表${i + 1}中的主键不能为空`;
+                        }
+                    }
+                }
+            }
+        }
+    }
     _saveTask = (saveMode) => {
         const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
         console.log('saveTask', this.props);
@@ -138,6 +162,11 @@ class TaskIndex extends Component {
         // currentPage.source = panelColumn;
         // currentPage.sink = outputPanelColumn;
         // currentPage.side = dimensionPanelColumn;
+        const err = this.checkSide(currentPage.side);
+        if (err) {
+            message.error(err);
+            return;
+        }
 
         currentPage.lockVersion = currentPage.readWriteLockVO.version;
         this.setState({
