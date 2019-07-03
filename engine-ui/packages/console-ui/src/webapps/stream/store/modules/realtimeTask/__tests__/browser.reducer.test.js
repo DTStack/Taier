@@ -42,4 +42,96 @@ describe('broswer reducer', () => {
         })
         expect(newState).toEqual(defaultVal)
     })
+    test('set default page input output dimension data ', () => {
+        const getInitVal = (type) => {
+            let initVal;
+            switch (type) {
+                case 'SET_INPUT_DATA': {
+                    initVal = {
+                        taskId: 1,
+                        source: {
+                            tabTemplate: [],
+                            panelColumn: [],
+                            panelActiveKey: [],
+                            popoverVisible: [],
+                            checkFormParams: [],
+                            timeColumoption: [],
+                            originOptionType: [],
+                            topicOptionType: []
+                        }
+                    }
+                    break;
+                }
+                case 'SET_OUTPUT_DATA': {
+                    initVal = {
+                        taskId: 1,
+                        sink: {
+                            tabTemplate: [], // 模版存储,所有输出源(记录个数)
+                            panelActiveKey: [], // 输出源是打开或关闭状态
+                            popoverVisible: [], // 删除显示按钮状态
+                            panelColumn: [], // 存储数据
+                            checkFormParams: [], // 存储要检查的参数from
+                            originOptionType: [], // 数据源选择数据
+                            tableOptionType: [], // 表选择数据
+                            topicOptionType: [], // topic 列表
+                            tableColumnOptionType: []// 表字段选择的类型
+                        }
+                    }
+                    break;
+                }
+                case 'SET_DIMESION_DATA': {
+                    initVal = {
+                        taskId: 1,
+                        side: {
+                            tabTemplate: [],
+                            panelColumn: [],
+                            panelActiveKey: [],
+                            popoverVisible: [],
+                            checkFormParams: [],
+                            originOptionType: [],
+                            tableOptionType: [],
+                            tableColumnOptionType: []
+                        }
+                    }
+                    break;
+                }
+                default:
+                    return initVal = {}
+            }
+            return initVal
+        }
+        const getActionCreator = (type) => {
+            let actionsCreator;
+            actionsCreator = {
+                type: browserAction[type],
+                data: getInitVal(type)
+            }
+            return actionsCreator
+        }
+        let page = [{ id: 1, name: 'test' }, { id: 2, name: 'test' }]
+        let newState = pages(page, getActionCreator('SET_INPUT_DATA'))
+        expect(newState).toEqual([{ id: 1, name: 'test', source: [] }, { id: 2, name: 'test' }])
+        newState = pages(page, getActionCreator('SET_OUTPUT_DATA'))
+        expect(newState).toEqual([{ id: 1, name: 'test', sink: [] }, { id: 2, name: 'test' }])
+        newState = pages(page, getActionCreator('SET_DIMESION_DATA'))
+        expect(newState).toEqual([{ id: 1, name: 'test', side: [] }, { id: 2, name: 'test' }])
+    })
+    test('CLOSE_PAGE', () => {
+        let page = [{ id: 1, name: 'test' }, { id: 2, name: 'test' }];
+        let index = 0;
+        let newState = pages(page, {
+            type: browserAction.CLOSE_PAGE,
+            data: index
+        })
+        expect(newState).toEqual([{ id: 2, name: 'test' }])
+    })
+    test('CLOSE_OTHERS', () => {
+        let page = [{ id: 1, name: 'test' }, { id: 2, name: 'test' }];
+        let currentPage = { id: 2, name: 'test' }
+        let newState = pages(page, {
+            type: browserAction.CLOSE_OTHERS,
+            data: currentPage
+        })
+        expect(newState).toEqual([{ id: 2, name: 'test' }])
+    })
 })

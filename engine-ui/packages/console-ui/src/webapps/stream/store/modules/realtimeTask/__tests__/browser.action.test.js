@@ -64,7 +64,6 @@ describe('browser actions', () => {
         const nextActions = store.getActions();
         expect(nextActions).toEqual(expectedActions)
     })
-
     test('setCurrentPage', () => {
         const expectedActions = [{
             type: browserAction.UPDATE_PAGE,
@@ -106,5 +105,57 @@ describe('browser actions', () => {
             type: browserAction.CLOSE_PAGE,
             data: index
         }])
+    })
+    test('test single Actions', () => { // 这里统一 test 传入page 同步 actions
+        let curPage = { id: 1, name: 'test_task' }
+        let expectedActions = [{
+            type: browserAction.CLOSE_OTHERS,
+            data: curPage
+        }]
+        // closeOtherPages
+        store.dispatch(browserActions.closeOtherPages(curPage))
+        let nextActions = store.getActions();
+        expect(nextActions).toEqual(expectedActions)
+        // updatePage
+        expectedActions = [{
+            type: browserAction.UPDATE_PAGE,
+            data: curPage
+        }]
+        store.clearActions();
+        store.dispatch(browserActions.updatePage(curPage))
+        nextActions = store.getActions();
+        expect(nextActions).toEqual(expectedActions)
+        // updateCurrentPage
+        expectedActions = [{
+            type: browserAction.UPDATE_CURRENT_PAGE,
+            data: curPage
+        }]
+        store.clearActions();
+        store.dispatch(browserActions.updateCurrentPage(curPage))
+        nextActions = store.getActions();
+        expect(nextActions).toEqual(expectedActions)
+    })
+    test('set default page input output dimension data', () => { // 初始化page源表，结果表，维表
+        const actionTypes = (type) => {
+            let expectedActions;
+            let defaultVal = {}
+            expectedActions = [{
+                type: browserAction[type],
+                data: defaultVal
+            }]
+            return expectedActions
+        }
+        store.clearActions();
+        store.dispatch(browserActions.setInputData({}))
+        let nextActions = store.getActions();
+        expect(nextActions).toEqual(actionTypes('SET_INPUT_DATA'))
+        store.clearActions();
+        store.dispatch(browserActions.setOutputData({}))
+        nextActions = store.getActions();
+        expect(nextActions).toEqual(actionTypes('SET_OUTPUT_DATA'))
+        store.clearActions();
+        store.dispatch(browserActions.setDimensionData({}))
+        nextActions = store.getActions();
+        expect(nextActions).toEqual(actionTypes('SET_DIMESION_DATA'))
     })
 })
