@@ -108,12 +108,13 @@ class TaskIndex extends Component {
                         if (!primaryKey) {
                             return `维表${i + 1}中的主键不能为空`;
                         }
-                        return;
+                        return null;
                     }
                     case DATA_SOURCE.HBASE: {
                         if (!hbasePrimaryKey) {
                             return `维表${i + 1}中的主键不能为空`;
                         }
+                        return null;
                     }
                 }
             }
@@ -347,6 +348,12 @@ class TaskIndex extends Component {
         result.preSave = true;
         result.submitStatus = 1; // 1-提交，0-保存
         result.checkSourceUrl = false; // 参数checkSourceUrl，false：不检查jdbc url改变状态。
+
+        const err = this.checkSide(currentPage.side);
+        if (err) {
+            message.error(err);
+            return;
+        }
 
         BrowserAction.publishTask(result)
             .then(
