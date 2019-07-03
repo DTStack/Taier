@@ -515,6 +515,11 @@ class ManageParamsConfig extends Component {
         const isSqlMode = mode == API_MODE.SQL;
         const dataFieldsClass = isSqlMode ? 'middle-title' : 'required-tip middle-title';
         const paramsConfigClass = isSqlMode ? 'paramsSql_arrow' : 'paramsConfig_arrow';
+        const filterOption = function (input, option) {
+            return option.props.children
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0
+        }
         return (
             <div>
                 <div className="steps-content">
@@ -530,7 +535,8 @@ class ManageParamsConfig extends Component {
                                             placeholder="数据源类型"
                                             style={{ width: '100%' }}
                                             showSearch
-                                            onChange={this.dataSourceTypeChange.bind(this)}
+                                            onSelect={this.dataSourceTypeChange.bind(this)}
+                                            filterOption={filterOption}
                                         >
                                             {dataSourceTypeOption}
                                         </Select>
@@ -544,7 +550,8 @@ class ManageParamsConfig extends Component {
                                             placeholder="数据源"
                                             style={{ width: '100%' }}
                                             showSearch
-                                            onChange={this.dataSourceChange.bind(this)}
+                                            onSelect={this.dataSourceChange.bind(this)}
+                                            filterOption={filterOption}
                                         >
                                             {dataSourceOptions}
                                         </Select>
@@ -558,7 +565,7 @@ class ManageParamsConfig extends Component {
                                             placeholder="数据表"
                                             style={{ width: '100%' }}
                                             showSearch
-                                            onChange={this.tableChange.bind(this)}
+                                            onSelect={this.tableChange.bind(this)}
                                         >
                                             {tableOptions}
                                         </Select>

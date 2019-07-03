@@ -11,7 +11,8 @@ import {
     Radio,
     Row,
     Col,
-    Tooltip
+    Tooltip,
+    Checkbox
 } from 'antd';
 import { isEmpty, debounce, get, isArray } from 'lodash';
 import assign from 'object-assign';
@@ -36,6 +37,8 @@ import {
     RDB_TYPE_ARRAY
 } from '../../../../comm/const';
 
+import BatchSelect from './batchSelect';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
@@ -43,7 +46,7 @@ const TextArea = Input.TextArea;
 
 class SourceForm extends React.Component {
     _isMounted = false;
-
+    isMysqlTable = false;
     constructor (props) {
         super(props);
         this.state = {
@@ -53,7 +56,8 @@ class SourceForm extends React.Component {
             columns: [],
             tablePartitionList: [], // 表分区列表
             incrementColumns: [], // 增量字段
-            loading: false // 请求
+            loading: false, // 请求
+            isChecked: {} // checkbox默认是否选中
         };
     }
 
@@ -119,6 +123,11 @@ class SourceForm extends React.Component {
         ) {
             return;
         }
+
+        this.isMysqlTable = sourceMap.type.type === DATA_SOURCE.MYSQL;
+
+        // 保证不同mySql类型表切换是批量选择出现的数据错误问题
+        this.state.isChecked[sourceMap.sourceId] && this.setState(preState => ({ isChecked: { ...preState.isChecked, ...{ [sourceMap.sourceId]: !preState.isChecked[sourceMap.sourceId] } } }));
 
         this.setState(
             {
@@ -263,11 +272,12 @@ class SourceForm extends React.Component {
         );
     }
 
-    changeTable (type, value) {
+    changeTable (type, value, sourceKey) {
         if (value) {
             this.setState({
                 loading: true
             });
+
             this.getTableColumn(value, type);
             // 如果源为hive, 则加载分区字段
             this.getHivePartions(value);
@@ -277,7 +287,8 @@ class SourceForm extends React.Component {
                 this.loadIncrementColumn(value);
             }
         }
-        this.submitForm();
+        // 不可简化sourceKey, 在submitForm上对应的不同的逻辑，即第四个参数对应的逻辑不同，在不同场景可能不存在第四个参数，不能简化
+        this.submitForm(null, sourceKey, value, sourceKey);
         this.setState({
             showPreview: false
         });
@@ -398,16 +409,22 @@ class SourceForm extends React.Component {
         const srcmap = Object.assign({}, sourceMap);
         paths.splice(index, 1);
         srcmap.type.path = paths;
-        console.log('onRemoveFtpPath'.srcmap)
         handleSourceMapChange(srcmap);
     }
 
-    submitForm (event, sourceKey) {
+    submitForm (event, sourceKey, value, key) {
         const { form, handleSourceMapChange, sourceMap } = this.props;
+        let tempObj = {};
+        if (key) {
+            tempObj = { extTable: assign({}, { ...sourceMap.type.extTable }, { [key]: value }) }
+        } else if (value) {
+            tempObj = {
+                table: value
+            }
+        }
 
         this.timerID = setTimeout(() => {
             let values = form.getFieldsValue();
-
             // clean no use property
             for (let key in values) {
                 if (values[key] === '') {
@@ -421,11 +438,17 @@ class SourceForm extends React.Component {
             if (values.path && !isArray(values.path)) {
                 values.path = utils.trim(values.path);
             }
-            const srcmap = assign({}, sourceMap.type, values, {
+            const srcmap = assign({}, sourceMap.type, { ...values, ...tempObj }, {
                 src: this.getDataObjById(values.sourceId)
             });
             handleSourceMapChange(srcmap, sourceKey);
         }, 0);
+        // 需放在定时器外为了保证设置值在getFieldsValue之前
+        if (value && key) {
+            form.setFieldsValue({ [`extTable.${key}`]: value })
+        } else if (value) {
+            form.setFieldsValue({ table: value });
+        }
     }
 
     next (cb) {
@@ -455,7 +478,6 @@ class SourceForm extends React.Component {
     getPopupContainer () {
         return this.props.dataSyncRef;
     }
-
     render () {
         const { getFieldDecorator } = this.props.form;
         const {
@@ -472,7 +494,6 @@ class SourceForm extends React.Component {
             sourceMap.type.type === DATA_SOURCE.FTP;
 
         const getPopupContainer = this.props.getPopupContainer;
-
         return (
             <div className="g-step1">
                 <Form>
@@ -650,20 +671,21 @@ class SourceForm extends React.Component {
     });
 
     renderExtDataSource = () => {
-        const { selectHack } = this.state;
+        const { selectHack, isChecked, tableListMap } = this.state;
         const { sourceMap, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
-
         if (!sourceList) {
             return [];
         }
-
         return sourceList
             .filter(source => {
                 return source.key != 'main';
             })
             .map(source => {
+                const tableValue = source.sourceId == null
+                    ? null
+                    : '' + source.sourceId;
                 return (
                     <div key={source.key}>
                         <FormItem {...formItemLayout} label="数据源">
@@ -675,9 +697,7 @@ class SourceForm extends React.Component {
                                     }
                                 ],
                                 initialValue:
-                                    source.sourceId == null
-                                        ? null
-                                        : '' + source.sourceId
+                                    tableValue
                             })(
                                 <Select
                                     showSearch
@@ -728,52 +748,82 @@ class SourceForm extends React.Component {
                             />
                         </FormItem>
                         {!selectHack && (
-                            <FormItem
-                                {...formItemLayout}
-                                label="表名"
-                                key="table"
-                            >
-                                {getFieldDecorator(`extTable.${source.key}`, {
-                                    rules: [
-                                        {
-                                            required: true,
-                                            message: '数据源表为必选项！'
-                                        }
-                                    ],
-                                    initialValue: source.tables
-                                })(
-                                    <Select
-                                        mode="tags"
-                                        showSearch
-                                        showArrow={true}
-                                        onChange={this.debounceExtTableSearch.bind(
-                                            this,
-                                            source.key
-                                        )}
-                                        optionFilterProp="value"
-                                        filterOption={filterValueOption}
-                                    >
-                                        {(
-                                            this.state.tableListMap[source.sourceId] || []
-                                        ).map(table => {
-                                            return (
-                                                <Option
-                                                    key={`rdb-${table}`}
-                                                    value={table}
-                                                >
-                                                    {table}
-                                                </Option>
-                                            );
-                                        })}
-                                    </Select>
-                                )}
-                                <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                    <Icon
-                                        className="help-doc"
-                                        type="question-circle-o"
-                                    />
-                                </Tooltip>
-                            </FormItem>
+                            <div>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="表名"
+                                    key="table"
+                                >
+                                    {getFieldDecorator(`extTable.${source.key}`, {
+                                        rules: [
+                                            {
+                                                required: true,
+                                                message: '数据源表为必选项！'
+                                            }
+                                        ],
+                                        initialValue: source.tables
+                                    })(
+                                        <Select style={{ 'display': isChecked[`extTable.${source.key}`] ? 'none' : 'block' }}
+                                            mode="tags"
+                                            showSearch
+                                            showArrow={true}
+                                            onChange={this.debounceExtTableSearch.bind(
+                                                this,
+                                                source.key
+                                            )}
+                                            optionFilterProp="value"
+                                            filterOption={filterValueOption}
+                                        >
+                                            {(
+                                                this.state.tableListMap[source.sourceId] || []
+                                            ).map(table => {
+                                                return (
+                                                    <Option
+                                                        key={`rdb-${table}`}
+                                                        value={table}
+                                                    >
+                                                        {table}
+                                                    </Option>
+                                                );
+                                            })}
+                                        </Select>
+                                    )}
+                                    <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                        <Icon
+                                            className="help-doc"
+                                            type="question-circle-o"
+                                        />
+                                    </Tooltip>
+                                    {
+                                        (this.isMysqlTable && isChecked[`extTable.${source.key}`]) ? (
+                                            <Row>
+                                                <Col>
+                                                    <BatchSelect sourceKey={ source.key } sourceMap={ sourceMap } key={ tableValue } tabData={ tableListMap[source.sourceId] } handleSelectFinish={ this.handleSelectFinishFromBatch } />
+                                                </Col>
+                                            </Row>
+                                        ) : null
+                                    }
+                                </FormItem>
+                                {
+                                    this.isMysqlTable ? (
+                                        <Row className="form-item-follow-text">
+                                            <Col
+                                                style={{ textAlign: 'right', fontSize: '13PX' }}
+                                                span={formItemLayout.wrapperCol.sm.span}
+                                                offset={formItemLayout.labelCol.sm.span}
+                                            >
+                                                {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
+                                                {/* disabled注意添加数据源之后无数据产生的bug问题 */}
+                                                <Checkbox name='isChecked' disabled={ source.sourceId == null } onChange={ () => this.handleCheckboxChange(`extTable.${source.key}`, event) } checked={ isChecked[`extTable.${source.key}`] } >
+                                                </Checkbox>
+                                                <a disabled={ !isChecked[`extTable.${source.key}`] } style={{ marginLeft: '5PX' }}>
+                                                    批量选择
+                                                </a>
+                                            </Col>
+                                        </Row>
+                                    ) : null
+                                }
+                            </div>
                         )}
                     </div>
                 );
@@ -811,9 +861,30 @@ class SourceForm extends React.Component {
             : '';
     }
 
+    // sourceKey 用在isChecked中来判断具体是哪一个sourceId已选中
+    handleCheckboxChange = (sourceKey, event) => {
+        const { isChecked } = this.state;
+        const target = event.target;
+        const value = target.type === 'checkbox' ? target.checked : target.value; // 拿到布尔值
+        this.setState({
+            isChecked: { ...isChecked, ...{ [sourceKey]: value } }
+        });
+        // this.props.form.setFieldsValue({ table: this.props.sourceMap.type.table, [`extTable.${sourceKey}`]: this.props.sourceMap.type.extTable[sourceKey] });
+    }
+
+    // sourceKey 为需要向redux处理的其他数据源的key值，构造action数据
+    // selectKey 为穿梭框选中的数据
+    handleSelectFinishFromBatch = (selectKey, type, sourceKey) => {
+        if (sourceKey) {
+            this.changeTable(type, selectKey, sourceKey);
+        } else {
+            this.changeTable(type, selectKey);
+        }
+    }
+
     renderDynamicForm = () => {
         const { getFieldDecorator } = this.props.form;
-        const { selectHack } = this.state;
+        const { selectHack, isChecked, tableListMap } = this.state;
         const { sourceMap, isIncrementMode } = this.props;
         const fileType = (sourceMap.type && sourceMap.type.fileType) || 'text';
 
@@ -828,7 +899,6 @@ class SourceForm extends React.Component {
 
         let formItem;
         if (isEmpty(sourceMap)) return null;
-
         switch (sourceMap.type.type) {
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
@@ -836,59 +906,93 @@ class SourceForm extends React.Component {
             case DATA_SOURCE.SQLSERVER:
             case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.POSTGRESQL: {
+                const tableValue = isEmpty(sourceMap) ? '' : supportSubLibrary
+                    ? sourceMap.sourceList[0].tables
+                    : sourceMap.type.table;
                 formItem = [
                     !selectHack ? (
-                        <FormItem {...formItemLayout} label="表名" key="table">
-                            {getFieldDecorator('table', {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: '数据源表为必选项！'
-                                    }
-                                ],
-                                initialValue: isEmpty(sourceMap)
-                                    ? ''
-                                    : supportSubLibrary
-                                        ? sourceMap.sourceList[0].tables
-                                        : sourceMap.type.table
-                            })(
-                                <Select
-                                    getPopupContainer={getPopupContainer}
-                                    mode={
-                                        supportSubLibrary ? 'tags' : 'combobox'
-                                    }
-                                    showSearch
-                                    showArrow={true}
-                                    onBlur={this.debounceTableSearch.bind(
-                                        this,
-                                        sourceMap.type.type
-                                    )}
-                                    optionFilterProp="value"
-                                    filterOption={filterValueOption}
-                                >
-                                    {(
-                                        this.state.tableListMap[sourceMap.sourceId] || []
-                                    ).map(table => {
-                                        return (
-                                            <Option
-                                                key={`rdb-${table}`}
-                                                value={table}
-                                            >
-                                                {table}
-                                            </Option>
-                                        );
-                                    })}
-                                </Select>
-                            )}
-                            {supportSubLibrary && (
-                                <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
-                                    <Icon
-                                        className="help-doc"
-                                        type="question-circle-o"
-                                    />
-                                </Tooltip>
-                            )}
-                        </FormItem>
+                        <div>
+                            <FormItem {...formItemLayout} label={ this.isMysqlTable ? '表名(批量)' : '表名' } key="rdbtable">
+                                {getFieldDecorator('table', {
+                                    rules: [
+                                        {
+                                            required: true,
+                                            message: '数据源表为必选项！'
+                                        }
+                                    ],
+                                    initialValue: tableValue
+                                })(
+                                    <Select
+                                        style={{ 'display': isChecked[ sourceMap.sourceId ] ? 'none' : 'block' }}
+                                        disabled={ this.isMysqlTable && isChecked[sourceMap.sourceId] }
+                                        getPopupContainer={getPopupContainer}
+                                        mode={
+                                            supportSubLibrary ? 'tags' : 'combobox'
+                                        }
+                                        showSearch
+                                        showArrow={true}
+                                        onBlur={this.debounceTableSearch.bind(
+                                            this,
+                                            sourceMap.type.type
+                                        )}
+                                        optionFilterProp="value"
+                                        filterOption={filterValueOption}
+                                    >
+                                        {(
+                                            this.state.tableListMap[sourceMap.sourceId] || []
+                                        ).map(table => {
+                                            return (
+                                                <Option
+                                                    key={`rdb-${table}`}
+                                                    value={table}
+                                                >
+                                                    {table}
+                                                </Option>
+                                            );
+                                        })}
+                                    </Select>
+                                )}
+                                {
+                                    (this.isMysqlTable && isChecked[sourceMap.sourceId]) ? (
+                                        <Row>
+                                            <Col>
+                                                <BatchSelect sourceMap={ sourceMap } key={ tableValue } tabData={ tableListMap[sourceMap.sourceId] } handleSelectFinish={ this.handleSelectFinishFromBatch } />
+                                            </Col>
+                                        </Row>
+                                    ) : null
+                                }
+                                {
+                                    isChecked[sourceMap.sourceId] ? null : (
+                                        supportSubLibrary && (
+                                            <Tooltip title="此处可以选择多表，请保证它们的表结构一致">
+                                                <Icon
+                                                    className="help-doc"
+                                                    type="question-circle-o"
+                                                />
+                                            </Tooltip>
+                                        )
+                                    )
+                                }
+                            </FormItem>
+                            {
+                                this.isMysqlTable ? (
+                                    <Row className="form-item-follow-text">
+                                        <Col
+                                            style={{ textAlign: 'right', fontSize: '13PX' }}
+                                            span={formItemLayout.wrapperCol.sm.span}
+                                            offset={formItemLayout.labelCol.sm.span}
+                                        >
+                                            {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
+                                            <Checkbox name='isChecked' onChange={ () => { this.handleCheckboxChange(sourceMap.sourceId, event) } } checked={ isChecked[sourceMap.sourceId] } >
+                                            </Checkbox>
+                                            <a disabled={ !isChecked[ sourceMap.sourceId ] } style={{ marginLeft: '5PX' }}>
+                                                批量选择
+                                            </a>
+                                        </Col>
+                                    </Row>
+                                ) : null
+                            }
+                        </div>
                     ) : null,
                     ...this.renderExtDataSource(),
                     supportSubLibrary && (

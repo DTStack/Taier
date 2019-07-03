@@ -17,7 +17,8 @@ const TextArea = Input.TextArea;
         project: state.project,
         taskTypes: {
             offline: state.offlineTask.comm.taskTypes
-        }
+        },
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter
     }
 }, dispatch => {
     return bindActionCreators({
@@ -76,9 +77,8 @@ class PublishModal extends React.Component {
         })
     }
     initColumns () {
-        const { isPublish, taskTypes } = this.props;
-        const offlineTaskTypes = taskTypes.offline.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' });;
-        const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
+        const { isPublish, taskTypeFilter } = this.props;
+        const offlineTaskTypesMap = new Map(taskTypeFilter.map((item) => { return [item.value, item.text] }));
         let columns = [{
             title: '对象名称',
             dataIndex: 'itemName',

@@ -28,6 +28,7 @@ const Search = Input.Search;
         taskTypes: {
             offline: state.offlineTask.comm.taskTypes
         },
+        taskTypeFilter: state.offlineTask.comm.taskTypeFilter,
         user: state.user
     }
 }, dispatch => {
@@ -218,9 +219,8 @@ class PackageCreate extends React.Component {
     }
     initColumns () {
         const { listType, users } = this.state;
-        const { taskTypes, user } = this.props;
-        const offlineTaskTypes = taskTypes.offline.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' });
-        const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
+        const { user, taskTypeFilter } = this.props;
+        const offlineTaskTypesMap = new Map(taskTypeFilter.map((item) => { return [item.value, item.text] }));
         /**
          * 这边判断该用户是否具有打包权限
          * 目前只有访客无打包权限
@@ -602,9 +602,8 @@ class PackageCreate extends React.Component {
     renderRightItem () {
         const { selectedRows, pagination } = this.state;
         const { current, pageSize } = pagination;
-        const { taskTypes } = this.props;
-        const offlineTaskTypes = taskTypes.offline;
-        const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
+        const { taskTypeFilter } = this.props;
+        const offlineTaskTypesMap = new Map(taskTypeFilter.map((item) => { return [item.value, item.text] }));
         return selectedRows.filter(
             (item, index) => {
                 return (index + 1) <= pageSize * current && (index + 1) > pageSize * (current - 1);

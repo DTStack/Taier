@@ -60,7 +60,7 @@ class NormalTaskForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
-        const { taskTypes, isWorkflowNode, user, project } = this.props;
+        const { taskTypeFilter, isWorkflowNode, user, project } = this.props;
 
         const isPyTask = taskType === TASK_TYPE.PYTHON;
         const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
@@ -77,7 +77,6 @@ class NormalTaskForm extends React.Component {
 
         const initialRefResourceName = taskData.refResourceList && taskData.refResourceList.length > 0
             ? taskData.refResourceList.map(res => res.resourceName) : [];
-        const displayTableType = taskTypes.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' }).find(item => item.key == taskType) || {};
         return (<Form>
             <FormItem
                 {...formItemLayout}
@@ -102,7 +101,9 @@ class NormalTaskForm extends React.Component {
                     initialValue: taskType
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
-                        <Radio key={displayTableType.key} value={displayTableType.key}>{displayTableType.value}</Radio>
+                        {taskTypeFilter.map(item =>
+                            <Radio key={item.value} value={item.value}>{item.text}</Radio>
+                        )}
                     </RadioGroup>
                 )}
             </FormItem>
@@ -319,6 +320,7 @@ const mapState = (state, ownProps) => {
         pathTreeData: offlineTask.taskTree,
         taskCustomParams: offlineTask.workbench.taskCustomParams,
         taskTypes: offlineTask.comm.taskTypes,
+        taskTypeFilter: offlineTask.comm.taskTypeFilter,
         user,
         project
     }
