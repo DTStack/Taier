@@ -8,7 +8,7 @@ import {
 
 import ajax from '../../../../../api/index'
 import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
-import { isSupportedTargetSource, isKafka } from '../../../../../comm'
+import { isSupportedTargetSource, isKafka, isHive } from '../../../../../comm'
 import HelpDoc from '../../../../helpDoc';
 
 const FormItem = Form.Item;
@@ -41,15 +41,16 @@ class CollectionTarget extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            topicList: []
+            topicList: [],
+            tableList: []
         }
     }
 
     componentDidMount () {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
-        if (targetMap.sourceId && isKafka(targetMap.type)) {
-            this.getTopicType(targetMap.sourceId)
+        if (targetMap.sourceId) {
+            this.onSourceIdChange(targetMap.type, targetMap.sourceId)
         }
     }
 
@@ -59,8 +60,33 @@ class CollectionTarget extends React.Component {
         const { targetMap = {} } = collectionData;
         const { collectionData: oldCol } = this.props;
         const { targetMap: oldTarget = {} } = oldCol;
-        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId && isKafka(targetMap.type)) {
-            this.getTopicType(targetMap.sourceId)
+        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId) {
+            this.onSourceIdChange(targetMap.type, targetMap.sourceId);
+        }
+    }
+
+    getTableList (sourceId) {
+        ajax.getStreamTablelist({
+            sourceId,
+            isSys: false
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tableList: res.data || []
+                });
+            }
+        });
+    }
+
+    onSourceIdChange (type, sourceId) {
+        this.setState({
+            topicList: [],
+            tableList: []
+        })
+        if (isKafka(type)) {
+            this.getTopicType(sourceId)
+        } else if (isHive(type)) {
+            this.getTableList(sourceId);
         }
     }
 
@@ -104,10 +130,16 @@ class CollectionTarget extends React.Component {
     }
 
     render () {
-        const { topicList } = this.state;
+        const { topicList, tableList } = this.state;
         return (
             <div>
-                <WrapCollectionTargetForm ref={(f) => { this._form = f }} onFormValuesChange={this.onFormValuesChange} topicList={topicList} {...this.props} />
+                <WrapCollectionTargetForm
+                    ref={(f) => { this._form = f }}
+                    onFormValuesChange={this.onFormValuesChange}
+                    topicList={topicList}
+                    tableList={tableList}
+                    {...this.props}
+                />
                 {!this.props.readonly && (
                     <div className="steps-action">
                         <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
@@ -128,9 +160,8 @@ class CollectionTargetForm extends React.Component {
          */
         this.props.updateTargetMap(initialFields, true);
     }
-
     dynamicRender () {
-        const { collectionData, topicList } = this.props;
+        const { collectionData, topicList, tableList } = this.props;
         const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
@@ -281,7 +312,7 @@ class CollectionTargetForm extends React.Component {
                                 required: true
                             }]
                         })(
-                            <RadioGroup onChange={this.getHiveTableList}>
+                            <RadioGroup onChange={this.getTableList}>
                                 {isMysqlSource ? (
                                     <Radio disabled value="auto" style={{ float: 'left' }}>
                                         自动建表
@@ -320,7 +351,9 @@ class CollectionTargetForm extends React.Component {
                                 }]
                             })(
                                 <Select>
-
+                                    {tableList.map((tableName) => {
+                                        return <Option key={tableName} value={tableName}>{tableName}</Option>
+                                    })}
                                 </Select>
                             )}
                         </FormItem>
