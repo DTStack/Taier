@@ -109,3 +109,15 @@ export const errorPercentConfig = (
         <p>任务执行结束后统计错误记录占比，当比例过高时，将此任务实例置为失败</p>
     </div>
 )
+
+export const ruleConfigSaveTable = (
+    <div>
+        <p>保存最近10次的结果，并自动删除过期的数据</p>
+    </div>
+)
+
+export const usernameMsg = (
+    <div>
+        <p>为存储校验结果，需要读、写、删除表权限的账号</p>
+    </div>
+)
