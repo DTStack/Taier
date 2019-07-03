@@ -219,7 +219,7 @@ class PackageCreate extends React.Component {
     initColumns () {
         const { listType, users } = this.state;
         const { taskTypes, user } = this.props;
-        const offlineTaskTypes = taskTypes.offline;
+        const offlineTaskTypes = taskTypes.offline.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' });
         const offlineTaskTypesMap = new Map(offlineTaskTypes.map((item) => { return [item.key, item.value] }));
         /**
          * 这边判断该用户是否具有打包权限
