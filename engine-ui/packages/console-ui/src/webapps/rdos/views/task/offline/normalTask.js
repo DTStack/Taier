@@ -60,7 +60,7 @@ class NormalTaskForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const taskData = this.props;
         const taskType = taskData.taskType;
-        const { taskTypes, isWorkflowNode, user, project } = this.props;
+        const { taskTypeFilter, isWorkflowNode, user, project } = this.props;
 
         const isPyTask = taskType === TASK_TYPE.PYTHON;
         const isVirtual = taskType == TASK_TYPE.VIRTUAL_NODE;
@@ -102,8 +102,8 @@ class NormalTaskForm extends React.Component {
                     initialValue: taskType
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
-                        {taskTypes.concat({ key: TASK_TYPE.NOTEBOOK, value: 'Notebook' }, { key: TASK_TYPE.EXPERIMENT, value: '算法实验' }).map(item =>
-                            <Radio key={item.key} value={item.key}>{item.value}</Radio>
+                        {taskTypeFilter.map(item =>
+                            <Radio key={item.value} value={item.value}>{item.text}</Radio>
                         )}
                     </RadioGroup>
                 )}
@@ -321,6 +321,7 @@ const mapState = (state, ownProps) => {
         pathTreeData: offlineTask.taskTree,
         taskCustomParams: offlineTask.workbench.taskCustomParams,
         taskTypes: offlineTask.comm.taskTypes,
+        taskTypeFilter: offlineTask.comm.taskTypeFilter,
         user,
         project
     }

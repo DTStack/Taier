@@ -190,7 +190,7 @@ class AddLinkModal extends React.Component {
                             return <Col key={item.id} style={{ marginBottom: '13px' }} span={12}>
                                 <Checkbox value={item.id}>
                                     {name}
-                                    <span style={{ color: '#999', paddingLeft: '4px' }}>({utils.formatDateTime(item.modifyTime || item.modifyUser.gmtModified)})</span>
+                                    <span style={{ color: '#999', paddingLeft: '4px' }}>({utils.formatDateTime(item.modifyTime || item.gmtModified)})</span>
                                 </Checkbox>
                             </Col>
                         }
