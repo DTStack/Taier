@@ -77,3 +77,45 @@
 .shining{
 	background-color: rgba(215, 233, 255, 0.58);
 }
+
+.c-rule {
+	background: #fefefe;
+	border: 1px solid #dcdcdc;
+	padding: 10px;
+	.c-rule__buttons {
+		float: right;
+		.c-rule__button {
+			line-height: 32px;
+		}
+		.c-rule__button ~ .c-rule__button {
+			margin-left: 15px;
+		}
+	}
+	.ant-form-item ~ .c-rule__item--single {
+		margin-top: 10px;
+	}
+	.c-rule__item--single {
+		margin: 0px 0px 10px 10px;
+		display: flex;
+		> .ant-form-item-label {
+			flex-shrink: 0;
+			flex-grow: 0;
+		}
+		> .ant-form-item-control-wrapper {
+			flex-shrink: 1;
+			flex-grow: 1;
+		}
+	}
+}
+.c-ruleList {
+	padding: 10px;
+	.c-rule {
+		margin-bottom: 20px;
+	}
+	.c-ruleList__header {
+		display: flex;
+		justify-content: space-between;
+		height: 50px;
+		align-items: center;
+	}
+}

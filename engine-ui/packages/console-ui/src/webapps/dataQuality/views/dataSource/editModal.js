@@ -166,6 +166,7 @@ class DataSourceModal extends Component {
                                 rules: [],
                                 initialValue: config.username || ''
                             })(<Input autoComplete="off" />)}
+                            <HelpDoc doc="usernameMsg" />
                         </FormItem>
                         <FormItem {...formItemLayout} label="密码">
                             {getFieldDecorator('dataJson.password', {
@@ -320,6 +321,7 @@ class DataSourceModal extends Component {
                                 ],
                                 initialValue: config.username || ''
                             })(<Input autoComplete="off" />)}
+                            <HelpDoc doc="usernameMsg" />
                         </FormItem>
                         <FormItem {...formItemLayout} label="密码" hasFeedback>
                             {getFieldDecorator('dataJson.password', {
