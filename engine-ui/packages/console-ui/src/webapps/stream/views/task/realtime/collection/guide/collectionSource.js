@@ -357,11 +357,11 @@ class CollectionSourceForm extends React.Component {
                         )}
                     </FormItem>,
                     <FormItem
-                        key="sourceFormat"
+                        key="pavingData"
                         {...formItemLayout}
                         label="格式转换"
                     >
-                        {getFieldDecorator('sourceFormat', {
+                        {getFieldDecorator('pavingData', {
                             valuePropName: 'checked'
                         })(
                             <Checkbox>嵌套JSON平铺</Checkbox>
@@ -599,8 +599,8 @@ const WrapCollectionSourceForm = Form.create({
             cat: {
                 value: sourceMap.cat
             },
-            sourceFormat: {
-                value: sourceMap.sourceFormat
+            pavingData: {
+                value: sourceMap.pavingData
             },
             timestamp: {
                 value: sourceMap.timestamp ? moment(sourceMap.timestamp) : undefined

@@ -7,7 +7,7 @@ import {
 } from 'antd';
 
 import ajax from '../../../../../api/index'
-import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT, writeTableTypes, writeStrategys } from '../../../../../comm/const'
 import { isSupportedTargetSource, isKafka, isHive } from '../../../../../comm'
 import HelpDoc from '../../../../helpDoc';
 
@@ -22,15 +22,15 @@ function getSourceInitialField (sourceType) {
             initialFields.fileType = 'orc';
             initialFields.fieldDelimiter = ',';
             initialFields.encoding = 'utf-8';
-            initialFields.writeMode = 'APPEND';
+            initialFields.writeMode = 'insert';
             return initialFields;
         }
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
             initialFields.sourceColumn = '${table}';
             initialFields.writeTableType = 'custom';
-            initialFields.writeMethod = 'time';
-            initialFields.interval = 10;
+            initialFields.writeStrategy = writeStrategys.TIME;
+            initialFields.strategySize = 10;
             return initialFields;
         }
     }
@@ -42,15 +42,20 @@ class CollectionTarget extends React.Component {
         super(props);
         this.state = {
             topicList: [],
-            tableList: []
+            tableList: [],
+            partitions: []
         }
     }
 
     componentDidMount () {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
-        if (targetMap.sourceId) {
-            this.onSourceIdChange(targetMap.type, targetMap.sourceId)
+        const { sourceId, type, table } = targetMap;
+        if (sourceId) {
+            this.onSourceIdChange(type, sourceId);
+            if (isHive(sourceId) && table) {
+                this.onHiveTableChange(sourceId, table);
+            }
         }
     }
 
@@ -58,13 +63,33 @@ class CollectionTarget extends React.Component {
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
+        const { sourceId, type, table } = targetMap;
         const { collectionData: oldCol } = this.props;
         const { targetMap: oldTarget = {} } = oldCol;
-        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId) {
-            this.onSourceIdChange(targetMap.type, targetMap.sourceId);
+        if (sourceId && oldTarget.sourceId != sourceId) {
+            this.onSourceIdChange(type, sourceId);
+        }
+        if (table != oldTarget.table) {
+            this.onHiveTableChange(sourceId, table);
         }
     }
-
+    async onHiveTableChange (sourceId, tableName) {
+        this.setState({
+            partition: []
+        })
+        if (!sourceId || !tableName) {
+            return;
+        }
+        let res = await ajax.getHivePartitions({
+            sourceId,
+            tableName
+        });
+        if (res && res.code == 1) {
+            this.setState({
+                partitions: res.data
+            })
+        }
+    }
     getTableList (sourceId) {
         ajax.getStreamTablelist({
             sourceId,
@@ -81,7 +106,8 @@ class CollectionTarget extends React.Component {
     onSourceIdChange (type, sourceId) {
         this.setState({
             topicList: [],
-            tableList: []
+            tableList: [],
+            partitions: []
         })
         if (isKafka(type)) {
             this.getTopicType(sourceId)
@@ -130,7 +156,7 @@ class CollectionTarget extends React.Component {
     }
 
     render () {
-        const { topicList, tableList } = this.state;
+        const { topicList, tableList, partitions } = this.state;
         return (
             <div>
                 <WrapCollectionTargetForm
@@ -138,6 +164,7 @@ class CollectionTarget extends React.Component {
                     onFormValuesChange={this.onFormValuesChange}
                     topicList={topicList}
                     tableList={tableList}
+                    partitions={partitions}
                     {...this.props}
                 />
                 {!this.props.readonly && (
@@ -161,13 +188,14 @@ class CollectionTargetForm extends React.Component {
         this.props.updateTargetMap(initialFields, true);
     }
     dynamicRender () {
-        const { collectionData, topicList, tableList } = this.props;
+        const { collectionData, topicList, tableList, partitions } = this.props;
         const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
-        const { writeTableType } = targetMap;
+        const { writeTableType, writeStrategy } = targetMap;
+        const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
             case DATA_SOURCE.KAFKA_09:
@@ -314,23 +342,23 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <RadioGroup onChange={this.getTableList}>
                                 {isMysqlSource ? (
-                                    <Radio disabled value="auto" style={{ float: 'left' }}>
+                                    <Radio disabled value={writeTableTypes.AUTO} style={{ float: 'left' }}>
                                         自动建表
                                     </Radio>
                                 ) : null}
-                                <Radio value="custom" style={{ float: 'left' }}>
+                                <Radio value={writeTableTypes.HAND} style={{ float: 'left' }}>
                                     手动选择
                                 </Radio>
                             </RadioGroup>
                         )}
                     </FormItem>,
-                    writeTableType == 'auto' && (
+                    writeTableType == writeTableTypes.AUTO && (
                         <FormItem
                             {...formItemLayout}
                             label="k-v解析"
-                            key="sourceColumn"
+                            key="analyticalRules"
                         >
-                            {getFieldDecorator('sourceColumn', {
+                            {getFieldDecorator('analyticalRules', {
                                 rules: [{
                                     required: true, message: '该字段不能为空'
                                 }]
@@ -339,13 +367,13 @@ class CollectionTargetForm extends React.Component {
                             )}
                         </FormItem>
                     ),
-                    writeTableType == 'custom' && (
+                    writeTableType == writeTableTypes.HAND && (
                         <FormItem
                             {...formItemLayout}
                             label="表"
-                            key="targetTable"
+                            key="table"
                         >
-                            {getFieldDecorator('targetTable', {
+                            {getFieldDecorator('table', {
                                 rules: [{
                                     required: true, message: '请选择表'
                                 }]
@@ -358,7 +386,7 @@ class CollectionTargetForm extends React.Component {
                             )}
                         </FormItem>
                     ),
-                    writeTableType == 'custom' && (
+                    writeTableType == writeTableTypes.HAND && (
                         <FormItem
                             {...formItemLayout}
                             label="分区"
@@ -370,7 +398,9 @@ class CollectionTargetForm extends React.Component {
                                 }]
                             })(
                                 <Select>
-
+                                    {partitions.map((partition) => {
+                                        return <Option key={partition} value={partition}>{partition}</Option>
+                                    })}
                                 </Select>
                             )}
                         </FormItem>
@@ -378,49 +408,32 @@ class CollectionTargetForm extends React.Component {
                     <FormItem
                         {...formItemLayout}
                         label="写入策略"
-                        key="writeMethod"
+                        key="writeStrategy"
                     >
-                        {getFieldDecorator('writeMethod', {
+                        {getFieldDecorator('writeStrategy', {
                             rules: [{
                                 required: true, message: '请选择写入策略'
                             }]
                         })(
                             <Select>
-                                <Option value='time'>按时间</Option>
-                                <Option value='size'>按文件大小</Option>
+                                <Option value={writeStrategys.TIME}>按时间</Option>
+                                <Option value={writeStrategys.FILESIZE}>按文件大小</Option>
                             </Select>
                         )}
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
-                        label="间隔时间"
-                        key="interval"
+                        label={isWriteStrategyBeTime ? '间隔时间' : '文件大小'}
+                        key="strategySize"
                     >
-                        {getFieldDecorator('interval', {
+                        {getFieldDecorator('strategySize', {
                             rules: [{
-                                required: true, message: '请输入间隔时间'
+                                required: true, message: isWriteStrategyBeTime ? '请输入间隔时间' : '请输入文件大小'
                             }]
                         })(
                             <Select>
-                                {[10, 20, 30, 40, 50, 60].map((time) => {
-                                    return <Option key={time} value={time}>{time}</Option>
-                                })}
-                            </Select>
-                        )}
-                    </FormItem>,
-                    <FormItem
-                        {...formItemLayout}
-                        label="文件大小"
-                        key="fileSize"
-                    >
-                        {getFieldDecorator('fileSize', {
-                            rules: [{
-                                required: true, message: '请输入文件大小'
-                            }]
-                        })(
-                            <Select>
-                                {[5, 10, 20, 30, 40, 50].map((size) => {
-                                    return <Option key={size} value={size}>{size}</Option>
+                                {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
+                                    return <Option key={t} value={t}>{t}</Option>
                                 })}
                             </Select>
                         )}
@@ -437,10 +450,10 @@ class CollectionTargetForm extends React.Component {
                             }]
                         })(
                             <RadioGroup>
-                                <Radio disabled value="NONCONFLICT" style={{ float: 'left' }}>
+                                <Radio disabled value="insert" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
-                                <Radio value="APPEND" style={{ float: 'left' }}>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>
                             </RadioGroup>
@@ -510,25 +523,18 @@ const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
         // 建表模式
         if (fields.hasOwnProperty('writeTableType')) {
-            fields['targetTable'] = undefined;
+            fields['table'] = undefined;
             fields['partition'] = undefined;
             // eslint-disable-next-line
-            fields['sourceColumn'] = '${table}';
+            fields['analyticalRules'] = '${table}';
         }
         // 写入表
-        if (fields.hasOwnProperty('targetTable')) {
+        if (fields.hasOwnProperty('table')) {
             fields['partition'] = undefined;
         }
         // 写入策略
-        if (fields.hasOwnProperty('writeMethod')) {
-            let writeMethod = fields.writeMethod;
-            if (writeMethod == 'time') {
-                fields['fileSize'] = undefined;
-                fields['interval'] = 10;
-            } else {
-                fields['fileSize'] = 10;
-                fields['interval'] = undefined;
-            }
+        if (fields.hasOwnProperty('writeStrategy')) {
+            fields['strategySize'] = 10;
         }
         props.updateTargetMap(fields, false);
         if (props.onFormValuesChange) {
@@ -547,26 +553,23 @@ const WrapCollectionTargetForm = Form.create({
             topic: {
                 value: targetMap.topic
             },
-            sourceColumn: {
-                value: targetMap.sourceColumn
+            analyticalRules: {
+                value: targetMap.analyticalRules
             },
             writeTableType: {
                 value: targetMap.writeTableType
             },
-            targetTable: {
-                value: targetMap.targetTable
+            table: {
+                value: targetMap.table
             },
             partition: {
                 value: targetMap.partition
             },
-            writeMethod: {
-                value: targetMap.writeMethod
+            writeStrategy: {
+                value: targetMap.writeStrategy
             },
-            interval: {
-                value: targetMap.interval
-            },
-            fileSize: {
-                value: targetMap.fileSize
+            strategySize: {
+                value: targetMap.strategySize
             },
             writeMode: {
                 value: targetMap.writeMode
