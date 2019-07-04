@@ -597,7 +597,7 @@ class TaskQuery extends Component {
                         height: 'calc(100% - 45px)'
                     }}
                 >
-                    <div className="m-tabs">
+                    <div className="m-tabs c-tabs--scroll">
                         <Tabs
                             animated={false}
                             activeKey={tabKey}
