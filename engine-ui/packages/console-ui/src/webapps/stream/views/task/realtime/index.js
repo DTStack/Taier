@@ -105,7 +105,7 @@ class TaskIndex extends Component {
                     case DATA_SOURCE.MYSQL:
                     case DATA_SOURCE.MONGODB:
                     case DATA_SOURCE.REDIS: {
-                        if (!primaryKey) {
+                        if (!primaryKey || !primaryKey.length) {
                             return `维表${i + 1}中的主键不能为空`;
                         }
                         return null;
