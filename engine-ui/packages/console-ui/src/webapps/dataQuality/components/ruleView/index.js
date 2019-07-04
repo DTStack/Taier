@@ -26,6 +26,8 @@ class RuleView extends React.Component {
             </div>
             <div className='c-ruleView__item__line'>
                 {this.renderItem('过滤条件', data.filter)}
+            </div>
+            <div className='c-ruleView__item__line'>
                 {this.renderItem('校验方法', data.verifyTypeValue)}
                 {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
             </div>
@@ -70,7 +72,7 @@ class RuleView extends React.Component {
                 {this.renderItem('过滤条件', data.filter)}
             </div>
             <div className='c-ruleView__item__line'>
-                {this.renderItem('期望值', `${data.operator} ${data.threshold} ${data.isPercentage ? '%' : ''}`)}
+                {this.renderItem('期望值', `${data.isPercentage ? '占比' : '绝对值'} ${data.operator} ${data.threshold} ${data.isPercentage ? '%' : '条'}`)}
             </div>
         </React.Fragment>
     }
