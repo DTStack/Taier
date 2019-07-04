@@ -19,7 +19,10 @@ const Option = Select.Option
 const TabPane = Tabs.TabPane
 
 const ROUTER_BASE = '/data-manage/table';
-
+const ORDER_BY = {
+    'ascend': 1,
+    'descend': 2
+}
 @connect(state => {
     return {
         allProjects: state.allProjects,
@@ -102,11 +105,47 @@ class TableList extends Component {
             queryParams
         }, this.search)
     }
-
+    handleTabsChange (value) {
+        let queryParams = Object.assign({}, this.state.queryParams, {
+            listType: value,
+            pageIndex: 1,
+            sizeOrder: undefined,
+            lifeDayOrder: undefined
+        });
+        this.setState({
+            queryParams
+        }, this.search)
+    }
     handleTableChange = (pagination, filters, sorter) => {
-        const queryParams = Object.assign(this.state.queryParams, {
+        let { queryParams } = this.state;
+        queryParams = Object.assign(queryParams, {
             pageIndex: pagination.current
         })
+        if (sorter) {
+            const { field, order } = sorter;
+            switch (field) {
+                case 'tableSize': {
+                    queryParams = Object.assign(queryParams, {
+                        sizeOrder: ORDER_BY[order],
+                        lifeDayOrder: undefined
+                    })
+                    break;
+                }
+                case 'lifeDay': {
+                    queryParams = Object.assign(queryParams, {
+                        lifeDayOrder: ORDER_BY[order],
+                        sizeOrder: undefined
+                    })
+                    break;
+                }
+                default: {
+                    queryParams = Object.assign(queryParams, {
+                        lifeDayOrder: undefined,
+                        sizeOrder: undefined
+                    })
+                }
+            }
+        }
         this.setState({
             queryParams
         }, this.search)
@@ -200,6 +239,7 @@ class TableList extends Component {
                 key: 'tableSize',
                 width: 90,
                 fixed: 'right',
+                sorter: true,
                 dataIndex: 'tableSize'
             },
             {
@@ -207,6 +247,7 @@ class TableList extends Component {
                 key: 'lifeDay',
                 width: 90,
                 fixed: 'right',
+                sorter: true,
                 dataIndex: 'lifeDay'
             },
             {
@@ -372,7 +413,7 @@ class TableList extends Component {
                     activeKey={queryParams.listType}
                     animated={false}
                     style={{ overflow: 'visible', height: 'calc(100% - 40px)' }}
-                    onChange={value => this.changeParams('listType', value)}
+                    onChange={this.handleTabsChange.bind(this)}
                 >
                     <TabPane tab="我近期操作的表" key="1">
                         {this.renderPane()}
