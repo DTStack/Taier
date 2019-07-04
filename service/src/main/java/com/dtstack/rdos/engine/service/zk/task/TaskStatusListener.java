@@ -61,7 +61,16 @@ public class TaskStatusListener implements Runnable{
 
     public final static String TRIGGER_TIMESTAMP_KEY = "trigger_timestamp";
 
+    public final static String CHECKPOINT_ID_KEY = "id";
+
+    public final static String CHECKPOINT_SAVEPATH_KEY = "external_path";
+
     private static final long LISTENER_INTERVAL = 2000;
+
+    /** 已经插入到db的checkpoint，其id缓存数量*/
+    private static final long CHECKPOINT_INSERTED_RECORD = 2000;
+
+    private static final char SEPARATOR = '_';
 
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
@@ -85,6 +94,8 @@ public class TaskStatusListener implements Runnable{
                 new SynchronousQueue<>(true), new CustomThreadFactory("taskStatusListener"));
 
     private Cache<String, Integer> checkpointGetTotalNumCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
+
+    private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
     //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
     private int checkpointGetRate = 10;
@@ -371,7 +382,19 @@ public class TaskStatusListener implements Runnable{
             Timestamp startTimestamp = new Timestamp(startTime);
             Timestamp endTimestamp = new Timestamp(endTime);
 
-            rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointJsonStr, startTimestamp, endTimestamp);
+            for (Map<String, Object> entity : cpList) {
+                String checkpointID = String.valueOf(entity.get(CHECKPOINT_ID_KEY));
+                Long   checkpointTrigger = MathUtil.getLongVal(entity.get(TRIGGER_TIMESTAMP_KEY));
+                String checkpointSavepath = String.valueOf(entity.get(CHECKPOINT_SAVEPATH_KEY));
+
+                String checkpointCacheKey = taskId + SEPARATOR + checkpointID;
+
+                if (StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
+                    Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
+                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, startTimestamp, endTimestamp);
+                    checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
+                }
+            }
         } catch (IOException e) {
             logger.error("", e);
         }

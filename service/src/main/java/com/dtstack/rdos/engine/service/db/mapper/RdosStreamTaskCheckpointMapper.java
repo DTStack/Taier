@@ -16,7 +16,10 @@ import java.util.List;
 public interface RdosStreamTaskCheckpointMapper {
 
     int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId,
-               @Param("checkpoint") String checkpoint, @Param("triggerStart") Timestamp triggerStart,
+               @Param("checkpointId") String checkpointId,
+               @Param("checkpointTrigger") Timestamp checkpointTrigger,
+               @Param("checkpointSavepath") String checkpointSavepath,
+               @Param("triggerStart") Timestamp triggerStart,
                @Param("triggerEnd") Timestamp triggerEnd);
 
     List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
