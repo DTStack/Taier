@@ -134,7 +134,7 @@ class TaskForm extends React.Component {
         } else {
             value = isValueEmpty ? defaultData.taskType : taskTypeValue;
             // 当通过下拉框更改任务类型后，需要重置create源为normal
-            isCreateNormal = true;
+            // isCreateNormal = true;
         }
 
         const taskOptions = taskTypes.map(item =>
@@ -340,7 +340,7 @@ class TaskForm extends React.Component {
                                 }, {
                                     validator: this.checkNotDir.bind(this)
                                 }],
-                                initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].id
+                                initialValue: (isCreateFromIndex || isCreateNormal) ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].id
                             })(
                                 <Input type="hidden" />
                             )}
@@ -351,7 +351,7 @@ class TaskForm extends React.Component {
                                 isFilepicker
                                 treeData={this.props.resTreeData}
                                 onChange={this.handleResSelectTreeChange.bind(this)}
-                                defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].resourceName}
+                                defaultNode={(isCreateFromIndex || isCreateNormal) ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].resourceName}
                             />
                         </FormItem>
                         {
@@ -364,7 +364,7 @@ class TaskForm extends React.Component {
                                     rules: [{
                                         validator: this.checkNotDir.bind(this)
                                     }],
-                                    initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 ? defaultData.refResourceList.map(res => res.id) : []
+                                    initialValue: (isCreateFromIndex || isCreateNormal) ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 ? defaultData.refResourceList.map(res => res.id) : []
                                 })(
                                     <Input type="hidden" />
                                 )}
@@ -376,7 +376,7 @@ class TaskForm extends React.Component {
                                     allowClear={true}
                                     treeData={this.props.resTreeData}
                                     onChange={this.handleRefResSelectTreeChange.bind(this)}
-                                    defaultNode={isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 && defaultData.refResourceList.map(res => res.resourceName)}
+                                    defaultNode={(isCreateFromIndex || isCreateNormal) ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 && defaultData.refResourceList.map(res => res.resourceName)}
                                 />
                             </FormItem>
                         }
