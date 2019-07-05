@@ -53,4 +53,15 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
+    public void deleteRecordByCheckpointIDAndTaskID(String taskId) {
+        MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+            @Override
+            public Object execute(SqlSession sqlSession) throws Exception {
+                RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
+                taskCheckpointMapper.deleteByTaskid(taskId);
+                return null;
+            }
+        });
+    }
 }

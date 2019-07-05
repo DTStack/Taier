@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,12 +34,8 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
+import java.util.concurrent.*;
 
 /**
  *
@@ -71,9 +68,12 @@ public class TaskStatusListener implements Runnable{
     private static final long LISTENER_INTERVAL = 2000;
 
     /** 已经插入到db的checkpoint，其id缓存数量*/
-    private static final long CHECKPOINT_INSERTED_RECORD = 2000;
+    private static final long CHECKPOINT_INSERTED_RECORD = 200;
 
     private static final char SEPARATOR = '_';
+
+    //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
+    private int checkpointGetRate = 10;
 
 	private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
@@ -100,8 +100,11 @@ public class TaskStatusListener implements Runnable{
 
     private Cache<String, String> checkpointInsertedCache = CacheBuilder.newBuilder().maximumSize(CHECKPOINT_INSERTED_RECORD).build();
 
-    //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
-    private int checkpointGetRate = 10;
+    private CheckpointListener checkpointListener;
+
+    public TaskStatusListener() {
+        checkpointListener = new CheckpointListener();
+    }
 
     @Override
 	public void run() {
@@ -140,6 +143,10 @@ public class TaskStatusListener implements Runnable{
 
                 if(!failedTaskInfo.canTryLogAgain()){
                     failedJobCache.remove(key);
+                    //1.主动清理超过范围的checkpoint
+                    checkpointListener.SubtractionCheckpointRecord(key);
+                    //2.集合中移除该任务
+                    checkpointListener.getHasCheckpointPathTaskID().remove(key);
                 }
             }
         }catch (Exception e){
@@ -173,6 +180,7 @@ public class TaskStatusListener implements Runnable{
 
                                     if (computeType == ComputeType.STREAM.getType()) {
                                         dealStreamJob(taskId, engineTypeName, zkTaskId, computeType);
+                                        //将流任务ID放入缓存中，定时触发checkpoint清理
                                     } else if (computeType == ComputeType.BATCH.getType()) {
                                         dealBatchJob(taskId, engineTypeName, zkTaskId, computeType);
                                     }
@@ -392,10 +400,13 @@ public class TaskStatusListener implements Runnable{
 
                 String checkpointCacheKey = taskId + SEPARATOR + checkpointID;
 
-                if (!StringUtils.equalsIgnoreCase(CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY, checkpointSavepath) && StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
+                if (!StringUtils.equalsIgnoreCase(CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY, checkpointSavepath) &&
+                        StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
+
                     rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, startTimestamp, endTimestamp);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
+                    checkpointListener.getHasCheckpointPathTaskID().add(taskId);
                 }
             }
         } catch (IOException e) {
