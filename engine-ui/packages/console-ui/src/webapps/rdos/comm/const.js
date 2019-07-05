@@ -138,7 +138,8 @@ export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
     DATA_SOURCE.POSTGRESQL,
-    DATA_SOURCE.DB2
+    DATA_SOURCE.DB2,
+    DATA_SOURCE.GBASE
 ]
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ // 支持分库分表的数据库类型r
