@@ -65,6 +65,9 @@ public class TaskStatusListener implements Runnable{
 
     public final static String CHECKPOINT_SAVEPATH_KEY = "external_path";
 
+    /** 开启checkpoint，但未绑定外部存储路径*/
+    public  final static String CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY = "<checkpoint-not-externally-addressable>";
+
     private static final long LISTENER_INTERVAL = 2000;
 
     /** 已经插入到db的checkpoint，其id缓存数量*/
@@ -389,7 +392,7 @@ public class TaskStatusListener implements Runnable{
 
                 String checkpointCacheKey = taskId + SEPARATOR + checkpointID;
 
-                if (StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
+                if (!StringUtils.equalsIgnoreCase(CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY, checkpointSavepath) && StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
                     rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, startTimestamp, endTimestamp);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
