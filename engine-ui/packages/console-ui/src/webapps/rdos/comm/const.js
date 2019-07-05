@@ -15,7 +15,9 @@ export const DATA_SOURCE = {
     REDIS: 12,
     MONGODB: 13,
     DB2: 19,
-    CARBONDATA: 20
+    CARBONDATA: 20,
+    GBASE: 22,
+    Kylin: 23
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -32,7 +34,9 @@ export const DATA_SOURCE_TEXT = {
     12: 'Redis',
     13: 'MongoDB',
     19: 'DB2',
-    20: 'DTinsightAnalytics'
+    20: 'DTinsightAnalytics',
+    22: 'GBASE',
+    23: 'Kylin'
 }
 
 // 锁类型
