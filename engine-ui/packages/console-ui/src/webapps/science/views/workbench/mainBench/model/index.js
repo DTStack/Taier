@@ -12,6 +12,7 @@ import utils from 'utils';
 import { generateValueDic } from 'funcs';
 
 class ModelView extends React.Component {
+    _clock = null;
     state = {
         detailModalVisible: false,
         detailData: null,
@@ -39,6 +40,15 @@ class ModelView extends React.Component {
         this.loadData();
         this.getModelComponents();
     }
+    componentWillUnmount () {
+        this.clearDataLoad();
+    }
+    clearDataLoad () {
+        if (this._clock) {
+            clearTimeout(this._clock);
+            this._clock = null;
+        }
+    }
     getModelComponents = async () => {
         let res = await api.getModelComopnentsList();
         if (res && res.code == 1) {
@@ -47,10 +57,13 @@ class ModelView extends React.Component {
             })
         }
     }
-    loadData = async () => {
-        this.setState({
-            loading: true
-        })
+    loadData = async (disableLoading) => {
+        this.clearDataLoad();
+        if (!disableLoading) {
+            this.setState({
+                loading: true
+            })
+        }
         const { pagination, searchName, table } = this.state;
         const { sorter, filters } = table;
         const { columnKey, order } = sorter;
@@ -78,6 +91,7 @@ class ModelView extends React.Component {
                     total: res.data.totalCount
                 }
             })
+            this._clock = setTimeout(() => { this.loadData(true) }, 5000);
         }
         this.setState({
             loading: false
