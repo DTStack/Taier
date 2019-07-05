@@ -600,8 +600,8 @@ class AuthMana extends Component {
                         },
                         {
                             title: '处理时间',
-                            key: 'handTime',
-                            dataIndex: 'handTime',
+                            key: 'applyTime',
+                            dataIndex: 'applyTime',
                             render (text, record) {
                                 return utils.formatDateTime(text)
                             }
