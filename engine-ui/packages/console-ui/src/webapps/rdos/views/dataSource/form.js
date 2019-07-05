@@ -156,6 +156,8 @@ class BaseForm extends Component {
                 return undefined;
             case DATA_SOURCE.POSTGRESQL:
                 return /jdbc:postgresql:\/\/(\w)+/;
+            case DATA_SOURCE.GBASE:
+                return /jdbc:gbase:\/\/(\w)+/;
             default:
                 return undefined;
         }
@@ -856,6 +858,7 @@ class BaseForm extends Component {
                     </FormItem>
                 ]
             }
+            case DATA_SOURCE.GBASE:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.SQLSERVER:
@@ -907,7 +910,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.password', {
                             rules: [{
-                                required: true, message: '密码不可为空！'
+                                required: false, message: '密码不可为空！'
                             }],
                             initialValue: ''
                         })(
@@ -993,7 +996,7 @@ class BaseForm extends Component {
                     )}
                 </FormItem>
                 {this.renderDynamic()}
-                {isTest && showSync && !isEdit && (<FormItem
+                {sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (<FormItem
                     {...tailFormItemLayout}
                 >
                     {getFieldDecorator('isCopyToProduceProject', {
