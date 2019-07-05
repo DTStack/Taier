@@ -35,7 +35,7 @@ export const DATA_SOURCE_TEXT = {
     13: 'MongoDB',
     19: 'DB2',
     20: 'DTinsightAnalytics',
-    22: 'GBASE',
+    22: 'GBase',
     23: 'Kylin'
 }
 
