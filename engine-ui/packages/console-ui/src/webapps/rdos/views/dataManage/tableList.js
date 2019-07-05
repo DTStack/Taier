@@ -119,31 +119,16 @@ class TableList extends Component {
     handleTableChange = (pagination, filters, sorter) => {
         let { queryParams } = this.state;
         queryParams = Object.assign(queryParams, {
-            pageIndex: pagination.current
+            pageIndex: pagination.current,
+            sizeOrder: undefined,
+            lifeDayOrder: undefined
         })
         if (sorter) {
             const { field, order } = sorter;
-            switch (field) {
-                case 'tableSize': {
-                    queryParams = Object.assign(queryParams, {
-                        sizeOrder: ORDER_BY[order],
-                        lifeDayOrder: undefined
-                    })
-                    break;
-                }
-                case 'lifeDay': {
-                    queryParams = Object.assign(queryParams, {
-                        lifeDayOrder: ORDER_BY[order],
-                        sizeOrder: undefined
-                    })
-                    break;
-                }
-                default: {
-                    queryParams = Object.assign(queryParams, {
-                        lifeDayOrder: undefined,
-                        sizeOrder: undefined
-                    })
-                }
+            if (field === 'tableSize') {
+                queryParams.sizeOrder = ORDER_BY[order];
+            } else if (field === 'lifeDay') {
+                queryParams.lifeDayOrder = ORDER_BY[order];
             }
         }
         this.setState({
