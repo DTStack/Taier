@@ -63,6 +63,7 @@ class RuleView extends React.Component {
     }
     renderTypeCheck () {
         const { data } = this.props;
+        const isPercentage = data.verifyType == 7
         return <React.Fragment>
             <div className='c-ruleView__item__line'>
                 {this.renderItem('字段', data.columnName)}
@@ -72,7 +73,7 @@ class RuleView extends React.Component {
                 {this.renderItem('过滤条件', data.filter)}
             </div>
             <div className='c-ruleView__item__line'>
-                {this.renderItem('期望值', `${data.isPercentage ? '占比' : '绝对值'} ${data.operator} ${data.threshold} ${data.isPercentage ? '%' : '条'}`)}
+                {this.renderItem('期望值', `${isPercentage ? '占比' : '绝对值'} ${data.operator} ${data.threshold} ${isPercentage ? '%' : '条'}`)}
             </div>
         </React.Fragment>
     }
