@@ -158,4 +158,34 @@ describe('browser actions', () => {
         nextActions = store.getActions();
         expect(nextActions).toEqual(actionTypes('SET_DIMESION_DATA'))
     })
+
+    test('close input output dimension data', () => {
+        const expectedActions = (type) => {
+            let actionsCreator;
+            actionsCreator = [{
+                type: browserAction[type],
+                data: id
+            }]
+            return actionsCreator
+        }
+        // clearCurrent
+        store.dispatch(browserActions.closeCurrentInputData(id))
+        expect(store.getActions()).toEqual(expectedActions('CLEAR_CURRENT_INPUT_DATA'))
+        store.clearActions();
+        store.dispatch(browserActions.closeCurrentOutputData(id))
+        expect(store.getActions()).toEqual(expectedActions('CLEAR_CURRENT_OUTPUT_DATA'))
+        store.clearActions();
+        store.dispatch(browserActions.closeCurrentDimensionData(id))
+        expect(store.getActions()).toEqual(expectedActions('CLEAR_CURRENT_DIMESION_DATA'))
+        store.clearActions();
+        // closeOther
+        store.dispatch(browserActions.closeOtherInputData(id))
+        expect(store.getActions()).toEqual(expectedActions('CLEAR_OTHER_INPUT_DATA'))
+        store.clearActions();
+        store.dispatch(browserActions.closeOtherOutputData(id))
+        expect(store.getActions()).toEqual(expectedActions('CLEAR_OTHER_OUTPUT_DATA'))
+        store.clearActions();
+        store.dispatch(browserActions.closeOtherDimensionData(id))
+        expect(store.getActions()).toEqual(expectedActions('CLEAR_OTHER_DIMESION_DATA'))
+    })
 })

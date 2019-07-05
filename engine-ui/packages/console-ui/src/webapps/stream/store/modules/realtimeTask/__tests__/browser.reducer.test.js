@@ -1,7 +1,7 @@
 import {
     browserAction
 } from '../actionTypes';
-import { pages, currentPage } from '../browser'; /* eslint-disable-line */
+import { pages, currentPage, inputData, outputData, dimensionData } from '../browser'; /* eslint-disable-line */
 describe('broswer reducer', () => {
     let initValue = [];
     test('default', () => {
@@ -133,5 +133,60 @@ describe('broswer reducer', () => {
             data: currentPage
         })
         expect(newState).toEqual([{ id: 2, name: 'test' }])
+    })
+    test('close current or other or all input output dimension data reducer', () => {
+        const defaultVal = {
+            1: {
+                panelColumn: []
+            },
+            2: {
+                panelColumn: []
+            }
+        };
+        const id = 1;
+        let newState = inputData(defaultVal, {
+            type: browserAction.CLEAR_CURRENT_INPUT_DATA,
+            data: id
+        })
+        expect(newState).toEqual({ 2: { panelColumn: [] } })
+        newState = inputData(defaultVal, {
+            type: browserAction.CLEAR_OTHER_INPUT_DATA,
+            data: id
+        })
+        expect(newState).toEqual({ 1: { panelColumn: [] } })
+        newState = inputData(defaultVal, {
+            type: browserAction.CLEAR_ALL_INPUT_DATA
+        })
+        expect(newState).toEqual({})
+        // output
+        newState = outputData(defaultVal, {
+            type: browserAction.CLEAR_CURRENT_OUTPUT_DATA,
+            data: id
+        })
+        expect(newState).toEqual({ 2: { panelColumn: [] } })
+        newState = outputData(defaultVal, {
+            type: browserAction.CLEAR_OTHER_OUTPUT_DATA,
+            data: id
+        })
+        expect(newState).toEqual({ 1: { panelColumn: [] } })
+        newState = outputData(defaultVal, {
+            type: browserAction.CLEAR_ALL_OUTPUT_DATA
+        })
+        expect(newState).toEqual({})
+        // dimension
+        newState = dimensionData(defaultVal, {
+            type: browserAction.CLEAR_CURRENT_DIMESION_DATA,
+            data: id
+        })
+        expect(newState).toEqual({ 2: { panelColumn: [] } })
+        newState = dimensionData(defaultVal, {
+            type: browserAction.CLEAR_OTHER_DIMESION_DATA,
+            data: id
+        })
+        expect(newState).toEqual({ 1: { panelColumn: [] } })
+        newState = dimensionData(defaultVal, {
+            type: browserAction.CLEAR_ALL_DIMESION_DATA
+        })
+        expect(newState).toEqual({})
     })
 })
