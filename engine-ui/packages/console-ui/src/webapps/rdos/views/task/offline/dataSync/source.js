@@ -494,6 +494,7 @@ class SourceForm extends React.Component {
             sourceMap.type.type === DATA_SOURCE.FTP;
 
         const getPopupContainer = this.props.getPopupContainer;
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.Kylin);
         return (
             <div className="g-step1">
                 <Form>
@@ -515,7 +516,7 @@ class SourceForm extends React.Component {
                                 onSelect={this.changeSource.bind(this)}
                                 optionFilterProp="name"
                             >
-                                {dataSourceList.map(src => {
+                                {dataSourceListFltKylin.map(src => {
                                     let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
                                     const disableSelect =
                                         src.type === DATA_SOURCE.ES ||
@@ -900,6 +901,7 @@ class SourceForm extends React.Component {
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
+            case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:

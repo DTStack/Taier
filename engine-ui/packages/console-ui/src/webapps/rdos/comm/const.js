@@ -48,7 +48,9 @@ export const DATA_SOURCE = {
     MONGODB: 13,
     DB2: 19,
     CARBONDATA: 20,
-    LIBRASQL: 21
+    LIBRASQL: 21,
+    GBASE: 22,
+    Kylin: 23
 }
 
 /**
@@ -76,7 +78,9 @@ export const DATA_SOURCE_TEXT = {
     13: 'MongoDB',
     19: 'DB2',
     20: 'DTinsightAnalytics',
-    21: 'LibrA'
+    21: 'LibrA',
+    22: 'GBase',
+    23: 'Kylin'
 }
 
 // 锁类型

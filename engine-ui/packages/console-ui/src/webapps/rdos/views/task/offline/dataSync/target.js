@@ -367,6 +367,7 @@ class TargetForm extends React.Component {
             targetMap, dataSourceList, navtoStep, isIncrementMode
         } = this.props;
         const getPopupContainer = this.props.getPopupContainer;
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.Kylin);
         return <div className="g-step2">
             <Modal className="m-codemodal"
                 title={(
@@ -398,7 +399,7 @@ class TargetForm extends React.Component {
                             onChange={this.changeSource.bind(this)}
                             optionFilterProp="name"
                         >
-                            {dataSourceList.map(src => {
+                            {dataSourceListFltKylin.map(src => {
                                 let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
 
                                 /**
@@ -482,6 +483,7 @@ class TargetForm extends React.Component {
 
         if (isEmpty(targetMap)) return null;
         switch (targetMap.type.type) {
+            case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:
