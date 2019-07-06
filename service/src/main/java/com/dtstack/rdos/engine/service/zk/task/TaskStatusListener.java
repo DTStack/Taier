@@ -24,7 +24,6 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -34,8 +33,12 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -65,12 +68,18 @@ public class TaskStatusListener implements Runnable{
     /** 开启checkpoint，但未绑定外部存储路径*/
     public  final static String CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY = "<checkpoint-not-externally-addressable>";
 
+    private static final String CHECKPOINT_STATUS_KEY = "status";
+
+    private static final String CHECKPOINT_COMPLETED_STATUS = "COMPLETED";
+
     private static final long LISTENER_INTERVAL = 2000;
 
     /** 已经插入到db的checkpoint，其id缓存数量*/
     private static final long CHECKPOINT_INSERTED_RECORD = 200;
 
     private static final char SEPARATOR = '_';
+
+
 
     //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
     private int checkpointGetRate = 10;
@@ -93,7 +102,7 @@ public class TaskStatusListener implements Runnable{
 	/**失败任务的额外处理：当前只是对(失败任务 or 取消任务)继续更新日志或者更新checkpoint*/
     private Map<String, FailedTaskInfo> failedJobCache = Maps.newConcurrentMap();
 
-    private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L,TimeUnit.SECONDS,
+    private ExecutorService taskStatusPool = new ThreadPoolExecutor(1,Integer.MAX_VALUE, 60L, TimeUnit.SECONDS,
                 new SynchronousQueue<>(true), new CustomThreadFactory("taskStatusListener"));
 
     private Cache<String, Integer> checkpointGetTotalNumCache = CacheBuilder.newBuilder().expireAfterWrite(60 * 60, TimeUnit.SECONDS).build();
@@ -103,7 +112,12 @@ public class TaskStatusListener implements Runnable{
     private CheckpointListener checkpointListener;
 
     public TaskStatusListener() {
+        init();
+    }
+
+    public void init() {
         checkpointListener = new CheckpointListener();
+        checkpointListener.startCheckpointScheduled();
     }
 
     @Override
@@ -139,14 +153,19 @@ public class TaskStatusListener implements Runnable{
                     updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
                 }
 
-                failedTaskInfo.tryLog();
+                failedTaskInfo.waitClean();
 
-                if(!failedTaskInfo.canTryLogAgain()){
+                if(!failedTaskInfo.allowClean()){
                     failedJobCache.remove(key);
-                    //1.主动清理超过范围的checkpoint
-                    checkpointListener.SubtractionCheckpointRecord(key);
-                    //2.集合中移除该任务
-                    checkpointListener.getHasCheckpointPathTaskID().remove(key);
+
+                    JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
+                    if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
+                        //1.主动清理超过范围的checkpoint
+                        checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
+                        //2.集合中移除该任务
+                        checkpointListener.getHasCheckpointPathTaskID().remove(jobIdentifier.getEngineJobId());
+                    }
+
                 }
             }
         }catch (Exception e){
@@ -397,16 +416,19 @@ public class TaskStatusListener implements Runnable{
                 String checkpointID = String.valueOf(entity.get(CHECKPOINT_ID_KEY));
                 Long   checkpointTrigger = MathUtil.getLongVal(entity.get(TRIGGER_TIMESTAMP_KEY));
                 String checkpointSavepath = String.valueOf(entity.get(CHECKPOINT_SAVEPATH_KEY));
+                String status = String.valueOf(entity.get(CHECKPOINT_STATUS_KEY));
 
-                String checkpointCacheKey = taskId + SEPARATOR + checkpointID;
+                String checkpointCacheKey = engineTaskId + SEPARATOR + checkpointID;
 
                 if (!StringUtils.equalsIgnoreCase(CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY, checkpointSavepath) &&
+                        StringUtils.equalsIgnoreCase(CHECKPOINT_COMPLETED_STATUS, status) &&
                         StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
                     rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, startTimestamp, endTimestamp);
+
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
-                    checkpointListener.getHasCheckpointPathTaskID().add(taskId);
+                    checkpointListener.getHasCheckpointPathTaskID().add(engineTaskId);
                 }
             }
         } catch (IOException e) {

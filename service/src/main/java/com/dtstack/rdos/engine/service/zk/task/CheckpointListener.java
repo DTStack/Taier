@@ -1,9 +1,12 @@
 package com.dtstack.rdos.engine.service.zk.task;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -16,6 +19,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class CheckpointListener implements Runnable {
 
+    private static Logger logger = LoggerFactory.getLogger(CheckpointListener.class);
     /**
      * 存在checkpoint 外部存储路径的taskid
      */
@@ -28,7 +32,9 @@ public class CheckpointListener implements Runnable {
     //保留最大checkpoint的数量
     private final static int RETAINED_CHECKPOINT_MAX_COUT = 50;
 
-    public CheckpointListener() {
+    private String lastMaxCheckpointID = "0";
+
+    public void startCheckpointScheduled() {
         ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
         checkpointCleanPoll.scheduleWithFixedDelay(
                 this,
@@ -51,13 +57,26 @@ public class CheckpointListener implements Runnable {
         }
     }
 
-    public void SubtractionCheckpointRecord(String taskId) {
-        List<RdosStreamTaskCheckpoint> retainedCheckpointList = rdosStreamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId, null, null);
-        if (retainedCheckpointList.size() <= RETAINED_CHECKPOINT_MAX_COUT) {
-            return;
+    public void SubtractionCheckpointRecord(String taskEngineID) {
+        try {
+            List<RdosStreamTaskCheckpoint> retainedCheckpointList = rdosStreamTaskCheckpointDAO.listByTaskIdAndRangeTimeAndMaxCheckpointID(taskEngineID, null, null, lastMaxCheckpointID);
+
+            if (retainedCheckpointList.isEmpty()) {
+                return;
+            }
+
+            lastMaxCheckpointID = retainedCheckpointList.get(0).getCheckpointID();
+
+            if (retainedCheckpointList.size() <= RETAINED_CHECKPOINT_MAX_COUT) {
+                return;
+            }
+
+            RdosStreamTaskCheckpoint threshold = retainedCheckpointList.get(RETAINED_CHECKPOINT_MAX_COUT - 1);
+
+            rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskEngineID(threshold.getTaskEngineId(), threshold.getCheckpointID());
+        } catch (Exception e){
+            logger.error("checkpoint clean job run error:{}", ExceptionUtil.getErrorMessage(e));
         }
-        RdosStreamTaskCheckpoint threshold = retainedCheckpointList.get(RETAINED_CHECKPOINT_MAX_COUT - 1);
-        rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskID(threshold.getTaskId());
 
     }
 

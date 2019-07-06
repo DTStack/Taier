@@ -31,16 +31,17 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
-    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(String taskId,Long triggerStart, Long triggerEnd){
+    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTimeAndMaxCheckpointID(String engineTaskId, Long triggerStart, Long triggerEnd, String lastMaxCheckpointID){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>(){
 
             @Override
             public List<RdosStreamTaskCheckpoint> execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                return taskCheckpointMapper.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
+                return taskCheckpointMapper.listByTaskIdAndRangeTimeAndMaxCheckpointID(engineTaskId, triggerStart, triggerEnd, lastMaxCheckpointID);
             }
         });
     }
+
 
     public RdosStreamTaskCheckpoint getByTaskIdAndEngineTaskId(String taskId, String engineTaskId){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<RdosStreamTaskCheckpoint>(){
@@ -53,13 +54,13 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
-    public void deleteRecordByCheckpointIDAndTaskID(String taskId) {
+    public void deleteRecordByCheckpointIDAndTaskEngineID(String taskEngineId, String checkpointID) {
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                taskCheckpointMapper.deleteByTaskid(taskId);
+                taskCheckpointMapper.deleteByEngineTaskIdAndCheckpointID(taskEngineId, checkpointID);
                 return null;
             }
         });
