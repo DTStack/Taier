@@ -31,6 +31,10 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
+
+    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTimeAndMaxCheckpointID(String engineTaskId, Long triggerStart, Long triggerEnd) {
+        return listByTaskIdAndRangeTimeAndMaxCheckpointID(engineTaskId, triggerStart, triggerEnd, null);
+    }
     public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTimeAndMaxCheckpointID(String engineTaskId, Long triggerStart, Long triggerEnd, String lastMaxCheckpointID){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>(){
 
