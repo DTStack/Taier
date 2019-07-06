@@ -17,6 +17,8 @@ import EditorContainer from './sqlEditor';
 import CommonEditor from './commonEditor';
 import WorkFlowEditor from './workflowEditor';
 
+import KylinEditor from './KylinEditor/index';
+
 const confirm = Modal.confirm;
 
 export default class MainBench extends React.Component {
@@ -168,6 +170,13 @@ export default class MainBench extends React.Component {
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
             switch (tabData.taskType) {
+                case TASK_TYPE.Cube_Kylin:
+                    return <KylinEditor
+                        mode="kylin"
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        currentTab={tabData.id}
+                        currentTabData={tabData} />;
                 case TASK_TYPE.MR:
                 case TASK_TYPE.VIRTUAL_NODE:
                 case TASK_TYPE.ML:

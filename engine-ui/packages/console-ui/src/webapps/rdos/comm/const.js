@@ -1,5 +1,11 @@
 // 常量
 
+export const KYLIN_ACTION = {
+    action1: 'Build',
+    action2: 'Merge',
+    action3: 'Refresh'
+}
+
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
@@ -164,7 +170,8 @@ export const TASK_TYPE = { // 任务类型
     DATA_COLLECTION: 11, // 实时采集
     CARBONSQL: 12, // CarbonSQL
     NOTEBOOK: 13,
-    EXPERIMENT: 14
+    EXPERIMENT: 14,
+    Cube_Kylin: 15
 }
 
 export const LEARNING_TYPE = {// 深度学习框架

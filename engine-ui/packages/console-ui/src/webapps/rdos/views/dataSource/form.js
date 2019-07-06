@@ -35,6 +35,11 @@ const hdfsConf =
 "dfs.client.failover.proxy.provider.defaultDfs": "org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider" 
 }`
 
+const kylinConf = `{
+    "socketTimeout":10000,
+    "connectTimeout":10000
+}`;
+
 class BaseForm extends Component {
     state = {
         sourceType: 1,
@@ -143,6 +148,8 @@ class BaseForm extends Component {
 
     getJDBCRule = (type) => {
         switch (type) {
+            case DATA_SOURCE.Kylin:
+                return /http:\/\/([\w, .])+:(\w)+/;
             case DATA_SOURCE.HIVE:
             case DATA_SOURCE.ANALYSIS:
                 return /jdbc:(\w)+:\/\/(\w)+/;
@@ -176,6 +183,96 @@ class BaseForm extends Component {
         }
 
         switch (sourceType) {
+            case DATA_SOURCE.Kylin: {
+                const formItems = [
+                    <FormItem
+                        {...formItemLayout}
+                        label="Authentication URL:"
+                        hasFeedback
+                        key="authURL"
+                    >
+                        {getFieldDecorator('dataJson.authURL', {
+                            rules: [{
+                                required: true, message: 'AuthenticationURL不可为空！'
+                            }, jdbcRulePattern
+                            ],
+                            initialValue: config.authURL || ''
+                        })(
+                            <Input autoComplete="off" placeholder={ 'http://ip:port' } />
+                        )}
+                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
+                            <Icon className="help-doc" type="question-circle-o" />
+                        </Tooltip>
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="用户名"
+                        key="username"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.username', {
+                            rules: [{
+                                required: true, message: '用户名不可为空！'
+                            }],
+                            initialValue: config.username || ''
+                        })(
+                            <Input autoComplete="off" />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        key="password"
+                        label="密码"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.password', {
+                            rules: [{
+                                required: true, message: '密码不可为空！'
+                            }],
+                            initialValue: ''
+                        })(
+                            <Input type="password" autoComplete="off" />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        key="project"
+                        label="Project"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.project', {
+                            rules: [{
+                                required: true, message: 'Project不可为空！'
+                            }],
+                            initialValue: ''
+                        })(
+                            <Input autoComplete="off" placeholder={ 'DEFAULT' } />
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="高可用配置"
+                        key="config"
+                        hasFeedback
+                    >
+                        {getFieldDecorator('dataJson.config', {
+                            initialValue: config.config ? typeof config.config == 'string'
+                                ? JSON.stringify(JSON.parse(config.config), null, 4) : JSON.stringify(config.config, null, 4) : ''
+                        })(
+                            <Input
+                                className="no-scroll-bar"
+                                type="textarea" rows={5}
+                                placeholder={kylinConf}
+                            />
+                        )}
+                        <CopyIcon
+                            style={{ position: 'absolute', right: '-20px', bottom: '0px' }}
+                            copyText={kylinConf}
+                        />
+                    </FormItem>
+                ];
+                return formItems;
+            }
             case DATA_SOURCE.HDFS: {
                 const formItems = [
                     <FormItem
@@ -996,7 +1093,7 @@ class BaseForm extends Component {
                     )}
                 </FormItem>
                 {this.renderDynamic()}
-                {sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (<FormItem
+                { this.state.sourceType !== DATA_SOURCE.Kylin && sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (<FormItem
                     {...tailFormItemLayout}
                 >
                     {getFieldDecorator('isCopyToProduceProject', {
