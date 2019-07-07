@@ -4,11 +4,13 @@ import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -23,16 +25,11 @@ public class CheckpointListener implements Runnable {
     /**
      * 存在checkpoint 外部存储路径的taskid
      */
-    private Set<String> hasCheckpointPathTaskID = Sets.newConcurrentHashSet();
+    private Map<String, Integer> taskEngineIdAndReatinedNum = Maps.newConcurrentMap();
 
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
-    private final static int CHECK_INTERVAL = 5;
-
-    //保留最大checkpoint的数量
-    private final static int RETAINED_CHECKPOINT_MAX_COUT = 50;
-
-    private String lastMaxCheckpointID = "0";
+    private final static int CHECK_INTERVAL = 1;
 
     public void startCheckpointScheduled() {
         ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
@@ -45,43 +42,36 @@ public class CheckpointListener implements Runnable {
 
     @Override
     public void run() {
-        if (hasCheckpointPathTaskID.isEmpty()) {
+        if (taskEngineIdAndReatinedNum.isEmpty()) {
             return;
         }
         SubtractionCheckpointRecord();
     }
 
     public void SubtractionCheckpointRecord() {
-        if (!hasCheckpointPathTaskID.isEmpty()) {
-            hasCheckpointPathTaskID.stream().forEach(taskid -> SubtractionCheckpointRecord(taskid));
+        if (!taskEngineIdAndReatinedNum.isEmpty()) {
+            taskEngineIdAndReatinedNum.forEach((taskEngineID, retainedNum) -> SubtractionCheckpointRecord(taskEngineID));
         }
     }
 
     public void SubtractionCheckpointRecord(String taskEngineID) {
         try {
-            List<RdosStreamTaskCheckpoint> retainedCheckpointList = rdosStreamTaskCheckpointDAO.listByTaskIdAndRangeTimeAndMaxCheckpointID(taskEngineID, null, null, lastMaxCheckpointID);
 
-            if (retainedCheckpointList.isEmpty()) {
+            int retainedNum = taskEngineIdAndReatinedNum.get(taskEngineID);
+            List<RdosStreamTaskCheckpoint> threshold = rdosStreamTaskCheckpointDAO.getByCheckpointIndexAndCount(retainedNum-1, 1);
+
+            if (threshold.isEmpty()) {
                 return;
             }
-
-            lastMaxCheckpointID = retainedCheckpointList.get(0).getCheckpointID();
-
-            if (retainedCheckpointList.size() <= RETAINED_CHECKPOINT_MAX_COUT) {
-                return;
-            }
-
-            RdosStreamTaskCheckpoint threshold = retainedCheckpointList.get(RETAINED_CHECKPOINT_MAX_COUT - 1);
-
-            rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskEngineID(threshold.getTaskEngineId(), threshold.getCheckpointID());
+            RdosStreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
+            rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskEngineID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
         } catch (Exception e){
             logger.error("checkpoint clean job run error:{}", ExceptionUtil.getErrorMessage(e));
         }
 
     }
 
-    public Set<String> getHasCheckpointPathTaskID() {
-        return hasCheckpointPathTaskID;
+    public Map<String, Integer> getTaskEngineIdAndReatinedNum() {
+        return taskEngineIdAndReatinedNum;
     }
-
 }

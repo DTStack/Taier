@@ -32,16 +32,24 @@ public class RdosStreamTaskCheckpointDAO {
     }
 
 
-    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTimeAndMaxCheckpointID(String engineTaskId, Long triggerStart, Long triggerEnd) {
-        return listByTaskIdAndRangeTimeAndMaxCheckpointID(engineTaskId, triggerStart, triggerEnd, null);
-    }
-    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTimeAndMaxCheckpointID(String engineTaskId, Long triggerStart, Long triggerEnd, String lastMaxCheckpointID){
+    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(String engineTaskId, Long triggerStart, Long triggerEnd){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>(){
 
             @Override
             public List<RdosStreamTaskCheckpoint> execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                return taskCheckpointMapper.listByTaskIdAndRangeTimeAndMaxCheckpointID(engineTaskId, triggerStart, triggerEnd, lastMaxCheckpointID);
+                return taskCheckpointMapper.listByTaskIdAndRangeTime(engineTaskId, triggerStart, triggerEnd);
+            }
+        });
+    }
+
+    public List<RdosStreamTaskCheckpoint> getByCheckpointIndexAndCount(int startIndex, int count){
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>(){
+
+            @Override
+            public List<RdosStreamTaskCheckpoint> execute(SqlSession sqlSession) throws Exception {
+                RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
+                return taskCheckpointMapper.getByCheckpointIndexAndCount(startIndex, count);
             }
         });
     }

@@ -65,6 +65,8 @@ public class TaskStatusListener implements Runnable{
 
     public final static String CHECKPOINT_SAVEPATH_KEY = "external_path";
 
+    public final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
+
     /** 开启checkpoint，但未绑定外部存储路径*/
     public  final static String CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY = "<checkpoint-not-externally-addressable>";
 
@@ -163,7 +165,7 @@ public class TaskStatusListener implements Runnable{
                         //1.主动清理超过范围的checkpoint
                         checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
                         //2.集合中移除该任务
-                        checkpointListener.getHasCheckpointPathTaskID().remove(jobIdentifier.getEngineJobId());
+                        checkpointListener.getTaskEngineIdAndReatinedNum().remove(jobIdentifier.getEngineJobId());
                     }
 
                 }
@@ -381,10 +383,10 @@ public class TaskStatusListener implements Runnable{
 
     private void updateStreamJobCheckpoints(JobIdentifier jobIdentifier, String engineTypeName, String pluginInfo){
         String checkPointJsonStr = JobClient.getCheckpoints(engineTypeName, pluginInfo, jobIdentifier);
-        updateStreamJobCheckPoint(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), checkPointJsonStr);
+        updateStreamJobCheckPoint(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), checkPointJsonStr, pluginInfo);
     }
 
-    private void updateStreamJobCheckPoint(String taskId, String engineTaskId, String checkpointJsonStr){
+    private void updateStreamJobCheckPoint(String taskId, String engineTaskId, String checkpointJsonStr, String pluginInfo){
 
         if(Strings.isNullOrEmpty(checkpointJsonStr)){
             logger.info(String.format("taskId %s engineTaskId %s can't get checkpoint info.", taskId, engineTaskId));
@@ -426,9 +428,11 @@ public class TaskStatusListener implements Runnable{
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
                     rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, startTimestamp, endTimestamp);
-
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
-                    checkpointListener.getHasCheckpointPathTaskID().add(engineTaskId);
+
+                    int retainedNum = getValueByPluginInfoKey(pluginInfo, CHECKPOINT_RETAINED_KEY) == null ? 1 : Integer.valueOf(getValueByPluginInfoKey(pluginInfo, CHECKPOINT_RETAINED_KEY).toString());
+
+                    checkpointListener.getTaskEngineIdAndReatinedNum().put(engineTaskId, retainedNum);
                 }
             }
         } catch (IOException e) {
@@ -436,6 +440,11 @@ public class TaskStatusListener implements Runnable{
         }
 
 
+    }
+
+    private Object getValueByPluginInfoKey(String pluginInfo, String key) throws IOException {
+        Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
+        return pluginInfoMap.get(key);
     }
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId){

@@ -29,7 +29,7 @@ public class StreamTaskServiceImpl {
      * 查询checkPoint
      */
     public List<RdosStreamTaskCheckpoint> getCheckPoint(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd){
-        return rdosStreamTaskCheckpointDAO.listByTaskIdAndRangeTimeAndMaxCheckpointID(taskId,triggerStart,triggerEnd);
+        return rdosStreamTaskCheckpointDAO.listByTaskIdAndRangeTime(taskId,triggerStart,triggerEnd);
     }
 
     public RdosStreamTaskCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("engineTaskId") String engineTaskId){
