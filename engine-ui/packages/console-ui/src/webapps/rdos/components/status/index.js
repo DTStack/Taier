@@ -193,7 +193,7 @@ export function DatabaseType (props) {
 export function TaskType (props) {
     const value = props.value
     switch (value) {
-        case TASK_TYPE.Cube_Kylin:
+        case TASK_TYPE.CUBE_KYLIN:
             return <span>Kylin</span>
         case TASK_TYPE.VIRTUAL_NODE:
             return <span>虚节点</span>
