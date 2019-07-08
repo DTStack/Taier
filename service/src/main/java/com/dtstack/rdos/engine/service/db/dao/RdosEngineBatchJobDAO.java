@@ -222,4 +222,14 @@ public class RdosEngineBatchJobDAO {
 			}
 		});
 	}
+
+	public Integer resetExecEndTime(final String jobId){
+	    return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>() {
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+                return mapper.resetExecEndTime(jobId);
+            }
+        });
+    }
 }
