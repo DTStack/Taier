@@ -31,14 +31,13 @@ public class RdosStreamTaskCheckpointDAO {
         });
     }
 
-
-    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(String engineTaskId, Long triggerStart, Long triggerEnd){
+    public List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(String taskId, Long triggerStart, Long triggerEnd){
         return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosStreamTaskCheckpoint>>(){
 
             @Override
             public List<RdosStreamTaskCheckpoint> execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                return taskCheckpointMapper.listByTaskIdAndRangeTime(engineTaskId, triggerStart, triggerEnd);
+                return taskCheckpointMapper.listByTaskIdAndRangeTime(taskId, triggerStart, triggerEnd);
             }
         });
     }

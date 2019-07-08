@@ -22,7 +22,7 @@ public interface RdosStreamTaskCheckpointMapper {
                @Param("triggerStart") Timestamp triggerStart,
                @Param("triggerEnd") Timestamp triggerEnd);
 
-    List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskEngineId") String taskEngineId,
+    List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskId") String taskEngineId,
                                                                               @Param("triggerStart") Long triggerStart,
                                                                               @Param("triggerEnd") Long triggerEnd);
 
@@ -31,6 +31,5 @@ public interface RdosStreamTaskCheckpointMapper {
     void deleteByEngineTaskIdAndCheckpointID(@Param("taskEngineId") String taskEngineId, @Param("checkpointId") String checkpointId);
 
     List<RdosStreamTaskCheckpoint> getByCheckpointIndexAndCount(@Param("startIndex") int startIndex, @Param("count") int count);
-
 
 }
