@@ -4,6 +4,10 @@
 
 .dt-dev-task {
 
+    .noMarginBottom {
+        margin-bottom: 0;
+    }
+
     .ant-layout-sider {
         background: #ffffff;
     }
@@ -186,6 +190,11 @@
         .s-othericon-r {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/icon/othericon.svg)
+            }
+        }
+        .s-cubeKylin {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/cube_kylin.svg)
             }
         }
         .s-virtualicon {

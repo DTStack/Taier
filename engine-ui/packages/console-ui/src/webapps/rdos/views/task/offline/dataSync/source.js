@@ -494,7 +494,7 @@ class SourceForm extends React.Component {
             sourceMap.type.type === DATA_SOURCE.FTP;
 
         const getPopupContainer = this.props.getPopupContainer;
-        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.Kylin);
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.KYLIN);
         return (
             <div className="g-step1">
                 <Form>
