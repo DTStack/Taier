@@ -99,7 +99,9 @@
 	   update rdos_engine_batch_job set retry_num=#{retryNum} where job_id=#{jobId};
    </update>
 
-    <update id="resetExecEndTime">
-        update rdos_engine_batch_job set exec_end_time = null where job_id=#{jobId} and is_deleted=0
+    <update id="resetExecTime">
+        update rdos_engine_batch_job
+        set exec_end_time = null,exec_start_time = null,exec_time = 0
+        where job_id=#{jobId} and is_deleted=0
     </update>
 </mapper>

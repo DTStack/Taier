@@ -543,7 +543,7 @@ public class ActionServiceImpl {
             batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
             batchJobDAO.updateSubmitLog(jobId, "");
             batchJobDAO.updateEngineLog(jobId, "");
-            batchJobDAO.resetExecEndTime(jobId);
+            batchJobDAO.resetExecTime(jobId);
         }
 
         return jobId;

@@ -254,7 +254,7 @@ public class RestartDealer {
             jobRetryRecord(jobClient);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
-            engineBatchJobDAO.resetExecEndTime(jobId);
+            engineBatchJobDAO.resetExecTime(jobId);
         }else{
             LOG.error("not support for computeType:{}", computeType);
         }

@@ -47,5 +47,5 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
 
-	Integer resetExecEndTime(@Param("jobId")String jobId);
+	Integer resetExecTime(@Param("jobId")String jobId);
 }
