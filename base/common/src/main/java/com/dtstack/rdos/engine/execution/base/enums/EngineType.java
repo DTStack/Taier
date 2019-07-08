@@ -24,7 +24,8 @@ public enum EngineType {
     Maxcompute('8'),
     Hadoop('9'),
     Hive('a'),
-    PostgreSQL('b');
+    PostgreSQL('b'),
+    Kylin('c');
 
     private char val;
 
@@ -63,6 +64,8 @@ public enum EngineType {
                 return EngineType.Hive;
             case "postgresql":
                 return EngineType.PostgreSQL;
+            case "kylin":
+                return EngineType.Kylin;
             default:
                 throw new UnsupportedOperationException("unsupported operation exception");
         }
