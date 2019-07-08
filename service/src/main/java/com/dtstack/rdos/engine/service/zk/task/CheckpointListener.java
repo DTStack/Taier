@@ -29,7 +29,7 @@ public class CheckpointListener implements Runnable {
 
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
-    private final static int CHECK_INTERVAL = 1;
+    private final static int CHECK_INTERVAL = 5;
 
     public void startCheckpointScheduled() {
         ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
@@ -71,7 +71,12 @@ public class CheckpointListener implements Runnable {
 
     }
 
-    public Map<String, Integer> getTaskEngineIdAndReatinedNum() {
-        return taskEngineIdAndReatinedNum;
+    public void putTaskEngineIdAndReatinedNum(String engineTaskId, int retainedNum) {
+         taskEngineIdAndReatinedNum.put(engineTaskId, retainedNum);
     }
+
+    public void removeByTaskEngineId(String taskEngineId) {
+        taskEngineIdAndReatinedNum.remove(taskEngineId);
+    }
+
 }

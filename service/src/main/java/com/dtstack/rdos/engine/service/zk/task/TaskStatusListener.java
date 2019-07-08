@@ -82,7 +82,6 @@ public class TaskStatusListener implements Runnable{
     private static final char SEPARATOR = '_';
 
 
-
     //每隔5次状态获取之后更新一次checkpoint 信息 ===>checkpoint信息没必要那么频繁更新
     private int checkpointGetRate = 10;
 
@@ -165,7 +164,7 @@ public class TaskStatusListener implements Runnable{
                         //1.主动清理超过范围的checkpoint
                         checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
                         //2.集合中移除该任务
-                        checkpointListener.getTaskEngineIdAndReatinedNum().remove(jobIdentifier.getEngineJobId());
+                        checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
                     }
 
                 }
@@ -389,7 +388,7 @@ public class TaskStatusListener implements Runnable{
     private void updateStreamJobCheckPoint(String taskId, String engineTaskId, String checkpointJsonStr, String pluginInfo){
 
         if(Strings.isNullOrEmpty(checkpointJsonStr)){
-            logger.info(String.format("taskId %s engineTaskId %s can't get checkpoint info.", taskId, engineTaskId));
+            logger.info("taskId {} engineTaskId {} can't get checkpoint info.", taskId, engineTaskId);
             return;
         }
 
@@ -432,7 +431,7 @@ public class TaskStatusListener implements Runnable{
 
                     int retainedNum = getValueByPluginInfoKey(pluginInfo, CHECKPOINT_RETAINED_KEY) == null ? 1 : Integer.valueOf(getValueByPluginInfoKey(pluginInfo, CHECKPOINT_RETAINED_KEY).toString());
 
-                    checkpointListener.getTaskEngineIdAndReatinedNum().put(engineTaskId, retainedNum);
+                    checkpointListener.putTaskEngineIdAndReatinedNum(engineTaskId, retainedNum);
                 }
             }
         } catch (IOException e) {
