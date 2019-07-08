@@ -1,9 +1,9 @@
 // 常量
 
 export const KYLIN_ACTION = {
-    ACTION1: 'Build',
-    ACTION2: 'Merge',
-    ACTION3: 'Refresh'
+    BUILD: 'Build',
+    MERGE: 'Merge',
+    REFRESH: 'Refresh'
 }
 
 export const DATA_SOURCE = {

@@ -254,7 +254,7 @@ class KylinEditor extends React.Component {
                     )}
                 </FormItem>
                 {
-                    (exeArgsToJson.buildType && exeArgsToJson.buildType !== KYLIN_ACTION.ACTION1) ? (
+                    (exeArgsToJson.buildType && exeArgsToJson.buildType !== KYLIN_ACTION.BUILD) ? (
                         <FormItem
                             {...formItemLayout}
                             label="时间范围"
