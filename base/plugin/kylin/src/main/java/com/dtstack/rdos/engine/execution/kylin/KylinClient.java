@@ -3,6 +3,7 @@ package com.dtstack.rdos.engine.execution.kylin;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
+import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
@@ -53,6 +54,16 @@ public class KylinClient extends AbsClient {
 
     @Override
     public JobResult processSubmitJobWithType(JobClient jobClient) {
+        EJobType jobType = jobClient.getJobType();
+        JobResult jobResult = null;
+        if(EJobType.KYLIN.equals(jobType)){
+            jobResult = triggerBuildCube(jobClient);
+        }
+
+        return jobResult;
+    }
+
+    private JobResult triggerBuildCube(JobClient jobClient){
         JsonObject jsonObject = gson.fromJson(jobClient.getPluginInfo(), JsonObject.class);
         if(jsonObject.get(KEY_RETRY) == null || !jsonObject.get(KEY_RETRY).getAsBoolean()){
             return createNewJobInstance();
