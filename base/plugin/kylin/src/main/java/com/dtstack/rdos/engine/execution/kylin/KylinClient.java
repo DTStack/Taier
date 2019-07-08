@@ -1,5 +1,6 @@
 package com.dtstack.rdos.engine.execution.kylin;
 
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.engine.execution.base.AbsClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.JobIdentifier;
@@ -169,7 +170,9 @@ public class KylinClient extends AbsClient {
             try {
                 return objectMapper.writeValueAsString(errorResult);
             } catch (Exception e){
-                return e.getMessage();
+                String msg = String.format("Get job log error,engineJobId:{%s},taskId:{%s},error info:\n",
+                        jobIdentifier.getEngineJobId(), jobIdentifier.getTaskId());
+                return msg + ExceptionUtil.getErrorMessage(e);
             }
         }
 
