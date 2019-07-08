@@ -17,7 +17,7 @@ import EditorContainer from './sqlEditor';
 import CommonEditor from './commonEditor';
 import WorkFlowEditor from './workflowEditor';
 
-import KylinEditor from './kylinEditor/index';
+import KylinEditor from './KylinEditor/index';
 
 const confirm = Modal.confirm;
 
