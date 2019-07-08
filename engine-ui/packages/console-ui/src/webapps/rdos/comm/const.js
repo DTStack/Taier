@@ -1,9 +1,9 @@
 // 常量
 
 export const KYLIN_ACTION = {
-    action1: 'Build',
-    action2: 'Merge',
-    action3: 'Refresh'
+    ACTION1: 'Build',
+    ACTION2: 'Merge',
+    ACTION3: 'Refresh'
 }
 
 export const DATA_SOURCE = {
@@ -23,7 +23,7 @@ export const DATA_SOURCE = {
     DB2: 19,
     CARBONDATA: 20,
     GBASE: 22,
-    Kylin: 23
+    KYLIN: 23
 }
 
 export const DATA_SOURCE_TEXT = {

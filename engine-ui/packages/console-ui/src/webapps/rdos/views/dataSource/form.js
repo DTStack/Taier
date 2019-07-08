@@ -148,7 +148,7 @@ class BaseForm extends Component {
 
     getJDBCRule = (type) => {
         switch (type) {
-            case DATA_SOURCE.Kylin:
+            case DATA_SOURCE.KYLIN:
                 return /http:\/\/([\w, .])+:(\w)+/;
             case DATA_SOURCE.HIVE:
             case DATA_SOURCE.ANALYSIS:
@@ -183,7 +183,7 @@ class BaseForm extends Component {
         }
 
         switch (sourceType) {
-            case DATA_SOURCE.Kylin: {
+            case DATA_SOURCE.KYLIN: {
                 const formItems = [
                     <FormItem
                         {...formItemLayout}
@@ -1093,7 +1093,7 @@ class BaseForm extends Component {
                     )}
                 </FormItem>
                 {this.renderDynamic()}
-                { this.state.sourceType !== DATA_SOURCE.Kylin && sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (<FormItem
+                { this.state.sourceType !== DATA_SOURCE.KYLIN && sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (<FormItem
                     {...tailFormItemLayout}
                 >
                     {getFieldDecorator('isCopyToProduceProject', {

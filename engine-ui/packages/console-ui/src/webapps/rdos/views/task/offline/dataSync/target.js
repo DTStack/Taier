@@ -364,7 +364,7 @@ class TargetForm extends React.Component {
             targetMap, dataSourceList, navtoStep, isIncrementMode
         } = this.props;
         const getPopupContainer = this.props.getPopupContainer;
-        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.Kylin);
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.KYLIN);
         return <div className="g-step2">
             <Modal className="m-codemodal"
                 title={(

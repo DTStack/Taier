@@ -1,7 +1,7 @@
 import { DATA_SOURCE } from './const';
 
 export const jdbcUrlExample = {
-    [DATA_SOURCE.Kylin]: 'http://ip:port',
+    [DATA_SOURCE.KYLIN]: 'http://ip:port',
     [DATA_SOURCE.MYSQL]: 'jdbc:mysql://host:port/dbName',
     [DATA_SOURCE.ORACLE]: [
         'jdbc:oracle:thin:@host:port:dbName',

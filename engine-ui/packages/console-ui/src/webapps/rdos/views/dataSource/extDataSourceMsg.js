@@ -3,7 +3,7 @@ import React from 'react';
 import { DATA_SOURCE } from '../../comm/const'
 
 const showMapArr = {
-    [DATA_SOURCE.Kylin]: [
+    [DATA_SOURCE.KYLIN]: [
         ['authURL', 'authURL'],
         ['username', '用户名']
     ],

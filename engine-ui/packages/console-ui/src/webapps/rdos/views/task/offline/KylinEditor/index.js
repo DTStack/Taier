@@ -42,7 +42,7 @@ class KylinEditor extends React.Component {
     filterDataSourceList = () => {
         const { dataSourceList } = this.props;
         return dataSourceList.filter(item => {
-            return item.type === DATA_SOURCE.Kylin;
+            return item.type === DATA_SOURCE.KYLIN;
         });
     }
 
@@ -254,7 +254,7 @@ class KylinEditor extends React.Component {
                     )}
                 </FormItem>
                 {
-                    (exeArgsToJson.buildType && exeArgsToJson.buildType !== KYLIN_ACTION.action1) ? (
+                    (exeArgsToJson.buildType && exeArgsToJson.buildType !== KYLIN_ACTION.ACTION1) ? (
                         <FormItem
                             {...formItemLayout}
                             label="时间范围"
