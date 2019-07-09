@@ -28,7 +28,7 @@ function getSourceInitialField (sourceType) {
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
             initialFields.sourceColumn = '${table}';
-            initialFields.writeTableType = 'custom';
+            initialFields.writeTableType = writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.strategySize = 10;
             return initialFields;
@@ -194,7 +194,7 @@ class CollectionTargetForm extends React.Component {
         if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
-        const { writeTableType, writeStrategy } = targetMap;
+        const { writeTableType, writeStrategy, table } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
@@ -342,7 +342,7 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <RadioGroup onChange={this.getTableList}>
                                 {isMysqlSource ? (
-                                    <Radio disabled value={writeTableTypes.AUTO} style={{ float: 'left' }}>
+                                    <Radio value={writeTableTypes.AUTO} style={{ float: 'left' }}>
                                         自动建表
                                     </Radio>
                                 ) : null}
@@ -386,7 +386,7 @@ class CollectionTargetForm extends React.Component {
                             )}
                         </FormItem>
                     ),
-                    writeTableType == writeTableTypes.HAND && (
+                    (writeTableType == writeTableTypes.HAND && table) && (
                         <FormItem
                             {...formItemLayout}
                             label="分区"
@@ -433,7 +433,7 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <Select>
                                 {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
-                                    return <Option key={t} value={t}>{t}</Option>
+                                    return <Option key={t} value={t}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
                                 })}
                             </Select>
                         )}

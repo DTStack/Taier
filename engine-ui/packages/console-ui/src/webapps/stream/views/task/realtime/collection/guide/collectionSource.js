@@ -507,7 +507,9 @@ class CollectionSourceForm extends React.Component {
                                 placeholder="请选择数据源类型"
                                 style={{ width: '100%' }}
                             >
-                                {dataSourceTypes.map((item) => {
+                                {dataSourceTypes.filter((item) => {
+                                    return item.value != DATA_SOURCE.HIVE
+                                }).map((item) => {
                                     return <Option key={item.value} value={item.value} >{item.key}</Option>
                                 }).filter(Boolean)}
                             </Select>
