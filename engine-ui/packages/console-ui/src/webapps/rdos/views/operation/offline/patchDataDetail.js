@@ -410,11 +410,17 @@ class PatchDataDetail extends Component {
             width: '350px',
             fixed: 'left',
             render: (text, record) => {
-                let originText = text;
-                text = utils.textOverflowExchange(text, 45);
-                const showName = record.batchTask.isDeleted === 1
-                    ? `${text} (已删除)`
-                    : <a onClick={() => { this.showTask(record) }}>{text}</a>;
+                let name = record.batchTask && record.batchTask.name
+                let originText = name;
+                name = utils.textOverflowExchange(name, 45);
+                let showName;
+                if (record.batchTask.isDeleted === 1) {
+                    showName = `${name} (已删除)`;
+                } else if (record.batchEngineJob.retryNum) {
+                    showName = <a onClick={() => { this.showTask(record) }}>{name}(重试)</a>
+                } else {
+                    showName = <a onClick={() => { this.showTask(record) }}>{name}</a>;
+                }
                 return <span title={originText}>{showName}</span>;
             }
         }, {
