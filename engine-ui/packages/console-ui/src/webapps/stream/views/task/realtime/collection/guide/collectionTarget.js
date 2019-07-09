@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { get } from 'lodash';
 
 import {
     Form, Select,
@@ -8,8 +7,8 @@ import {
 } from 'antd';
 
 import ajax from '../../../../../api/index'
-import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
-import { isSupportedTargetSource, isKafka } from '../../../../../comm'
+import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT, writeTableTypes, writeStrategys } from '../../../../../comm/const'
+import { isSupportedTargetSource, isKafka, isHive } from '../../../../../comm'
 import HelpDoc from '../../../../helpDoc';
 
 const FormItem = Form.Item;
@@ -23,7 +22,16 @@ function getSourceInitialField (sourceType) {
             initialFields.fileType = 'orc';
             initialFields.fieldDelimiter = ',';
             initialFields.encoding = 'utf-8';
-            initialFields.writeMode = 'APPEND';
+            initialFields.writeMode = 'insert';
+            return initialFields;
+        }
+        case DATA_SOURCE.HIVE: {
+            // eslint-disable-next-line
+            initialFields.sourceColumn = '${table}';
+            initialFields.writeTableType = writeTableTypes.HAND;
+            initialFields.writeStrategy = writeStrategys.TIME;
+            initialFields.strategySize = '10';
+            initialFields.writeMode = 'insert';
             return initialFields;
         }
     }
@@ -34,15 +42,21 @@ class CollectionTarget extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            topicList: []
+            topicList: [],
+            tableList: [],
+            partitions: []
         }
     }
 
     componentDidMount () {
         const { collectionData } = this.props;
         const { targetMap = {} } = collectionData;
-        if (targetMap.sourceId && isKafka(targetMap.type)) {
-            this.getTopicType(targetMap.sourceId)
+        const { sourceId, type, table } = targetMap;
+        if (sourceId) {
+            this.onSourceIdChange(type, sourceId);
+            if (isHive(type) && table) {
+                this.onHiveTableChange(sourceId, table);
+            }
         }
     }
 
@@ -50,10 +64,56 @@ class CollectionTarget extends React.Component {
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { collectionData } = nextProps;
         const { targetMap = {} } = collectionData;
+        const { sourceId, type, table } = targetMap;
         const { collectionData: oldCol } = this.props;
         const { targetMap: oldTarget = {} } = oldCol;
-        if (targetMap.sourceId && oldTarget.sourceId != targetMap.sourceId && isKafka(targetMap.type)) {
-            this.getTopicType(targetMap.sourceId)
+        if (sourceId && oldTarget.sourceId != sourceId) {
+            this.onSourceIdChange(type, sourceId);
+        }
+        if (table != oldTarget.table) {
+            this.onHiveTableChange(sourceId, table);
+        }
+    }
+    async onHiveTableChange (sourceId, tableName) {
+        this.setState({
+            partition: []
+        })
+        if (!sourceId || !tableName) {
+            return;
+        }
+        let res = await ajax.getHivePartitions({
+            sourceId,
+            tableName
+        });
+        if (res && res.code == 1) {
+            this.setState({
+                partitions: res.data
+            })
+        }
+    }
+    getTableList (sourceId) {
+        ajax.getStreamTablelist({
+            sourceId,
+            isSys: false
+        }).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tableList: res.data || []
+                });
+            }
+        });
+    }
+
+    onSourceIdChange (type, sourceId) {
+        this.setState({
+            topicList: [],
+            tableList: [],
+            partitions: []
+        })
+        if (isKafka(type)) {
+            this.getTopicType(sourceId)
+        } else if (isHive(type)) {
+            this.getTableList(sourceId);
         }
     }
 
@@ -97,10 +157,17 @@ class CollectionTarget extends React.Component {
     }
 
     render () {
-        const { topicList } = this.state;
+        const { topicList, tableList, partitions } = this.state;
         return (
             <div>
-                <WrapCollectionTargetForm ref={(f) => { this._form = f }} onFormValuesChange={this.onFormValuesChange} topicList={topicList} {...this.props} />
+                <WrapCollectionTargetForm
+                    ref={(f) => { this._form = f }}
+                    onFormValuesChange={this.onFormValuesChange}
+                    topicList={topicList}
+                    tableList={tableList}
+                    partitions={partitions}
+                    {...this.props}
+                />
                 {!this.props.readonly && (
                     <div className="steps-action">
                         <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
@@ -119,16 +186,18 @@ class CollectionTargetForm extends React.Component {
         /**
          * sourceId 改变,则清空表
          */
-        let clearTargetData = false;
-        this.props.updateTargetMap(initialFields, clearTargetData);
+        this.props.updateTargetMap(initialFields, true);
     }
-
     dynamicRender () {
-        const { collectionData, topicList } = this.props;
-        const { isEdit, targetMap = {} } = collectionData;
+        const { collectionData, topicList, tableList, partitions } = this.props;
+        const { isEdit, targetMap = {}, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
-        if (!targetMap) return [];
+        if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
+        const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
+        const { writeTableType, writeStrategy, table } = targetMap;
+        const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
+
         switch (targetMap.type) {
             case DATA_SOURCE.KAFKA_09:
             case DATA_SOURCE.KAFKA_10:
@@ -171,8 +240,7 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('path', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'path', '')
+                            }]
                         })(
                             <Input placeholder="例如: /app/batch" />
                         )}
@@ -185,8 +253,7 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('fileName', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'fileName', '')
+                            }]
                         })(
                             <Input placeholder="文件名" />
                         )}
@@ -199,8 +266,7 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('fileType', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'fileType', 'orc')
+                            }]
                         })(
                             <Select>
                                 <Option value="orc">orc</Option>
@@ -214,8 +280,7 @@ class CollectionTargetForm extends React.Component {
                         key="fieldDelimiter"
                     >
                         {getFieldDecorator('fieldDelimiter', {
-                            rules: [],
-                            initialValue: get(targetMap, 'fieldDelimiter', undefined)
+                            rules: []
                         })(
                             <Input
                                 /* eslint-disable-next-line */
@@ -232,8 +297,7 @@ class CollectionTargetForm extends React.Component {
                             {getFieldDecorator('encoding', {
                                 rules: [{
                                     required: true
-                                }],
-                                initialValue: get(targetMap, 'encoding', undefined)
+                                }]
                             })(
                                 <Select>
                                     <Option value="utf-8">utf-8</Option>
@@ -251,14 +315,146 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator('writeMode', {
                             rules: [{
                                 required: true
-                            }],
-                            initialValue: get(targetMap, 'writeMode', 'APPEND')
+                            }]
                         })(
                             <RadioGroup>
                                 <Radio disabled value="NONCONFLICT" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
+                                    追加（Insert Into）
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>
+                ].filter(Boolean);
+            }
+            case DATA_SOURCE.HIVE: {
+                return [
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入表"
+                        key="writeTableType"
+                    >
+                        {getFieldDecorator('writeTableType', {
+                            rules: [{
+                                required: true
+                            }]
+                        })(
+                            <RadioGroup onChange={this.getTableList}>
+                                {isMysqlSource ? (
+                                    <Radio key={writeTableTypes.AUTO} value={writeTableTypes.AUTO} style={{ float: 'left' }}>
+                                        自动建表
+                                    </Radio>
+                                ) : null}
+                                <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
+                                    手动选择
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                    </FormItem>,
+                    writeTableType == writeTableTypes.AUTO && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="k-v解析"
+                            key="analyticalRules"
+                        >
+                            {getFieldDecorator('analyticalRules', {
+                                rules: [{
+                                    required: true, message: '该字段不能为空'
+                                }]
+                            })(
+                                <Input addonBefore='根据解析结果中' addonAfter='对应的值，写入到不同的表' />
+                            )}
+                        </FormItem>
+                    ),
+                    writeTableType == writeTableTypes.HAND && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="表"
+                            key="table"
+                        >
+                            {getFieldDecorator('table', {
+                                rules: [{
+                                    required: true, message: '请选择表'
+                                }]
+                            })(
+                                <Select placeholder='请选择表'>
+                                    {tableList.map((tableName) => {
+                                        return <Option key={tableName} value={tableName}>{tableName}</Option>
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    (writeTableType == writeTableTypes.HAND && table && partitions && partitions.length) && (
+                        <FormItem
+                            {...formItemLayout}
+                            label="分区"
+                            key="partition"
+                        >
+                            {getFieldDecorator('partition', {
+                                rules: [{
+                                    required: true, message: '请选择分区'
+                                }]
+                            })(
+                                <Select>
+                                    {partitions.map((partition) => {
+                                        return <Option key={partition} value={partition}>{partition}</Option>
+                                    })}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入策略"
+                        key="writeStrategy"
+                    >
+                        {getFieldDecorator('writeStrategy', {
+                            rules: [{
+                                required: true, message: '请选择写入策略'
+                            }]
+                        })(
+                            <Select>
+                                <Option value={writeStrategys.TIME}>按时间</Option>
+                                <Option value={writeStrategys.FILESIZE}>按文件大小</Option>
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label={isWriteStrategyBeTime ? '间隔时间' : '文件大小'}
+                        key="strategySize"
+                    >
+                        {getFieldDecorator('strategySize', {
+                            rules: [{
+                                required: true, message: isWriteStrategyBeTime ? '请输入间隔时间' : '请输入文件大小'
+                            }]
+                        })(
+                            <Select>
+                                {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
+                                    return <Option key={`${t}`} value={`${t}`}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
+                                })}
+                            </Select>
+                        )}
+                    </FormItem>,
+                    <FormItem
+                        {...formItemLayout}
+                        label="写入模式"
+                        className="txt-left"
+                        key="writeMode"
+                    >
+                        {getFieldDecorator('writeMode', {
+                            rules: [{
+                                required: true
+                            }]
+                        })(
+                            <RadioGroup>
+                                <Radio value="insert" style={{ float: 'left' }}>
+                                    覆盖（Insert Overwrite）
+                                </Radio>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>
                             </RadioGroup>
@@ -277,8 +473,12 @@ class CollectionTargetForm extends React.Component {
         const { dataSourceList = [], isEdit, sourceMap = {} } = collectionData;
         const { getFieldDecorator } = this.props.form;
         const disableOption = (targetSourceType) => {
+            const sourceType = sourceMap.type;
             // 源类型为Kafka时，目标仅能选择HDFS类型
-            return (sourceMap.type === DATA_SOURCE.KAFKA_09 || sourceMap.type === DATA_SOURCE.KAFKA_10) && targetSourceType !== DATA_SOURCE.HDFS;
+            if (sourceType == DATA_SOURCE.KAFKA_09 || sourceType == DATA_SOURCE.KAFKA_10) {
+                return targetSourceType !== DATA_SOURCE.HDFS;
+            }
+            return false;
         }
         return (
             <div>
@@ -322,6 +522,21 @@ class CollectionTargetForm extends React.Component {
 
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
+        // 建表模式
+        if (fields.hasOwnProperty('writeTableType')) {
+            fields['table'] = undefined;
+            fields['partition'] = undefined;
+            // eslint-disable-next-line
+            fields['analyticalRules'] = '${table}';
+        }
+        // 写入表
+        if (fields.hasOwnProperty('table')) {
+            fields['partition'] = undefined;
+        }
+        // 写入策略
+        if (fields.hasOwnProperty('writeStrategy')) {
+            fields['strategySize'] = '10';
+        }
         props.updateTargetMap(fields, false);
         if (props.onFormValuesChange) {
             props.onFormValuesChange(props, fields);
@@ -338,6 +553,42 @@ const WrapCollectionTargetForm = Form.create({
             },
             topic: {
                 value: targetMap.topic
+            },
+            analyticalRules: {
+                value: targetMap.analyticalRules
+            },
+            writeTableType: {
+                value: targetMap.writeTableType
+            },
+            table: {
+                value: targetMap.table
+            },
+            partition: {
+                value: targetMap.partition
+            },
+            writeStrategy: {
+                value: targetMap.writeStrategy
+            },
+            strategySize: {
+                value: targetMap.strategySize
+            },
+            writeMode: {
+                value: targetMap.writeMode
+            },
+            encoding: {
+                value: targetMap.encoding
+            },
+            fieldDelimiter: {
+                value: targetMap.fieldDelimiter
+            },
+            fileType: {
+                value: targetMap.fileType
+            },
+            fileName: {
+                value: targetMap.fileName
+            },
+            path: {
+                value: targetMap.path
             }
         }
     }

@@ -339,6 +339,9 @@ export default {
     checkDataSourcePermission (params) {
         return http.post(stremReq.CHECK_IS_PERMISSION, params)
     },
+    getHivePartitions (params) {
+        return http.post(stremReq.GET_HIVE_PARTITIONS, params)
+    },
     //= =============== 实时离线合并接口 ===============/
     linkSource (params, type = 'offline') {
         if (type == 'offline') {
@@ -357,5 +360,8 @@ export default {
     //= =======运维中心=======
     getContainerInfos (params) {
         return http.post(stremReq.GET_CONTAINER_INFOS, params)
+    },
+    getResultTable (params) {
+        return http.post(stremReq.GET_RESULT_TABLE, params)
     }
 }

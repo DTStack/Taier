@@ -15,5 +15,6 @@ export default {
     GET_CONTAINER_INFOS: `${STREAM_BASE_URL}/streamTask/containerInfos`, // 获取实时采集运行地址
     GET_REALTIME_JOBDATA: `${STREAM_BASE_URL}/streamDataSource/trace`,
     GET_SYNC_SCRIPT_TEMPLATE: `${STREAM_BASE_URL}/streamTask/getJsonTemplate`, // 获取数据采集脚本的模版
-    CHECK_IS_PERMISSION: `${STREAM_BASE_URL}/streamDataSource/checkPermission` // 检查是否有权限
+    CHECK_IS_PERMISSION: `${STREAM_BASE_URL}/streamDataSource/checkPermission`, // 检查是否有权限
+    GET_HIVE_PARTITIONS: `${STREAM_BASE_URL}/streamDataSource/getHivePartitions` // 获取hive表分区
 }

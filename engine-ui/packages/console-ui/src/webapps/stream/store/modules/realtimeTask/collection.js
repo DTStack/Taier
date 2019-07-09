@@ -109,6 +109,7 @@ export const actions = {
                     ...initState.sourceMap,
                     type: sourceMap.type
                 };
+                setCurrentPageValue(dispatch, 'targetMap', cloneDeep(initState.targetMap));
             }
             setCurrentPageValue(dispatch, 'sourceMap',
                 cloneDeep({
