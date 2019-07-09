@@ -126,14 +126,12 @@ public class KylinHttpClient {
             Map<String, Object> bodyMap = new HashMap<>();
             bodyMap.put(ConfigConstraint.KEY_BUILD_TYPE, kylinConfig.getBuildType());
 
-            if(!EBuildType.BUILD.name().equalsIgnoreCase(kylinConfig.getBuildType())){
-                if(kylinConfig.getStartTime() != null){
-                    bodyMap.put(ConfigConstraint.KEY_START_TIME, kylinConfig.getStartTime());
-                }
+            if(kylinConfig.getStartTime() != null){
+                bodyMap.put(ConfigConstraint.KEY_START_TIME, kylinConfig.getStartTime());
+            }
 
-                if(kylinConfig.getEndTime() != null){
-                    bodyMap.put(ConfigConstraint.KEY_END_TIME, kylinConfig.getEndTime());
-                }
+            if(kylinConfig.getEndTime() != null){
+                bodyMap.put(ConfigConstraint.KEY_END_TIME, kylinConfig.getEndTime());
             }
 
             bodyEntity = objectMapper.writeValueAsString(bodyMap);
