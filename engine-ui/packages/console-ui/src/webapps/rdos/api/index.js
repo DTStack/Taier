@@ -598,6 +598,9 @@ export default {
     getOfflineTableList (params) {
         return http.post(offlineReq.GET_OFFLINE_TABLELIST, params)
     },
+    getOfflineCubeKylinInfo (params) {
+        return http.post(offlineReq.GET_OFFLINE_CUBEKYLININFO, params)
+    },
     getOfflineTableColumn (params) {
         return http.post(offlineReq.GET_OFFLINE_TABLECOLUMN, params)
     },

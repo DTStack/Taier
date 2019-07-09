@@ -44,6 +44,9 @@ export function taskTypeIcon (type, task = {}) {
     const { pythonVersion, learningType, scriptType } = task;
     if (scriptType == null) {
         switch (type) {
+            case TASK_TYPE.Cube_Kylin: {
+                return 's-cubeKylin';
+            }
             case TASK_TYPE.SQL: {
                 return 's-sqlicon';
             }

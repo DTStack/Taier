@@ -94,6 +94,7 @@ export default {
     GET_OFFLINE_TASK_BY_NAME: `${RDOS_BASE_URL}/batch/batchTask/getDependencyTask`,
     GET_OFFLINE_DATASOURCE: `${RDOS_BASE_URL}/batch/batchDataSource/list`,
     GET_OFFLINE_TABLELIST: `${RDOS_BASE_URL}/batch/batchDataSource/tablelist`,
+    GET_OFFLINE_CUBEKYLININFO: `${RDOS_BASE_URL}/batch/batchDataSource/getKylinCubeinfo`,
     GET_OFFLINE_TABLECOLUMN: `${RDOS_BASE_URL}/batch/batchDataSource/tablecolumn`,
     GET_OFFLINE_COLUMNFORSYNCOPATE: `${RDOS_BASE_URL}/batch/batchDataSource/columnForSyncopate`,
     GET_OFFLINE_JOBDATA: `${RDOS_BASE_URL}/batch/batchDataSource/trace`,
