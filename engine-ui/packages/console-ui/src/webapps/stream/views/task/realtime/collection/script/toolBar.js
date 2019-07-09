@@ -9,7 +9,6 @@ import utils from 'utils'
 import { getContainer } from 'funcs'
 
 import API from '../../../../../api'
-import { DatabaseType } from '../../../../../components/status';
 import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
 import { isKafka } from '../../../../../comm'
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
@@ -59,7 +58,7 @@ class ImportTemplateForm extends Component {
             })
             .map(src => {
                 return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}( <DatabaseType value={src.type} />  )
+                    {src.dataName}({DATA_SOURCE_TEXT[src.type]})
                 </Option>
             })
     }
@@ -74,7 +73,7 @@ class ImportTemplateForm extends Component {
             })
             .map(src => {
                 return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}( <DatabaseType value={src.type} /> )
+                    {src.dataName}({DATA_SOURCE_TEXT[src.type]})
                 </Option>
             })
     }
@@ -122,7 +121,7 @@ class ImportTemplateForm extends Component {
         const sourceTypeOptions = Object.keys(DATA_SOURCE)
             .filter((key) => {
                 const val = DATA_SOURCE[key];
-                if (sourceTypes.indexOf(val) === -1) {
+                if (sourceTypes.indexOf(val) === -1 && !isKafka(val)) {
                     return false
                 }
                 return true
@@ -130,7 +129,7 @@ class ImportTemplateForm extends Component {
             .map(
                 (key) => {
                     const val = DATA_SOURCE[key];
-                    return <Option key={val} value={val.toString()}><DatabaseType value={val} /></Option>
+                    return <Option key={val} value={val.toString()}>{DATA_SOURCE_TEXT[val]}</Option>
                 }
             )
         const targetTypeOptions = Object.keys(DATA_SOURCE)
