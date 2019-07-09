@@ -8,6 +8,7 @@ import {
     operatorSelect,
     operatorSelect1
 } from '../../consts';
+import HelpDoc from '../helpDoc';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -164,6 +165,7 @@ class RuleForm extends React.Component {
                 })(
                     <Input disabled={!isEdit} addonAfter={this.isPercentage(data) ? '%' : null} />
                 )}
+                <HelpDoc doc='thresholdMsg' />
             </FormItem>
         </React.Fragment>
     }
