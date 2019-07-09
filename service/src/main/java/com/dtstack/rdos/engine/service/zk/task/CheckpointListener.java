@@ -25,11 +25,11 @@ public class CheckpointListener implements Runnable {
     /**
      * 存在checkpoint 外部存储路径的taskid
      */
-    private Map<String, Integer> taskEngineIdAndReatinedNum = Maps.newConcurrentMap();
+    private Map<String, Integer> taskEngineIdAndRetainedNum = Maps.newConcurrentMap();
 
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
-    private final static int CHECK_INTERVAL = 5;
+    private final static int CHECK_INTERVAL = 1;
 
     public void startCheckpointScheduled() {
         ScheduledExecutorService checkpointCleanPoll = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("checkpointCleaner"));
@@ -42,23 +42,23 @@ public class CheckpointListener implements Runnable {
 
     @Override
     public void run() {
-        if (taskEngineIdAndReatinedNum.isEmpty()) {
+        if (taskEngineIdAndRetainedNum.isEmpty()) {
             return;
         }
         SubtractionCheckpointRecord();
     }
 
     public void SubtractionCheckpointRecord() {
-        if (!taskEngineIdAndReatinedNum.isEmpty()) {
-            taskEngineIdAndReatinedNum.forEach((taskEngineID, retainedNum) -> SubtractionCheckpointRecord(taskEngineID));
+        if (!taskEngineIdAndRetainedNum.isEmpty()) {
+            taskEngineIdAndRetainedNum.forEach((taskEngineID, retainedNum) -> SubtractionCheckpointRecord(taskEngineID));
         }
     }
 
     public void SubtractionCheckpointRecord(String taskEngineID) {
         try {
 
-            int retainedNum = taskEngineIdAndReatinedNum.get(taskEngineID);
-            List<RdosStreamTaskCheckpoint> threshold = rdosStreamTaskCheckpointDAO.getByCheckpointIndexAndCount(retainedNum-1, 1);
+            int retainedNum = taskEngineIdAndRetainedNum.get(taskEngineID);
+            List<RdosStreamTaskCheckpoint> threshold = rdosStreamTaskCheckpointDAO.getByTaskEngineIDAndCheckpointIndexAndCount(taskEngineID,retainedNum-1, 1);
 
             if (threshold.isEmpty()) {
                 return;
@@ -71,12 +71,16 @@ public class CheckpointListener implements Runnable {
 
     }
 
-    public void putTaskEngineIdAndReatinedNum(String engineTaskId, int retainedNum) {
-         taskEngineIdAndReatinedNum.put(engineTaskId, retainedNum);
+    public void  cleanAllCheckpointByTaskEngineId(String taskEngineID) {
+        rdosStreamTaskCheckpointDAO.cleanAllCheckpointByTaskEngineId(taskEngineID);
+    }
+
+    public void putTaskEngineIdAndRetainedNum(String engineTaskId, int retainedNum) {
+        taskEngineIdAndRetainedNum.put(engineTaskId, retainedNum);
     }
 
     public void removeByTaskEngineId(String taskEngineId) {
-        taskEngineIdAndReatinedNum.remove(taskEngineId);
+        taskEngineIdAndRetainedNum.remove(taskEngineId);
     }
 
 }

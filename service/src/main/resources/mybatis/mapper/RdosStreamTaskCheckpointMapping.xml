@@ -12,34 +12,36 @@
         <result column="checkpoint_id" property="checkpointID" jdbcType="VARCHAR"/>
         <result column="checkpoint_trigger" property="checkpointTrigger" jdbcType="TIMESTAMP"/>
         <result column="checkpoint_savepath" property="checkpointSavepath" jdbcType="VARCHAR"/>
-
-        <result column="trigger_start" property="triggerStart" jdbcType="TIMESTAMP"/>
-        <result column="trigger_end" property="triggerEnd" jdbcType="TIMESTAMP"/>
         <result column="is_deleted" property="isDeleted" jdbcType="INTEGER" />
     </resultMap>
 
     <sql id="select_content_fragment">
-        id,task_id,task_engine_id,checkpoint_id, checkpoint_trigger, checkpoint_savepath, trigger_start,trigger_end,gmt_create,gmt_modified,is_deleted
+        id,task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath, gmt_create, gmt_modified, is_deleted
     </sql>
 
     <insert id="insert">
-        replace into rdos_stream_task_checkpoint_new( task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath, trigger_start, trigger_end)
-        values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath}, #{triggerStart}, #{triggerEnd});
+        replace into rdos_stream_task_checkpoint( task_id, task_engine_id, checkpoint_id, checkpoint_trigger, checkpoint_savepath)
+        values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath});
     </insert>
 
     <update id="deleteByEngineTaskIdAndCheckpointID">
-        update rdos_stream_task_checkpoint_new
+        update rdos_stream_task_checkpoint
         set is_deleted = 1
         where task_engine_id = #{taskEngineId} and #{checkpointId}+0 >checkpoint_id and is_deleted = 0;
+    </update>
+    <update id="cleanAllCheckpointByTaskEngineId">
+        update rdos_stream_task_checkpoint
+        set is_deleted = 1
+        where task_engine_id = #{taskEngineId} and is_deleted = 0;
     </update>
 
     <select id="listByTaskIdAndRangeTime" resultMap="rdosStreamCheckpointResult">
         select
         <include refid="select_content_fragment"/>
-        from rdos_stream_task_checkpoint_new
+        from rdos_stream_task_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
-            and (UNIX_TIMESTAMP(trigger_start)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(trigger_start))
+            and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{checkpoint_trigger}>=UNIX_TIMESTAMP(trigger_start))
         </if>
         order by checkpoint_id+0 desc
     </select>
@@ -47,17 +49,17 @@
     <select id="getByTaskIdAndEngineTaskId" resultMap="rdosStreamCheckpointResult">
         select
         <include refid="select_content_fragment"/>
-        from rdos_stream_task_checkpoint_new
+        from rdos_stream_task_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         and task_engine_id = #{taskEngineId}
         order by gmt_modified asc limit 1
     </select>
 
-    <select id="getByCheckpointIndexAndCount"  resultMap="rdosStreamCheckpointResult">
+    <select id="getByTaskEngineIDAndCheckpointIndexAndCount"  resultMap="rdosStreamCheckpointResult">
         select
         <include refid="select_content_fragment"/>
-        from rdos_stream_task_checkpoint_new
-        where is_deleted =0
+        from rdos_stream_task_checkpoint
+        where is_deleted =0 and task_engine_id = #{taskEngineID}
         order by CONVERT(checkpoint_id,SIGNED) desc
         limit #{startIndex}, #{count}
     </select>
