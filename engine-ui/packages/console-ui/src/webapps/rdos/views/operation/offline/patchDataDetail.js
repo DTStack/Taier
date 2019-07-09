@@ -416,7 +416,7 @@ class PatchDataDetail extends Component {
                 let showName;
                 if (record.batchTask.isDeleted === 1) {
                     showName = `${name} (已删除)`;
-                } else if (get(record, 'retryNum')) {
+                } else if (get(record, 'retryNum') && [TASK_STATUS.WAIT_RUN, TASK_STATUS.RUNNING].indexOf(record.status) > -1) {
                     showName = <a onClick={() => { this.showTask(record) }}>{name}(重试)</a>
                 } else {
                     showName = <a onClick={() => { this.showTask(record) }}>{name}</a>;
