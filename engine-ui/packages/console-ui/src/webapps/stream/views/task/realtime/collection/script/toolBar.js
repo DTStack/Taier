@@ -17,6 +17,8 @@ import { actions as collectionActions } from '../../../../../store/modules/realt
 const FormItem = Form.Item;
 const Option = Select.Option;
 
+const sourceTypes = [DATA_SOURCE.MYSQL, DATA_SOURCE.BEATS];
+
 class ImportTemplateForm extends Component {
     state = {
         sourceType: undefined,
@@ -120,7 +122,7 @@ class ImportTemplateForm extends Component {
         const sourceTypeOptions = Object.keys(DATA_SOURCE)
             .filter((key) => {
                 const val = DATA_SOURCE[key];
-                if (val != DATA_SOURCE.MYSQL && val != DATA_SOURCE.BEATS) {
+                if (sourceTypes.indexOf(val) === -1) {
                     return false
                 }
                 return true
@@ -134,7 +136,7 @@ class ImportTemplateForm extends Component {
         const targetTypeOptions = Object.keys(DATA_SOURCE)
             .filter((key) => {
                 const val = DATA_SOURCE[key];
-                if (!isKafka(val)) {
+                if (!isKafka(val) && val != DATA_SOURCE.HIVE) {
                     return false
                 }
                 return true
