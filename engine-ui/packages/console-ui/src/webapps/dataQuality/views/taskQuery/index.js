@@ -584,45 +584,45 @@ class TaskQuery extends Component {
                             dataSource={taskList.data}
                             onChange={this.onTableChange}
                         />
-
-                        <SlidePane
-                            onClose={this.closeSlidePane}
-                            visible={showSlidePane}
-                            style={{
-                                right: '0',
-                                width: '80%',
-                                minHeight: '600px',
-                                height: '100%'
-                            }}
-                        >
-                            <div className="m-tabs">
-                                <Tabs
-                                    animated={false}
-                                    activeKey={tabKey}
-                                    onChange={this.onTabChange}
-                                >
-                                    <TabPane tab="监控报告" key="1" style={{
-                                        overflow: 'auto',
-                                        position: 'absolute',
-                                        top: '36px',
-                                        bottom: '0px'
-                                    }}>
-                                        <TaskDetailPane
-                                            currentTab={tabKey}
-                                            data={currentTask}
-                                        />
-                                    </TabPane>
-                                    <TabPane tab="表级报告" key="2">
-                                        <TaskTablePane
-                                            currentTab={tabKey}
-                                            data={currentTask}
-                                        />
-                                    </TabPane>
-                                </Tabs>
-                            </div>
-                        </SlidePane>
                     </Card>
                 </div>
+                <SlidePane
+                    onClose={this.closeSlidePane}
+                    visible={showSlidePane}
+                    style={{
+                        right: '0',
+                        top: '45px',
+                        width: '80%',
+                        minHeight: '600px',
+                        height: 'calc(100% - 45px)'
+                    }}
+                >
+                    <div className="m-tabs c-tabs--scroll">
+                        <Tabs
+                            animated={false}
+                            activeKey={tabKey}
+                            onChange={this.onTabChange}
+                        >
+                            <TabPane tab="监控报告" key="1" style={{
+                                overflow: 'auto',
+                                position: 'absolute',
+                                top: '36px',
+                                bottom: '0px'
+                            }}>
+                                <TaskDetailPane
+                                    currentTab={tabKey}
+                                    data={currentTask}
+                                />
+                            </TabPane>
+                            <TabPane tab="表级报告" key="2">
+                                <TaskTablePane
+                                    currentTab={tabKey}
+                                    data={currentTask}
+                                />
+                            </TabPane>
+                        </Tabs>
+                    </div>
+                </SlidePane>
             </div>
         );
     }

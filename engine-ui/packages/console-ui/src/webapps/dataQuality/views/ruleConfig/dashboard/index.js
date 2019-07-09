@@ -442,6 +442,41 @@ class RuleConfig extends Component {
 
         return (
             <div className="rule-dashboard">
+                <SlidePane
+                    onClose={this.closeSlidePane}
+                    visible={showSlidePane}
+                    className="slide-pane-box"
+                    style={{
+                        top: '45px',
+                        right: '0px',
+                        width: '80%',
+                        height: 'calc(100% - 45px)',
+                        minHeight: '600px'
+                    }}
+                >
+                    <div className="m-tabs c-tabs--scroll">
+                        <Tabs
+                            animated={false}
+                            activeKey={tabKey}
+                            onChange={this.onTabChange}
+                        >
+                            <TabPane tab="规则管理" key="1">
+                                <RuleEditPane
+                                    data={currentMonitor}
+                                    closeSlidePane={this.closeSlidePane}
+                                    refresh={this.refresh}
+                                />
+                            </TabPane>
+
+                            <TabPane tab="远程触发" key="2">
+                                <RemoteTriggerPane
+                                    data={currentMonitor}
+                                    closeSlidePane={this.closeSlidePane}
+                                />
+                            </TabPane>
+                        </Tabs>
+                    </div>
+                </SlidePane>
                 <h1 className="box-title">监控规则</h1>
 
                 <div className="box-2 m-card shadow">
@@ -470,41 +505,6 @@ class RuleConfig extends Component {
                             dataSource={monitorList.data}
                             onChange={this.onTableChange}
                         />
-
-                        <SlidePane
-                            onClose={this.closeSlidePane}
-                            visible={showSlidePane}
-                            className="slide-pane-box"
-                            style={{
-                                right: '0px',
-                                width: '80%',
-                                height: '100%',
-                                minHeight: '650px'
-                            }}
-                        >
-                            <div className="m-tabs">
-                                <Tabs
-                                    animated={false}
-                                    activeKey={tabKey}
-                                    onChange={this.onTabChange}
-                                >
-                                    <TabPane tab="规则管理" key="1">
-                                        <RuleEditPane
-                                            data={currentMonitor}
-                                            closeSlidePane={this.closeSlidePane}
-                                            refresh={this.refresh}
-                                        />
-                                    </TabPane>
-
-                                    <TabPane tab="远程触发" key="2">
-                                        <RemoteTriggerPane
-                                            data={currentMonitor}
-                                            closeSlidePane={this.closeSlidePane}
-                                        />
-                                    </TabPane>
-                                </Tabs>
-                            </div>
-                        </SlidePane>
                     </Card>
                 </div>
             </div>

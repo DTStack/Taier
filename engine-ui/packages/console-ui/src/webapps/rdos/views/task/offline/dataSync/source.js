@@ -287,7 +287,8 @@ class SourceForm extends React.Component {
                 this.loadIncrementColumn(value);
             }
         }
-        this.submitForm(null, null, value, sourceKey);
+        // 不可简化sourceKey, 在submitForm上对应的不同的逻辑，即第四个参数对应的逻辑不同，在不同场景可能不存在第四个参数，不能简化
+        this.submitForm(null, sourceKey, value, sourceKey);
         this.setState({
             showPreview: false
         });
@@ -493,6 +494,7 @@ class SourceForm extends React.Component {
             sourceMap.type.type === DATA_SOURCE.FTP;
 
         const getPopupContainer = this.props.getPopupContainer;
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.KYLIN);
         return (
             <div className="g-step1">
                 <Form>
@@ -514,7 +516,7 @@ class SourceForm extends React.Component {
                                 onSelect={this.changeSource.bind(this)}
                                 optionFilterProp="name"
                             >
-                                {dataSourceList.map(src => {
+                                {dataSourceListFltKylin.map(src => {
                                     let title = `${src.dataName}（${DATA_SOURCE_TEXT[src.type]}）`;
                                     const disableSelect =
                                         src.type === DATA_SOURCE.ES ||
@@ -899,6 +901,7 @@ class SourceForm extends React.Component {
         let formItem;
         if (isEmpty(sourceMap)) return null;
         switch (sourceMap.type.type) {
+            case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
             case DATA_SOURCE.MYSQL:
             case DATA_SOURCE.ORACLE:

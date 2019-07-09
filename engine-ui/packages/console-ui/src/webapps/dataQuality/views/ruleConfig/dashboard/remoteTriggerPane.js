@@ -9,11 +9,14 @@ import {
     Input,
     Select,
     Popconfirm,
-    Form
+    Form,
+    Checkbox
 } from 'antd';
 import moment from 'moment';
 
 import ToolTipCopy from '../../../components/tooltipCopy';
+import RuleView from '../../../components/ruleView';
+
 import { ruleConfigActions } from '../../../actions/ruleConfig';
 import { rowFormItemLayout, DATA_SOURCE, HELP_DOC_URL } from '../../../consts';
 import RCApi from '../../../api/ruleConfig';
@@ -72,7 +75,7 @@ class RemoteTriggerPane extends Component {
     }
 
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         let oldData = this.props.data;
 
         let newData = nextProps.data;
@@ -212,91 +215,6 @@ class RemoteTriggerPane extends Component {
         });
     };
 
-    // 规则表格配置
-    initRulesColumns = () => {
-        return [
-            {
-                title: '字段',
-                dataIndex: 'columnName',
-                key: 'columnName',
-                render: (text, record) => {
-                    let obj = {
-                        children: record.isCustomizeSql
-                            ? record.customizeSql
-                            : text,
-                        props: {
-                            colSpan: record.isCustomizeSql ? 3 : 1
-                        }
-                    };
-
-                    return obj;
-                },
-                width: '15%'
-            },
-            {
-                title: '统计函数',
-                dataIndex: 'functionId',
-                key: 'functionId',
-                render: (text, record) => {
-                    let obj = {
-                        children: record.functionName,
-                        props: {
-                            colSpan: record.isCustomizeSql ? 0 : 1
-                        }
-                    };
-
-                    return obj;
-                },
-                width: '13%'
-            },
-            {
-                title: '过滤条件',
-                dataIndex: 'filter',
-                key: 'filter',
-                render: (text, record) => {
-                    let obj = {
-                        children: text,
-                        props: {
-                            colSpan: record.isCustomizeSql ? 0 : 1
-                        }
-                    };
-
-                    return obj;
-                },
-                width: '20%'
-            },
-            {
-                title: '校验方法',
-                dataIndex: 'verifyTypeValue',
-                key: 'verifyTypeValue',
-                width: '12%'
-            },
-            {
-                title: '阈值配置',
-                dataIndex: 'threshold',
-                key: 'threshold',
-                render: (text, record) => {
-                    let value = `${record.operator}  ${text}`;
-                    return record.isPercentage ? `${value} %` : value;
-                },
-                width: '12%'
-            },
-            {
-                title: '最近修改人',
-                key: 'modifyUser',
-                dataIndex: 'modifyUser',
-                width: '14%'
-            },
-            {
-                title: '最近修改时间',
-                key: 'gmtModified',
-                dataIndex: 'gmtModified',
-                width: '14%',
-                render: text => moment(text).format('YYYY-MM-DD HH:mm')
-            }
-        ];
-    };
-
     // 切换分区
     onMonitorIdChange = value => {
         let monitorId = value;
@@ -370,7 +288,27 @@ class RemoteTriggerPane extends Component {
             message.error('请选择一个监控规则！');
         }
     };
-
+    selectRule = (checkedValue) => {
+        this.setState({
+            selectedIds: checkedValue
+        });
+    }
+    changeAllSelect = (e) => {
+        const { ruleConfig } = this.props;
+        const { monitorRules } = ruleConfig;
+        const checked = e.target.checked;
+        if (checked) {
+            this.setState({
+                selectedIds: monitorRules.map((rule) => {
+                    return rule.id
+                })
+            })
+        } else {
+            this.setState({
+                selectedIds: []
+            })
+        }
+    }
     render () {
         const { data, ruleConfig, form } = this.props;
         const { getFieldDecorator } = form;
@@ -384,13 +322,6 @@ class RemoteTriggerPane extends Component {
         } = this.state;
 
         let monitorPart = data.monitorPartVOS ? data.monitorPartVOS : [];
-        let rowSelection = {
-            selectedRowKeys: selectedIds,
-            onChange: selectedIds => {
-                this.setState({ selectedIds });
-            }
-        };
-
         return (
             <div className="trigger-box">
                 <div
@@ -473,17 +404,19 @@ class RemoteTriggerPane extends Component {
                             </Select>
                         </div>
                     )}
-
-                    <Table
-                        rowKey="id"
-                        className="m-table select-all-table"
-                        style={{ padding: '16px 0' }}
-                        pagination={false}
-                        rowSelection={rowSelection}
-                        dataSource={monitorRules}
-                        columns={this.initRulesColumns()}
-                    />
-
+                    <Checkbox
+                        checked={selectedIds.length && selectedIds.length == monitorRules.length}
+                        onChange={this.changeAllSelect}
+                        indeterminate={selectedIds.length && selectedIds.length != monitorRules.length}
+                        style={{ marginBottom: '5px' }}
+                    >
+                        全选
+                    </Checkbox>
+                    <Checkbox.Group value={selectedIds} onChange={this.selectRule}>
+                        {monitorRules.map((rule) => {
+                            return <RuleView key={rule.id} data={rule} leftView={<Checkbox value={rule.id} style={{ marginTop: '4px', marginRight: '5px' }} />} />
+                        })}
+                    </Checkbox.Group>
                     <Form>
                         <FormItem
                             {...rowFormItemLayout}

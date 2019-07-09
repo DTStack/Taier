@@ -3,6 +3,14 @@ import React from 'react';
 import { DATA_SOURCE } from '../../comm/const'
 
 const showMapArr = {
+    [DATA_SOURCE.KYLIN]: [
+        ['authURL', 'authURL'],
+        ['username', '用户名']
+    ],
+    [DATA_SOURCE.GBASE]: [
+        ['jdbcUrl', 'jdbcUrl'],
+        ['username', '用户名']
+    ],
     [DATA_SOURCE.MYSQL]: [
         ['jdbcUrl', 'jdbcUrl'],
         ['username', '用户名']

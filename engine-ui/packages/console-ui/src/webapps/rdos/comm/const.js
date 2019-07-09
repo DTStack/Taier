@@ -1,5 +1,11 @@
 // 常量
 
+export const KYLIN_ACTION = {
+    BUILD: 'Build',
+    MERGE: 'Merge',
+    REFRESH: 'Refresh'
+}
+
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
@@ -15,7 +21,9 @@ export const DATA_SOURCE = {
     REDIS: 12,
     MONGODB: 13,
     DB2: 19,
-    CARBONDATA: 20
+    CARBONDATA: 20,
+    GBASE: 22,
+    KYLIN: 23
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -32,7 +40,9 @@ export const DATA_SOURCE_TEXT = {
     12: 'Redis',
     13: 'MongoDB',
     19: 'DB2',
-    20: 'DTinsightAnalytics'
+    20: 'DTinsightAnalytics',
+    22: 'GBase',
+    23: 'Kylin'
 }
 
 // 锁类型
@@ -134,7 +144,8 @@ export const RDB_TYPE_ARRAY = [ // sql/oracle/sqlserver/postgresql/db2
     DATA_SOURCE.ORACLE,
     DATA_SOURCE.SQLSERVER,
     DATA_SOURCE.POSTGRESQL,
-    DATA_SOURCE.DB2
+    DATA_SOURCE.DB2,
+    DATA_SOURCE.GBASE
 ]
 
 export const SUPPROT_SUB_LIBRARY_DB_ARRAY = [ // 支持分库分表的数据库类型r
@@ -160,7 +171,8 @@ export const TASK_TYPE = { // 任务类型
     DATA_COLLECTION: 11, // 实时采集
     CARBONSQL: 12, // CarbonSQL
     NOTEBOOK: 13,
-    EXPERIMENT: 14
+    EXPERIMENT: 14,
+    CUBE_KYLIN: 16
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
