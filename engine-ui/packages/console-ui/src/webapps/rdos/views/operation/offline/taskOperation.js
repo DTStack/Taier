@@ -420,9 +420,14 @@ class OfflineTaskList extends Component {
                 let name = record.batchTask && record.batchTask.name
                 let originText = name;
                 name = utils.textOverflowExchange(name, 45);
-                const showName = record.batchTask.isDeleted === 1
-                    ? `${name} (已删除)`
-                    : <a onClick={() => { this.showTask(record) }}>{name}</a>;
+                let showName;
+                if (record.batchTask.isDeleted === 1) {
+                    showName = `${name} (已删除)`;
+                } else if (record.batchTask.retryNum) {
+                    showName = <a onClick={() => { this.showTask(record) }}>{name}(重试)</a>
+                } else {
+                    showName = <a onClick={() => { this.showTask(record) }}>{name}</a>;
+                }
                 return <span title={originText}>{showName}</span>;
             },
             fixed: 'left'
