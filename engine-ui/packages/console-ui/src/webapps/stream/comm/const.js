@@ -93,13 +93,13 @@ export const collectType = {
 }
 
 export const writeTableTypes = {
-    AUTO: 0,
-    HAND: 1
+    AUTO: '0',
+    HAND: '1'
 }
 
 export const writeStrategys = {
-    TIME: 0,
-    FILESIZE: 1
+    TIME: '0',
+    FILESIZE: '1'
 }
 
 export const MENU_TYPE = {

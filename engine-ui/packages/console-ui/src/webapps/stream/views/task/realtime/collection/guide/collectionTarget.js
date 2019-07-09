@@ -30,7 +30,8 @@ function getSourceInitialField (sourceType) {
             initialFields.sourceColumn = '${table}';
             initialFields.writeTableType = writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
-            initialFields.strategySize = 10;
+            initialFields.strategySize = '10';
+            initialFields.writeMode = 'insert';
             return initialFields;
         }
     }
@@ -53,7 +54,7 @@ class CollectionTarget extends React.Component {
         const { sourceId, type, table } = targetMap;
         if (sourceId) {
             this.onSourceIdChange(type, sourceId);
-            if (isHive(sourceId) && table) {
+            if (isHive(type) && table) {
                 this.onHiveTableChange(sourceId, table);
             }
         }
@@ -342,11 +343,11 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <RadioGroup onChange={this.getTableList}>
                                 {isMysqlSource ? (
-                                    <Radio value={writeTableTypes.AUTO} style={{ float: 'left' }}>
+                                    <Radio key={writeTableTypes.AUTO} value={writeTableTypes.AUTO} style={{ float: 'left' }}>
                                         自动建表
                                     </Radio>
                                 ) : null}
-                                <Radio value={writeTableTypes.HAND} style={{ float: 'left' }}>
+                                <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
                                     手动选择
                                 </Radio>
                             </RadioGroup>
@@ -363,7 +364,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '该字段不能为空'
                                 }]
                             })(
-                                <Input />
+                                <Input addonBefore='根据解析结果中' addonAfter='对应的值，写入到不同的表' />
                             )}
                         </FormItem>
                     ),
@@ -378,7 +379,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择表'
                                 }]
                             })(
-                                <Select>
+                                <Select placeholder='请选择表'>
                                     {tableList.map((tableName) => {
                                         return <Option key={tableName} value={tableName}>{tableName}</Option>
                                     })}
@@ -386,7 +387,7 @@ class CollectionTargetForm extends React.Component {
                             )}
                         </FormItem>
                     ),
-                    (writeTableType == writeTableTypes.HAND && table) && (
+                    (writeTableType == writeTableTypes.HAND && table && partitions && partitions.length) && (
                         <FormItem
                             {...formItemLayout}
                             label="分区"
@@ -433,7 +434,7 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <Select>
                                 {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
-                                    return <Option key={t} value={t}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
+                                    return <Option key={`${t}`} value={`${t}`}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
                                 })}
                             </Select>
                         )}
@@ -450,7 +451,7 @@ class CollectionTargetForm extends React.Component {
                             }]
                         })(
                             <RadioGroup>
-                                <Radio disabled value="insert" style={{ float: 'left' }}>
+                                <Radio value="insert" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
                                 <Radio value="replace" style={{ float: 'left' }}>
@@ -534,7 +535,7 @@ const WrapCollectionTargetForm = Form.create({
         }
         // 写入策略
         if (fields.hasOwnProperty('writeStrategy')) {
-            fields['strategySize'] = 10;
+            fields['strategySize'] = '10';
         }
         props.updateTargetMap(fields, false);
         if (props.onFormValuesChange) {
