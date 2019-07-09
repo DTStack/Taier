@@ -170,7 +170,7 @@ export default class MainBench extends React.Component {
         // 任务类型
         if (utils.checkExist(tabData && tabData.taskType)) {
             switch (tabData.taskType) {
-                case TASK_TYPE.Cube_Kylin:
+                case TASK_TYPE.CUBE_KYLIN:
                     return <KylinEditor
                         mode="kylin"
                         taskCustomParams={taskCustomParams}

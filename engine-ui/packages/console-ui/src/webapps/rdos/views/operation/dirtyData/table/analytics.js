@@ -37,6 +37,7 @@ export default class TableAnalytics extends Component {
         ajax.getDirtyDataAnalytics(params).then(res => {
             if (res.code === 1) {
                 this.setState({
+                    errorType: params.errorType,
                     data: res.data
                 });
             }
@@ -68,7 +69,6 @@ export default class TableAnalytics extends Component {
 
     onTabChange = (value) => {
         const { partId, tableId } = this.state
-        this.setState({ errorType: value })
         this.getTableAnalytics({
             tableId,
             partId,
