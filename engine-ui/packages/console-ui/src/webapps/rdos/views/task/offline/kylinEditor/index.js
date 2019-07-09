@@ -35,7 +35,7 @@ class KylinEditor extends React.Component {
         this.props.setTabId(currentTabData.id);
         this.props.getDataSource();
         // 是否存在sourceId，获取本地state数据
-        const sourceId = JSON.parse(currentTabData.exeArgs).sourceId;
+        const sourceId = currentTabData.exeArgs ? JSON.parse(currentTabData.exeArgs).sourceId : '';
         sourceId && this.getCubeList(sourceId);
     }
 
@@ -75,10 +75,14 @@ class KylinEditor extends React.Component {
     }
 
     handleActionChange = (val) => {
+        // 每次Action改变时都重置时间
+        this.props.form.resetFields(['range-time-picker']);
         this.props.form.setFieldsValue({
             exeArgs: JSON.stringify({
                 ...JSON.parse(this.props.currentTabData.exeArgs),
-                buildType: val
+                buildType: val,
+                startTime: '',
+                endTime: ''
             })
         });
     }
@@ -125,7 +129,7 @@ class KylinEditor extends React.Component {
                             <Row key={idx} >
                                 <Col>
                                     {
-                                        src.map(item => item.table).join(',')
+                                        src.map(item => item.table).join('  /  ')
                                     }
                                 </Col>
                             </Row>
@@ -160,7 +164,8 @@ class KylinEditor extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const { currentTabData } = this.props;
         const { actionListMap } = this.state;
-        const exeArgsToJson = JSON.parse(currentTabData.exeArgs);
+        // 默认exeArgs为"", 需要"{}"
+        const exeArgsToJson = currentTabData.exeArgs ? JSON.parse(currentTabData.exeArgs) : '{}';
         const dateFormat = 'YYYY-MM-DD HH:mm:ss';
         return (
             <Form>

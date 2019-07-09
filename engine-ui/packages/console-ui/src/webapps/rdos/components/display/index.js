@@ -35,6 +35,8 @@ export function taskTypeText (type) {
             return 'Notebook';
         case TASK_TYPE.EXPERIMENT:
             return '算法实验';
+        case TASK_TYPE.CUBE_KYLIN:
+            return 'Cube_Kylin';
         default:
             return '未知';
     }
