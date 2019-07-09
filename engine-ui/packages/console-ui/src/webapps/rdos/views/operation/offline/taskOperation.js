@@ -423,7 +423,7 @@ class OfflineTaskList extends Component {
                 let showName;
                 if (record.batchTask.isDeleted === 1) {
                     showName = `${name} (已删除)`;
-                } else if (record.batchTask.retryNum) {
+                } else if (record.batchEngineJob.retryNum) {
                     showName = <a onClick={() => { this.showTask(record) }}>{name}(重试)</a>
                 } else {
                     showName = <a onClick={() => { this.showTask(record) }}>{name}</a>;
