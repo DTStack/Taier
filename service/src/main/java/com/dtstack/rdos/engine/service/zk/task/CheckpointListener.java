@@ -61,7 +61,7 @@ public class CheckpointListener implements Runnable {
     public void SubtractionCheckpointRecord(String taskEngineID) {
         try {
 
-            int retainedNum = taskEngineIdAndRetainedNum.get(taskEngineID);
+            int retainedNum = taskEngineIdAndRetainedNum.getOrDefault(taskEngineID, 1);
             List<RdosStreamTaskCheckpoint> threshold = rdosStreamTaskCheckpointDAO.getByTaskEngineIDAndCheckpointIndexAndCount(taskEngineID,retainedNum-1, 1);
 
             if (threshold.isEmpty()) {
@@ -70,7 +70,8 @@ public class CheckpointListener implements Runnable {
             RdosStreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
             rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskEngineID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
         } catch (Exception e){
-            logger.error("checkpoint clean job run error:{}", ExceptionUtil.getErrorMessage(e));
+            logger.error("taskEngineID Id :{}", taskEngineID);
+            logger.error("", e);
         }
 
     }
@@ -79,13 +80,14 @@ public class CheckpointListener implements Runnable {
         rdosStreamTaskCheckpointDAO.cleanAllCheckpointByTaskEngineId(taskEngineID);
     }
 
-    public void putTaskEngineIdAndRetainedNum(String engineTaskId, String pulginInfo) {
+    public void putTaskEngineIdAndRetainedNum(String taskEngineID, String pluginInfo) {
         try {
-            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(pulginInfo, Map.class);
+            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
             int retainedNum = Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
-            taskEngineIdAndRetainedNum.put(engineTaskId, retainedNum);
+            taskEngineIdAndRetainedNum.put(taskEngineID, retainedNum);
         } catch (IOException e) {
-            logger.error("error...{} ",e.getMessage());
+            logger.error("taskEngineID Id :{}", taskEngineID);
+            logger.error("", e);
         }
     }
 
