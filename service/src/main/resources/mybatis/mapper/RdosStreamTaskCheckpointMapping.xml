@@ -41,7 +41,7 @@
         from rdos_stream_task_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         <if test="triggerStart != null and triggerEnd != null">
-            and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{checkpoint_trigger}>=UNIX_TIMESTAMP(trigger_start))
+            and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{triggerEnd}>=UNIX_TIMESTAMP(checkpoint_trigger))
         </if>
         order by checkpoint_trigger asc
     </select>
