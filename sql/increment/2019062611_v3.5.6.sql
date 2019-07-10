@@ -1,0 +1,1 @@
+ALTER TABLE rdos_stream_task_checkpoint ADD CONSTRAINT task_engine_id UNIQUE (`task_engine_id`)

@@ -67,7 +67,8 @@ create table `rdos_stream_task_checkpoint`(
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY task_engine_id (`task_engine_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `rdos_engine_job_cache` (
