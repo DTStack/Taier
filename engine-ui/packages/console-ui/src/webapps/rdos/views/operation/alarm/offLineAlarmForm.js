@@ -55,13 +55,15 @@ class AlarmForm extends Component {
         if (alarm.senderTypes.indexOf(4) > -1) {
             fields.push('webhook')
         }
-
+        alarm.isTaskHolder = alarm.isTaskHolder ? 1 : 0;
         alarm.receiveUsers = alarm.receiveUsers.join(',')
-        form.validateFields(fields, (err) => {
+        form.validateFields(fields, async (err) => {
             if (!err) {
-                ctx.setState({ myTrigger: 0, senderTypes: [] })
-                setTimeout(() => form.resetFields(), 300)
-                onOk(alarm)
+                let res = await onOk(alarm);
+                if (res) {
+                    ctx.setState({ myTrigger: 0, senderTypes: [] })
+                    setTimeout(() => form.resetFields(), 300)
+                }
             }
         });
     }
@@ -263,6 +265,20 @@ class AlarmForm extends Component {
                                 <InputNumber min={0} onChange={this.onChangeRunHour} />小时&nbsp;
                                 <InputNumber min={0} max={59} onChange={this.onChangeRunMin} />分钟
                             </div>
+                        )}
+                    </FormItem>
+                    <FormItem
+                        {...formItemLayout}
+                        label="任务责任人"
+                    >
+                        {getFieldDecorator('isTaskHolder', {
+                            rules: [{
+                                required: true
+                            }],
+                            initialValue: alarmInfo.isTaskHolder,
+                            valuePropName: 'checked'
+                        })(
+                            <Checkbox>接收告警</Checkbox>
                         )}
                     </FormItem>
                     <FormItem
