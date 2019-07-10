@@ -60,10 +60,14 @@ export const commReducer = combineReducers({
 /**
  *  Actions
  */
-export const getTableList = (projectId) => {
+/**
+ * @param type 任务类型/脚本任务，获取spark,libra任务/脚本不同表
+ */
+export const getTableList = (projectId, type) => {
     return (dispatch, getState) => {
         Api.getTableListByName({
-            appointProjectId: projectId
+            appointProjectId: projectId,
+            ...type
         }).then((res) => {
             if (res.code == 1) {
                 let { data } = res;

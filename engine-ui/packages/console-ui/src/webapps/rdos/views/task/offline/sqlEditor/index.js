@@ -60,11 +60,12 @@ class EditorContainer extends Component {
 
     componentDidMount () {
         const currentNode = this.props.currentTabData;
+        const projectId = this.props.project.id;
         if (currentNode) {
             this.props.getTab(currentNode.id)// 初始化console所需的数据结构
         }
-        this.initTableList();
-        this.initFuncList();
+        this.initTableList(projectId, this.getTaskOrScriptType(currentNode));
+        this.initFuncList(this.getTaskOrScriptType(currentNode));
     }
 
     // eslint-disable-next-line
@@ -74,23 +75,37 @@ class EditorContainer extends Component {
         const project = nextProps.project
         const oldProject = this.props.project
         if (project.id != oldProject.id) {
-            this.initTableList(project.id);
+            this.initTableList(project.id, this.getTaskOrScriptType(current));
         }
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
     }
-    initTableList (id) {
+
+    getTaskOrScriptType (task) {
+        if (task) {
+            if (task.hasOwnProperty('taskType')) {
+                return {
+                    taskType: task.taskType
+                }
+            } else {
+                return {
+                    scriptType: task.type
+                }
+            }
+        }
+    }
+    initTableList (id, type) {
         id = id || this.props.project.id;
         if (!id) {
             console.log('project id 0 remove')
             return;
         }
-        this.props.getTableList(id);
+        this.props.getTableList(id, type);
     }
 
-    initFuncList () {
-        API.getAllFunction()
+    initFuncList (type) {
+        API.getAllFunction({ ...type })
             .then(
                 (res) => {
                     if (res.code == 1) {
@@ -189,7 +204,7 @@ class EditorContainer extends Component {
             .then((complete) => {
                 if (complete) {
                     this._tableColumns = {};
-                    this.initTableList();
+                    this.initTableList(params.projectId, this.getTaskOrScriptType(task));
                 }
             });
     };
@@ -627,8 +642,8 @@ export default connect(state => {
         updateUser: (user) => {
             dispatch(updateUser(user));
         },
-        getTableList: (projectId) => {
-            dispatch(getTableList(projectId));
+        getTableList: (projectId, type) => {
+            dispatch(getTableList(projectId, type));
         }
     })
     return actions;
