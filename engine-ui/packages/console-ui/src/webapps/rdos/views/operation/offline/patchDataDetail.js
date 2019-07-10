@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import { hashHistory } from 'react-router'
 import {
     Table, message, Modal,
@@ -411,11 +411,17 @@ class PatchDataDetail extends Component {
             width: '350px',
             fixed: 'left',
             render: (text, record) => {
-                let originText = text;
-                text = utils.textOverflowExchange(text, 45);
-                const showName = record.batchTask.isDeleted === 1
-                    ? `${text} (已删除)`
-                    : <a onClick={() => { this.showTask(record) }}>{text}</a>;
+                let name = record.batchTask && record.batchTask.name
+                let originText = name;
+                name = utils.textOverflowExchange(name, 45);
+                let showName;
+                if (record.batchTask.isDeleted === 1) {
+                    showName = `${name} (已删除)`;
+                } else if (get(record, 'retryNum') && [TASK_STATUS.WAIT_RUN, TASK_STATUS.RUNNING].indexOf(record.status) > -1) {
+                    showName = <a onClick={() => { this.showTask(record) }}>{name}(重试)</a>
+                } else {
+                    showName = <a onClick={() => { this.showTask(record) }}>{name}</a>;
+                }
                 return <span title={originText}>{showName}</span>;
             }
         }, {

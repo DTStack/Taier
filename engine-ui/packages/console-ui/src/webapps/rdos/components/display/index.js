@@ -37,6 +37,8 @@ export function taskTypeText (type) {
             return '算法实验';
         case TASK_TYPE.LIBRASQL:
             return 'LibraSQL';
+        case TASK_TYPE.CUBE_KYLIN:
+            return 'Cube_Kylin';
         default:
             return '未知';
     }
