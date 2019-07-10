@@ -4,9 +4,7 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.*;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
@@ -25,6 +23,9 @@ import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Map;
 
 
 /**
@@ -164,6 +165,10 @@ public class RestartDealer {
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
+            if(EngineType.Kylin.name().equalsIgnoreCase(jobClient.getEngineType())){
+                setRetryTag(jobClient);
+            }
+
             resetStatus(jobClient, false);
             addToRestart(jobClient);
             // update retryNum
@@ -173,6 +178,16 @@ public class RestartDealer {
         } catch (Exception e) {
             LOG.error("", e);
             return false;
+        }
+    }
+
+    private void setRetryTag(JobClient jobClient){
+        try {
+            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), Map.class);
+            pluginInfoMap.put("retry", true);
+            jobClient.setPluginInfo(PublicUtil.objToString(pluginInfoMap));
+        } catch (IOException e) {
+            LOG.warn("Set retry tag error:", e);
         }
     }
 
