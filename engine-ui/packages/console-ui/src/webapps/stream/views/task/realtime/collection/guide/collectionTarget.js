@@ -30,7 +30,7 @@ function getSourceInitialField (sourceType) {
             initialFields.sourceColumn = '${table}';
             initialFields.writeTableType = writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
-            initialFields.strategySize = '10';
+            initialFields.interval = '10';
             initialFields.writeMode = 'insert';
             return initialFields;
         }
@@ -425,9 +425,9 @@ class CollectionTargetForm extends React.Component {
                     <FormItem
                         {...formItemLayout}
                         label={isWriteStrategyBeTime ? '间隔时间' : '文件大小'}
-                        key="strategySize"
+                        key={isWriteStrategyBeTime ? 'interval' : 'bufferSize'}
                     >
-                        {getFieldDecorator('strategySize', {
+                        {getFieldDecorator(isWriteStrategyBeTime ? 'interval' : 'bufferSize', {
                             rules: [{
                                 required: true, message: isWriteStrategyBeTime ? '请输入间隔时间' : '请输入文件大小'
                             }]
@@ -535,7 +535,13 @@ const WrapCollectionTargetForm = Form.create({
         }
         // 写入策略
         if (fields.hasOwnProperty('writeStrategy')) {
-            fields['strategySize'] = '10';
+            if (fields.writeStrategy == writeStrategys.TIME) {
+                fields['interval'] = '10';
+                fields['bufferSize'] = undefined;
+            } else {
+                fields['bufferSize'] = '10';
+                fields['interval'] = undefined;
+            }
         }
         props.updateTargetMap(fields, false);
         if (props.onFormValuesChange) {
@@ -569,8 +575,11 @@ const WrapCollectionTargetForm = Form.create({
             writeStrategy: {
                 value: targetMap.writeStrategy
             },
-            strategySize: {
-                value: targetMap.strategySize
+            bufferSize: {
+                value: targetMap.bufferSize
+            },
+            interval: {
+                value: targetMap.interval
             },
             writeMode: {
                 value: targetMap.writeMode
