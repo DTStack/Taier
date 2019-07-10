@@ -22,6 +22,7 @@ export default class Toolbar extends Component {
 
         return enableRun ? [
             <Button
+                className='ide-toolbar__run'
                 key="btnRun"
                 onClick={onRun}
                 loading={isRunning}
