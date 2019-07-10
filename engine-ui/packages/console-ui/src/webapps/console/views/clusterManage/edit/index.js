@@ -1,7 +1,7 @@
 import React from 'react';
 import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
-import { Form, Input, Row, Col, Icon, Tooltip, Button, message, Card, Tabs, Modal } from 'antd';
+import { Form, Input, Row, Col, Icon, Button, message, Card, Tabs, Modal } from 'antd';
 import Api from '../../../api/console'
 import { getComponentConfKey, exChangeComponentConf, showTestResult, validateAllRequired,
     myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
@@ -19,13 +19,11 @@ import LibraSqlConfig from './libraSqlConfig';
 import ZipConfig from './zipConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
 import AddCommModal from '../../../components/addCommModal';
+import RequiredIcon from '../../../components/requiredIcon';
+import TestRestIcon from '../../../components/testResultIcon';
 const FormItem = Form.Item;
 const TabPane = Tabs.TabPane;
 const confirm = Modal.confirm;
-const TEST_STATUS = {
-    SUCCESS: true,
-    FAIL: false
-}
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
@@ -279,156 +277,6 @@ class EditCluster extends React.Component {
                 }
             )
     }
-    renderRequiredIcon = (componentValue) => {
-        const { flinkShowRequired,
-            hiveShowRequired,
-            carbonShowRequired,
-            sparkShowRequired,
-            dtYarnShellShowRequired,
-            learningShowRequired,
-            hdfsShowRequired,
-            yarnShowRequired,
-            libraShowRequired } = this.props.showRequireStatus;
-        const asterisk = () => {
-            return <span className='icon_required'>*</span>
-        }
-        switch (componentValue) {
-            case COMPONENT_TYPE_VALUE.FLINK: {
-                if (flinkShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
-                if (hiveShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                if (carbonShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.SPARK: {
-                if (sparkShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                if (dtYarnShellShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.LEARNING: {
-                if (learningShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.HDFS: {
-                if (hdfsShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.YARN: {
-                if (yarnShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                if (libraShowRequired) {
-                    return asterisk()
-                }
-                return null
-            }
-            default: {
-                return null
-            }
-        }
-    }
-    // show err message
-    showDetailErrMessage (engine) {
-        Modal.error({
-            title: `错误信息`,
-            content: `${engine.errorMsg}`
-        })
-    }
-    matchCompTest (testResult) {
-        switch (testResult.result) {
-            case TEST_STATUS.SUCCESS: {
-                return <Icon className='success-icon' type="check-circle" />
-            }
-            case TEST_STATUS.FAIL: {
-                return <Tooltip
-                    title={
-                        <a
-                            style={{ color: '#fff' }}
-                            onClick={ this.showDetailErrMessage.bind(this, testResult)}
-                        >
-                            {testResult.errorMsg}
-                        </a>
-                    }
-                    placement='right'
-
-                >
-                    <Icon className='err-icon' type="close-circle" />
-                </Tooltip>
-            }
-            default: {
-                return null
-            }
-        }
-    }
-    // 组件成功失败图标
-    renderTestIcon = (componentValue) => {
-        const { flinkTestResult,
-            sparkThriftTestResult,
-            carbonTestResult,
-            sparkTestResult,
-            dtYarnShellTestResult,
-            learningTestResult,
-            hdfsTestResult,
-            yarnTestResult,
-            libraSqlTestResult } = this.props.testStatus;
-        switch (componentValue) {
-            case COMPONENT_TYPE_VALUE.FLINK: {
-                return this.matchCompTest(flinkTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: { // hive <=> Spark Thrift Server
-                return this.matchCompTest(sparkThriftTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.CARBONDATA: {
-                return this.matchCompTest(carbonTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.SPARK: {
-                return this.matchCompTest(sparkTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.DTYARNSHELL: {
-                return this.matchCompTest(dtYarnShellTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.LEARNING: {
-                return this.matchCompTest(learningTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.HDFS: {
-                return this.matchCompTest(hdfsTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.YARN: {
-                return this.matchCompTest(yarnTestResult)
-            }
-            case COMPONENT_TYPE_VALUE.LIBRASQL: {
-                return this.matchCompTest(libraSqlTestResult)
-            }
-            default: {
-                return null
-            }
-        }
-    }
     /* eslint-disable */
     addParam (type) {
         const { flink_params, spark_params, sparkThrif_params, learning_params, dtyarnshell_params, libraSql_params } = this.state;
@@ -589,7 +437,6 @@ class EditCluster extends React.Component {
             configString: JSON.stringify(componentConf[getComponentConfKey(component.componentTypeCode)])
         }).then(res => {
             if (res.code === 1) {
-                // this.renderTestIcon()
                 this.getDataList(this.state.defaultEngineType);
                 message.success(`${component.componentName}保存成功`)
             }
@@ -1227,9 +1074,9 @@ class EditCluster extends React.Component {
                                                             <TabPane
                                                                 tab={
                                                                     <span>
-                                                                        {this.renderRequiredIcon(componentTypeCode)}
+                                                                        <RequiredIcon componentData={item} showRequireStatus={this.props.showRequireStatus}/>
                                                                         <span className='tab-title'>{item.componentName}</span>
-                                                                        {this.renderTestIcon(componentTypeCode)}
+                                                                        <TestRestIcon componentData={item} testStatus={this.props.testStatus}/>
                                                                     </span>
                                                                 }
                                                                 forceRender={true}
