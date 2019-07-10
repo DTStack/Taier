@@ -43,7 +43,7 @@
         <if test="triggerStart != null and triggerEnd != null">
             and (UNIX_TIMESTAMP(checkpoint_trigger)>=#{triggerStart} or #{checkpoint_trigger}>=UNIX_TIMESTAMP(trigger_start))
         </if>
-        order by checkpoint_id+0 desc
+        order by checkpoint_trigger asc
     </select>
 
     <select id="getByTaskIdAndEngineTaskId" resultMap="rdosStreamCheckpointResult">
