@@ -47,58 +47,69 @@ function getLogType (status) {
     }
 }
 export function LogInfo (props) {
-    window.loggg = props.log;
     /**
      * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
      */
     const safeSpace = ' ';
-    const log = props.log ? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
-    const syncJobInfo = props.syncJobInfo;
-    const logStyle = Object.assign({}, editorStyle, {
-        height: props.height
-    });
+    let logText = '';
+    let syncJobInfo;
+    let logStyle;
+    try {
+        const log = props.log ? JSON.parse(props.log.replace(/\n/g, '\\n').replace(/\r/g, '\\r')) : {};
+        syncJobInfo = props.syncJobInfo;
+        logStyle = Object.assign({}, editorStyle, {
+            height: props.height
+        });
 
-    const errors = log['all-exceptions'] || ''
-    const engineLogErr = log['engineLogErr'];
-    let flinkLog = errors;
+        const errors = log['all-exceptions'] || ''
+        const engineLogErr = log['engineLogErr'];
+        let flinkLog = errors;
 
-    const appLogs = engineLogErr ? `${wrappTitle('appLogs')}\n${engineLogErr}\n` : getLogsInfo('appLogs', log.appLog)
-    const driverLog = getLogsInfo('driverLog', log.driverLog)
-    let logText = ''
-    if (props.downloadLog) {
-        logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
-    }
-    if (log.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`
-    }
-
-    if (log['perf']) {
-        logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(log['perf'], 'warning')}${safeSpace} \n`
-    }
-    /**
-     * 数据增量同步配置信息
-     */
-    if (log['increInfo']) {
-        logText = `${logText}\n${wrappTitle('增量标志信息')}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`
-    }
-
-    if (flinkLog || log['root-exception']) {
-        logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(flinkLog, 'error')} \n ${createLogMark(log['root-exception'], 'error') || ''}`
-    }
-
-    if (appLogs || driverLog) {
-        logText = `${logText} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(driverLog, 'error')}`
-    }
-
-    if (log.msg_info) {
-        let logSql = log['sql'];
-        if (logSql && typeof logSql == 'object') {
-            logSql = JSON.stringify(logSql, null, 2);
+        const appLogs = engineLogErr ? `${wrappTitle('appLogs')}\n${engineLogErr}\n` : getLogsInfo('appLogs', log.appLog)
+        const driverLog = getLogsInfo('driverLog', log.driverLog)
+        if (props.downloadLog) {
+            logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
         }
-        if (logSql) {
-            logText = `${logText}${wrappTitle('任务信息')}\n${createLogMark(logSql, 'info')} \n`
+        if (props.subNodeDownloadLog) {
+            Object.entries(props.subNodeDownloadLog).forEach(([key, value]) => {
+                logText = `${logText} ${key}：${createLinkMark({ href: value, download: '' })}`
+            });
         }
+        if (log.msg_info) {
+            logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`
+        }
+
+        if (log['perf']) {
+            logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(log['perf'], 'warning')}${safeSpace} \n`
+        }
+        /**
+         * 数据增量同步配置信息
+         */
+        if (log['increInfo']) {
+            logText = `${logText}\n${wrappTitle('增量标志信息')}\n${createLogMark(log['increInfo'], 'info')}${safeSpace} \n`
+        }
+
+        if (flinkLog || log['root-exception']) {
+            logText = `${logText}\n\n${wrappTitle('Flink日志')} \n${createLogMark(flinkLog, 'error')} \n ${createLogMark(log['root-exception'], 'error') || ''}`
+        }
+
+        if (appLogs || driverLog) {
+            logText = `${logText} \n${createLogMark(appLogs, 'error')} \n ${createLogMark(driverLog, 'error')}`
+        }
+
+        if (log.msg_info) {
+            let logSql = log['sql'];
+            if (logSql && typeof logSql == 'object') {
+                logSql = JSON.stringify(logSql, null, 2);
+            }
+            if (logSql) {
+                logText = `${logText}${wrappTitle('任务信息')}\n${createLogMark(logSql, 'info')} \n`
+            }
+        }
+    } catch (e) {
+        logText = `${createLogMark('日志解析错误', 'error')}\n${createLogMark(e, 'error')}\n${createLogMark(props.log, 'warning')}`
     }
+
     return (
         <div>
             {
