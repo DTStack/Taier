@@ -67,8 +67,6 @@ public class TaskStatusListener implements Runnable{
 
     public final static String CHECKPOINT_SAVEPATH_KEY = "external_path";
 
-    public final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
-
     /** 开启checkpoint，但未绑定外部存储路径*/
     public  final static String CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY = "<checkpoint-not-externally-addressable>";
 
@@ -462,9 +460,7 @@ public class TaskStatusListener implements Runnable{
                 return;
             }
 
-            int retainedNum = getValueFromStringInfoKey(pluginInfo, CHECKPOINT_RETAINED_KEY) == null ? 1 : Integer.valueOf(getValueFromStringInfoKey(pluginInfo, CHECKPOINT_RETAINED_KEY).toString());
-
-            checkpointListener.putTaskEngineIdAndRetainedNum(engineTaskId, retainedNum);
+            checkpointListener.putTaskEngineIdAndRetainedNum(engineTaskId, pluginInfo);
 
             for (Map<String, Object> entity : cpList) {
                 String checkpointID = String.valueOf(entity.get(CHECKPOINT_ID_KEY));

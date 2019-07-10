@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.service.zk.task;
 
 import com.dtstack.rdos.commom.exception.ExceptionUtil;
+import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
@@ -9,6 +10,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +28,8 @@ public class CheckpointListener implements Runnable {
      * 存在checkpoint 外部存储路径的taskid
      */
     private Map<String, Integer> taskEngineIdAndRetainedNum = Maps.newConcurrentMap();
+
+    public final static String CHECKPOINT_RETAINED_KEY = "state.checkpoints.num-retained";
 
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
@@ -75,8 +79,14 @@ public class CheckpointListener implements Runnable {
         rdosStreamTaskCheckpointDAO.cleanAllCheckpointByTaskEngineId(taskEngineID);
     }
 
-    public void putTaskEngineIdAndRetainedNum(String engineTaskId, int retainedNum) {
-        taskEngineIdAndRetainedNum.put(engineTaskId, retainedNum);
+    public void putTaskEngineIdAndRetainedNum(String engineTaskId, String pulginInfo) {
+        try {
+            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(pulginInfo, Map.class);
+            int retainedNum = Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
+            taskEngineIdAndRetainedNum.put(engineTaskId, retainedNum);
+        } catch (IOException e) {
+            logger.error("error...{} ",e.getMessage());
+        }
     }
 
     public void removeByTaskEngineId(String taskEngineId) {
