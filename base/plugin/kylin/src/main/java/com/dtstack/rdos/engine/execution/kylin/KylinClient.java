@@ -120,16 +120,19 @@ public class KylinClient extends AbsClient {
     }
 
     private String parseErrorInfo(String responseStr){
-        JsonObject jsonResult = gson.fromJson(responseStr, JsonObject.class);
+        JsonElement jsonResult = gson.fromJson(responseStr, JsonElement.class);
+        if(jsonResult instanceof JsonNull){
+            return null;
+        }
 
         StringBuilder errorInfo = new StringBuilder();
-        if(jsonResult.get(KEY_EXCEPTION) != null){
-            errorInfo.append(jsonResult.get(KEY_EXCEPTION).getAsString());
+        if(jsonResult.getAsJsonObject().get(KEY_EXCEPTION) != null){
+            errorInfo.append(jsonResult.getAsJsonObject().get(KEY_EXCEPTION).getAsString());
             errorInfo.append("\n");
         }
 
-        if(jsonResult.get(KEY_STACKTRACE) != null){
-            errorInfo.append(jsonResult.get(KEY_STACKTRACE).getAsString());
+        if(jsonResult.getAsJsonObject().get(KEY_STACKTRACE) != null){
+            errorInfo.append(jsonResult.getAsJsonObject().get(KEY_STACKTRACE).getAsString());
         }
 
         return errorInfo.toString();
