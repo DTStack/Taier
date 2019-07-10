@@ -182,6 +182,8 @@ public class TaskStatusListener implements Runnable{
                             //集合中移除该任务
                             checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
                             checkpointConfigCache.invalidate(failedTaskInfo.getJobId());
+
+                            rdosEngineJobCacheDao.deleteJob(failedTaskInfo.getJobId());
                         }
                     }
 
@@ -378,7 +380,10 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
+
+            if (RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)) {
+                rdosEngineJobCacheDao.deleteJob(jobId);
+            }
 
             if(Strings.isNullOrEmpty(engineTaskId)){
                 return;
