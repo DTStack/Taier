@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import { isEmpty, cloneDeep } from 'lodash';
+import { isEmpty, cloneDeep, get } from 'lodash';
 
 import {
     Table, message, Modal,
@@ -423,7 +423,7 @@ class OfflineTaskList extends Component {
                 let showName;
                 if (record.batchTask.isDeleted === 1) {
                     showName = `${name} (已删除)`;
-                } else if (record.batchEngineJob.retryNum) {
+                } else if (get(record, 'batchEngineJob.retryNum') && [TASK_STATUS.WAIT_RUN, TASK_STATUS.RUNNING].indexOf(record.status) > -1) {
                     showName = <a onClick={() => { this.showTask(record) }}>{name}(重试)</a>
                 } else {
                     showName = <a onClick={() => { this.showTask(record) }}>{name}</a>;

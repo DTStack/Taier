@@ -8,6 +8,7 @@ import {
     operatorSelect,
     operatorSelect1
 } from '../../consts';
+import HelpDoc from '../helpDoc';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -145,11 +146,26 @@ class RuleForm extends React.Component {
                     rules: [{
                         required: true,
                         message: '请填写数值'
-                    }],
+                    }, this.isPercentage(data) && {
+                        validator (rule, value, callback) {
+                            let errorMsg = '请填写正确的数字'
+                            try {
+                                let number = parseFloat(value);
+                                if (number >= 0 && number <= 100) {
+                                    callback();
+                                } else {
+                                    callback(errorMsg);
+                                }
+                            } catch (e) {
+                                callback(errorMsg);
+                            }
+                        }
+                    }].filter(Boolean),
                     initialValue: get(data, 'threshold')
                 })(
                     <Input disabled={!isEdit} addonAfter={this.isPercentage(data) ? '%' : null} />
                 )}
+                <HelpDoc doc='thresholdMsg' />
             </FormItem>
         </React.Fragment>
     }
