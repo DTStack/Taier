@@ -72,7 +72,7 @@ export function LogInfo (props) {
         }
         if (props.subNodeDownloadLog) {
             Object.entries(props.subNodeDownloadLog).forEach(([key, value]) => {
-                logText = `${logText} ${key}：${createLinkMark({ href: value, download: '' })}`
+                logText = `${logText} ${key}：${createLinkMark({ href: value, download: '' })}\n`
             });
         }
         if (log.msg_info) {
