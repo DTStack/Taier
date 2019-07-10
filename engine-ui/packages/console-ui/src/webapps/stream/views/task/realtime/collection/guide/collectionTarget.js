@@ -474,9 +474,9 @@ class CollectionTargetForm extends React.Component {
         const { getFieldDecorator } = this.props.form;
         const disableOption = (targetSourceType) => {
             const sourceType = sourceMap.type;
-            // 源类型为Kafka时，目标仅能选择HDFS类型
-            if (sourceType == DATA_SOURCE.KAFKA_09 || sourceType == DATA_SOURCE.KAFKA_10) {
-                return targetSourceType !== DATA_SOURCE.HDFS;
+            // 源类型为Kafka时，目标仅能选择HDFS, Hive类型
+            if (isKafka(sourceType)) {
+                return targetSourceType !== DATA_SOURCE.HDFS && targetSourceType !== DATA_SOURCE.HIVE;
             }
             return false;
         }
