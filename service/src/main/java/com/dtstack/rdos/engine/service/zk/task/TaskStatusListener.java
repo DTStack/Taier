@@ -156,13 +156,16 @@ public class TaskStatusListener implements Runnable{
                 updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
+                if(isFlinkStreamTask(failedTaskInfo)) {
+                    //更新checkpoint
+                    updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
+                }
+
                 failedTaskInfo.waitClean();
 
                 if(!failedTaskInfo.allowClean()){
+                    // filter batch task
                     if(isFlinkStreamTask(failedTaskInfo)){
-                        //更新checkpoint
-                        updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
-
                         JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
                         if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
                             if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
