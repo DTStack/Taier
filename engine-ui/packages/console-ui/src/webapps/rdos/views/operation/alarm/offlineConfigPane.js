@@ -73,14 +73,19 @@ class OfflineConfig extends Component {
         }, this.search)
     }
 
-    addAlarm = (alarm) => {
-        const ctx = this
-        Api.addOfflineAlarm(alarm).then((res) => {
+    addAlarm = async (alarm) => {
+        try {
+            let res = await Api.addOfflineAlarm(alarm);
             if (res.code === 1) {
-                ctx.setState({ visible: false })
-                ctx.loadAlarmRules()
+                message.success('添加告警成功！')
+                this.setState({ visible: false })
+                this.loadAlarmRules();
+                return res;
             }
-        })
+            return null;
+        } catch (e) {
+            return null;
+        }
     }
 
     deleteAlarm (alarm) {
@@ -113,16 +118,20 @@ class OfflineConfig extends Component {
         }
     }
 
-    updateAlarm = (alarm) => {
-        const ctx = this
+    updateAlarm = async (alarm) => {
         alarm.id = this.state.alarmInfo.alarmId
-        Api.updateOfflineAlarm(alarm).then((res) => {
+        try {
+            let res = await Api.updateOfflineAlarm(alarm);
             if (res.code === 1) {
                 message.success('告警更新成功！')
-                ctx.setState({ visibleEdit: false })
-                ctx.loadAlarmRules()
+                this.setState({ visibleEdit: false })
+                this.loadAlarmRules();
+                return res;
             }
-        })
+            return null;
+        } catch (e) {
+            return null;
+        }
     }
 
     loadTaskList = () => {
