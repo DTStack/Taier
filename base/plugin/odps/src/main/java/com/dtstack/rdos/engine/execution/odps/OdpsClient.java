@@ -72,6 +72,10 @@ public class OdpsClient extends AbsClient {
             Job job = new Job();
             String guid = UUID.randomUUID().toString();
             for (String sql : sqls) {
+                if(StringUtils.isEmpty(sql.trim())){
+                    continue;
+                }
+
                 if (!sql.endsWith(SPLIT)) {
                     sql = sql + SPLIT;
                 }
