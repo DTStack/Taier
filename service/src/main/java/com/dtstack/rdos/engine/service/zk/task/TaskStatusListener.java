@@ -166,24 +166,7 @@ public class TaskStatusListener implements Runnable{
                 if(!failedTaskInfo.allowClean()){
                     // filter batch task
                     if(isFlinkStreamTask(failedTaskInfo)){
-                        JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
-                        if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
-                            if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
-                                Boolean cleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CHECKPOINT_CLEANUP_MODE_KEY));
-                                if (null != cleanMode && !cleanMode ) {
-                                    //主动清理超过范围的checkpoint
-                                    checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
-                                } else {
-                                    // default or true   remove all
-                                    checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
-                                }
-                                //集合中移除该任务
-                                checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
-                                checkpointConfigCache.invalidate(failedTaskInfo.getJobId());
-
-                                rdosEngineJobCacheDao.deleteJob(failedTaskInfo.getJobId());
-                            }
-                        }
+                        dealStreamCheckpoint(failedTaskInfo);
                     }
                     failedJobCache.remove(key);
                 }
@@ -191,6 +174,32 @@ public class TaskStatusListener implements Runnable{
         }catch (Exception e){
             logger.error("dealFailed job run error:{}",ExceptionUtil.getErrorMessage(e));
         }
+    }
+
+    private void dealStreamCheckpoint(FailedTaskInfo failedTaskInfo) {
+        try {
+            JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
+            if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
+                if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
+                    Boolean cleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CHECKPOINT_CLEANUP_MODE_KEY));
+                    if (null != cleanMode && !cleanMode ) {
+                        //主动清理超过范围的checkpoint
+                        checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
+                    } else {
+                        // default or true   remove all
+                        checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
+                    }
+                    //集合中移除该任务
+                    checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
+                    checkpointConfigCache.invalidate(failedTaskInfo.getJobId());
+
+                    rdosEngineJobCacheDao.deleteJob(failedTaskInfo.getJobId());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("deal stream checkpoint error: {}", ExceptionUtil.getErrorMessage(e));
+        }
+
     }
 
     public boolean isFlinkStreamTask(FailedTaskInfo failedTaskInfo ) {
