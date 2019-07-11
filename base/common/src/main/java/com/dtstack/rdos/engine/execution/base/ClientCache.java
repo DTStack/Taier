@@ -90,9 +90,7 @@ public class ClientCache {
 
         String pluginInfoMd5;
         Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-        if(properties.containsKey(MD5_SUM_KEY)){
-            pluginInfoMd5 = MathUtil.getString(properties.get(MD5_SUM_KEY));
-        }else{
+        if(!properties.containsKey(MD5_SUM_KEY) || (pluginInfoMd5 = MathUtil.getString(properties.get(MD5_SUM_KEY))) == null){
             pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
             properties.setProperty(MD5_SUM_KEY, pluginInfoMd5);
         }
