@@ -423,7 +423,17 @@ class Workbench extends React.Component {
         const isButtonSubmit = saveMode == 'popOut';
         this.props.isSaveFInish(true)
         const { saveTab, currentTabData } = this.props;
-
+        if (currentTabData.taskType === TASK_TYPE.CUBE_KYLIN) {
+            const exeArgsToJson = currentTabData.exeArgs ? JSON.parse(currentTabData.exeArgs) : '';
+            if (exeArgsToJson) {
+                let { sourceId, cubeName, isUseSystemVar, startTime, endTime, systemVar } = { ...exeArgsToJson };
+                const isCubeOk = sourceId && cubeName && ((isUseSystemVar && systemVar) || (startTime && endTime));
+                if (!isCubeOk) {
+                    message.warning('请完善相关参数！');
+                    return false;
+                }
+            }
+        }
         // 如果是工作流任务，需要对保存操作提前做校验
         if (
             currentTabData.taskType === TASK_TYPE.WORKFLOW &&

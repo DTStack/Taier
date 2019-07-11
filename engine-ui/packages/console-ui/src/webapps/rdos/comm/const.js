@@ -1,11 +1,5 @@
 // 常量
 
-export const KYLIN_ACTION = {
-    BUILD: 'Build',
-    MERGE: 'Merge',
-    REFRESH: 'Refresh'
-}
-
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,

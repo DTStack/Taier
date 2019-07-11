@@ -131,6 +131,17 @@ class SiderBench extends React.Component {
                     />
                 </TabPane>
             )
+        } else if (tabData && utils.checkExist(tabData.taskType) && tabData.taskType === TASK_TYPE.CUBE_KYLIN) {
+            panes.push(
+                <TabPane tab={<span className="title-vertical">{prefixLabel}参数</span>} key="params5">
+                    <TaskParams
+                        isPro={isPro}
+                        couldEdit={couldEdit}
+                        tabData={tabData}
+                        onChange={this.debounceChange}
+                    />
+                </TabPane>
+            )
         } else if (utils.checkExist(tabData.type)) {
             return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
                 <ScriptDetail tabData={tabData} isPro={isPro} couldEdit={couldEdit} />
