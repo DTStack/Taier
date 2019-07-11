@@ -46,6 +46,42 @@ function getLogType (status) {
         }
     }
 }
+
+function formatDate (timestamp) {
+    if (timestamp) {
+        let date = new Date(Number(timestamp));
+        let Y = date.getFullYear() + '-';
+        let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        let D = date.getDate() + ' ';
+        let h = date.getHours() + ':';
+        let m = date.getMinutes() + ':';
+        let s = date.getSeconds();
+        return Y + M + D + h + m + s;
+    }
+}
+function showTaskInfo (obj) {
+    return Object.keys(obj).map(key => {
+        return `${key}: ${obj[key]}`;
+    }).join('\n');
+}
+
+function resolveSteps (stepArr) {
+    let stepText = '';
+    stepArr.map(item => {
+        stepText += `${formatDate(item.info.startTime)} ${item.step_status} ${item.sequence_id} Step Name: ${item.name} Data Size: ${item.info.hdfs_bytes_written ? item.info.hdfs_bytes_written : ''}
+            Duration: ${((item.info.endTime - item.info.startTime) / 1000 / 60)} mins Waiting: ${item.exec_wait_time} seconds\n`
+    });
+    return stepText;
+}
+
+function resoveApplogs (stepArr) {
+    let appLogs = '';
+    stepArr.map(item => {
+        appLogs += `${item.info.yarn_application_id ? item.info.yarn_application_id : ''}\n`;
+    });
+    return appLogs;
+}
+
 export function LogInfo (props) {
     window.loggg = props.log;
     /**
@@ -68,9 +104,20 @@ export function LogInfo (props) {
     if (props.downloadLog) {
         logText = `完整日志下载地址：${createLinkMark({ href: props.downloadLog, download: '' })}\n`;
     }
+
+    // ==========================
+
     if (log.msg_info) {
-        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`
+        logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`;
+        if (log.taskInfo && log.taskInfo.taskType === 'Kylin') {
+            if (log['steps']) {
+                logText = `${logText}${wrappTitle('appLogs')}\n${resoveApplogs(log['steps'])} ${safeSpace} \n`;
+                logText = `${logText}${wrappTitle('Kylin日志')}\n${resolveSteps(log['steps'])} ${safeSpace} \n`;
+            }
+            logText = `${logText}${wrappTitle('Kylin日志')}\n${wrappTitle('任务信息')}\n${showTaskInfo(log.taskInfo)} ${safeSpace} \n`
+        }
     }
+    // ==========================
 
     if (log['perf']) {
         logText = `${logText}\n${wrappTitle('性能指标')}\n${createLogMark(log['perf'], 'warning')}${safeSpace} \n`
