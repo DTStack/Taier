@@ -156,9 +156,7 @@ public class TaskStatusListener implements Runnable{
                 updateJobEngineLog(failedTaskInfo.getJobId(), failedTaskInfo.getJobIdentifier(),
                         failedTaskInfo.getEngineType(), failedTaskInfo.getComputeType() , failedTaskInfo.getPluginInfo());
 
-                //flink任务在失败或者取消情况下多次更新checkpoint
-                if(failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()
-                        && EngineType.isFlink(failedTaskInfo.getEngineType())){
+                if(isFlinkStreamTask(failedTaskInfo)) {
                     //更新checkpoint
                     updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
                 }
@@ -166,30 +164,47 @@ public class TaskStatusListener implements Runnable{
                 failedTaskInfo.waitClean();
 
                 if(!failedTaskInfo.allowClean()){
-                    failedJobCache.remove(key);
-
-                    JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
-                    if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
-                        if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
-                            Boolean cleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CHECKPOINT_CLEANUP_MODE_KEY));
-                            if (null != cleanMode && !cleanMode ) {
-                                //主动清理超过范围的checkpoint
-                                checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
-                            } else {
-                                // default or true   remove all
-                                checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
-                            }
-                            //集合中移除该任务
-                            checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
-                            checkpointConfigCache.invalidate(failedTaskInfo.getJobId());
-                        }
+                    // filter batch task
+                    if(isFlinkStreamTask(failedTaskInfo)){
+                        dealStreamCheckpoint(failedTaskInfo);
                     }
-
+                    failedJobCache.remove(key);
                 }
             }
         }catch (Exception e){
             logger.error("dealFailed job run error:{}",ExceptionUtil.getErrorMessage(e));
         }
+    }
+
+    private void dealStreamCheckpoint(FailedTaskInfo failedTaskInfo) {
+        try {
+            JobIdentifier jobIdentifier = failedTaskInfo.getJobIdentifier();
+            if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
+                if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
+                    Boolean cleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CHECKPOINT_CLEANUP_MODE_KEY));
+                    if (null != cleanMode && !cleanMode ) {
+                        //主动清理超过范围的checkpoint
+                        checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
+                    } else {
+                        // default or true   remove all
+                        checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
+                    }
+                    //集合中移除该任务
+                    checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
+                    checkpointConfigCache.invalidate(failedTaskInfo.getJobId());
+
+                    rdosEngineJobCacheDao.deleteJob(failedTaskInfo.getJobId());
+                }
+            }
+        } catch (Exception e) {
+            logger.error("deal stream checkpoint error: {}", ExceptionUtil.getErrorMessage(e));
+        }
+
+    }
+
+    public boolean isFlinkStreamTask(FailedTaskInfo failedTaskInfo ) {
+        return failedTaskInfo.getComputeType() == ComputeType.STREAM.getType()
+                && EngineType.isFlink(failedTaskInfo.getEngineType());
     }
 
     public void addFailedJob(FailedTaskInfo failedTaskInfo){
@@ -378,7 +393,10 @@ public class TaskStatusListener implements Runnable{
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
+
+            if (RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)) {
+                rdosEngineJobCacheDao.deleteJob(jobId);
+            }
 
             if(Strings.isNullOrEmpty(engineTaskId)){
                 return;
