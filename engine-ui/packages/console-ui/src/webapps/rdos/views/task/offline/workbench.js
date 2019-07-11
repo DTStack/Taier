@@ -426,9 +426,9 @@ class Workbench extends React.Component {
         if (currentTabData.taskType === TASK_TYPE.CUBE_KYLIN) {
             const exeArgsToJson = currentTabData.exeArgs ? JSON.parse(currentTabData.exeArgs) : '';
             if (exeArgsToJson) {
-                let { sourceId, cubeName, isUseSystemVar, startTime, endTime, systemVar } = { ...exeArgsToJson };
+                let { sourceId, cubeName, isUseSystemVar, startTime, endTime, systemVar, noPartition } = { ...exeArgsToJson };
                 const isCubeOk = sourceId && cubeName && ((isUseSystemVar && systemVar) || (startTime && endTime));
-                if (!isCubeOk) {
+                if (!noPartition && !isCubeOk) {
                     message.warning('请完善相关参数！');
                     return false;
                 }
