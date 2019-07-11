@@ -77,6 +77,7 @@ class StepOne extends Component {
                     key={source.id}
                     value={source.id.toString()}
                     title={title}
+                    sourceType={source.type}
                 >
                     {title}
                 </Option>
@@ -180,10 +181,11 @@ class StepOne extends Component {
     }
 
     // 数据源变化回调
-    onSourceTypeChange = id => {
+    onSourceTypeChange = (id, option) => {
         const { form, havePart } = this.props;
         let params = {
             dataSourceId: id,
+            dataSourceType: option.props.sourceType,
             rules: [],
             partition: undefined
         };
@@ -484,7 +486,7 @@ class StepOne extends Component {
                                     showSearch
                                     optionFilterProp="title"
                                     style={{ width: '85%', marginRight: 15 }}
-                                    onChange={this.onSourceTypeChange}
+                                    onSelect={this.onSourceTypeChange}
                                     disabled={tableLoading}
                                 >
                                     {this.renderSourceType(sourceList)}
