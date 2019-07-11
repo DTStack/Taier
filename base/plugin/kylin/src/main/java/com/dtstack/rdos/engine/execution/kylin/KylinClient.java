@@ -82,7 +82,7 @@ public class KylinClient extends AbsClient {
             String jobId = responseJson.get(KEY_JOB_ID).getAsString();
             return JobResult.createSuccessResult(jobId, jobId);
         } else {
-            String errorInfo = parseErrorInfo(requestResult.getBody());
+            String errorInfo = parseErrorInfo(requestResult.getBody(), requestResult.getMsg());
             return JobResult.createErrorResult(errorInfo);
         }
     }
@@ -114,15 +114,15 @@ public class KylinClient extends AbsClient {
         if (requestResult.getStatusCode() == HttpStatus.SC_OK){
             return JobResult.createSuccessResult(jobId, jobId);
         } else {
-            String errorInfo = parseErrorInfo(requestResult.getBody());
+            String errorInfo = parseErrorInfo(requestResult.getBody(), requestResult.getMsg());
             return JobResult.createErrorResult(errorInfo);
         }
     }
 
-    private String parseErrorInfo(String responseStr){
+    private String parseErrorInfo(String responseStr, String msg){
         JsonElement jsonResult = gson.fromJson(responseStr, JsonElement.class);
-        if(jsonResult instanceof JsonNull){
-            return null;
+        if(jsonResult == null || jsonResult instanceof JsonNull){
+            return msg;
         }
 
         StringBuilder errorInfo = new StringBuilder();
@@ -144,7 +144,7 @@ public class KylinClient extends AbsClient {
         if (requestResult.getStatusCode() == HttpStatus.SC_OK){
             return JobResult.createSuccessResult(jobIdentifier.getEngineJobId());
         } else {
-            String errorInfo = parseErrorInfo(requestResult.getBody());
+            String errorInfo = parseErrorInfo(requestResult.getBody(), requestResult.getMsg());
             return JobResult.createErrorResult(errorInfo);
         }
     }
