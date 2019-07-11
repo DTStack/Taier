@@ -170,9 +170,9 @@ class KylinEditor extends React.Component {
                 startTime: '',
                 endTime: '',
                 // 改变cubeName即设置为true， 默认使用系统参数，
-                isUseSystemVar: true
-            }),
-            systemVar: ''
+                isUseSystemVar: true,
+                systemVar: ''
+            })
         });
     }
 
@@ -191,9 +191,9 @@ class KylinEditor extends React.Component {
         const { form, currentTabData } = this.props;
         form.setFieldsValue({
             exeArgs: JSON.stringify({
-                ...JSON.parse(currentTabData.exeArgs)
-            }),
-            systemVar: e.target.value
+                ...JSON.parse(currentTabData.exeArgs),
+                systemVar: e.target.value
+            })
         });
     }
 
@@ -206,9 +206,9 @@ class KylinEditor extends React.Component {
                 ...exeArgsToJson,
                 isUseSystemVar: !({ ...exeArgsToJson }.isUseSystemVar),
                 startTime: '',
-                endTime: ''
-            }),
-            systemVar: ''
+                endTime: '',
+                systemVar: ''
+            })
         });
     }
 
@@ -314,7 +314,7 @@ class KylinEditor extends React.Component {
                                 exeArgsToJson.isUseSystemVar ? (
                                     <Input style={{ 'width': 'calc(100% - 210PX)' }} placeholder='${}'
                                         onChange={ this.handleSystemVarChange }
-                                        value={ currentTabData.systemVar }
+                                        value={ exeArgsToJson.systemVar }
                                     />
                                 ) : null
                             }
@@ -346,7 +346,7 @@ const KylinEditorFormWrapper = Form.create({
         const { setFieldsValue, taskCustomParams } = props;
         // 获取任务自定义的参数
         if (values.hasOwnProperty('exeArgs')) {
-            values.taskVariables = matchTaskParams(taskCustomParams, values.systemVar);
+            values.taskVariables = matchTaskParams(taskCustomParams, JSON.parse(values.exeArgs).systemVar);
         }
         values.invalid = validValues(values, props);
         setFieldsValue(values);
