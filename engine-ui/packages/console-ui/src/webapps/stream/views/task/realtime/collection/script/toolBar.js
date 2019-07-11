@@ -250,7 +250,8 @@ const WrapTemplateForm = Form.create()(ImportTemplateForm);
 })
 class CollectionToolbar extends Component {
     state = {
-        execConfirmVisible: false
+        execConfirmVisible: false,
+        key: null
     }
 
     componentDidMount () {
@@ -279,7 +280,7 @@ class CollectionToolbar extends Component {
     }
 
     render () {
-        const { execConfirmVisible } = this.state
+        const { execConfirmVisible, key } = this.state
 
         return (
             <span>
@@ -290,10 +291,11 @@ class CollectionToolbar extends Component {
                     style={{ marginLeft: '0px' }}>导入模版
                 </Button>
                 <WrapTemplateForm
+                    key={key}
                     execConfirmVisible={execConfirmVisible}
                     onCancel={
                         () => {
-                            this.setState({ execConfirmVisible: false })
+                            this.setState({ execConfirmVisible: false, key: Math.random() })
                         }
                     }
                     onSuccess={this.onSuccess.bind(this)}

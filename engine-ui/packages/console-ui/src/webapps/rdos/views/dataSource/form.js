@@ -245,7 +245,7 @@ class BaseForm extends Component {
                             rules: [{
                                 required: true, message: 'Project不可为空！'
                             }],
-                            initialValue: ''
+                            initialValue: config.project || ''
                         })(
                             <Input autoComplete="off" placeholder={ 'DEFAULT' } />
                         )}

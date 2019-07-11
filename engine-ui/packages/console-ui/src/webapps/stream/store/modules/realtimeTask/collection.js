@@ -15,7 +15,8 @@ const initState = {
         table: [],
         sourceId: undefined,
         collectType: collectType.ALL,
-        cat: [CAT_TYPE.INSERT, CAT_TYPE.UPDATE, CAT_TYPE.DELETE]
+        cat: [CAT_TYPE.INSERT, CAT_TYPE.UPDATE, CAT_TYPE.DELETE],
+        pavingData: true
     },
     targetMap: {
         sourceId: undefined,

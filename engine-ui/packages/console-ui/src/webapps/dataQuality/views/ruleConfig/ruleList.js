@@ -5,6 +5,7 @@ import Rule from './rule';
 
 import { getRuleType } from '../../consts/helper';
 import utils from 'utils';
+import { DATA_SOURCE } from '../../consts';
 
 class RuleList extends React.Component {
     state = {
@@ -75,12 +76,14 @@ class RuleList extends React.Component {
         return (couldSaveAll && rule) ? (<Button onClick={this.saveAll}>保存全部</Button>) : null;
     }
     renderHeader () {
+        const { dataSourceType } = this.props.data;
+        const disableColumnValid = dataSourceType == DATA_SOURCE.SQLSERVER;
         const menu = (
             <Menu onClick={this.handleMenuClick}>
                 <Menu.Item key="column">字段级规则</Menu.Item>
                 <Menu.Item key="table">表级规则</Menu.Item>
                 <Menu.Item key="sql">自定义SQL</Menu.Item>
-                <Menu.Item key="typeCheck">字段格式校验</Menu.Item>
+                {!disableColumnValid && <Menu.Item key="typeCheck">字段格式校验</Menu.Item>}
             </Menu>
         )
         return (
