@@ -30,7 +30,7 @@ function getSourceInitialField (sourceType) {
             initialFields.sourceColumn = '${table}';
             initialFields.writeTableType = writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
-            initialFields.interval = '10';
+            initialFields.interval = `${10 * 60 * 1000}`;
             initialFields.writeMode = 'insert';
             return initialFields;
         }
@@ -434,7 +434,8 @@ class CollectionTargetForm extends React.Component {
                         })(
                             <Select>
                                 {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
-                                    return <Option key={`${t}`} value={`${t}`}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
+                                    const value = isWriteStrategyBeTime ? t * 60 * 1000 : t * 1024 * 1024;
+                                    return <Option key={`${value}`} value={`${value}`}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
                                 })}
                             </Select>
                         )}
@@ -524,10 +525,14 @@ const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
         // 建表模式
         if (fields.hasOwnProperty('writeTableType')) {
+            if (fields['writeTableType'] == writeTableTypes.AUTO) {
+                // eslint-disable-next-line
+                fields['analyticalRules'] = '${table}';
+            } else {
+                fields['analyticalRules'] = undefined;
+            }
             fields['table'] = undefined;
             fields['partition'] = undefined;
-            // eslint-disable-next-line
-            fields['analyticalRules'] = '${table}';
         }
         // 写入表
         if (fields.hasOwnProperty('table')) {
@@ -536,10 +541,10 @@ const WrapCollectionTargetForm = Form.create({
         // 写入策略
         if (fields.hasOwnProperty('writeStrategy')) {
             if (fields.writeStrategy == writeStrategys.TIME) {
-                fields['interval'] = '10';
+                fields['interval'] = `${10 * 60 * 1000}`;
                 fields['bufferSize'] = undefined;
             } else {
-                fields['bufferSize'] = '10';
+                fields['bufferSize'] = `${10 * 1024 * 1024}`;
                 fields['interval'] = undefined;
             }
         }

@@ -222,7 +222,10 @@ export const splitCharacter = (
 
 export const sourceFormat = (
     <div>
-        <p>用于写入Hive表，建议采用嵌套JSON平铺模式</p>
-        <p>用于流计算分析时，无需平铺</p>
+        <p>将多层嵌套格式的JSON分解为单层结构</p>
+        <p>例如：</p>
+        <p>{'{"a":1,  "b": {"c":3}}'}</p>
+        <p>将会被分解为：</p>
+        <p>{'{"a":1,"b_c":3}'}</p>
     </div>
 )
