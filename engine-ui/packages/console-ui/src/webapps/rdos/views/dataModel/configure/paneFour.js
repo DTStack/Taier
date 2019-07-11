@@ -116,7 +116,7 @@ class IncrementDefine extends BasePane {
                 <IncrementDefineModal
                     data={modalData}
                     handOk={this.update}
-                    handCancel={() => this.setState({ modalVisible: false })}
+                    handCancel={() => this.setState({ modalVisible: false, modalData: '' })}
                     visible={modalVisible}
                 />
             </div>
