@@ -4,6 +4,7 @@ import { Row } from 'antd'
 import Editor from 'widgets/code-editor'
 import { TASK_STATUS } from '../../../comm/const'
 import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
+import utils from './../../../../../utils/index';
 
 const editorOptions = {
     mode: 'text',
@@ -46,6 +47,30 @@ function getLogType (status) {
         }
     }
 }
+
+function showTaskInfo (obj) {
+    return Object.keys(obj).map(key => {
+        return `${key}: ${obj[key]}`;
+    }).join('\n');
+}
+
+function resolveSteps (stepArr) {
+    let stepText = '';
+    stepArr.map(item => {
+        stepText += `${utils.formatDateTime(Number(item.info.startTime))} ${item.step_status} ${item.sequence_id} Step Name: ${item.name} Data Size: ${item.info.hdfs_bytes_written ? item.info.hdfs_bytes_written : 0}
+            Duration: ${((item.info.endTime - item.info.startTime) / 1000 / 60)} mins Waiting: ${item.exec_wait_time} seconds\n`
+    });
+    return stepText;
+}
+
+function resoveApplogs (stepArr) {
+    let appLogs = '';
+    stepArr.map(item => {
+        appLogs += `${item.info.yarn_application_id ? item.info.yarn_application_id : ''}\n`;
+    });
+    return appLogs;
+}
+
 export function LogInfo (props) {
     /**
      * 这里要多加一些空格后缀，不然codemirror计算滚动的时候会有问题
@@ -77,6 +102,13 @@ export function LogInfo (props) {
         }
         if (log.msg_info) {
             logText = `${logText}${wrappTitle('基本日志')}\n${createLogMark(log.msg_info, 'info')} ${safeSpace} \n`
+            if (log.taskInfo && log.taskInfo.taskType === 'Kylin') {
+                if (log['steps']) {
+                    logText = `${logText}${wrappTitle('appLogs')}\n${resoveApplogs(log['steps'])} ${safeSpace} \n`;
+                    logText = `${logText}${wrappTitle('Kylin日志')}\n${resolveSteps(log['steps'])} ${safeSpace} \n`;
+                }
+                logText = `${logText}${wrappTitle('Kylin日志')}\n${wrappTitle('任务信息')}\n${showTaskInfo(log.taskInfo)} ${safeSpace} \n`
+            }
         }
 
         if (log['perf']) {
