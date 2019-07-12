@@ -41,17 +41,23 @@ export function closePage (id, pages, currentPage) {
         }
     }
 }
+function getExistPage (id, pages) {
+    return pages.find((page) => {
+        return page.id == id
+    })
+}
 /* eslint-enable */
-
+let _singleTask;
 export function openPage (params) {
     return (dispatch, getState) => {
+        if (_singleTask) {
+            return;
+        }
         const { id } = params;
         const state = getState();
         const { realtimeTask } = state;
         const { pages = [] } = realtimeTask;
-        const existPage = pages.find((page) => {
-            return page.id == id
-        })
+        const existPage = getExistPage(id, pages);
         if (existPage) {
             if (location.pathname !== '/realtime/task') {
                 hashHistory.push('/realtime/task')
@@ -59,13 +65,15 @@ export function openPage (params) {
             return dispatch(setCurrentPage(existPage))
         }
 
-        Api.getTask(params).then((res) => {
+        _singleTask = Api.getTask(params).then((res) => {
             if (res.code === 1 && res.data) {
                 dispatch(newPage(res.data));
                 if (location.pathname !== '/realtime/task') {
                     hashHistory.push('/realtime/task')
                 }
             }
+        }).finally(() => {
+            _singleTask = null;
         })
     }
 }
