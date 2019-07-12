@@ -166,7 +166,8 @@ class EditCluster extends React.Component {
                             zipConfig: JSON.stringify({
                                 yarnConf: componentConf.yarnConf,
                                 hadoopConf: componentConf.hadoopConf,
-                                hiveMeta: componentConf.hiveMeta // (暂无用数据)
+                                hiveMeta: componentConf.hiveMeta, // (暂无用数据)
+                                md5zip: componentConf.md5zip || {}
                             }),
                             flink_params: extParams.flinkKeys,
                             spark_params: extParams.sparkKeys,
@@ -672,6 +673,7 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
+        componentConf['md5zip'] = zipConfig.md5zip || {};
         componentConf['hadoopConf'] = zipConfig.hadoopConf;
         componentConf['yarnConf'] = zipConfig.yarnConf;
         componentConf['hiveMeta'] = zipConfig.hiveMeta;

@@ -21,7 +21,11 @@ class CataFormModal extends Component {
         const { handOk, form } = this.props
         form.validateFields((err, formData) => {
             if (!err) {
-                handOk(formData)
+                handOk({
+                    ...formData,
+                    nodeName: formData.name,
+                    name: undefined
+                })
                 setTimeout(() => {
                     form.resetFields()
                 }, 100)
@@ -60,7 +64,7 @@ class CataFormModal extends Component {
                             label="目录名称"
                             hasFeedback
                         >
-                            {getFieldDecorator('nodeName', {
+                            {getFieldDecorator('name', {
                                 rules: [{
                                     required: true, message: '目录名称不可为空！'
                                 }, {

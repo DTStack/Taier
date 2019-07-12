@@ -19,6 +19,7 @@ const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker;
 const Option = Select.Option;
 
+/* eslint no-template-curly-in-string: "off" */
 class KylinEditor extends React.Component {
     constructor (props) {
         super(props);
@@ -161,6 +162,7 @@ class KylinEditor extends React.Component {
 
     handleCubeChange = (val) => {
         const { form, currentTabData } = this.props;
+        const isPartition = this.state.cubeListMap.filter(item => item.name === val)[0].isPatition === 1;
         form.resetFields(['range-time-picker']);
         this.getIsPatition(val);
         form.setFieldsValue({
@@ -170,8 +172,9 @@ class KylinEditor extends React.Component {
                 startTime: '',
                 endTime: '',
                 // 改变cubeName即设置为true， 默认使用系统参数，
-                isUseSystemVar: true,
-                systemVar: ''
+                isUseSystemVar: isPartition,
+                systemVar: '',
+                noPartition: !isPartition // 用于saveTab函数中获取判断没有分区即不是时间模式也不是使用系统变量模式的特殊情况判断
             })
         });
     }
@@ -296,32 +299,49 @@ class KylinEditor extends React.Component {
                 </FormItem>
                 {
                     (this.state.isShowTimeRange && exeArgsToJson.isUseSystemVar !== undefined) ? (
-                        <FormItem
-                            {...formItemLayout}
-                            label="时间范围"
-                        >
-                            Start Date (Include)：
-                            {getFieldDecorator('range-time-picker', {
-                                rules: [{ type: 'array', required: true, message: '请选择时间范围!' }],
-                                initialValue: exeArgsToJson.startTime && exeArgsToJson.endTime ? [moment(exeArgsToJson.startTime, dateFormat), moment(exeArgsToJson.endTime, dateFormat)] : null
-                            })(
-                                <RangePicker
-                                    // 限制不能做隐式类型转换， isUseSystemVar只能为true or false
-                                    style={{ 'display': exeArgsToJson.isUseSystemVar ? 'none' : 'inline-block', 'width': 'calc(100% - 210PX)' }}
-                                    onChange={ this.handleTimeChange } showTime format="YYYY-MM-DD HH:mm:ss" />
-                            )}
+                        <>
+                            <FormItem
+                                {...formItemLayout}
+                                label="时间范围"
+                            >
+                                <div style={{ display: 'flex' }}>
+                                    Start Date (Include)：
+                                    {getFieldDecorator('range-time-picker', {
+                                        rules: [{ type: 'array', required: true, message: '请选择时间范围!' }],
+                                        initialValue: exeArgsToJson.startTime && exeArgsToJson.endTime ? [moment(exeArgsToJson.startTime, dateFormat), moment(exeArgsToJson.endTime, dateFormat)] : null
+                                    })(
+                                        <RangePicker
+                                            style={{ 'display': exeArgsToJson.isUseSystemVar ? 'none' : 'inline-block', flex: 1 }}
+                                            onChange={ this.handleTimeChange } showTime format="YYYY-MM-DD HH:mm:ss" />
+                                    )}
+                                    {
+                                        exeArgsToJson.isUseSystemVar ? (
+                                            <Input placeholder='${bdp.system.bizdate}'
+                                                onChange={ this.handleSystemVarChange }
+                                                value={ exeArgsToJson.systemVar }
+                                                style={{ flex: 1 }}
+                                            />
+                                        ) : null
+                                    }
+                                    <a onClick={this.handleChangeMode} style={{ marginLeft: '10PX' }}>
+                                        { exeArgsToJson.isUseSystemVar ? '自定义时间范围' : '使用系统变量' }
+                                    </a>
+                                </div>
+                            </FormItem>
                             {
                                 exeArgsToJson.isUseSystemVar ? (
-                                    <Input style={{ 'width': 'calc(100% - 210PX)' }} placeholder='${}'
-                                        onChange={ this.handleSystemVarChange }
-                                        value={ exeArgsToJson.systemVar }
-                                    />
+                                    <Row className="form-item-follow-text">
+                                        <Col
+                                            style={{ textAlign: 'left', fontSize: '13PX' }}
+                                            span={formItemLayout.wrapperCol.sm.span}
+                                            offset={formItemLayout.labelCol.sm.span}
+                                        >
+                                            End Date (Exclude)：Start Date后一秒
+                                        </Col>
+                                    </Row>
                                 ) : null
                             }
-                            <a onClick={this.handleChangeMode} style={{ marginLeft: '10PX' }}>
-                                { exeArgsToJson.isUseSystemVar ? '自定义时间范围' : '使用系统变量' }
-                            </a>
-                        </FormItem>
+                        </>
                     ) : null
                 }
                 {

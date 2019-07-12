@@ -187,6 +187,8 @@ export function DatabaseType (props) {
             return <span>CarbonData</span>
         case DATA_SOURCE.LIBRASQL:
             return <span>LibrA</span>
+        case DATA_SOURCE.GBASE:
+            return <span>GBase</span>
         default:
             return <span>其他</span>
     }

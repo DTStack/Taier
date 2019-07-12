@@ -59,8 +59,8 @@ class ImportTemplateForm extends Component {
     getSourceList () {
         const { sourceType } = this.state;
         const { dataSourceList } = this.props;
-
-        return dataSourceList
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.KYLIN);
+        return dataSourceListFltKylin
             .filter(src => {
                 return src.type == sourceType;
             })
@@ -74,8 +74,8 @@ class ImportTemplateForm extends Component {
     getTargetList () {
         const { targetType } = this.state;
         const { dataSourceList } = this.props;
-
-        return dataSourceList
+        const dataSourceListFltKylin = dataSourceList && dataSourceList.filter(src => src.type !== DATA_SOURCE.KYLIN);
+        return dataSourceListFltKylin
             .filter(src => {
                 return src.type == targetType;
             })
@@ -123,8 +123,7 @@ class ImportTemplateForm extends Component {
     render () {
         const { getFieldDecorator } = this.props.form;
         const { execConfirmVisible } = this.props;
-
-        const sourceTypeOptions = Object.keys(DATA_SOURCE).map(
+        const sourceTypeOptions = Object.keys(DATA_SOURCE).filter(key => key !== 'KYLIN').map(
             (key) => {
                 const val = DATA_SOURCE[key];
                 return <Option key={val} value={val.toString()}><DatabaseType value={val} /></Option>

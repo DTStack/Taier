@@ -379,6 +379,7 @@ class RealTimeTabPane extends Component {
             Api.updateCatalogue(cateInfo).then((res) => {
                 if (res.code === 1) {
                     message.success('更新任务目录成功')
+                    dispatch(TreeAction.removeRealtimeTree(this.state.activeNode))
                     dispatch(TreeAction.getRealtimeTree(params))
                     this.closeModal()
                 }
