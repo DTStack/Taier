@@ -9,13 +9,14 @@ import utils from 'utils'
 import { getContainer } from 'funcs'
 
 import API from '../../../../../api'
-import { DatabaseType } from '../../../../../components/status';
 import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT } from '../../../../../comm/const'
 import { isKafka } from '../../../../../comm'
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+
+const sourceTypes = [DATA_SOURCE.MYSQL, DATA_SOURCE.BEATS];
 
 class ImportTemplateForm extends Component {
     state = {
@@ -57,7 +58,7 @@ class ImportTemplateForm extends Component {
             })
             .map(src => {
                 return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}( <DatabaseType value={src.type} />  )
+                    {src.dataName}({DATA_SOURCE_TEXT[src.type]})
                 </Option>
             })
     }
@@ -72,7 +73,7 @@ class ImportTemplateForm extends Component {
             })
             .map(src => {
                 return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}( <DatabaseType value={src.type} /> )
+                    {src.dataName}({DATA_SOURCE_TEXT[src.type]})
                 </Option>
             })
     }
@@ -120,7 +121,7 @@ class ImportTemplateForm extends Component {
         const sourceTypeOptions = Object.keys(DATA_SOURCE)
             .filter((key) => {
                 const val = DATA_SOURCE[key];
-                if (val != DATA_SOURCE.MYSQL && val != DATA_SOURCE.BEATS) {
+                if (sourceTypes.indexOf(val) === -1 && !isKafka(val)) {
                     return false
                 }
                 return true
@@ -128,13 +129,13 @@ class ImportTemplateForm extends Component {
             .map(
                 (key) => {
                     const val = DATA_SOURCE[key];
-                    return <Option key={val} value={val.toString()}><DatabaseType value={val} /></Option>
+                    return <Option key={val} value={val.toString()}>{DATA_SOURCE_TEXT[val]}</Option>
                 }
             )
         const targetTypeOptions = Object.keys(DATA_SOURCE)
             .filter((key) => {
                 const val = DATA_SOURCE[key];
-                if (!isKafka(val)) {
+                if (!isKafka(val) && val != DATA_SOURCE.HIVE) {
                     return false
                 }
                 return true
@@ -249,7 +250,8 @@ const WrapTemplateForm = Form.create()(ImportTemplateForm);
 })
 class CollectionToolbar extends Component {
     state = {
-        execConfirmVisible: false
+        execConfirmVisible: false,
+        key: null
     }
 
     componentDidMount () {
@@ -278,7 +280,7 @@ class CollectionToolbar extends Component {
     }
 
     render () {
-        const { execConfirmVisible } = this.state
+        const { execConfirmVisible, key } = this.state
 
         return (
             <span>
@@ -289,10 +291,11 @@ class CollectionToolbar extends Component {
                     style={{ marginLeft: '0px' }}>导入模版
                 </Button>
                 <WrapTemplateForm
+                    key={key}
                     execConfirmVisible={execConfirmVisible}
                     onCancel={
                         () => {
-                            this.setState({ execConfirmVisible: false })
+                            this.setState({ execConfirmVisible: false, key: Math.random() })
                         }
                     }
                     onSuccess={this.onSuccess.bind(this)}

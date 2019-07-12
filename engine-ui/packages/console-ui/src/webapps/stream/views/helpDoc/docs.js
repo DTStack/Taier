@@ -219,3 +219,13 @@ export const splitCharacter = (
         配置不可见字符，可通过“\”作为转义字符，例如\001
     </div>
 )
+
+export const sourceFormat = (
+    <div>
+        <p>将多层嵌套格式的JSON分解为单层结构</p>
+        <p>例如：</p>
+        <p>{'{"a":1,  "b": {"c":3}}'}</p>
+        <p>将会被分解为：</p>
+        <p>{'{"a":1,"b_c":3}'}</p>
+    </div>
+)

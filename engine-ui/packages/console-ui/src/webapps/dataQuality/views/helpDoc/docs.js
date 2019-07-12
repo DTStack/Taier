@@ -121,3 +121,9 @@ export const usernameMsg = (
         <p>为存储校验结果，需要读、写、删除表权限的账号</p>
     </div>
 )
+
+export const thresholdMsg = (
+    <div>
+        <p>统计符合格式要求的数据的绝对值或占比，不符合期望值，计为不通过</p>
+    </div>
+)

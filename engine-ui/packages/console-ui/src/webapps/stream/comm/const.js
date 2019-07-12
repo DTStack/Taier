@@ -92,6 +92,16 @@ export const collectType = {
     FILE: 2
 }
 
+export const writeTableTypes = {
+    AUTO: '0',
+    HAND: '1'
+}
+
+export const writeStrategys = {
+    TIME: '0',
+    FILESIZE: '1'
+}
+
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',

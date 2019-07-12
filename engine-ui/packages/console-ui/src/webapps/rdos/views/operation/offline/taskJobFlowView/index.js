@@ -465,6 +465,7 @@ class TaskJobFlowView extends Component {
                         log={taskLog.logInfo}
                         syncJobInfo={taskLog.syncJobInfo}
                         downloadLog={taskLog.downloadLog}
+                        subNodeDownloadLog={taskLog.subNodeDownloadLog}
                         height="520px"
                     />
                 </Modal>

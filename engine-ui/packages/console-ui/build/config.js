@@ -27,9 +27,9 @@ module.exports = {
             },
             '/api/streamapp': {
                 // target: "http://172.16.1.191:9021", // formal test ser
-                // target: "http://172.16.8.104:9020", // formal test ser
-                // target: "http://172.16.8.105:9021", // formal test ser
-                target: 'http://172.16.10.86:9021', // test
+                // target: "http://172.16.254.60:9021", // formal test ser
+                target: "http://172.16.8.108:9023", // dev
+                // target: 'http://172.16.10.86:9021', // test
                 // ignorePath: true,
                 // Mock
                 // pathRewrite:{"^/api/streamapp":"/api/rdos"},

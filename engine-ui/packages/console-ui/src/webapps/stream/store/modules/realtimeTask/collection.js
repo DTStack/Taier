@@ -15,7 +15,8 @@ const initState = {
         table: [],
         sourceId: undefined,
         collectType: collectType.ALL,
-        cat: [CAT_TYPE.INSERT, CAT_TYPE.UPDATE, CAT_TYPE.DELETE]
+        cat: [CAT_TYPE.INSERT, CAT_TYPE.UPDATE, CAT_TYPE.DELETE],
+        pavingData: true
     },
     targetMap: {
         sourceId: undefined,
@@ -109,6 +110,7 @@ export const actions = {
                     ...initState.sourceMap,
                     type: sourceMap.type
                 };
+                setCurrentPageValue(dispatch, 'targetMap', cloneDeep(initState.targetMap));
             }
             setCurrentPageValue(dispatch, 'sourceMap',
                 cloneDeep({

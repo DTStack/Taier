@@ -9,6 +9,7 @@ import Address from './runcode/address';
 import { formItemLayout, DATA_SOURCE, TASK_TYPE } from '../../../../../comm/const';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../../store/modules/realtimeTask/comm';
 import utils from 'utils';
+import ResultTable from './runcode/resultTable';
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
@@ -132,9 +133,10 @@ class RunCode extends React.Component {
     render () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType, originSourceType } = data;
+        const { taskType, originSourceType, targetSourceType } = data;
         const isShowAddress = taskType == TASK_TYPE.DATA_COLLECTION && originSourceType == DATA_SOURCE.BEATS;
         const isflinkSql = taskType == TASK_TYPE.SQL;
+        const isShowResultTable = taskType == TASK_TYPE.DATA_COLLECTION && targetSourceType == DATA_SOURCE.HIVE;
 
         const editorBoxStyle = {
             position: 'absolute',
@@ -175,6 +177,11 @@ class RunCode extends React.Component {
                             </div>
                         </TabPane>
                     ]}
+                    {isShowResultTable && (
+                        <TabPane className="m-panel2" tab="结果表" key="resultTable">
+                            <ResultTable key={data.id} taskId={data.id} />
+                        </TabPane>
+                    )}
                     <TabPane className="m-panel2" tab="环境参数" key="env">
                         <div style={editorBoxStyle}>
                             <Editor

@@ -46,6 +46,12 @@
         padding: 4px 4px;
         display: flex;
         align-items: center;
+        .ide-toolbar__run {
+            &.ant-btn[disabled]{
+                color: #2491F7;
+            }
+            
+        }
         .ant-btn {
             position: relative;
             padding: 0px 20px;

@@ -312,6 +312,10 @@ export function isHDFS (type) {
     return type == DATA_SOURCE.HDFS;
 }
 
+export function isHive (type) {
+    return type == DATA_SOURCE.HIVE;
+}
+
 export function isSupportedTargetSource (type) {
-    return isKafka(type) || isHDFS(type);
+    return isKafka(type) || isHDFS(type) || isHive(type);
 }
