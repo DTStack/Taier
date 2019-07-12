@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0-beta.3.2"></a>
+# [3.6.0-beta.3.2](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.3.1...3.6.0-beta.3.2) (2019-06-20)
+
+
+### Bug Fixes
+
+* **rdos:** add script case to the reloadtask method ([dffa708](http://git.dtstack.cn/dtstack/data-stack-web/commits/dffa708)), closes [#16519](http://redmine.prod.dtstack.cn/issues/16519)
+
+
+
 <a name="3.6.0-beta.3.1"></a>
 # [3.6.0-beta.3.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.3...3.6.0-beta.3.1) (2019-06-19)
 
