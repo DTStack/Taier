@@ -328,15 +328,19 @@ class KylinEditor extends React.Component {
                                     </a>
                                 </div>
                             </FormItem>
-                            <Row className="form-item-follow-text">
-                                <Col
-                                    style={{ textAlign: 'left', fontSize: '13PX' }}
-                                    span={formItemLayout.wrapperCol.sm.span}
-                                    offset={formItemLayout.labelCol.sm.span}
-                                >
-                                    End Date (Exclude)：Start Date后一秒
-                                </Col>
-                            </Row>
+                            {
+                                exeArgsToJson.isUseSystemVar ? (
+                                    <Row className="form-item-follow-text">
+                                        <Col
+                                            style={{ textAlign: 'left', fontSize: '13PX' }}
+                                            span={formItemLayout.wrapperCol.sm.span}
+                                            offset={formItemLayout.labelCol.sm.span}
+                                        >
+                                            End Date (Exclude)：Start Date后一秒
+                                        </Col>
+                                    </Row>
+                                ) : null
+                            }
                         </>
                     ) : null
                 }
