@@ -23,9 +23,16 @@ export function closePage (id, pages, currentPage) {
             return id === item.id
         })
         if (index > -1) {
-            if (currentPage.id === id && pages.length > 1) {
-                const newNode = pages[index + 1] || pages[index - 1]
-                dispatch(setCurrentPage(newNode))
+            if (currentPage.id === id) {
+                if (pages.length > 1) {
+                    const newNode = pages[index + 1] || pages[index - 1]
+                    dispatch(setCurrentPage(newNode))
+                } else {
+                    dispatch({
+                        type: browserAction.SET_CURRENT_PAGE,
+                        data: {}
+                    })
+                }
             }
             return dispatch({
                 type: browserAction.CLOSE_PAGE,
