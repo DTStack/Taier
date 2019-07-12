@@ -4,6 +4,7 @@ import { Row } from 'antd'
 import Editor from 'widgets/code-editor'
 import { TASK_STATUS } from '../../../comm/const'
 import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
+import utils from './../../../../../utils/index';
 
 const editorOptions = {
     mode: 'text',
@@ -47,18 +48,6 @@ function getLogType (status) {
     }
 }
 
-function formatDate (timestamp) {
-    if (timestamp) {
-        let date = new Date(Number(timestamp));
-        let Y = date.getFullYear() + '-';
-        let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-        let D = date.getDate() + ' ';
-        let h = date.getHours() + ':';
-        let m = date.getMinutes() + ':';
-        let s = date.getSeconds();
-        return Y + M + D + h + m + s;
-    }
-}
 function showTaskInfo (obj) {
     return Object.keys(obj).map(key => {
         return `${key}: ${obj[key]}`;
@@ -68,7 +57,7 @@ function showTaskInfo (obj) {
 function resolveSteps (stepArr) {
     let stepText = '';
     stepArr.map(item => {
-        stepText += `${formatDate(item.info.startTime)} ${item.step_status} ${item.sequence_id} Step Name: ${item.name} Data Size: ${item.info.hdfs_bytes_written ? item.info.hdfs_bytes_written : ''}
+        stepText += `${utils.formatDateTime(Number(item.info.startTime))} ${item.step_status} ${item.sequence_id} Step Name: ${item.name} Data Size: ${item.info.hdfs_bytes_written ? item.info.hdfs_bytes_written : 0}
             Duration: ${((item.info.endTime - item.info.startTime) / 1000 / 60)} mins Waiting: ${item.exec_wait_time} seconds\n`
     });
     return stepText;
