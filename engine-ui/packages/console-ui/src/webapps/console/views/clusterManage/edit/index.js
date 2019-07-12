@@ -113,7 +113,7 @@ class EditCluster extends React.Component {
                                     yarnConf: clusterConf.yarnConf,
                                     hadoopConf: clusterConf.hadoopConf,
                                     hiveMeta: clusterConf.hiveMeta,
-                                    md5sum: clusterConf.md5sum
+                                    md5zip: clusterConf.md5zip
                                 }),
                                 flink_params: extParams.flinkKeys,
                                 spark_params: extParams.sparkKeys,
@@ -635,7 +635,7 @@ class EditCluster extends React.Component {
             'python2Path': 'python2.path',
             'python3Path': 'python3.path'
         }
-        clusterConf['md5sum'] = zipConfig.md5sum;
+        clusterConf['md5zip'] = zipConfig.md5zip;
         clusterConf['hadoopConf'] = zipConfig.hadoopConf;
         clusterConf['yarnConf'] = zipConfig.yarnConf;
         clusterConf['hiveMeta'] = zipConfig.hiveMeta;
