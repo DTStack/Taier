@@ -4,9 +4,9 @@ import * as Doc from './docs'
 
 export default class HelpDoc extends React.Component {
     render () {
-        const { doc, style } = this.props
+        const { doc, style, overlayClassName } = this.props
         return (
-            <Tooltip title={Doc[doc]}>
+            <Tooltip overlayClassName={overlayClassName} title={Doc[doc]}>
                 <Icon className="help-doc" style={style} type="question-circle-o" />
             </Tooltip>
         )

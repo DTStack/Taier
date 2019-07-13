@@ -15,8 +15,10 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
-function getSourceInitialField (sourceType) {
+function getSourceInitialField (sourceType, data = {}) {
     const initialFields = { type: sourceType };
+    const { sourceMap = {} } = data;
+    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
     switch (sourceType) {
         case DATA_SOURCE.HDFS: {
             initialFields.fileType = 'orc';
@@ -31,7 +33,7 @@ function getSourceInitialField (sourceType) {
             initialFields.writeTableType = writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
-            initialFields.writeMode = 'insert';
+            initialFields.writeMode = isMysqlSource ? 'replace' : 'insert';
             return initialFields;
         }
     }
@@ -182,7 +184,7 @@ class CollectionTarget extends React.Component {
 class CollectionTargetForm extends React.Component {
     onSelectSource = (value, option) => {
         const sourceType = option.props.data.type;
-        const initialFields = getSourceInitialField(sourceType);
+        const initialFields = getSourceInitialField(sourceType, this.props.collectionData);
         /**
          * sourceId 改变,则清空表
          */
@@ -356,7 +358,7 @@ class CollectionTargetForm extends React.Component {
                     writeTableType == writeTableTypes.AUTO && (
                         <FormItem
                             {...formItemLayout}
-                            label="k-v解析"
+                            label="表名拼装规则"
                             key="analyticalRules"
                         >
                             {getFieldDecorator('analyticalRules', {
@@ -364,8 +366,9 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '该字段不能为空'
                                 }]
                             })(
-                                <Input addonBefore='根据解析结果中' addonAfter='对应的值，写入到不同的表' />
+                                <Input addonBefore='stream_' />
                             )}
+                            <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
                         </FormItem>
                     ),
                     writeTableType == writeTableTypes.HAND && (
