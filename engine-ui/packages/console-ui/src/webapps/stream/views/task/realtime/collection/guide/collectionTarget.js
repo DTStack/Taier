@@ -433,14 +433,23 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator(isWriteStrategyBeTime ? 'interval' : 'bufferSize', {
                             rules: [{
                                 required: true, message: isWriteStrategyBeTime ? '请输入间隔时间' : '请输入文件大小'
+                            }, {
+                                validator: (rule, value, callback) => {
+                                    let errorMsg;
+                                    try {
+                                        value = parseFloat(value);
+                                        if (value <= 0) {
+                                            errorMsg = '数字必须大于0'
+                                        }
+                                    } catch (e) {
+                                        errorMsg = '请填写大于0的有效数字'
+                                    } finally {
+                                        callback(errorMsg);
+                                    }
+                                }
                             }]
                         })(
-                            <Select>
-                                {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
-                                    const value = isWriteStrategyBeTime ? t * 60 * 1000 : t * 1024 * 1024;
-                                    return <Option key={`${value}`} value={`${value}`}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
-                                })}
-                            </Select>
+                            <Input type='number' addonBefore='每隔' addonAfter={`${isWriteStrategyBeTime ? '分钟' : 'MB'}，写入一次`} />
                         )}
                     </FormItem>,
                     <FormItem
@@ -541,6 +550,12 @@ const WrapCollectionTargetForm = Form.create({
         if (fields.hasOwnProperty('table')) {
             fields['partition'] = undefined;
         }
+        if (fields['interval']) {
+            fields['interval'] = fields['interval'] * 60 * 1000;
+        }
+        if (fields['bufferSize']) {
+            fields['bufferSize'] = fields['bufferSize'] * 1024 * 1024;
+        }
         // 写入策略
         if (fields.hasOwnProperty('writeStrategy')) {
             if (fields.writeStrategy == writeStrategys.TIME) {
@@ -584,10 +599,10 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.writeStrategy
             },
             bufferSize: {
-                value: targetMap.bufferSize
+                value: targetMap.bufferSize / (1024 * 1024)
             },
             interval: {
-                value: targetMap.interval
+                value: targetMap.interval / 60000
             },
             writeMode: {
                 value: targetMap.writeMode
