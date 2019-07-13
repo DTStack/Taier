@@ -29,7 +29,7 @@ function getSourceInitialField (sourceType, data) {
         }
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
-            initialFields.sourceColumn = '${schema}_${table}';
+            initialFields.analyticalRules = '${schema}_${table}';
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
