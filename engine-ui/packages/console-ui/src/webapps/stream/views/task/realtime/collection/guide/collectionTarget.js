@@ -15,7 +15,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
-function getSourceInitialField (sourceType, data = {}) {
+function getSourceInitialField (sourceType, data) {
     const initialFields = { type: sourceType };
     const { sourceMap = {} } = data;
     const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
@@ -30,10 +30,10 @@ function getSourceInitialField (sourceType, data = {}) {
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
             initialFields.sourceColumn = '${table}';
-            initialFields.writeTableType = writeTableTypes.HAND;
+            initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
-            initialFields.writeMode = isMysqlSource ? 'replace' : 'insert';
+            initialFields.writeMode = 'insert';
             return initialFields;
         }
     }
