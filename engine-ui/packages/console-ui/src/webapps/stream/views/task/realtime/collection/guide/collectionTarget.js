@@ -452,10 +452,10 @@ class CollectionTargetForm extends React.Component {
                             }]
                         })(
                             <RadioGroup>
-                                <Radio value="insert" style={{ float: 'left' }}>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
-                                <Radio value="replace" style={{ float: 'left' }}>
+                                <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>
                             </RadioGroup>
