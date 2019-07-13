@@ -29,7 +29,7 @@ function getSourceInitialField (sourceType, data) {
         }
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
-            initialFields.sourceColumn = '${table}';
+            initialFields.sourceColumn = '${schema}_${table}';
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
@@ -366,7 +366,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '该字段不能为空'
                                 }]
                             })(
-                                <Input addonBefore='stream_' />
+                                <Input disabled addonBefore='stream_' />
                             )}
                             <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
                         </FormItem>
@@ -539,7 +539,7 @@ const WrapCollectionTargetForm = Form.create({
         if (fields.hasOwnProperty('writeTableType')) {
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
-                fields['analyticalRules'] = '${table}';
+                fields['analyticalRules'] = '${schema}_${table}';
             } else {
                 fields['analyticalRules'] = undefined;
             }

@@ -232,12 +232,6 @@ export const sourceFormat = (
 
 export const analyticalRules = (
     <div>
-        <p>按JSON格式解析，若数据源为MySQL Binlog，可选择自动建表，系统将：</p>
-        <p>• 自动解析Binlog中的表名</p>
-        <p>• 根据MySQL中的表信息，自动创建Hive表</p>
-        <p>• 将不同表的Binlog数据，分别写入不同的Hive表</p>
-        <p>请保证源表结构的稳定，当源表发生DDL操作时（删表、修改字段名等），可能导致任务失败</p>
-        <p>{'${table}'}表示源数据表名，可按此格式拼接其他内容，例如{'${schema}_${table}'}</p>
-        <p>当数据源为其他类型时，需手动选择表</p>
+        <p>自动建表的表名，将按照固定前缀（stream）、源表所属的schema、表名拼接</p>
     </div>
 )
