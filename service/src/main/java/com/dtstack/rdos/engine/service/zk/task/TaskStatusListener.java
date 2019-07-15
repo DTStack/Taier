@@ -192,8 +192,6 @@ public class TaskStatusListener implements Runnable{
                     //集合中移除该任务
                     checkpointListener.removeByTaskEngineId(jobIdentifier.getEngineJobId());
                     checkpointConfigCache.invalidate(failedTaskInfo.getJobId());
-
-                    rdosEngineJobCacheDao.deleteJob(failedTaskInfo.getJobId());
                 }
             }
         } catch (Exception e) {
@@ -392,11 +390,13 @@ public class TaskStatusListener implements Runnable{
         String engineTaskId = jobIdentifier.getEngineJobId();
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
+
+            getParmaFromJobCache(jobId, CHECKPOINT_CLEANUP_MODE_KEY);
+
             jobStatusFrequency.remove(jobId);
 
-            if (RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)) {
-                rdosEngineJobCacheDao.deleteJob(jobId);
-            }
+            rdosEngineJobCacheDao.deleteJob(jobId);
+
 
             if(Strings.isNullOrEmpty(engineTaskId)){
                 return;
