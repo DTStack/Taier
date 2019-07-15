@@ -162,7 +162,7 @@ public class TaskStatusListener implements Runnable{
                 if(isFlinkStreamTask(failedTaskInfo)) {
                     //更新checkpoint
                     updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
-                } else if(){
+                } else if(isSyncTask(failedTaskInfo)){
                     updateBatchTaskCheckpoint(failedTaskInfo.getPluginInfo(),failedTaskInfo.getJobIdentifier());
                 }
 
@@ -179,6 +179,11 @@ public class TaskStatusListener implements Runnable{
         }catch (Exception e){
             logger.error("dealFailed job run error:{}",ExceptionUtil.getErrorMessage(e));
         }
+    }
+
+    private boolean isSyncTask(FailedTaskInfo failedTaskInfo) {
+        return failedTaskInfo.getComputeType() == ComputeType.BATCH.getType()
+                && EngineType.isFlink(failedTaskInfo.getEngineType());
     }
 
     private void dealStreamCheckpoint(FailedTaskInfo failedTaskInfo) {
@@ -337,7 +342,7 @@ public class TaskStatusListener implements Runnable{
 
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
-                    dealBatchJobAfterGetStatus(status, taskId);
+                    dealBatchJobAfterGetStatus(status, jobIdentifier, pluginInfoStr);
 
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                 }
@@ -515,7 +520,7 @@ public class TaskStatusListener implements Runnable{
         return pluginInfoMap.get(key);
     }
 
-    private void dealBatchJobAfterGetStatus(Integer status, String jobId){
+    private void dealBatchJobAfterGetStatus(Integer status, JobIdentifier jobIdentifier, String pluginInfo) throws ExecutionException{
 
         //运行中的stream任务需要更新checkpoint 并且 控制频率
         Integer checkpointCallNum = checkpointGetTotalNumCache.get(jobIdentifier.getEngineJobId(), () -> 0);
@@ -530,22 +535,15 @@ public class TaskStatusListener implements Runnable{
         // 任务成功或者取消后要删除记录的
         if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
                 || RdosTaskStatus.KILLED.getStatus().equals(status)){
-            cleanCheckpoint(jobIdentifier);
+            rdosStreamTaskCheckpointDAO.deleteByTaskId(jobIdentifier.getTaskId());
         }
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
-            jobStatusFrequency.remove(jobId);
-            rdosEngineJobCacheDao.deleteJob(jobId);
+            jobStatusFrequency.remove(jobIdentifier.getTaskId());
+            rdosEngineJobCacheDao.deleteJob(jobIdentifier.getTaskId());
 
             updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
         }
-    }
-
-    /**
-     * 删除任务实例的checkpoint记录
-     */
-    private void cleanCheckpoint(JobIdentifier jobIdentifier){
-        rdosStreamTaskCheckpointDAO.deleteByTaskId(jobIdentifier.getTaskId());
     }
 
     private void updateBatchTaskCheckpoint(String pluginInfo,JobIdentifier jobIdentifier){
@@ -558,7 +556,7 @@ public class TaskStatusListener implements Runnable{
         RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskId(jobIdentifier.getTaskId());
         if(taskCheckpoint == null){
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), lastExternalPath, now, now);
+            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath);
         } else {
             rdosStreamTaskCheckpointDAO.update(jobIdentifier.getTaskId(), lastExternalPath);
         }
@@ -582,7 +580,7 @@ public class TaskStatusListener implements Runnable{
             return null;
         }
 
-        String externalPath = completed.getAsJsonPrimitive("external_path").getAsString();
+        String externalPath = completed.getAsJsonPrimitive(CHECKPOINT_SAVEPATH_KEY).getAsString();
         if(org.apache.commons.lang.StringUtils.isEmpty(externalPath)){
             return null;
         }
