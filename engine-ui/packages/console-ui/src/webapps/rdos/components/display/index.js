@@ -37,6 +37,8 @@ export function taskTypeText (type) {
             return '算法实验';
         case TASK_TYPE.CUBE_KYLIN:
             return 'Cube_Kylin';
+        case TASK_TYPE.HIVESQL:
+            return 'HiveSQL'
         default:
             return '未知';
     }
