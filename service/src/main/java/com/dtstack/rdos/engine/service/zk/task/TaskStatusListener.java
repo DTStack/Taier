@@ -17,6 +17,7 @@ import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.dtstack.rdos.engine.service.task.RestartDealer;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
@@ -25,6 +26,8 @@ import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -159,6 +162,8 @@ public class TaskStatusListener implements Runnable{
                 if(isFlinkStreamTask(failedTaskInfo)) {
                     //更新checkpoint
                     updateStreamJobCheckpoints(failedTaskInfo.getJobIdentifier(), failedTaskInfo.getEngineType(), failedTaskInfo.getPluginInfo());
+                } else if(){
+                    updateBatchTaskCheckpoint(failedTaskInfo.getPluginInfo(),failedTaskInfo.getJobIdentifier());
                 }
 
                 failedTaskInfo.waitClean();
@@ -308,7 +313,7 @@ public class TaskStatusListener implements Runnable{
         if(rdosBatchJob != null){
             String engineTaskId = rdosBatchJob.getEngineJobId();
             String appId = rdosBatchJob.getApplicationId();
-            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, null);
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineTaskId, appId, taskId);
 
             if(StringUtils.isNotBlank(engineTaskId)){
                 String pluginInfoStr = "";
@@ -511,10 +516,78 @@ public class TaskStatusListener implements Runnable{
     }
 
     private void dealBatchJobAfterGetStatus(Integer status, String jobId){
+
+        //运行中的stream任务需要更新checkpoint 并且 控制频率
+        Integer checkpointCallNum = checkpointGetTotalNumCache.get(jobIdentifier.getEngineJobId(), () -> 0);
+        if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
+            if(checkpointCallNum%checkpointGetRate == 0){
+                updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
+            }
+
+            checkpointGetTotalNumCache.put(jobIdentifier.getEngineJobId(), checkpointCallNum + 1);
+        }
+
+        // 任务成功或者取消后要删除记录的
+        if(RdosTaskStatus.FINISHED.getStatus().equals(status) || RdosTaskStatus.CANCELED.getStatus().equals(status)
+                || RdosTaskStatus.KILLED.getStatus().equals(status)){
+            cleanCheckpoint(jobIdentifier);
+        }
+
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
             jobStatusFrequency.remove(jobId);
             rdosEngineJobCacheDao.deleteJob(jobId);
+
+            updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
         }
+    }
+
+    /**
+     * 删除任务实例的checkpoint记录
+     */
+    private void cleanCheckpoint(JobIdentifier jobIdentifier){
+        rdosStreamTaskCheckpointDAO.deleteByTaskId(jobIdentifier.getTaskId());
+    }
+
+    private void updateBatchTaskCheckpoint(String pluginInfo,JobIdentifier jobIdentifier){
+        String lastExternalPath = getLastExternalPath(pluginInfo, jobIdentifier);
+        if (StringUtils.isEmpty(lastExternalPath)){
+            return;
+        }
+
+        logger.info("taskId:{}, external:{}", jobIdentifier.getTaskId(), lastExternalPath);
+        RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskId(jobIdentifier.getTaskId());
+        if(taskCheckpoint == null){
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(), lastExternalPath, now, now);
+        } else {
+            rdosStreamTaskCheckpointDAO.update(jobIdentifier.getTaskId(), lastExternalPath);
+        }
+    }
+
+    private String getLastExternalPath(String pluginInfo,JobIdentifier jobIdentifier){
+        String checkpointJson = JobClient.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
+        if(org.apache.commons.lang.StringUtils.isEmpty(checkpointJson)){
+            return null;
+        }
+
+        JsonParser parser = new JsonParser();
+        JsonObject json = parser.parse(checkpointJson).getAsJsonObject();
+        JsonObject latest = json.getAsJsonObject("latest");
+        if(latest == null){
+            return null;
+        }
+
+        JsonObject completed = latest.getAsJsonObject("completed");
+        if(completed == null){
+            return null;
+        }
+
+        String externalPath = completed.getAsJsonPrimitive("external_path").getAsString();
+        if(org.apache.commons.lang.StringUtils.isEmpty(externalPath)){
+            return null;
+        }
+
+        return externalPath;
     }
 
     /**

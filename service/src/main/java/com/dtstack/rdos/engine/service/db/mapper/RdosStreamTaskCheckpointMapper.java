@@ -33,4 +33,10 @@ public interface RdosStreamTaskCheckpointMapper {
                                                                         @Param("count") int count);
 
     void cleanAllCheckpointByTaskEngineId(@Param("taskEngineId")  String taskEngineId);
+
+    Integer updateCheckpoint(@Param("taskId") String taskId, @Param("checkpoint") String checkpoint);
+
+    RdosStreamTaskCheckpoint getByTaskId(@Param("taskId") String taskId);
+
+    Integer deleteByTaskId(@Param("taskId") String taskId);
 }
