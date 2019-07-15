@@ -80,6 +80,12 @@ export default {
     getAllProjects (params) { // 获取所有项目
         return http.post(req.GET_ALL_PROJECTS, params);
     },
+    getTenantProjects (params) { // 获取租户下所有项目
+        return http.post(req.GET_ALL_TENANT_PROJECTS, params);
+    },
+    getProjectSupportEngines (params) {
+        return http.post(req.GET_PROJ_SUPPORT_ENGINE, params);
+    },
     removeProjectUser (params) {
         return http.post(req.REMOVE_USER_FROM_PROJECT, params)
     },
@@ -130,6 +136,30 @@ export default {
     },
     getRetainDBList (params) {
         return http.post(req.GET_RETAINDB_LIST, params)
+    },
+    getSupportEngineType (params) { // 项目支持的引擎类型
+        return http.post(req.GET_SUPPORT_ENGINE_TYPE, params)
+    },
+    getProjectTableTypes (params) { // 项目支持的表类型
+        return http.post(req.GET_SUPPORT_TABLE_TYPE, params)
+    },
+    getTenantTableTypes (params) { // 租户支持的表类型
+        return http.post(req.GET_TENANT_TABLE_TYPE, params)
+    },
+    getProjectUsedEngineInfo (params) { // 获取项目在用引擎信息
+        return http.post(req.GET_PRO_USE_ENGINE, params)
+    },
+    getProjectUnUsedEngine (params) { // 获取项目未接入的引擎信息
+        return http.post(req.GET_PRO_UNUSE_ENGINE, params)
+    },
+    addNewEngine (params) {
+        return http.post(req.ADD_NEW_ENGINE, params)
+    },
+    getDBTableList (params) {
+        return http.post(req.GET_DB_TABLE_LIST, params)
+    },
+    checkAddEngineStatus (parmas) {
+        return http.post(req.CHECK_ADD_ENGINE_STATUS, parmas)
     },
     // ========== Role ========== //
     getRoleList (params) {

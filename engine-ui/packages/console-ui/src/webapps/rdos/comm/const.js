@@ -1,5 +1,43 @@
 // 常量
 
+// Engine source 类型
+export const ENGINE_SOURCE_TYPE = {
+    HADOOP: 1,
+    LIBRA: 2
+}
+// Engine source 类型选项
+export const ENGINE_SOURCE_TYPE_OPTIONS = [
+    {
+        name: 'Hadoop',
+        value: ENGINE_SOURCE_TYPE.HADOOP
+    },
+    {
+        name: 'LibrA',
+        value: ENGINE_SOURCE_TYPE.LIBRA
+    }
+]
+export const ENGINE_TYPE_NAME = {
+    HADOOP: 'Hadoop',
+    LIBRA: 'LibrA'
+}
+export const TABLE_TYPE = {
+    HIVE: 1,
+    LIBRA: 2
+}
+export const TABLE_NAME_BY_TABLE_TYPE = {
+    1: 'Hive',
+    2: 'librA'
+}
+export const INTERNAL_OR_EXTERNAL_TABLE = {
+    EXTERNAL: 'EXTERNAL',
+    MANAGED: 'MANAGED'
+}
+export const KYLIN_ACTION = {
+    BUILD: 'Build',
+    MERGE: 'Merge',
+    REFRESH: 'Refresh'
+}
+
 export const DATA_SOURCE = {
     MYSQL: 1,
     ORACLE: 2,
@@ -16,8 +54,19 @@ export const DATA_SOURCE = {
     MONGODB: 13,
     DB2: 19,
     CARBONDATA: 20,
+    LIBRASQL: 21,
     GBASE: 22,
     KYLIN: 23
+}
+
+/**
+ * 引擎类型
+ */
+export const ENGINE_TYPE = {
+    SPARK: 0,
+    LIBRA: 1,
+    KYLIN: 2,
+    HAWQ: 3
 }
 
 export const DATA_SOURCE_TEXT = {
@@ -35,6 +84,7 @@ export const DATA_SOURCE_TEXT = {
     13: 'MongoDB',
     19: 'DB2',
     20: 'DTinsightAnalytics',
+    21: 'LibrA',
     22: 'GBase',
     23: 'Kylin'
 }
@@ -60,8 +110,11 @@ export const RESOURCE_TYPE = {
     EGG: 4
 }
 export const RESOURCE_TYPE_MAP = {
+    0: 'other',
     1: 'jar',
-    2: 'py'
+    2: 'py',
+    3: 'zip',
+    4: 'egg'
 }
 
 // 调度状态
@@ -89,7 +142,7 @@ export const COLLECT_TYPE = {
     FILE: 2
 }
 /**
- * 项目创建方式
+ * 项目创建方式 (引擎 创建 or 对接)
  */
 export const PROJECT_CREATE_MODEL = {
     NORMAL: 0,
@@ -101,6 +154,9 @@ export const MENU_TYPE = {
     SCRIPT: 'ScriptManager',
     RESOURCE: 'ResourceManager',
     FUNCTION: 'FunctionManager',
+    SPARKFUNC: 'SparkSQLFunction',
+    LIBRAFUNC: 'LibraSQLFunction',
+    LIBRASYSFUN: 'LibraSysFunc',
     COSTOMFUC: 'CustomFunction',
     SYSFUC: 'SystemFunction',
     TABLE: 'TableQuery'
@@ -166,6 +222,7 @@ export const TASK_TYPE = { // 任务类型
     CARBONSQL: 12, // CarbonSQL
     NOTEBOOK: 13,
     EXPERIMENT: 14,
+    LIBRASQL: 15,
     CUBE_KYLIN: 16
 }
 
@@ -197,7 +254,8 @@ export const SCRIPT_TYPE = { // 脚本类型
     SQL: 0,
     PYTHON2: 1,
     PYTHON3: 2,
-    SHELL: 3
+    SHELL: 3,
+    LIBRASQL: 4
 }
 
 export const TASK_TYPE_ARRAY = [ //
@@ -461,6 +519,10 @@ export const offlineTaskTypeFilter = [
         id: 14,
         text: '算法实验',
         value: TASK_TYPE.EXPERIMENT
+    }, {
+        id: 15,
+        text: 'LibraSQL',
+        value: TASK_TYPE.LIBRASQL
     }]
 
 export const offlineTaskPeriodFilter = [{

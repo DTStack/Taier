@@ -77,7 +77,6 @@ class NormalTaskForm extends React.Component {
 
         const initialRefResourceName = taskData.refResourceList && taskData.refResourceList.length > 0
             ? taskData.refResourceList.map(res => res.resourceName) : [];
-
         return (<Form>
             <FormItem
                 {...formItemLayout}

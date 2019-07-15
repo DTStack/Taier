@@ -7,13 +7,16 @@ import {
 } from 'antd';
 import utils from 'utils'
 
-import API from '../../../../api/dataManage'
-import Editor from 'widgets/editor'
-import CopyIcon from 'main/components/copy-icon';
+import Editor from 'widgets/editor';
+import TableEngineSelect from '../../../../components/engineSelect';
 
-import { formItemLayout } from '../../../../comm/const'
-import { DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon'
+import CopyIcon from 'main/components/copy-icon';
+import API from '../../../../api/dataManage';
+import { formItemLayout } from '../../../../comm/const';
+import { DDL_IDE_PLACEHOLDER, LIBRA_DDL_IDE_PLACEHOLDER } from '../../../../comm/DDLCommon'
+import { isLibraTable } from '../../../../comm';
 import { getTableList } from '../../../../store/modules/offlineTask/comm';
+import { getProjectTableTypes } from '../../../../store/modules/tableType';
 import HelpDoc, { relativeStyle } from '../../../helpDoc';
 
 const RadioGroup = Radio.Group
@@ -24,12 +27,16 @@ const Option = Select.Option
 @connect(state => {
     return {
         project: state.project,
-        tables: state.offlineTask.comm.tables
+        tables: state.offlineTask.comm.tables,
+        projectTableTypes: state.tableTypes.projectTableTypes
     }
 }, dispatch => {
     return {
         getTableList: (projectId) => {
             dispatch(getTableList(projectId));
+        },
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId));
         }
     }
 })
@@ -41,11 +48,17 @@ class ImportTarget extends Component {
             pageSize: 10
         }
     }
-
+    componentDidMount () {
+        const { project, getProjectTableTypes } = this.props;
+        const projectId = project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId)
+        }
+    }
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps (nextProps) {
         const { visible } = this.props;
-        const { visible: visibleNext } = nextProps;
+        const { visible: visibleNext } = nextProps.visible;
         if (visible != visibleNext && !visibleNext) {
             this.setState({
                 pagination: {
@@ -57,9 +70,16 @@ class ImportTarget extends Component {
     }
 
     tableInput = (tableName) => {
-        const { changeStatus } = this.props
+        const { changeStatus, formState } = this.props
+        const { tableType } = formState;
+        let params = {
+            tableName
+        };
+        if (tableType) {
+            params.tableType = tableType
+        }
         if (tableName.length > 0) {
-            API.getTablesByName({ tableName }).then((res) => {
+            API.getTablesByName(params).then((res) => {
                 if (res.code === 1) {
                     changeStatus({
                         tableList: res.data || []
@@ -77,6 +97,17 @@ class ImportTarget extends Component {
             params.tableData = {}
         }
         this.props.changeStatus(params);
+    }
+
+    onTableEngineChange = (value) => {
+        this.props.changeStatus({
+            tableType: value,
+            sqlText: null,
+            sync: true,
+            queryTable: '',
+            tableList: [],
+            tableData: {}
+        });
     }
 
     debounceSearch = debounce(this.tableInput, 500, { 'maxWait': 2000 })
@@ -150,8 +181,12 @@ class ImportTarget extends Component {
         }
     }
     createTable = () => {
-        const { sqlText } = this.props.formState
-        API.createDdlTable({ sql: sqlText }).then((res) => {
+        const { sqlText, tableType } = this.props.formState;
+        if (!tableType) {
+            message.error('请先选择表类型！');
+            return;
+        }
+        API.createDdlTable({ sql: sqlText, tableType }).then((res) => {
             if (res.code === 1) {
                 this.setState({
                     visible: false,
@@ -168,6 +203,10 @@ class ImportTarget extends Component {
     handleCancel = () => {
         this.setState({
             visible: false
+        })
+        this.props.changeStatus({
+            sqlText: null,
+            sync: true
         })
     }
 
@@ -330,15 +369,12 @@ class ImportTarget extends Component {
                         onChange={(e) => { this.tablePartitionChange(e, item, index) }}
                         placeholder="请输入分区名称" />
                     &nbsp;&nbsp;
-
                     {
-                        /* eslint-disable */
                         index === data.length - 1
                             ? <span style={{ color: '#f60' }}>
                                 <br />
-                                点击"检测"按钮，测试分区是否存在
+                                点击<b>检测</b>按钮，测试分区是否存在
                             </span> : ''
-                        /* eslint-disable */
                     }
                 </Row>
             )
@@ -346,10 +382,10 @@ class ImportTarget extends Component {
     }
 
     render () {
-        const { data, display, formState } = this.props
-        const { tableList, tableData, queryTable, asTitle, sync, sqlText } = formState
+        const { data, display, formState, projectTableTypes = [] } = this.props
+        const { tableList, tableData, queryTable, asTitle, sync, sqlText, tableType } = formState
         const { pagination } = this.state;
-
+        const { getFieldDecorator } = this.props.form;
         const columns = this.generateCols(data, tableData)
 
         const paritions = this.generatePartitions(tableData.partition || [])
@@ -361,10 +397,27 @@ class ImportTarget extends Component {
             </Option>
         )
 
+        const DDL_TEMPLATE = isLibraTable(tableType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
+
         return (
             <div style={{ display: display === 'target' ? 'block' : 'none' }}>
                 <Row>
                     <Form>
+                        <FormItem
+                            required
+                            label="表类型"
+                            {...formItemLayout}
+                        >
+                            {getFieldDecorator('tableType', {
+
+                            })(
+                                <TableEngineSelect
+                                    tableTypes={projectTableTypes}
+                                    placeholder="请选择表类型"
+                                    onChange={this.onTableEngineChange}
+                                />
+                            )}
+                        </FormItem>
                         <FormItem
                             {...formItemLayout}
                             label="导入至表"
@@ -443,7 +496,7 @@ class ImportTarget extends Component {
                 </Row>
                 <Modal className="m-codemodal"
                     title={(
-                        <span>建表语句<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_IDE_PLACEHOLDER} /></span>
+                        <span>建表语句<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DDL_TEMPLATE} /></span>
                     )}
                     maskClosable={false}
                     style={{ height: 424 }}
@@ -453,7 +506,7 @@ class ImportTarget extends Component {
                 >
                     <Editor
                         language="dtsql"
-                        placeholder={DDL_IDE_PLACEHOLDER}
+                        placeholder={DDL_TEMPLATE}
                         onChange={this.ddlChange}
                         sync={sync}
                         value={sqlText}
@@ -464,4 +517,4 @@ class ImportTarget extends Component {
     }
 }
 
-export default ImportTarget;
+export default Form.create()(ImportTarget);

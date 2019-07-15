@@ -313,7 +313,7 @@ export default class TableRelation extends React.Component {
 
     render () {
         return (
-            <div className="graph-editor col-relation" style={{ position: 'relative' }}>
+            <div className="graph-editor col-relation" style={{ position: 'relative', overflow: 'auto' }}>
                 <Spin
                     tip="Loading..."
                     size="large"

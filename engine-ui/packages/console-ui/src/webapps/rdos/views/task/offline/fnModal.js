@@ -242,12 +242,12 @@ class FnModal extends React.Component {
     }
 
     handleSubmit () {
-        const { addFn } = this.props;
+        const { addFn, engineType } = this.props;
         const form = this.form;
 
         form.validateFields((err, values) => {
             if (!err) {
-                addFn(values)
+                addFn(Object.assign(values, { engineType: engineType }))
                     .then(
                         (success) => {
                             if (success) {
@@ -310,6 +310,7 @@ export default connect(state => {
         isModalShow: state.offlineTask.modalShow.createFn,
         functionTreeData: state.offlineTask.functionTree,
         resTreeData: state.offlineTask.resourceTree,
+        engineType: state.offlineTask.modalShow.engineType,
         defaultData: state.offlineTask.modalShow.defaultData // 表单默认数据
     }
 },

@@ -42,11 +42,11 @@ export function getNotProjectUsers (params) {
     }
 }
 
-export function getProjectUsers () {
+export function getProjectUsers (projectId) {
     const pid = utils.getCookie('project_id')
     return (dispatch) => {
         Api.getProjectUsers({
-            projectId: pid,
+            projectId: projectId || pid,
             currentPage: 1,
             pageSize: 100
         }).then((res) => {

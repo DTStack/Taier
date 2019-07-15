@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
-    Icon, Tooltip,
+    Icon, Tooltip, Collapse,
     Tabs, Dropdown, Menu
 } from 'antd';
 import { isEmpty, union } from 'lodash';
@@ -15,8 +15,10 @@ import ajax from '../../api';
 import {
     taskTreeAction,
     resTreeAction,
-    fnTreeAction,
-    sysFnTreeActon,
+    // fnTreeAction,
+    sparkFnTreeAction,
+    libraFnTreeAction,
+    // sysFnTreeActon,
     scriptTreeAction,
     tableTreeAction
 } from '../../store/modules/offlineTask/actionType';
@@ -29,6 +31,7 @@ import { MENU_TYPE, PROJECT_TYPE } from '../../comm/const';
 import { isProjectCouldEdit } from '../../comm';
 
 const TabPane = Tabs.TabPane;
+const Panel = Collapse.Panel;
 
 @connect(state => {
     const { offlineTask, user } = state;
@@ -43,6 +46,9 @@ const TabPane = Tabs.TabPane;
         project: state.project,
         taskTreeData: offlineTask.taskTree,
         resourceTreeData: offlineTask.resourceTree,
+        sparkTreeData: offlineTask.sparkTree,
+        libraTreeData: offlineTask.libraTree,
+        libraSysTreeData: offlineTask.libraSysFnTree,
         functionTreeData: offlineTask.functionTree,
         sysFunctionTreeData: offlineTask.sysFunctionTree,
         scriptTreeData: offlineTask.scriptTree,
@@ -60,7 +66,9 @@ class OfflineTabPane extends Component {
         subMenus: [],
         expandedKeys: [],
         expandedKeys2: [],
-        menu: MENU_TYPE.TASK
+        menu: MENU_TYPE.TASK,
+        sparkSql: '',
+        libraSql: ''
     }
 
     componentDidMount () {
@@ -281,14 +289,34 @@ class OfflineTabPane extends Component {
                             break;
                         }
                         case MENU_TYPE.FUNCTION: {
-                            dispatch({
-                                type: fnTreeAction.RESET_FUC_TREE,
-                                payload: menuItem.children[0]
-                            });
-                            dispatch({
-                                type: sysFnTreeActon.RESET_SYSFUC_TREE,
-                                payload: menuItem.children[1]
-                            });
+                            const sparkSql = menuItem.children.find(item => item.catalogueType == MENU_TYPE.SPARKFUNC);
+                            const libraSql = menuItem.children.find(item => item.catalogueType == MENU_TYPE.LIBRAFUNC);
+                            this.setState({
+                                sparkSql,
+                                libraSql
+                            })
+                            dispatch({ // dispatch spark  第一级目录文件
+                                type: sparkFnTreeAction.GET_SPARK_ROOT,
+                                payload: sparkSql
+                            })
+                            dispatch({ // dispatch libra  第一级目录文件
+                                type: libraFnTreeAction.GET_LIBRA_ROOT,
+                                payload: libraSql
+                            })
+                            // spark
+                            sparkSql && this.props.loadTreeNode(sparkSql.id,
+                                MENU_TYPE.SPARKFUNC,
+                                {
+                                    taskType: sparkSql.taskType,
+                                    parentId: sparkSql.parentId
+                                }, true)
+                            // libra
+                            libraSql && this.props.loadTreeNode(libraSql.id,
+                                MENU_TYPE.LIBRAFUNC,
+                                {
+                                    taskType: libraSql.taskType,
+                                    parentId: libraSql.parentId
+                                }, true)
                             break;
                         }
                         case MENU_TYPE.TABLE: {
@@ -360,6 +388,7 @@ class OfflineTabPane extends Component {
         const {
             taskTreeData,
             resourceTreeData,
+            libraSysTreeData,
             functionTreeData,
             sysFunctionTreeData,
             scriptTreeData,
@@ -368,8 +397,7 @@ class OfflineTabPane extends Component {
             project,
             user
         } = this.props;
-
-        const { subMenus, expandedKeys, expandedKeys2 } = this.state;
+        const { subMenus, expandedKeys, expandedKeys2, sparkSql, libraSql } = this.state;
         const reloadTreeNodes = this.reloadTreeNodes;
         const isPro = project && project.projectType == PROJECT_TYPE.PRO;
         const couldEdit = isProjectCouldEdit(project, user);
@@ -533,42 +561,83 @@ class OfflineTabPane extends Component {
                                 </Tooltip>
                                 {couldEdit && (
                                     <Dropdown overlay={
-                                        <Menu onClick={this.onMenuClick}>
-                                            <Menu.Item key="function:newFunc">
-                                                新建函数
-                                            </Menu.Item>
-                                            <Menu.Item key="function:newFolder">
-                                                新建文件夹
-                                            </Menu.Item>
+                                        <Menu onClick={this.onMenuClick} mode="vertical">
+                                            {
+                                                !isEmpty(sparkSql) && (
+                                                    <Menu.SubMenu title='Spark' key="spark">
+                                                        <Menu.Item key="function:newFunc">
+                                                            新建函数
+                                                        </Menu.Item>
+                                                        <Menu.Item key="function:newFolder">
+                                                            新建文件夹
+                                                        </Menu.Item>
+                                                    </Menu.SubMenu>
+                                                )
+                                            }
+                                            {
+                                                !isEmpty(libraSql) && (
+                                                    <Menu.SubMenu title='LibrA' key="libra">
+                                                        <Menu.Item key="">
+                                                            LibrA引擎暂不支持创建自定义函数
+                                                        </Menu.Item>
+                                                    </Menu.SubMenu>
+                                                )
+                                            }
                                         </Menu>
                                     } trigger={['click']}>
                                         <Icon type="bars" />
                                     </Dropdown>
                                 )}
                             </header>
-                            <div className="contentBox">
+                            <div className="contentBox c-funcMa__collapse m-siderbench">
                                 <div className="folder-box">
-                                    {
-                                        !isEmpty(functionTreeData) &&
-                                        <FolderTree
-                                            isPro={isPro}
-                                            couldEdit={couldEdit}
-                                            type={MENU_TYPE.COSTOMFUC}
-                                            expandedKeys={expandedKeys}
-                                            onExpand={this.onExpand}
-                                            treeData={functionTreeData} />
-                                    }
-                                    {
-                                        !isEmpty(sysFunctionTreeData) &&
-                                        <FolderTree
-                                            isPro={isPro}
-                                            couldEdit={couldEdit}
-                                            type={MENU_TYPE.SYSFUC}
-                                            expandedKeys={expandedKeys2}
-                                            onExpand={this.onExpand2}
-                                            treeData={sysFunctionTreeData}
-                                        />
-                                    }
+                                    <Collapse defaultActiveKey={['spark']} accordion>
+                                        {
+                                            !isEmpty(sparkSql) && (
+                                                <Panel header="SparkSQL" key="spark">
+                                                    {
+                                                        !isEmpty(functionTreeData) &&
+                                                        <FolderTree
+                                                            isPro={isPro}
+                                                            couldEdit={couldEdit}
+                                                            type={MENU_TYPE.COSTOMFUC}
+                                                            expandedKeys={expandedKeys}
+                                                            onExpand={this.onExpand}
+                                                            treeData={functionTreeData}
+                                                        />
+                                                    }
+                                                    {
+                                                        !isEmpty(sysFunctionTreeData) &&
+                                                        <FolderTree
+                                                            isPro={isPro}
+                                                            couldEdit={couldEdit}
+                                                            type={MENU_TYPE.SYSFUC}
+                                                            expandedKeys={expandedKeys2}
+                                                            onExpand={this.onExpand2}
+                                                            treeData={sysFunctionTreeData}
+                                                        />
+                                                    }
+                                                </Panel>
+                                            )
+                                        }
+                                        {
+                                            !isEmpty(libraSql) && (
+                                                <Panel header="LibrA SQL" key="librA">
+                                                    {
+                                                        !isEmpty(libraSysTreeData) &&
+                                                        <FolderTree
+                                                            isPro={isPro}
+                                                            couldEdit={couldEdit}
+                                                            type={MENU_TYPE.LIBRASYSFUN}
+                                                            expandedKeys={expandedKeys2}
+                                                            onExpand={this.onExpand2}
+                                                            treeData={libraSysTreeData}
+                                                        />
+                                                    }
+                                                </Panel>
+                                            )
+                                        }
+                                    </Collapse>
                                 </div>
                             </div>
                         </div>

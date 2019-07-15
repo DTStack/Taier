@@ -1,14 +1,14 @@
-import consoleActions from '../../consts/consoleActions'
+import { userActions } from '../../consts/consoleActions'
 import { cloneDeep } from 'lodash'
 const defaultState = {
-    userList: []
+    tenantList: []
 }
 export default function (state = defaultState, action) {
     switch (action.type) {
-        case consoleActions.SET_USER_LIST: {
+        case userActions.SET_TENANT_LIST: {
             const list = action.data;
             const newState = cloneDeep(state)
-            newState.userList = list;
+            newState.tenantList = list;
             return newState
         }
         default:

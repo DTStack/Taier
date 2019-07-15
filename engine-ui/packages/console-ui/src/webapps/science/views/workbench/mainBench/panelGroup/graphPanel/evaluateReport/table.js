@@ -75,7 +75,7 @@ class TableDetail extends Component {
         const { indexType } = this.props;
         const cols = this.initialCols(tableData[0]);
         const dataSource = tableData.length > 1 ? tableData.slice(1, tableData.length) : [];
-        const scroll = { x: cols.length < 5 ? true : 2000 };
+        const scroll = { x: cols.length < 5 ? true : 2000, y: 250 };
         return (
             <Table
                 className="m-table border-table"

@@ -6,7 +6,6 @@ import moment from 'moment'
 
 import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Select } from 'antd'
 
-import ProjectForm from '../project/form'
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project';
 import NoData from '../../components/no-data';
@@ -15,7 +14,6 @@ const Search = Input.Search;
 const Option = Select.Option;
 class Index extends Component {
     state = {
-        visible: false,
         loading: true,
         projectListInfo: [],
         sortTitleStatus: 1,
@@ -118,7 +116,6 @@ class Index extends Component {
     createProject = async (project) => {
         let res = await Api.createProject(project);
         if (res.code === 1) {
-            this.setState({ visible: false });
             this.getProjectListInfo();
             message.success('创建项目成功！');
             return true;
@@ -297,7 +294,7 @@ class Index extends Component {
                     case '数据模型':
                         fixArrChildrenApps[4] = item;
                         break;
-                    case '项目管理':
+                    case '工作空间':
                         fixArrChildrenApps[5] = item;
                         break;
                 }
@@ -308,7 +305,7 @@ class Index extends Component {
         }
     }
     render () {
-        const { visible, projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
+        const { projectListInfo, sortTitleStatus, totalSize, projectListParams, loading } = this.state;
         const { licenseApps } = this.props;
         const fixArrChildrenApps = this.fixArrayIndex(licenseApps[0] && licenseApps[0].children);
         const taskNav = fixArrChildrenApps[1];
@@ -322,7 +319,6 @@ class Index extends Component {
                                 className="project-select"
                                 allowClear={true}
                                 placeholder="请选择项目"
-                                // value={projectListParams.projectType}
                                 onChange={this.changeProjectType.bind(this)}
                             >
                                 <Option key="1" value="2">生产项目</Option>
@@ -334,24 +330,9 @@ class Index extends Component {
                             <Button
                                 style={{ float: 'left', margin: '10 0 0 15' }}
                                 type="primary"
-                                onClick={() => { this.setState({ visible: true }) }}>
+                                onClick={() => { hashHistory.push('/create-project') }}>
                                 创建项目
                             </Button>
-                            <Button
-                                style={{ float: 'left', margin: '10 0 0 15' }}
-                                type="primary"
-                                onClick={() => { hashHistory.push('/metaDataImport') }}>
-                                接入已有项目
-                            </Button>
-                            <Tooltip title={(
-                                <div>
-                                    <p>每个项目可以包含不同的数据、计算任务和人员</p>
-                                    <p>创建项目：创建全新的项目，不包含任何数据和计算任务等信息</p>
-                                    <p>导入已有项目：将已存在的Hive Database接入系统，一个Database作为一个项目</p>
-                                </div>
-                            )}>
-                                <Icon style={{ lineHeight: '45px', marginLeft: '10px' }} type="question-circle-o" />
-                            </Tooltip>
                         </Col>
                         <Col span="8" >
                             <div className="sortTitle">
@@ -454,12 +435,6 @@ class Index extends Component {
                             </Row>
                         </Col>
                     </Row>
-                    <ProjectForm
-                        title="创建项目"
-                        onOk={this.createProject}
-                        visible={visible}
-                        onCancel={() => this.setState({ visible: false })}
-                    />
                 </div>
             </Spin>
         )

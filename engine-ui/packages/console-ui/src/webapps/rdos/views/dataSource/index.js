@@ -61,16 +61,22 @@ class DataSourceMana extends Component {
         const ctx = this
         const { params } = this.state;
         this.setState({ loading: true })
-        const reqParams = Object.assign({
-            pageSize: 10,
-            currentPage: 1
-        }, params)
-        Api.queryDataSource(reqParams).then((res) => {
+        Api.queryDataSource(params).then((res) => {
             this.setState({
                 loading: false
             })
             if (res.code === 1) {
-                ctx.setState({ dataSource: res.data })
+                const data = res.data;
+                // 当前页数据删完，currentpage - 1
+                const isReduceCurrPage = (data.totalCount != 0 && data.totalCount % 10 == 0) && (data.data && data.data.length == 0)
+                ctx.setState({
+                    dataSource: data || [],
+                    params: Object.assign(this.state.params, {
+                        currentPage: isReduceCurrPage ? this.state.params.currentPage - 1 : this.state.params.currentPage
+                    })
+                }, () => {
+                    isReduceCurrPage && ctx.loadDataSources()
+                })
             }
         })
     }

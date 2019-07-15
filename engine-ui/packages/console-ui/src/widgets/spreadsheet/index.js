@@ -29,7 +29,7 @@ class SpreadSheet extends React.PureComponent {
         this.removeRenderClock();
     }
     getData () {
-        const { data, columns } = this.props;
+        const { data, columns = [] } = this.props;
         let showData = data;
         if (!showData || !showData.length) {
             const emptyArr = new Array(columns.length).fill('', 0, columns.length);
@@ -39,7 +39,7 @@ class SpreadSheet extends React.PureComponent {
         return showData;
     }
     getMergeCells () {
-        const { data, columns } = this.props;
+        const { data, columns = [] } = this.props;
         if (!data || !data.length) {
             return [{ row: 0, col: 0, rowspan: 1, colspan: columns.length }]
         }
@@ -78,7 +78,7 @@ class SpreadSheet extends React.PureComponent {
         }
     }
     render () {
-        const { columns } = this.props;
+        const { columns = [] } = this.props;
         const showData = this.getData();
         return (
             <HotTable

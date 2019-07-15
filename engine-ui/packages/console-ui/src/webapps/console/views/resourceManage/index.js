@@ -1,268 +1,359 @@
 import React from 'react';
-import { Table, Select } from 'antd';
-import moment from 'moment';
-
+import { Row, Col, Select, Button, Card, Form, Tabs, Table, Input, message } from 'antd';
 import Api from '../../api/console';
-import ChangeResourceModal from '../../components/changeResource';
-
-const PAGE_SIZE = 10;
+import { connect } from 'react-redux';
+import { getTenantList } from '../../actions/console'
+import { ENGINE_TYPE, ENGINE_TYPE_NAME } from '../../consts';
+import BindCommModal from '../../components/bindCommModal';
+const FormItem = Form.Item;
 const Option = Select.Option;
+const TabPane = Tabs.TabPane;
+const Search = Input.Search;
+const PAGESIZE = 20;
+
+function mapStateToProps (state) {
+    return {
+        consoleUser: state.consoleUser
+    }
+}
+function mapDispatchToProps (dispatch) {
+    return {
+        getTenantList () {
+            dispatch(getTenantList())
+        }
+    }
+}
+@connect(mapStateToProps, mapDispatchToProps)
+
 class ResourceManage extends React.Component {
     state = {
-        resource: {},
-        dataSource: [],
-        table: {
-            pageIndex: 1,
-            total: 0,
-            loading: true
+        tableData: [],
+        clusterList: [],
+        engineList: [],
+        queryParams: {
+            clusterId: '',
+            engineType: '',
+            tenantName: '',
+            pageSize: PAGESIZE,
+            currentPage: 1
         },
-        changeModalVisible: false
+        loading: false,
+        total: 0,
+        tenantModal: false,
+        queueModal: false,
+        tenantInfo: '',
+        isHaveHadoop: false,
+        isHaveLibra: false,
+        queueList: [], // hadoop资源队列
+        modalKey: '',
+        editModalKey: null
     }
     componentDidMount () {
-        this.getResourceList();
+        this.props.getTenantList(); // 租户列表
+        this.initList()
     }
-    getResourceList () {
-        const { table } = this.state;
-        const { pageIndex } = table;
-        Api.getResourceList({
-            currentPage: pageIndex,
-            pageSize: PAGE_SIZE
+    searchTenant = () => {
+        const { queryParams } = this.state;
+        this.setState({
+            loading: true
         })
-            .then(
-                (res) => {
-                    if (res.code == 1) {
-                        this.setState({
-                            dataSource: this.exchangeDataSource(res.data.data),
-                            table: {
-                                ...table,
-                                loading: false,
-                                total: res.data.totalCount
-                            }
-                        })
-                    } else {
-                        this.setState({
-                            table: {
-                                ...table,
-                                loading: false
-                            }
-                        })
-                    }
-                }
-            )
-    }
-    getPagination () {
-        const { pageIndex, total } = this.state.table;
-        return {
-            current: pageIndex,
-            pageSize: PAGE_SIZE,
-            total: total
-        }
-    }
-    exchangeDataSource (dataSource) {
-        let newDataSource = [];
-        let deepLength = 0;
-        for (let _i = 0; _i < dataSource.length; _i++) {
-            let cluster = dataSource[_i];
-            newDataSource.push({
-                ...cluster,
-                type: 'cluster',
-                className: null,
-                clusterId: cluster.id,
-                children: loop(cluster.queues, deepLength)
-            })
-        }
-        function loop (queues, deepLength) {
-            let newQueues = [];
-            if (!queues) {
-                return null;
-            }
-            for (let _i = 0; _i < queues.length; _i++) {
-                let queue = queues[_i];
-                newQueues.push({
-                    ...queue,
-                    queueId: queue.id,
-                    deepLength: deepLength,
-                    className: `table-row-color_level${deepLength + 1}`,
-                    children: loop(queue.childQueues, deepLength + 1)
+        Api.searchTenant(queryParams).then(res => {
+            if (res.code === 1) {
+                this.setState({
+                    tableData: res.data.data || [],
+                    total: res.totalCount,
+                    loading: false
+                })
+            } else {
+                this.setState({
+                    loading: false
                 })
             }
-            return newQueues.length > 0 ? newQueues : null;
-        }
-        return newDataSource;
+        })
     }
-    initTableColumns () {
+    bindTenant (params) {
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.bindTenant({ ...reqParams }).then(res => {
+                if (res.code === 1) {
+                    this.setState({
+                        tenantModal: false
+                    })
+                    message.success('租户绑定成功')
+                    this.searchTenant()
+                }
+            })
+        }
+    }
+    switchQueue (params) {
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.switchQueue({ ...reqParams }).then(res => {
+                if (res.code === 1) {
+                    this.setState({
+                        queueModal: false
+                    })
+                    message.success('切换队列成功')
+                    this.searchTenant()
+                }
+            })
+        }
+    }
+    initList = async () => {
+        const res = await Api.getAllCluster();
+        if (res.code === 1) {
+            const data = res.data || [];
+            const engineList = (data[0] && data[0].engines) || [];
+            const initCluster = data[0] || [];
+            const initEngine = engineList[0] || [];
+            this.setState({
+                clusterList: data,
+                queryParams: Object.assign(this.state.queryParams, { clusterId: initCluster.clusterId }),
+                engineList,
+                loading: true
+            })
+            const queryParams = Object.assign(this.state.queryParams, {
+                clusterId: initCluster.clusterId,
+                engineType: initEngine.engineType
+            })
+            const response = await Api.searchTenant(queryParams)
+            if (response.code === 1) {
+                this.setState({
+                    tableData: response.data.data || [],
+                    total: response.totalCount,
+                    loading: false
+                })
+            } else {
+                this.setState({
+                    loading: false
+                })
+            }
+        }
+    }
+    clusterOptions = () => {
+        const { clusterList } = this.state;
+        return clusterList.map(item => {
+            return <Option key={`${item.clusterId}`} value={`${item.clusterId}`}>{item.clusterName}</Option>
+        })
+    }
+    handleChangeCluster = (value) => {
+        const { clusterList } = this.state;
+        let currentCluster;
+        currentCluster = clusterList.filter(clusItem => clusItem.clusterId == value); // 选中当前集群
+        const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
+        const queryParams = Object.assign(this.state.queryParams, {
+            clusterId: value,
+            engineType: currentEngineList[0] && currentEngineList[0].engineType,
+            tenantName: '',
+            pageSize: PAGESIZE,
+            currentPage: 1
+        })
+        this.setState({
+            engineList: currentEngineList,
+            queryParams
+        }, this.searchTenant)
+    }
+    changeTenantName = (value) => {
+        const queryParams = Object.assign(this.state.queryParams, { tenantName: value })
+        this.setState({
+            queryParams
+        }, this.searchTenant)
+    }
+    handleTableChange = (pagination, filters, sorter) => {
+        const queryParams = Object.assign(this.state.queryParams, { currentPage: pagination.current })
+        this.setState({
+            queryParams
+        }, this.searchTenant)
+    }
+    handleEngineTab = (key) => {
+        const queryParams = Object.assign(this.state.queryParams, {
+            engineType: key,
+            tenantName: '',
+            currentPage: 1
+        })
+        this.setState({
+            queryParams
+        }, this.searchTenant)
+    }
+    showTenant () {
+        this.setState({ tenantModal: true, editModalKey: Math.random() })
+    }
+    clickSwitchQueue = (record) => {
+        this.setState({
+            modalKey: Math.random(),
+            queueModal: true,
+            tenantInfo: record
+        })
+    }
+    initHadoopColumns = () => {
         return [
             {
-                title: '集群名称',
-                dataIndex: 'clusterName',
-                width: '200px'
+                title: '租户',
+                dataIndex: 'tenantName',
+                render (text, record) {
+                    return text
+                }
             },
             {
                 title: '资源队列',
-                dataIndex: 'queueName',
-                width: '200px',
+                dataIndex: 'queue',
                 render (text, record) {
-                    if (record.type == 'cluster') {
-                        return null;
-                    }
-                    if (record.queueState == 'STOPPED') {
-                        text = `${text}(已停用)`
-                    }
-                    return <span style={{ paddingLeft: record.deepLength * 10 + 'px' }}>{text}</span>;
+                    return text
                 }
             },
             {
                 title: '最小容量（%）',
-                dataIndex: 'capacity',
-                width: '120px',
+                dataIndex: 'minCapacity',
                 render (text, record) {
-                    if (record.type == 'cluster') {
-                        return null;
-                    }
-                    return text * 100;
+                    return text
                 }
             },
             {
                 title: '最大容量（%）',
                 dataIndex: 'maxCapacity',
-                width: '120px',
                 render (text, record) {
-                    if (record.type == 'cluster') {
-                        return null;
-                    }
-                    return text * 100;
-                }
-            },
-            {
-                title: '绑定租户',
-                dataIndex: 'tenants',
-                render (tenants, record) {
-                    if (!tenants) {
-                        return null;
-                    }
-                    // tenantName去空字符串
-                    let noEmptyTenant = [];
-                    let tenantName = tenants.map(item => {
-                        return item.tenantName
-                    })
-                    tenantName.map(item => {
-                        if (item != '') {
-                            noEmptyTenant.push(item)
-                        }
-                    })
-                    return noEmptyTenant.map(item => {
-                        return item
-                    }).join('，') || '无'
-                }
-            },
-            {
-                title: '修改时间',
-                dataIndex: 'gmtModified',
-                width: '200px',
-                render (text) {
-                    return moment(text).format('YYYY-MM-DD HH:mm:ss')
+                    return text
                 }
             },
             {
                 title: '操作',
                 dataIndex: 'deal',
                 render: (text, record) => {
-                    if (record.queueState == 'STOPPED' || !record.tenants) {
-                        return null;
-                    }
-                    return <a onClick={this.changeResource.bind(this, record)}>修改</a>
-                },
-                width: '80px'
+                    return <a onClick={ () => { this.clickSwitchQueue(record) }}>
+                        切换队列
+                    </a>
+                }
             }
         ]
     }
-    changeResource (resource) {
-        this.setState({
-            resource: resource,
-            changeModalVisible: true
-        })
-    }
-    changeUserValue (value) {
-        this.setState({
-            selectUser: value
-        })
-    }
-    selectUser (value) {
-        const { selectUserList } = this.state;
-        this.setState({
-            selectUser: '',
-            selectUserList: selectUserList.concat(value)
-        })
-    }
-    closeModal () {
-        this.setState({
-            changeModalVisible: false
-        })
-        this.getResourceList();
-    }
-    resourceUserChange () {
-        this.setState({
-            changeModalVisible: false
-        })
-        this.getResourceList();
-    }
-    getUserOptions () {
-        const { userList, selectUserList } = this.state;
-        const result = [];
-        for (let i = 0; i < userList.length; i++) {
-            const user = userList[i];
-            if (selectUserList.indexOf(user.id) == -1) {
-                result.push(<Option value={user.id}>{user.name}</Option>)
+    initLibraColumns = () => {
+        return [{
+            title: '租户',
+            dataIndex: 'tenantName',
+            render (text, record) {
+                return text
             }
-        }
-        return result;
+        }]
     }
     render () {
-        const { dataSource, table, changeModalVisible, resource } = this.state;
-        const { loading } = table;
-        const columns = this.initTableColumns();
+        const hadoopColumns = this.initHadoopColumns();
+        const libraColumns = this.initLibraColumns()
+        const { tableData, queryParams, total, loading, engineList, clusterList,
+            tenantModal, queueModal, modalKey, editModalKey } = this.state;
+        const { tenantList } = this.props.consoleUser;
+        const pagination = {
+            current: queryParams.currentPage,
+            pageSize: PAGESIZE,
+            total
+        }
         return (
-            <div className="contentBox">
-                <div
-                    style={{
-                        width: '900px',
-                        color: 'rgba(1,1,1,0.84)',
-                        padding: '20px'
-                    }}
-                >
-                    <h2>什么是资源管理</h2>
-                    <p style={{ marginTop: '20px' }}>资源管理是以租户为单位进行计算资源的分配，当您需要多个租户，并且每个租户分配不同比例的资源容量时需要使用本功能，例如：您的集群有10个节点，每个节点的配置为8核16GB内存，总资源为80核160GB内存，那么您可以新建“销售”和“开发”2个租户，为销售租户分配30%的资源容量，为开发租户分配70%的资源容量。</p>
-                    <p style={{ marginTop: '20px' }}>注意:</p>
-                    <ul>
-                        <li>1、“资源队列”仅包括集群的内存和CPU；</li>
-                        <li>2、只支持将资源队列绑定到租户，暂时不支持绑定到项目；</li>
-                        <li>3、每个资源队列的最小容量之和等于100%；</li>
-                        <li>4、以资源队列的形式分配资源，资源队列的维护在配置文件中，本模块只是将资源队列绑定到租户；</li>
-                        <li>5、可能已有的任务占用了较多的资源，导致更新配置后不会立即生效，需要等待已占用的资源释放；</li>
-                    </ul>
+            <div className='resource-wrapper'>
+                <Row>
+                    <Col span='12'>
+                        <Form className="m-form-inline" layout="inline">
+                            <FormItem
+                                label='集群'
+                            >
+                                <Select
+                                    className='cluster-select'
+                                    style={{ width: '180' }}
+                                    placeholder='请选择集群'
+                                    value={`${queryParams.clusterId}`}
+                                    onChange={this.handleChangeCluster}
+                                >
+                                    {this.clusterOptions()}
+                                </Select>
+                            </FormItem>
+                        </Form>
+                    </Col>
+                    <Col span='12'>
+                        <Button className='terent-button' type='primary' onClick={() => { this.setState({ editModalKey: Math.random(), tenantModal: true }) }}>绑定新租户</Button>
+                    </Col>
+                </Row>
+                <div className="resource-content">
+                    <Card
+                        className='console-tabs resource-tab-width'
+                        bordered={false}
+                    >
+                        <Tabs
+                            tabPosition='left'
+                            defaultActiveKey={`${engineList[0] && engineList[0].engineType}`}
+                            onChange={this.handleEngineTab}
+                            forceRender={true}
+                        >
+                            {
+                                engineList && engineList.map(item => {
+                                    const { engineType } = item
+                                    const isHadoop = engineType == ENGINE_TYPE.HADOOP
+                                    const engineName = isHadoop ? ENGINE_TYPE_NAME.HADOOP : ENGINE_TYPE_NAME.LIBRA
+                                    return (
+                                        <TabPane className='tab-pane-wrapper' tab={engineName} key={`${engineType}`}>
+                                            <Tabs
+                                                className='engine-detail-tabs'
+                                                tabPosition='top'
+                                            >
+                                                <TabPane tab="租户绑定" key={`${engineType}-tenant`}>
+                                                    <div style={{ margin: 15 }}>
+                                                        <Search
+                                                            style={{ width: '200px', marginBottom: '20' }}
+                                                            placeholder='按租户名称搜索'
+                                                            value={queryParams.tenantName}
+                                                            onChange={(e) => {
+                                                                this.setState({
+                                                                    queryParams: Object.assign(this.state.queryParams, { tenantName: e.target.value })
+                                                                })
+                                                            } }
+                                                            onSearch={this.changeTenantName}
+                                                        />
+                                                        <Table
+                                                            className='m-table border-table'
+                                                            loading={loading}
+                                                            columns={isHadoop ? hadoopColumns : libraColumns}
+                                                            dataSource={tableData}
+                                                            pagination={pagination}
+                                                            onChange={this.handleTableChange}
+                                                        />
+                                                    </div>
+                                                </TabPane>
+                                                {/* <TabPane tab="队列管理" key="queue">队列管理</TabPane> */}
+                                            </Tabs>
+                                        </TabPane>
+                                    )
+                                })
+                            }
+                        </Tabs>
+                    </Card>
                 </div>
-                <Table
-                    rowClassName={(record, index) => {
-                        return record.className
-                    }}
-                    rowKey={(record) => {
-                        return record.clusterId + '~' + record.queueId
-                    }}
-                    className="m-table no-card-table"
-                    pagination={this.getPagination()}
-                    loading={loading}
-                    dataSource={dataSource}
-                    columns={columns}
+                <BindCommModal
+                    key={editModalKey}
+                    title='绑定新租户'
+                    visible={tenantModal}
+                    tenantList={tenantList}
+                    clusterList={clusterList}
+                    isBindTenant={true}
+                    onCancel={() => { this.setState({ tenantModal: false }) }}
+                    onOk={this.bindTenant.bind(this)}
                 />
-                <ChangeResourceModal
-                    visible={changeModalVisible}
-                    onCancel={this.closeModal.bind(this)}
-                    resourceUserChange={this.resourceUserChange.bind(this)}
-                    resource={resource}
+                <BindCommModal
+                    key={modalKey}
+                    title='切换队列'
+                    visible={queueModal}
+                    isBindTenant={false}
+                    tenantList={tenantList}
+                    clusterList={clusterList}
+                    tenantInfo={this.state.tenantInfo}
+                    clusterId={queryParams.clusterId}
+                    disabled={true}
+                    onCancel={() => {
+                        this.setState({
+                            queueModal: false,
+                            tenantInfo: ''
+                        })
+                    }}
+                    onOk={this.switchQueue.bind(this)}
                 />
             </div>
         )
     }
 }
-
 export default ResourceManage;

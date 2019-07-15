@@ -129,7 +129,7 @@
         }
         .s-sqlicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/sql.svg);
+                background-image: url(/public/rdos/img/sparksql.svg);
             }
         }
         .s-mlicon {
@@ -249,12 +249,16 @@
                 background-image: url(/public/rdos/img/experiment.svg)
             }
         }
+        .s-librasql {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/librasql.svg)
+            }
+        }
         .s-table {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/table.svg)
             }
         }
-
         .menu-content {
             height: 100%;
             display: flex;
@@ -262,7 +266,6 @@
             &::-webkit-scrollbar-track {
                 border-right: none;
             }
-
             header {
                 flex-grow: 0;
                 flex-shrink: 0;
@@ -1125,4 +1128,54 @@
     width: 100%;
     height: 100%;
     background: #fff;
+}
+
+.c-funcMa__collapse {
+    .folder-box {
+        padding: 0 !important;
+    }
+    .ant-collapse {
+        border: 0;
+        border-radius: 0;
+        & > .ant-collapse-item > .ant-collapse-header {
+            padding: 4px 0 4px 32px;
+
+            .arrow {
+                line-height: 30px;
+
+                &::before {
+                    content: "\E606";
+                    transform: rotate(270deg);
+                    font-size: 12px;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        .ant-collapse-item-active > .ant-collapse-header {
+            border-bottom: 1px solid #dddddd;
+        }
+    }
+}
+.ant-dropdown-menu-submenu-title {
+    padding: 7px 13px;
+    margin: 0;
+    clear: both;
+    font-size: 12px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.65);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.ant-dropdown-menu-submenu-title:after {
+    font-family: "anticon" !important;
+    position: absolute;
+    content: "\E61F";
+    right: 0;
+    color: rgba(0, 0, 0, 0.43);
+    display: inline-block;
+    font-size: 12px;
+    transform: scale(0.83333333) rotate(0deg);
+    zoom: 1;
 }

@@ -22,6 +22,8 @@ export default {
     QUERY_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/queryProjects`, // 查询项目列表
     GET_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getProjects`, // 获取当前用户有权限的项目列表
     GET_ALL_PROJECTS: `${RDOS_BASE_URL}/common/project/getAllProjects`, // 获取所以项目列表
+    GET_ALL_TENANT_PROJECTS: `${RDOS_BASE_URL}/common/project/getTenantProjects`, // 获取租户下所有项目
+    GET_PROJ_SUPPORT_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectSupportEngineType`, // 项目支持的引擎
     GET_PROJECT_BY_TENANT: `${RDOS_BASE_URL}/batch/project/getAllByTenantId`, // 查询租户下的项目列表
     GET_USRE_PROJECTS: `${RDOS_BASE_URL}/common/project/getProjectUserIn`, // 获取用户所在的所有项目
     GET_PROJECT_USERS: `${RDOS_BASE_URL}/common/project/getProjectUsers`, // 获取所在的项目所有用户
@@ -37,7 +39,14 @@ export default {
     GET_COULD_BINDING_PROJECT_LIST: `${RDOS_BASE_URL}/common/project/getBindingProjects`, // 获取可以绑定的项目
     GET_TABLE_LIST_FROM_DATABASE: `${RDOS_BASE_URL}/common/project/getTableList`, // 从目标数据库获取表列表
     GET_RETAINDB_LIST: `${RDOS_BASE_URL}/common/project/getRetainDB`, // 获取可以创建项目的数据库--v3.3.0
-
+    GET_SUPPORT_ENGINE_TYPE: `${RDOS_BASE_URL}/common/project/getSupportEngineType`, // 项目支持的引擎
+    GET_SUPPORT_TABLE_TYPE: `${RDOS_BASE_URL}/batch/project/getProjectSupportTableType`, // 项目支持表类型
+    GET_TENANT_TABLE_TYPE: `${RDOS_BASE_URL}/batch/project/getSupportTableType`, // 租户支持表类型
+    GET_PRO_USE_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectUsedEngineInfo`, // 获取项目在用引擎信息
+    GET_PRO_UNUSE_ENGINE: `${RDOS_BASE_URL}/common/project/getProjectUnusedEngineInfo`, // 获取项目未接入的引擎信息
+    ADD_NEW_ENGINE: `${RDOS_BASE_URL}/common/project/addNewEngine`, // 添加引擎
+    GET_DB_TABLE_LIST: `${RDOS_BASE_URL}/common/project/getDBTableList`, // 预览元数据
+    CHECK_ADD_ENGINE_STATUS: `${RDOS_BASE_URL}/common/project/hasSuccessInitEngine`, // 检查新增引擎状态
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表
     UPDATE_ROLE: `${RDOS_BASE_URL}/common/role/addOrUpdateRole`, // 新建/更新角色
@@ -71,8 +80,8 @@ export default {
     GET_TYPE_ORIGIN_DATA: `${RDOS_BASE_URL}/stream/streamDataSource/listDataSourceBaseInfo`, // 获取类型数据源
     GET_TOPIC_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/getKafkaTopics`, // 获取Topic
     GET_STREM_TABLE_TYPE: `${RDOS_BASE_URL}/stream/streamDataSource/tablelist`, // 获取数据源列表
-    GET_CREATE_TARGET_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/getCreateTargetTableSql`, // 获取目标表创建sql
-    GET_COLUMNS_OF_TABLE: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/simpleTableColumns`, // 获取表的列名
+    GET_CREATE_TARGET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getCreateTargetTableSql`, // 获取目标表创建sql
+    GET_COLUMNS_OF_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/simpleTableColumns`, // 获取表的列名
     GET_ALL_FUNCTION_NAME: `${RDOS_BASE_URL}/batch/batchFunction/getAllFunctionName`, // 获取系统函数
 
     GET_CATALOGUE: `${RDOS_BASE_URL}/stream/streamCatalogue/getCatalogue`, // 获取目录
@@ -88,7 +97,7 @@ export default {
     GET_SYS_FUNC: `${RDOS_BASE_URL}/stream/streamFunction/getSystemFunctions`, // 获取系统函数
     GET_TABLE_LIST_BY_NAME: `${RDOS_BASE_URL}/batch/batchCatalogue/getTableList`, // 根据表名的表查询
     GET_RECOMMEND_TASK: `${RDOS_BASE_URL}/batch/batchTask/recommendDependencyTask`, // 获取推荐的依赖任务
-    CONVERT_TO_HIVE_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/convertToHiveColumns`, // 转换成hive类型的数据类型
+    CONVERT_TO_HIVE_COLUMNS: `${RDOS_BASE_URL}/batch/batchDataSource/convertToColumns`, // 转换成hive类型的数据类型
 
     // ===== resource资源模块 ===== //
     UPLOAD_RES: `${RDOS_BASE_URL}/upload/stream/streamResource/addResource`, // 资源上传
@@ -124,7 +133,7 @@ export default {
     GET_REALTIME_LINK_SOURCE: `${RDOS_BASE_URL}/stream/streamDataSource/getDataSourceInBingProject`,
     GET_OFFLINE_TASK_LINK_ITEMS: `${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`, // 获取任务关联的函数资源表
     GET_REALTIME_TASK_LINK_ITEMS: `${RDOS_BASE_URL}/batch/batchPackage/getRelationByTask`,
-    GET_TABLES: `${RDOS_BASE_URL}/batch/batchHiveTableInfo/simplePageQuery`, // 获取表
+    GET_TABLES: `${RDOS_BASE_URL}/batch/batchTableInfo/simplePageQuery`, // 获取表
     GET_OFFLINE_PACKAGE_NAME: `${RDOS_BASE_URL}/batch/batchPackage/getPackageName`, // 获取包名
     GET_REALTIME_PACKAGE_NAME: `${RDOS_BASE_URL}/stream/streamPackage/getPackageName`, // 获取包名
     OFFLINE_CREATE_PACKAGE: `${RDOS_BASE_URL}/batch/batchPackage/createPackage`, // 创建包

@@ -21,8 +21,17 @@ const defaultPro = {
 function mapStateToProps (state) {
     return { editor: state.editor, uploader: state.uploader };
 }
-
-@connect(mapStateToProps)
+function mapDispatchToProps (dispatch) {
+    return {
+        getUploadStatus: (params) => {
+            dispatch(getUploadStatus(params))
+        },
+        stopSql: (currentTab, currentTabData, isSilent) => {
+            dispatch(stopSql(currentTab, currentTabData, isSilent))
+        }
+    }
+}
+@connect(mapStateToProps, mapDispatchToProps)
 class Container extends Component {
     constructor (props) {
         super(props);
@@ -41,11 +50,11 @@ class Container extends Component {
     }
 
     componentWillUnmount () {
-        const { dispatch, editor } = this.props;
+        const { stopSql, editor } = this.props;
         const running = editor.running;
         // 清楚所有运行中的tabs状态
         for (let i in running) {
-            dispatch(stopSql(running[i], null, true));
+            stopSql(running[i], null, true);
         }
         window.removeEventListener('beforeunload', this.beforeunload, false);
         this.unloadIDETheme();
@@ -79,13 +88,13 @@ class Container extends Component {
      * and goto call server side to get newest upload status.
      */
     loadUploader = () => {
-        const { uploader, dispatch } = this.props;
+        const { uploader, getUploadStatus } = this.props;
         const haveUndoneUpload = uploader && uploader.status !== UPLOAD_STATUS.READY && uploader.queryParams !== '';
         if (haveUndoneUpload) {
             getUploadStatus({
                 queryParams: uploader.queryParams,
                 fileName: uploader.fileName
-            }, dispatch)
+            })
         }
     }
 

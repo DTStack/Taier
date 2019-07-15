@@ -185,6 +185,8 @@ export function DatabaseType (props) {
             return <span>DB2</span>
         case DATA_SOURCE.CARBONDATA:
             return <span>CarbonData</span>
+        case DATA_SOURCE.LIBRASQL:
+            return <span>LibrA</span>
         case DATA_SOURCE.GBASE:
             return <span>GBase</span>
         default:
@@ -225,6 +227,8 @@ export function TaskType (props) {
             return <span>Notebook</span>
         case TASK_TYPE.EXPERIMENT:
             return <span>算法实验</span>
+        case TASK_TYPE.LIBRASQL:
+            return <span>LibraSQL</span>
         default:
             return <span>SparkSQL</span>
     }

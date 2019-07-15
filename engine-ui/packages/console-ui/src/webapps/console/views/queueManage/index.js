@@ -7,7 +7,7 @@
 import React, { Component } from 'react';
 import { Table, Tabs, Select, Card, Button } from 'antd';
 import utils from 'utils'
-
+import { isNaN } from 'lodash';
 import Api from '../../api/console';
 import '../../styles/main.scss';
 import TaskDetail from './taskDetail';
@@ -39,8 +39,16 @@ class QueueManage extends Component {
     }
     // 渲染集群
     getClusterDetail () {
-        const { table, clusterId, node } = this.state;
+        const { table, node, clusterList } = this.state;
         const { pageIndex } = table;
+        let { clusterId } = this.state;
+        if (isNaN(Number(clusterId))) { // clusterName 转化 id
+            clusterList.map(item => {
+                if (item.clusterName == clusterId) {
+                    return clusterId = item.id
+                }
+            })
+        }
         if (node) {
             this.setState({
                 table: {
@@ -76,11 +84,12 @@ class QueueManage extends Component {
     }
     // 获取集群下拉数据
     getClusterSelect () {
-        return Api.getClusterSelect().then((res) => {
+        return Api.getAllCluster().then((res) => {
             if (res.code == 1) {
                 const data = res.data;
                 this.setState({
-                    clusterList: data || []
+                    clusterList: data || [],
+                    clusterId: data && data[0] && data[0].clusterName // 首次取第一项集群名称展示
                 })
             }
         })
@@ -89,7 +98,7 @@ class QueueManage extends Component {
     getClusterOptionView () {
         const clusterList = this.state.clusterList;
         return clusterList.map((item, index) => {
-            return <Option key={item.id} value={item.id}>{item.clusterName}</Option>
+            return <Option key={item.id} value={`${item.id}`}>{item.clusterName}</Option>
         })
     }
     // 集群option改变
@@ -175,7 +184,7 @@ class QueueManage extends Component {
     initTableColumns () {
         return [
             {
-                title: '引擎',
+                title: '组件',
                 dataIndex: 'engine',
                 render (text, record) {
                     return record.engineType;
@@ -253,10 +262,8 @@ class QueueManage extends Component {
 
     render () {
         const columns = this.initTableColumns();
-        const { dataSource, table, clusterList } = this.state;
-        const { nodeList } = this.state;
+        const { dataSource, table, clusterList, nodeList, clusterId, nowView, node } = this.state;
         const { loading } = table;
-        const { nowView } = this.state;
         const query = this.props.router.location.query;
         return (
             <div className=" api-mine nobackground m-card height-auto m-tabs" style={{ marginTop: '20px' }}>
@@ -270,20 +277,6 @@ class QueueManage extends Component {
                         animated={false}
                         onChange={this.handleClick.bind(this)}
                         activeKey={nowView}
-                        // tabBarExtraContent={
-                        //     (nowView == "overview") ? (
-                        //         <Tooltip title="刷新数据">
-                        //             <Icon type="sync" onClick={this.getClusterDetail.bind(this)}
-                        //                 style={{
-                        //                     cursor: 'pointer',
-                        //                     marginTop: '12px',
-                        //                     marginRight: '15px',
-                        //                     color: '#94A8C6'
-                        //                 }}
-                        //             />
-                        //         </Tooltip>
-                        //     ) : null
-                        // }
                     >
                         <Tabs.TabPane tab="概览" key="overview">
                             <div style={{ margin: '20px' }}>
@@ -292,7 +285,7 @@ class QueueManage extends Component {
                                     placeholder="选择集群"
                                     allowClear
                                     onChange={this.clusterOptionChange.bind(this)}
-                                    value={this.state.clusterId}
+                                    value={clusterId}
                                 >
                                     {
                                         this.getClusterOptionView()
@@ -305,7 +298,7 @@ class QueueManage extends Component {
                                     allowClear={true}
                                     // defaultValue="1"
                                     onChange={this.nodeAddressrOptionChange.bind(this)}
-                                    value={this.state.node}
+                                    value={node}
                                 >
                                     {
                                         this.getNodeAddressOptionView()

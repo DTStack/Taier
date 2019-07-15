@@ -12,7 +12,8 @@ import { parse } from 'qs';
 import moment from 'moment';
 
 import utils from 'utils';
-
+import EngineSelect from '../../../components/engineSelect';
+import { getTenantTableTypes } from '../../../store/modules/tableType';
 import ajax from '../../../api/dataManage';
 import ApprovalModal from './approvalModal';
 import DetailPermission from './detailPermission';
@@ -56,7 +57,15 @@ const selectStatusList = [
 @connect(state => {
     return {
         allProjects: state.allProjects,
-        user: state.user
+        allTenantsProjects: state.allTenantsProjects,
+        user: state.user,
+        teantTableTypes: state.tableTypes.teantTableTypes
+    }
+}, dispatch => {
+    return {
+        getTenantTableTypes: (params) => {
+            dispatch(getTenantTableTypes(params))
+        }
     }
 })
 class AuthMana extends Component {
@@ -64,7 +73,7 @@ class AuthMana extends Component {
         super(props);
         const isAdminAbove = (this.props.user && this.props.user.isAdminAbove) || 0;
         const isPermission = isAdminAbove == 0 ? '1' : '0';
-        const { listType, pageIndex, resourceName, startTime, endTime, belongProjectId, applyUserId, status } = this.props.location.query;
+        const { listType, pageIndex, resourceName, startTime, endTime, belongProjectId, applyUserId, status, tableType } = this.props.location.query;
         this.state = {
             isAdminAbove,
             table: [],
@@ -82,6 +91,7 @@ class AuthMana extends Component {
                 pageIndex: pageIndex || 1,
                 pageSize: 20,
                 resourceName,
+                tableType,
                 startTime,
                 endTime,
                 belongProjectId,
@@ -92,6 +102,7 @@ class AuthMana extends Component {
     }
 
     componentDidMount () {
+        this.props.getTenantTableTypes();
         this.search();
         // this.loadCatalogue();
         this.getUsersInTenant();
@@ -394,7 +405,7 @@ class AuthMana extends Component {
                 dataIndex: 'projectAlias'
             },
             {
-                title: '类型',
+                title: '资源类型',
                 key: 'resourceType',
                 dataIndex: 'resourceType',
                 render (text) {
@@ -640,12 +651,12 @@ class AuthMana extends Component {
     renderPane = (isShowRowSelection = false) => {
         const { table, selectedRowKeys, queryParams, rangeTime, loading, userList } = this.state;
 
-        const { allProjects } = this.props;
+        const { allTenantsProjects, teantTableTypes } = this.props;
 
         const today0 = new Date(new Date().toLocaleDateString()).getTime();
         const today24 = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1;
 
-        const projectOptions = allProjects.map(proj => <Option
+        const projectOptions = allTenantsProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
             name={proj.projectAlias}
@@ -718,10 +729,21 @@ class AuthMana extends Component {
                         </Select>
                     </FormItem>
                 }
+                <FormItem label="表类型">
+                    <EngineSelect
+                        allowClear
+                        showSearch
+                        style={{ width: 126 }}
+                        placeholder="选择表类型"
+                        tableTypes={teantTableTypes}
+                        value={queryParams.tableType}
+                        onChange={(value) => this.changeParams('tableType', value)}
+                    />
+                </FormItem>
                 <FormItem>
                     <Input.Search
                         placeholder="按表名搜索"
-                        style={{ width: 200 }}
+                        style={{ width: queryParams.listType == 2 ? '145px' : '200px' }}
                         size="default"
                         value={queryParams.resourceName}
                         onChange={this.onTableNameChange}
@@ -730,6 +752,7 @@ class AuthMana extends Component {
                 </FormItem>
                 <FormItem label="申请时间">
                     <RangePicker
+                        style={{ width: queryParams.listType == 2 ? '200px' : '220px' }}
                         onChange={this.onChangeTime}
                         format="YYYY-MM-DD HH:mm:ss"
                         value={rangeTime}

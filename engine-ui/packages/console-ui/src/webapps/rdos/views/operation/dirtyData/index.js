@@ -102,7 +102,8 @@ class DirtyData extends Component {
             tableId: undefined,
             tableName: undefined,
             visible: false
-        }
+        },
+        editRecord: {}
     };
 
     componentDidMount () {
@@ -349,7 +350,8 @@ class DirtyData extends Component {
         tableLog.tableName = tableName;
         tableLog.visible = true;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: table
         });
     }
 
@@ -359,7 +361,8 @@ class DirtyData extends Component {
         tableLog.tableId = undefined;
         tableLog.tableName = undefined;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: {}
         });
     };
 
@@ -515,7 +518,7 @@ class DirtyData extends Component {
     };
 
     render () {
-        const { taskList, tableLog } = this.state;
+        const { taskList, tableLog, editRecord } = this.state;
         const projectUsers = [];
         const taskOptions =
             taskList &&
@@ -601,6 +604,7 @@ class DirtyData extends Component {
                                 key={tableLog.tableId}
                                 {...tableLog}
                                 projectUsers={projectUsers}
+                                editRecord={editRecord}
                             />
                         </div>
                     </SlidePane>

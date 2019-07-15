@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { cloneDeep, get } from 'lodash';
-
+import { hashHistory } from 'react-router'
 import {
     Table, message, Modal,
     Card, Input, Button, Select,
@@ -77,9 +77,10 @@ class PatchDataDetail extends Component {
         const project = nextProps.project
         const oldProj = this.props.project
         if (oldProj && project && oldProj.id !== project.id) {
-            this.setState({ current: 1, visibleSlidePane: false }, () => {
-                this.search()
-            })
+            // this.setState({ current: 1, visibleSlidePane: false }, () => {
+            //     this.search()
+            // })
+            hashHistory.push('/operation/task-patch-data'); // 直接跳转到补数据列表页
         }
     }
     debounceSearch () {

@@ -11,12 +11,14 @@ const projectAction = mc([
     'GET_PROJECT',
     'GET_PROJECTS',
     'GET_ALL_PROJECTS',
-    'SET_PROJECT'
+    'GET_TENANT_PROJECTS',
+    'SET_PROJECT',
+    'GET_SUPPORT_ENGINE'
 ], { prefix: 'project/' })
 
 const defaultProject = {
     id: 0,
-    projectName: '项目选择'
+    projectName: '选择项目'
 }
 
 // Action
@@ -77,6 +79,28 @@ export function getAllProjects (params) {
         })
     }
 }
+// 获取租户下所有项目
+export function getTenantProjects (params) {
+    return function fn (dispatch) {
+        Api.getTenantProjects(params).then((res) => {
+            return dispatch({
+                type: projectAction.GET_TENANT_PROJECTS,
+                data: res.data
+            })
+        })
+    }
+}
+// 项目支持引擎
+export function getProjectSupportEngine (params) {
+    return function fn (dispatch) {
+        Api.getProjectSupportEngines(params).then((res) => {
+            return dispatch({
+                type: projectAction.GET_SUPPORT_ENGINE,
+                data: res.data || []
+            })
+        })
+    }
+}
 
 // Reducer
 // 获取系统下登录用户有权限的项目
@@ -106,6 +130,24 @@ export function project (state = defaultProject, action) {
         case projectAction.SET_PROJECT: {
             return action.data || state
         }
+        default:
+            return state
+    }
+}
+// 获取系统所以项目
+export function allTenantsProjects (state = [], action) {
+    switch (action.type) {
+        case projectAction.GET_TENANT_PROJECTS:
+            return action.data || state
+        default:
+            return state
+    }
+}
+// 获取项目支持的引擎类型
+export function projectSuppoetEngines (state = [], action) {
+    switch (action.type) {
+        case projectAction.GET_SUPPORT_ENGINE:
+            return action.data || state
         default:
             return state
     }

@@ -7,14 +7,13 @@ import assign from 'object-assign';
 import utils from 'utils';
 import { singletonNotification, filterValueOption } from 'funcs';
 import Editor from 'widgets/editor';
-
+import { getProjectTableTypes } from '../../../../store/modules/tableType';
 import ajax from '../../../../api';
 import {
     targetMapAction,
     dataSyncAction,
     workbenchAction
 } from '../../../../store/modules/offlineTask/actionType';
-
 import {
     formItemLayout,
     DATA_SOURCE,
@@ -46,9 +45,12 @@ class TargetForm extends React.Component {
     }
 
     componentDidMount () {
-        const { targetMap } = this.props;
+        const { targetMap, getProjectTableTypes, project } = this.props;
         const { sourceId, type } = targetMap;
-
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         sourceId && this.getTableList(sourceId);
         if (type) {
             this.checkIsNativeHive(type.tableName);
@@ -305,11 +307,12 @@ class TargetForm extends React.Component {
     }
     createTable () {
         const { textSql } = this.state;
-        const { targetMap } = this.props;
+        const { targetMap, form } = this.props;
+        const tableType = form.getFieldValue('tableType')
         this.setState({
             modalLoading: true
         })
-        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId }).then((res) => {
+        ajax.createDdlTable({ sql: textSql, sourceId: targetMap.sourceId, tableType }).then((res) => {
             this.setState({
                 modalLoading: false
             })
@@ -473,12 +476,12 @@ class TargetForm extends React.Component {
         const showCreateTable = (
             sourceType == DATA_SOURCE.MYSQL || sourceType == DATA_SOURCE.ORACLE ||
             sourceType == DATA_SOURCE.SQLSERVER || sourceType == DATA_SOURCE.POSTGRESQL ||
+            sourceType == DATA_SOURCE.LIBRASQL ||
             sourceType == DATA_SOURCE.DB2 || sourceType == DATA_SOURCE.HIVE ||
             sourceType == DATA_SOURCE.MAXCOMPUTE
         );
 
         if (isEmpty(targetMap)) return null;
-
         switch (targetMap.type.type) {
             case DATA_SOURCE.GBASE:
             case DATA_SOURCE.DB2:
@@ -666,6 +669,7 @@ class TargetForm extends React.Component {
                 break;
             }
             case DATA_SOURCE.HIVE:
+            case DATA_SOURCE.LIBRASQL:
             case DATA_SOURCE.MAXCOMPUTE: {
                 formItem = [
                     !selectHack && <FormItem
@@ -1072,14 +1076,14 @@ class Target extends React.Component {
 const mapState = state => {
     const { workbench, dataSync } = state.offlineTask;
     const { isCurrentTabNew, currentTab } = workbench;
-
     return {
         currentTab,
         isCurrentTabNew,
         project: state.project,
         sourceMap: dataSync.sourceMap,
         targetMap: dataSync.targetMap,
-        dataSourceList: dataSync.dataSourceList
+        dataSourceList: dataSync.dataSourceList,
+        projectTableTypes: state.tableTypes.projectTableTypes
     };
 };
 
@@ -1135,6 +1139,9 @@ const mapDispatch = (dispatch, ownProps) => {
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params
             });
+        },
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
         }
     };
 }

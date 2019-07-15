@@ -7,10 +7,10 @@ import { formItemLayout } from '../../../consts'
 class ZipConfig extends React.Component {
     renderZipConfig (type) {
         let { zipConfig } = this.props;
-        zipConfig = JSON.parse(zipConfig);
+        zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let keyAndValue;
         if (type == 'hdfs') {
-            keyAndValue = Object.entries(zipConfig.hadoopConf)
+            keyAndValue = Object.entries(zipConfig.hadoopConf || {})
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
                     if (key == 'fs.defaultFS') {
@@ -53,7 +53,7 @@ class ZipConfig extends React.Component {
                     }
                 });
         } else {
-            keyAndValue = Object.entries(zipConfig.yarnConf)
+            keyAndValue = Object.entries(zipConfig.yarnConf || {})
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
                     if (key == 'yarn.resourcemanager.ha.rm-ids') {
@@ -108,19 +108,15 @@ class ZipConfig extends React.Component {
         )
     }
     render () {
-        const { zipConfig } = this.props;
+        const { zipConfig, singleButton, type } = this.props;
         return (
             zipConfig ? (
-                <div>
-                    <p className="config-title">HDFS</p>
-                    <div className="config-content" style={{ width: '800px' }}>
-                        {this.renderZipConfig('hdfs')}
+                <React.Fragment>
+                    <div className="engine-config-content" style={{ width: '750px' }}>
+                        {this.renderZipConfig(type)}
                     </div>
-                    <p className="config-title">YARN</p>
-                    <div className="config-content" style={{ width: '800px' }}>
-                        {this.renderZipConfig('yarn')}
-                    </div>
-                </div >
+                    {singleButton}
+                </React.Fragment>
             ) : null
         )
     }

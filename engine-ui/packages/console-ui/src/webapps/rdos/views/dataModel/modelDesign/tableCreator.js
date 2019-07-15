@@ -1,17 +1,29 @@
 import React from 'react';
 import assign from 'object-assign';
-
+import { connect } from 'react-redux';
 import {
     Steps, Button, message, Form, Icon
 } from 'antd';
 
 import api from '../../../api/dataManage';
 import ajax from '../../../api/dataModel';
-
+import { getProjectTableTypes } from '../../../store/modules/tableType';
 import BaseForm from './baseForm';
 import ColumnsPartition from './columnsPartition';
-
 const Step = Steps.Step;
+
+@connect(state => {
+    return {
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
+    }
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
+        }
+    }
+})
 
 class TableCreator extends React.Component {
     constructor (props) {
@@ -24,8 +36,9 @@ class TableCreator extends React.Component {
             tableNameRules: [],
 
             table: {
+                tableType: undefined,
                 tableName: '',
-                desc: '',
+                tableDesc: '',
                 delim: '',
                 lifeDay: 90,
                 location: undefined, // 存在则为外部表
@@ -54,6 +67,11 @@ class TableCreator extends React.Component {
     }
 
     componentDidMount () {
+        const { getProjectTableTypes, project } = this.props;
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         this.loadTableNameRules();
         this.loadOptionsData();
         this.loadCatalogue();
@@ -161,7 +179,12 @@ class TableCreator extends React.Component {
 
     prev () {
         const current = this.state.current - 1;
-        this.setState({ current });
+        this.setState({
+            current,
+            table: Object.assign({}, this.state.table, { // 避免切换表类型，清空columns数据
+                columns: []
+            })
+        });
     }
 
     doCreate () {
@@ -348,6 +371,7 @@ class TableCreator extends React.Component {
                 subjectFields={subjectFields}
                 incrementCounts={incrementCounts}
                 freshFrequencies={freshFrequencies}
+                projectTableTypes={this.props.projectTableTypes}
                 dataCatalogue={dataCatalogue}
                 ref={ el => this.baseForm = el }
                 resetLoc={ this.resetLoc.bind(this) }
