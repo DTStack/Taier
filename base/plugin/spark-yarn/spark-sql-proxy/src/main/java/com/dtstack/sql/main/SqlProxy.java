@@ -3,6 +3,7 @@ package com.dtstack.sql.main;
 import com.dtstack.sql.main.util.DtStringUtil;
 import com.dtstack.sql.main.util.ZipUtil;
 import com.google.common.base.Charsets;
+import org.apache.commons.lang.StringUtils;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -33,7 +34,9 @@ public class SqlProxy {
 
     private static final String APP_NAME_KEY = "appName";
 
-    public void runJob(String submitSql, String appName){
+    private static final String LOG_LEVEL_KEY = "logLevel";
+
+    public void runJob(String submitSql, String appName, String logLevel){
 
         if(appName == null){
             appName = DEFAULT_APP_NAME;
@@ -44,6 +47,10 @@ public class SqlProxy {
                 .appName(appName)
                 .enableHiveSupport()
                 .getOrCreate();
+
+        if (StringUtils.isNotBlank(logLevel)) {
+            spark.sparkContext().setLogLevel(logLevel);
+        }
 
         //解压sql
         String unzipSql = ZipUtil.unzip(submitSql);
@@ -82,7 +89,8 @@ public class SqlProxy {
 
         String sql = (String) argsMap.get(SQL_KEY);
         String appName = argsMap.get(APP_NAME_KEY) == null ? null : (String) argsMap.get(APP_NAME_KEY);
-        sqlProxy.runJob(sql, appName);
+        String logLevel = argsMap.get(LOG_LEVEL_KEY) == null ? null : (String) argsMap.get(LOG_LEVEL_KEY);
+        sqlProxy.runJob(sql, appName, logLevel);
     }
 }
 
