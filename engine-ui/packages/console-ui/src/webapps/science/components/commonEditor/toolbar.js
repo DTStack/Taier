@@ -77,7 +77,7 @@ export default class Toolbar extends Component {
                 {
                     leftCustomButton
                 }
-                <span style={{ float: 'right', position: 'relative', marginRight: '18px', lineHeight: '28px', zIndex: '901' }}>
+                <span style={{ float: 'right', position: 'relative', marginLeft: 'auto', marginRight: '18px', lineHeight: '28px', zIndex: '901' }}>
                     {rightCustomButton}
                 </span>
             </div>

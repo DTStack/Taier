@@ -52,8 +52,11 @@ const BASE_COLOR = '#2491F7';
 })
 class GraphEditor extends Component {
     componentDidMount () {
-        const data = this.props.data;
+        const { data, onRef } = this.props;
         this.initGraph(data);
+        if (onRef) {
+            onRef(this);
+        }
     }
     _edges = []; //
     shouldComponentUpdate (nextProps, nextState) {
@@ -607,7 +610,7 @@ class GraphEditor extends Component {
     }
 
     render () {
-        const { onSearchNode } = this.props;
+        const { onSearchNode, disableToolbar } = this.props;
         return (
             <div className="graph-editor"
                 style={{
@@ -624,24 +627,28 @@ class GraphEditor extends Component {
                     }}
                     ref={(e) => { this.Container = e }}
                 />
-                <div className="graph-toolbar">
-                    <Tooltip placement="bottom" title="布局">
-                        <MyIcon type="flowchart" onClick={this.layout}/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="放大">
-                        <MyIcon onClick={this.zoomIn} type="zoom-in"/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="缩小">
-                        <MyIcon onClick={this.zoomOut} type="zoom-out"/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="搜索节点">
-                        <Icon
-                            type="search"
-                            onClick={onSearchNode}
-                            style={{ fontSize: '17px', color: '#333333' }}
-                        />
-                    </Tooltip>
-                </div>
+                {
+                    disableToolbar
+                        ? null
+                        : <div className="graph-toolbar">
+                            <Tooltip placement="bottom" title="布局">
+                                <MyIcon type="flowchart" onClick={this.layout}/>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="放大">
+                                <MyIcon onClick={this.zoomIn} type="zoom-in"/>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="缩小">
+                                <MyIcon onClick={this.zoomOut} type="zoom-out"/>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="搜索节点">
+                                <Icon
+                                    type="search"
+                                    onClick={onSearchNode}
+                                    style={{ fontSize: '17px', color: '#333333' }}
+                                />
+                            </Tooltip>
+                        </div>
+                }
             </div>
         )
     }
