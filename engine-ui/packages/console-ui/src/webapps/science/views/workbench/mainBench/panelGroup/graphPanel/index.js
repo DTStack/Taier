@@ -2,9 +2,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get, isEmpty, debounce } from 'lodash'
+import { Tabs, Button, Icon, Tooltip } from 'antd';
+
 import CommonEditor from '../../../../../components/commonEditor';
 
 import reqUrls from '../../../../../consts/reqUrls';
+import MyIcon from '../../../../../components/icon';
 import { siderBarType } from '../../../../../consts';
 
 import workbenchActions from '../../../../../actions/workbenchActions';
@@ -14,7 +17,6 @@ import * as experimentActions from '../../../../../actions/experimentActions';
 import { changeContent } from '../../../../../actions/experimentActions/runExperimentActions';
 import PublishButtons from '../../../../../components/publishButtons';
 import commActions from '../../../../../actions';
-import { Tabs, Button, Icon } from 'antd';
 import GraphContainer from './graphContainer';
 import Description from './description';
 import Params from './params/index';
@@ -41,6 +43,9 @@ import SchedulingConfig from '../../../../../components/schedulingConfig';
     }
 )
 class GraphPanel extends Component {
+    constructor (props) {
+        super(props);
+    }
     removeConsoleTab = targetKey => {
         const { currentTab } = this.props;
         this.props.removeRes(currentTab, parseInt(targetKey, 10));
@@ -107,6 +112,34 @@ class GraphPanel extends Component {
             </Tabs.TabPane>
         ]
     }
+    renderRightCustomButtons = () => {
+        return (
+            <React.Fragment>
+                <Tooltip placement="bottom" title="布局">
+                    <Button>
+                        <MyIcon type="flowchart" onClick={this.layout}/>
+                    </Button>
+                </Tooltip>
+                <Tooltip placement="bottom" title="放大">
+                    <Button>
+                        <MyIcon onClick={this.zoomIn} type="zoom-in"/>
+                    </Button>
+                </Tooltip>
+                <Tooltip placement="bottom" title="缩小">
+                    <Button>
+                        <MyIcon onClick={this.zoomOut} type="zoom-out"/>
+                    </Button>
+                </Tooltip>
+                <Tooltip placement="bottom" title="搜索节点">
+                    <Button
+                        icon="search"
+                        style={{ fontSize: '17px', color: '#333333' }}
+                        onClick={this.showSearchNode}>
+                    </Button>
+                </Tooltip>
+            </React.Fragment>
+        )
+    }
     handleRenderToolbarOptions = () => {
         return <Button
             icon="save"
@@ -153,6 +186,7 @@ class GraphPanel extends Component {
             disableEdit: true,
             customToobar: this.handleRenderToolbarOptions(),
             leftCustomButton: this.renderPublishButton(),
+            rightCustomButton: this.renderRightCustomButtons(),
             isRunning: running.findIndex(o => o == currentTabId) > -1,
             onRun: this.execConfirm,
             onStop: this.stopTask
@@ -176,12 +210,32 @@ class GraphPanel extends Component {
                 SiderBarRef={(SiderBarRef) => this.SiderBarRef = SiderBarRef}
             >
                 <GraphContainer
+                    onRefGraph={(graph) => { this.GraphInstance = graph; }}
+                    onRef={(graphContainer) => {
+                        this.GraphContainer = graphContainer;
+                    }}
                     isRunning={toolbarOpts.isRunning}
                     changeSiderbar={this.changeSiderbar}
                     currentTab={currentTab}
                     data={data} />
             </CommonEditor>
         );
+    }
+
+    layout = () => {
+        this.GraphInstance.layout();
+    }
+
+    zoomIn = () => {
+        this.GraphInstance.zoomIn();
+    }
+
+    zoomOut = () => {
+        this.GraphInstance.zoomOut();
+    }
+
+    showSearchNode = () => {
+        this.GraphContainer.initShowSearch();
     }
 }
 
