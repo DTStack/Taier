@@ -13,7 +13,8 @@ public enum EJobType{
     SQL(0),
     MR(1),//默认离线MR任务---java_job
     SYNC(2),//数据同步任务
-    PYTHON(3);//离线MR任务--python_job
+    PYTHON(3),//离线MR任务--python_job
+    KYLIN(4);
     
     private int type;
     

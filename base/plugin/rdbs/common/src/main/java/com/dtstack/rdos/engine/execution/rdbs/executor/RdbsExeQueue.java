@@ -40,7 +40,7 @@ import java.util.concurrent.RejectedExecutionException;
  */
 
 public class RdbsExeQueue {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(RdbsExeQueue.class);
 
     private int minSize = 1;
@@ -139,6 +139,8 @@ public class RdbsExeQueue {
 
         private static final String NAME_SPLIT = "_";
 
+        private static final String PRODUCE_NAME_PREFIX = "prod";
+
         private static final String SEMICOLON = ";";
 
         private String jobName;
@@ -225,7 +227,7 @@ public class RdbsExeQueue {
          * @return
          */
         private String createSqlProc(String exeSql, String jobName, String jobId){
-            procedureName = jobName + NAME_SPLIT +jobId;
+            procedureName = PRODUCE_NAME_PREFIX + NAME_SPLIT +jobId;
             StringBuilder sb = new StringBuilder(connFactory.getCreateProcedureHeader(procedureName));
 
             sb.append(exeSql);

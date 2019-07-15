@@ -11,6 +11,6 @@ public class OracleConnFactory extends ConnFactory {
 
     @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("create procedure \"%s\" as\n", procName);
+        return String.format("create  procedure \"%s\" Authid Current_User as\n", procName);
     }
 }

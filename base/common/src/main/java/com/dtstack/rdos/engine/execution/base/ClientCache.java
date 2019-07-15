@@ -33,6 +33,7 @@ public class ClientCache {
     private static final Logger LOG = LoggerFactory.getLogger(ClientCache.class);
 
     private static final String MD5_SUM_KEY = "md5sum";
+    private static final String MD5_ZIP_KEY = "md5zip";
 
     private static String userDir = System.getProperty("user.dir");
 
@@ -88,23 +89,27 @@ public class ClientCache {
 
         Map<String, IClient> clientMap = cache.computeIfAbsent(pluginKey, k -> Maps.newConcurrentMap());
 
-        String pluginInfoMd5;
         Properties properties = PublicUtil.jsonStrToObject(pluginInfo, Properties.class);
-        if(properties.containsKey(MD5_SUM_KEY)){
-            pluginInfoMd5 = MathUtil.getString(properties.get(MD5_SUM_KEY));
-        }else{
-            pluginInfoMd5 = MD5Util.getMD5String(pluginInfo);
-            properties.setProperty(MD5_SUM_KEY, pluginInfoMd5);
+
+        String md5plugin = MD5Util.getMD5String(pluginInfo);
+        String md5sum = null;
+        if(!properties.containsKey(MD5_SUM_KEY) || (md5sum = MathUtil.getString(properties.get(MD5_SUM_KEY))) == null){
+            String md5zip = MathUtil.getString(properties.get(MD5_ZIP_KEY));
+            if (md5zip == null) {
+                md5zip = "";
+            }
+            md5sum = md5zip + md5plugin;
+            properties.setProperty(MD5_SUM_KEY, md5sum);
         }
 
-        IClient client = clientMap.get(pluginInfoMd5);
+        IClient client = clientMap.get(md5sum);
         if(client == null){
             synchronized (clientMap) {
-                client = clientMap.get(pluginInfoMd5);
+                client = clientMap.get(md5sum);
                 if (client == null){
                     client = buildPluginClient(pluginInfo);
                     client.init(properties);
-                    clientMap.putIfAbsent(pluginInfoMd5, client);
+                    clientMap.putIfAbsent(md5sum, client);
                 }
             }
         }

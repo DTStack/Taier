@@ -13,7 +13,7 @@ public class PostgreSQLConnFactory extends ConnFactory {
 
     @Override
     public String getCreateProcedureHeader(String procName) {
-        return String.format("CREATE FUNCTION %s() RETURNS void AS $body$ ", procName);
+        return String.format("CREATE FUNCTION \"%s\"() RETURNS void AS $body$ ", procName);
     }
 
     @Override
@@ -23,11 +23,11 @@ public class PostgreSQLConnFactory extends ConnFactory {
 
     @Override
     public String getCallProc(String procName) {
-        return String.format("select %s()", procName);
+        return String.format("select \"%s\"()", procName);
     }
 
     @Override
     public String getDropProc(String procName) {
-        return String.format("drop function %s()", procName);
+        return String.format("drop function \"%s\"()", procName);
     }
 }

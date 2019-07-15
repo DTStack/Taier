@@ -40,6 +40,7 @@ public class ClientFactory {
         typeRefClassName.put("hive", "com.dtstack.rdos.engine.execution.hive.HiveClient");
         typeRefClassName.put("learning", "com.dtstack.rdos.engine.execution.learning.LearningClient");
         typeRefClassName.put("dtyarnshell", "com.dtstack.rdos.engine.execution.yarnshell.DtYarnShellClient");
+        typeRefClassName.put("kylin", "com.dtstack.rdos.engine.execution.kylin.KylinClient");
     }
 
     public static ClassLoader getClassLoader(String pluginType){
