@@ -36,10 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -604,28 +601,41 @@ public class TaskStatusListener implements Runnable{
 
     private String getLastExternalPath(String pluginInfo,JobIdentifier jobIdentifier){
         String checkpointJson = JobClient.getCheckpoints(EngineType.Flink.name(), pluginInfo, jobIdentifier);
-        if(org.apache.commons.lang.StringUtils.isEmpty(checkpointJson)){
+        if(StringUtils.isEmpty(checkpointJson)){
             return null;
         }
 
-        JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(checkpointJson).getAsJsonObject();
-        JsonObject latest = json.getAsJsonObject("latest");
-        if(latest == null){
-            return null;
+        try {
+            Map cpJson = PublicUtil.jsonStrToObject(checkpointJson, Map.class);
+            if(!cpJson.containsKey(FLINK_CP_HISTORY_KEY)){
+                return null;
+            }
+
+            List<Map<String, Object>> cpList = (List<Map<String, Object>>) cpJson.get(FLINK_CP_HISTORY_KEY);
+            if(CollectionUtils.isEmpty(cpList)){
+                return null;
+            }
+
+            List<String> savepointList = new ArrayList<>();
+            for (Map<String, Object> entity : cpList) {
+                String checkpointSavePath = String.valueOf(entity.get(CHECKPOINT_SAVEPATH_KEY));
+                String status = String.valueOf(entity.get(CHECKPOINT_STATUS_KEY));
+                if(!CHECKPOINT_NOT_EXTERNALLY_ADDRESS_KEY.equalsIgnoreCase(checkpointSavePath)
+                        && CHECKPOINT_COMPLETED_STATUS.equalsIgnoreCase(status)
+                        && StringUtils.isNotEmpty(checkpointSavePath)){
+                    savepointList.add(checkpointSavePath);
+                }
+            }
+
+            if(savepointList.size() > 0){
+                savepointList.sort(Comparator.naturalOrder());
+                return savepointList.get(savepointList.size() - 1);
+            }
+        } catch (Exception e){
+            logger.warn("Parse completed checkpoint path error, json:[{}]", checkpointJson);
         }
 
-        JsonObject completed = latest.getAsJsonObject("completed");
-        if(completed == null){
-            return null;
-        }
-
-        String externalPath = completed.getAsJsonPrimitive(CHECKPOINT_SAVEPATH_KEY).getAsString();
-        if(org.apache.commons.lang.StringUtils.isEmpty(externalPath)){
-            return null;
-        }
-
-        return externalPath;
+        return null;
     }
 
     /**
