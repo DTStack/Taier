@@ -9,6 +9,7 @@ import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.EngineType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
@@ -38,6 +39,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -107,6 +109,8 @@ public class TaskStatusListener implements Runnable{
 	private RdosEngineJobCacheDAO rdosEngineJobCacheDao = new RdosEngineJobCacheDAO();
 
 	private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
+
+    private RdosEngineJobCacheDAO engineJobCacheDAO = new RdosEngineJobCacheDAO();
 
 	private RdosPluginInfoDAO pluginInfoDao = new RdosPluginInfoDAO();
 
@@ -340,9 +344,13 @@ public class TaskStatusListener implements Runnable{
                         return;
                     }
 
+                    if(isSyncTaskAndOpenCheckpoint(taskId, engineTypeName, computeType)){
+                        dealSyncTaskCheckpoint(status, jobIdentifier, pluginInfoStr);
+                    }
+
                     zkLocalCache.updateLocalMemTaskStatus(zkTaskId, status);
                     //数据的更新顺序，先更新job_cache，再更新engine_batch_job
-                    dealBatchJobAfterGetStatus(status, jobIdentifier, pluginInfoStr);
+                    dealBatchJobAfterGetStatus(status, taskId);
 
                     rdosBatchEngineJobDAO.updateJobStatusAndExecTime(taskId, status);
                 }
@@ -520,8 +528,43 @@ public class TaskStatusListener implements Runnable{
         return pluginInfoMap.get(key);
     }
 
-    private void dealBatchJobAfterGetStatus(Integer status, JobIdentifier jobIdentifier, String pluginInfo) throws ExecutionException{
+    private void dealBatchJobAfterGetStatus(Integer status, String jobId) throws ExecutionException{
+        if(RdosTaskStatus.getStoppedStatus().contains(status)){
+            jobStatusFrequency.remove(jobId);
+            rdosEngineJobCacheDao.deleteJob(jobId);
+        }
+    }
 
+    private boolean isSyncTaskAndOpenCheckpoint(String jobId, String engineTypeName, int computeType){
+        boolean isSyncTask = computeType == ComputeType.BATCH.getType() && EngineType.isFlink(engineTypeName);
+        if(!isSyncTask){
+            return false;
+        }
+
+        RdosEngineJobCache jobCache = engineJobCacheDAO.getJobById(jobId);
+        if(jobCache == null){
+            logger.warn("Can not get job cache from db with jobId:[{}]", jobId);
+            return false;
+        }
+
+        String jobInfo = jobCache.getJobInfo();
+        if(StringUtils.isEmpty(jobInfo)){
+            logger.warn("The jobInfo is null or empty,jobId is:[{}]", jobId);
+            return false;
+        }
+
+        try {
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
+            Properties confProperties = PublicUtil.stringToProperties(paramAction.getTaskParams());
+
+            return Boolean.parseBoolean(confProperties.getProperty("openCheckpoint"));
+        } catch (Exception e){
+            logger.warn("Parse job config error,jobInfo is:[{}]", jobInfo);
+            return false;
+        }
+    }
+
+    private void dealSyncTaskCheckpoint(Integer status, JobIdentifier jobIdentifier, String pluginInfo) throws ExecutionException{
         //运行中的stream任务需要更新checkpoint 并且 控制频率
         Integer checkpointCallNum = checkpointGetTotalNumCache.get(jobIdentifier.getEngineJobId(), () -> 0);
         if(RdosTaskStatus.RUNNING.getStatus().equals(status)){
@@ -539,9 +582,6 @@ public class TaskStatusListener implements Runnable{
         }
 
         if(RdosTaskStatus.getStoppedStatus().contains(status)){
-            jobStatusFrequency.remove(jobIdentifier.getTaskId());
-            rdosEngineJobCacheDao.deleteJob(jobIdentifier.getTaskId());
-
             updateBatchTaskCheckpoint(pluginInfo, jobIdentifier);
         }
     }
