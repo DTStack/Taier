@@ -13,6 +13,11 @@ import {
 
 import HelpDoc from '../../../helpDoc';
 import LifeCycle from '../../../dataManage/lifeCycle';
+import { isRDB } from '../../../../comm';
+import {
+    DATA_SOURCE
+} from '../../../../comm/const';
+import ajax from '../../../../api';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -28,17 +33,104 @@ const formItemLayout = {
 
 class ChannelForm extends React.Component {
     state = {
-        isRecord: false
+        isRecord: false,
+        idFields: [] // 标识字段
     }
 
     constructor (props) {
         super(props);
     }
 
+    componentDidMount () {
+        // 开启断点续传功能，需要加载标识字段
+        if (this.props.setting.isRestore) {
+            this.loadIdFields();
+        }
+    }
+
     onLifeDayChange = val => {
         this.props.changeChannelSetting({
             lifeDay: val
         })
+    }
+
+    loadIdFields = async () => {
+        const { sourceMap } = this.props;
+        const res = await ajax.getIncrementColumns({
+            sourceId: sourceMap.sourceId,
+            tableName: sourceMap.type.table
+        });
+
+        if (res.code === 1) {
+            this.setState({
+                idFields: res.data || []
+            })
+        }
+    }
+
+    onEnableContinualTransfer = (e) => {
+        if (e.target.checked) {
+            this.loadIdFields();
+        }
+    }
+
+    renderBreakpointContinualTransfer = () => {
+        const { idFields } = this.state;
+        const { form, setting, isIncrementMode, sourceMap, targetMap } = this.props;
+        const { getFieldDecorator } = form;
+
+        const sourceType = sourceMap.type.type;
+        const targetType = targetMap.type.type;
+
+        const idFieldInitialValue = isIncrementMode ? sourceMap.increColumn : setting.restoreColumnName;
+
+        return (
+            isRDB(sourceType) &&
+            (
+                isRDB(targetType) ||
+                targetType === DATA_SOURCE.HIVE ||
+                targetType === DATA_SOURCE.MAXCOMPUTE
+            )
+        )
+            ? <div>
+                <FormItem
+                    {...formItemLayout}
+                    label="断点续传"
+                    className="txt-left"
+                >
+                    {getFieldDecorator('isRestore', {
+                        rules: [],
+                        initialValue: setting.isRestore
+                    })(
+                        <Checkbox onChange={this.onEnableContinualTransfer} checked={setting.isRestore}> 开启 </Checkbox>
+                    )}
+                    <HelpDoc doc="breakpointContinualTransferHelp" />
+                </FormItem>
+                {
+                    setting.isRestore
+                        ? <FormItem
+                            {...formItemLayout}
+                            label="标识字段"
+                            key="restoreColumnName"
+                        >
+                            {getFieldDecorator('restoreColumnName', {
+                                rules: [{
+                                    required: true,
+                                    message: '请选择标识字段'
+                                }],
+                                initialValue: idFieldInitialValue
+                            })(
+                                <Select
+                                    showSearch
+                                    placeholder="请选择标识字段"
+                                    disabled={isIncrementMode} // 增量模式时，默认使用增量字段，此处禁用选项
+                                >
+                                    { idFields.map(o => <Option key={o.key}>{o.key}（{o.type}）</Option>) }
+                                </Select>
+                            )}
+                        </FormItem> : null
+                }
+            </div> : null;
     }
 
     render () {
@@ -182,6 +274,7 @@ class ChannelForm extends React.Component {
                         doc="errorPercentConfig"
                     />
                 </FormItem>
+                { this.renderBreakpointContinualTransfer() }
             </Form>
             {!this.props.readonly && <div className="steps-action">
                 <Button style={{ marginRight: 8 }} onClick={() => this.prev(navtoStep)}>上一步</Button>
@@ -208,12 +301,19 @@ class ChannelForm extends React.Component {
 
 const ChannelFormWrap = Form.create({
     onValuesChange: function (props, values) {
-        const { changeChannelSetting, setting } = props;
+        const { changeChannelSetting, setting, isIncrementMode, sourceMap } = props;
         if (setting.isSaveDirty && !setting.lifeDay) {
             values.lifeDay = 90;
         }
         if (!setting.isSaveDirty) {
             values.tableName = null;
+        }
+        if (values.isRestore === false) {
+            values.restoreColumnName = undefined;
+        }
+        // 增量模式下，开启断点续传字段默认与增量字段保存一致
+        if (isIncrementMode && values.isRestore === true) {
+            values.restoreColumnName = sourceMap.increColumn;
         }
         // Remove no use
         setting.syncModel = undefined;

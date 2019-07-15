@@ -280,5 +280,10 @@ export const kylinRestfulHelp = (
     </div>
 )
 
+export const breakpointContinualTransferHelp = (
+    <div>
+        支持关系型数据库（MySQL、Oracle、SQLServer、PostgreSQL、DB2）到关系型数据库，数栈、MaxCompute的断点续传
+    </div>
+)
 /* eslint-disable */
 
