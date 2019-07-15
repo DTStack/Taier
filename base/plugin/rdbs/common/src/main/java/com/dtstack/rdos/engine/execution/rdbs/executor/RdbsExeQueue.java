@@ -40,7 +40,7 @@ import java.util.concurrent.RejectedExecutionException;
  */
 
 public class RdbsExeQueue {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(RdbsExeQueue.class);
 
     private int minSize = 1;
