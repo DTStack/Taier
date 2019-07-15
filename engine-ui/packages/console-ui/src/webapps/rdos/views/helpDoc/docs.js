@@ -273,5 +273,12 @@ export const dataSyncExtralConfigHelp = (
         以JSON格式添加高级参数，例如对关系型数据库可配置fetchSize，每类数据源支持不同的参数，可参考<a href={HELP_DOC_URL.DATA_SYNC} target='blank'>《帮助文档》</a>
     </div>
 )
+
+export const kylinRestfulHelp = (
+    <div>
+        访问Kylin的认证地址，格式为：http://ip:port 
+    </div>
+)
+
 /* eslint-disable */
 

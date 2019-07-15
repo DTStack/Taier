@@ -294,13 +294,13 @@ class DataSourceMana extends Component {
                     )
                     if (!isCommon) {
                         menuItem.push(
-                            <MenuItem>
+                            <MenuItem key="linkView">
                                 {linkView}
                             </MenuItem>
                         )
                     }
                     menuItem.push(
-                        <MenuItem>
+                        <MenuItem key="syncHistory">
                             <a onClick={this.openSyncModal.bind(this, record)}>
                                 同步历史
                             </a>
@@ -308,12 +308,12 @@ class DataSourceMana extends Component {
 
                     )
                     menuItem.push(
-                        <MenuItem>
+                        <MenuItem key="editView">
                             {editView}
                         </MenuItem>
                     )
                     menuItem.push(
-                        <MenuItem>
+                        <MenuItem key="delView">
                             {deleteView}
                         </MenuItem>
                     )
@@ -333,12 +333,12 @@ class DataSourceMana extends Component {
                         </span>
                     )
                     menuItem.push(
-                        <MenuItem>
+                        <MenuItem key="editView">
                             {editView}
                         </MenuItem>
                     )
                     menuItem.push(
-                        <MenuItem>
+                        <MenuItem key="delView">
                             {deleteView}
                         </MenuItem>
                     )

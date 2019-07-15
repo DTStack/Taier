@@ -816,10 +816,10 @@ class SourceForm extends React.Component {
                                                 {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                                 {/* disabled注意添加数据源之后无数据产生的bug问题 */}
                                                 <Checkbox name='isChecked' disabled={ source.sourceId == null } onChange={ () => this.handleCheckboxChange(`extTable.${source.key}`, event) } checked={ isChecked[`extTable.${source.key}`] } >
+                                                    <a disabled={ source.sourceId == null }>
+                                                        批量选择
+                                                    </a>
                                                 </Checkbox>
-                                                <a disabled={ !isChecked[`extTable.${source.key}`] } style={{ marginLeft: '5PX' }}>
-                                                    批量选择
-                                                </a>
                                             </Col>
                                         </Row>
                                     ) : null
@@ -986,10 +986,10 @@ class SourceForm extends React.Component {
                                         >
                                             {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                             <Checkbox name='isChecked' onChange={ () => { this.handleCheckboxChange(sourceMap.sourceId, event) } } checked={ isChecked[sourceMap.sourceId] } >
+                                                <a disabled={ sourceMap.sourceId == null }>
+                                                    批量选择
+                                                </a>
                                             </Checkbox>
-                                            <a disabled={ !isChecked[ sourceMap.sourceId ] } style={{ marginLeft: '5PX' }}>
-                                                批量选择
-                                            </a>
                                         </Col>
                                     </Row>
                                 ) : null

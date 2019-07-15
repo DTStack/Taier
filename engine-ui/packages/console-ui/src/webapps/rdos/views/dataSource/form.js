@@ -188,22 +188,20 @@ class BaseForm extends Component {
                 const formItems = [
                     <FormItem
                         {...formItemLayout}
-                        label="Authentication URL:"
+                        label="RESTful URL:"
                         hasFeedback
                         key="authURL"
                     >
                         {getFieldDecorator('dataJson.authURL', {
                             rules: [{
-                                required: true, message: 'AuthenticationURL不可为空！'
+                                required: true, message: 'RESTful URL 不可为空！'
                             }, jdbcRulePattern
                             ],
                             initialValue: config.authURL || ''
                         })(
                             <Input autoComplete="off" placeholder={ 'http://ip:port' } />
                         )}
-                        <Tooltip title={'示例：' + jdbcUrlExample[sourceType]} arrowPointAtCenter>
-                            <Icon className="help-doc" type="question-circle-o" />
-                        </Tooltip>
+                        <HelpDoc doc="kylinRestfulHelp" />
                     </FormItem>,
                     <FormItem
                         {...formItemLayout}
@@ -1095,17 +1093,19 @@ class BaseForm extends Component {
                     )}
                 </FormItem>
                 {this.renderDynamic()}
-                { this.state.sourceType !== DATA_SOURCE.KYLIN && sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (<FormItem
-                    {...tailFormItemLayout}
-                >
-                    {getFieldDecorator('isCopyToProduceProject', {
-                        initialValue: sourceData.isCopyToProduceProject
-                    })(
-                        <Checkbox>
-                            复制到目标项目
-                        </Checkbox>
-                    )}
-                </FormItem>)}
+                { this.state.sourceType !== DATA_SOURCE.KYLIN && sourceType !== DATA_SOURCE.GBASE && isTest && showSync && !isEdit && (
+                    <FormItem
+                        {...tailFormItemLayout}
+                    >
+                        {getFieldDecorator('isCopyToProduceProject', {
+                            initialValue: sourceData.isCopyToProduceProject
+                        })(
+                            <Checkbox>
+                                复制到目标项目
+                            </Checkbox>
+                        )}
+                    </FormItem>
+                )}
                 <FormItem
                     {...tailFormItemLayout}
                     label=""
