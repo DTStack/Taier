@@ -42,7 +42,6 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.apache.spark.SparkConf;
-import org.apache.spark.deploy.yarn.Client;
 import org.apache.spark.deploy.yarn.ClientArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +69,8 @@ public class SparkYarnClient extends AbsClient {
     private static final String SPARK_YARN_MODE = "SPARK_YARN_MODE";
 
     private static final String IS_CARBON_SPARK_KEY = "isCarbondata";
+
+    private static final String LOG_LEVEL_KEY = "logLevel";
 
     private static final String HDFS_PREFIX = "hdfs://";
 
@@ -303,6 +304,11 @@ public class SparkYarnClient extends AbsClient {
         String zipSql = DtStringUtil.zip(jobClient.getSql());
         paramsMap.put("sql", zipSql);
         paramsMap.put("appName", jobClient.getJobName());
+
+        String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
+        if (StringUtils.isNotEmpty(logLevel)) {
+            paramsMap.put("logLevel", jobClient.getTaskId());
+        }
 
         if(isCarbonSpark){
             paramsMap.put("storePath", sparkYarnConfig.getCarbonStorePath());
