@@ -337,6 +337,7 @@ public class FlinkClientBuilder {
             set.add("Apache Flink");
             EnumSet<YarnApplicationState> enumSet = EnumSet.noneOf(YarnApplicationState.class);
             enumSet.add(YarnApplicationState.RUNNING);
+            enumSet.add(YarnApplicationState.ACCEPTED);
             List<ApplicationReport> reportList = yarnClient.getApplications(set, enumSet);
 
             int maxMemory = -1;

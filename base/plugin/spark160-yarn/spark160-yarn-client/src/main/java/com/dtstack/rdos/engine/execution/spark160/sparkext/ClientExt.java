@@ -30,6 +30,7 @@ public class ClientExt extends CdhClient {
     private static String tmpHadoopFilePath = userDir + "/tmpHadoopConf";
 
     private static String XML_SUFFIX = ".xml";
+    public static String CONF_SUFFIX = ".conf";
 
     private SparkConf sparkConf;
 
@@ -67,7 +68,7 @@ public class ClientExt extends CdhClient {
     private void loadHadoopConfFromHdfs(scala.collection.mutable.HashMap hadoopConfFiles){
         String confDirName = getConfDirName();
         File confDir = new File(confDirName);
-        File[] files = confDir.listFiles((dir, name) -> name.endsWith(XML_SUFFIX));
+        File[] files = confDir.listFiles((dir, name) -> name.endsWith(XML_SUFFIX) || name.endsWith(CONF_SUFFIX));
 
         for(File file : files){
             String fileName = file.getName();
