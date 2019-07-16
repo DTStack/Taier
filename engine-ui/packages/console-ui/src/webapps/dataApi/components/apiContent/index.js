@@ -4,6 +4,7 @@ import moment from 'moment';
 import './style.scss';
 import RegisterSection from './register';
 import CreateSection from './create';
+import Webservice from './webservice';
 import { showAdminMsg } from '../../components/adminMsgModal';
 
 import { API_METHOD, API_METHOD_KEY } from '../../consts';
@@ -73,7 +74,7 @@ class Content extends Component {
         const isGET = this.getValue('reqMethod') == API_METHOD.GET
         let reqJson = this.getValue('reqJson');
         const apiPath = this.getValue('apiPath');
-
+        console.log(this.props, this.props.apiMarket)
         if (isGET) {
             reqJson = Object.entries(reqJson).map(
                 ([key, value]) => {
@@ -147,11 +148,19 @@ class Content extends Component {
                     </div>
                 </section>}
                 {isRegister ? (
-                    <RegisterSection
-                        isManage={isManage}
-                        getValue={this.getValue.bind(this)}
-                        registerInfo={registerInfo}
-                    />
+                    this.getValue('reqProtocol') === 'WebService'
+                        ? (
+                            <Webservice
+                                getValue={this.getValue.bind(this)}
+                            />
+                        )
+                        : (
+                            <RegisterSection
+                                isManage={isManage}
+                                getValue={this.getValue.bind(this)}
+                                registerInfo={registerInfo}
+                            />
+                        )
                 ) : (<CreateSection
                     showApiConfig={showApiConfig}
                     apiConfig={apiConfig}
