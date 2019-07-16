@@ -48,13 +48,13 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-planner_2.11</artifactId>
-            <version>1.8.0</version>
+            <version>${flink.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-table-common</artifactId>
-            <version>1.8.0</version>
+            <version>${flink.version}</version>
         </dependency>
 
 
@@ -86,7 +86,7 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime_2.11</artifactId>
-            <version>1.8.0</version>
+            <version>${flink.version}</version>
         </dependency>
 
 
