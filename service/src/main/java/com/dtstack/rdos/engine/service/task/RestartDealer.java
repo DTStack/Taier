@@ -12,15 +12,13 @@ import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobRetryDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobRetryDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
+import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.*;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +48,8 @@ public class RestartDealer {
     private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineStreamJobRetryDAO engineStreamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
+
+    private RdosStreamTaskCheckpointDAO streamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -169,6 +169,11 @@ public class RestartDealer {
                 setRetryTag(jobClient);
             }
 
+            // checkpoint的路径
+            if(EJobType.SYNC.equals(jobClient.getJobType())){
+                setCheckpointPath(jobClient);
+            }
+
             resetStatus(jobClient, false);
             addToRestart(jobClient);
             // update retryNum
@@ -188,6 +193,29 @@ public class RestartDealer {
             jobClient.setPluginInfo(PublicUtil.objToString(pluginInfoMap));
         } catch (IOException e) {
             LOG.warn("Set retry tag error:", e);
+        }
+    }
+
+    /**
+     * 设置这次实例重试的checkpoint path为上次任务实例生成的最后一个checkpoint path
+     * @param jobClient client
+     */
+    private void setCheckpointPath(JobClient jobClient){
+        boolean openCheckpoint = Boolean.parseBoolean(jobClient.getConfProperties().getProperty("openCheckpoint"));
+        if (!openCheckpoint){
+            return;
+        }
+
+        String jobId = jobClient.getTaskId();
+        if(StringUtils.isEmpty(jobId)){
+            return;
+        }
+
+        LOG.info("Set checkpoint path for job:{}", jobId);
+        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobId);
+        if(taskCheckpoint != null){
+            LOG.info("Set checkpoint path:{}", taskCheckpoint.getCheckpointSavepath());
+            jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
         }
     }
 
