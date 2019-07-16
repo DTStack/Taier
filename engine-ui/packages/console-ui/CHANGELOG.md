@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0-beta.4.1"></a>
+# [3.6.0-beta.4.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.4...3.6.0-beta.4.1) (2019-07-16)
+
+
+### Bug Fixes
+
+* **rdos:** fix task modal disabled bug ([5c560f4](http://git.dtstack.cn/dtstack/data-stack-web/commits/5c560f4))
+
+
+
 <a name="3.6.0-beta.4"></a>
 # [3.6.0-beta.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.3.2...3.6.0-beta.4) (2019-07-12)
 
