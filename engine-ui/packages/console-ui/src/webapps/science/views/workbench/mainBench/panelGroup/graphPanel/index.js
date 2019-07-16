@@ -133,7 +133,7 @@ class GraphPanel extends Component {
                 <Tooltip placement="bottom" title="搜索节点">
                     <Button
                         icon="search"
-                        style={{ fontSize: '17px', color: '#333333' }}
+                        style={{ fontSize: '17px' }}
                         onClick={this.showSearchNode}>
                     </Button>
                 </Tooltip>
