@@ -117,24 +117,24 @@ class GraphPanel extends Component {
             <React.Fragment>
                 <Tooltip placement="bottom" title="布局">
                     <Button>
-                        <MyIcon type="flowchart" onClick={this.GraphInstance.layout}/>
+                        <MyIcon type="flowchart" onClick={this.layout}/>
                     </Button>
                 </Tooltip>
                 <Tooltip placement="bottom" title="放大">
                     <Button>
-                        <MyIcon onClick={this.GraphInstance.zoomIn} type="zoom-in"/>
+                        <MyIcon onClick={this.zoomIn} type="zoom-in"/>
                     </Button>
                 </Tooltip>
                 <Tooltip placement="bottom" title="缩小">
                     <Button>
-                        <MyIcon onClick={this.GraphInstance.zoomOut} type="zoom-out"/>
+                        <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                     </Button>
                 </Tooltip>
                 <Tooltip placement="bottom" title="搜索节点">
                     <Button
                         icon="search"
                         style={{ fontSize: '17px', color: '#333333' }}
-                        onClick={this.GraphContainer.showSearchNode}>
+                        onClick={this.showSearchNode}>
                     </Button>
                 </Tooltip>
             </React.Fragment>
@@ -220,6 +220,21 @@ class GraphPanel extends Component {
                     data={data} />
             </CommonEditor>
         );
+    }
+    layout = () => {
+        this.GraphInstance.layout();
+    }
+
+    zoomIn = () => {
+        this.GraphInstance.zoomIn();
+    }
+
+    zoomOut = () => {
+        this.GraphInstance.zoomOut();
+    }
+
+    showSearchNode = () => {
+        this.GraphContainer.initShowSearch();
     }
 }
 
