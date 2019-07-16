@@ -99,7 +99,7 @@ class WebserviceView extends React.Component {
                             // onChange={this.editorChange.bind(this)}
                             // key={data.wsdlXml}
                             options={{ readOnly: true }}
-                            language='sxml'
+                            language='xml'
                             style={{
                                 height: '420px'
                             }}
