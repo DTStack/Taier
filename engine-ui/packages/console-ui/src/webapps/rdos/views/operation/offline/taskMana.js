@@ -5,14 +5,15 @@ import { cloneDeep } from 'lodash'
 
 import {
     Table, message,
-    Row, Col, Card, Input,
+    Row, Col, Card,
     Button, Select, Form,
     Checkbox, Tabs
 } from 'antd'
 
 import utils from 'utils'
 import { replaceObjectArrayFiledName } from 'funcs';
-import SlidePane from 'widgets/slidePane'
+import SlidePane from 'widgets/slidePane';
+import MultiSearchInput from 'widgets/multiSearchInput';
 
 import Api from '../../../api'
 import {
@@ -35,7 +36,6 @@ import {
 
 const FormItem = Form.Item
 const Option = Select.Option
-const Search = Input.Search
 const TabPane = Tabs.TabPane
 
 class OfflineTaskMana extends Component {
@@ -60,7 +60,8 @@ class OfflineTaskMana extends Component {
         scheduleStatus: '',
         checkVals: [],
         selectedRowKeys: [],
-        expandedRowKeys: []
+        expandedRowKeys: [],
+        searchType: 'fuzzy'
     }
 
     componentDidMount () {
@@ -83,7 +84,7 @@ class OfflineTaskMana extends Component {
         const {
             taskName, person,
             startTime, endTime, taskType,
-            scheduleStatus, current, taskPeriodId
+            scheduleStatus, current, taskPeriodId, searchType
         } = this.state
 
         const reqParams = {
@@ -108,6 +109,7 @@ class OfflineTaskMana extends Component {
         if (taskPeriodId) {
             reqParams.taskPeriodId = taskPeriodId.join(',')
         }
+        reqParams.searchType = searchType;
         return reqParams;
     }
 
@@ -216,8 +218,13 @@ class OfflineTaskMana extends Component {
         this.setState(setVals, this.search)
     }
 
-    changeTaskName = (e) => { // 任务名变更
-        this.setState({ taskName: e.target.value })
+    changeTaskName = (value) => { // 任务名变更
+        this.setState({ taskName: value })
+    }
+
+    changeSearchType = (type) => {
+        this.setState({ searchType: type });
+        this.onSearchByTaskName()
     }
 
     onSearchByTaskName = () => {
@@ -414,7 +421,7 @@ class OfflineTaskMana extends Component {
         const { projectUsers, project } = this.props
         const {
             tasks, patchDataVisible, selectedTask, person, checkVals, patchTargetTask,
-            current, taskName, visibleSlidePane, selectedRowKeys, tabKey
+            current, taskName, visibleSlidePane, selectedRowKeys, tabKey, searchType
         } = this.state;
         const isPro = project.projectType == PROJECT_TYPE.PRO;
         const isTest = project.projectType == PROJECT_TYPE.TEST;
@@ -440,7 +447,7 @@ class OfflineTaskMana extends Component {
             selectedRowKeys: selectedRowKeys
         };
 
-        console.log('aaa:', this.state.tasks);
+        console.log(this.state);
         return (
             <div>
                 {isTest && (
@@ -471,12 +478,13 @@ class OfflineTaskMana extends Component {
                                 className="m-form-inline"
                             >
                                 <FormItem label="">
-                                    <Search
+                                    <MultiSearchInput
                                         placeholder="按任务名称"
-                                        style={{ width: 200 }}
+                                        style={{ width: 250, height: '26px' }}
                                         value={taskName}
-                                        size="default"
+                                        searchType={searchType}
                                         onChange={this.changeTaskName}
+                                        onTypeChange={this.changeSearchType}
                                         onSearch={this.onSearchByTaskName}
                                     />
                                 </FormItem>
