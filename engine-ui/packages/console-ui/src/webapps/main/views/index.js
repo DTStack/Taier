@@ -483,8 +483,28 @@ class Main extends Component {
     }
 
     onFieldsChanged = (fields) => {
+        const projectIdCheckMap = {
+            'project_id': apps.rdosApp.filename,
+            'science_project_id': apps.scienceApp.filename,
+            'stream_project_id': apps.streamApp.filename
+        }
         if (fields.length > 0 && !document.hasFocus()) {
-            window.location.reload();
+            let shouldReload = false;
+            const pathname = location.pathname;
+            for (let i = 0; i < fields.length; i++) {
+                let key = fields[i].key;
+                const projectPathname = projectIdCheckMap[key];
+                if (projectPathname) {
+                    if (pathname.indexOf(projectPathname) > -1) {
+                        shouldReload = true;
+                        break;
+                    }
+                } else {
+                    shouldReload = true;
+                    break;
+                }
+            }
+            shouldReload && window.location.reload();
         }
     }
 
@@ -502,7 +522,7 @@ class Main extends Component {
         }
         return <Cookies
             watchFields={[ // 当页面cookie如下字段的值发生变更时会触发页面刷新
-                'dt_token', 'dt_tenant_id', 'dt_user_id'
+                'dt_token', 'dt_tenant_id', 'dt_user_id', 'project_id', 'science_project_id', 'stream_project_id'
             ]}
             onFieldsChanged={this.onFieldsChanged}
         >
