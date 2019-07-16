@@ -193,6 +193,7 @@ export default class FlinkConfig extends React.Component {
                             <Select disabled={isView} style={{ width: '100px' }}>
                                 <Option value="flink140">1.4</Option>
                                 <Option value="flink150">1.5</Option>
+                                <Option value="flink180">1.8</Option>
                             </Select>
                         )}
                     </FormItem>
