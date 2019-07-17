@@ -224,7 +224,7 @@ class TaskDetail extends Component {
 
     // 获取集群下拉
     getClusterListOptionView () {
-        const { clusterList } = this.props;
+        const { clusterList = [] } = this.props;
         return clusterList.map((item, index) => {
             return <Option key={item.id} value={item.clusterName}>{item.clusterName}</Option>
         })
