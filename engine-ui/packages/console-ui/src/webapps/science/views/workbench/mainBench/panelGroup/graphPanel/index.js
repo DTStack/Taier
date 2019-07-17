@@ -113,27 +113,28 @@ class GraphPanel extends Component {
         ]
     }
     renderRightCustomButtons = () => {
+        const btnStyle = { padding: '0 10px' };
         return (
             <React.Fragment>
                 <Tooltip placement="bottom" title="布局">
-                    <Button>
+                    <Button style={btnStyle}>
                         <MyIcon type="flowchart" onClick={this.layout}/>
                     </Button>
                 </Tooltip>
                 <Tooltip placement="bottom" title="放大">
-                    <Button>
+                    <Button style={btnStyle}>
                         <MyIcon onClick={this.zoomIn} type="zoom-in"/>
                     </Button>
                 </Tooltip>
                 <Tooltip placement="bottom" title="缩小">
-                    <Button>
+                    <Button style={btnStyle}>
                         <MyIcon onClick={this.zoomOut} type="zoom-out"/>
                     </Button>
                 </Tooltip>
                 <Tooltip placement="bottom" title="搜索节点">
                     <Button
                         icon="search"
-                        style={{ fontSize: '17px' }}
+                        style={{ fontSize: '17px', paddingRight: 0 }}
                         onClick={this.showSearchNode}>
                     </Button>
                 </Tooltip>
