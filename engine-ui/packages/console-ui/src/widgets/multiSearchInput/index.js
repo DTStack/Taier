@@ -1,18 +1,34 @@
 import PropTypes from 'prop-types'
-// import { assign } from 'lodash'
+import _ from 'lodash'
 import { Input } from 'antd'
 import React, { Component } from 'react'
+
+const searchTypeList = [
+    {
+        key: 'precise',
+        svg: 'jq'
+    },
+    {
+        key: 'front',
+        svg: 'kt'
+    },
+    {
+        key: 'tail',
+        svg: 'jw'
+    }
+]
 
 const propType = {
     placeholder: PropTypes.string,
     style: PropTypes.object,
-    value: PropTypes.any,
+    value: PropTypes.any, // input框的值
     onChange: PropTypes.func,
     onSearch: PropTypes.func,
-    searchType: PropTypes.string
+    onTypeChange: PropTypes.func,
+    searchType: PropTypes.string // input框中选中的筛选方式
 }
 
-class SlidePane extends Component {
+class MultiSearchInput extends Component {
     constructor (props) {
         super(props);
         this.state = {
@@ -36,6 +52,8 @@ class SlidePane extends Component {
             onTypeChange,
             searchType
         } = this.state;
+        const propsValue = this.props.value;
+        // const propsSearchType = this.props.searchType;
         return (
             <div
                 style={{
@@ -43,7 +61,7 @@ class SlidePane extends Component {
                 }}
             >
                 <Input
-                    value={value}
+                    value={propsValue != null ? propsValue : value}
                     placeholder={placeholder}
                     style={{
                         ...style,
@@ -71,87 +89,43 @@ class SlidePane extends Component {
                         alignItems: 'center'
                     }}
                 >
-                    <div
-                        style={{
-                            cursor: 'pointer',
-                            display: 'block',
-                            height: '22px',
-                            width: '26px',
-                            border: searchType === 'precise' ? '1px solid #006fc5' : 'none',
-                            overflow: 'hidden'
-                        }}
-                        onClick={() => {
-                            const newSearchType = searchType === 'precise' ? 'fuzzy' : 'precise'
-                            this.setState({
-                                searchType: newSearchType
-                            });
-                            onTypeChange(newSearchType)
-                        }}
-                    >
-                        <img
-                            src="/public/widgets/img/jq_icon.svg"
-                            style={{
-                                marginTop: '-6px',
-                                marginLeft: '-3px'
-                            }}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            cursor: 'pointer',
-                            display: 'block',
-                            height: '22px',
-                            width: '26px',
-                            border: searchType === 'front' ? '1px solid #006fc5' : 'none',
-                            overflow: 'hidden'
-                        }}
-                        onClick={() => {
-                            const newSearchType = searchType === 'front' ? 'fuzzy' : 'front'
-                            this.setState({
-                                searchType: newSearchType
-                            });
-                            onTypeChange(newSearchType)
-                        }}
-                    >
-                        <img
-                            src="/public/widgets/img/kt_icon.svg"
-                            style={{
-                                marginTop: '-6px',
-                                marginLeft: '-3px'
-                            }}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            cursor: 'pointer',
-                            display: 'block',
-                            height: '22px',
-                            width: '26px',
-                            border: searchType === 'tail' ? '1px solid #006fc5' : 'none',
-                            overflow: 'hidden'
-                        }}
-                        onClick={() => {
-                            const newSearchType = searchType === 'tail' ? 'fuzzy' : 'tail'
-                            this.setState({
-                                searchType: newSearchType
-                            });
-                            onTypeChange(newSearchType)
-                        }}
-                    >
-                        <img
-                            src="/public/widgets/img/jw_icon.svg"
-                            style={{
-                                marginTop: '-6px',
-                                marginLeft: '-3px'
-                            }}
-                        />
-                    </div>
+                    {
+                        _.map(searchTypeList, (item) => {
+                            return (
+                                <div
+                                    style={{
+                                        cursor: 'pointer',
+                                        display: 'block',
+                                        height: '22px',
+                                        width: '26px',
+                                        border: searchType === item.key ? '1px solid #2491F7' : 'none',
+                                        overflow: 'hidden'
+                                    }}
+                                    onClick={() => {
+                                        const newSearchType = searchType === item.key ? 'fuzzy' : item.key
+                                        this.setState({
+                                            searchType: newSearchType
+                                        });
+                                        onTypeChange(newSearchType)
+                                    }}
+                                >
+                                    <img
+                                        src={`/public/widgets/img/${item.svg}_icon.svg`}
+                                        style={{
+                                            marginTop: '-6px',
+                                            marginLeft: '-3px'
+                                        }}
+                                    />
+                                </div>
+                            );
+                        })
+                    }
                 </div>
             </div>
         )
     }
 }
 
-SlidePane.propTypes = propType
+MultiSearchInput.propTypes = propType
 
-export default SlidePane
+export default MultiSearchInput
