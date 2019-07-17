@@ -62,6 +62,7 @@ public class SqlProxy {
             if(sql == null || sql.trim().length() == 0){
                 continue;
             }
+            logger.info("processed sql statement {}", sql);
             spark.sql(sql);
         }
 
@@ -90,8 +91,6 @@ public class SqlProxy {
         String sql = (String) argsMap.get(SQL_KEY);
         String appName = argsMap.get(APP_NAME_KEY) == null ? null : (String) argsMap.get(APP_NAME_KEY);
         String logLevel = argsMap.get(LOG_LEVEL_KEY) == null ? null : (String) argsMap.get(LOG_LEVEL_KEY);
-
-        logger.info("processed sql statement {}", sql);
 
         sqlProxy.runJob(sql, appName, logLevel);
     }

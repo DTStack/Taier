@@ -307,7 +307,7 @@ public class SparkYarnClient extends AbsClient {
 
         String logLevel = MathUtil.getString(confProp.get(LOG_LEVEL_KEY));
         if (StringUtils.isNotEmpty(logLevel)) {
-            paramsMap.put("logLevel", jobClient.getTaskId());
+            paramsMap.put("logLevel", logLevel);
         }
 
         if(isCarbonSpark){
