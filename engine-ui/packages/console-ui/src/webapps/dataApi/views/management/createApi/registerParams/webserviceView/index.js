@@ -1,21 +1,28 @@
 import React from 'react';
 
-import { Button, Checkbox } from 'antd';
+import { Button, Checkbox, Spin } from 'antd';
 import Editor from 'widgets/editor';
 import API from '../../../../../api/apiManage';
 
 class WebserviceView extends React.Component {
     state = {
-
+        loading: false
     }
     getWsdlXml = () => {
         const { basicProperties, updateData } = this.props;
-        const reqUrl = basicProperties.originalHost + basicProperties.originalPath
+        const reqUrl = basicProperties.originalHost + basicProperties.originalPath;
+        this.setState({
+            loading: true
+        })
         API.getWsdlXml({ reqUrl }).then((res) => {
             console.log(res);
             updateData({
                 wsdlXml: res.data
             });
+        }).finally(() => {
+            this.setState({
+                loading: false
+            })
         })
     }
     render () {
@@ -39,7 +46,8 @@ class WebserviceView extends React.Component {
                     <div
                         style={{
                             fontSize: '14px',
-                            marginTop: '20px'
+                            marginTop: '20px',
+                            wordBreak: 'break-word'
                         }}
                     >
                         Webservice接口地址:
@@ -94,18 +102,40 @@ class WebserviceView extends React.Component {
                         >
                             接口详情
                         </div>
-                        <Editor
-                            sync={true}
-                            // onChange={this.editorChange.bind(this)}
-                            // key={data.wsdlXml}
-                            options={{ readOnly: true }}
-                            language='xml'
-                            style={{
-                                height: '420px'
-                            }}
-                            disabled={true}
-                            value={data.wsdlXml || '暂无内容'}
-                        />
+                        <Spin
+                            spinning={this.state.loading}
+                        >
+                            {
+                                data.wsdlXml
+                                    ? (
+                                        <Editor
+                                            sync={true}
+                                            // onChange={this.editorChange.bind(this)}
+                                            // key={data.wsdlXml}
+                                            options={{ readOnly: true }}
+                                            language='xml'
+                                            style={{
+                                                height: '420px'
+                                            }}
+                                            disabled={true}
+                                            value={data.wsdlXml || '暂无内容'}
+                                        />
+                                    )
+                                    : (
+                                        <div
+                                            style={{
+                                                color: '#ccc',
+                                                fontSize: '14px',
+                                                height: '420px',
+                                                textAlign: 'center',
+                                                lineHeight: '420px'
+                                            }}
+                                        >
+                                            暂无内容
+                                        </div>
+                                    )
+                            }
+                        </Spin>
                     </div>
                     {
                         data.wsdlXml && data.wsdlXml !== ''

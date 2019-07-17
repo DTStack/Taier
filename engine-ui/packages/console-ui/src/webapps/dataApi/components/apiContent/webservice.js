@@ -31,18 +31,36 @@ class Webservice extends React.Component {
                     >
                         接口详情
                     </div>
-                    <Editor
-                        sync={true}
-                        // onChange={this.editorChange.bind(this)}
-                        // key={data.wsdlXml}
-                        language='xml'
-                        style={{
-                            height: '420px'
-                        }}
-                        options={{ readOnly: true }}
-                        disabled={true}
-                        value={getValue('saveWsdlXml') === 1 ? (getValue('wsdlXml') || '暂无内容') : '暂无内容'}
-                    />
+                    {
+                        getValue('saveWsdlXml') === 1 && getValue('wsdlXml')
+                            ? (
+                                <Editor
+                                    sync={true}
+                                    // onChange={this.editorChange.bind(this)}
+                                    // key={data.wsdlXml}
+                                    language='xml'
+                                    style={{
+                                        height: '420px'
+                                    }}
+                                    options={{ readOnly: true }}
+                                    disabled={true}
+                                    value={getValue('saveWsdlXml') === 1 ? (getValue('wsdlXml') || '暂无内容') : '暂无内容'}
+                                />
+                            )
+                            : (
+                                <div
+                                    style={{
+                                        color: '#ccc',
+                                        fontSize: '14px',
+                                        height: '420px',
+                                        textAlign: 'center',
+                                        lineHeight: '420px'
+                                    }}
+                                >
+                                    暂无内容
+                                </div>
+                            )
+                    }
                 </div>
             </section>
         )
