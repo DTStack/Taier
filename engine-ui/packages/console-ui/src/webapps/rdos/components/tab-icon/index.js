@@ -10,6 +10,10 @@ export default class TabIcon extends Component {
         let iconName = '';
         if (scriptText == null) {
             switch (taskType) {
+                case TASK_TYPE.HIVESQL: {
+                    iconName = 'hivesql.svg';
+                    break;
+                }
                 case TASK_TYPE.CUBE_KYLIN: {
                     iconName = 'cube_kylin.svg';
                     break;
