@@ -68,18 +68,18 @@ class OfflineStatistics extends Component {
         const ctx = this
         const { handleTiming } = this.state
         const params = {
-            startTime: handleTiming.set({
+            startTime: handleTiming && handleTiming.set({
                 'hour': 0,
                 'minute': 0,
                 'second': 0
             }).unix(),
-            endTime: handleTiming.set({
+            endTime: handleTiming && handleTiming.set({
                 'hour': 23,
                 'minute': 59,
                 'second': 59
             }).unix()
         }
-        Api.getJobTopTime(params).then((res) => {
+        Api.getJobTopTime(handleTiming && params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ topTiming: res.data })
             }

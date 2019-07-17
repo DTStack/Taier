@@ -20,7 +20,7 @@ import SyntaxHelpPane from './syntaxTipPane';
 import RightTableButton from './tableTipPane/rightButton';
 import RightSyntaxButton from './syntaxTipPane/rightButton';
 
-import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
+import { matchTaskParams, isProjectCouldEdit, isSparkEngine } from '../../../../comm';
 
 import {
     workbenchActions
@@ -60,11 +60,12 @@ class EditorContainer extends Component {
 
     componentDidMount () {
         const currentNode = this.props.currentTabData;
+        const projectId = this.props.project.id;
         if (currentNode) {
             this.props.getTab(currentNode.id)// 初始化console所需的数据结构
         }
-        this.initTableList();
-        this.initFuncList();
+        this.initTableList(projectId, this.getTaskOrScriptType(currentNode));
+        this.initFuncList(this.getTaskOrScriptType(currentNode));
     }
 
     // eslint-disable-next-line
@@ -74,23 +75,37 @@ class EditorContainer extends Component {
         const project = nextProps.project
         const oldProject = this.props.project
         if (project.id != oldProject.id) {
-            this.initTableList(project.id);
+            this.initTableList(project.id, this.getTaskOrScriptType(current));
         }
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
     }
-    initTableList (id) {
+
+    getTaskOrScriptType (task) {
+        if (task) {
+            if (task.hasOwnProperty('taskType')) {
+                return {
+                    taskType: task.taskType
+                }
+            } else {
+                return {
+                    scriptType: task.type
+                }
+            }
+        }
+    }
+    initTableList (id, type) {
         id = id || this.props.project.id;
         if (!id) {
             console.log('project id 0 remove')
             return;
         }
-        this.props.getTableList(id);
+        this.props.getTableList(id, type);
     }
 
-    initFuncList () {
-        API.getAllFunction()
+    initFuncList (type) {
+        API.getAllFunction({ ...type })
             .then(
                 (res) => {
                     if (res.code == 1) {
@@ -189,7 +204,7 @@ class EditorContainer extends Component {
             .then((complete) => {
                 if (complete) {
                     this._tableColumns = {};
-                    this.initTableList();
+                    this.initTableList(params.projectId, this.getTaskOrScriptType(task));
                 }
             });
     };
@@ -440,7 +455,6 @@ class EditorContainer extends Component {
     renderExtraPane = () => {
         const { editor, currentTabData, updateSyntaxPane } = this.props;
         const { columns, partition, extraPaneLoading } = this.state;
-
         if (isTableTipPane(editor)) {
             return <TableTipPane
                 data={columns}
@@ -462,7 +476,7 @@ class EditorContainer extends Component {
     renderRightButton = () => {
         const {
             hideRightPane, editor,
-            showRightTablePane, showRightSyntaxPane
+            showRightTablePane, showRightSyntaxPane, notShowSyntax
         } = this.props;
         const { options } = editor;
         return (
@@ -475,6 +489,7 @@ class EditorContainer extends Component {
                 />
                 <RightSyntaxButton
                     theme={options.theme}
+                    notShowSyntax={notShowSyntax}
                     showRightSyntaxPane={showRightSyntaxPane}
                     hideRightPane={hideRightPane}
                     showSyntaxPane={isSQLSyntaxTipPane(editor)}
@@ -550,6 +565,8 @@ class EditorContainer extends Component {
             isDisEabledDownload: project.isAllowDownload == 0
         }
 
+        const extraPne = isSparkEngine(currentTabData.engineType) ? this.renderExtraPane() : null;
+
         return (
             <div className="m-editor" style={{ height: '100%' }}>
                 <IDEEditor
@@ -557,7 +574,7 @@ class EditorContainer extends Component {
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
-                    extraPane={this.renderExtraPane()}
+                    extraPane={extraPne}
                 />
                 <div id="JS_ddl_confirm_modal">
                     <Modal
@@ -625,8 +642,8 @@ export default connect(state => {
         updateUser: (user) => {
             dispatch(updateUser(user));
         },
-        getTableList: (projectId) => {
-            dispatch(getTableList(projectId));
+        getTableList: (projectId, type) => {
+            dispatch(getTableList(projectId, type));
         }
     })
     return actions;

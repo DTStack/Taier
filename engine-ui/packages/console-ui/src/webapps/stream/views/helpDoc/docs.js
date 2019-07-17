@@ -229,3 +229,9 @@ export const sourceFormat = (
         <p>{'{"a":1,"b_c":3}'}</p>
     </div>
 )
+
+export const analyticalRules = (
+    <div>
+        <p>自动建表的表名，将按照固定前缀（stream）、源表所属的schema、表名拼接</p>
+    </div>
+)

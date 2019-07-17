@@ -185,6 +185,10 @@ export function DatabaseType (props) {
             return <span>DB2</span>
         case DATA_SOURCE.CARBONDATA:
             return <span>CarbonData</span>
+        case DATA_SOURCE.LIBRASQL:
+            return <span>LibrA</span>
+        case DATA_SOURCE.GBASE:
+            return <span>GBase</span>
         default:
             return <span>其他</span>
     }
@@ -193,6 +197,8 @@ export function DatabaseType (props) {
 export function TaskType (props) {
     const value = props.value
     switch (value) {
+        case TASK_TYPE.HIVESQL:
+            return <span>HiveSQL</span>
         case TASK_TYPE.CUBE_KYLIN:
             return <span>Kylin</span>
         case TASK_TYPE.VIRTUAL_NODE:
@@ -223,6 +229,8 @@ export function TaskType (props) {
             return <span>Notebook</span>
         case TASK_TYPE.EXPERIMENT:
             return <span>算法实验</span>
+        case TASK_TYPE.LIBRASQL:
+            return <span>LibraSQL</span>
         default:
             return <span>SparkSQL</span>
     }

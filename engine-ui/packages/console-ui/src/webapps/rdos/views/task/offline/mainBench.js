@@ -199,7 +199,17 @@ export default class MainBench extends React.Component {
                     }
                     return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
+                case TASK_TYPE.HIVESQL:
                     return <EditorContainer
+                        taskCustomParams={taskCustomParams}
+                        key={tabData.id}
+                        value={tabData.sqlText}
+                        currentTab={tabData.id}
+                        currentTabData={tabData}
+                    />
+                case TASK_TYPE.LIBRASQL:
+                    return <EditorContainer
+                        notShowSyntax={true} // libra不显示语法提示
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
                         value={tabData.sqlText}
@@ -253,7 +263,8 @@ export default class MainBench extends React.Component {
             // 脚本类型
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
-                case SCRIPT_TYPE.SQL: {
+                case SCRIPT_TYPE.SQL:
+                case SCRIPT_TYPE.LIBRASQL: {
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}

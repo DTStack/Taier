@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.6.0-beta.3.1",
+  "version": "3.6.0-beta.4.1",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
@@ -107,8 +107,8 @@
   },
   "scripts": {
     "start": "npm run dev",
+    "dev": "node --max_old_space_size=4092 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
     "dev:win": "./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
-    "dev": "node --max_old_space_size=4096 ./node_modules/.bin/webpack-dev-server --progress --inline --config build/dev.js --open",
     "build": "npm install --unsafe-perm=true --allow-root && rm -rf dist/* && webpack --profile --color --progress --config build/prod.js",
     "mock": "cup config",
     "test": "jest --no-cache",

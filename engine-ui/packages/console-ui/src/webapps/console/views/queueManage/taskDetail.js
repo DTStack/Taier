@@ -9,17 +9,18 @@ import React, { Component } from 'react';
 import { Select, Table, Button, message, Radio, Row, Col, Checkbox, Dropdown, Menu } from 'antd'
 import moment from 'moment';
 import '../../styles/main.scss'
+import { displayTaskStatus } from '../../consts/clusterFunc';
 import ViewDetail from '../../components/viewDetail';
 import KillTask from '../../components/killTask';
 import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
 import Api from '../../api/console';
-import { TASK_STATE } from '../../consts/index.js';
 import KillAllTask from '../../components/killAllTask';
 const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+
 class TaskDetail extends Component {
     state = {
         dataSource: [],
@@ -499,52 +500,7 @@ class TaskDetail extends Component {
                 title: '状态',
                 dataIndex: 'status',
                 render (text, record) {
-                    switch (text) {
-                        case TASK_STATE.UNSUBMIT:
-                            return 'UNSUBMIT';
-                        case TASK_STATE.CREATED:
-                            return 'CREATED';
-                        case TASK_STATE.SCHEDULED:
-                            return 'SCHEDULED';
-                        case TASK_STATE.DEPLOYING:
-                            return 'DEPLOYING';
-                        case TASK_STATE.RUNNING:
-                            return 'RUNNING';
-                        case TASK_STATE.FINISHED:
-                            return 'FINISHED';
-                        case TASK_STATE.CANCELLING:
-                            return 'CANCELLING';
-                        case TASK_STATE.CANCELED:
-                            return 'CANCELED';
-                        case TASK_STATE.FAILED:
-                            return 'FAILED';
-                        case TASK_STATE.SUBMITFAILD:
-                            return 'SUBMITFAILD';
-                        case TASK_STATE.SUBMITTING:
-                            return 'SUBMITTING';
-                        case TASK_STATE.RESTARTING:
-                            return 'RESTARTING';
-                        case TASK_STATE.MANUALSUCCESS:
-                            return 'MANUALSUCCESS';
-                        case TASK_STATE.KILLED:
-                            return 'KILLED';
-                        case TASK_STATE.SUBMITTED:
-                            return 'SUBMITTED';
-                        case TASK_STATE.NOTFOUND:
-                            return 'NOTFOUND';
-                        case TASK_STATE.WAITENGINE:
-                            return 'WAITENGINE';
-                        case TASK_STATE.WAITCOMPUTE:
-                            return 'WAITCOMPUTE';
-                        case TASK_STATE.FROZEN:
-                            return 'FROZEN';
-                        case TASK_STATE.ENGINEACCEPTED:
-                            return 'ENGINEACCEPTED';
-                        case TASK_STATE.ENGINEDISTRIBUTE:
-                            return 'ENGINEDISTRIBUTE';
-                        default:
-                            return null;
-                    }
+                    displayTaskStatus(text)
                 }
             },
             {
@@ -577,7 +533,7 @@ class TaskDetail extends Component {
                 width: '70px'
             },
             {
-                title: '引擎',
+                title: '组件',
                 dataIndex: 'engine',
                 render (text, record) {
                     return record.engineType;
@@ -841,9 +797,9 @@ class TaskDetail extends Component {
                         >
                             {this.getClusterListOptionView()}
                         </Select>
-                        引擎：
+                        组件：
                         <Select
-                            placeholder="请选择引擎"
+                            placeholder="请选择组件"
                             style={{ width: '150px', marginRight: '10px' }}
                             onChange={this.changeEngineValue.bind(this)}
                             value={this.state.engineType}

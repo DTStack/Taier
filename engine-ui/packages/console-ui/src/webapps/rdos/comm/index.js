@@ -10,7 +10,9 @@ import {
     PYTON_VERSION,
     SCRIPT_TYPE,
     DATA_SOURCE,
-    PROJECT_TYPE
+    PROJECT_TYPE,
+    ENGINE_SOURCE_TYPE,
+    TABLE_TYPE
 } from './const';
 
 // 请求防抖动
@@ -42,6 +44,9 @@ export function taskTypeIcon (type, task = {}) {
     const { pythonVersion, learningType, scriptType } = task;
     if (scriptType == null) {
         switch (type) {
+            case TASK_TYPE.HIVESQL: {
+                return 's-hivesql';
+            }
             case TASK_TYPE.CUBE_KYLIN: {
                 return 's-cubeKylin';
             }
@@ -102,6 +107,9 @@ export function taskTypeIcon (type, task = {}) {
             case TASK_TYPE.EXPERIMENT: {
                 return 's-experiment';
             }
+            case TASK_TYPE.LIBRASQL: {
+                return 's-librasql';
+            }
             default:
                 return '';
         }
@@ -118,6 +126,9 @@ export function taskTypeIcon (type, task = {}) {
             }
             case SCRIPT_TYPE.SHELL: {
                 return 's-shell';
+            }
+            case SCRIPT_TYPE.LIBRASQL: {
+                return 's-librasql';
             }
             default:
                 return '';
@@ -376,4 +387,20 @@ export function formJsonValidator (rule, value, callback) {
     } finally {
         callback(msg);
     }
+}
+
+// Judge spark engine
+export function isSparkEngine (engineType) {
+    return ENGINE_SOURCE_TYPE.HADOOP === parseInt(engineType, 10);
+}
+
+// Judge libra engine
+export function isLibrAEngine (engineType) {
+    return ENGINE_SOURCE_TYPE.LIBRA === parseInt(engineType, 10);
+}
+export function isHiveTable (tableType) {
+    return TABLE_TYPE.HIVE === parseInt(tableType, 10);
+}
+export function isLibraTable (tableType) {
+    return TABLE_TYPE.LIBRA === parseInt(tableType, 10);
 }

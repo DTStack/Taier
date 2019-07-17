@@ -169,7 +169,7 @@ class Header extends Component {
         const projectName =
             project && project.projectName
                 ? project.projectAlias || project.projectName
-                : '项目选择';
+                : '选择项目';
         let projectTypeText = '';
         let projectTypeIcon = null;
         switch (project && project.projectType) {
@@ -271,7 +271,7 @@ class Header extends Component {
 
     isIndex () {
         const { current } = this.state;
-        const isIndex = current == 'overview' || current == 'data-manage' || current == 'metaDataImport';
+        const isIndex = current == 'overview' || current == 'data-manage' || current == 'create-project';
         return isIndex;
     }
     // 固定数组Index, 控制显示子应用

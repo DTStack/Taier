@@ -365,7 +365,7 @@ class ImportTarget extends Component {
                     <Form>
                         <FormItem
                             {...formItemLayout}
-                            label="导入至表"
+                            label="导入至Hive表"
                         >
                             <div>
                                 <Select

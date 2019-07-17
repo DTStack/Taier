@@ -15,8 +15,10 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
-function getSourceInitialField (sourceType) {
+function getSourceInitialField (sourceType, data) {
     const initialFields = { type: sourceType };
+    const { sourceMap = {} } = data;
+    const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
     switch (sourceType) {
         case DATA_SOURCE.HDFS: {
             initialFields.fileType = 'orc';
@@ -27,8 +29,8 @@ function getSourceInitialField (sourceType) {
         }
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
-            initialFields.sourceColumn = '${table}';
-            initialFields.writeTableType = writeTableTypes.HAND;
+            initialFields.analyticalRules = '${schema}_${table}';
+            initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
             initialFields.writeMode = 'insert';
@@ -182,7 +184,7 @@ class CollectionTarget extends React.Component {
 class CollectionTargetForm extends React.Component {
     onSelectSource = (value, option) => {
         const sourceType = option.props.data.type;
-        const initialFields = getSourceInitialField(sourceType);
+        const initialFields = getSourceInitialField(sourceType, this.props.collectionData);
         /**
          * sourceId 改变,则清空表
          */
@@ -356,7 +358,7 @@ class CollectionTargetForm extends React.Component {
                     writeTableType == writeTableTypes.AUTO && (
                         <FormItem
                             {...formItemLayout}
-                            label="k-v解析"
+                            label="表名拼装规则"
                             key="analyticalRules"
                         >
                             {getFieldDecorator('analyticalRules', {
@@ -364,8 +366,9 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '该字段不能为空'
                                 }]
                             })(
-                                <Input addonBefore='根据解析结果中' addonAfter='对应的值，写入到不同的表' />
+                                <Input disabled addonBefore='stream_' />
                             )}
+                            <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
                         </FormItem>
                     ),
                     writeTableType == writeTableTypes.HAND && (
@@ -430,14 +433,23 @@ class CollectionTargetForm extends React.Component {
                         {getFieldDecorator(isWriteStrategyBeTime ? 'interval' : 'bufferSize', {
                             rules: [{
                                 required: true, message: isWriteStrategyBeTime ? '请输入间隔时间' : '请输入文件大小'
+                            }, {
+                                validator: (rule, value, callback) => {
+                                    let errorMsg;
+                                    try {
+                                        value = parseFloat(value);
+                                        if (value <= 0) {
+                                            errorMsg = '数字必须大于0'
+                                        }
+                                    } catch (e) {
+                                        errorMsg = '请填写大于0的有效数字'
+                                    } finally {
+                                        callback(errorMsg);
+                                    }
+                                }
                             }]
                         })(
-                            <Select>
-                                {(isWriteStrategyBeTime ? [10, 20, 30, 40, 50, 60] : [5, 10, 20, 30, 40, 50]).map((t) => {
-                                    const value = isWriteStrategyBeTime ? t * 60 * 1000 : t * 1024 * 1024;
-                                    return <Option key={`${value}`} value={`${value}`}>每隔{t}{isWriteStrategyBeTime ? '分钟' : 'MB'}, 写入一次</Option>
-                                })}
-                            </Select>
+                            <Input type='number' addonBefore='每隔' addonAfter={`${isWriteStrategyBeTime ? '分钟' : 'MB'}，写入一次`} />
                         )}
                     </FormItem>,
                     <FormItem
@@ -452,10 +464,10 @@ class CollectionTargetForm extends React.Component {
                             }]
                         })(
                             <RadioGroup>
-                                <Radio value="insert" style={{ float: 'left' }}>
+                                <Radio value="replace" style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
-                                <Radio value="replace" style={{ float: 'left' }}>
+                                <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>
                             </RadioGroup>
@@ -527,7 +539,7 @@ const WrapCollectionTargetForm = Form.create({
         if (fields.hasOwnProperty('writeTableType')) {
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
-                fields['analyticalRules'] = '${table}';
+                fields['analyticalRules'] = '${schema}_${table}';
             } else {
                 fields['analyticalRules'] = undefined;
             }
@@ -537,6 +549,12 @@ const WrapCollectionTargetForm = Form.create({
         // 写入表
         if (fields.hasOwnProperty('table')) {
             fields['partition'] = undefined;
+        }
+        if (fields['interval']) {
+            fields['interval'] = fields['interval'] * 60 * 1000;
+        }
+        if (fields['bufferSize']) {
+            fields['bufferSize'] = fields['bufferSize'] * 1024 * 1024;
         }
         // 写入策略
         if (fields.hasOwnProperty('writeStrategy')) {
@@ -581,10 +599,10 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.writeStrategy
             },
             bufferSize: {
-                value: targetMap.bufferSize
+                value: targetMap.bufferSize / (1024 * 1024)
             },
             interval: {
-                value: targetMap.interval
+                value: targetMap.interval / 60000
             },
             writeMode: {
                 value: targetMap.writeMode

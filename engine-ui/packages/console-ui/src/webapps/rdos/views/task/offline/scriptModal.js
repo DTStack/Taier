@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Modal, Button, Form, Input, Radio } from 'antd';
-
 import ajax from '../../../api';
 import { getContainer } from 'funcs';
 
@@ -25,21 +24,8 @@ class ScriptForm extends React.Component {
         this.handleRadioChange = this.handleRadioChange.bind(this);
         this.isEditExist = false;
         this.state = {
-            value: 0,
-            types: []
+            value: 0
         };
-    }
-
-    componentDidMount () {
-        this.loadScritTypes()
-    }
-
-    loadScritTypes = () => {
-        ajax.getScriptTypes().then(res => {
-            this.setState({
-                types: res.data || []
-            })
-        })
     }
 
     handleSelectTreeChange (value) {
@@ -54,8 +40,7 @@ class ScriptForm extends React.Component {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { defaultData } = this.props;
-        const { types } = this.state;
+        const { defaultData, scriptTypes = [] } = this.props;
 
         /**
          * 1. 从按钮新建(createNormal)没有默认数据
@@ -72,7 +57,7 @@ class ScriptForm extends React.Component {
             ? this.state.value
             : (!isCreateFromMenu ? defaultData.type : this.state.value);
 
-        const scriptTypes = types.map(item => <Radio key={item.value} value={item.value}>{item.name}</Radio>)
+        const scriptRadios = scriptTypes.map(item => <Radio key={item.value} value={item.value}>{item.name}</Radio>)
         return (
             <Form>
                 <FormItem
@@ -101,7 +86,7 @@ class ScriptForm extends React.Component {
                 >
                     {getFieldDecorator('type', {
                         rules: [{
-                            required: true, message: '请选择任务类型'
+                            required: true, message: '请选择脚本类型'
                         }],
                         initialValue: value
                     })(
@@ -109,7 +94,7 @@ class ScriptForm extends React.Component {
                             disabled={ isCreateNormal ? false : !isCreateFromMenu }
                             onChange={ this.handleRadioChange }
                         >
-                            {scriptTypes}
+                            {scriptRadios}
                         </RadioGroup>
                     )}
                 </FormItem>
@@ -263,7 +248,7 @@ class ScriptModal extends React.Component {
     }
 
     render () {
-        const { isModalShow, scriptTreeData, defaultData } = this.props;
+        const { isModalShow, scriptTreeData, defaultData, editModalKey, scriptTypes } = this.props;
 
         if (!defaultData) this.isCreate = true;
         else {
@@ -274,6 +259,7 @@ class ScriptModal extends React.Component {
         return (
             <div id="JS_script_modal">
                 <Modal
+                    key={editModalKey}
                     title={!this.isCreate ? '编辑脚本' : '新建脚本' }
                     visible={ isModalShow }
                     footer={[
@@ -294,6 +280,7 @@ class ScriptModal extends React.Component {
                         ref={el => this.form = el}
                         treeData={ scriptTreeData }
                         defaultData={ defaultData }
+                        scriptTypes={scriptTypes}
                     />
                 </Modal>
             </div>
@@ -305,7 +292,9 @@ export default connect(state => {
     return {
         isModalShow: state.offlineTask.modalShow.createScript,
         scriptTreeData: state.offlineTask.scriptTree,
-        defaultData: state.offlineTask.modalShow.defaultData // 表单默认数据
+        defaultData: state.offlineTask.modalShow.defaultData, // 表单默认数据
+        editModalKey: state.offlineTask.modalShow.editModalKey,
+        scriptTypes: state.offlineTask.comm.scriptTypes
     }
 },
 dispatch => {

@@ -6,7 +6,7 @@ export default {
     // ===== 用户相关 ===== //
     DA_GET_USER_BY_ID: `${CONSOLE_BASE_URL}/user/getUserById`, // 根据用户ID获取用户
     DA_GET_USER_AUTH_BY_ID: `${CONSOLE_BASE_URL}/user/getUserById`, // 根据用户ID获取用户权限
-    GET_USER_LIST: `${CONSOLE_BASE_URL}/tenant/listTenant`, // 租户列表
+    GET_TENANT_LIST: `${CONSOLE_BASE_URL}/tenant/listTenant`, // 租户列表
     GET_RESOURCE_USER_LIST: `${CONSOLE_BASE_URL}/tenant/listByQueueId`, // 获取资源已绑定的租户
     BIND_USER_TO_RESOURCE: `${CONSOLE_BASE_URL}/tenant/addToQueue`, // 绑定用户到资源队列
     CONFIRM_SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/updateQueueId`, // 确认切换队列
@@ -35,5 +35,20 @@ export default {
     GET_GROUP_LIST: `${CONSOLE_BASE_URL}/group/groups`, // group列表
     GET_VIEW_DETAIL: `${CONSOLE_BASE_URL}/group/groupDetail`, // 查看明细 和搜索条件
     CHANGE_JOB_PRIORITY: `${CONSOLE_BASE_URL}/group/jobPriority`, // 顺序调整调整优先级
-    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/group/clusterResources` // 查看剩余资源
+    GET_CLUSTER_RESOURCES: `${CONSOLE_BASE_URL}/group/clusterResources`, // 查看剩余资源
+
+    GET_CLUSTER_INFO: `${CONSOLE_BASE_URL}/cluster/getCluster`,
+    UPLOAD_RESOURCE: `${CONSOLE_BASE_UPLOAD_URL}/upload/component/config`, // 上传资源配置（hdfs、yarn）
+    TEST_COMPONENT_CONNECT: `${CONSOLE_BASE_URL}/component/testConnections`,
+    ADD_CLUSTER: `${CONSOLE_BASE_URL}/cluster/addCluster`, // 新增集群
+    ADD_COMPONENT: `${CONSOLE_BASE_URL}/component/addComponent`,
+    SAVE_COMPONENT: `${CONSOLE_BASE_URL}/component/update`,
+    DELETE_COMPONENT: `${CONSOLE_BASE_URL}/component/delete`,
+    ADD_ENGINE: `${CONSOLE_BASE_URL}/engine/addEngine`,
+    // 资源管理
+    GET_ALL_CLUSTER: `${CONSOLE_BASE_URL}/cluster/getAllCluster`,
+    SEARCH_TENANT: `${CONSOLE_BASE_URL}/tenant/pageQuery`,
+    GET_QUEUE: `${CONSOLE_BASE_URL}/engine/getQueue`,
+    BIND_TENANT: `${CONSOLE_BASE_URL}/tenant/bindingTenant`,
+    SWITCH_QUEUE: `${CONSOLE_BASE_URL}/tenant/bindingQueue`
 }

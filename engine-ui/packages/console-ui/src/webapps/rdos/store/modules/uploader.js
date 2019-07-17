@@ -1,3 +1,4 @@
+/* eslint-disable */
 import mc from 'mirror-creator';
 import { message } from 'antd';
 import localDb from 'utils/localDb';
@@ -21,35 +22,37 @@ export const UPLOAD_STATUS = {
 
 // ============= Actions =============
 
-export const getUploadStatus = (params, dispatch) => {
-    let timeId;
-    let status = UPLOAD_STATUS.PROGRESSING;
-    dispatch({
-        type: UploadAction.UPDATE,
-        payload: { ...params, status: status }
-    })
-    const getStatus = async () => {
-        const res = await API.getUploadStatus(params.queryParams);
-        if (res.data === 'done') {
-            message.success(`文件${params.fileName}上传成功!`);
-            clearInterval(timeId);
-            status = UPLOAD_STATUS.SUCCES;
-            return dispatch(resetUploader());
-        } else if (res.code > 1) {
-            status = UPLOAD_STATUS.FAIL;
-            clearInterval(timeId);
-            setTimeout(() => {
-                dispatch(resetUploader());
-            }, TIME_INTERVAL)
-        } else if (res.data === 'exist') {
-            status = UPLOAD_STATUS.PROGRESSING;
-        }
+export function getUploadStatus (params) {
+    return (dispatch) => {
+        let timeId;
+        let status = UPLOAD_STATUS.PROGRESSING;
         dispatch({
             type: UploadAction.UPDATE,
             payload: { ...params, status: status }
         })
+        const getStatus = async () => {
+            const res = await API.getUploadStatus(params.queryParams);
+            if (res.data === 'done') {
+                message.success(`文件${params.fileName}上传成功!`);
+                clearInterval(timeId);
+                status = UPLOAD_STATUS.SUCCES;
+                return dispatch(resetUploader());
+            } else if (res.code > 1) {
+                status = UPLOAD_STATUS.FAIL;
+                clearInterval(timeId);
+                setTimeout(() => {
+                    dispatch(resetUploader());
+                }, TIME_INTERVAL)
+            } else if (res.data === 'exist') {
+                status = UPLOAD_STATUS.PROGRESSING;
+            }
+            dispatch({
+                type: UploadAction.UPDATE,
+                payload: { ...params, status: status }
+            })
+        }
+        timeId = setInterval(getStatus, TIME_INTERVAL);
     }
-    timeId = setInterval(getStatus, TIME_INTERVAL);
 }
 
 export const updateUploader = (payload) => {

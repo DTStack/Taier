@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux'
@@ -8,6 +9,7 @@ import {
 } from 'antd';
 
 import * as MxFactory from 'widgets/mxGraph';
+import MyEdgeStyle from 'widgets/mxGraph/mxEdgeStyle';
 
 import MyIcon from '../../../../../components/icon';
 import { nodeTypeIcon, nodeStatus } from '../../../../../components/display';
@@ -20,12 +22,14 @@ const propType = {
     onSearchNode: PropTypes.func
 }
 const Mx = MxFactory.create();
+const myEdgeStyle = MyEdgeStyle(Mx);
 const {
     mxGraph,
     mxText,
     mxEvent,
     mxConstants,
-    mxEdgeStyle,
+    // mxEdgeStyle,
+    mxStyleRegistry,
     mxCellState,
     mxPerimeter,
     mxGraphView,
@@ -39,7 +43,6 @@ const {
     mxUtils,
     mxImageShape,
     mxRectangle,
-    mxStyleRegistry,
     mxTooltipHandler,
     mxClient
 } = Mx;
@@ -52,8 +55,11 @@ const BASE_COLOR = '#2491F7';
 })
 class GraphEditor extends Component {
     componentDidMount () {
-        const data = this.props.data;
+        const { data, onRef } = this.props;
         this.initGraph(data);
+        if (onRef) {
+            onRef(this);
+        }
     }
     _edges = []; //
     shouldComponentUpdate (nextProps, nextState) {
@@ -170,11 +176,13 @@ class GraphEditor extends Component {
         }
 
         // 默认边界样式
+        mxStyleRegistry.putValue('myOrthStyle', myEdgeStyle.OrthConnector);
+
         let edgeStyle = this.getDefaultEdgeStyle();
         graph.getStylesheet().putDefaultEdgeStyle(edgeStyle);
 
         // 设置Vertex样式
-        const vertexStyle = this.getDefaultVertexStyle()
+        const vertexStyle = this.getDefaultVertexStyle();
         graph.getStylesheet().putDefaultVertexStyle(vertexStyle);
         // 转换value显示的内容
         graph.convertValueToString = this.corvertValueToString;
@@ -385,6 +393,7 @@ class GraphEditor extends Component {
             if (sourceConstraint && sourceConstraint.id === 'outputs') {
                 value = `${sourceConstraint.name}_${targetConstraint.name}`
             }
+
             var edge = this.createEdge(value, source, target, style);
             edge = graph.addEdge(edge, parent, source, target);
             return edge;
@@ -607,7 +616,7 @@ class GraphEditor extends Component {
     }
 
     render () {
-        const { onSearchNode } = this.props;
+        const { onSearchNode, disableToolbar } = this.props;
         return (
             <div className="graph-editor"
                 style={{
@@ -624,24 +633,28 @@ class GraphEditor extends Component {
                     }}
                     ref={(e) => { this.Container = e }}
                 />
-                <div className="graph-toolbar">
-                    <Tooltip placement="bottom" title="布局">
-                        <MyIcon type="flowchart" onClick={this.layout}/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="放大">
-                        <MyIcon onClick={this.zoomIn} type="zoom-in"/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="缩小">
-                        <MyIcon onClick={this.zoomOut} type="zoom-out"/>
-                    </Tooltip>
-                    <Tooltip placement="bottom" title="搜索节点">
-                        <Icon
-                            type="search"
-                            onClick={onSearchNode}
-                            style={{ fontSize: '17px', color: '#333333' }}
-                        />
-                    </Tooltip>
-                </div>
+                {
+                    disableToolbar
+                        ? null
+                        : <div className="graph-toolbar">
+                            <Tooltip placement="bottom" title="布局">
+                                <MyIcon type="flowchart" onClick={this.layout}/>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="放大">
+                                <MyIcon onClick={this.zoomIn} type="zoom-in"/>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="缩小">
+                                <MyIcon onClick={this.zoomOut} type="zoom-out"/>
+                            </Tooltip>
+                            <Tooltip placement="bottom" title="搜索节点">
+                                <Icon
+                                    type="search"
+                                    onClick={onSearchNode}
+                                    style={{ fontSize: '17px', color: '#333333' }}
+                                />
+                            </Tooltip>
+                        </div>
+                }
             </div>
         )
     }
@@ -662,6 +675,7 @@ class GraphEditor extends Component {
     initGraphLayout = () => {
         const graph = this.graph;
         const { data, executeLayout } = this.props;
+        const defaultEdgeStyle = this.getDefaultEdgeStyle();
         const index = data ? data.findIndex(o => o.graph) : -1;
         if (index !== -1) {
             const scale = data[index].scale;
@@ -678,9 +692,9 @@ class GraphEditor extends Component {
                 if (change != null) { change(); }
                 const layout = new mxHierarchicalLayout(graph, 'north');
                 layout.disableEdgeStyle = false;
+                layout.edgeStyle = defaultEdgeStyle;
                 layout.interRankCellSpacing = 60;
                 layout.intraCellSpacing = 60;
-                layout.edgeStyle = mxConstants.EDGESTYLE_TOPTOBOTTOM;
                 layout.execute(parent);
             } catch (e) {
                 throw e;
@@ -874,27 +888,12 @@ class GraphEditor extends Component {
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
         style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-        style[mxConstants.STYLE_EDGE] = mxEdgeStyle.TopToBottom;
+        style[mxConstants.STYLE_EDGE] = 'myOrthStyle'; // mxEdgeStyle.OrthConnector; // TopToBottom;
         style[mxConstants.STYLE_ENDARROW] = mxConstants.ARROW_BLOCK;
         style[mxConstants.STYLE_FONTSIZE] = '10';
         style[mxConstants.STYLE_ROUNDED] = true;
         style[mxConstants.STYLE_CURVED] = true;
         return style
-    }
-
-    customEdgeStyle () {
-        mxEdgeStyle.MyStyle = function (state, source, target, points, result) {
-            if (source != null && target != null) {
-                var pt = new mxPoint(target.getCenterX(), source.getCenterY());
-
-                if (mxUtils.contains(source, pt.x, pt.y)) {
-                    pt.y = source.y + source.height;
-                }
-
-                result.push(pt);
-            }
-        };
-        mxStyleRegistry.putValue('myEdgeStyle', mxEdgeStyle.MyStyle);
     }
 }
 

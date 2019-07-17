@@ -35,8 +35,12 @@ export function taskTypeText (type) {
             return 'Notebook';
         case TASK_TYPE.EXPERIMENT:
             return '算法实验';
+        case TASK_TYPE.LIBRASQL:
+            return 'LibraSQL';
         case TASK_TYPE.CUBE_KYLIN:
             return 'Cube_Kylin';
+        case TASK_TYPE.HIVESQL:
+            return 'HiveSQL'
         default:
             return '未知';
     }
