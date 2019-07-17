@@ -7,6 +7,7 @@ import { apps, app, licenseApps } from 'main/reducers/modules/apps'
 import experiment from './modules/experiment';
 import notebook from './modules/notebook';
 import component from './modules/component';
+import resource from './modules/resource';
 import model from './modules/model';
 import { editor } from './modules/editor';
 import modal from './modules/modal';
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
     experiment,
     notebook,
     component,
+    resource,
     model,
     dataManage
 })
