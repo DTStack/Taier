@@ -62,6 +62,8 @@ public class ParamAction {
 
 	private Integer maxRetryNum;
 
+	private long stopJobId;
+
 	public Integer getRequestStart() {
 		return requestStart;
 	}
@@ -214,6 +216,14 @@ public class ParamAction {
 
 	public void setMaxRetryNum(Integer maxRetryNum) {
 		this.maxRetryNum = maxRetryNum;
+	}
+
+	public long getStopJobId() {
+		return stopJobId;
+	}
+
+	public void setStopJobId(long stopJobId) {
+		this.stopJobId = stopJobId;
 	}
 
 	@Override

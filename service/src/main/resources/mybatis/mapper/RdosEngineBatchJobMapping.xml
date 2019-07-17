@@ -38,6 +38,13 @@
 	   update rdos_engine_batch_job set gmt_modified=now(),status=#{status} where job_id=#{jobId};
    </update>
 
+    <update id="updateTaskStatusNotStopped" parameterType="java.util.HashMap">
+        update rdos_engine_batch_job set gmt_modified=now(),status=#{status} where job_id=#{jobId} and status not in
+        <foreach item="stopStatus" index="index" collection="stopStatuses" open="(" separator="," close=")">
+            #{stopStatus}
+        </foreach>
+    </update>
+
     <update id="updateTaskStatusCompareOld" parameterType="java.util.HashMap">
         update rdos_engine_batch_job set gmt_modified=now(),status=#{status},job_name=#{jobName} where job_id=#{jobId} and status=#{oldStatus};
     </update>

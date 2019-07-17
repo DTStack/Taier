@@ -36,6 +36,13 @@
 	    update rdos_engine_stream_job set gmt_modified=now(),status=#{status} where task_id=#{taskId};
     </update>
 
+    <update id="updateTaskStatusNotStopped" parameterType="java.util.HashMap">
+        update rdos_engine_stream_job set gmt_modified=now(),status=#{status} where task_id=#{taskId} and status not in
+        <foreach item="stopStatus" index="index" collection="stopStatuses" open="(" separator="," close=")">
+            #{stopStatus}
+        </foreach>
+    </update>
+
     <update id="updateTaskStatusCompareOld" parameterType="java.util.HashMap">
         update rdos_engine_stream_job set gmt_modified=now(),status=#{status},task_name=#{taskName} where task_id=#{taskId} and status=#{oldStatus};
     </update>

@@ -56,6 +56,20 @@ public class RdosEngineBatchJobDAO {
 		});
 	}
 
+	public void updateTaskStatusNotStopped(final String jobId,final int status, final List<Integer> stopStatuses){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				rdosTaskMapper.updateTaskStatusNotStopped(jobId, status, stopStatuses);
+				return null;
+			}
+
+		});
+	}
+
 	public Integer updateTaskStatusCompareOld(String jobId, Integer status, Integer oldStatus,String jobName) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 
