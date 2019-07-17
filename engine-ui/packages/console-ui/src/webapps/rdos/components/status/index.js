@@ -197,6 +197,8 @@ export function DatabaseType (props) {
 export function TaskType (props) {
     const value = props.value
     switch (value) {
+        case TASK_TYPE.HIVESQL:
+            return <span>HiveSQL</span>
         case TASK_TYPE.CUBE_KYLIN:
             return <span>Kylin</span>
         case TASK_TYPE.VIRTUAL_NODE:

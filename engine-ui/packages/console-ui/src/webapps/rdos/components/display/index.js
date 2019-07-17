@@ -39,6 +39,8 @@ export function taskTypeText (type) {
             return 'LibraSQL';
         case TASK_TYPE.CUBE_KYLIN:
             return 'Cube_Kylin';
+        case TASK_TYPE.HIVESQL:
+            return 'HiveSQL'
         default:
             return '未知';
     }

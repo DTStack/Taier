@@ -223,7 +223,8 @@ export const TASK_TYPE = { // 任务类型
     NOTEBOOK: 13,
     EXPERIMENT: 14,
     LIBRASQL: 15,
-    CUBE_KYLIN: 16
+    CUBE_KYLIN: 16,
+    HIVESQL: 17
 }
 
 export const LEARNING_TYPE = {// 深度学习框架
