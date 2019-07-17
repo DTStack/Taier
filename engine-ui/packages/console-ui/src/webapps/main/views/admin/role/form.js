@@ -88,13 +88,15 @@ class RoleForm extends Component {
                         key={key}
                         dataRef={role}
                         title={role.display}
+                        disabled
+                        disableCheckbox
                     >
                         {this.renderTreeNodes(item.children)}
                     </TreeNode>
                 )
             }
 
-            return <TreeNode key={key} dataRef={role} title={role.display}/>;
+            return <TreeNode disableCheckbox disabled key={key} dataRef={role} title={role.display}/>;
         })
     }
 
