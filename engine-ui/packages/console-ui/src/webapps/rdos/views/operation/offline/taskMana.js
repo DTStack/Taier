@@ -536,7 +536,7 @@ class OfflineTaskMana extends Component {
                             visible={visibleSlidePane}
                             style={{ right: '0px', width: '60%', height: '100%', position: 'fixed', minHeight: '600px', paddingTop: '50px' }}
                         >
-                            <Tabs animated={false} onChange={this.onTabChange} tabBarStyle={{ zIndex: 3 }} style={{ height: '100%' }}>
+                            <Tabs className='c-taskMana__slidePane__tabs' animated={false} onChange={this.onTabChange} tabBarStyle={{ zIndex: 3 }} style={{ height: '100%' }}>
                                 <TabPane tab="依赖视图" key="taskFlow">
                                     <TaskFlowView
                                         reload={this.search}

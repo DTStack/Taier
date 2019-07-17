@@ -551,6 +551,7 @@ class JobGraphView extends Component {
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
+                    wrapperClassName='c-jobGraph__spin-box'
                 >
                     <div
                         className="editor pointer"

@@ -279,3 +279,25 @@
     font-size: 18px;
     border: 1px solid #e5e3e3;
 }
+.c-taskMana__slidePane__tabs {
+    >.ant-tabs-content{
+        height: calc(100% - 36px);
+        >.ant-tabs-tabpane{
+            height: 100%;
+        }
+    }
+}
+.c-jobGraph__spin-box {
+    height: 100%;
+    >.ant-spin-container {
+        height: 100%;
+    }
+}
+.c-jobflow__modal {
+    .ant-modal-content{
+        height: 100%;
+        >.ant-modal-body{
+            height: calc(100% - 48px);
+        }
+    }
+}
