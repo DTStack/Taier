@@ -848,7 +848,7 @@ class GraphContainer extends React.Component {
                 <input id="mockInput" readOnly style={{ opacity: 0, width: 1, height: 1, outline: 0, border: 0 }} />
                 <GraphEditor
                     version={data.version}
-                    data={graphData || {}}
+                    data={graphData || []}
                     key={data.id}
                     onSearchNode={this.initShowSearch}
                     registerContextMenu={this.initContextMenu}
