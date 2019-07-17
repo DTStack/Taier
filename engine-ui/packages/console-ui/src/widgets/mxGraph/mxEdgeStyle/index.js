@@ -629,12 +629,13 @@ const MyEdgeStyle = function (Mx) {
             // 源代码的算法还没有完全搞清楚，这里只是细微的调整了一下坐标值
             const resultLen = result.length;
             if (resultLen > 2) {
-                let lastPointY = result[resultLen - 1].y;
+                let firstPoint = result[1].y;
                 let lastSecondPointY = result[resultLen - 2].y;
-                const differenceValue = Math.abs(lastPointY - lastSecondPointY);
-                if (differenceValue < 20) {
-                    result[1].y = result[1].y + 5;
-                    result[resultLen - 1].y = lastSecondPointY - 10;
+                const differenceValue = target.y - source.y;
+                // console.log('differenceValue:', target.y, source.y, differenceValue)
+                if (differenceValue < 60) {
+                    result[1].y = firstPoint + 20;
+                    result[resultLen - 1].y = lastSecondPointY - 20;
                 }
             }
             // outputEdgeInfo(state, source, target, points, result);
