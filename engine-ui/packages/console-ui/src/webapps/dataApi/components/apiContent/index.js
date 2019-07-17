@@ -151,7 +151,9 @@ class Content extends Component {
                     this.getValue('reqProtocol') === 'WebService'
                         ? (
                             <Webservice
+                                isManage={isManage}
                                 getValue={this.getValue.bind(this)}
+                                registerInfo={registerInfo}
                             />
                         )
                         : (
