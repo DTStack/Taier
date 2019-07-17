@@ -81,6 +81,7 @@
         }
 
         &>.ant-tabs-content {
+            height: 100%;
             margin: 0;
             padding: 0;
         }
@@ -94,6 +95,7 @@
 
         .ant-tabs-tabpane {
             overflow: hidden;
+            height: 100%;
         }
 
         .ant-menu-submenu-title {
@@ -275,9 +277,7 @@
                 flex-grow: 0;
                 flex-shrink: 0;
                 border-bottom: 1px solid #E8E8E8;
-                line-height: 32px;
                 text-align: right;
-                font-size: 18px;
                 z-index: 999;
                 background: #ffffff;
                 padding-right: 15px;
@@ -395,6 +395,7 @@
     }
     // -----------------离线---------------------
     .g-taskOfflineSidebar {
+        height: 100%;
         .m-tasktitle {
             margin-top: -10px;
             text-align: right;
@@ -475,7 +476,11 @@
         border-top: 1px solid #dddddd;
 
         .browser-tabs {
-
+            >.ant-tabs-bar{
+                >.ant-tabs-extra-content{
+                    height: 30px;
+                }
+            }
             .ant-tabs-nav-container{
                 font-size: 12px;
                 height: 30px;
@@ -511,6 +516,7 @@
             text-align: left;
             min-width: 120px;
             border-radius: 0;
+            padding-bottom: 6px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
@@ -603,6 +609,7 @@
 
         .tab-ellipsis {
             width: 120px;
+            line-height: 19px;
         }
 
         .workflow-name {
@@ -621,11 +628,8 @@
         .browser-content {
             &>.ant-tabs {
                 .ant-tabs-bar {
-                    margin-bottom: 1px;
+                    margin-bottom: 0px;
                     border-bottom: 0;
-                    border-radius: 0px;
-                    margin-left: -1px;
-                    border-left: none;
                 }
         
                 .ant-tabs-content {
@@ -681,6 +685,9 @@
                 border-bottom: 1px solid #e9e9e9;
                 border-radius: 4px;
                 padding-right: 0;
+                >.ant-tabs-tabpane{
+                    height: 100%;
+                }
             }
             .ant-tabs-tab {
                 font-size: 12px;
@@ -946,6 +953,7 @@
             }
             .remove-cell,
             .edit-cell {
+                line-height: 1;
                 display: inline-block;
                 position: absolute;
                 top: 14px;
@@ -1183,4 +1191,13 @@
     font-size: 12px;
     transform: scale(0.83333333) rotate(0deg);
     zoom: 1;
+}
+.c-task__content__spin-box {
+    height: 100%;
+    >.ant-spin-container {
+        height: 100%;
+        >.c-task__main-box {
+            height: 100%;
+        }
+    }
 }
