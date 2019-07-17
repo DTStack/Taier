@@ -199,6 +199,7 @@ export default class MainBench extends React.Component {
                     }
                     return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
+                case TASK_TYPE.HIVESQL:
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}

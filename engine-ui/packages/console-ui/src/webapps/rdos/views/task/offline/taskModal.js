@@ -208,7 +208,7 @@ class TaskForm extends React.Component {
                                 initialValue: this.isEditExist ? defaultData.learningType : LEARNING_TYPE.TENSORFLOW
                             })(
                                 <RadioGroup
-                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                    disabled={this.isEditExist}
                                 >
                                     <Radio key={LEARNING_TYPE.TENSORFLOW} value={LEARNING_TYPE.TENSORFLOW}>TensorFlow</Radio>
                                     <Radio key={LEARNING_TYPE.MXNET} value={LEARNING_TYPE.MXNET}>MXNet</Radio>
@@ -231,7 +231,7 @@ class TaskForm extends React.Component {
                                     initialValue: this.isEditExist ? defaultData.pythonVersion : PYTON_VERSION.PYTHON2
                                 })(
                                     <RadioGroup
-                                        disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                        disabled={this.isEditExist}
                                     >
                                         <Radio key={PYTON_VERSION.PYTHON2} value={PYTON_VERSION.PYTHON2}>python2.x</Radio>
                                         <Radio key={PYTON_VERSION.PYTHON3} value={PYTON_VERSION.PYTHON3}>python3.x</Radio>
@@ -249,7 +249,7 @@ class TaskForm extends React.Component {
                                     initialValue: operateModel
                                 })(
                                     <RadioGroup
-                                        disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                        disabled={this.isEditExist}
                                         onChange={this.handleOperateModel.bind(this)}
                                     >
                                         <Radio key={DEAL_MODEL_TYPE.RESOURCE} value={DEAL_MODEL_TYPE.RESOURCE}>资源上传</Radio>
@@ -316,7 +316,7 @@ class TaskForm extends React.Component {
                                 initialValue: operateModel
                             })(
                                 <RadioGroup
-                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                    disabled={this.isEditExist}
                                     onChange={this.handleOperateModel.bind(this)}
                                 >
                                     <Radio key={DEAL_MODEL_TYPE.RESOURCE} value={DEAL_MODEL_TYPE.RESOURCE}>资源上传</Radio>
@@ -515,7 +515,7 @@ class TaskForm extends React.Component {
                                 initialValue: this.isEditExist ? defaultData.dataSourceId : undefined
                             })(
                                 <Select
-                                    disabled={isCreateNormal ? false : !isCreateFromMenu}
+                                    disabled={this.isEditExist}
                                 >
                                     {dataSourceOptions}
                                 </Select>
