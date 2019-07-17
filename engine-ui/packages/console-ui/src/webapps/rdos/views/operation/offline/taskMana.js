@@ -466,7 +466,6 @@ class OfflineTaskMana extends Component {
                         loading={false}
                         title={
                             <Form
-                                style={{ marginTop: '10px' }}
                                 layout="inline"
                                 className="m-form-inline"
                             >
@@ -537,7 +536,7 @@ class OfflineTaskMana extends Component {
                             visible={visibleSlidePane}
                             style={{ right: '0px', width: '60%', height: '100%', position: 'fixed', minHeight: '600px', paddingTop: '50px' }}
                         >
-                            <Tabs animated={false} onChange={this.onTabChange} tabBarStyle={{ zIndex: 3 }}>
+                            <Tabs animated={false} onChange={this.onTabChange} tabBarStyle={{ zIndex: 3 }} style={{ height: '100%' }}>
                                 <TabPane tab="依赖视图" key="taskFlow">
                                     <TaskFlowView
                                         reload={this.search}

@@ -282,13 +282,14 @@ class Index extends Component {
         const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
-                <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
+                <div className="project-dashboard develop-kit" style={{ padding: '20px 35px' }}>
                     <div className="project-header" >
                         <div className="project-search-box">
                             <div className="project-search" >
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
                             </div>
                             <Button
+                                style={{ float: 'left', margin: '10px 0 0 15px' }}
                                 type="primary"
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目

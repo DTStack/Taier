@@ -250,7 +250,6 @@ class SearchTable extends Component {
     render () {
         const { table, queryParams, visible, editRecord, cardLoading, dataCatalogue } = this.state;
         const { allTenantsProjects, teantTableTypes } = this.props;
-        const marginTop10 = { marginTop: '8px' };
         const projectOptions = allTenantsProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
@@ -260,7 +259,7 @@ class SearchTable extends Component {
             {proj.projectAlias}
         </Option>)
         const title = (
-            <Form className="m-form-inline" layout="inline" style={marginTop10}>
+            <Form className="m-form-inline" layout="inline">
                 <FormItem label="类目">
                     <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
