@@ -17,10 +17,9 @@ export default class TablePartition extends React.Component {
         }
     }
 
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
-        const { table: oldTable } = this.props;
-        const { table } = nextProps;
+    componentDidUpdate (prevProps) {
+        const { table: oldTable } = prevProps;
+        const { table } = this.props;
         if (
             table &&
             table.id &&
