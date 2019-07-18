@@ -510,6 +510,7 @@
     font-size: 12px;
 }
 .c-tabs--scroll {
+    height: 100%;
     > .ant-tabs {
         > .ant-tabs-content {
             height: calc(100% - 36px);

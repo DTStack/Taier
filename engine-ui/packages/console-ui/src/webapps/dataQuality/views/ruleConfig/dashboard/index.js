@@ -371,7 +371,7 @@ class RuleConfig extends Component {
                     onSearch={this.handleSearch}
                     onChange={this.handleChange}
                     defaultValue={params.tableName}
-                    style={{ width: 200, margin: '10px 0' }}
+                    style={{ width: 200 }}
                 />
 
                 <div className="m-l-8">
