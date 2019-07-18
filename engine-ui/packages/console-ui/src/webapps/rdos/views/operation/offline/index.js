@@ -159,11 +159,8 @@ class OfflineStatistics extends Component {
             }
         }, {
             title: '任务实例类型',
-            dataIndex: 'type',
-            key: 'type',
-            render: (text, record) => {
-                return record.type === 1 ? '补数据' : '周期调度'
-            }
+            dataIndex: 'taskTypeName',
+            key: 'taskTypeName'
         }, {
             title: '调度时间',
             dataIndex: 'cycTime',

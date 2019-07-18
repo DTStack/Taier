@@ -264,7 +264,8 @@ class EditCluster extends React.Component {
                             securityStatus: res.data.security,
                             zipConfig: {
                                 hadoopConf: conf.HDFS,
-                                yarnConf: conf.YARN
+                                yarnConf: conf.YARN,
+                                md5zip: conf.md5zip
                             }
                         })
                     } else {
@@ -673,8 +674,9 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
-        componentConf['md5zip'] = zipConfig.md5zip || {};
-        componentConf['hadoopConf'] = zipConfig.hadoopConf;
+        // componentConf['md5zip'] = zipConfig.md5zip || {};
+        // md5zip界面不做显示，随hdfs组件一起保存
+        componentConf['hadoopConf'] = Object.assign({}, zipConfig.hadoopConf, zipConfig.md5zip);
         componentConf['yarnConf'] = zipConfig.yarnConf;
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};

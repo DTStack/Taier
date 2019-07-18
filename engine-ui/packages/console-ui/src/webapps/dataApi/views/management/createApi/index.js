@@ -237,6 +237,8 @@ class NewApi extends Component {
             newState.registerParams.errorCodeList = (data.errorCodeList || []).map((item) => {
                 return new ErrorColumnModel(item);
             })
+            newState.registerParams.wsdlXml = data.wsdlXml;
+            newState.registerParams.saveWsdlXml = data.saveWsdlXml;
         } else {
             newState.paramsConfig = {
                 dataSourceType: data.dataSourceType,
@@ -388,6 +390,8 @@ class NewApi extends Component {
                 constant: true
             }
         }));
+        result.wsdlXml = registerParams.saveWsdlXml != null && registerParams.saveWsdlXml === 1 ? registerParams.wsdlXml : null;
+        result.saveWsdlXml = registerParams.saveWsdlXml;
         return result;
     }
     createApiServerParams () {
