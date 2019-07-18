@@ -40,6 +40,6 @@
         <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
         <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
         <mapper resource="mybatis/mapper/RdosEngineUniqueSignMapping.xml" />
-        <mapper resource="mybatis/mapper/RdosEngineJobStopRecordMapper.xml" />
+        <mapper resource="mybatis/mapper/RdosEngineJobStopRecordMapping.xml" />
     </mappers>
 </configuration>
