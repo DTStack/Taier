@@ -140,7 +140,7 @@ export default class TaskVersion extends React.Component {
                     pagination={false}
                 />
                 <Modal
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
+                    wrapClassName=".vertical-center-modal-no-width modal-body-nopadding"
                     title="版本对比"
                     width="900px"
                     bodyStyle={{ minHeight: '500px', paddingBottom: 20 }}

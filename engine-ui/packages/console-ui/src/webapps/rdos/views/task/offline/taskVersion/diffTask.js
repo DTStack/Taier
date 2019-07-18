@@ -4,12 +4,14 @@ import { Row, Col, Tabs, Tooltip } from 'antd';
 import DiffCodeEditor from 'widgets/editor/diff';
 
 import { TASK_TYPE } from '../../../../comm/const';
+import _ from 'lodash';
 
 const TabPane = Tabs.TabPane;
 
 class TaskInfo extends React.Component {
     constructor (props) {
         super(props);
+        console.log(this.props)
         this.state = {
             currentValue: this.props.currentValue || {},
             historyValue: this.props.historyValue || {},
@@ -116,9 +118,15 @@ class TaskInfo extends React.Component {
                      <Row>
                          <Col span="24" className="txt-left">上游任务 : </Col>
                          <Tooltip title={taskInfo.upstreamTask} overlayStyle={{ fontSize: '14px' }}>
-                             <Col span="20" style={{ wordBreak: 'break-word', whiteSpace: 'initial', lineHeight: '30px' }}>
-                                 {taskInfo.upstreamTask}
-                             </Col>
+                             {
+                                 _.map(taskInfo.upstreamTask, (item) => {
+                                     return (
+                                         <Col span="20" style={{ wordBreak: 'break-word', whiteSpace: 'initial', lineHeight: '30px' }}>
+                                             {item.name} ({item.tenantName} | {item.projectName})
+                                         </Col>
+                                     )
+                                 })
+                             }
                          </Tooltip>
                      </Row>
                      <div className="sub-title" style={crosscycleDependence ? contrastStyle : {}}>跨周期依赖</div>
@@ -268,14 +276,25 @@ class DiffTask extends React.Component {
         parseScheduleConf.schedulingCycle = schedulingCycle;
 
         if (type === 1) {
-            const upstreamTask = data.dependencyTaskNames && data.dependencyTaskNames.join(' 、');
+            // const upstreamTask = data.dependencyTaskNames && data.dependencyTaskNames.join(' 、');
+            const upstreamTask = _.map(data.dependencyTasks, (v) => {
+                return {
+                    name: v.taskName,
+                    projectName: v.projectName,
+                    tenantName: v.tenantName
+                }
+            })
             parseScheduleConf.upstreamTask = upstreamTask;
         } else {
             const readWriteLockVO = data.taskVOS || [];
             let upstreamTask = readWriteLockVO.map(v => {
-                return v.name
+                return {
+                    name: v.name,
+                    projectName: v.projectName,
+                    tenantName: v.tenantName
+                }
             })
-            upstreamTask = upstreamTask.join(' 、')
+            // upstreamTask = upstreamTask.join(' 、')
             parseScheduleConf.upstreamTask = upstreamTask;
         }
 
@@ -309,7 +328,7 @@ class DiffTask extends React.Component {
     contrastData = (historyValue) => {
         const { contrastResults } = this.state;
         const { currentTabData } = this.props;
-
+        console.log(currentTabData, historyValue);
         contrastResults.attributes = false;
         contrastResults.upstreamTask = false;
         contrastResults.crosscycleDependence = false;
