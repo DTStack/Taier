@@ -6,6 +6,7 @@ import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.base.queue.DelayBlockingQueue;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobStopRecordDAO;
@@ -27,12 +28,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.DelayQueue;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +55,7 @@ public class JobStopQueue {
 
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
-    private DelayQueue<StoppedJob<ParamAction>> stopJobQueue = new DelayQueue<StoppedJob<ParamAction>>();
+    private DelayBlockingQueue<StoppedJob<ParamAction>> stopJobQueue = new DelayBlockingQueue<StoppedJob<ParamAction>>(1000);
 
     private RdosEngineJobCacheDAO jobCacheDAO = new RdosEngineJobCacheDAO();
 
@@ -72,8 +75,14 @@ public class JobStopQueue {
      */
     private final long jobStoppedDelay;
 
+    private static final int WAIT_INTERVAL = 1000;
+
+    private AtomicLong startId = new AtomicLong(0);
+
     private ExecutorService simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
+
+    private ScheduledExecutorService scheduledService = new ScheduledThreadPoolExecutor(1, new CustomThreadFactory("acquire-stopJob"));
 
     private StopProcessor stopProcessor = new StopProcessor();
 
@@ -86,13 +95,18 @@ public class JobStopQueue {
 
     public void start() {
         if (simpleES.isShutdown()) {
-            simpleES = new ThreadPoolExecutor(2, 1, 0L, TimeUnit.MILLISECONDS,
+            simpleES = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
                     new LinkedBlockingQueue<>(), new CustomThreadFactory("stopProcessor"));
             stopProcessor.reStart();
         }
 
         simpleES.submit(stopProcessor);
-        simpleES.submit(new AcquireStopJob());
+
+        scheduledService.scheduleAtFixedRate(
+                new AcquireStopJob(),
+                WAIT_INTERVAL,
+                WAIT_INTERVAL,
+                TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
@@ -100,27 +114,37 @@ public class JobStopQueue {
         simpleES.shutdownNow();
     }
 
-    public void addToStopJobQueue(ParamAction paramAction) {
-        stopJobQueue.add(new StoppedJob<ParamAction>(paramAction));
+    public boolean tryPutStopJobQueue(ParamAction paramAction) {
+        return stopJobQueue.tryPut(new StoppedJob<ParamAction>(paramAction));
     }
 
     private class AcquireStopJob implements Runnable {
         @Override
         public void run() {
+            long tmpStartId = 0;
             while (true) {
                 try {
-                    List<RdosEngineJobStopRecord> jobStopRecords = jobStopRecordDAO.listStopJob();
-                    //todo 使用乐观锁防止多节点重复停止任务
+                    tmpStartId = startId.get();
+                    //根据条件判断是否有数据存在
+                    List<RdosEngineJobStopRecord> jobStopRecords = jobStopRecordDAO.listStopJob(startId.get());
+                    if (jobStopRecords.isEmpty()) {
+                        break;
+                    }
+                    //使用乐观锁防止多节点重复停止任务
                     Iterator<RdosEngineJobStopRecord> it = jobStopRecords.iterator();
-                    while (it.hasNext()){
+                    while (it.hasNext()) {
                         RdosEngineJobStopRecord jobStopRecord = it.next();
+                        startId.set(jobStopRecord.getId());
                         //已经被修改过version的任务代表其他节点正在处理，可以忽略
                         Integer update = jobStopRecordDAO.updateVersion(jobStopRecord.getId(), jobStopRecord.getVersion());
-                        if (update != 1){
+                        if (update != 1) {
                             it.remove();
                         }
                     }
-
+                    //经乐观锁判断，经过remove后所剩下的数据
+                    if (jobStopRecords.isEmpty()) {
+                        break;
+                    }
                     List<String> jobIds = jobStopRecords.stream().map(job -> job.getTaskId()).collect(Collectors.toList());
                     List<RdosEngineJobCache> jobCaches = jobCacheDAO.getJobByIds(jobIds);
 
@@ -142,7 +166,13 @@ public class JobStopQueue {
                             ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
                             paramAction.setStopJobId(jobStopRecord.getId());
                             workNode.fillJobClientEngineId(paramAction);
-                            JobStopQueue.this.processStopJob(paramAction);
+                            boolean res = JobStopQueue.this.processStopJob(paramAction);
+                            if (!res) {
+                                //重置version等待下一次轮询stop
+                                jobStopRecordDAO.resetRecord(jobStopRecord.getId());
+                                startId.set(tmpStartId);
+                            }
+
                         } else {
                             LOG.warn("[Unnormal Job] jobId:{}", jobStopRecord.getTaskId());
                             //jobcache表没有记录，可能任务已经停止。在update表时增加where条件不等于stopped
@@ -161,11 +191,11 @@ public class JobStopQueue {
         }
     }
 
-    private void processStopJob(ParamAction paramAction) {
+    private boolean processStopJob(ParamAction paramAction) {
         try {
             String jobId = paramAction.getTaskId();
             if (!checkCanStop(jobId, paramAction.getComputeType())) {
-                return;
+                return true;
             }
 
             //在zk上查找任务所在的worker-address
@@ -174,19 +204,20 @@ public class JobStopQueue {
             String address = zkLocalCache.getJobLocationAddr(zkTaskId);
             if (address == null) {
                 LOG.info("can't get info from engine zk for jobId" + jobId);
-                return;
+                return true;
             }
 
             if (!address.equals(zkDistributed.getLocalAddress())) {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
-                HttpSendClient.actionStopJobToWorker(address, paramAction);
                 LOG.info("action stop job:{} to worker node addr:{}." + paramAction.getTaskId(), address);
-                return;
+                return HttpSendClient.actionStopJobToWorker(address, paramAction);
             }
-            this.addToStopJobQueue(paramAction);
-        } catch (Exception e) {
-            LOG.error("", e);
+            stopJobQueue.put(new StoppedJob<ParamAction>(paramAction));
+            return true;
+        } catch (Throwable e) {
+            LOG.error("processStopJob happens error, element:{}", e);
         }
+        return false;
     }
 
     /**
@@ -237,7 +268,7 @@ public class JobStopQueue {
                             }
                             stoppedJob.incrCount();
                             stoppedJob.reset();
-                            stopJobQueue.add(stoppedJob);
+                            stopJobQueue.put(stoppedJob);
                         default:
                     }
                     jobStopRecordDAO.delete(stoppedJob.job.getStopJobId());
@@ -265,26 +296,32 @@ public class JobStopQueue {
         private int retry;
         private long now;
         private long expired;
+
         private StoppedJob(T job) {
             this.job = job;
             this.retry = jobStoppedRetry;
             this.now = System.currentTimeMillis();
             this.expired = now + jobStoppedDelay;
         }
+
         private void incrCount() {
             count += 1;
         }
+
         private boolean isRetry() {
             return retry == 0 || count <= retry;
         }
+
         private void reset() {
             this.now = System.currentTimeMillis();
             this.expired = now + jobStoppedDelay;
         }
+
         @Override
         public long getDelay(TimeUnit unit) {
             return unit.convert(this.expired - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
         }
+
         @Override
         public int compareTo(Delayed o) {
             return (int) (this.getDelay(TimeUnit.MILLISECONDS) - o.getDelay(TimeUnit.MILLISECONDS));

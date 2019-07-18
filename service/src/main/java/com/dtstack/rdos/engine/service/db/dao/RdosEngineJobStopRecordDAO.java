@@ -24,8 +24,15 @@ public class RdosEngineJobStopRecordDAO {
         });
     }
 
-    public List<RdosEngineJobStopRecord> listStopJob() {
-        return null;
+    public List<RdosEngineJobStopRecord> listStopJob(Long startId) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<List<RdosEngineJobStopRecord>>() {
+
+            @Override
+            public List<RdosEngineJobStopRecord> execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobStopRecordMapper rdosEngineJobStopRecordMapper = sqlSession.getMapper(RdosEngineJobStopRecordMapper.class);
+                return rdosEngineJobStopRecordMapper.listStopJob(startId);
+            }
+        });
     }
 
     public void delete(Long id) {
@@ -47,6 +54,17 @@ public class RdosEngineJobStopRecordDAO {
             public Integer execute(SqlSession sqlSession) throws Exception {
                 RdosEngineJobStopRecordMapper rdosEngineJobStopRecordMapper = sqlSession.getMapper(RdosEngineJobStopRecordMapper.class);
                 return rdosEngineJobStopRecordMapper.updateVersion(id, version);
+            }
+        });
+    }
+
+    public Integer resetRecord(Long id) {
+        return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>() {
+
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosEngineJobStopRecordMapper rdosEngineJobStopRecordMapper = sqlSession.getMapper(RdosEngineJobStopRecordMapper.class);
+                return rdosEngineJobStopRecordMapper.resetRecord(id);
             }
         });
     }

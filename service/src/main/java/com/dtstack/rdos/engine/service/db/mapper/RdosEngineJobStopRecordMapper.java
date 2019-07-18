@@ -12,9 +12,11 @@ public interface RdosEngineJobStopRecordMapper {
 
     Long insert(RdosEngineJobStopRecord rdosEngineJobStopRecord);
 
-    List<RdosEngineJobStopRecord> getJobRetryByTaskId(@Param("taskId") String taskId);
-
     Integer delete(@Param("id") Long id);
 
     Integer updateVersion(@Param("id") Long id, @Param("version") Integer version);
+
+    List<RdosEngineJobStopRecord> listStopJob(@Param("startId") Long startId);
+
+    Integer resetRecord(@Param("id") Long id);
 }

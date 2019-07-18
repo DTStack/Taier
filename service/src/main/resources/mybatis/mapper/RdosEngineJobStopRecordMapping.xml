@@ -25,11 +25,21 @@
     </insert>
 
     <update id="delete" parameterType="java.util.HashMap">
-        update rdos_engine_job_stop_record set gmt_modified = now(), is_deleted = 1 where id = #{id};
+        update rdos_engine_job_stop_record set gmt_modified = now(), is_deleted = 1 where id = #{id}
     </update>
 
     <update id="updateVersion" parameterType="java.util.HashMap">
-        update rdos_engine_job_stop_record set version = version + 1, gmt_modified = now() where id = #{id} and version = #{version};
+        update rdos_engine_job_stop_record set version = version + 1, gmt_modified = now() where id = #{id} and version = #{version}
+    </update>
+
+    <select id="listStopJob" parameterType="java.util.HashMap" resultMap="rdosEngineJobStopRecord">
+        select id,task_id,task_type,engine_type,compute_type,group_name,version,gmt_create,gmt_modified,is_deleted
+        from rdos_engine_job_stop_record where id > #{startId} and is_deleted =0 and version = 0
+        order by id asc limit 100;
+    </select>
+
+    <update id="resetRecord" parameterType="java.util.HashMap">
+        update rdos_engine_job_stop_record set version = 0, gmt_modified = now() where id = #{id} and is_deleted =0
     </update>
 
 </mapper>

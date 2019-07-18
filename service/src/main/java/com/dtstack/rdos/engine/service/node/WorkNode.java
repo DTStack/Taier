@@ -204,8 +204,8 @@ public class WorkNode {
 
 
 
-    public void workSendStop(ParamAction paramAction){
-        jobStopQueue.addToStopJobQueue(paramAction);
+    public boolean workSendStop(ParamAction paramAction){
+        return jobStopQueue.tryPutStopJobQueue(paramAction);
     }
 
 

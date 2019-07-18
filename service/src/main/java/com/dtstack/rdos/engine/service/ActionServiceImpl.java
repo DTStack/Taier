@@ -172,10 +172,9 @@ public class ActionServiceImpl {
     /**
      * 节点间 http 交互方法
      */
-    public void workSendStop(Map<String, Object> params) throws Exception {
+    public boolean workSendStop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        workNode.workSendStop(paramAction);
-        logger.info("stop job:{} success.", paramAction.getTaskId());
+        return workNode.workSendStop(paramAction);
     }
 
     private void checkParam(ParamAction paramAction) throws Exception{
