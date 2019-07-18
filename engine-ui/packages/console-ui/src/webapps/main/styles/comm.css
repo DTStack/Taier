@@ -243,6 +243,9 @@
     font-size: 60px;
     color: #808080;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .operation-content .anticon {
