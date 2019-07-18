@@ -84,4 +84,9 @@ public abstract class AbsClient implements IClient{
     public IRestartStrategy getRestartStrategy() {
         return restartStrategy;
     }
+
+
+    public IRestartService getRestartService(){
+        return  null;
+    }
 }

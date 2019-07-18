@@ -164,12 +164,8 @@ public class RestartDealer {
             if (restartStrategy == null) {
                 return false;
             }
-
-
-
+            //   根据策略调整参数配置
             String jobInfo =  restartStrategy.restart(jobCache.getJobInfo());
-
-
 
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
@@ -201,6 +197,14 @@ public class RestartDealer {
         }
     }
 
+    /**
+     *   根据日志提取重试策略
+     * @param engineType
+     * @param pluginInfo
+     * @param engineJobId
+     * @return
+     * @throws Exception
+     */
     private IExtractStrategy getRestartStrategy(String engineType, String pluginInfo, String engineJobId) throws Exception {
         IClient client = clientCache.getClient(engineType, pluginInfo);
         IRestartService restartService = client.getRestartService();
