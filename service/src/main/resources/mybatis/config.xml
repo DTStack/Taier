@@ -14,6 +14,7 @@
         <typeAlias alias="RdosStreamTaskCheckpoint" type="com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint" />
         <typeAlias alias="RdosPluginInfo" type="com.dtstack.rdos.engine.service.db.dataobject.RdosPluginInfo"/>
         <typeAlias alias="RdosEngineUniqueSign" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign"/>
+        <typeAlias alias="RdosEngineJobStopRecord" type="com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord"/>
     </typeAliases>
     <environments default="production">
         <environment id="production">
@@ -39,5 +40,6 @@
         <mapper resource="mybatis/mapper/RdosStreamTaskCheckpointMapping.xml" />
         <mapper resource="mybatis/mapper/RdosPluginInfoMapping.xml" />
         <mapper resource="mybatis/mapper/RdosEngineUniqueSignMapping.xml" />
+        <mapper resource="mybatis/mapper/RdosEngineJobStopRecordMapper.xml" />
     </mappers>
 </configuration>
