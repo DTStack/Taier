@@ -85,5 +85,8 @@ export default {
     },
     getRegisterInfo (params) {
         return http.post(req.GET_REGISTER_API_INFO, params)
+    },
+    getWsdlXml (params) {
+        return http.post(req.GET_WSD_XML, params)
     }
 }

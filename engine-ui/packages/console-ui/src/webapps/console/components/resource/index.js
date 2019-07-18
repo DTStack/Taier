@@ -50,7 +50,7 @@ class Resource extends Component {
 
     // 集群下拉
     getClusterListOptionView () {
-        const { clusterList } = this.props;
+        const { clusterList = [] } = this.props;
         return clusterList.map((item, index) => {
             return <Option key={item.id} value={item.clusterName}>{item.clusterName}</Option>
         })
@@ -127,7 +127,6 @@ class Resource extends Component {
             return sum
         }
         const freeSlotsTotal = getfreeSlots(freeSlots);
-        console.log(freeSlotsTotal)
         if (freeSlotsTotal === 0 && data.length > 0) {
             return <p style={{ marginLeft: '40px', color: '#db5a5aed' }}>Flink 集群计算资源不足</p>
         } else {
