@@ -25,9 +25,9 @@ public class JLogstashType extends AppType {
         if (StringUtils.isBlank(root)) {
             throw new IllegalArgumentException("Must specify jlogstash.root");
         }
-        String javaHome = conf.get("java.home");
-        if (StringUtils.isBlank(javaHome)) {
-            throw new IllegalArgumentException("Must specify java.home");
+        String javaHome = conf.get("java.home", "");
+        if (StringUtils.isNotBlank(javaHome) && !javaHome.endsWith("/")) {
+            javaHome += "/";
         }
         String cmdOpts = clientArguments.getCmdOpts();
         if (StringUtils.isBlank(cmdOpts)) {
@@ -51,7 +51,7 @@ public class JLogstashType extends AppType {
         }
 
         List<String> jlogstashArgs = new ArrayList<>(20);
-        jlogstashArgs.add(javaHome + "/java");
+        jlogstashArgs.add(javaHome + "java");
         jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
@@ -66,7 +66,7 @@ public class JLogstashType extends AppType {
         for (String arg : jlogstashArgs) {
             command.append(arg).append(" ");
         }
-        if (buildCmdLog.isDebugEnabled()){
+        if (buildCmdLog.isDebugEnabled()) {
             buildCmdLog.debug("jlogstash launch command: " + command.toString());
         }
 
