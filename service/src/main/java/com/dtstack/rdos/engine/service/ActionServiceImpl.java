@@ -7,12 +7,11 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.JobSubmitExecutor;
 import com.dtstack.rdos.engine.service.db.dao.*;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobStopRecord;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineUniqueSign;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.node.JobStopAction;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
@@ -21,7 +20,6 @@ import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,22 +42,26 @@ public class ActionServiceImpl {
 
     private static final Logger logger = LoggerFactory.getLogger(ActionServiceImpl.class);
 
-    private RdosEngineStreamJobDAO engineStreamTaskDAO = new RdosEngineStreamJobDAO();
+    private RdosEngineStreamJobDAO streamJobDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineBatchJobDAO batchJobDAO = new RdosEngineBatchJobDAO();
 
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private RdosEngineJobCacheDAO jobCacheDAO = new RdosEngineJobCacheDAO();
 
-    private RdosEngineUniqueSignDAO generateUniqueSignDAO = new RdosEngineUniqueSignDAO();
+    private RdosEngineUniqueSignDAO uniqueSignDAO = new RdosEngineUniqueSignDAO();
 
     private RdosEngineStreamJobRetryDAO streamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
 
     private RdosEngineBatchJobRetryDAO batchJobRetryDAO = new RdosEngineBatchJobRetryDAO();
 
+    private RdosEngineJobStopRecordDAO jobStopRecordDAO = new RdosEngineJobStopRecordDAO();
+
 
     private WorkNode workNode = WorkNode.getInstance();
 
     private static int length = 8;
+
+    private static int TASK_STOP_LIMIT = 1000;
 
     private Random random = new Random();
 
@@ -153,43 +155,26 @@ public class ActionServiceImpl {
 
         List<Map<String, Object>> paramList = (List<Map<String, Object>>) paramsObj;
 
-        List<String> jobIds = new ArrayList<>(paramList.size());
-        for(Map<String, Object> param : paramList){
-            String taskId = MapUtils.getString(param,"taskId");
-            jobIds.add(taskId);
+        if (paramList.size() > TASK_STOP_LIMIT){
+            throw new RdosException("please don't stop too many tasks at once, limit:" + TASK_STOP_LIMIT);
         }
-        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
 
-        //为了下面兼容异常状态的任务停止
-        Map<String,RdosEngineJobCache> jobCacheMap = new HashMap<>(jobCaches.size());
-        for (RdosEngineJobCache jobCache : jobCaches){
-            jobCacheMap.put(jobCache.getJobId(), jobCache);
+        for(Map<String, Object> param : paramList){
+            /**
+             * 在性能要求较高的接口上尽可能使用java原生方法，性能对比 {@link com.dtstack.rdos.engine.entrance.test.RdosEngineJobStopRecordCompare}
+             */
+            RdosEngineJobStopRecord jobStopRecord = RdosEngineJobStopRecord.toEntity(param);
+            jobStopRecordDAO.insert(jobStopRecord);
         }
-        for(String jobId : jobIds){
-            RdosEngineJobCache jobCache = jobCacheMap.get(jobId);
-            if (jobCache != null){
-                ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
-                fillJobClientEngineId(paramAction);
-                workNode.addStopJob(paramAction);
-            } else {
-                //异常状态下的任务停止
-                logger.warn("[Unnormal Job] jobId:{}", jobId);
-                if (engineStreamTaskDAO.getRdosTaskByTaskId(jobId) != null){
-                    engineStreamTaskDAO.updateTaskStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-                } else {
-                    batchJobDAO.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
-                }
-            }
-        }
+
     }
 
     /**
      * 节点间 http 交互方法
      */
-    public void workSendStop(Map<String, Object> params) throws Exception {
+    public boolean workSendStop(Map<String, Object> params) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(params, ParamAction.class);
-        workNode.workSendStop(paramAction);
-        logger.info("stop job:{} success.", paramAction.getTaskId());
+        return workNode.workSendStop(paramAction);
     }
 
     private void checkParam(ParamAction paramAction) throws Exception{
@@ -211,7 +196,7 @@ public class ActionServiceImpl {
         String jobId = paramAction.getTaskId();
         Integer computerType = paramAction.getComputeType();
         if (ComputeType.STREAM.getType().equals(computerType)) {
-            RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
             if(rdosEngineStreamJob != null){
                 return true;
             }
@@ -240,25 +225,25 @@ public class ActionServiceImpl {
 
         //当前任务已经存在在engine里面了
         //不允许相同任务同时在engine上运行---考虑将cache的清理放在任务结束的时候(停止，取消，完成)
-        if(engineJobCacheDao.getJobById(jobId) != null){
+        if(jobCacheDAO.getJobById(jobId) != null){
             return result;
         }
         try {
             if (ComputeType.STREAM.getType().equals(computerType)) {
-                RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+                RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
                 if(rdosEngineStreamJob == null){
                     rdosEngineStreamJob = new RdosEngineStreamJob();
                     rdosEngineStreamJob.setTaskId(jobId);
                     rdosEngineStreamJob.setTaskName(paramAction.getName());
                     rdosEngineStreamJob.setStatus(RdosTaskStatus.ENGINEACCEPTED.getStatus().byteValue());
-                    engineStreamTaskDAO.insert(rdosEngineStreamJob);
+                    streamJobDAO.insert(rdosEngineStreamJob);
                     result =  true;
                 }else{
 
                     result = RdosTaskStatus.canStartAgain(rdosEngineStreamJob.getStatus());
                     if(result && rdosEngineStreamJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus()){
                         int oldStatus = rdosEngineStreamJob.getStatus().intValue();
-                        Integer update = engineStreamTaskDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus, paramAction.getName());
+                        Integer update = streamJobDAO.updateTaskStatusCompareOld(rdosEngineStreamJob.getTaskId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(), oldStatus, paramAction.getName());
                         if (update==null||update!=1){
                             result = false;
                         }
@@ -293,35 +278,6 @@ public class ActionServiceImpl {
     }
 
     /**
-     * 根据taskId 补齐 engineTaskId
-     * @param paramAction
-     */
-    public void fillJobClientEngineId(ParamAction paramAction){
-        Integer computeType = paramAction.getComputeType();
-        String jobId = paramAction.getTaskId();
-
-        if(paramAction.getEngineTaskId() == null){
-            //从数据库补齐数据
-            if(ComputeType.STREAM.getType().equals(computeType)){
-                RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
-                if(streamJob != null){
-                    paramAction.setEngineTaskId(streamJob.getEngineTaskId());
-                    paramAction.setApplicationId(streamJob.getApplicationId());
-                }
-            }
-
-            if(ComputeType.BATCH.getType().equals(computeType)){
-                RdosEngineBatchJob batchJob = batchJobDAO.getRdosTaskByTaskId(jobId);
-                if(batchJob != null){
-                    paramAction.setEngineTaskId(batchJob.getEngineJobId());
-                    paramAction.setApplicationId(batchJob.getApplicationId());
-                }
-            }
-        }
-
-    }
-
-    /**
      * 根据jobid 和 计算类型，查询job的状态
      */
     public Integer status(@Param("jobId") String jobId,@Param("computeType") Integer computeType) throws Exception {
@@ -332,7 +288,7 @@ public class ActionServiceImpl {
 
         Integer status = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob streamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
                 status = streamJob.getStatus().intValue();
             }
@@ -356,7 +312,7 @@ public class ActionServiceImpl {
 
         Map<String,Integer> result = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            List<RdosEngineStreamJob> streamJobs = engineStreamTaskDAO.getRdosTaskByTaskIds(jobIds);
+            List<RdosEngineStreamJob> streamJobs = streamJobDAO.getRdosTaskByTaskIds(jobIds);
             if (CollectionUtils.isNotEmpty(streamJobs)) {
                 result = new HashMap<>(streamJobs.size());
                 for (RdosEngineStreamJob streamJob:streamJobs){
@@ -387,7 +343,7 @@ public class ActionServiceImpl {
 
         Date startTime = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob streamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
                 startTime = streamJob.getExecStartTime();
             }
@@ -414,7 +370,7 @@ public class ActionServiceImpl {
 
         Map<String,String> log = new HashMap<>(2);
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            RdosEngineStreamJob streamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob streamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
             if (streamJob != null) {
                 log.put("logInfo",streamJob.getLogInfo());
                 log.put("engineLog",streamJob.getEngineLog());
@@ -477,7 +433,7 @@ public class ActionServiceImpl {
 
         List<Map<String,Object>> result = null;
         if (ComputeType.STREAM.getType().equals(computeType)) {
-            List<RdosEngineStreamJob> streamJobs = engineStreamTaskDAO.getRdosTaskByTaskIds(jobIds);
+            List<RdosEngineStreamJob> streamJobs = streamJobDAO.getRdosTaskByTaskIds(jobIds);
             if (CollectionUtils.isNotEmpty(streamJobs)) {
                 result = new ArrayList<>(streamJobs.size());
                 for (RdosEngineStreamJob streamJob:streamJobs){
@@ -515,7 +471,7 @@ public class ActionServiceImpl {
     public List<String> containerInfos(Map<String, Object> param) throws Exception {
         ParamAction paramAction = PublicUtil.mapToObject(param, ParamAction.class);
         checkParam(paramAction);
-        fillJobClientEngineId(paramAction);
+        workNode.fillJobClientEngineId(paramAction);
         JobClient jobClient = new JobClient(paramAction);
         List<String> infos = JobSubmitExecutor.getInstance().containerInfos(jobClient);
         return infos;
@@ -542,7 +498,7 @@ public class ActionServiceImpl {
                 RdosEngineUniqueSign generateUniqueSign = new RdosEngineUniqueSign();
                 generateUniqueSign.setUniqueSign(sb.toString());
                 //新增操作
-                generateUniqueSignDAO.generate(generateUniqueSign);
+                uniqueSignDAO.generate(generateUniqueSign);
                 break;
             }catch(Exception e){
             }
@@ -559,7 +515,7 @@ public class ActionServiceImpl {
         Byte currStatus;
 
         if(ComputeType.STREAM.getType().equals(computeType)){
-            RdosEngineStreamJob rdosEngineStreamJob = engineStreamTaskDAO.getRdosTaskByTaskId(jobId);
+            RdosEngineStreamJob rdosEngineStreamJob = streamJobDAO.getRdosTaskByTaskId(jobId);
             Preconditions.checkNotNull(rdosEngineStreamJob, "not exists job with id " + jobId);
             currStatus = rdosEngineStreamJob.getStatus();
         }else if(ComputeType.BATCH.getType().equals(computeType)){
@@ -577,9 +533,9 @@ public class ActionServiceImpl {
         //do reset status
 
         if(ComputeType.STREAM.getType().equals(computeType)){
-            engineStreamTaskDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.UNSUBMIT.getStatus());
-            engineStreamTaskDAO.updateSubmitLog(jobId, "");
-            engineStreamTaskDAO.updateEngineLog(jobId, "");
+            streamJobDAO.updateTaskEngineIdAndStatus(jobId, null, null, RdosTaskStatus.UNSUBMIT.getStatus());
+            streamJobDAO.updateSubmitLog(jobId, "");
+            streamJobDAO.updateEngineLog(jobId, "");
         }else if(ComputeType.BATCH.getType().equals(computeType)){
             // TODO
             batchJobDAO.updateJobEngineIdAndStatus(jobId, null, RdosTaskStatus.UNSUBMIT.getStatus(),null);
