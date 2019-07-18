@@ -6,6 +6,8 @@ import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.*;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.execution.base.restart.IExtractStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartService;
 import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobRetryDAO;
@@ -142,6 +144,7 @@ public class RestartDealer {
         }
         try {
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
+            // 是否需要重新提交
             boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum);
             LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
                                         jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
@@ -156,7 +159,18 @@ public class RestartDealer {
                 return false;
             }
 
-            String jobInfo = jobCache.getJobInfo();
+            IExtractStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, engineJobId);
+
+            if (restartStrategy == null) {
+                return false;
+            }
+
+
+
+            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo());
+
+
+
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobClient.getTaskId();
@@ -175,6 +189,7 @@ public class RestartDealer {
             }
 
             resetStatus(jobClient, false);
+            //  添加到重试队列中
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
@@ -184,6 +199,13 @@ public class RestartDealer {
             LOG.error("", e);
             return false;
         }
+    }
+
+    private IExtractStrategy getRestartStrategy(String engineType, String pluginInfo, String engineJobId) throws Exception {
+        IClient client = clientCache.getClient(engineType, pluginInfo);
+        IRestartService restartService = client.getRestartService();
+        IExtractStrategy strategy = restartService.parseErrorLog(engineJobId, client);
+        return strategy;
     }
 
     private void setRetryTag(JobClient jobClient){
@@ -245,8 +267,10 @@ public class RestartDealer {
             return false;
         }
 
-        IRestartStrategy restartStrategy = client.getRestartStrategy();
-        if(restartStrategy == null){
+
+        IRestartService restartService = client.getRestartService();
+
+        if(restartService == null){
             LOG.warn("engineType " + engineType + " not support restart." );
             return false;
         }
@@ -264,8 +288,8 @@ public class RestartDealer {
         if(!jobClient.getIsFailRetry()){
             return false;
         }
-
-        return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
+        // 未到达失败重试次数
+        return restartService.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
     }
 
     private void resetStatus(JobClient jobClient, boolean submitFailed){

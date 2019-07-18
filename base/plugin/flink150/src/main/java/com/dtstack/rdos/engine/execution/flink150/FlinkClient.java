@@ -17,9 +17,11 @@ import com.dtstack.rdos.engine.execution.base.enums.EJobType;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
+import com.dtstack.rdos.engine.execution.base.restart.IRestartService;
 import com.dtstack.rdos.engine.execution.flink150.enums.Deploy;
 import com.dtstack.rdos.engine.execution.flink150.enums.FlinkYarnMode;
 import com.dtstack.rdos.engine.execution.flink150.parser.AddJarOperator;
+import com.dtstack.rdos.engine.execution.flink150.restart.FlinkRestartService;
 import com.dtstack.rdos.engine.execution.flink150.util.FLinkConfUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.FlinkUtil;
 import com.dtstack.rdos.engine.execution.flink150.util.HadoopConf;
@@ -143,10 +145,13 @@ public class FlinkClient extends AbsClient {
 
     private FlinkYarnSessionStarter flinkYarnSessionStarter;
 
+    private IRestartService restartService;
+
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     public FlinkClient(){
         this.restartStrategy = new FlinkRestartStrategy();
+        this.restartService = new FlinkRestartService();
     }
 
     @Override
@@ -933,5 +938,9 @@ public class FlinkClient extends AbsClient {
     public ClusterClient getFlinkClient() {
         return flinkClient;
     }
+
+    public IRestartService getRestartService() {
+        return restartService;
+    };
 
 }

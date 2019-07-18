@@ -336,6 +336,10 @@ public class TaskStatusListener implements Runnable{
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
+
+                    String engineLog = JobClient.getEngineLog(engineTypeName, pluginInfoStr, jobIdentifier);
+
+                    // 重试状态 先不更新状态
                     boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
