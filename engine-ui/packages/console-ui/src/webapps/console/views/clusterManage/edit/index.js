@@ -166,8 +166,7 @@ class EditCluster extends React.Component {
                             zipConfig: JSON.stringify({
                                 yarnConf: componentConf.yarnConf,
                                 hadoopConf: componentConf.hadoopConf,
-                                hiveMeta: componentConf.hiveMeta, // (暂无用数据)
-                                md5zip: componentConf.md5zip || {}
+                                hiveMeta: componentConf.hiveMeta // (暂无用数据)
                             }),
                             flink_params: extParams.flinkKeys,
                             spark_params: extParams.sparkKeys,
@@ -263,9 +262,10 @@ class EditCluster extends React.Component {
                             file: file,
                             securityStatus: res.data.security,
                             zipConfig: {
-                                hadoopConf: conf.HDFS,
-                                yarnConf: conf.YARN,
-                                md5zip: conf.md5zip
+                                hadoopConf: Object.assign({}, conf.hadoopConf, {
+                                    md5zip: conf.md5zip
+                                }),
+                                yarnConf: conf.YARN
                             }
                         })
                     } else {
@@ -674,9 +674,8 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
-        // componentConf['md5zip'] = zipConfig.md5zip || {};
-        // md5zip界面不做显示，随hdfs组件一起保存
-        componentConf['hadoopConf'] = Object.assign({}, zipConfig.hadoopConf, zipConfig.md5zip);
+        // md5zip 随hdfs组件一起保存
+        componentConf['hadoopConf'] = zipConfig.hadoopConf;
         componentConf['yarnConf'] = zipConfig.yarnConf;
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
