@@ -5,7 +5,7 @@ import { cloneDeep, get } from 'lodash';
 
 import utils from 'utils/index';
 import NotFund from 'widgets/notFund';
-import { initNotification } from 'funcs';
+import { initNotification, isCurrentProjectChanged, isCookieBeProjectType } from 'funcs';
 import ChromeDownload from 'widgets/chromeDownload';
 import Cookies from 'widgets/cookies';
 import * as apps from 'config/base';
@@ -483,19 +483,12 @@ class Main extends Component {
     }
 
     onFieldsChanged = (fields) => {
-        const projectIdCheckMap = {
-            'project_id': apps.rdosApp.filename,
-            'science_project_id': apps.scienceApp.filename,
-            'stream_project_id': apps.streamApp.filename
-        }
         if (fields.length > 0 && !document.hasFocus()) {
             let shouldReload = false;
-            const pathname = location.pathname;
             for (let i = 0; i < fields.length; i++) {
                 let key = fields[i].key;
-                const projectPathname = projectIdCheckMap[key];
-                if (projectPathname) {
-                    if (pathname.indexOf(projectPathname) > -1) {
+                if (isCookieBeProjectType(key)) {
+                    if (isCurrentProjectChanged(key)) {
                         shouldReload = true;
                         break;
                     }
