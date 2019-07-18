@@ -1,5 +1,6 @@
 package com.dtstack.yarn.common.type;
 
+import ch.qos.logback.classic.Level;
 import com.dtstack.yarn.client.ClientArguments;
 import com.dtstack.yarn.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
@@ -57,7 +58,7 @@ public class JLogstashType extends AppType {
         jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");
-        jlogstashArgs.add("-vvv");
+        jlogstashArgs.add("-" + getJlogstashLogLevel(clientArguments.getLogLevel().toUpperCase()));
         jlogstashArgs.add("-f " + encodedOpts);
         jlogstashArgs.add("-p " + root);
         jlogstashArgs.add("-name " + appName);
@@ -72,6 +73,22 @@ public class JLogstashType extends AppType {
 
         return command.toString();
 
+    }
+
+    private String getJlogstashLogLevel(String logLevel) {
+        if (Level.TRACE.levelStr.equals(logLevel)) {
+            return "vvvvv";
+        } else if (Level.DEBUG.levelStr.equals(logLevel)) {
+            return "vvvv";
+        } else if (Level.INFO.levelStr.equals(logLevel)) {
+            return "vvv";
+        } else if (Level.WARN.levelStr.equals(logLevel)) {
+            return "vv";
+        } else if (Level.ERROR.levelStr.equals(logLevel)) {
+            return "v";
+        } else {
+            return "vvv";
+        }
     }
 
     /**
