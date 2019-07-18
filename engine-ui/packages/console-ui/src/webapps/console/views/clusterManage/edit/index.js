@@ -262,7 +262,7 @@ class EditCluster extends React.Component {
                             file: file,
                             securityStatus: res.data.security,
                             zipConfig: {
-                                hadoopConf: Object.assign({}, conf.hadoopConf, {
+                                hadoopConf: Object.assign({}, conf.HDFS, {
                                     md5zip: conf.md5zip
                                 }),
                                 yarnConf: conf.YARN
