@@ -12,7 +12,8 @@ import model from './modules/model';
 import { editor } from './modules/editor';
 import modal from './modules/modal';
 import common from './modules/common';
-import project from './modules/project'
+import project from './modules/project';
+import taskType from './modules/task';
 import dataManage from './modules/dataManage'
 
 // 全局State
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
     component,
     resource,
     model,
+    taskType,
     dataManage
 })
 

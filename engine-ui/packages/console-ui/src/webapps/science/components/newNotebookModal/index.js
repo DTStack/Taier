@@ -18,7 +18,7 @@ const RadioGroup = Radio.Group;
         files: state.notebook.files,
         resourceFiles: state.resource.files,
         modal: state.modal,
-        taskType: state.taskType
+        taskType: state.taskType.taskType
     }
 }, dispatch => {
     return {
@@ -159,7 +159,7 @@ class NewNotebookModalForm extends React.Component {
                         rules: [{
                             required: true, message: `请选择任务类型`
                         }],
-                        initialValue: TASK_TYPE.PYTHON
+                        initialValue: taskType[0] && taskType[0].key
                     })(
                         <Select
                             // disabled={this.isEditExist || createFromGraph}
