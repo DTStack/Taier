@@ -2,7 +2,7 @@ import { debounce, endsWith } from 'lodash';
 import { notification, Modal } from 'antd'
 import React from 'react';
 import { MY_APPS } from 'main/consts';
-import { rdosApp } from 'config/base';
+import { rdosApp, streamApp, scienceApp } from 'config/base';
 
 /**
  * 存放一些零碎的公共方法
@@ -451,4 +451,20 @@ export function toRdosGateway (uri, params = {}) {
         return `${key}=${value}`
     }).join('&');
     window.open(`${rdosApp.link}/gateway${queryStr ? `?${queryStr}` : ''}`, 'rdos_open');
+}
+export function isCookieBeProjectType (key) {
+    return ['project_id', 'science_project_id', 'stream_project_id'].includes(key);
+}
+export function isCurrentProjectChanged (key) {
+    const projectIdCheckMap = {
+        'project_id': rdosApp.filename,
+        'science_project_id': scienceApp.filename,
+        'stream_project_id': streamApp.filename
+    }
+    const pathname = location.pathname;
+    const projectPathname = projectIdCheckMap[key];
+    if (projectPathname && pathname.indexOf(projectPathname) > -1) {
+        return true;
+    }
+    return false;
 }
