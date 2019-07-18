@@ -1,12 +1,11 @@
 import React from 'react'
 import { isArray } from 'lodash'
-import { Row } from 'antd'
 
 import Editor from 'widgets/code-editor'
 import { TASK_STATUS } from '../../../comm/const';
 import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
 
-const editorStyle = { height: '300px' }
+const editorStyle = { height: '100%' }
 
 const editorOptions = {
     mode: 'text',
@@ -47,7 +46,7 @@ export default function LogInfo (props) {
         console.log('engineLog is not a json\n', e)
     }
     const logStyle = Object.assign({}, editorStyle, {
-        height: props.height
+        height: props.height || '100%'
     });
 
     const errors = engineLog['all-exceptions'] || ''
@@ -70,10 +69,8 @@ export default function LogInfo (props) {
     }
 
     return (
-        <div>
-            <Row style={logStyle}>
-                <Editor sync value={logText} options={editorOptions} />
-            </Row>
+        <div style={logStyle}>
+            <Editor style={{ height: '100%' }} sync value={logText} options={editorOptions} />
         </div>
     )
 }

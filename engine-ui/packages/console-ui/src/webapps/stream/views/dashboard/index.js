@@ -289,7 +289,6 @@ class Index extends Component {
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
                             </div>
                             <Button
-                                style={{ float: 'left', margin: '10px 0 0 15px' }}
                                 type="primary"
                                 onClick={() => { this.setState({ visible: true }) }}>
                                 创建项目
@@ -348,7 +347,7 @@ class Index extends Component {
                                                                 v.status != PROJECT_STATUS.NORMAL || (taskNav && !taskNav.isShow) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
-                                                                            style={{ marginRight: '10' }}
+                                                                            style={{ marginRight: '6px' }}
                                                                             onClick={() => { this.setRouter('realtime', v) }}
                                                                             onMouseOver={(e) => { this.handleMouseOver('realtime', e) }}
                                                                             onMouseOut={(e) => { this.handleMouseOut('realtime', e) }}
@@ -366,6 +365,7 @@ class Index extends Component {
                                                                 v.status != PROJECT_STATUS.NORMAL || (operaNav && !operaNav.isShow) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
+                                                                            style={{ marginLeft: '6px' }}
                                                                             onClick={() => { this.setRouter('operation', v) }}
                                                                             onMouseOver={(e) => { this.handleMouseOver('operation', e) }}
                                                                             onMouseOut={(e) => { this.handleMouseOut('operation', e) }}
