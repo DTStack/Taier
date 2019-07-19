@@ -202,10 +202,12 @@ export default Form.create({
             newFormData.nodePid = values.nodePid.value
         }
         if (values.hasOwnProperty('resourceIdList')) {
-            newFormData.resourceIdList = values.resourceIdList.value ? [values.resourceIdList.value] : []
+            const resourceIdList = values.resourceIdList.value;
+            newFormData.resourceIdList = resourceIdList ? [resourceIdList] : []
         }
         if (values.hasOwnProperty('refResourceIdList')) {
-            newFormData.refResourceIdList = values.refResourceIdList.value ? [values.refResourceIdList.value] : []
+            const refResourceIdList = values.refResourceIdList.value;
+            newFormData.refResourceIdList = refResourceIdList ? [refResourceIdList] : []
         }
         console.log(newFormData)
         return props.onChange(newFormData, values);
