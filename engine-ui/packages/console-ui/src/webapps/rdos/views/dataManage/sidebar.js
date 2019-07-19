@@ -79,7 +79,7 @@ export default class Sidebar extends Component {
                             <img src="/public/rdos/img/icon/icon-classity.svg" className='sidebar__icon' /><span className="hide-text">数据类目</span>
                         </Link>
                     </Menu.Item>
-                    <SubMenu key="desensitization" title={<span><img src="/public/rdos/img/icon/icon-tuomin.svg" className='sidebar__icon' /><span className="hide-text">数据脱敏</span></span>}>
+                    <SubMenu key="desensitization" style={{ height: '42px' }} title={<span><img src="/public/rdos/img/icon/icon-tuomin.svg" className='sidebar__icon' /><span className="hide-text">数据脱敏</span></span>}>
                         <Menu.Item key="desensitization-manage">
                             <Link to={`${base}/desensitization-manage`}>
                                 脱敏管理
