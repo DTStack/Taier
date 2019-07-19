@@ -295,7 +295,7 @@ class ResourceManage extends React.Component {
                                                 <TabPane tab="租户绑定" key={`${engineType}-tenant`}>
                                                     <div style={{ margin: 15 }}>
                                                         <Search
-                                                            style={{ width: '200px', marginBottom: '20' }}
+                                                            style={{ width: '200px', marginBottom: '20px' }}
                                                             placeholder='按租户名称搜索'
                                                             value={queryParams.tenantName}
                                                             onChange={(e) => {

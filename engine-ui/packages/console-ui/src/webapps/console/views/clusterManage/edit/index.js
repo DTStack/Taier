@@ -781,7 +781,7 @@ class EditCluster extends React.Component {
         const { clusterData, file, uploadLoading, core, nodeNumber, memory } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
-        return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20 20 10 20' }} noHovering>
+        return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
             <div style={{ marginTop: '20px', borderBottom: '1px dashed #DDDDDD' }}>
                 <Row>
                     <Col span={14} pull={2}>
@@ -1044,7 +1044,7 @@ class EditCluster extends React.Component {
                                         {this.displayResource(engineType)}
                                         {
                                             isView ? null : (
-                                                <div style={{ margin: '5 20 0 20', textAlign: 'right' }}>
+                                                <div style={{ margin: '5px 20px 0px 20px', textAlign: 'right' }}>
                                                     {isHadoop && <Button onClick={() => {
                                                         this.setState({
                                                             modalKey: Math.random(),
@@ -1064,7 +1064,7 @@ class EditCluster extends React.Component {
                                         {/* 组件配置 */}
                                         <Card
                                             className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : 'calc(100% - 50px)' }}
+                                            style={{ margin: '10px 20px 20px 20px', height: isHadoop ? '500px' : 'calc(100% - 50px)' }}
                                             noHovering
                                         >
                                             <Tabs
