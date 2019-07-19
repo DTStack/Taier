@@ -184,6 +184,8 @@ public class JobStopQueue {
                             jobStopRecordDAO.delete(jobStopRecord.getId());
                         }
                     }
+
+                    Thread.sleep(500);
                 } catch (Throwable e) {
                     LOG.error("when acquire stop jobs happens error:{}", e);
                 }
@@ -219,8 +221,9 @@ public class JobStopQueue {
             return true;
         } catch (Throwable e) {
             LOG.error("processStopJob happens error, element:{}", e);
+            //停止发生错误时，需要避免死循环进行停止
+            return true;
         }
-        return false;
     }
 
     /**
