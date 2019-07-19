@@ -29,7 +29,7 @@ export default class DtyarnShellConfig extends React.Component {
                     >
                         {getFieldDecorator('dtyarnshellConf.javaHome', {
                             rules: [{
-                                required: true,
+                                required: false,
                                 message: '请输入java.home'
                             }]
                         })(

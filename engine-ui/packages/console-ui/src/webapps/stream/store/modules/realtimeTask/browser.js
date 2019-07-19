@@ -80,11 +80,11 @@ export function openPage (params) {
 
 export function newPage (page) {
     return dispatch => {
-        dispatch(setCurrentPage(page))
-        return dispatch({
+        dispatch({
             type: browserAction.NEW_PAGE,
             data: page
         })
+        dispatch(setCurrentPage(page))
     }
 }
 

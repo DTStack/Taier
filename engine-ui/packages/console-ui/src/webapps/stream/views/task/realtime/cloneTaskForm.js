@@ -44,7 +44,6 @@ class CloneTaskForm extends Component {
 
         const { getFieldDecorator } = form
         const cloneName = taskInfo.name;
-        console.log(taskInfo)
         return (
             <div id="JS_task_modal_realtime">
                 <Modal

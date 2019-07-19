@@ -475,6 +475,10 @@ class PatchDataDetail extends Component {
             width: '150px',
             sorter: true
         }, {
+            title: '重试次数',
+            dataIndex: 'retryNum',
+            key: 'retryNum'
+        }, {
             title: '责任人',
             dataIndex: 'dutyUserName',
             key: 'dutyUserName'
