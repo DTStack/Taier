@@ -44,7 +44,6 @@ export default class Sidebar extends Component {
                 <Menu
                     onClick={this.handleClick}
                     selectedKeys={[this.state.current]}
-                    defaultOpenKeys={['offline', 'alarm']}
                     defaultSelectedKeys={[this.state.current]}
                     style={{ height: '100%' }}
                     mode={this.props.mode}

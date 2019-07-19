@@ -65,10 +65,6 @@
                 letter-spacing: 3px;
                 margin-bottom: 0;
                 font-size: 12px;
-                &.ant-tabs-tab-active {
-                    background: #2491F7;
-                    color: #FFFFFF;
-                }
             }
             // .ant-tabs-tab:hover{
             //     background:#eef6fe;
@@ -294,7 +290,7 @@
                 padding-right: 15px;
                 padding-top: 5px;
                 padding-bottom: 5px;
-                
+                margin-left: 1px;
                 .anticon {
                     font-size: 14px;
                     cursor: pointer;
