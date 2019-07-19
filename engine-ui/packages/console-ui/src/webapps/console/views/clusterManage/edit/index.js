@@ -439,7 +439,8 @@ class EditCluster extends React.Component {
             configString: JSON.stringify(componentConf[getComponentConfKey(component.componentTypeCode)])
         }).then(res => {
             if (res.code === 1) {
-                this.getDataList(this.state.defaultEngineType);
+                // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
+                // this.getDataList(this.state.defaultEngineType);
                 message.success(`${component.componentName}保存成功`)
             }
         })
