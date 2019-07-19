@@ -42,15 +42,15 @@ public class HttpSendClient {
         return MathUtil.getBoolean(sendData.get("send"));
     }
 
-    public static boolean actionStopJobToWorker(String address, ParamAction paramMap) throws IOException {
+    public static Boolean actionStopJobToWorker(String address, ParamAction paramMap) throws IOException {
         String dataJson = PoolHttpClient.post(UrlUtil.getHttpUrl(address, Urls.WORK_SEND_STOP), PublicUtil.ObjectToMap(paramMap));
         if(dataJson == null){
-            return false;
+            return null;
         }
 
         Map<String, Object> resultMap = PublicUtil.jsonStrToObject(dataJson, Map.class);
         if(!resultMap.containsKey("data")){
-            return false;
+            return null;
         }
         Map<String, Object> result = (Map<String, Object>) resultMap.get("data");
         return MathUtil.getBoolean(result.get("send"), false);

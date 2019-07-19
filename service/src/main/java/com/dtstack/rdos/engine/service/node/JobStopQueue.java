@@ -210,7 +210,10 @@ public class JobStopQueue {
             if (!address.equals(zkDistributed.getLocalAddress())) {
                 paramAction.setRequestStart(RequestStart.NODE.getStart());
                 LOG.info("action stop job:{} to worker node addr:{}." + paramAction.getTaskId(), address);
-                return HttpSendClient.actionStopJobToWorker(address, paramAction);
+                Boolean res = HttpSendClient.actionStopJobToWorker(address, paramAction);
+                if (res != null) {
+                    return res;
+                }
             }
             stopJobQueue.put(new StoppedJob<ParamAction>(paramAction));
             return true;
