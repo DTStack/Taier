@@ -71,21 +71,9 @@ export const modelComponentType = {
     }
 }
 export const TASK_TYPE = { // 任务类型
-    PYTHON: 1,
-    PYSPARK: 2
+    PYTHON: 3,
+    PYSPARK: 6
 }
-export const TASK_TYPE_VALUE = [
-    {
-        key: TASK_TYPE.PYTHON,
-        name: 'Python',
-        value: TASK_TYPE.PYTHON
-    },
-    {
-        key: TASK_TYPE.PYSPARK,
-        name: 'PySpark',
-        value: TASK_TYPE.PYSPARK
-    }
-]
 export const DEAL_MODEL_TYPE = {// python和pySpark操作类型
     RESOURCE: 0,
     EDIT: 1
