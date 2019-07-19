@@ -9,7 +9,8 @@
     }
 
     .ant-layout-sider {
-        background: #ffffff;
+        // background: #ffffff;
+        background-color: #F5F5F5;
     }
 
     .operation-card {
@@ -55,7 +56,8 @@
         &>.ant-tabs-bar {
             width: 30px;
             height: 100%;
-
+            background: #262E36;
+            color: #FFFFFF;
             .ant-tabs-tab {
                 height: auto;
                 padding: 10px 5px;
@@ -63,13 +65,19 @@
                 letter-spacing: 3px;
                 margin-bottom: 0;
                 font-size: 12px;
+                &.ant-tabs-tab-active {
+                    background: #2491F7;
+                    color: #FFFFFF;
+                }
             }
-            .ant-tabs-tab:hover{
-                background:#eef6fe;
-            }
+            // .ant-tabs-tab:hover{
+            //     background:#eef6fe;
+            // }
             .ant-tabs-tab-active {
-                border-top: 1px solid #dddddd;
-                border-bottom: 1px solid #dddddd;
+                // border-top: 1px solid #dddddd;
+                border-top: 1px solid hsla(0,0%,100%,.2);
+                // border-bottom: 1px solid #dddddd;
+                border-bottom: 1px solid hsla(0,0%,100%,.2)
             }
             .ant-tabs-nav {
                 background: none;
@@ -276,10 +284,13 @@
             header {
                 flex-grow: 0;
                 flex-shrink: 0;
-                border-bottom: 1px solid #E8E8E8;
+                // border-bottom: 1px solid #E8E8E8;
+                border-bottom: 1px solid #DDDDDD;
+                line-height: 32px;
                 text-align: right;
                 z-index: 999;
-                background: #ffffff;
+                // background: #ffffff;
+                background: #F5F5F5;
                 padding-right: 15px;
                 padding-top: 5px;
                 padding-bottom: 5px;
@@ -1062,7 +1073,9 @@
         padding-right:0px;
         border-radius: 0px;
         border-left: 1px solid #e9e9e9;
-        background: #ffffff;
+        // background: #ffffff;
+        background: #F5F5F5;
+        border: 1px solid #DDDDDD;
     }
 }
 

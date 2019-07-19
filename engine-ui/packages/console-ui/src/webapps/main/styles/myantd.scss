@@ -3,7 +3,9 @@
 /**
 ** 自定义antd样式
 */
-
+.ant-tabs-tabpane-active .ant-collapse-borderless {
+    background: #F5F5F5;
+}
 .m-tabs {
     .content-border{
         &.ant-tabs{
@@ -114,9 +116,6 @@
             height: 36px;
         }
         .ant-tabs-nav {
-            .ant-tabs-tab-active {
-                background: #ffffff;
-            }
             .ant-tabs-ink-bar {
                 top: 0;
                 bottom: auto;
@@ -288,6 +287,24 @@
 
 .m-ant-menu {
     // sidebar styles
+    .ant-menu-inline-collapsed {
+        .hide-text {
+            font-size: 0;
+        }
+        .ant-itempad_small {
+            padding-left: 18px !important;
+        }
+        &.ele-padd_small {
+            > .ant-menu-item {
+                padding-top: 10px !important;
+            }
+        }
+        // .sidebar__icon {
+        //     float: left;
+        //     display: block;
+        //     margin: 0px 10px 0 0 !important;
+        // }
+    }
     .ant-menu.ant-menu-inline,
     .ant-menu.ant-menu-vertical {
         background: #262E36;
