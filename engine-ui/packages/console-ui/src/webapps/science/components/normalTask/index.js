@@ -109,7 +109,6 @@ class NormalTaskForm extends React.Component {
                         })(
                             <Select
                                 disabled={true}
-                                onChange={this.handleTaskTypeChange}
                             >
                                 {taskOptions}
                             </Select>
@@ -189,4 +188,26 @@ class NormalTaskForm extends React.Component {
         )
     }
 }
-export default Form.create()(NormalTaskForm);
+export default Form.create({
+    onFieldsChange (props, values) {
+        let { tabData } = props;
+        let newFormData = { ...tabData };
+        if (values.hasOwnProperty('options')) {
+            newFormData.options = values.options.value
+        }
+        if (values.hasOwnProperty('taskDesc')) {
+            newFormData.taskDesc = values.taskDesc.value
+        }
+        if (values.hasOwnProperty('nodePid')) {
+            newFormData.nodePid = values.nodePid.value
+        }
+        if (values.hasOwnProperty('resourceIdList')) {
+            newFormData.resourceIdList = values.resourceIdList.value ? [values.resourceIdList.value] : []
+        }
+        if (values.hasOwnProperty('refResourceIdList')) {
+            newFormData.refResourceIdList = values.refResourceIdList.value ? [values.refResourceIdList.value] : []
+        }
+        console.log(newFormData)
+        return props.onChange(newFormData, values);
+    }
+})(NormalTaskForm);

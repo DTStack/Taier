@@ -86,9 +86,13 @@ class NormalTaskPanel extends Component {
     });
     changeContent (key, value) {
         const { data } = this.props;
-        this.props.changeContent({
-            [key]: value
-        }, data);
+        if (key) {
+            this.props.changeContent({
+                [key]: value
+            }, data);
+        } else {
+            this.props.changeContent(value, data);
+        }
     }
     renderSiderbarItems () {
         const { data } = this.props;
@@ -171,7 +175,15 @@ class NormalTaskPanel extends Component {
                 toolbar={toolbarOpts}
                 siderBarItems={this.renderSiderbarItems()}
             >
-                <NormalTaskForm tabData={data} />
+                <NormalTaskForm tabData={data} onChange={(newFormData) => {
+                    this.changeContent(null, {
+                        options: newFormData.options,
+                        taskDesc: newFormData.taskDesc,
+                        nodePid: newFormData.nodePid,
+                        resourceIdList: newFormData.resourceIdList,
+                        refResourceIdList: newFormData.refResourceIdList
+                    });
+                }} />
             </CommonEditor>
         );
     }

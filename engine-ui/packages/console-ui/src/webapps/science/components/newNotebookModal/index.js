@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, isArray } from 'lodash';
 
 import { Modal, Form, Input, Select, Radio } from 'antd';
 import FolderTree from '../folderTree';
@@ -39,6 +39,13 @@ class NewNotebookModal extends React.Component {
     onSubmit = () => {
         this.form.props.form.validateFields(async (err, values) => {
             if (!err) {
+                if (values.resourceIdList) {
+                    values.resourceIdList = [values.resourceIdList];
+                }
+
+                if (values.refResourceIdList && !isArray(values.refResourceIdList)) {
+                    values.refResourceIdList = [values.refResourceIdList];
+                }
                 let res = await this.props.addNotebook(values);
                 if (res) {
                     this.props.onOk && this.props.onOk(res);
@@ -55,7 +62,7 @@ class NewNotebookModal extends React.Component {
         })
     }
     render () {
-        const { modal, loadTreeData, files, resourceFiles } = this.props;
+        const { modal, loadTreeData, files, resourceFiles, taskType } = this.props;
         const visible = modal.visibleModal == modalType.newNotebook;
         return <Modal
             title='新建Notebook'
@@ -72,6 +79,7 @@ class NewNotebookModal extends React.Component {
                 modal={modal}
                 files={files}
                 resourceFiles={resourceFiles}
+                taskType={taskType}
                 operateModel={this.state.operateModel}
                 handleOperateModel={(e) => { this.handleOperateModel(e) }}
                 wrappedComponentRef={(_form) => { this.form = _form }}
@@ -132,7 +140,6 @@ class NewNotebookModalForm extends React.Component {
         const taskOptions = taskType.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>
         )
-        console.log('-----', operateModel)
         return (
             <Form>
                 <FormItem
@@ -162,8 +169,6 @@ class NewNotebookModalForm extends React.Component {
                         initialValue: taskType[0] && taskType[0].key
                     })(
                         <Select
-                            // disabled={this.isEditExist || createFromGraph}
-                            onChange={this.handleTaskTypeChange}
                         >
                             {taskOptions}
                         </Select>
@@ -180,7 +185,6 @@ class NewNotebookModalForm extends React.Component {
                         initialValue: DEAL_MODEL_TYPE.EDIT
                     })(
                         <RadioGroup
-                            // disabled={isCreateNormal ? false : !isCreateFromMenu}
                             onChange={(e) => { handleOperateModel(e) }}
                         >
                             <Radio key={DEAL_MODEL_TYPE.EDIT} value={DEAL_MODEL_TYPE.EDIT}>WEB编辑</Radio>
@@ -196,7 +200,6 @@ class NewNotebookModalForm extends React.Component {
                                 label="参数"
                             >
                                 {getFieldDecorator('options', {
-                                    // initialValue: this.isEditExist ? defaultData.options : ''
                                 })(
                                     <Input type="textarea" autosize={{ minRows: 2, maxRows: 4 }} placeholder="输入命令行参数，多个参数用空格隔开" />
                                 )}
@@ -213,7 +216,6 @@ class NewNotebookModalForm extends React.Component {
                                     }, {
                                         validator: this.checkNotDir.bind(this)
                                     }]
-                                    // initialValue: (isCreateFromIndex || isCreateNormal) ? undefined : isCreateFromMenu ? undefined : defaultData.resourceList[0] && defaultData.resourceList[0].id
                                 })(
                                     <FolderTree loadData={this.loadData.bind(this, siderBarType.resource)} treeData={resourceFiles} isSelect={true} />
                                 )}
@@ -227,7 +229,6 @@ class NewNotebookModalForm extends React.Component {
                                     rules: [{
                                         validator: this.checkNotDir.bind(this)
                                     }]
-                                    // initialValue: (isCreateFromIndex || isCreateNormal) ? undefined : isCreateFromMenu ? undefined : defaultData.refResourceList && defaultData.refResourceList.length > 0 ? defaultData.refResourceList.map(res => res.id) : []
                                 })(
                                     <FolderTree loadData={this.loadData.bind(this, siderBarType.resource)} treeData={resourceFiles} isSelect={true} />
                                 )}
