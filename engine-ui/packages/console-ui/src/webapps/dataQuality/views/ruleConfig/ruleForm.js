@@ -146,15 +146,30 @@ class RuleForm extends React.Component {
                     rules: [{
                         required: true,
                         message: '请填写数值'
-                    }, this.isPercentage(data) && {
-                        validator (rule, value, callback) {
+                    }, {
+                        validator: (rule, value, callback) => {
+                            if (!value) {
+                                callback();
+                                return;
+                            }
+                            const isPercent = this.isPercentage(data);
                             let errorMsg = '请填写正确的数字'
                             try {
                                 let number = parseFloat(value);
-                                if (number >= 0 && number <= 100) {
-                                    callback();
-                                } else {
+                                if (isPercent) {
+                                    if (number >= 0 && number <= 100) {
+                                        callback();
+                                        return;
+                                    } else {
+                                        callback(errorMsg);
+                                        return;
+                                    }
+                                } else if (Number.isNaN(number) || number < 0) {
                                     callback(errorMsg);
+                                    return;
+                                } else {
+                                    callback();
+                                    return;
                                 }
                             } catch (e) {
                                 callback(errorMsg);
