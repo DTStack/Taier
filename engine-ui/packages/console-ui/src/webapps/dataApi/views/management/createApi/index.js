@@ -512,13 +512,13 @@ class NewApi extends Component {
         const isRegister = utils.getParameterByName('isRegister');
         const title = isRegister ? '注册API' : '新建API';
         return (
-            <div className="m-card g-datamanage">
+            <div className="g-datamanage">
                 <h1 className="box-title"> <GoBack url="/api/manage"></GoBack> {apiEdit ? '编辑API' : title}</h1>
                 {loading ? <div style={{ textAlign: 'center', marginTop: '400px' }}>
                     <Spin size="large" />
                 </div>
                     : <Card
-                        style={{ padding: '20px' }}
+                        style={{ padding: '20px', minHeight: 'calc(100% - 65px)' }}
                         className="box-2"
                         noHovering
                     >

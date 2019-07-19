@@ -483,7 +483,7 @@ class APIMana extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入API名称搜索"
-                    style={{ width: 150, margin: '10px 0' }}
+                    style={{ width: 150 }}
                     onSearch={this.handleSearch.bind(this)}
                     defaultValue={searchName}
                 />
@@ -529,7 +529,7 @@ class APIMana extends Component {
     }
     getCardExtra () {
         return (
-            <div style={{ paddingTop: '10px' }}>
+            <div>
                 <Button type="primary" style={{ marginRight: '8px' }} onClick={this.newApi.bind(this)}>生成API</Button>
                 <Button type="primary" style={{ marginRight: '8px' }} onClick={this.registerApi.bind(this)}>注册API</Button>
                 <Button onClick={this.openApiType.bind(this)} type="primary">类目管理</Button>
