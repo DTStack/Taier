@@ -356,20 +356,43 @@ class CollectionTargetForm extends React.Component {
                         )}
                     </FormItem>,
                     writeTableType == writeTableTypes.AUTO && (
-                        <FormItem
-                            {...formItemLayout}
-                            label="表名拼装规则"
-                            key="analyticalRules"
-                        >
-                            {getFieldDecorator('analyticalRules', {
-                                rules: [{
-                                    required: true, message: '该字段不能为空'
-                                }]
-                            })(
-                                <Input disabled addonBefore='stream_' />
-                            )}
-                            <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
-                        </FormItem>
+                        <React.Fragment>
+                            <FormItem
+                                {...formItemLayout}
+                                label="表名拼装规则"
+                                key="analyticalRules"
+                            >
+                                {getFieldDecorator('analyticalRules', {
+                                    rules: [{
+                                        required: true, message: '该字段不能为空'
+                                    }]
+                                })(
+                                    <Input disabled addonBefore='stream_' />
+                                )}
+                                <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="存储类型"
+                                key="store"
+                            >
+                                {getFieldDecorator('store', {
+                                    rules: [{
+                                        required: true, message: '存储类型不能为空'
+                                    }]
+                                })(
+                                    <RadioGroup>
+                                        <Radio value="orc" style={{ float: 'left' }}>
+                                            orc
+                                        </Radio>
+                                        <Radio value="text" style={{ float: 'left' }}>
+                                            text
+                                        </Radio>
+                                    </RadioGroup>
+                                )}
+                                <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
+                            </FormItem>
+                        </React.Fragment>
                     ),
                     writeTableType == writeTableTypes.HAND && (
                         <FormItem
@@ -540,8 +563,10 @@ const WrapCollectionTargetForm = Form.create({
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
                 fields['analyticalRules'] = '${schema}_${table}';
+                fields['store'] = 'orc';
             } else {
                 fields['analyticalRules'] = undefined;
+                fields['store'] = undefined;
             }
             fields['table'] = undefined;
             fields['partition'] = undefined;
@@ -591,6 +616,9 @@ const WrapCollectionTargetForm = Form.create({
             },
             table: {
                 value: targetMap.table
+            },
+            store: {
+                value: targetMap.store || 'orc'
             },
             partition: {
                 value: targetMap.partition
