@@ -673,7 +673,6 @@ class OfflineTaskList extends Component {
                         title={
                             <Form
                                 layout="inline"
-                                style={{ marginTop: '10px' }}
                                 className="m-form-inline"
                             >
                                 <FormItem label="">

@@ -43,16 +43,12 @@ class RunLog extends React.Component {
         if (!isShow) {
             return null;
         }
-        return <div style={{ paddingLeft: '8px', background: '#f7f7f7' }}>
+        return <div style={{ paddingLeft: '8px', height: '100%', background: '#f7f7f7' }}>
             <LogInfo status={status} log={logInfo} />
         </div>
     }
     render () {
-        return (
-            <div>
-                {this.getBaseInfo()}
-            </div>
-        )
+        return this.getBaseInfo();
     }
 }
 

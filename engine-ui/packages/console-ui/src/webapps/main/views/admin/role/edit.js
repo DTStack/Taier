@@ -61,7 +61,6 @@ export default class RoleEdit extends Component {
 
     render () {
         const { app, roleInfo } = this.state;
-
         return (
             <div className="box-1">
                 <div className="box-card">

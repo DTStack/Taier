@@ -75,7 +75,7 @@ class MainBench extends Component {
                     })}
                 </Menu>
             }>
-                <Icon type="bars" size="" style={{ margin: '7 5 0 0', fontSize: 18 }} />
+                <Icon type="bars" size="" style={{ margin: '7px 5px 0px 0px', fontSize: 18, display: 'block' }} />
             </Dropdown>
         )
     }

@@ -290,8 +290,7 @@ class TaskFlowView extends Component {
             <div
                 style={{
                     position: 'relative',
-                    height: '100%',
-                    paddingBottom: '35px'
+                    height: '100%'
                 }}
             >
                 <TaskGraphView

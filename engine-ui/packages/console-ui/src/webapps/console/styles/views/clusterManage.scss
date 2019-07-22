@@ -145,7 +145,7 @@
     transition: color 0.3s ease;
     position: absolute;
     display: inline-block;
-    right: -60;
+    right: -60px;
 }
 .console-wrapper .ant-tabs-nav .ant-tabs-tab {
     display: inline-block;
@@ -163,5 +163,5 @@
     margin-bottom: 0px;
     outline: none;
     transition: padding 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-    margin: 0 20;
+    margin: 0px 20px;
 }

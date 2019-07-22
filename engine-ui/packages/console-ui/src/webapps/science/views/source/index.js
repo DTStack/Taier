@@ -167,12 +167,12 @@ class Source extends PureComponent {
                         <Search
                             onSearch={this.handleSearch}
                             placeholder='按数据源名称搜索'
-                            style={{ width: 267, height: 30 }} />
+                            style={{ width: 267, lineHeight: '0px', verticalAlign: 'top' }} />
                     }
                     extra={
                         <>
                             <UploaderProgressBar key={uploader.status} uploader={uploader} />
-                            <Button type="primary" className="upload-button" onClick={() => this.handleUpload()}>上传数据</Button>
+                            <Button type="primary" style={{ verticalAlign: 'top' }} className="upload-button" onClick={() => this.handleUpload()}>上传数据</Button>
                         </>
                     }
                 >

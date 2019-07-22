@@ -68,7 +68,7 @@ body:-webkit-full-screen {
 }
 
 .vertical-center-modal .ant-modal {
-    width: 536px !important;
+    width: 536px;
     display: inline-block;
     vertical-align: middle;
     top: 0;
@@ -128,13 +128,6 @@ body:-webkit-full-screen {
 .ant-calendar-picker-input,
 .ant-calendar-range-picker-input {
     vertical-align: initial !important;
-}
-
-
-// 调整input 整体表单的行高
-
-.ant-input-search {
-    height: 28px;
 }
 
 .org-tree-select-wrap {

@@ -1,10 +1,17 @@
 .c-group-tabs{
+    >.ant-tabs {
+        height: 100%;
+        >.ant-tabs-content{
+            >.ant-tabs-tabpane{
+                height: 100%;
+            }
+            height: calc(100% - 32px);
+        }
+    }
     .ant-tabs-bar{
         margin-bottom: 0px;
     }
-    .ant-tabs-content{
-        height: calc(100% - 32px);
-    }
+   
     .ant-tabs-tab:hover {
         .c-group-tabs__tab--dirty::after {
             background-color: transparent;

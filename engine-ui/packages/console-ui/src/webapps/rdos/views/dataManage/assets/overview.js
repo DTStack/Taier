@@ -438,7 +438,7 @@ export default class ProjectList extends Component {
 function Abstract (props) {
     const { project, projectTable, projectStore, total } = props
     return (
-        <Row gutter={32} style={{ padding: '0 10' }} type="flex" justify="space-between">
+        <Row gutter={32} style={{ padding: '0 10px' }} type="flex" justify="space-between">
             <Col span={8} >
                 <div className="indicator-col shadow">
                     <div className="left indicator-icon">

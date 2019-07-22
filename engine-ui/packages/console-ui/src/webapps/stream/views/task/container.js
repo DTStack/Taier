@@ -107,6 +107,7 @@ class Container extends Component {
                             tip="Loading..."
                             size="large"
                             spinning={this.state.loading === 'loading'}
+                            wrapperClassName='c-task__content__spin-box'
                         >
                             <div style={{ width: '100%', height: '100%' }}>
                                 {
