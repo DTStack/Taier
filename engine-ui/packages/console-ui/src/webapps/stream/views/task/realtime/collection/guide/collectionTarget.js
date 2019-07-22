@@ -197,7 +197,7 @@ class CollectionTargetForm extends React.Component {
         if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
-        const { writeTableType, writeStrategy, table } = targetMap;
+        const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
@@ -363,10 +363,11 @@ class CollectionTargetForm extends React.Component {
                         >
                             {getFieldDecorator('analyticalRules', {
                                 rules: [{
-                                    required: true, message: '该字段不能为空'
+                                    required: false, message: '该字段不能为空'
                                 }]
                             })(
-                                <Input disabled addonBefore='stream_' />
+                                // eslint-disable-next-line
+                                <Input addonBefore='stream_${schema}_${table}' />
                             )}
                             <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
                         </FormItem>
@@ -472,6 +473,7 @@ class CollectionTargetForm extends React.Component {
                                 </Radio>
                             </RadioGroup>
                         )}
+                        {writeMode == 'replace' && <p style={{ color: 'red' }}>注意：Overwrite 模式将会删除表和数据！</p>}
                     </FormItem>
                 ].filter(Boolean);
             }
@@ -535,6 +537,10 @@ class CollectionTargetForm extends React.Component {
 
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
+        if (fields.hasOwnProperty('analyticalRules')) {
+            // eslint-disable-next-line
+            fields['analyticalRules'] = '${schema}_${table}' + fields['analyticalRules'];
+        }
         // 建表模式
         if (fields.hasOwnProperty('writeTableType')) {
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
@@ -584,7 +590,8 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.topic
             },
             analyticalRules: {
-                value: targetMap.analyticalRules
+                // eslint-disable-next-line
+                value: targetMap.analyticalRules ? targetMap.analyticalRules.replace('${schema}_${table}', '') : ''
             },
             writeTableType: {
                 value: targetMap.writeTableType
