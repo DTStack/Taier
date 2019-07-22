@@ -68,9 +68,11 @@ class NormalTaskForm extends React.Component {
         const isPython23 = taskType == TASK_TYPE.PYTHON_23;
         const isHadoopMR = taskType == TASK_TYPE.HAHDOOPMR;
         const isScienceTask = TASK_TYPE.NOTEBOOK == taskType || TASK_TYPE.EXPERIMENT == taskType
+        const isExperimentTask = TASK_TYPE.EXPERIMENT == taskType;
+        const isNoteBookTask = TASK_TYPE.NOTEBOOK == taskType;
         const mainClassShow = !isPyTask && !isPython23 && !isVirtual && !isDeepLearning && !isHadoopMR && !isScienceTask;
         const exeArgsShow = !isPyTask && !isVirtual && !isPython23 && !isDeepLearning && !isScienceTask;
-        const optionsShow = isDeepLearning || isPython23 || isPyTask;
+        const optionsShow = isDeepLearning || isPython23 || isPyTask || isNoteBookTask;
         const couldEdit = isProjectCouldEdit(project, user) && !isScienceTask;
 
         const resourceLable = !isPyTask ? '资源' : '入口资源';
@@ -108,7 +110,7 @@ class NormalTaskForm extends React.Component {
                 )}
             </FormItem>
             {
-                (!isVirtual && !isScienceTask) &&
+                (!isVirtual && !isExperimentTask) &&
                 <FormItem
                     {...formItemLayout}
                     label={resourceLable}
@@ -134,7 +136,7 @@ class NormalTaskForm extends React.Component {
                 </FormItem>
             }
             {
-                isPyTask && <FormItem
+                (isPyTask || isNoteBookTask) && <FormItem
                     {...formItemLayout}
                     label="引用资源"
                 >

@@ -236,7 +236,7 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.PYTHON:
                 case TASK_TYPE.PYTHON_23:
                 case TASK_TYPE.NOTEBOOK:
-                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT || tabData.taskType == TASK_TYPE.NOTEBOOK) {
+                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
                         return <CommonEditor
                             mode="python"
                             taskCustomParams={taskCustomParams}
