@@ -11,6 +11,7 @@ import FolderTree from '../../../../../components/folderTree';
 import NewFolder from '../../newFolder';
 import NotebookSearch from '../../../../../components/searchModal/notebookSearch';
 import TaskParamsModal from '../../../../../components/taskParamsModal';
+import ResourceManage from '../resource';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as notebookActions from '../../../../../actions/notebookActions'
@@ -199,112 +200,115 @@ class NotebookSidebar extends Component {
     render () {
         const { newFolderVisible, notebookSearchVisible, newFolderData, editParamsData, editParamsVisible } = this.state;
         return (
-            <div className="sidebar">
-                <ToolBar
-                    toolbarItems={[
-                        {
-                            title: '新建Notebook',
-                            type: 'file-add',
-                            onClick: () => {
-                                this.props.openNewNotebook();
+            <>
+                <div className="sidebar" style={{ height: '70%' }}>
+                    <ToolBar
+                        toolbarItems={[
+                            {
+                                title: '新建Notebook',
+                                type: 'file-add',
+                                onClick: () => {
+                                    this.props.openNewNotebook();
+                                }
+                            },
+                            {
+                                title: '新建文件夹',
+                                type: 'folder-add',
+                                onClick: () => {
+                                    this.newFolder();
+                                }
+                            },
+                            {
+                                title: '搜索并打开Notebook',
+                                type: 'search',
+                                onClick: () => {
+                                    this.setState({
+                                        notebookSearchVisible: true
+                                    })
+                                }
                             }
-                        },
-                        {
-                            title: '新建文件夹',
-                            type: 'folder-add',
-                            onClick: () => {
-                                this.newFolder();
-                            }
-                        },
-                        {
-                            title: '搜索并打开Notebook',
-                            type: 'search',
-                            onClick: () => {
-                                this.setState({
-                                    notebookSearchVisible: true
-                                })
-                            }
-                        }
-                    ]}
-                />
-                {
-                    this.renderFolderContent()
-                }
-                <NewFolder
-                    type={siderBarType.notebook}
-                    data={newFolderData}
-                    visible={newFolderVisible}
-                    onOk={(values) => {
-                        console.dir(values);
-                        this.closeNewFolder();
-                    }}
-                    onCancel={this.closeNewFolder}
-                />
-                <NotebookSearch
-                    visible={notebookSearchVisible}
-                    onCancel={() => {
-                        this.setState({
-                            notebookSearchVisible: false
-                        })
-                    }}
-                />
-                <TaskParamsModal
-                    key={editParamsData && editParamsData.id}
-                    title='Notebook属性'
-                    visible={editParamsVisible}
-                    onCancel={() => {
-                        this.setState({
-                            editParamsVisible: false,
-                            editParamsData: null
-                        })
-                    }}
-                    onEdit={(editKey, editValue, callback) => {
-                        this.props.saveNotebook({
-                            id: editParamsData.id,
-                            name: editParamsData.name,
-                            taskDesc: editParamsData.taskDesc,
-                            [editKey]: editValue,
-                            version: editParamsData.version,
-                            isEditBaseInfo: true
-                        }).then((res) => {
-                            if (res) {
-                                this.setState({
-                                    editParamsData: res.data
-                                })
-                                this.props.loadTreeData(siderBarType.notebook, editParamsData.parentId);
-                                callback();
-                            }
-                        });
-                    }}
-                    data={editParamsData && [{
-                        key: 'name',
-                        label: 'Notebook名称',
-                        value: editParamsData.name,
-                        edit: true
-                    }, {
-                        key: 'taskDesc',
-                        label: 'Notebook描述',
-                        value: editParamsData.taskDesc,
-                        editType: 'textarea',
-                        edit: true
-                    }, {
-                        label: '作业类型',
-                        value: 'Python3'
-                    }, {
-                        label: '创建人',
-                        value: editParamsData.createUser
-                    }, {
-                        label: '创建时间',
-                        value: moment(editParamsData.gmtCreate).format('YYYY-MM-DD HH:mm:ss')
-                    }, {
-                        label: '最近修改人',
-                        value: editParamsData.modifyUser
-                    }, {
-                        label: '最近修改时间',
-                        value: moment(editParamsData.gmtModified).format('YYYY-MM-DD HH:mm:ss')
-                    }]}
-                />
-            </div>
+                        ]}
+                    />
+                    {
+                        this.renderFolderContent()
+                    }
+                    <NewFolder
+                        type={siderBarType.notebook}
+                        data={newFolderData}
+                        visible={newFolderVisible}
+                        onOk={(values) => {
+                            console.dir(values);
+                            this.closeNewFolder();
+                        }}
+                        onCancel={this.closeNewFolder}
+                    />
+                    <NotebookSearch
+                        visible={notebookSearchVisible}
+                        onCancel={() => {
+                            this.setState({
+                                notebookSearchVisible: false
+                            })
+                        }}
+                    />
+                    <TaskParamsModal
+                        key={editParamsData && editParamsData.id}
+                        title='Notebook属性'
+                        visible={editParamsVisible}
+                        onCancel={() => {
+                            this.setState({
+                                editParamsVisible: false,
+                                editParamsData: null
+                            })
+                        }}
+                        onEdit={(editKey, editValue, callback) => {
+                            this.props.saveNotebook({
+                                id: editParamsData.id,
+                                name: editParamsData.name,
+                                taskDesc: editParamsData.taskDesc,
+                                [editKey]: editValue,
+                                version: editParamsData.version,
+                                isEditBaseInfo: true
+                            }).then((res) => {
+                                if (res) {
+                                    this.setState({
+                                        editParamsData: res.data
+                                    })
+                                    this.props.loadTreeData(siderBarType.notebook, editParamsData.parentId);
+                                    callback();
+                                }
+                            });
+                        }}
+                        data={editParamsData && [{
+                            key: 'name',
+                            label: 'Notebook名称',
+                            value: editParamsData.name,
+                            edit: true
+                        }, {
+                            key: 'taskDesc',
+                            label: 'Notebook描述',
+                            value: editParamsData.taskDesc,
+                            editType: 'textarea',
+                            edit: true
+                        }, {
+                            label: '作业类型',
+                            value: 'Python3'
+                        }, {
+                            label: '创建人',
+                            value: editParamsData.createUser
+                        }, {
+                            label: '创建时间',
+                            value: moment(editParamsData.gmtCreate).format('YYYY-MM-DD HH:mm:ss')
+                        }, {
+                            label: '最近修改人',
+                            value: editParamsData.modifyUser
+                        }, {
+                            label: '最近修改时间',
+                            value: moment(editParamsData.gmtModified).format('YYYY-MM-DD HH:mm:ss')
+                        }]}
+                    />
+                </div>
+                <ResourceManage/>
+            </>
         )
     }
 }
