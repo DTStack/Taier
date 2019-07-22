@@ -215,10 +215,12 @@ body:-webkit-full-screen {
 }
 .form-item-follow-text{
     margin:-14px 0px 14px 0px;
-    .ant-transfer-list-search-action {
-        padding-top: 8px;
+    .ant-transfer-list-header-selected {
+        .ant-transfer-list-header-title { // 覆盖antd Transfer组件标题默认样式
+            position: relative;
+            right: 0;
+        }
     }
-    .ant-transfer-list-header-title {}
 }
 .warning-color{
     color:#ffbf00;
