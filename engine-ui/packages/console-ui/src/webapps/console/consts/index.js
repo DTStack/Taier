@@ -59,7 +59,8 @@ export const COMPONENT_TYPE_VALUE = {
     YARN: 5,
     SPARKTHRIFTSERVER: 6,
     CARBONDATA: 7,
-    LIBRASQL: 8
+    LIBRASQL: 8,
+    HIVESERVER: 9
 }
 export const DEFAULT_COMP_TEST = { // 测试结果默认数据
     flinkTestResult: {},
@@ -70,6 +71,7 @@ export const DEFAULT_COMP_TEST = { // 测试结果默认数据
     yarnTestResult: {},
     sparkThriftTestResult: {},
     carbonTestResult: {},
+    hiveServerTestResult: {},
     libraSqlTestResult: {}
 }
 export const DEFAULT_COMP_REQUIRED = { // 必填默认数据
@@ -81,6 +83,7 @@ export const DEFAULT_COMP_REQUIRED = { // 必填默认数据
     yarnShowRequired: false,
     hiveShowRequired: false,
     carbonShowRequired: false,
+    hiveServerShowRequired: false,
     libraShowRequired: false
 }
 export const hadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
@@ -91,7 +94,8 @@ export const hadoopEngineOptionsValue = [ // 非华为集群支持的引擎类�
     { label: 'HDFS', value: 4, disabled: true },
     { label: 'YARN', value: 5, disabled: true },
     { label: 'SparkThrift', value: 6, disabled: true },
-    { label: 'CarbonData', value: 7 }
+    { label: 'CarbonData', value: 7 },
+    { label: 'Hive Server', value: 9 }
 ];
 export const noDisablehadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
     { label: 'Flink', value: 0 },
@@ -101,7 +105,8 @@ export const noDisablehadoopEngineOptionsValue = [ // 非华为集群支持的�
     { label: 'HDFS', value: 4 },
     { label: 'YARN', value: 5 },
     { label: 'SparkThrift', value: 6 },
-    { label: 'CarbonData', value: 7 }
+    { label: 'CarbonData', value: 7 },
+    { label: 'Hive Server', value: 9 }
 ];
 export const hadoopEngineOptions = [ // 华为集群支持的引擎 options
     'Flink',
@@ -112,6 +117,7 @@ export const hadoopEngineOptions = [ // 华为集群支持的引擎 options
     'YARN',
     'SparkThrift',
     'CarbonData',
+    'Hive Server',
     'LibrA'
 ];
 export const API_MODE = {
@@ -221,6 +227,9 @@ export const validateHiveParams = [ // hive <=> Spark Thrift Server
 export const validateCarbonDataParams = [ // carbonData
     'carbonConf.jdbcUrl'
 ]
+export const validateHiveServerParams = [ // carbonData
+    'hiveServerConf.jdbcUrl'
+]
 export const validateSparkParams = [ // spark
     'sparkConf.typeName',
     'sparkConf.sparkYarnArchive',
@@ -320,6 +329,9 @@ export const notExtKeysSparkThrift = [
     'driverClassName', 'useConnectionPool', 'maxPoolSize',
     'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
     'queryTimeout', 'checkTimeout'
+]
+export const notExtKeysHiveServer = [
+    'jdbcUrl', 'username', 'password'
 ]
 export const notExtKeysLibraSql = [
     'jdbcUrl', 'username', 'password',
