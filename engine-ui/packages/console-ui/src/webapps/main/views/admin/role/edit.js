@@ -71,6 +71,7 @@ export default class RoleEdit extends Component {
                             <RoleForm
                                 roleInfo={roleInfo}
                                 ref={(e) => this.form = e}
+                                isDisabled={true}
                             />
                             <Row>
                                 <Col {...formItemLayout.labelCol}></Col>

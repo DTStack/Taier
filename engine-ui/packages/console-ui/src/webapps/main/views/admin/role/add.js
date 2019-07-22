@@ -45,7 +45,7 @@ export default class RoleAdd extends Component {
                 <div className="box-card">
                     <h1 className="card-title"><GoBack /> 创建 {AppName(app)}角色</h1>
                     <article className="section">
-                        <RoleForm key="add-role" ref={(e) => this.form = e} />
+                        <RoleForm key="add-role" ref={(e) => this.form = e} isDisabled={false} />
                         <Row>
                             <Col {...formItemLayout.labelCol}></Col>
                             <Col {...formItemLayout.wrapperCol}>

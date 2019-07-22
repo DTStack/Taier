@@ -76,6 +76,7 @@ class RoleForm extends Component {
     }
 
     renderTreeNodes = (data) => {
+        const { isDisabled = false } = this.props;
         return data && data.map(item => {
             const role = item.bindData
             const key = `${item.nodeId}`
@@ -85,12 +86,14 @@ class RoleForm extends Component {
                         key={key}
                         dataRef={role}
                         title={role.display}
+                        disabled={isDisabled}
+                        disableCheckbox={isDisabled}
                     >
                         {this.renderTreeNodes(item.children)}
                     </TreeNode>
                 )
             }
-            return <TreeNode key={key} title={role.display}/>;
+            return <TreeNode disableCheckbox={isDisabled} disabled={isDisabled} key={key} title={role.display}/>;
         })
     }
 
