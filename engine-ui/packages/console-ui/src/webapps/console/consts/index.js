@@ -272,6 +272,18 @@ export const DTYARNSHELL_KEY_MAP_DOTS = {
     'python2Path': 'python2.path',
     'python3Path': 'python3.path'
 }
+export const FLINK_KEY_MAP = {
+    'yarn.jobmanager.help.mb': 'yarnJobmanagerHelpMb',
+    'yarn.taskmanager.help.mb': 'yarnTaskmanagerHelpMb',
+    'yarn.taskmanager.numberOfTaskSlots': 'yarnTaskmanagerNumberOfTaskSlots',
+    'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager'
+}
+export const FLINK_KEY_MAP_DOTS = {
+    'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
+    'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
+    'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
+    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager'
+}
 // 非用户自定义参数
 export const notExtKeysFlink = [
     'typeName', 'flinkZkAddress',
@@ -283,7 +295,8 @@ export const notExtKeysFlink = [
     'flinkPluginRoot', 'remotePluginRootDir',
     'clusterMode', 'flinkJarPath',
     'flinkJobHistory', 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
-    'zkPrincipal', 'zkKeytabPath', 'zkLoginName'
+    'zkPrincipal', 'zkKeytabPath', 'zkLoginName', 'yarn.jobmanager.help.mb',
+    'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager'
 ];
 export const notExtKeysSpark = [
     'typeName', 'sparkYarnArchive',
