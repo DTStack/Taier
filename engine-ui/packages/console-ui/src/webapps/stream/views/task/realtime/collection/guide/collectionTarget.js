@@ -473,7 +473,7 @@ class CollectionTargetForm extends React.Component {
                                 </Radio>
                             </RadioGroup>
                         )}
-                        {writeMode == 'replace' && <p style={{ color: 'red' }}>注意：Overwrite 模式将会删除表和数据！</p>}
+                        {writeMode == 'replace' && <p style={{ color: 'red' }}>注意：切换为覆盖模式，任务启动时，将删除目标表和历史数据</p>}
                     </FormItem>
                 ].filter(Boolean);
             }
