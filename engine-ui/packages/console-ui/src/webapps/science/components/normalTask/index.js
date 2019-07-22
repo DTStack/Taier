@@ -78,7 +78,7 @@ class NormalTaskForm extends React.Component {
             <Option key={item.key} value={item.key}>{item.value}</Option>
         )
         return (
-            <div style={{ padding: '60' }}>
+            <div style={{ padding: '60px' }}>
                 <Form>
                     <FormItem
                         label='Notebook名称'
