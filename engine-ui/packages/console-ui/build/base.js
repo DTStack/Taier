@@ -82,7 +82,7 @@ module.exports = function () {
         },
         resolve: {
             modules: ["node_modules"],
-            extensions: [".js", ".jsx", ".scss", ".css"], //后缀名自动补全
+            extensions: ["ts", "tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
                 // 全局公共模块目录
                 utils: path.resolve(MY_PATH.APP_PATH, "utils"), // 工具文件夹
