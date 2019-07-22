@@ -275,8 +275,7 @@ class DiffTask extends React.Component {
         }
         parseScheduleConf.schedulingCycle = schedulingCycle;
 
-        if (type === 1) {
-            // const upstreamTask = data.dependencyTaskNames && data.dependencyTaskNames.join(' 、');
+        if (type === 1) { // 历史版本
             const upstreamTask = _.map(data.dependencyTasks, (v) => {
                 return {
                     name: v.taskName,
@@ -285,16 +284,14 @@ class DiffTask extends React.Component {
                 }
             })
             parseScheduleConf.upstreamTask = upstreamTask;
-        } else {
-            const readWriteLockVO = data.taskVOS || [];
-            let upstreamTask = readWriteLockVO.map(v => {
+        } else { // 当前版本
+            const upstreamTask = _.map(data.taskVOS, (v) => {
                 return {
                     name: v.name,
                     projectName: v.projectName,
                     tenantName: v.tenantName
                 }
             })
-            // upstreamTask = upstreamTask.join(' 、')
             parseScheduleConf.upstreamTask = upstreamTask;
         }
 
