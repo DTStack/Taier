@@ -5,6 +5,7 @@ const baseType = [
     'UPDATE_TREE_NODE', // 更新节点信息，和第一层子节点信息
     'INIT_TREE', // 初始化树
     'CLEAR_TREE',
+    'REMOVE_EXPANDEDKEYS',
     'UPDATE_EXPANDEDKEYS' // 展开的keys
 ]
 export const experimentFilesType = mc(baseType, { prefix: 'experiment/' });
