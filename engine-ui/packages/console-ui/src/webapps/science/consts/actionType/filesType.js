@@ -10,3 +10,4 @@ const baseType = [
 export const experimentFilesType = mc(baseType, { prefix: 'experiment/' });
 export const componentFilesType = mc(baseType, { prefix: 'component/' });
 export const notebookFilesType = mc(baseType, { prefix: 'notebook/' });
+export const resourceFilesType = mc(baseType, { prefix: 'resource/' });

@@ -51,13 +51,13 @@ describe('browser actions', () => {
 
     test('newPage', async () => {
         const expectedActions = [{
+            type: browserAction.NEW_PAGE,
+            data: testTask
+        }, {
             type: browserAction.UPDATE_PAGE,
             data: testTask
         }, {
             type: browserAction.SET_CURRENT_PAGE,
-            data: testTask
-        }, {
-            type: browserAction.NEW_PAGE,
             data: testTask
         }];
         store.dispatch(browserActions.newPage(testTask))

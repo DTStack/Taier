@@ -21,7 +21,7 @@ export default class RealtimeEditor extends Component {
             }
             case TASK_TYPE.DATA_COLLECTION: {
                 if (currentPage.createModel == DATA_SYNC_TYPE.GUIDE) {
-                    showContent = <CollectionGuide {...this.props} />
+                    showContent = <CollectionGuide key={currentPage.id} {...this.props} />
                 } else if (currentPage.createModel == DATA_SYNC_TYPE.SCRIPT) {
                     showContent = <CollectionScript {...this.props} />
                 }

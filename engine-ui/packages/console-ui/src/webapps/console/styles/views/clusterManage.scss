@@ -9,14 +9,14 @@
 }
 .tabpane-content-max {
     padding-bottom: 30px;
-    max-height: 450px;
-    overflow: auto;
-}
-.tabpane-content-min {
-    padding-bottom: 30px;
     max-height: calc(100% - 60px);
     overflow: auto;
 }
+// .tabpane-content-min {
+//     padding-bottom: 30px;
+//     max-height: calc(100% - 60px);
+//     overflow: auto;
+// }
 .engine-config-content{
     margin-top: 20px;
     // padding-left: 20px;

@@ -6,7 +6,7 @@ import Api from '../../../api/console'
 import { getComponentConfKey, exChangeComponentConf, showTestResult, validateAllRequired,
     myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP,
-    SPARK_KEY_MAP_DOTS, DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
+    SPARK_KEY_MAP_DOTS, FLINK_KEY_MAP, FLINK_KEY_MAP_DOTS, DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
     DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS, notExtKeysFlink, notExtKeysSpark, notExtKeysLearning,
     notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts';
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
@@ -102,6 +102,9 @@ class EditCluster extends React.Component {
         for (let key in copyComp) {
             if (key == 'sparkConf') {
                 copyComp[key] = toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP)
+            }
+            if (key == 'flinkConf') {
+                copyComp[key] = toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP)
             }
             if (key == 'learningConf') {
                 copyComp[key] = myUpperCase(copyComp[key])
@@ -528,7 +531,7 @@ class EditCluster extends React.Component {
         switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 form.setFieldsValue({
-                    flinkConf: allComponentConf.flinkConf
+                    flinkConf: toChsKeys(allComponentConf.flinkConf || {}, FLINK_KEY_MAP)
                 })
                 break;
             }
@@ -682,7 +685,7 @@ class EditCluster extends React.Component {
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
-        componentConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
+        componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
         componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
@@ -1064,7 +1067,7 @@ class EditCluster extends React.Component {
                                         {/* 组件配置 */}
                                         <Card
                                             className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10px 20px 20px 20px', height: isHadoop ? '500px' : 'calc(100% - 50px)' }}
+                                            style={{ margin: '10px 20px 20px 20px', height: isHadoop ? 'calc(72%)' : 'calc(89%)' }}
                                             noHovering
                                         >
                                             <Tabs
@@ -1086,7 +1089,7 @@ class EditCluster extends React.Component {
                                                                 forceRender={true}
                                                                 key={`${componentTypeCode}`}
                                                             >
-                                                                <div className={isHadoop ? 'tabpane-content-max' : 'tabpane-content-min'}>
+                                                                <div className='tabpane-content-max'>
                                                                     {this.renderComponentConf(item)}
                                                                 </div>
                                                             </TabPane>

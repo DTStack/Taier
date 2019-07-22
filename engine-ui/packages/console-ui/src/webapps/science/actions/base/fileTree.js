@@ -1,4 +1,4 @@
-import { experimentFilesType, notebookFilesType, componentFilesType } from '../../consts/actionType/filesType'
+import { experimentFilesType, notebookFilesType, componentFilesType, resourceFilesType } from '../../consts/actionType/filesType'
 import { message } from 'antd';
 import api from '../../api';
 import { siderBarType } from '../../consts';
@@ -6,7 +6,8 @@ import { siderBarType } from '../../consts';
 const typeMap = {
     [siderBarType.experiment]: experimentFilesType,
     [siderBarType.notebook]: notebookFilesType,
-    [siderBarType.component]: componentFilesType
+    [siderBarType.component]: componentFilesType,
+    [siderBarType.resource]: resourceFilesType
 }
 export function initTreeNode (type, tree) {
     let actionType = typeMap[type] || {};

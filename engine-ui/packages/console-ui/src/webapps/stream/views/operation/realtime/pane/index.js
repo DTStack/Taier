@@ -82,7 +82,7 @@ class TaskDetailPane extends React.Component {
             </TabPane>
         )
         const alarmMsgView = (
-            <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
+            <TabPane style={scrollStyleNoPt} tab="告警" key="alarmMsg">
                 <AlarmMsg data={data} />
             </TabPane>
         )
