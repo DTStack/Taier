@@ -496,6 +496,11 @@ class OfflineTaskList extends Component {
             key: 'execTime',
             sorter: true
         }, {
+            title: '重试次数',
+            dataIndex: 'batchEngineJob.retryNum',
+            key: 'retryNum'
+            // sorter: true
+        }, {
             title: '责任人',
             dataIndex: 'createUser',
             key: 'createUser',

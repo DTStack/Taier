@@ -14,19 +14,10 @@ const Step = Steps.Step;
 
 class CollectionGuide extends React.Component {
     // eslint-disable-next-line
-	UNSAFE_componentWillMount () {
+	componentDidMount () {
         this.props.getDataSource();
         if (this.props.currentPage) {
             this.props.initCollectionTask(this.props.currentPage.id);
-        }
-    }
-    // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
-        const { currentPage } = nextProps;
-        const { currentPage: oldCurrentPage } = this.props;
-        if (currentPage.id != oldCurrentPage.id) {
-            this.props.initCollectionTask(currentPage.id)
-            this.props.getDataSource();
         }
     }
     navtoStep (step) {
