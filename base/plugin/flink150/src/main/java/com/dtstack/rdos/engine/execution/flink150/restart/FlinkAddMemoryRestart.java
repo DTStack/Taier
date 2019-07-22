@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.flink150.restart;
 
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.common.util.PublicUtil;
-import com.dtstack.rdos.engine.execution.base.restart.IExtractStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.execution.flink150.FlinkPerJobResourceInfo;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import java.util.Map;
  * @author: maqi
  * @create: 2019/07/17 17:36
  */
-public class FlinkAddMemoryRestart implements IExtractStrategy {
+public class FlinkAddMemoryRestart implements IJobRestartStrategy {
 
     private static Logger logger = LoggerFactory.getLogger(FlinkAddMemoryRestart.class);
 
@@ -28,13 +28,11 @@ public class FlinkAddMemoryRestart implements IExtractStrategy {
 
     private static String PER_JOB_MODE = "perJob";
 
-    private static int DEFAULT_TASKMANAGER_MEMORY = 512;
+    private static int DEFAULT_TASKMANAGER_MEMORY = 1024;
 
-    private static int DEFAULT_INCREASE_FACTOR = 2;
 
     @Override
-    public String restart(String taskParams) {
-        //1. 解析任务参数
+        public String restart(String taskParams, int retryNum) {
         try {
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(taskParams, Map.class);
             String tps = String.valueOf(pluginInfoMap.getOrDefault(TASK_PARAMS_KEY, ""));
@@ -42,9 +40,7 @@ public class FlinkAddMemoryRestart implements IExtractStrategy {
             // change run mode
             params.put(RUN_MODE_KEY, PER_JOB_MODE);
 
-            Integer memory = MathUtil.getIntegerVal(params.getOrDefault(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, DEFAULT_TASKMANAGER_MEMORY));
-
-            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, memory * DEFAULT_INCREASE_FACTOR);
+            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, (retryNum + 1) * DEFAULT_TASKMANAGER_MEMORY );
 
             pluginInfoMap.putAll(params);
 
@@ -52,9 +48,7 @@ public class FlinkAddMemoryRestart implements IExtractStrategy {
         } catch (IOException e) {
             logger.error("", e);
         }
-
-        //2. 重试日志更新
-        return null;
+        return taskParams;
     }
 
     public Map<String, Object> splitStr(String str, String Separator) {

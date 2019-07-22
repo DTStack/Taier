@@ -2,7 +2,7 @@ package com.dtstack.rdos.engine.execution.base.restart;
 
 
 
-public class DefaultRestartStrategy extends IRestartStrategy {
+public class DefaultRestartService extends ARestartService {
     @Override
     public boolean checkFailureForEngineDown(String msg) {
         return false;

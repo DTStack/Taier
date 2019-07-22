@@ -8,9 +8,9 @@ package com.dtstack.rdos.engine.execution.base.restart;
  * @author: maqi
  * @create: 2019/07/16 19:50
  */
-public interface IExtractStrategy {
+public interface IJobRestartStrategy {
 
 
-    String restart(String taskParam);
+    String restart(String taskParam, int retryNum);
 
 }

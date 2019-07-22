@@ -1,7 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink170;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.flink170.constrant.ExceptionInfoConstrant;
 import org.apache.commons.lang3.StringUtils;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public class FlinkRestartStrategy extends IRestartStrategy {
+public class FlinkRestartStrategy extends ARestartService {
 
     private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 

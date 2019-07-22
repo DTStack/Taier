@@ -3,8 +3,7 @@ package com.dtstack.rdos.engine.execution.base;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartService;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,8 +38,6 @@ public interface IClient {
 
 	String getCheckpoints(JobIdentifier jobIdentifier);
 
-	IRestartStrategy getRestartStrategy();
-
-	IRestartService getRestartService();
+	ARestartService getRestartService();
 
 }

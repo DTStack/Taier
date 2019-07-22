@@ -6,9 +6,8 @@ import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.*;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.base.restart.IExtractStrategy;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartService;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
+import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobRetryDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
@@ -112,7 +111,7 @@ public class RestartDealer {
                 return false;
             }
 
-            IRestartStrategy restartStrategy = client.getRestartStrategy();
+            ARestartService restartStrategy = client.getRestartService();
             if(restartStrategy == null){
                 LOG.warn("engineType " + engineType + " not support restart." );
                 return false;
@@ -159,13 +158,14 @@ public class RestartDealer {
                 return false;
             }
 
-            IExtractStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, engineJobId);
+            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, engineJobId);
 
             if (restartStrategy == null) {
                 return false;
             }
+
             //   根据策略调整参数配置
-            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo());
+            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum);
 
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
             JobClient jobClient = new JobClient(paramAction);
@@ -205,10 +205,10 @@ public class RestartDealer {
      * @return
      * @throws Exception
      */
-    private IExtractStrategy getRestartStrategy(String engineType, String pluginInfo, String engineJobId) throws Exception {
+    private IJobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String engineJobId) throws Exception {
         IClient client = clientCache.getClient(engineType, pluginInfo);
-        IRestartService restartService = client.getRestartService();
-        IExtractStrategy strategy = restartService.parseErrorLog(engineJobId, client);
+        ARestartService restartService = client.getRestartService();
+        IJobRestartStrategy strategy = restartService.getAndParseErrorLog(engineJobId, client);
         return strategy;
     }
 
@@ -271,8 +271,7 @@ public class RestartDealer {
             return false;
         }
 
-
-        IRestartService restartService = client.getRestartService();
+        ARestartService restartService = client.getRestartService();
 
         if(restartService == null){
             LOG.warn("engineType " + engineType + " not support restart." );
