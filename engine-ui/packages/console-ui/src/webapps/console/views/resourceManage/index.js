@@ -256,7 +256,7 @@ class ResourceManage extends React.Component {
                             >
                                 <Select
                                     className='cluster-select'
-                                    style={{ width: '180' }}
+                                    style={{ width: '180px' }}
                                     placeholder='请选择集群'
                                     value={`${queryParams.clusterId}`}
                                     onChange={this.handleChangeCluster}

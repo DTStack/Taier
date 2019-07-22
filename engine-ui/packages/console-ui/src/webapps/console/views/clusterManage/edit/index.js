@@ -640,12 +640,10 @@ class EditCluster extends React.Component {
      * @param componentValue 组件
      */
     renderExtFooter = (isView, component) => {
-        const { defaultEngineType } = this.state;
-        const isHadoop = defaultEngineType == ENGINE_TYPE.HADOOP;
         return (
             <React.Fragment>
                 {isView ? null : (
-                    <div className={ isHadoop ? 'config-bottom-long' : 'config-bottom-short' }>
+                    <div className='config-bottom-long'>
                         <Row>
                             <Col span={4}></Col>
                             <Col span={formItemLayout.wrapperCol.sm.span}>
@@ -1066,8 +1064,8 @@ class EditCluster extends React.Component {
                                         }
                                         {/* 组件配置 */}
                                         <Card
-                                            className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10px 20px 20px 20px', height: isHadoop ? 'calc(72%)' : 'calc(89%)' }}
+                                            className='shadow console-tabs cluster-tab-width console-compontent'
+                                            // style={{ margin: '10px 20px 20px 20px', height: '500px' }}
                                             noHovering
                                         >
                                             <Tabs
