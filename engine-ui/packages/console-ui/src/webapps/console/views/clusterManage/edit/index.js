@@ -11,6 +11,7 @@ import GoBack from 'main/components/go-back';
 import ZipConfig from './zipConfig';
 import SparkConfig from './sparkConfig'
 import FlinkConfig from './flinkConfig';
+import HiveServerConfig from './hiveServerConfig';
 import { HiveConfig, CarbonDataConfig } from './hiveAndCarbonData'
 
 const FormItem = Form.Item;
@@ -50,6 +51,7 @@ class EditCluster extends React.Component {
         flink_params: [],
         spark_params: [],
         hive_params: [],
+        hiveServer_params: [],
         // learning和dtyarnshell
         learning_params: [],
         dtyarnshell_params: [],
@@ -118,6 +120,7 @@ class EditCluster extends React.Component {
                                 flink_params: extParams.flinkKeys,
                                 spark_params: extParams.sparkKeys,
                                 hive_params: extParams.hiveKeys,
+                                hiveServer_params: extParams.hiveServerKeys,
                                 learning_params: extParams.learningKeys,
                                 dtyarnshell_params: extParams.dtyarnshellKeys,
                                 extDefaultValue: extParams.default,
@@ -133,6 +136,7 @@ class EditCluster extends React.Component {
                             form.setFieldsValue({
                                 clusterName: cluster.clusterName,
                                 hiveConf: clusterConf.hiveConf,
+                                hiveServerConf: clusterConf.hiveServerConf,
                                 carbonConf: clusterConf.carbonConf,
                                 sparkConf: this.toChsKeys(clusterConf.sparkConf, keyMap),
                                 flinkConf: clusterConf.flinkConf,
@@ -154,6 +158,7 @@ class EditCluster extends React.Component {
             flinkKeys: [],
             sparkKeys: [],
             hiveKeys: [],
+            hiveServerKeys: [],
             learningKeys: [],
             dtyarnshellKeys: [],
             default: {}
@@ -194,9 +199,13 @@ class EditCluster extends React.Component {
         let notExtKeys_hive = [
             'jdbcUrl', 'username', 'password'
         ]
+        let notExtKeys_hiveServer = [
+            'jdbcUrl', 'username', 'password'
+        ]
         let sparkConfig = config.sparkConf || {};
         let flinkConfig = config.flinkConf || {};
         let hiveConfig = config.hiveConf || {};
+        let hiveServerConfig = config.hiveServerConf || {};
         let learningConfig = config.learningConf || {};
         let dtyarnshellConfig = config.dtyarnshellConf || {};
         function setDefault (config, notExtKeys, type, keys) {
@@ -218,6 +227,7 @@ class EditCluster extends React.Component {
         setDefault(sparkConfig, notExtKeys_spark, 'spark', result.sparkKeys)
         setDefault(flinkConfig, notExtKeys_flink, 'flink', result.flinkKeys)
         setDefault(hiveConfig, notExtKeys_hive, 'hive', result.hiveKeys)
+        setDefault(hiveServerConfig, notExtKeys_hiveServer, 'hiveServer', result.hiveServerKeys)
         setDefault(learningConfig, notExtKeys_learning, 'learning', result.learningKeys)
         setDefault(dtyarnshellConfig, notExtKeys_dtyarnshell, 'dtyarnshell', result.dtyarnshellKeys)
         return result;
@@ -418,7 +428,7 @@ class EditCluster extends React.Component {
         }
     }
     addParam (type) {
-        const { flink_params, spark_params, hive_params, learning_params, dtyarnshell_params } = this.state;
+        const { flink_params, spark_params, hive_params, hiveServer_params, learning_params, dtyarnshell_params } = this.state;
         if (type == 'flink') {
             this.setState({
                 flink_params: [...flink_params, {
@@ -437,6 +447,12 @@ class EditCluster extends React.Component {
                     id: giveMeAKey()
                 }]
             })
+        } else if (type == 'hiveServer') {
+            this.setState({
+                hiveServer_params: [...hiveServer_params, {
+                    id: giveMeAKey()
+                }]
+            })
         } else if (type == 'learning') {
             this.setState({
                 learning_params: [...learning_params, {
@@ -452,7 +468,7 @@ class EditCluster extends React.Component {
         }
     }
     deleteParam (id, type) {
-        const { flink_params, spark_params, hive_params, learning_params, dtyarnshell_params } = this.state;
+        const { flink_params, spark_params, hive_params, hiveServer_params, learning_params, dtyarnshell_params } = this.state;
         let tmpParams;
         let tmpStateName;
         if (type == 'flink') {
@@ -464,6 +480,9 @@ class EditCluster extends React.Component {
         } else if (type == 'hive') {
             tmpStateName = 'hive_params';
             tmpParams = hive_params;
+        } else if (type == 'hiveServer') {
+            tmpStateName = 'hiveServer_params';
+            tmpParams = hiveServer_params;
         } else if (type == 'learning') {
             tmpStateName = 'learning_params';
             tmpParams = learning_params;
@@ -481,7 +500,7 @@ class EditCluster extends React.Component {
         })
     }
     renderExtraParam (type) {
-        const { flink_params, spark_params, hive_params, learning_params, dtyarnshell_params, extDefaultValue } = this.state;
+        const { flink_params, spark_params, hive_params, hiveServer_params, learning_params, dtyarnshell_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view'
@@ -494,6 +513,8 @@ class EditCluster extends React.Component {
             tmpParams = learning_params;
         } else if (type == 'hive') {
             tmpParams = hive_params
+        } else if (type == 'hiveServer') {
+            tmpParams = hiveServer_params
         } else {
             tmpParams = dtyarnshell_params;
         }
@@ -616,6 +637,7 @@ class EditCluster extends React.Component {
         const sparkExtParams = this.getCustomParams(formValues, 'spark')
         const flinkExtParams = this.getCustomParams(formValues, 'flink')
         const hiveExtParams = this.getCustomParams(formValues, 'hive')
+        const hiveServerExtParams = this.getCustomParams(formValues, 'hiveServer')
         const learningExtParams = this.getCustomParams(formValues, 'learning');
         const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell')
         const learningTypeName = {
@@ -641,6 +663,7 @@ class EditCluster extends React.Component {
         clusterConf['hiveMeta'] = zipConfig.hiveMeta;
         clusterConf['hiveConf'] = { ...formValues.hiveConf, ...hiveExtParams };
         clusterConf['carbonConf'] = formValues.carbonConf;
+        clusterConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams };
         clusterConf['sparkConf'] = { ...this.toChsKeys(formValues.sparkConf, keyMap), ...sparkExtParams };
         clusterConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
         clusterConf['learningConf'] = { ...learningTypeName, ...this.myLowerCase(formValues.learningConf), ...learningExtParams };
@@ -879,6 +902,24 @@ class EditCluster extends React.Component {
                         getFieldDecorator={getFieldDecorator}
                     />
 
+                    <p className="config-title">Hive Server</p>
+                    <HiveServerConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        customView={(
+                            <div>
+                                {this.renderExtraParam('hiveServer')}
+                                {isView ? null : (
+                                    <Row>
+                                        <Col span={formItemLayout.labelCol.sm.span}></Col>
+                                        <Col className="m-card" span={formItemLayout.wrapperCol.sm.span}>
+                                            <a onClick={this.addParam.bind(this, 'hiveServer')}>添加自定义参数</a>
+                                        </Col>
+                                    </Row>
+                                )}
+                            </div>
+                        )}
+                    />
                     <p className="config-title">Spark</p>
                     <SparkConfig
                         getFieldDecorator={getFieldDecorator}
