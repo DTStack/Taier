@@ -15,4 +15,8 @@ public class ConfigConstant {
 
     public static final String PWD = "pwd";
 
+    public static final String QUEUE = "queue";
+
+
+
 }
