@@ -5,7 +5,6 @@ import {
     ContextMenu,
     MenuItem
 } from 'widgets/context-menu';
-
 const TreeNode = Tree.TreeNode;
 
 class FolderTree extends React.PureComponent {
@@ -34,7 +33,6 @@ class FolderTree extends React.PureComponent {
                 if (nodeClass && typeof nodeClass == 'function') {
                     className = nodeClass(item);
                 }
-
                 const nodeTitle = (
                     <Tooltip placement="bottomLeft" mouseEnterDelay={0.5}>
                         <span
@@ -94,10 +92,11 @@ class FolderTree extends React.PureComponent {
         </ContextMenu>
     }
     render () {
-        const { isSelect, value, onChange, disabled, dropDownTab } = this.props;
+        const { isSelect, value, onChange, disabled, dropDownTab, isFixResourceFold } = this.props;
         // ant-select-dropdown ant-select-tree-dropdown ant-select-dropdown--single ant-select-dropdown-placement-bottomLeft
         // ant-select-dropdown dt-tree-select ant-select-dropdown--single ant-select-dropdown-placement-bottomLeft
         const extClassName = dropDownTab ? 's-resource-catalogue-top' : 's-catalogue-top'
+        const fixResClassName = isFixResourceFold && 'resource_fix'
         return isSelect ? (
             <TreeSelect
                 dropdownClassName='ant-select-tree-dropdown dt-tree-select'
@@ -123,6 +122,7 @@ class FolderTree extends React.PureComponent {
                     onSelect={this.props.onSelect}
                     onExpand={this.props.onExpand}
                     onRightClick={this.onRightClick.bind(this)}
+                    className={fixResClassName}
                 >
                     {this.renderNodes()}
                 </Tree>

@@ -8,11 +8,19 @@
 @mixin set-catalogue-top ($top) {
     top: $top;
 }
+@mixin set-catalogue-overflow ($val) {
+    overflow: $val;
+}
 .s-catalogue-top {
     @include set-catalogue-top(35px);
+    @include set-catalogue-overflow(auto);
+    padding: 6px 15px 5px 12px;
+
 }
 .s-resource-catalogue-top {
     @include set-catalogue-top(0);
+    @include set-catalogue-overflow(unset);
+    padding: 6px 0px 5px 12px;
 }
 .sidebar {
     &.c-component-siderbar{
@@ -26,8 +34,8 @@
         right: 0px;
         left: 0px;
         bottom: 0px;
-        padding: 6px 15px 5px 12px;
-        overflow: auto;
+        // padding: 6px 15px 5px 12px;
+        // overflow: auto;
 
         .ant-tree {
 
@@ -224,6 +232,30 @@
     .ant-tree-icon__docu {
         background-image: url(/public/rdos/img/icon/othericon.svg)
     }
+}
+.resource_file_bottom {
+    position: absolute;
+    bottom: 0;
+    border-top: 1px solid #dddddd;
+    height: 45px;
+    width: 100%;
+}
+.resource_file_top {
+    height: 40px;
+    width: 100%;
+    border-top: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    background: #fff;
+
+}
+.resource_fix {
+    height: 30%;
+}
+.resource_fix > li > ul {
+    padding-bottom: 40px;
+    height: 30%;
+    height: 200px;
+    overflow: auto;
 }
 .resource_dropdown {
     position: absolute;

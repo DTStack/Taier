@@ -46,7 +46,8 @@ class ResourceManage extends Component {
         resourceData: null,
         isCoverUpload: false, // 是否替换资源
         resDetailModal: false,
-        resEditModal: false
+        resEditModal: false,
+        isFixResourceFold: false
     }
 
     newFolder (folder) {
@@ -83,8 +84,14 @@ class ResourceManage extends Component {
     asynLoadCatalogue = (treeNode) => {
         return this.props.loadTreeData(siderBarType.resource, treeNode.props.data.id)
     }
-
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys, { expanded, node }) => {
+        const resNode = node.props.data || {};
+        const { level, name } = resNode;
+        if (level == 13 && name == '资源管理') {
+            this.setState(prevState => ({
+                isFixResourceFold: !prevState.isFixResourceFold
+            }))
+        }
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
@@ -139,6 +146,7 @@ class ResourceManage extends Component {
                                 </div>
                             )
                         }}
+                        isFixResourceFold={this.state.isFixResourceFold}
                         nodeClass={(item) => {
                             const resClassName = resourceTypeIcon(item.resourceType)
                             if (item.type == 'file') {
@@ -246,10 +254,11 @@ class ResourceManage extends Component {
     render () {
         const { newFolderVisible, newFolderData, uploadModalVisible,
             resourceData, isCoverUpload,
-            resDetailModal, resEditModal } = this.state;
+            resDetailModal, resEditModal, isFixResourceFold } = this.state;
+        const extClassName = !isFixResourceFold ? 'resource_file_bottom' : 'resource_file_top'
         return (
-            <div className="sidebar" style={{ height: '30%', overflow: 'auto', borderTop: '1px solid #ddd', backgroundColor: '#fff' }}>
-                <div>
+            <div className="sidebar" style={{ height: '30%' }}>
+                <div className={extClassName}>
                     {
                         this.renderFolderContent()
                     }
