@@ -287,17 +287,17 @@ public class JobClient extends OrderObject{
         this.classArgs = classArgs;
     }
 
-	public void stopJob() throws Exception {
+    public void stopJob() throws Exception {
         JobSubmitExecutor.getInstance().stopJob(this);
-	}
+    }
 
-	public int getAgain() {
-		return again;
-	}
+    public int getAgain() {
+        return again;
+    }
 
-	public void setAgain(int again) {
-		this.again = again;
-	}
+    public void setAgain(int again) {
+        this.again = again;
+    }
 
     public void setSql(String sql) {
         this.sql = sql;
@@ -375,16 +375,12 @@ public class JobClient extends OrderObject{
         this.applicationId = applicationId;
     }
 
-    public boolean getIsFailRetry() {
-        return isFailRetry;
-    }
-
-    public void setIsFailRetry(boolean failRetry) {
-        isFailRetry = failRetry;
-    }
-
     public int getMaxRetryNum() {
         return maxRetryNum;
+    }
+
+    public boolean getIsFailRetry() {
+        return maxRetryNum > 0;
     }
 
     public void setMaxRetryNum(int maxRetryNum) {
@@ -414,8 +410,8 @@ public class JobClient extends OrderObject{
                 ", restartTime=" + restartTime +
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
-                ", isFailRetry=" + isFailRetry +
                 ", maxRetryNum=" + maxRetryNum +
                 '}';
     }
+
 }
