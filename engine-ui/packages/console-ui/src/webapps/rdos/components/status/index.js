@@ -153,6 +153,8 @@ export function TaskTimeType (props) {
 export function DatabaseType (props) {
     const value = props.value
     switch (value) {
+        case DATA_SOURCE.KYLIN:
+            return <span>KYLIN</span>
         case DATA_SOURCE.MYSQL:
             return <span>MySQL</span>
         case DATA_SOURCE.ORACLE:
