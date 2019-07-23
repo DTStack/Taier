@@ -696,7 +696,6 @@ class PatchDataDetail extends Component {
                                 <Form
                                     layout="inline"
                                     style={{
-                                        marginTop: '10px',
                                         marginLeft: '20px',
                                         display: 'inline-block'
                                     }}
@@ -705,7 +704,7 @@ class PatchDataDetail extends Component {
                                     <FormItem label="">
                                         <Search
                                             placeholder="按任务名称"
-                                            style={{ width: 126 }}
+                                            style={{ width: '126px' }}
                                             value={taskName}
                                             size="default"
                                             onChange={this.changeTaskName}
@@ -719,7 +718,7 @@ class PatchDataDetail extends Component {
                                             allowClear
                                             showSearch
                                             size='Default'
-                                            style={{ width: 126 }}
+                                            style={{ width: '126px' }}
                                             placeholder="责任人"
                                             optionFilterProp="name"
                                             onChange={this.changePerson}
@@ -733,7 +732,7 @@ class PatchDataDetail extends Component {
                                         <RangePicker
                                             disabledDate={this.disabledDate}
                                             size="default"
-                                            style={{ width: 200 }}
+                                            style={{ width: '200px' }}
                                             format="YYYY-MM-DD"
                                             ranges={{
                                                 '昨天': [moment().subtract(2, 'days'), yesterDay],

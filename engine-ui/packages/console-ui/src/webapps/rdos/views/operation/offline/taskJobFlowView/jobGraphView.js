@@ -748,6 +748,7 @@ class JobGraphView extends Component {
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTFAMILY] = 'PingFangSC-Regular';
         style[mxConstants.FONT_BOLD] = 'normal';
+        style[mxConstants.STYLE_WHITE_SPACE] = 'nowrap';
         // style[mxConstants.STYLE_OVERFLOW] = 'hidden';
 
         return style;
