@@ -32,7 +32,7 @@ public abstract class ConnFactory {
 
     private AtomicBoolean isFirstLoaded = new AtomicBoolean(true);
 
-    private String dbURL;
+    protected String dbURL;
 
     private String userName;
 
