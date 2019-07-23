@@ -496,7 +496,7 @@ class RealTimeTaskList extends Component {
             current: current
         };
         return (
-            <div className="box-1 m-card">
+            <div className="c-realtime__list m-card">
                 <Card
                     noHovering
                     bordered={false}

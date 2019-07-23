@@ -1,11 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Layout } from 'antd'
 import { connect } from 'react-redux'
 
 import * as UserAction from '../../store/modules/user'
-
-const { Content } = Layout;
 
 const propType = {
     children: PropTypes.node
@@ -24,7 +21,7 @@ class Container extends Component {
         this.initUsers(this.props.project);
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         const { project = {} } = nextProps;
         const { project: old_project = {} } = this.props;
         if (old_project.id != project.id) {
@@ -49,9 +46,7 @@ class Container extends Component {
         const { children } = this.props
         return (
             <div className="dt-operation">
-                <Content>
-                    { children || "i'm container." }
-                </Content>
+                {children || "i'm container."}
             </div>
         )
     }
