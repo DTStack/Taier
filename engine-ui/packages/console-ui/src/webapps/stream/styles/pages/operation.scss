@@ -1,4 +1,14 @@
 .dt-operation {
+    min-height: 100%;
+    .c-realtime__list {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        min-height: calc(100% - 40px);
+        box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
+        background: #FFFFFF;
+    }
     .operation-content {
         padding: 20px;
         min-height: 100%;
