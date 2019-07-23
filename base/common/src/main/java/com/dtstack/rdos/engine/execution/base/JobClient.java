@@ -130,7 +130,7 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
-        if (paramAction.getEngineType().equals("flink") && EJobType.getEJobType(paramAction.getTaskType()).name().equals("SQL")){
+        if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
         } else {
             this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
