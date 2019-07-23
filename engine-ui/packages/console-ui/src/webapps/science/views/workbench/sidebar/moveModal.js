@@ -36,7 +36,7 @@ class NewFolder extends React.Component {
             nodeName: values.fileName,
             nodePid: values.nodePid,
             id: get(data, 'id'),
-            isFile: true
+            isFile: 1
         });
         if (res && res.code == 1) {
             this.props.loadTreeData(type, get(data, 'nodePid'));
