@@ -19,13 +19,17 @@ class RunLog extends React.Component {
     }
     prepareLogInfo (logInfo = {}) {
         let { engineLog } = logInfo;
-        if (engineLog.length > this.MAX_ENGINE_LOG) {
-            return {
-                ...logInfo,
-                engineLog: engineLog.substr(-this.MAX_ENGINE_LOG)
-            }
+        const { engineLog: oldEngineLog } = this.state.logInfo;
+        if (oldEngineLog) {
+            engineLog = oldEngineLog + engineLog;
         }
-        return logInfo;
+        if (engineLog.length > this.MAX_ENGINE_LOG) {
+            engineLog = engineLog.substr(-this.MAX_ENGINE_LOG);
+        }
+        return {
+            ...logInfo,
+            engineLog: engineLog.substr(-this.MAX_ENGINE_LOG)
+        }
     }
     async getLog () {
         const data = this.props.data;
