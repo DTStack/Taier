@@ -327,7 +327,7 @@ class TableList extends Component {
         </Option>)
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
+            <Form className="m-form-inline" layout="inline">
                 <FormItem label="类目">
                     <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree

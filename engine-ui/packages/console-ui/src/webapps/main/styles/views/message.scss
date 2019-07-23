@@ -18,3 +18,13 @@
         }
     }
 }
+.c-messgae__list {
+    >.ant-tabs {
+        >.ant-tabs-content{
+            height: calc(100% - 80px);
+            >.ant-tabs-tabpane{
+                height: 100%;
+            }
+        }
+    }
+}

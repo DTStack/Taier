@@ -30,6 +30,7 @@ export default {
     UPDATE_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/updateCatalogue`, // 更新文件夹
     DELETE_FOLDER: `${SCIENCE_BASE_URL}/service/scienceCatalogue/deleteCatalogue`, // 删除文件夹
 
+    GET_SUPPORT_TASK_TYPES: `${SCIENCE_BASE_URL}/service/scienceTask/getSupportJobTypes`, // 获取项目任务类型
     GET_TASK_BY_ID: `${SCIENCE_BASE_URL}/service/scienceTask/getTaskById`, // 获取Task
     ADD_NOTEBOOK: `${SCIENCE_BASE_URL}/service/scienceTask/addOrUpdateTask`, // 添加notebook
     OPEN_NOTEBOOK: `${SCIENCE_BASE_URL}/openNotebook`, // 打开notebook
@@ -79,5 +80,11 @@ export default {
     LIST_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/listDataSource`, // 数据源列表
     UPLOAD_TABLE_DATA: `${SCIENCE_BASE_URL}/upload/dataManager/importData`, // 创建数据源(上传文件)
     GET_DATA_SOURCE_DETAIL: `${SCIENCE_BASE_URL}/service/dataManager/getDataSourceDetail`, // 数据源详细信息
-    UPDATE_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/updateDataSource` // 更新数据源
+    UPDATE_DATA_SOURCE: `${SCIENCE_BASE_URL}/service/dataManager/updateDataSource`, // 更新数据源
+
+    // 资源
+    GTE_RESOURCE_BY_ID: `${SCIENCE_BASE_URL}/service/scienceResource/getResourceById`,
+    ADD_RESOURCE: `${SCIENCE_BASE_URL}/upload/scienceResource/addResource`,
+    RENAME_RESOURCE: `${SCIENCE_BASE_URL}/service/scienceResource/renameResource`,
+    DELETE_RESOURCE: `${SCIENCE_BASE_URL}/service/scienceResource/deleteResource`
 }

@@ -1,9 +1,5 @@
 import React, { Component } from 'react'
 
-import {
-    Row
-} from 'antd';
-
 import { hashHistory } from 'react-router';
 import { connect } from 'react-redux';
 import OfflineTabPanel from './offlineTab'
@@ -16,9 +12,7 @@ class Sidebar extends Component {
     render () {
         return (
             <div className="sidebar">
-                <Row>
-                    <OfflineTabPanel/>
-                </Row>
+                <OfflineTabPanel/>
             </div>
         )
     }

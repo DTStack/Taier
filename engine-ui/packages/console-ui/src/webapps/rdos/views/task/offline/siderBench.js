@@ -87,7 +87,8 @@ class SiderBench extends React.Component {
                         couldEdit={couldEdit}
                         isScienceTask={isScienceTask}
                         tabData={tabData}
-                        key={`schedule-${tabData && tabData.version}-${this._updateKey}`}
+                        updateKey={this._updateKey}
+                        key={`schedule-${tabData && tabData.version}`}
                         isIncrementMode={isIncrementMode}
                     >
                     </SchedulingConfig>

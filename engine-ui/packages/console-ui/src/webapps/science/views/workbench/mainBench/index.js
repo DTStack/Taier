@@ -25,9 +25,7 @@ class MainBench extends React.Component {
     }
     render () {
         return (
-            <div>
-                <BenchContent />
-            </div>
+            <BenchContent />
         )
     }
 }

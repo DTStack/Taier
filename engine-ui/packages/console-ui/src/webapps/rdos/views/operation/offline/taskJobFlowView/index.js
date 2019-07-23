@@ -417,7 +417,7 @@ class TaskJobFlowView extends Component {
                     maskClosable={true}
                     visible={this.state.visibleWorkflow}
                     title={`工作流-${get(workflowData, 'batchTask.name', '')}`}
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
+                    wrapClassName="vertical-center-modal modal-body-nopadding c-jobflow__modal"
                     onCancel={this.onCloseWorkflow}
                 >
                     <JobGraphView

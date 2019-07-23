@@ -458,7 +458,6 @@ class DirtyData extends Component {
             <Form
                 layout="inline"
                 className="m-form-inline"
-                style={{ marginTop: '10px' }}
             >
                 <FormItem label="选择任务">
                     <Select

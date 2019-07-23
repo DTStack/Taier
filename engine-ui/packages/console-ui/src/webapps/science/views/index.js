@@ -9,7 +9,7 @@ import Header from './layout/header'
 import { updateApp } from 'main/actions/app'
 import { getProjectList, initCurrentProject } from '../actions/base'
 import { getUser } from '../actions/user';
-
+import { getSupportTaskTypes } from '../actions/task';
 const propType = {
     children: PropTypes.node
 }
@@ -29,6 +29,7 @@ class Main extends Component {
         dispatch(getUser())
         dispatch(getProjectList());
         dispatch(initCurrentProject())
+        dispatch(getSupportTaskTypes())
     }
 
     render () {

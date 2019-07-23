@@ -15,10 +15,10 @@ module.exports = {
             },
             '/api/rdos': {
                 // target: 'http://172.16.10.86:9020', // test
-                // target: "http://172.16.8.107:9020", // dev server
+                target: "http://172.16.8.107:9020", // dev server
                 // target: "http://172.16.0.14:9020", // dev server
                 // target: "http://172.16.1.22:9020", // dev server
-                target: "http://test.dtstack.insight.com",
+                // target: "http://test.dtstack.insight.com",
                 // target: "http://dev.insight.dtstack.net",
                 // target: "http://172.16.0.34:9020",
                 // target: "http://172.16.10.51:9020", // test
@@ -73,16 +73,16 @@ module.exports = {
                 secure: false
             },
             '/api/console': { // 控制台
-                // target: 'http://172.16.8.109:8084', // 开发环境
+                target: 'http://172.16.8.109:8084', // 开发环境
                 // target: 'http://172.16.8.108:8084',
-                target: "http://test.dtstack.insight.com",
+                // target: "http://test.dtstack.insight.com",
                 // target: "http://172.16.10.34:8084",   // test
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,
                 secure: false
             },
             '/api/analysis': { // 分析引擎
-                target: 'http://172.16.8.105:9022', // 开发环境
+                target: 'http://172.16.8.108:9022', // 开发环境
                 // target: "http://172.16.10.45:9022", // 测试环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,

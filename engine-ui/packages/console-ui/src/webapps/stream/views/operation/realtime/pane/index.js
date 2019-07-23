@@ -148,32 +148,29 @@ class TaskDetailPane extends React.Component {
             top: '11px'
         }
         return (
-            <div>
-                <SlidePane
-                    className="m-tabs bd-top bd-right m-slide-pane"
-                    onClose={closeSlidePane}
-                    visible={visibleSlidePane}
-                    style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
-                >
-                    <div className="pane-height100-box">
-                        <header className="detailPane-header">
-                            <span style={{ fontSize: '14px' }}>{data.name}</span>
-                            <span style={{ marginLeft: '25px' }}><TaskStatus value={data.status} /></span>
-                            <span style={extButtonStyle}>{extButton}</span>
-                        </header>
-                        <Tabs
-                            className="pane-tabs"
-                            style={{ borderTop: '1px solid #DDDDDD', position: 'relative' }}
-                            animated={false}
-                            onChange={this.onTabChange.bind(this)}
-                            activeKey={tabKey}
-                        >
-                            {this.getTabs()}
-                        </Tabs>
-                    </div>
-                </SlidePane>
-            </div>
-
+            <SlidePane
+                className="m-tabs bd-top bd-right m-slide-pane"
+                onClose={closeSlidePane}
+                visible={visibleSlidePane}
+                style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
+            >
+                <div className="pane-height100-box">
+                    <header className="detailPane-header">
+                        <span style={{ fontSize: '14px' }}>{data.name}</span>
+                        <span style={{ marginLeft: '25px' }}><TaskStatus value={data.status} /></span>
+                        <span style={extButtonStyle}>{extButton}</span>
+                    </header>
+                    <Tabs
+                        className="pane-tabs"
+                        style={{ borderTop: '1px solid #DDDDDD', position: 'relative' }}
+                        animated={false}
+                        onChange={this.onTabChange.bind(this)}
+                        activeKey={tabKey}
+                    >
+                        {this.getTabs()}
+                    </Tabs>
+                </div>
+            </SlidePane>
         )
     }
 }

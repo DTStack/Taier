@@ -282,7 +282,7 @@ class Index extends Component {
         const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
-                <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
+                <div className="project-dashboard develop-kit" style={{ padding: '20px 35px' }}>
                     <div className="project-header" >
                         <div className="project-search-box">
                             <div className="project-search" >
@@ -347,7 +347,7 @@ class Index extends Component {
                                                                 v.status != PROJECT_STATUS.NORMAL || (taskNav && !taskNav.isShow) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
-                                                                            style={{ marginRight: '10' }}
+                                                                            style={{ marginRight: '6px' }}
                                                                             onClick={() => { this.setRouter('realtime', v) }}
                                                                             onMouseOver={(e) => { this.handleMouseOver('realtime', e) }}
                                                                             onMouseOut={(e) => { this.handleMouseOut('realtime', e) }}
@@ -365,6 +365,7 @@ class Index extends Component {
                                                                 v.status != PROJECT_STATUS.NORMAL || (operaNav && !operaNav.isShow) ? '' : (
                                                                     <Col span="12">
                                                                         <Card className="card-task"
+                                                                            style={{ marginLeft: '6px' }}
                                                                             onClick={() => { this.setRouter('operation', v) }}
                                                                             onMouseOver={(e) => { this.handleMouseOver('operation', e) }}
                                                                             onMouseOut={(e) => { this.handleMouseOut('operation', e) }}

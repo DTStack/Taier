@@ -20,7 +20,8 @@
 }
 .g-datamanage {
     $green: #009D7E; // ======== folder tree icon 
-    
+    height: 100%;
+    position: relative;
     // ==== misc====
     .Resizer {
         background: #DDDDDD;
@@ -290,6 +291,9 @@
     line-height: 16px;
 }
 .modeChooseBox{
+    position: absolute;
+    left: 20px;
+    right: 20px;
     display: flex;
     align-items: center;
     justify-content: center;

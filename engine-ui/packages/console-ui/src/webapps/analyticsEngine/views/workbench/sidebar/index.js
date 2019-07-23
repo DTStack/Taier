@@ -158,7 +158,7 @@ class Sidebar extends Component {
 
         if (folderTree && folderTree.children && folderTree.children.length > 0) {
             return (
-                <div>
+                <div style={{ height: 'calc(100% - 35px)', overflow: 'hidden' }}>
                     { searchBar }
                     <FolderTree
                         onRightClick={this.onRightClick}

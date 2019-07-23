@@ -250,7 +250,6 @@ class PatchDataList extends Component {
         const title = (
             <Form
                 layout="inline"
-                style={{ marginTop: '10px' }}
                 className="m-form-inline"
             >
                 <FormItem>

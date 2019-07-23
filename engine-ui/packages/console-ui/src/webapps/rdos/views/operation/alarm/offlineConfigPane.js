@@ -288,7 +288,6 @@ class OfflineConfig extends Component {
                         <Form
                             className="m-form-inline"
                             layout="inline"
-                            style={{ marginTop: '10px' }}
                         >
                             <FormItem label="任务名称">
                                 <Input

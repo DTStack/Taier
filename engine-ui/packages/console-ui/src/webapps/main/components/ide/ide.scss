@@ -72,6 +72,7 @@
         }
         .ant-tabs-bar .ant-tabs-tab-active {
             background: #fff;
+            padding-bottom: 4px;
             &:after{
                 content:"";
                 position: absolute;
@@ -121,13 +122,17 @@
                 right: 30px;;
             }
         }
-
-        .ant-tabs-content {
-            position: absolute;
-            top: 32px;
-            bottom: 0px;
-            height: auto;
-            overflow: auto;
+        >.ant-tabs {
+            >.ant-tabs-content {
+                position: absolute;
+                top: 32px;
+                bottom: 0px;
+                height: auto;
+                overflow: auto;
+                >.ant-tabs-tabpane{
+                    height: 100%;
+                }
+            }
         }
 
         .CodeMirror {

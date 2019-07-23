@@ -685,7 +685,7 @@ class AuthMana extends Component {
         console.log('rangeTime', rangeTime);
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
+            <Form className="m-form-inline" layout="inline">
                 <FormItem label="项目">
                     <Select
                         allowClear

@@ -338,7 +338,7 @@ class APIMarket extends Component {
             <div className="flex font-12">
                 <Search
                     placeholder="输入API名称搜索"
-                    style={{ width: 150, margin: '10px 0' }}
+                    style={{ width: 150 }}
                     onSearch={this.handleSearch.bind(this)}
                 />
                 <div className="m-l-8">

@@ -90,11 +90,11 @@ class TaskBrowser extends Component {
     mapPanels = (panes) => {
         if (panes && panes.length > 0) {
             return panes.map((pane) => {
-                const title = (<span>
+                const title = (<div style={{ lineHeight: '19px' }}>
                     <TabIcon tabData={pane} />
                     <SyncBadge notSynced={pane.notSynced} />
                     <span title={pane.name} className="tab-ellipsis">{pane.name}</span>
-                </span>)
+                </div>)
                 return (
                     <TabPane
                         style={{ height: '0px' }}

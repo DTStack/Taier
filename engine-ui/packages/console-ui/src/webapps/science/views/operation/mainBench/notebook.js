@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd';
-
+import { findKey } from 'lodash';
 import Api from '../../../api'
 import { offlineTaskPeriodFilter } from '../../../comm/const.js'
-import { taskType } from '../../../consts';
+import { taskType, TASK_TYPE } from '../../../consts';
 import { toRdosGateway } from 'funcs';
 import { appUriDict } from 'main/consts';
 
@@ -94,14 +94,21 @@ class Notebook extends PureComponent {
     }
     initCol = () => {
         return [{
-            width: '25%',
+            width: '20%',
             title: 'Notebook名称',
             dataIndex: 'name',
             render (name, record) {
                 return record.scheduleStatus == 2 ? `${name}（已冻结）` : name
             }
         }, {
-            width: '25%',
+            width: '20%',
+            title: '任务类型',
+            dataIndex: 'taskType',
+            render (text, record) {
+                return findKey(TASK_TYPE, text)
+            }
+        }, {
+            width: '20%',
             title: '提交时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
@@ -109,7 +116,7 @@ class Notebook extends PureComponent {
                 return utils.formatDateTime(t);
             }
         }, {
-            width: '25%',
+            width: '20%',
             title: '调度周期',
             dataIndex: 'taskPeriodId',
             key: 'taskPeriodId',
@@ -130,7 +137,7 @@ class Notebook extends PureComponent {
             },
             filters: offlineTaskPeriodFilter
         }, {
-            width: '25%',
+            width: '20%',
             title: '创建人',
             dataIndex: 'ownerUser.userName'
         }]
