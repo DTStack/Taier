@@ -130,7 +130,7 @@ public class JobClient extends OrderObject{
         this.classArgs = paramAction.getExeArgs();
         this.restartTime = paramAction.getRestartTime();
         this.generateTime = paramAction.getGenerateTime();
-        if (paramAction.getEngineType().equals("flink") && EJobType.getEJobType(paramAction.getTaskType()).name().equals("SQL")){
+        if (paramAction.getComputeType().equals(ComputeType.STREAM.getType())){
             this.maxRetryNum = 0;
         } else {
             this.maxRetryNum = paramAction.getMaxRetryNum() == null ? 3 : paramAction.getMaxRetryNum();
@@ -375,12 +375,16 @@ public class JobClient extends OrderObject{
         this.applicationId = applicationId;
     }
 
-    public int getMaxRetryNum() {
-        return maxRetryNum;
+    public boolean getIsFailRetry() {
+        return isFailRetry;
     }
 
-    public boolean getIsFailRetry() {
-        return maxRetryNum > 0;
+    public void setIsFailRetry(boolean failRetry) {
+        isFailRetry = failRetry;
+    }
+
+    public int getMaxRetryNum() {
+        return maxRetryNum;
     }
 
     public void setMaxRetryNum(int maxRetryNum) {
@@ -410,8 +414,8 @@ public class JobClient extends OrderObject{
                 ", restartTime=" + restartTime +
                 ", generateTime=" + generateTime +
                 ", priority=" + priority +
+                ", isFailRetry=" + isFailRetry +
                 ", maxRetryNum=" + maxRetryNum +
                 '}';
     }
-
 }
