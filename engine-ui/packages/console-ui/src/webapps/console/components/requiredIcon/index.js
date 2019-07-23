@@ -14,6 +14,7 @@ export default class RequiredIcon extends Component {
             sparkShowRequired,
             dtYarnShellShowRequired,
             learningShowRequired,
+            hiveServerShowRequired,
             hdfsShowRequired,
             yarnShowRequired,
             libraShowRequired } = showRequireStatus;
@@ -41,6 +42,10 @@ export default class RequiredIcon extends Component {
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
                 isShowIcon = learningShowRequired;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+                isShowIcon = hiveServerShowRequired;
                 break;
             }
             case COMPONENT_TYPE_VALUE.HDFS: {
