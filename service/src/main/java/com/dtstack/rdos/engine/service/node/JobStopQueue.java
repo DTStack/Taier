@@ -220,7 +220,7 @@ public class JobStopQueue {
             stopJobQueue.put(new StoppedJob<ParamAction>(paramAction));
             return true;
         } catch (Throwable e) {
-            LOG.error("processStopJob happens error, element:{}", paramAction);
+            LOG.error("processStopJob happens error, element:{}", paramAction, e);
             //停止发生错误时，需要避免死循环进行停止
             return true;
         }
