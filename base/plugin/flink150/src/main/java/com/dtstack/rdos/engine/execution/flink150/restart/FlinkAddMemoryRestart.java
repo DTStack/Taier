@@ -27,7 +27,7 @@ public class FlinkAddMemoryRestart implements IJobRestartStrategy {
 
     private static String RUN_MODE_KEY = "flinkTaskRunMode";
 
-    private static String PER_JOB_MODE = "perJob";
+    private static String PER_JOB_MODE = "PER_JOB";
 
     private static int DEFAULT_TASKMANAGER_MEMORY = 1024;
 
