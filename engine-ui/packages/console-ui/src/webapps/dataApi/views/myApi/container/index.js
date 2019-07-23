@@ -15,7 +15,7 @@ class MyApiContainer extends React.Component {
                 <Sider>
                     <ContainerSider {...others} />
                 </Sider>
-                <Content>
+                <Content style={{ height: '100%' }}>
                     {children}
                 </Content>
             </Layout>

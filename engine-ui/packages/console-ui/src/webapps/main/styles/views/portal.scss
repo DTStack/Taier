@@ -50,6 +50,7 @@
         &.aliyun{
             .l-content{
                 width: 100%;
+                height: 100%;
             }
             background-image: linear-gradient(-180deg, #001852 0%, #003078 30%);
     
@@ -77,6 +78,7 @@
             }
     
             .c-banner__content__img {
+                height: 100%;
                 width: 100%;
                 overflow: hidden;
                 position: relative;

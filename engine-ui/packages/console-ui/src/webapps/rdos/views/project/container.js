@@ -21,6 +21,11 @@ const defaultPro = {
     }
 })
 class Container extends Component {
+    state = {
+        collapsed: true,
+        mode: 'inline'
+    };
+
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
         const { params = {}, project = {} } = nextProps;
@@ -29,12 +34,23 @@ class Container extends Component {
             hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i, `$1${project.id}$2`))
         }
     }
+    onCollapse = (collapsed) => {
+        this.setState({
+            collapsed,
+            mode: collapsed ? 'vertical' : 'inline'
+        });
+    }
+
     render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-project">
-                <Sider className="bg-w">
-                    <Sidebar {...this.props} />
+                <Sider className="bg-w"
+                    collapsible
+                    collapsed={this.state.collapsed}
+                    onCollapse={this.onCollapse}
+                >
+                    <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content>
                     { children || "i'm container." }

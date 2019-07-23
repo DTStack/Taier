@@ -256,7 +256,7 @@ class ResourceManage extends React.Component {
                             >
                                 <Select
                                     className='cluster-select'
-                                    style={{ width: '180' }}
+                                    style={{ width: '180px' }}
                                     placeholder='请选择集群'
                                     value={`${queryParams.clusterId}`}
                                     onChange={this.handleChangeCluster}
@@ -295,7 +295,7 @@ class ResourceManage extends React.Component {
                                                 <TabPane tab="租户绑定" key={`${engineType}-tenant`}>
                                                     <div style={{ margin: 15 }}>
                                                         <Search
-                                                            style={{ width: '200px', marginBottom: '20' }}
+                                                            style={{ width: '200px', marginBottom: '20px' }}
                                                             placeholder='按租户名称搜索'
                                                             value={queryParams.tenantName}
                                                             onChange={(e) => {

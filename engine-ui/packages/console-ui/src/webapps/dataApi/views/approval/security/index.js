@@ -171,7 +171,7 @@ class Security extends React.Component {
     }
     getCardTitle () {
         return (
-            <div style={{ margin: '10px 0' }}>
+            <div>
                 <Input.Search
                     style={{ width: '200px' }}
                     placeholder="按名称或IP地址搜索"
@@ -204,7 +204,7 @@ class Security extends React.Component {
                         noHovering
                         title={this.getCardTitle()}
                         className="shadow"
-                        extra={<Button style={{ marginTop: '10px' }} onClick={this.openEditModal.bind(this, {}, 'new')} type='primary'>新建安全组</Button>}
+                        extra={<Button onClick={this.openEditModal.bind(this, {}, 'new')} type='primary'>新建安全组</Button>}
                     >
                         <Table
                             rowKey="id"

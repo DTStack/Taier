@@ -45,7 +45,7 @@ class NoApprovedCard extends Component {
         );
     }
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps) {
         if (this.props.nowView != nextProps.nowView && nextProps.nowView == 'notApproved') {
             this.getApplyingList();
         }
@@ -73,8 +73,7 @@ class NoApprovedCard extends Component {
         this.setState({
             pageIndex: page.current,
             sortedInfo: sorter
-        },
-        () => {
+        }, () => {
             this.getApplyingList();
         });
     }
@@ -152,8 +151,7 @@ class NoApprovedCard extends Component {
         this.setState({
             apiName: key,
             pageIndex: 1
-        },
-        () => {
+        }, () => {
             this.getApplyingList();
         })
     }
@@ -161,14 +159,12 @@ class NoApprovedCard extends Component {
         const { apiName } = this.state;
         return (
             <div>
-                <div style={{ position: 'relative' }}>
-                    <SlidePane
-                        {...this.props}
-                        slidePaneShow={this.state.slidePaneShow}
-                        showRecord={this.state.showRecord}
-                        closeSlidePane={this.closeSlidePane.bind(this)}
-                    ></SlidePane>
-                </div>
+                <SlidePane
+                    {...this.props}
+                    slidePaneShow={this.state.slidePaneShow}
+                    showRecord={this.state.showRecord}
+                    closeSlidePane={this.closeSlidePane.bind(this)}
+                ></SlidePane>
                 <Card
                     noHovering
                 >

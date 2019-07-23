@@ -1,5 +1,6 @@
 .api-mine{
     margin:0px 20px 20px 20px;
+    height: calc(100% - 20px);
     &>.ant-card{
         .ant-card-body>.ant-tabs{
             height: auto;

@@ -388,14 +388,14 @@ class Workbench extends React.Component {
     renderTabs (tabs) {
         if (tabs && tabs.length > 0) {
             return tabs.map((tab) => {
-                let title = (<div>
+                let title = (<div style={{ lineHeight: 0 }}>
                     <TabIcon tabData={tab} />
                     <span className="tab-ellipsis" title={tab.name}>{tab.name}</span>
                     <SyncBadge notSynced={tab.notSynced} />
                 </div>);
 
                 if (tab.flowId) {
-                    title = (<div>
+                    title = (<div style={{ lineHeight: 0 }}>
                         <TabIcon tabData={tab} />
                         <span className="tab-ellipsis">
                             <a className="workflow-name" title={tab.flowName} onClick={() => this.switchTab(this.props.currentTab, tab.flowId)}>

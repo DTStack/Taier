@@ -38,7 +38,7 @@ class SlidePane extends Component {
 
         return (
             <div className={ myClass } style={myStyle} >
-                <div className="slide-pane-conent" style={{ display: visible ? 'block' : 'none' }}>
+                <div className="slide-pane-conent" style={{ display: visible ? 'block' : 'none', height: '100%' }}>
                     { children }
                 </div>
                 <span className="slide-pane-toggle" onClick={onClose}>

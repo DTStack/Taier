@@ -158,7 +158,7 @@ export function LogInfo (props) {
                     : ''
             }
             <Row style={logStyle}>
-                <Editor sync value={logText} options={editorOptions} />
+                <Editor style={{ height: '100%' }} sync value={logText} options={editorOptions} />
             </Row>
         </div>
     )

@@ -215,7 +215,6 @@ class TableList extends Component {
             defaultPageSize: 10,
             current: params.pageIndex
         };
-        const marginTop10 = { marginTop: '8px' };
 
         const subjectFieldsOptions = subjectFields && subjectFields.map(field =>
             <Option key={field.id} value={field.name}>{field.name}</Option>
@@ -304,7 +303,7 @@ class TableList extends Component {
         ];
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={marginTop10}>
+            <Form className="m-form-inline" layout="inline">
                 <FormItem label="主题域">
                     <Select
                         allowClear
@@ -338,7 +337,7 @@ class TableList extends Component {
         )
 
         const extra = (
-            <div style={marginTop10}>
+            <div style={{ marginTop: '10px' }}>
                 <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
                     <Link to={`${ROUTER_BASE}/design`}>模型建表</Link>
                 </Button>

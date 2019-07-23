@@ -247,7 +247,7 @@ class RuleManage extends Component {
                             </Select>
                             <Search
                                 placeholder='按规则名称搜索'
-                                style={{ width: '200px', marginTop: '10px' }}
+                                style={{ width: '200px' }}
                                 onChange={this.changeName}
                                 onSearch={this.search}
                             />

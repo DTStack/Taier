@@ -663,7 +663,7 @@ class AdminUser extends Component {
                     placeholder="请输入要搜索的账号"
                     value={searchName}
                     onChange={e => this.searchNameChange(e)}
-                    style={{ width: 200, marginTop: 10 }}
+                    style={{ width: 200 }}
                     onSearch={value => this.searchProjectUser(value)}
                 />
             </span>

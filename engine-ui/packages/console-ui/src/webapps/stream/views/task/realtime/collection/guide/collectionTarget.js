@@ -197,7 +197,7 @@ class CollectionTargetForm extends React.Component {
         if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
-        const { writeTableType, writeStrategy, table } = targetMap;
+        const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
@@ -356,20 +356,44 @@ class CollectionTargetForm extends React.Component {
                         )}
                     </FormItem>,
                     writeTableType == writeTableTypes.AUTO && (
-                        <FormItem
-                            {...formItemLayout}
-                            label="表名拼装规则"
-                            key="analyticalRules"
-                        >
-                            {getFieldDecorator('analyticalRules', {
-                                rules: [{
-                                    required: true, message: '该字段不能为空'
-                                }]
-                            })(
-                                <Input disabled addonBefore='stream_' />
-                            )}
-                            <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
-                        </FormItem>
+                        <React.Fragment>
+                            <FormItem
+                                {...formItemLayout}
+                                label="表名拼装规则"
+                                key="analyticalRules"
+                            >
+                                {getFieldDecorator('analyticalRules', {
+                                    rules: [{
+                                        required: false, message: '该字段不能为空'
+                                    }]
+                                })(
+                                    // eslint-disable-next-line
+                                    <Input addonBefore='stream_${schema}_${table}' />
+                                )}
+                                <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="存储类型"
+                                key="store"
+                            >
+                                {getFieldDecorator('store', {
+                                    rules: [{
+                                        required: true, message: '存储类型不能为空'
+                                    }]
+                                })(
+                                    <RadioGroup>
+                                        <Radio value="orc" style={{ float: 'left' }}>
+                                            orc
+                                        </Radio>
+                                        <Radio value="text" style={{ float: 'left' }}>
+                                            text
+                                        </Radio>
+                                    </RadioGroup>
+                                )}
+                                <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
+                            </FormItem>
+                        </React.Fragment>
                     ),
                     writeTableType == writeTableTypes.HAND && (
                         <FormItem
@@ -472,6 +496,7 @@ class CollectionTargetForm extends React.Component {
                                 </Radio>
                             </RadioGroup>
                         )}
+                        {writeMode == 'replace' && <p style={{ color: 'red' }}>注意：切换为覆盖模式，任务启动时，将删除目标表和历史数据</p>}
                     </FormItem>
                 ].filter(Boolean);
             }
@@ -535,13 +560,19 @@ class CollectionTargetForm extends React.Component {
 
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
+        if (fields.hasOwnProperty('analyticalRules')) {
+            // eslint-disable-next-line
+            fields['analyticalRules'] = '${schema}_${table}' + fields['analyticalRules'];
+        }
         // 建表模式
         if (fields.hasOwnProperty('writeTableType')) {
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
                 fields['analyticalRules'] = '${schema}_${table}';
+                fields['store'] = 'orc';
             } else {
                 fields['analyticalRules'] = undefined;
+                fields['store'] = undefined;
             }
             fields['table'] = undefined;
             fields['partition'] = undefined;
@@ -584,13 +615,17 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.topic
             },
             analyticalRules: {
-                value: targetMap.analyticalRules
+                // eslint-disable-next-line
+                value: targetMap.analyticalRules ? targetMap.analyticalRules.replace('${schema}_${table}', '') : ''
             },
             writeTableType: {
                 value: targetMap.writeTableType
             },
             table: {
                 value: targetMap.table
+            },
+            store: {
+                value: targetMap.store || 'orc'
             },
             partition: {
                 value: targetMap.partition

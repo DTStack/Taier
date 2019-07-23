@@ -460,7 +460,7 @@ class DataCheck extends Component {
                     placeholder="输入表名搜索"
                     onSearch={this.onTableSearch}
                     onChange={this.onTableNameChange}
-                    style={{ width: 200, margin: '10px 0' }}
+                    style={{ width: 200 }}
                 />
 
                 <div className="m-l-8">

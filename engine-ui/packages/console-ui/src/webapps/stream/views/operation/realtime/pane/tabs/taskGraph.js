@@ -13,11 +13,7 @@ class TaskGraph extends React.Component {
         )
     }
     render () {
-        return (
-            <div>
-                {this.getBaseInfo()}
-            </div>
-        )
+        return this.getBaseInfo();
     }
 }
 

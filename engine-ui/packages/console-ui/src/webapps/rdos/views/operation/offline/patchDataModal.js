@@ -367,9 +367,9 @@ class PatchData extends Component {
         const pacthName = `P_${task && task.name}_${moment().format('YYYY_MM_DD_mm_ss')}`
         const format = 'HH:mm';
         const style = {
-            position: 'absolute',
-            right: 85,
-            top: -8
+            position: 'relative',
+            right: 0,
+            top: 0
         }
         return (
             <Modal
@@ -418,14 +418,14 @@ class PatchData extends Component {
                         )}
                     </FormItem>
                 </Row>
-                <Row style={{ lineHeight: '30px' }}>
-                    <div style={{ float: 'left', margin: '-16 0 0 120' }}>
+                <Row style={{ lineHeight: '30px', margin: '-10px 0px 10px 0px' }}>
+                    <Col offset={formItemLayout.labelCol.sm.span}>
                         <Checkbox
                             checked={checked}
                             onChange={this.changeCheckbox}
                         >选择分钟粒度</Checkbox>
-                    </div>
-                    <HelpDoc style={style} doc="minuteParticleHelp" />
+                        <HelpDoc style={style} doc="minuteParticleHelp" />
+                    </Col>
                 </Row>
                 {
                     checked ? (

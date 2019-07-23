@@ -505,7 +505,7 @@ class RealTimeTaskList extends Component {
                         <div>
                             <Search
                                 placeholder="按任务名称搜索"
-                                style={{ width: 200, marginTop: '10px' }}
+                                style={{ width: 200 }}
                                 defaultValue={utils.getParameterByName('tname') || ''}
                                 onSearch={this.searchTask}
                             />

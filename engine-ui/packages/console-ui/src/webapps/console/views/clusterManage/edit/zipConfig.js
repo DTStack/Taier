@@ -1,7 +1,7 @@
 import React from 'react';
 import utils from 'utils';
 import { Tooltip, Row, Col } from 'antd';
-
+import { cloneDeep } from 'lodash';
 import { formItemLayout } from '../../../consts'
 
 class ZipConfig extends React.Component {
@@ -10,7 +10,10 @@ class ZipConfig extends React.Component {
         zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let keyAndValue;
         if (type == 'hdfs') {
-            keyAndValue = Object.entries(zipConfig.hadoopConf || {})
+            // md5zip 界面不显示
+            let copyVal = cloneDeep(zipConfig.hadoopConf);
+            delete (copyVal['md5zip'])
+            keyAndValue = Object.entries(copyVal || {})
             utils.sortByCompareFunctions(keyAndValue,
                 ([key, value], [compareKey, compareValue]) => {
                     if (key == 'fs.defaultFS') {

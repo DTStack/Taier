@@ -312,7 +312,7 @@ class Index extends Component {
         const operaNav = fixArrChildrenApps[2];
         return (
             <Spin tip="Loading..." spinning={loading} delay={500} >
-                <div className="project-dashboard develop-kit" style={{ padding: '20 35' }}>
+                <div className="project-dashboard develop-kit" style={{ padding: '20px 35px' }}>
                     <Row gutter={10}>
                         <Col span="16" >
                             <Select
@@ -328,7 +328,7 @@ class Index extends Component {
                                 <Search placeholder="按项目名称、项目显示名称搜索" onSearch={value => this.searchProject(null, value)} onPressEnter={this.searchProject} />
                             </div>
                             <Button
-                                style={{ float: 'left', margin: '10 0 0 15' }}
+                                style={{ float: 'left', margin: '10px 0 0 15px' }}
                                 type="primary"
                                 onClick={() => { hashHistory.push('/create-project') }}>
                                 创建项目

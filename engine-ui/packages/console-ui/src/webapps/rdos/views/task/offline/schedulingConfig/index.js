@@ -214,7 +214,7 @@ class SchedulingConfig extends React.Component {
             wFScheduleConf, selfReliance
         } = this.state;
 
-        const { tabData, isWorkflowNode, couldEdit, isIncrementMode, isScienceTask } = this.props;
+        const { tabData, isWorkflowNode, couldEdit, isIncrementMode, isScienceTask, updateKey } = this.props;
 
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         const isWorkflowRoot = tabData.taskType == TASK_TYPE.WORKFLOW;
@@ -259,7 +259,7 @@ class SchedulingConfig extends React.Component {
                         handleScheduleConf={this.handleScheduleConf.bind(this)}
                         handleScheduleType={this.handleScheduleType.bind(this)}
                         wrappedComponentRef={el => this.form = el}
-                        key={`${tabData.id}-${scheduleConf.periodType}`}
+                        key={`${tabData.id}-${scheduleConf.periodType}_${updateKey}`}
                     />
                 </Panel>
                 {
