@@ -679,14 +679,6 @@ class OfflineTaskList extends Component {
                                 className="m-form-inline"
                             >
                                 <FormItem label="">
-                                    {/* <Search
-                                        placeholder="按任务名称搜索"
-                                        style={{ width: 200 }}
-                                        size="default"
-                                        value={jobName}
-                                        onChange={this.changeTaskName}
-                                        onSearch={this.onSearchByTaskName}
-                                    /> */}
                                     <MultiSearchInput
                                         placeholder="按任务名称搜索"
                                         style={{ width: 250, height: '26px' }}
