@@ -25,16 +25,14 @@ class CollectionScript extends React.Component {
     }
     render () {
         return (
-            <div>
-                <CommonEditor
-                    mode="json"
-                    {...this.props}
-                    onFormat={this.formatJson}
-                    toolBarOptions={{
-                        leftCustomButton: this.getLeftButton()
-                    }}
-                />
-            </div>
+            <CommonEditor
+                mode="json"
+                {...this.props}
+                onFormat={this.formatJson}
+                toolBarOptions={{
+                    leftCustomButton: this.getLeftButton()
+                }}
+            />
         )
     }
 }
