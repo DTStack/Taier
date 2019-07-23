@@ -166,8 +166,10 @@ public class RestartDealer {
 
             //   根据策略调整参数配置
             String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum);
-
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
+
+            saveRetryTaskParam(jobId, paramAction.getTaskParams());
+
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobClient.getTaskId();
             Integer finalComputeType = jobClient.getComputeType().getType();
@@ -194,6 +196,14 @@ public class RestartDealer {
         } catch (Exception e) {
             LOG.error("", e);
             return false;
+        }
+    }
+
+    private void saveRetryTaskParam(String jobId, String taskParams) {
+        try {
+            engineBatchJobDAO.updateRetryTaskParams(jobId, taskParams);
+        } catch (Exception e) {
+            LOG.error("saveRetryTaskParam error..", e);
         }
     }
 

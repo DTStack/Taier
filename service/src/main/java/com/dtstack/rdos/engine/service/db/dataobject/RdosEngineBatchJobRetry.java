@@ -35,6 +35,8 @@ public class RdosEngineBatchJobRetry extends DataObject {
 
     private String engineLog;
 
+    private String retryTaskParams;
+
     private String applicationId;
 
     public String getApplicationId() {
@@ -122,6 +124,8 @@ public class RdosEngineBatchJobRetry extends DataObject {
         batchJobRetry.setGmtCreate(batchJob.getGmtCreate());
         batchJobRetry.setGmtModified(batchJob.getGmtModified());
         batchJobRetry.setEngineLog(batchJob.getEngineLog());
+        batchJobRetry.setRetryTaskParams(batchJob.getRetryTaskParams());
+
         if (batchJob.getApplicationId() == null) {
             batchJobRetry.setApplicationId(jobClient.getApplicationId());
         } else {
@@ -142,5 +146,13 @@ public class RdosEngineBatchJobRetry extends DataObject {
             batchJobRetry.setLogInfo("commit job error，parses log error:" + e.getMessage());
         }
         return batchJobRetry;
+    }
+
+    public String getRetryTaskParams() {
+        return retryTaskParams;
+    }
+
+    public void setRetryTaskParams(String retryTaskParams) {
+        this.retryTaskParams = retryTaskParams;
     }
 }
