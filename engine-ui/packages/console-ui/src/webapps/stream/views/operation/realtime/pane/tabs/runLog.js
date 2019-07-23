@@ -2,34 +2,57 @@ import React from 'react'
 
 import LogInfo from '../../logInfo'
 import Api from '../../../../../api'
+import { TASK_STATUS } from '../../../../../comm/const';
 
 class RunLog extends React.Component {
+    MAX_ENGINE_LOG = 2000
     state = {
-        logInfo: ''
+        logInfo: '',
+        offset: -1
     }
+    _clock = null
     componentDidMount () {
         this.getLog();
     }
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
-        const { data = {} } = this.props;
-        const { data: nextData = {} } = nextProps;
-        if (data.id != nextData.id) {
-            this.getLog(nextData);
-        }
+    componentWillUnmount () {
+        window.clearTimeout(this._clock);
     }
-    getLog (data) {
-        data = data || this.props.data;
-        this.setState({
-            logInfo: ''
-        })
-        Api.getTaskLogs({ taskId: data.id }).then((res) => {
-            if (res.code === 1) {
+    prepareLogInfo (logInfo = {}) {
+        let { engineLog } = logInfo;
+        if (engineLog.length > this.MAX_ENGINE_LOG) {
+            return {
+                ...logInfo,
+                engineLog: engineLog.substr(-this.MAX_ENGINE_LOG)
+            }
+        }
+        return logInfo;
+    }
+    async getLog () {
+        const data = this.props.data;
+        if (!data || !data.id) {
+            return;
+        }
+        const { offset } = this.state;
+        let res;
+        if (data.status == TASK_STATUS.RUNNING) {
+            res = await Api.getTaskRunningLogs({ taskId: data.id, start: offset });
+            if (res && res.code == 1) {
+                this.setState({
+                    logInfo: this.prepareLogInfo(res.data),
+                    offset: res.data.totalFileLength
+                });
+                this._clock = setTimeout(() => {
+                    this.getLog();
+                }, 2000);
+            }
+        } else {
+            res = await Api.getTaskLogs({ taskId: data.id });
+            if (res && res.code == 1) {
                 this.setState({
                     logInfo: res.data
-                })
+                });
             }
-        })
+        }
     }
     getBaseInfo () {
         const { data = {}, isShow } = this.props;

@@ -148,6 +148,9 @@ export default {
     getTaskLogs (params) {
         return http.post(req.GET_TASK_LOG, params)
     },
+    getTaskRunningLogs (params) {
+        return http.post(req.GET_RUNNING_TASK_LOG, params)
+    },
     searchRealtimeTask (params) {
         return http.post(req.GLOBAL_SEARCH_TASK, params)
     },
