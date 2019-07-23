@@ -374,9 +374,9 @@ class CollectionTargetForm extends React.Component {
                             <FormItem
                                 {...formItemLayout}
                                 label="存储类型"
-                                key="store"
+                                key="fileType"
                             >
-                                {getFieldDecorator('store', {
+                                {getFieldDecorator('fileType', {
                                     rules: [{
                                         required: true, message: '存储类型不能为空'
                                     }]
@@ -563,10 +563,10 @@ const WrapCollectionTargetForm = Form.create({
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
                 fields['analyticalRules'] = '${schema}_${table}';
-                fields['store'] = 'orc';
+                fields['fileType'] = 'orc';
             } else {
                 fields['analyticalRules'] = undefined;
-                fields['store'] = undefined;
+                fields['fileType'] = undefined;
             }
             fields['table'] = undefined;
             fields['partition'] = undefined;
@@ -617,8 +617,8 @@ const WrapCollectionTargetForm = Form.create({
             table: {
                 value: targetMap.table
             },
-            store: {
-                value: targetMap.store || 'orc'
+            fileType: {
+                value: targetMap.fileType || 'orc'
             },
             partition: {
                 value: targetMap.partition
@@ -640,9 +640,6 @@ const WrapCollectionTargetForm = Form.create({
             },
             fieldDelimiter: {
                 value: targetMap.fieldDelimiter
-            },
-            fileType: {
-                value: targetMap.fileType
             },
             fileName: {
                 value: targetMap.fileName
