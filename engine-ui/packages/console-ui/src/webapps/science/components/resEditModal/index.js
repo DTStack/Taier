@@ -21,8 +21,9 @@ const FormItem = Form.Item;
     }
 })
 class ResEditModal extends React.Component {
-    state = {
-        modalKey: null
+    constructor (props) {
+        super(props);
+        this.dtcount = 0;
     }
     onOk = () => {
         const { form, resourceData } = this.props;
@@ -36,17 +37,11 @@ class ResEditModal extends React.Component {
             }
         })
     }
-    resetForm = () => {
-        this.setState({
-            modalKey: Math.random()
-        })
-    }
     onCancel = () => {
-        this.resetForm();
+        this.dtcount++;
         this.props.onCancel();
     }
     render () {
-        const { modalKey } = this.state;
         const { form, resourceData = {}, visible } = this.props;
         const { getFieldDecorator } = form;
         return (
@@ -54,7 +49,7 @@ class ResEditModal extends React.Component {
                 title='资源重命名'
                 visible={visible}
                 onOk={this.onOk}
-                key={modalKey}
+                key={this.dtcount}
                 onCancel={this.onCancel}
             >
                 <Form>
