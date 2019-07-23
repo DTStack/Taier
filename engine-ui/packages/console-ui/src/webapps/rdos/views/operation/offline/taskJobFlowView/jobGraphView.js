@@ -588,7 +588,7 @@ class JobGraphView extends Component {
                     <span style={{ marginLeft: '15px' }}>{get(data, 'batchTask.createUser.userName', '-')}</span>&nbsp;
                     { isPro ? '发布' : '提交' }于&nbsp;
                     <span>{ utils.formatDateTime(get(data, 'batchTask.gmtModified')) }</span>&nbsp;
-                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId' )) }} style={{ marginRight: '8' }}>查看日志</a>
+                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId' )) }} style={{ marginRight: '8' }}>查看日志</a>&nbsp;
                     {isCurrentProjectTask(data.batchTask) && (<a onClick={() => { goToTaskDev(get(data, 'batchTask.id')) }}>查看代码</a>)}
                 </div>
             </div>
