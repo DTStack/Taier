@@ -692,6 +692,7 @@ class EditCluster extends React.Component {
         const flinkExtParams = this.getCustomParams(formValues, 'flink')
         const sparkThriftExtParams = this.getCustomParams(formValues, 'sparkThrift')
         const learningExtParams = this.getCustomParams(formValues, 'learning');
+        const hiveServerExtParams = this.getCustomParams(formValues, 'hiveServer');
         const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell');
         const libraExtParams = this.getCustomParams(formValues, 'libra')
         const learningTypeName = {
@@ -706,7 +707,7 @@ class EditCluster extends React.Component {
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
-        componentConf['hiveServerConf'] = formValues.hiveServerConf || {};
+        componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
         componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };

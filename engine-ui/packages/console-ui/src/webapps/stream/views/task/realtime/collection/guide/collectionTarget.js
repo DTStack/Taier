@@ -406,7 +406,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择表'
                                 }]
                             })(
-                                <Select placeholder='请选择表'>
+                                <Select showSearch placeholder='请选择表'>
                                     {tableList.map((tableName) => {
                                         return <Option key={tableName} value={tableName}>{tableName}</Option>
                                     })}
@@ -425,7 +425,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择分区'
                                 }]
                             })(
-                                <Select>
+                                <Select showSearch>
                                     {partitions.map((partition) => {
                                         return <Option key={partition} value={partition}>{partition}</Option>
                                     })}

@@ -75,6 +75,9 @@ class StreamDetailGraph extends React.Component {
     }
     checkSourceStatus (data) {
         data = data || this.props.data;
+        if (!data.id) {
+            return;
+        }
         Api.checkSourceStatus({
             taskId: data.id
         }).then((res) => {
@@ -171,7 +174,9 @@ class StreamDetailGraph extends React.Component {
     }
     initData (data) {
         data = data || this.props.data;
-
+        if (!data.id) {
+            return;
+        }
         const { taskType } = data;
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
         const { time } = this.state;
