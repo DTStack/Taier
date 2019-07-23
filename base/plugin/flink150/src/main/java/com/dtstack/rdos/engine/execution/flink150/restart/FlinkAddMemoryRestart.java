@@ -40,7 +40,9 @@ public class FlinkAddMemoryRestart implements IJobRestartStrategy {
             // change run mode
             params.put(RUN_MODE_KEY, PER_JOB_MODE);
 
-            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, (retryNum + 1) * DEFAULT_TASKMANAGER_MEMORY );
+            int times = retryNum > 2 ? 3 : retryNum + 1;
+
+            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, (times + 1) * DEFAULT_TASKMANAGER_MEMORY );
 
             pluginInfoMap.putAll(params);
 
