@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, isObject, isNaN, debounce } from 'lodash'
+import { isNumber, isObject, isNaN } from 'lodash'
 import {
     Button, Row, Col,
     Input, Tooltip,
@@ -10,6 +10,9 @@ import {
 import { select, selectAll, mouse } from 'd3-selection';
 import scrollText from 'widgets/scrollText';
 import Resize from 'widgets/resize';
+import {
+    debounceEventHander
+} from 'funcs'
 
 import {
     keyMapActions
@@ -57,7 +60,12 @@ function isFieldMatch (source, target) {
         return source === target
     }
 }
-
+const rowkeyTxt =
+`变量写法：
+    • $(colFamily.colName)：列族、列名
+    • 支持md5函数，使用时必须以md5开头
+    • 支持多字段拼接，例如：md5($(cf1.userName)_$(cf2.userAge))
+`;
 class Keymap extends React.Component {
     constructor (props) {
         super(props);
@@ -420,7 +428,7 @@ class Keymap extends React.Component {
         }
     }
 
-    debounceRowkeyChange = debounce(this.hbaseRowKeyChange, 0);
+    debounceRowkeyChange = debounceEventHander(this.hbaseRowKeyChange.bind(this), 50, { 'maxWait': 2000 })
 
     hbaseRowKeyChange (e) {
         const targetVal = e.target.value || '';
@@ -995,20 +1003,11 @@ class Keymap extends React.Component {
                                         type={ isFocus ? 'textarea' : 'text' }
                                         style={ focusSty }
                                         defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
-                                        placeholder={
-                                            `变量写法：
-• $(colFamily.colName)：列族、列名
-• 支持md5函数，使用时必须以md5开头
-• 支持多字段拼接，例如：md5($(cf1.userName)_$(cf2.userAge))
-                                        `
-                                        }
-                                        onChange={ async event => {
-                                            event.persist();
-                                            await this.debounceRowkeyChange(event);
-                                        }}
+                                        placeholder={ rowkeyTxt }
+                                        onChange={ this.debounceRowkeyChange }
                                         onFocus={() => { this.setState({ isFocus: true }) }}
                                         onBlur={ this.handleBlurRowkeyCheck }
-                                        autosize={{ minRows: 4 }}
+                                        autosize={{ minRows: 4, maxRows: 12 }}
                                     />
                                 </div>
                             </div>
