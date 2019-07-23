@@ -102,3 +102,11 @@ export function updateExpandedKeys (type, keys) {
         payload: keys
     }
 }
+
+export function removeExpandedkey (type, key) {
+    let actionType = typeMap[type];
+    return {
+        type: actionType.REMOVE_EXPANDEDKEYS,
+        payload: key
+    }
+}

@@ -8,6 +8,7 @@ import Loading from '../loading';
 import ToolBar from '../../toolbar';
 import FolderTree from '../../../../../components/folderTree';
 import NewFolder from '../../newFolder';
+import MoveModal from '../../moveModal';
 import ExperimentSearch from '../../../../../components/searchModal/experimentSearch';
 import TaskParamsModal from '../../../../../components/taskParamsModal';
 
@@ -46,8 +47,10 @@ class ExperimentSidebar extends Component {
         newFolderVisible: false,
         experimentSearchVisible: false,
         editParamsVisible: false,
+        moveModalVisible: false,
         newFolderData: null,
-        editParamsData: null
+        editParamsData: null,
+        moveData: null
     }
     newFolder (folder) {
         this.setState({
@@ -153,6 +156,23 @@ class ExperimentSidebar extends Component {
                                         });
                                     }
                                 }, {
+                                    text: '移动',
+                                    onClick: (activeNode) => {
+                                        if (activeNode.name == '我的Notebook') {
+                                            message.warn('该文件夹不允许移动');
+                                            return;
+                                        }
+                                        this.setState({
+                                            moveData: {
+                                                nodePid: activeNode.parentId,
+                                                name: activeNode.name,
+                                                id: activeNode.id,
+                                                key: activeNode.key
+                                            },
+                                            moveModalVisible: true
+                                        });
+                                    }
+                                }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
                                         if (activeNode.name == '我的实验') {
@@ -180,6 +200,19 @@ class ExperimentSidebar extends Component {
                                         })
                                     }
                                 }, {
+                                    text: '移动',
+                                    onClick: (activeNode) => {
+                                        this.setState({
+                                            moveData: {
+                                                nodePid: activeNode.parentId,
+                                                name: activeNode.name,
+                                                id: activeNode.id,
+                                                isFile: true
+                                            },
+                                            moveModalVisible: true
+                                        });
+                                    }
+                                }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
                                         Modal.confirm({
@@ -199,7 +232,15 @@ class ExperimentSidebar extends Component {
     }
 
     render () {
-        const { experimentSearchVisible, newFolderData, newFolderVisible, editParamsData, editParamsVisible } = this.state;
+        const {
+            experimentSearchVisible,
+            newFolderData,
+            newFolderVisible,
+            editParamsData,
+            editParamsVisible,
+            moveData,
+            moveModalVisible
+        } = this.state;
         return (
             <div className="sidebar">
                 <ToolBar
@@ -241,6 +282,23 @@ class ExperimentSidebar extends Component {
                         this.closeNewFolder();
                     }}
                     onCancel={this.closeNewFolder}
+                />
+                <MoveModal
+                    type={siderBarType.experiment}
+                    data={moveData}
+                    visible={moveModalVisible}
+                    onOk={(values) => {
+                        this.setState({
+                            moveModalVisible: false,
+                            moveData: null
+                        })
+                    }}
+                    onCancel={() => {
+                        this.setState({
+                            moveModalVisible: false,
+                            moveData: null
+                        })
+                    }}
                 />
                 <ExperimentSearch
                     visible={experimentSearchVisible}

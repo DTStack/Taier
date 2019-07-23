@@ -17,10 +17,13 @@ class FolderTree extends React.PureComponent {
     }
 
     renderNodes = () => {
-        const { treeData, nodeClass, hideFiles } = this.props;
+        const { treeData, nodeClass, hideFiles, disabledNode = [] } = this.props;
         const loop = (data) => {
             return data && data.map(item => {
                 const id = `${item.id}`
+                if (disabledNode.includes(id)) {
+                    return null;
+                }
                 const name = item.name
                 const isLeaf = item.type == 'file';
                 if (isLeaf && hideFiles) {

@@ -9,6 +9,7 @@ import Loading from '../loading'
 import ToolBar from '../../toolbar';
 import FolderTree from '../../../../../components/folderTree';
 import NewFolder from '../../newFolder';
+import MoveModal from '../../moveModal';
 import NotebookSearch from '../../../../../components/searchModal/notebookSearch';
 import TaskParamsModal from '../../../../../components/taskParamsModal';
 import ResourceManage from '../resource';
@@ -43,8 +44,10 @@ class NotebookSidebar extends Component {
         newFolderVisible: false,
         notebookSearchVisible: false,
         editParamsVisible: false,
+        moveModalVisible: false,
         newFolderData: null,
-        editParamsData: null
+        editParamsData: null,
+        moveData: null
     }
 
     newFolder (folder) {
@@ -152,6 +155,23 @@ class NotebookSidebar extends Component {
                                         });
                                     }
                                 }, {
+                                    text: '移动',
+                                    onClick: (activeNode) => {
+                                        if (activeNode.name == '我的Notebook') {
+                                            message.warn('该文件夹不允许移动');
+                                            return;
+                                        }
+                                        this.setState({
+                                            moveData: {
+                                                nodePid: activeNode.parentId,
+                                                name: activeNode.name,
+                                                id: activeNode.id,
+                                                key: activeNode.key
+                                            },
+                                            moveModalVisible: true
+                                        });
+                                    }
+                                }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
                                         if (activeNode.name == '我的Notebook') {
@@ -179,6 +199,19 @@ class NotebookSidebar extends Component {
                                         })
                                     }
                                 }, {
+                                    text: '移动',
+                                    onClick: (activeNode) => {
+                                        this.setState({
+                                            moveData: {
+                                                nodePid: activeNode.parentId,
+                                                name: activeNode.name,
+                                                id: activeNode.id,
+                                                isFile: true
+                                            },
+                                            moveModalVisible: true
+                                        });
+                                    }
+                                }, {
                                     text: '删除',
                                     onClick: (activeNode) => {
                                         Modal.confirm({
@@ -198,7 +231,15 @@ class NotebookSidebar extends Component {
     }
 
     render () {
-        const { newFolderVisible, notebookSearchVisible, newFolderData, editParamsData, editParamsVisible } = this.state;
+        const {
+            notebookSearchVisible,
+            newFolderData,
+            newFolderVisible,
+            editParamsData,
+            editParamsVisible,
+            moveData,
+            moveModalVisible
+        } = this.state;
         return (
             <>
                 <div className="sidebar" style={{ height: '70%' }}>
@@ -241,6 +282,23 @@ class NotebookSidebar extends Component {
                             this.closeNewFolder();
                         }}
                         onCancel={this.closeNewFolder}
+                    />
+                    <MoveModal
+                        type={siderBarType.notebook}
+                        data={moveData}
+                        visible={moveModalVisible}
+                        onOk={(values) => {
+                            this.setState({
+                                moveModalVisible: false,
+                                moveData: null
+                            })
+                        }}
+                        onCancel={() => {
+                            this.setState({
+                                moveModalVisible: false,
+                                moveData: null
+                            })
+                        }}
                     />
                     <NotebookSearch
                         visible={notebookSearchVisible}
@@ -307,7 +365,7 @@ class NotebookSidebar extends Component {
                         }]}
                     />
                 </div>
-                <ResourceManage/>
+                <ResourceManage />
             </>
         )
     }
