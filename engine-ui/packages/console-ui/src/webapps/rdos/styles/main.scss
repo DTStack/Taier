@@ -74,6 +74,12 @@ body:-webkit-full-screen {
     top: 0;
     text-align: left;
 }
+.vertical-center-modal-no-width .ant-modal {
+    display: inline-block;
+    vertical-align: middle;
+    top: 0;
+    text-align: left;
+}
 .ant-form-inline .ant-form-item-with-help.cell-center{
     margin-bottom: 0px;
     padding: 10px 0px;

@@ -6,6 +6,11 @@ function expandedKeys (state = [], action) {
         case resourceFilesType.UPDATE_EXPANDEDKEYS: {
             return payload;
         }
+        case resourceFilesType.REMOVE_EXPANDEDKEYS: {
+            return state.filter((key) => {
+                return key != payload;
+            });
+        }
         default: {
             return state;
         }
