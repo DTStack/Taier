@@ -287,7 +287,7 @@ public class TaskStatusListener implements Runnable{
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
-                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId ,engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
                     }
@@ -336,7 +336,11 @@ public class TaskStatusListener implements Runnable{
                     rdosTaskStatus = checkNotFoundStatus(rdosTaskStatus, taskId);
 
                     Integer status = rdosTaskStatus.getStatus();
-                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, engineTypeName, computeType, pluginInfoStr);
+
+                    String engineLog = JobClient.getEngineLog(engineTypeName, pluginInfoStr, jobIdentifier);
+
+                    // 重试状态 先不更新状态
+                    boolean isRestart = RestartDealer.getInstance().checkAndRestart(status, taskId, engineTaskId, appId, engineTypeName, computeType, pluginInfoStr);
                     if(isRestart){
                         return;
                     }

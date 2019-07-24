@@ -1,12 +1,9 @@
 package com.dtstack.rdos.engine.execution.sparkyarn;
 
-import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.sparkyarn.enums.ExceptionInfoConstrant;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
@@ -18,7 +15,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public class SparkRestartStrategy extends IRestartStrategy {
+public class SparkRestartStrategy extends ARestartService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SparkRestartStrategy.class);
 

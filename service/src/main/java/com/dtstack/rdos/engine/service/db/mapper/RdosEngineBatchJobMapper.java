@@ -39,6 +39,8 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
 
+	void updateRetryTaskParams(@Param("jobId")String jobId,  @Param("retryTaskParams")String retryTaskParams);
+
 	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
     Integer updateTaskStatusCompareOld(@Param("jobId") String jobId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("jobName")String jobName);
