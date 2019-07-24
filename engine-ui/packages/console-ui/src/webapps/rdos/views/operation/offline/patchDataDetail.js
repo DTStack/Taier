@@ -5,7 +5,7 @@ import { cloneDeep, get } from 'lodash';
 import { hashHistory } from 'react-router'
 import {
     Table, message, Modal,
-    Card, Input, Button, Select,
+    Card, Button, Select,
     Icon, DatePicker, Tooltip, Form, Checkbox
 } from 'antd'
 
@@ -30,11 +30,11 @@ import {
 
 import TaskJobFlowView from './taskJobFlowView'
 import utils from 'utils';
+import MultiSearchInput from 'widgets/multiSearchInput';
 
 const Option = Select.Option
 const confirm = Modal.confirm
 const warning = Modal.warning
-const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 const yesterDay = moment().subtract(1, 'days');
@@ -60,7 +60,8 @@ class PatchDataDetail extends Component {
         statistics: '',
 
         visibleSlidePane: false,
-        selectedTask: {}
+        selectedTask: {},
+        searchType: 'fuzzy'
     }
 
     componentDidMount () {
@@ -97,7 +98,7 @@ class PatchDataDetail extends Component {
             fillJobName, dutyUserId, jobStatuses,
             bizDay, current, taskName, taskType,
             execTimeSort, execStartSort, cycSort,
-            businessDateSort, expandedRowKeys, table
+            businessDateSort, expandedRowKeys, table, searchType
         } = this.state;
         const reqParams = {
             currentPage: current,
@@ -138,6 +139,8 @@ class PatchDataDetail extends Component {
         reqParams.execStartSort = execStartSort || undefined;
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
+        reqParams.searchType = searchType;
+
         return reqParams;
     }
 
@@ -375,8 +378,13 @@ class PatchDataDetail extends Component {
         })
     }
 
-    changeTaskName = (e) => { // 任务名变更
-        this.setState({ taskName: e.target.value })
+    changeTaskName = (v) => { // 任务名变更
+        this.setState({ taskName: v })
+    }
+
+    changeSearchType = (type) => {
+        this.setState({ searchType: type });
+        this.onSearchByTaskName()
     }
 
     onSearchByTaskName = () => {
@@ -586,7 +594,7 @@ class PatchDataDetail extends Component {
         const {
             table, selectedRowKeys, fillJobName,
             bizDay, current, statistics, taskName,
-            selectedTask, visibleSlidePane
+            selectedTask, visibleSlidePane, searchType
         } = this.state
 
         const {
@@ -696,19 +704,19 @@ class PatchDataDetail extends Component {
                                 <Form
                                     layout="inline"
                                     style={{
-                                        marginTop: '10px',
                                         marginLeft: '20px',
                                         display: 'inline-block'
                                     }}
                                     className="m-form-inline"
                                 >
                                     <FormItem label="">
-                                        <Search
-                                            placeholder="按任务名称"
-                                            style={{ width: 126 }}
+                                        <MultiSearchInput
+                                            placeholder="按任务名称搜索"
+                                            style={{ width: 200, height: '26px' }}
                                             value={taskName}
-                                            size="default"
+                                            searchType={searchType}
                                             onChange={this.changeTaskName}
+                                            onTypeChange={this.changeSearchType}
                                             onSearch={this.onSearchByTaskName}
                                         />
                                     </FormItem>
@@ -719,7 +727,7 @@ class PatchDataDetail extends Component {
                                             allowClear
                                             showSearch
                                             size='Default'
-                                            style={{ width: 126 }}
+                                            style={{ width: '126px' }}
                                             placeholder="责任人"
                                             optionFilterProp="name"
                                             onChange={this.changePerson}
@@ -733,7 +741,7 @@ class PatchDataDetail extends Component {
                                         <RangePicker
                                             disabledDate={this.disabledDate}
                                             size="default"
-                                            style={{ width: 200 }}
+                                            style={{ width: '200px' }}
                                             format="YYYY-MM-DD"
                                             ranges={{
                                                 '昨天': [moment().subtract(2, 'days'), yesterDay],

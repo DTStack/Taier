@@ -196,11 +196,13 @@ table.mxPopupMenu tr {
         overflow: hidden;
         text-overflow: ellipsis;
         font-family: PingFangSC-Regular;
-        font-size: 14px;
         color: #333333;
         letter-spacing: 0;
+        font-size: 13px;
         line-height: 18px;
         font-weight: normal;
+        white-space: nowrap;
+        margin-top: 3px;
     }
 
     .vertex-desc {

@@ -277,7 +277,7 @@ class SchedulingConfig extends React.Component {
                 {
                     !isWorkflowNode &&
                     <Panel key="3" header="跨周期依赖">
-                        <Row style={{ marginBottom: 16 }}>
+                        <Row style={{ marginBottom: '16px' }}>
                             <Col span="1" />
                             <Col>
                                 <RadioGroup disabled={isScienceTask} onChange={this.setSelfReliance.bind(this)}

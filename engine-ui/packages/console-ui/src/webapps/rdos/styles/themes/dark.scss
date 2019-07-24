@@ -276,6 +276,11 @@ $fontColor1: #2491F7;
     .ant-table-fixed-header > .ant-table-content > .ant-table-scroll > .ant-table-body {
         background: #2D2D2D;
     }
+    .ant-table-header {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        overflow: hidden;
+    }
 
     .ant-modal-mask {
         background: transparent;

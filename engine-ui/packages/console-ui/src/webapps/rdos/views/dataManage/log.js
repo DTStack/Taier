@@ -27,7 +27,6 @@ class LogSearchForm extends React.Component {
             <Form
                 className="m-form-inline"
                 layout="inline"
-                style={{ marginTop: '10px' }}
             >
                 <FormItem label="变更时间">
                     {getFieldDecorator('range', {

@@ -123,6 +123,34 @@
         font-family: "anticon" !important;
     }
 }
+.o-tree-icon--notebook_python {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/python.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
+.o-tree-icon--notebook_python2 {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/python2.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
+.o-tree-icon--notebook_python3 {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/python3.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
+.o-tree-icon--notebook_pyspark {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/spark_python.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
 .o-tree-icon--experiment {
     .ant-tree-iconEle::before {
         color: #2491F7;

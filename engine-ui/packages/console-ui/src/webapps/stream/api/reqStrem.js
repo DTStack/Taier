@@ -14,6 +14,7 @@ export default {
     GET_SUPPORT_BINLOG_DATA_TYPES: `${STREAM_BASE_URL}/streamTask/getSupportDaTypes`, // 获取支持实时采集的数据源类型
     GET_CONTAINER_INFOS: `${STREAM_BASE_URL}/streamTask/containerInfos`, // 获取实时采集运行地址
     GET_REALTIME_JOBDATA: `${STREAM_BASE_URL}/streamDataSource/trace`,
+    CHECK_SOURCE_IS_VALID: `${STREAM_BASE_URL}/streamDataSource/checkMysqlPermision`, // 校验数据源是否合法
     GET_SYNC_SCRIPT_TEMPLATE: `${STREAM_BASE_URL}/streamTask/getJsonTemplate`, // 获取数据采集脚本的模版
     CHECK_IS_PERMISSION: `${STREAM_BASE_URL}/streamDataSource/checkPermission`, // 检查是否有权限
     GET_HIVE_PARTITIONS: `${STREAM_BASE_URL}/streamDataSource/getHivePartitions` // 获取hive表分区
