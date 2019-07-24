@@ -40,9 +40,9 @@ class MultiSearchInput extends Component {
             placeholder: this.props.placeholder || '',
             style: this.props.style || {},
             value: this.props.value || '',
-            onChange: this.props.onChange || (() => {}),
-            onSearch: this.props.onSearch || (() => {}),
-            onTypeChange: this.props.onTypeChange || (() => {}),
+            onChange: this.props.onChange || ((value) => { console.log(value) }),
+            onSearch: this.props.onSearch || ((value, searchType) => { console.log(value, searchType) }),
+            onTypeChange: this.props.onTypeChange || ((searchType) => { console.log(searchType) }),
             searchType: this.props.searchType || 'fuzzy',
             filterOptions: this.props.filterOptions || ['precise', 'front', 'tail']
         }
@@ -56,11 +56,11 @@ class MultiSearchInput extends Component {
             onChange,
             onSearch,
             onTypeChange,
-            searchType,
             filterOptions
         } = this.state;
+        let searchType = this.state.searchType;
         const propsValue = this.props.value;
-        // const propsSearchType = this.props.searchType;
+        searchType = this.props.searchType != null ? this.props.searchType : searchType;
         const filterList = _.filter(searchTypeList, (item) => {
             return _.includes(filterOptions, item.key)
         });
@@ -78,13 +78,11 @@ class MultiSearchInput extends Component {
                         paddingRight: `${filterOptions.length * 32}px`
                     }}
                     onChange={(e) => {
-                        console.log(e.target.value);
                         this.setState({ value: e.target.value });
                         onChange(e.target.value);
                     }}
                     onPressEnter={(e) => {
-                        console.log(e.target, e.target.value);
-                        onSearch(e.target);
+                        onSearch(e.target.value, searchType);
                     }}
                 />
                 <div
