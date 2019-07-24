@@ -3,7 +3,7 @@ import { message } from 'antd';
 import { siderBarType } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
 import api from '../../api/resource';
-
+import fileApi from '../../api/fileTree';
 export function addResource (resParams, resourceData, type) {
     return dispatch => {
         return new Promise(async (resolve) => {
@@ -30,6 +30,18 @@ export function deleteResource (params) {
     }
 }
 
+export function deleteResourceFolder (params) {
+    return dispatch => {
+        return new Promise(async (resolve) => {
+            let res = await fileApi.deleteFolder(params);
+            if (res && res.code == 1) {
+                message.success('删除成功');
+                dispatch(loadTreeData(siderBarType.resource, params.parentId))
+                resolve(res);
+            }
+        })
+    }
+}
 export function renameResource (params) {
     return dispatch => {
         return new Promise(async (resolve) => {
