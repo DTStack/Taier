@@ -327,13 +327,13 @@ class TableRelation extends Component {
                 >
                     {this.projectsOptions()}
                 </Select>
-                <InputGroup compact style={{ width: 500 }}>
+                <InputGroup compact style={{ width: '500px', lineHeight: 1.5 }}>
                     <Select defaultValue="按表名" onChange={this.selectSearchType}>
                         <Option value="按表名">按表名</Option>
                         <Option value="按字段名">按字段名</Option>
                     </Select>
                     <Search
-                        placeholder="输入搜素内容"
+                        placeholder="输入搜索内容"
                         style={{ width: '200px' }}
                         value={searchType == '按表名' ? queryParams.tableName : queryParams.columnName}
                         onChange={this.changeName}
