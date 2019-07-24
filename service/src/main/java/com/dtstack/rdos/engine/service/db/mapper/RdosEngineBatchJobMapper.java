@@ -21,6 +21,8 @@ public interface RdosEngineBatchJobMapper {
 	
 	void updateJobStatus(@Param("jobId") String jobId, @Param("status") int status);
 
+	void updateTaskStatusNotStopped(@Param("jobId") String jobId, @Param("status") int status, @Param("stopStatuses") List<Integer> stopStatuses);
+
 	void updateJobPluginId(@Param("jobId") String jobId, @Param("pluginId") long pluginId);
 
 	void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
@@ -50,4 +52,5 @@ public interface RdosEngineBatchJobMapper {
 	void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
 
 	Integer resetExecTime(@Param("jobId")String jobId);
+
 }

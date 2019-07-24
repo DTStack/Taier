@@ -222,16 +222,6 @@ public class Client {
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_STAGING_LOCATION.toString(), Utilities.getRemotePath(taskConf, applicationId, "").toString());
         appMasterEnv.put(DtYarnConstants.Environment.XLEARNING_JOB_CONF_LOCATION.toString(), jobConfPath.toString());
 
-        if (taskConf.getStrings(DtYarnConfiguration.YARN_APPLICATION_CLASSPATH)==null){
-            for (String cp : buildDefaultHadoopHome(conf.get(DtYarnConfiguration.DT_HADOOP_HOME_DIR))){
-                File file = new File(cp);
-                if (!file.exists()){
-                    throw new IOException(cp + " directory is not exist!");
-                }
-            }
-        }
-
-
         /** launch command */
         LOG.info("Building app launch command");
         String launchCmd = new LaunchCommandBuilder(clientArguments, taskConf).buildCmd();
@@ -407,17 +397,5 @@ public class Client {
             infos.add(lineString.toString());
         }
         return infos;
-    }
-
-    public static List<String> buildDefaultHadoopHome(String hadoop){
-        List<String> hadoopLibs = new LinkedList<>();
-        hadoopLibs.add(hadoop + "/share/hadoop/common");
-        hadoopLibs.add(hadoop + "/share/hadoop/common/lib");
-        hadoopLibs.add(hadoop + "/share/hadoop/hdfs/lib");
-        hadoopLibs.add(hadoop + "/share/hadoop/yarn");
-        hadoopLibs.add(hadoop + "/share/hadoop/yarn/lib");
-        hadoopLibs.add(hadoop + "/share/hadoop/mapreduce");
-        hadoopLibs.add(hadoop + "/share/hadoop/mapreduce/lib");
-        return hadoopLibs;
     }
 }
