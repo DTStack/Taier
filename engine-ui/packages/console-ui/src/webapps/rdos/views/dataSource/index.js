@@ -417,7 +417,7 @@ class DataSourceMana extends Component {
                         bordered={false}
                     >
                         <Table
-                            className="m-table full-screen-table-47"
+                            className="m-table td-pad_low full-screen-table-47"
                             rowKey="id"
                             pagination={pagination}
                             onChange={this.handleTableChange}

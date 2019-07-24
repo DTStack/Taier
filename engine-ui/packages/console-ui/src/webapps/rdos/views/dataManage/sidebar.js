@@ -48,6 +48,7 @@ export default class Sidebar extends Component {
                     onClick={this.handleClick}
                     style={{ height: '100%' }}
                     selectedKeys={[this.state.current]}
+                    defaultOpenKeys={['desensitization']}
                     defaultSelectedKeys={[this.state.current]}
                     mode={this.props.mode}
                     className="ele-padd_small"

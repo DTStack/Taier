@@ -309,7 +309,7 @@ class AddUpdateRules extends Component {
                         )}
                     </FormItem>
                     { getFieldValue('maskType') ? <FormItem>
-                        <div style={{ margin: '-10 0 0 150px' }}>
+                        <div style={{ margin: '-10px 0 0 150px' }}>
                             将从
                             <InputNumber
                                 style={{ width: '70px' }}

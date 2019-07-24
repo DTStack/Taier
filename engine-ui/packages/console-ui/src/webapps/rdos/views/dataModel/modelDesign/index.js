@@ -338,10 +338,10 @@ class TableList extends Component {
 
         const extra = (
             <div style={{ marginTop: '10px' }}>
-                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
+                <Button type="primary" style={{ float: 'right', marginLeft: '5px' }}>
                     <Link to={`${ROUTER_BASE}/design`}>模型建表</Link>
                 </Button>
-                <Button type="primary" style={{ float: 'right', marginLeft: 5 }}>
+                <Button type="primary" style={{ float: 'right', marginLeft: '5px' }}>
                     <Link to={`/data-model/table/create`}>普通建表</Link>
                 </Button>
                 <Button type="primary" style={{ float: 'right' }}
@@ -372,7 +372,7 @@ class TableList extends Component {
                             maskClosable={false}
                         >
                             <React.Fragment>
-                                <div style={{ margin: '15 0 15 25' }}>
+                                <div style={{ margin: '15px 0 15px 25px' }}>
                                     <Form className="m-form-inline" layout="inline">
                                         <FormItem label="表类型">
                                             {getFieldDecorator('tableType', {

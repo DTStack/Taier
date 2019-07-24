@@ -292,7 +292,7 @@ class DirtyData extends Component {
         const columns = [
             {
                 title: '任务名称',
-                width: 100,
+                width: '100px',
                 dataIndex: 'taskName',
                 key: 'taskName'
             },
@@ -300,7 +300,7 @@ class DirtyData extends Component {
                 title: '脏数据表',
                 dataIndex: 'tableName',
                 key: 'tableName',
-                width: 100
+                width: '100px'
             },
             {
                 title: '累计产生（条）',
@@ -332,12 +332,12 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="taskName"
-                    className="full-screen-table-50"
+                    className="full-screen-table-50 dirt-table-header_rmscroll"
                     pagination={false}
                     loading={loadingTop}
                     columns={columns}
                     dataSource={top30 || []}
-                    scroll={{ y: 251 }}
+                    scroll={{ y: '251px' }}
                 />
             </Card>
         );
@@ -463,7 +463,7 @@ class DirtyData extends Component {
                     <Select
                         allowClear
                         showSearch
-                        style={{ width: 126 }}
+                        style={{ width: '126px' }}
                         placeholder="选择任务"
                         optionFilterProp="name"
                         onChange={this.onTableSelectTask}
@@ -474,7 +474,7 @@ class DirtyData extends Component {
                 <FormItem>
                     <Search
                         placeholder="按表名称搜索"
-                        style={{ width: 200 }}
+                        style={{ width: '200px' }}
                         size="default"
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
@@ -549,7 +549,7 @@ class DirtyData extends Component {
                         </RadioGroup>
                     </span>
                 </h1>
-                <Row style={{ margin: '0 20px', height: 350 }}>
+                <Row style={{ margin: '8px 20px 0', height: '350px' }}>
                     <Col span={12} style={{ paddingRight: '10px' }}>
                         <Card
                             className="shadow"
@@ -560,7 +560,7 @@ class DirtyData extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 150, marginTop: '10px' }}
+                                    style={{ width: '150px', marginTop: '10px' }}
                                     placeholder="请选择任务"
                                     onChange={this.onTrendSelectTask}
                                     optionFilterProp="name"
