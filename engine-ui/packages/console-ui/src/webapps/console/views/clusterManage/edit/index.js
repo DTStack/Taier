@@ -718,6 +718,8 @@ class EditCluster extends React.Component {
         componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
         componentConf['carbonConf'].username = componentConf['carbonConf'].username || '';
         componentConf['carbonConf'].password = componentConf['carbonConf'].password || '';
+        componentConf['hiveServerConf'].username = componentConf['hiveServerConf'].username || '';
+        componentConf['hiveServerConf'].password = componentConf['hiveServerConf'].password || '';
         return componentConf;
     }
     getCustomParams (data, ParamKey) {

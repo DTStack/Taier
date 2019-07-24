@@ -103,9 +103,12 @@ class NormalTaskForm extends React.Component {
                     initialValue: taskType
                 })(
                     <RadioGroup disabled onChange={this.handleRadioChange}>
-                        {taskTypeFilter.map(item =>
-                            <Radio key={item.value} value={item.value}>{item.text}</Radio>
-                        )}
+                        {
+                            taskTypeFilter.filter(item => item.value == taskType)
+                                .map(task => {
+                                    return <Radio key={task.value} value={task.value}>{task.text}</Radio>
+                                })
+                        }
                     </RadioGroup>
                 )}
             </FormItem>

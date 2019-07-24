@@ -101,7 +101,7 @@ export const getTaskTypes = () => {
 
                 dispatch({
                     type: commAction.GET_TASK_TYPE_FILTER,
-                    payload: (offlineTaskTypeFilter || []).concat({ id: TASK_TYPE.NOTEBOOK, value: TASK_TYPE.NOTEBOOK, text: 'Notebook' }, { id: TASK_TYPE.EXPERIMENT, value: TASK_TYPE.EXPERIMENT, text: '算法实验' })
+                    payload: (offlineTaskTypeFilter || []).concat({ id: TASK_TYPE.NOTEBOOK, value: TASK_TYPE.NOTEBOOK, text: 'Notebook' }, { id: TASK_TYPE.EXPERIMENT, value: TASK_TYPE.EXPERIMENT, text: '算法实验' }, { id: TASK_TYPE.CUBE_KYLIN, value: TASK_TYPE.CUBE_KYLIN, text: 'Kylin' })
                 })
             }
         })

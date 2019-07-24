@@ -74,6 +74,10 @@ export const TASK_TYPE = { // 任务类型
     PYTHON: 6,
     PYSPARK: 3
 }
+export const PYTON_VERSION = {
+    PYTHON2: 2,
+    PYTHON3: 3
+}
 export const DEAL_MODEL_TYPE = {// python和pySpark操作类型
     RESOURCE: 0,
     EDIT: 1
