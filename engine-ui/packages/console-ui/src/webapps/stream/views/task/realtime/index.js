@@ -121,7 +121,7 @@ class TaskIndex extends Component {
         }
     }
     _saveTask = (saveMode) => {
-        const { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
+        let { currentPage, dispatch, inputData, outputData, dimensionData } = this.props;
         console.log('saveTask', this.props);
 
         // 检查页面输入输出参数配置
@@ -174,6 +174,7 @@ class TaskIndex extends Component {
             confirmSaveVisible: false
         })
         return new Promise((resolve, reject) => {
+            currentPage = this.preparePage(currentPage);
             Api.saveTask(currentPage).then((res) => {
                 const updatePageStatus = (pageData) => {
                     message.success('任务保存成功')
@@ -256,6 +257,28 @@ class TaskIndex extends Component {
                 }
             })
         })
+    }
+    preparePage (page) {
+        page = { ...page };
+        const { taskType, createModel } = page;
+        if (taskType == TASK_TYPE.DATA_COLLECTION && createModel == DATA_SYNC_TYPE.GUIDE) {
+            const { sourceMap = {} } = page;
+            const { distributeTable } = sourceMap;
+            /**
+             * [ {name:'table', table: []} ] => {'table':[]}
+             */
+            if (distributeTable && distributeTable.length) {
+                let newDistributeTable = {};
+                distributeTable.map((table) => {
+                    newDistributeTable[table.name] = table.tables || [];
+                })
+                page.sourceMap = {
+                    ...sourceMap,
+                    distributeTable: newDistributeTable
+                }
+            }
+        }
+        return page;
     }
     saveTask = debounce(this._saveTask, 500, { maxWait: 2000 });
     editorChange = (data) => {
