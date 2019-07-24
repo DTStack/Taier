@@ -5,7 +5,8 @@ import {
 
 import {
     formItemLayout,
-    DATA_SOURCE
+    DATA_SOURCE,
+    hdfsFieldTypes
 } from '../../../../../comm/const';
 import HelpDoc from '../../../../helpDoc';
 
@@ -18,6 +19,31 @@ export const isValidFormatType = (type) => {
     return typeStr === 'STRING' ||
     typeStr === 'VARCHAR' ||
     typeStr === 'VARCHAR2';
+}
+
+const renderHDFSOptions = () => {
+    return hdfsFieldTypes.map(type => <Option key={type} value={type}>{type}</Option>)
+}
+
+const getHBaseTypeItem = (getFieldDecorator, editField) => {
+    return (
+        <FormItem
+            {...formItemLayout}
+            label="选择类型"
+            key="type"
+        >
+            {getFieldDecorator('type', {
+                rules: [{
+                    required: true
+                }],
+                initialValue: (editField && editField.type) || 'STRING'
+            })(
+                <Select placeholder="请选择类型">
+                    { renderHDFSOptions() }
+                </Select>
+            )}
+        </FormItem>
+    )
 }
 
 // 添加字段表单.
@@ -79,11 +105,7 @@ class KeyForm extends React.Component {
                                 initialValue: (editField && editField.type) || 'STRING'
                             })(
                                 <Select placeholder="请选择类型">
-                                    <Option value="STRING">STRING</Option>
-                                    <Option value="LONG">LONG</Option>
-                                    <Option value="BOOLEAN">BOOLEAN</Option>
-                                    <Option value="DOUBLE">DOUBLE</Option>
-                                    <Option value="DATE">DATE</Option>
+                                    { renderHDFSOptions() }
                                 </Select>
                             )}
                         </FormItem>
@@ -122,7 +144,8 @@ class KeyForm extends React.Component {
                                     {this.columnFamily(sourceColumnFamily)}
                                 </Select>
                             )}
-                        </FormItem>
+                        </FormItem>,
+                        getHBaseTypeItem(getFieldDecorator, editField)
                     ];
                 }
                 default: {
@@ -190,18 +213,7 @@ class KeyForm extends React.Component {
                                 initialValue: (editField && editField.type) || 'STRING'
                             })(
                                 <Select placeholder="请选择类型">
-                                    <Option value="STRING">STRING</Option>
-                                    <Option value="BIGINT">BIGINT</Option>
-                                    <Option value="TIMESTAMP">TIMESTAMP</Option>
-                                    <Option value="VARCHAR">VARCHAR</Option>
-                                    <Option value="CHAR">CHAR</Option>
-                                    <Option value="TINYINT">TINYINT</Option>
-                                    <Option value="SMALLINT">SMALLINT</Option>
-                                    <Option value="DECIMAL">DECIMAL</Option>
-                                    <Option value="INT">INT</Option>
-                                    <Option value="FLOAT">FLOAT</Option>
-                                    <Option value="DOUBLE">DOUBLE</Option>
-                                    <Option value="DATE">DATE</Option>
+                                    { renderHDFSOptions() }
                                 </Select>
                             )}
                         </FormItem>
@@ -239,7 +251,8 @@ class KeyForm extends React.Component {
                                     {this.columnFamily(targetColumnFamily)}
                                 </Select>
                             )}
-                        </FormItem>
+                        </FormItem>,
+                        getHBaseTypeItem(getFieldDecorator, editField)
                     ]
                 }
                 default: break;
