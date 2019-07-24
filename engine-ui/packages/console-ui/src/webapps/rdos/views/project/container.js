@@ -22,7 +22,7 @@ const defaultPro = {
 })
 class Container extends Component {
     state = {
-        collapsed: true,
+        collapsed: false,
         mode: 'inline'
     };
 
