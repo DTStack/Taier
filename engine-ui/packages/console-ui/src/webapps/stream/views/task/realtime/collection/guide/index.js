@@ -57,6 +57,7 @@ class CollectionGuide extends React.Component {
                 content: <Complete
                     navtoStep={this.navtoStep.bind(this)}
                     collectionData={collectionData}
+                    updateTargetMap={this.props.updateTargetMap}
                     saveJob={this.save.bind(this)}
                     currentPage={currentPage}
                 />
