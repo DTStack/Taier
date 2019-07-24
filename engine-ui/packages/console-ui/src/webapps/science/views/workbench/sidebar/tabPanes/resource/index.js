@@ -23,6 +23,7 @@ import { resourceTypeIcon } from '../../../../../comm';
         return {
             routing: state.routing,
             files: state.resource.files,
+            isShowFixResource: state.resource.isShowFixResource, // 是否显示资源管理高度
             expandedKeys: state.resource.expandedKeys
         }
     },
@@ -46,8 +47,7 @@ class ResourceManage extends Component {
         resourceData: null,
         isCoverUpload: false, // 是否替换资源
         resDetailModal: false,
-        resEditModal: false,
-        isFixResourceFold: false
+        resEditModal: false
     }
 
     newFolder (folder) {
@@ -86,11 +86,9 @@ class ResourceManage extends Component {
     }
     onExpand = (expandedKeys, { expanded, node }) => {
         const resNode = node.props.data || {};
-        const { level, name } = resNode;
-        if (level == 13 && name == '资源管理') {
-            this.setState(prevState => ({
-                isFixResourceFold: !prevState.isFixResourceFold
-            }))
+        const { level, catalogueType } = resNode;
+        if (level == 13 && catalogueType == siderBarType.resource) { // 根目录资源管理
+            this.props.getFixResource(!this.props.isShowFixResource)
         }
         let keys = expandedKeys;
         if (expanded) {
@@ -146,7 +144,7 @@ class ResourceManage extends Component {
                                 </div>
                             )
                         }}
-                        isFixResourceFold={this.state.isFixResourceFold}
+                        isShowFixResource={this.props.isShowFixResource}
                         nodeClass={(item) => {
                             const resClassName = resourceTypeIcon(item.resourceType)
                             if (item.type == 'file') {
@@ -254,10 +252,11 @@ class ResourceManage extends Component {
     render () {
         const { newFolderVisible, newFolderData, uploadModalVisible,
             resourceData, isCoverUpload,
-            resDetailModal, resEditModal, isFixResourceFold } = this.state;
-        const extClassName = !isFixResourceFold ? 'resource_file_bottom' : 'resource_file_top'
+            resDetailModal, resEditModal } = this.state;
+        const { isShowFixResource } = this.props;
+        const extClassName = !isShowFixResource ? 'resource_file_bottom' : 'resource_file_top'
         return (
-            <div className="sidebar" style={{ height: '30%' }}>
+            <div className="sidebar" style={{ background: '#fff', height: !isShowFixResource ? '45px' : '30%' }}>
                 <div className={extClassName}>
                     {
                         this.renderFolderContent()

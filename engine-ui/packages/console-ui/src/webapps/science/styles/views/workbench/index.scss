@@ -239,22 +239,26 @@
     border-top: 1px solid #dddddd;
     height: 45px;
     width: 100%;
+    background: #f5f5f5;
 }
 .resource_file_top {
     height: 40px;
     width: 100%;
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
-    background: #fff;
 
 }
 .resource_fix {
-    height: 30%;
+    height: 100%;
+
+}
+.resource_fix > li {
+    height: 100%;
+    
 }
 .resource_fix > li > ul {
-    padding-bottom: 40px;
-    height: 30%;
-    height: 200px;
+    padding-bottom: 21px;
+    height: 100%;
     overflow: auto;
 }
 .resource_dropdown {

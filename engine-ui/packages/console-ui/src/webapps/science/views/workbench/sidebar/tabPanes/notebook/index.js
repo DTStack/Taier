@@ -26,6 +26,7 @@ import { siderBarType } from '../../../../../consts';
         return {
             routing: state.routing,
             files: state.notebook.files,
+            isShowFixResource: state.resource.isShowFixResource, // 是否显示资源管理高度
             currentTabIndex: state.notebook.currentTabIndex,
             tabs: state.notebook.localTabs,
             expandedKeys: state.notebook.expandedKeys
@@ -240,9 +241,10 @@ class NotebookSidebar extends Component {
             moveData,
             moveModalVisible
         } = this.state;
+        const { isShowFixResource } = this.props;
         return (
             <>
-                <div className="sidebar" style={{ height: '70%' }}>
+                <div className="sidebar" style={{ height: !isShowFixResource ? 'calc(100% - 45px)' : '70%' }}>
                     <ToolBar
                         toolbarItems={[
                             {

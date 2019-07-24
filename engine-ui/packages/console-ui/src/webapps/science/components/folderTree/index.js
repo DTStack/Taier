@@ -92,11 +92,11 @@ class FolderTree extends React.PureComponent {
         </ContextMenu>
     }
     render () {
-        const { isSelect, value, onChange, disabled, dropDownTab, isFixResourceFold } = this.props;
+        const { isSelect, value, onChange, disabled, dropDownTab, isShowFixResource } = this.props;
         // ant-select-dropdown ant-select-tree-dropdown ant-select-dropdown--single ant-select-dropdown-placement-bottomLeft
         // ant-select-dropdown dt-tree-select ant-select-dropdown--single ant-select-dropdown-placement-bottomLeft
-        const extClassName = dropDownTab ? 's-resource-catalogue-top' : 's-catalogue-top'
-        const fixResClassName = isFixResourceFold && 'resource_fix'
+        const extClassName = dropDownTab ? 's-resource-catalogue-top' : 's-catalogue-top';
+        const fixResClassName = isShowFixResource && 'resource_fix';
         return isSelect ? (
             <TreeSelect
                 dropdownClassName='ant-select-tree-dropdown dt-tree-select'
