@@ -48,7 +48,7 @@ class LogSearchForm extends React.Component {
                 </FormItem>
                 <FormItem label="变更语句">
                     {getFieldDecorator('sql')(
-                        <Input placeholder="变更语句" size="default" style={{ width: 126 }}></Input>
+                        <Input placeholder="变更语句啊啊" size="default" style={{ width: 126 }}></Input>
                     )}
                 </FormItem>
                 <FormItem>
