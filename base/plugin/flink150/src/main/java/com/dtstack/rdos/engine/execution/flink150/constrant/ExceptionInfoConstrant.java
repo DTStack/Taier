@@ -23,7 +23,7 @@ public class ExceptionInfoConstrant {
 
     public final static String FLINK_AKKA_VERSION_RESTART_EXCEPTION = "No configuration setting found for key 'akka.version'";
 
-    public final static String FLINK_ASSIGNED_SLOT_REMOVE_RESTART_EXCEPTION = "The assigned slot";
+    public final static String FLINK_ASSIGNED_SLOT_REMOVE_RESTART_EXCEPTION = "org.apache.flink.util.FlinkException: The assigned slot container";
 
     public final static String FLINK_RELEASE_SHARED_SLOT_RESTART_EXCEPTION = "Releasing shared slot parent";
 
