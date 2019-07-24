@@ -18,7 +18,6 @@ public class ExceptionInfoConstrant {
     private static Logger logger = LoggerFactory.getLogger(ExceptionInfoConstrant.class);
     /** Add memory restart */
 
-    public final static String FLINK_NO_RESOURCE_AVAILABLE_ADDMEMORY_RESTART_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException: Not enough free slots available to run the job";
     public final static String FLINK_TASK_LOST_ADDMEMORY_RESTART_EXCEPTION = "TaskManager was lost/killed";
     public final static String FLINK_ASSIGNED_SLOT_REMOVE_ADDMEMORY_RESTART_EXCEPTION = "org.apache.flink.util.FlinkException: The assigned slot container";
     public final static String FLINK_RELEASE_SHARED_SLOT_ADDMEMORY_RESTART_EXCEPTION = "Releasing shared slot parent";
@@ -35,6 +34,7 @@ public class ExceptionInfoConstrant {
     public final static String  IN_INITIALIZER_UNDO_RESTART_EXCEPTION = "java.lang.ExceptionInInitializerError";
     public final static String  LEASE_EXPIRED_UNDO_RESTART_EXCEPTION = "org.apache.hadoop.ipc.RemoteException(org.apache.hadoop.hdfs.server.namenode.LeaseExpiredException)";
     public final static String  AKKA_ASK_TIMEOUT_UNDO_RESTART_EXCEPTION = "akka.pattern.AskTimeoutException";
+    public final static String FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION = "org.apache.flink.runtime.jobmanager.scheduler.NoResourceAvailableException:";
 
 
     private static List<String> needAddMemoryRestartExceptions = Lists.newArrayList();

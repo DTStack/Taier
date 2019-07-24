@@ -48,7 +48,7 @@ public class FlinkRestartService extends ARestartService {
 
     @Override
     public boolean checkNOResource(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_ADDMEMORY_RESTART_EXCEPTION)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_UNDO_RESTART_EXCEPTION)){
             return true;
         }
         return false;
