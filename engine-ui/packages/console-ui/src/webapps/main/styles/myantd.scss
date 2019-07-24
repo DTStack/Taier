@@ -520,3 +520,17 @@
         }
     }
 }
+.c-dt__transfer {
+    .ant-transfer-list {
+        background: #fff;
+        width: calc(50% - 25px);
+        height: 300px;
+        .ant-transfer-list-header-title {
+            position: relative;
+            right: 0px;
+        }
+        .ant-transfer-list-search-action .anticon {
+            line-height: inherit;
+        }
+    }
+}

@@ -45,6 +45,20 @@ function initCurrentPage (dispatch) {
     dispatch(setCurrentPage({ ...page, ...initState }));
 }
 
+function exchangeDistributeTable (distributeTable) {
+    if (!distributeTable) {
+        return [];
+    }
+    const KeyAndValue = Object.entries(distributeTable);
+    return KeyAndValue.map(([name, tables]) => {
+        return {
+            name,
+            tables,
+            isSaved: true
+        }
+    })
+}
+
 export const actions = {
     navtoStep (step) {
         return dispatch => {
@@ -84,12 +98,17 @@ export const actions = {
                 taskId
             }).then((res) => {
                 if (res.data) {
-                    if (res.data.sourceMap.journalName) {
-                        res.data.sourceMap.collectType = collectType.FILE;
-                    } else if (res.data.sourceMap.timestamp) {
-                        res.data.sourceMap.collectType = collectType.TIME;
+                    const { sourceMap } = res.data;
+                    if (sourceMap.journalName) {
+                        sourceMap.collectType = collectType.FILE;
+                    } else if (sourceMap.timestamp) {
+                        sourceMap.collectType = collectType.TIME;
                     } else {
-                        res.data.sourceMap.collectType = collectType.ALL;
+                        sourceMap.collectType = collectType.ALL;
+                    }
+                    if (sourceMap.distributeTable) {
+                        sourceMap.distributeTable = exchangeDistributeTable(sourceMap.distributeTable);
+                        sourceMap.multipleTable = true;
                     }
                     dispatch(actions.updateSourceMap(res.data.sourceMap, false, true));
                     dispatch(actions.updateTargetMap(res.data.targetMap, false, true));
@@ -111,6 +130,12 @@ export const actions = {
                     type: sourceMap.type
                 };
                 setCurrentPageValue(dispatch, 'targetMap', cloneDeep(initState.targetMap));
+            }
+            if (params.distributeTable) {
+                let tables = params.distributeTable.reduce((prevValue, item) => {
+                    return prevValue.concat(item.tables);
+                }, []);
+                params.table = tables;
             }
             setCurrentPageValue(dispatch, 'sourceMap',
                 cloneDeep({

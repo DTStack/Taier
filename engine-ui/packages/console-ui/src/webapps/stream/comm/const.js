@@ -101,7 +101,10 @@ export const writeStrategys = {
     TIME: '0',
     FILESIZE: '1'
 }
-
+export const partitionTypes = {
+    HOUR: 0,
+    DAY: 1
+}
 export const MENU_TYPE = {
     TASK: 'TaskManager',
     TASK_DEV: 'TaskDevelop',
