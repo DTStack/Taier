@@ -1,12 +1,13 @@
 package com.dtstack.yarn.common.type;
 
 import com.dtstack.yarn.client.ClientArguments;
+import com.dtstack.yarn.util.Base64Util;
+import com.dtstack.yarn.util.GZipUtil;
 import com.dtstack.yarn.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,15 +39,8 @@ public class JLogstashType extends AppType {
             appName = "jlogstashJob";
         }
 
-        String encodedOpts = "";
-        try {
-            encodedOpts = URLEncoder.encode(clientArguments.getCmdOpts(), "UTF-8");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
         if (buildCmdLog.isDebugEnabled()) {
-            buildCmdLog.debug("encodedOpts: " + encodedOpts);
+            buildCmdLog.debug("encodedOpts: " + clientArguments.getCmdOpts());
             buildCmdLog.debug("Building jlogstash launch command");
         }
 
@@ -58,7 +52,7 @@ public class JLogstashType extends AppType {
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");
         jlogstashArgs.add("-vvv");
-        jlogstashArgs.add("-f " + encodedOpts);
+        jlogstashArgs.add("-f " + clientArguments.getCmdOpts());
         jlogstashArgs.add("-p " + root);
         jlogstashArgs.add("-name " + appName);
 
@@ -89,7 +83,7 @@ public class JLogstashType extends AppType {
             int idx = -1;
             for (int i = 0; i < args.length - 1; ++i) {
                 if (args[i].equals("-f")) {
-                    fStr = URLDecoder.decode(args[i + 1], "UTF-8");
+                    fStr = Base64Util.baseDecode(GZipUtil.deCompress(args[i + 1]));
                     idx = i + 1;
                     break;
                 }
