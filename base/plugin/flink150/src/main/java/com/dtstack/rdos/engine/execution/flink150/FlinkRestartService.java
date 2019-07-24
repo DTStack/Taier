@@ -7,6 +7,7 @@ import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
 import com.dtstack.rdos.engine.execution.flink150.restart.FlinkAddMemoryRestart;
+import com.dtstack.rdos.engine.execution.flink150.restart.FlinkUndoRestart;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -32,13 +33,14 @@ public class FlinkRestartService extends ARestartService {
     private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 
     private final static List<String> unrestartExceptionList = Lists.newArrayList(EngineResourceInfo.LIMIT_RESOURCE_ERROR);
-    private final static List<String> restartExceptionList = ExceptionInfoConstrant.getNeedRestartException();
+    private final static List<String> AddMemRestartExceptionList = ExceptionInfoConstrant.getNeedAddMemRestartException();
+    private final static List<String> UndoRestartExceptionList = ExceptionInfoConstrant.getNeedUndoRestartException();
 
     private Cache<String, String> jobErrorInfoCache = CacheBuilder.newBuilder().maximumSize(50).expireAfterWrite(5 * 60, TimeUnit.SECONDS).build();
 
     @Override
     public boolean checkFailureForEngineDown(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_ENGINE_DOWN_RESTART_EXCEPTION)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_ENGINE_DOWN_UNDO_RESTART_EXCEPTION)){
             return true;
         }
         return false;
@@ -46,7 +48,7 @@ public class FlinkRestartService extends ARestartService {
 
     @Override
     public boolean checkNOResource(String msg) {
-        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_RESTART_EXCEPTION)){
+        if(StringUtils.isNotBlank(msg) && msg.contains(ExceptionInfoConstrant.FLINK_NO_RESOURCE_AVAILABLE_ADDMEMORY_RESTART_EXCEPTION)){
             return true;
         }
         return false;
@@ -99,10 +101,17 @@ public class FlinkRestartService extends ARestartService {
     public IJobRestartStrategy parseErrorLog(String msg) {
         IJobRestartStrategy strategy = null;
         if (StringUtils.isNotBlank(msg)) {
-            for (String emsg : restartExceptionList) {
+            for (String emsg : AddMemRestartExceptionList) {
                 if (msg.contains(emsg)) {
                     strategy = new FlinkAddMemoryRestart();
-                    break;
+                    return strategy;
+                }
+            }
+
+            for (String emsg : UndoRestartExceptionList) {
+                if (msg.contains(emsg)) {
+                    strategy = new FlinkUndoRestart();
+                    return strategy;
                 }
             }
         }
