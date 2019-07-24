@@ -674,6 +674,8 @@ class EditCluster extends React.Component {
 
         clusterConf['carbonConf'].username = clusterConf['carbonConf'].username || '';
         clusterConf['carbonConf'].password = clusterConf['carbonConf'].password || '';
+        clusterConf['hiveServerConf'].username = clusterConf['hiveServerConf'].username || '';
+        clusterConf['hiveServerConf'].password = clusterConf['hiveServerConf'].password || '';
         return clusterConf;
     }
     getCustomParams (data, ParamKey) {
