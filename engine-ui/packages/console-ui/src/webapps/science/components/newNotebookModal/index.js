@@ -51,6 +51,7 @@ class NewNotebookModal extends React.Component {
                     this.props.onOk && this.props.onOk(res);
                     this.props.openNotebook(res.data.id);
                     this._key = Math.random();
+                    this.setState({ operateModel: DEAL_MODEL_TYPE.EDIT })
                     this.props.resetModal();
                 }
             }
@@ -69,6 +70,7 @@ class NewNotebookModal extends React.Component {
             visible={visible}
             key={this._key}
             onCancel={() => {
+                this.setState({ operateModel: DEAL_MODEL_TYPE.EDIT })
                 this._key = Math.random();
                 this.props.resetModal();
             }}
@@ -136,6 +138,7 @@ class NewNotebookModalForm extends React.Component {
         const { modalData = {} } = modal;
         const isPyTask = getFieldValue('taskType') == TASK_TYPE.PYSPARK;
         const isResOperateModal = operateModel == DEAL_MODEL_TYPE.RESOURCE;
+        console.log('------', isResOperateModal, operateModel)
         const resourceLable = !isPyTask ? '资源' : '入口资源';
         const taskOptions = taskType.map(item =>
             <Option key={item.key} value={item.key}>{item.value}</Option>

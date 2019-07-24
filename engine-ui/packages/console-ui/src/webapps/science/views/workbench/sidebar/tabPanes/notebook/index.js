@@ -17,7 +17,7 @@ import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as notebookActions from '../../../../../actions/notebookActions'
 
-import { siderBarType, TASK_TYPE, PYTON_VERSION } from '../../../../../consts';
+import { siderBarType, TASK_TYPE } from '../../../../../consts';
 
 // const Search = Input.Search;
 
@@ -105,13 +105,7 @@ class NotebookSidebar extends Component {
                             if (item.type == 'file') {
                                 switch (item.taskType) {
                                     case TASK_TYPE.PYTHON: {
-                                        if (item.pythonVersion == PYTON_VERSION.PYTHON2) {
-                                            return 'anchor-notebook-file o-tree-icon--notebook_python_2'
-                                        } else if (item.pythonVersion == PYTON_VERSION.PYTHON3) {
-                                            return 'anchor-notebook-file o-tree-icon--notebook_python_3'
-                                        } else {
-                                            return 'anchor-notebook-file o-tree-icon--notebook_python'
-                                        }
+                                        return 'anchor-notebook-file o-tree-icon--notebook_python3'
                                     }
                                     case TASK_TYPE.PYSPARK: {
                                         return 'anchor-notebook-file o-tree-icon--notebook_pyspark'
