@@ -5,6 +5,10 @@ import React, { Component } from 'react'
 
 const searchTypeList = [
     {
+        key: 'caseSensitive',
+        svg: 'jqpp'
+    },
+    {
         key: 'precise',
         svg: 'jq'
     },
@@ -25,7 +29,8 @@ const propType = {
     onChange: PropTypes.func,
     onSearch: PropTypes.func,
     onTypeChange: PropTypes.func,
-    searchType: PropTypes.string // input框中选中的筛选方式
+    searchType: PropTypes.string, // input框中选中的筛选方式
+    filterOptions: PropTypes.array // 数组中一共最多四个字符串caseSensitive表示有区分大小写功能，precise表示有精确功能，front表示有匹配头部功能，tail表示有匹配尾部功能
 }
 
 class MultiSearchInput extends Component {
@@ -38,7 +43,8 @@ class MultiSearchInput extends Component {
             onChange: this.props.onChange || (() => {}),
             onSearch: this.props.onSearch || (() => {}),
             onTypeChange: this.props.onTypeChange || (() => {}),
-            searchType: this.props.searchType || 'fuzzy'
+            searchType: this.props.searchType || 'fuzzy',
+            filterOptions: this.props.filterOptions || ['precise', 'front', 'tail']
         }
     }
 
@@ -50,10 +56,14 @@ class MultiSearchInput extends Component {
             onChange,
             onSearch,
             onTypeChange,
-            searchType
+            searchType,
+            filterOptions
         } = this.state;
         const propsValue = this.props.value;
         // const propsSearchType = this.props.searchType;
+        const filterList = _.filter(searchTypeList, (item) => {
+            return _.includes(filterOptions, item.key)
+        });
         return (
             <div
                 style={{
@@ -65,7 +75,7 @@ class MultiSearchInput extends Component {
                     placeholder={placeholder}
                     style={{
                         ...style,
-                        paddingRight: '95px'
+                        paddingRight: `${filterOptions.length * 32}px`
                     }}
                     onChange={(e) => {
                         console.log(e.target.value);
@@ -83,14 +93,14 @@ class MultiSearchInput extends Component {
                         height: '100%',
                         top: '0px',
                         right: '0px',
-                        width: '95px',
+                        width: `${filterOptions.length * 32}px`,
                         display: 'flex',
                         justifyContent: 'space-around',
                         alignItems: 'center'
                     }}
                 >
                     {
-                        _.map(searchTypeList, (item) => {
+                        _.map(filterList, (item) => {
                             return (
                                 <div
                                     style={{
