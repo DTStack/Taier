@@ -33,5 +33,10 @@
         <include refid="select_content_fragment"/>
         from rdos_engine_batch_job_retry where job_id=#{jobId} and is_deleted=0 limit 5;
     </select>
+    <select id="getRetryTaskParams" resultType="java.lang.String">
+        SELECT `retry_task_params` FROM `rdos_engine_batch_job_retry` WHERE job_id=#{jobId}  and retry_num = #{retryNum}
+
+    </select>
+
 
 </mapper>

@@ -31,23 +31,24 @@ public class FlinkAddMemoryRestart implements IJobRestartStrategy {
 
     private static final int DEFAULT_TASKMANAGER_MEMORY = 1024;
 
-    private static final int MAX_RETRY_NUM = 3;
+    private static final int MAX_TASKMANAGER_MEMORY = 3072;
 
 
     @Override
-        public String restart(String taskParams, int retryNum) {
+        public String restart(String taskParams, int retryNum, String lastRetryParams) {
         try {
             Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(taskParams, Map.class);
             String tps = String.valueOf(pluginInfoMap.getOrDefault(TASK_PARAMS_KEY, ""));
             Map<String, Object> params = splitStr(tps, SEPARATOR);
 
-            retryNum++;
+            Map<String, Object> lastRetryparams = splitStr(lastRetryParams, SEPARATOR);
+            Integer curTaskMemory = MathUtil.getIntegerVal(lastRetryparams.getOrDefault(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, 0)) + DEFAULT_TASKMANAGER_MEMORY;
 
-            int times = retryNum >= MAX_RETRY_NUM ? MAX_RETRY_NUM : retryNum;
+            curTaskMemory = curTaskMemory > MAX_TASKMANAGER_MEMORY ? MAX_TASKMANAGER_MEMORY : curTaskMemory;
 
             // change run mode
             params.put(RUN_MODE_KEY, PER_JOB_MODE);
-            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, times * DEFAULT_TASKMANAGER_MEMORY );
+            params.put(FlinkPerJobResourceInfo.TASKMANAGER_MEMORY_MB, curTaskMemory);
 
             pluginInfoMap.put(TASK_PARAMS_KEY, mapToString(params));
 

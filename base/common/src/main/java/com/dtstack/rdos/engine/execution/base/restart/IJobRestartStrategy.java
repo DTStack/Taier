@@ -11,6 +11,6 @@ package com.dtstack.rdos.engine.execution.base.restart;
 public interface IJobRestartStrategy {
 
 
-    String restart(String taskParam, int retryNum);
+    String restart(String taskParam, int retryNum, String lastRetryParams);
 
 }

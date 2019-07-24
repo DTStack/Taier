@@ -164,8 +164,13 @@ public class RestartDealer {
                 return false;
             }
 
+            String lastRetryParams = "";
+            if (alreadyRetryNum > 0)  {
+                lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
+            }
+
             //   根据策略调整参数配置
-            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum);
+            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
             saveRetryTaskParam(jobId, paramAction.getTaskParams());
@@ -197,6 +202,16 @@ public class RestartDealer {
             LOG.error("", e);
             return false;
         }
+    }
+
+    private String getLastRetryParams(String jobId, int retrynum) {
+        String taskParams = "";
+        try {
+            taskParams = engineBatchJobRetryDAO.getRetryTaskParams(jobId, retrynum);
+        } catch (Exception e) {
+            LOG.error("", e);
+        }
+        return taskParams;
     }
 
     private void saveRetryTaskParam(String jobId, String taskParams) {
