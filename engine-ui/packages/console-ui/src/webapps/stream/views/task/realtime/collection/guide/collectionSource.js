@@ -81,13 +81,12 @@ class CollectionSource extends React.Component {
     }
 
     async getValidMysqlTableList (sourceId) {
-        this.getTableList(sourceId);
-        // let res = await ajax.checkSourceIsValid({
-        //     sourceId
-        // });
-        // if (res && res.code == 1) {
-        //     this.getTableList();
-        // }
+        let res = await ajax.checkSourceIsValid({
+            sourceId
+        });
+        if (res && res.code == 1) {
+            this.getTableList(sourceId);
+        }
     }
 
     getTableList (sourceId) {
