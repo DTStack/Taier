@@ -189,13 +189,13 @@ public class ApplicationMaster extends CompositeService {
         workerContainerRequest = new AMRMClient.ContainerRequest(workerCapability, null, null, priority);
     }
 
-    private List<String> buildContainerLaunchCommand(int containerMemory) {
+    private List<String> buildContainerLaunchCommand(int workerMemory) {
         List<String> containerLaunchcommands = new ArrayList<>();
         LOG.info("Setting up container command");
         Vector<CharSequence> vargs = new Vector<>(10);
         vargs.add("${JAVA_HOME}" + "/bin/java");
-        vargs.add("-Xmx" + containerMemory + "m");
-        vargs.add("-Xms" + containerMemory + "m");
+        vargs.add("-Xmx" + workerMemory + "m");
+        vargs.add("-Xms" + workerMemory + "m");
         String javaOpts = conf.get(DtYarnConfiguration.XLEARNING_CONTAINER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_XLEARNING_CONTAINER_JAVA_OPTS_EXCEPT_MEMORY);
         if (!StringUtils.isBlank(javaOpts)) {
             vargs.add(javaOpts);
@@ -225,7 +225,7 @@ public class ApplicationMaster extends CompositeService {
         }
 
         buildContainerRequest();
-        List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.containerMemory);
+        List<String> workerContainerLaunchCommands = buildContainerLaunchCommand(appArguments.workerMemory);
         Map<String, LocalResource> containerLocalResource = buildContainerLocalResource();
         Map<String, String> workerContainerEnv = new ContainerEnvBuilder(DtYarnConstants.WORKER, this).build();
 
