@@ -56,19 +56,18 @@ public class FlinkRestartService extends ARestartService {
     public boolean checkCanRestart(String jobId, String engineJobId, String appId,IClient client,
                                    int alreadyRetryNum, int maxRetryNum) {
 
-        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
-        String msg = client.getJobLog(jobIdentifier);
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, engineJobId);
+        String msg = getErrorMsgByURL(jobIdentifier, client);
         return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
     }
 
-    public String getErrorMsgByURL(String engineJobId, IClient client) {
+    public String getErrorMsgByURL(JobIdentifier jobIdentifier, IClient client) {
         String errorLog = null;
         try {
-            errorLog = jobErrorInfoCache.get(engineJobId, () -> {
-                String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
+            errorLog = jobErrorInfoCache.get(jobIdentifier.getEngineJobId(), () -> {
                 String msg;
                 try {
-                    msg = client.getMessageByHttp(reqURL);
+                    msg = client.getJobLog(jobIdentifier);
                 } catch (Exception e) {
                     msg = null;
                 }
@@ -111,8 +110,9 @@ public class FlinkRestartService extends ARestartService {
     }
 
     @Override
-    public IJobRestartStrategy getAndParseErrorLog(String engineJobId, IClient client) {
-        String msg = getErrorMsgByURL(engineJobId, client);
+    public IJobRestartStrategy getAndParseErrorLog(String jobId, String engineJobId, String appId, IClient client) {
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(jobId, appId, engineJobId);
+        String msg = getErrorMsgByURL(jobIdentifier, client);
         return parseErrorLog(msg);
     }
 

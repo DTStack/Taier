@@ -43,7 +43,7 @@ public abstract class ARestartService {
         return alreadyRetryNum < maxRetryNum;
     }
 
-    public IJobRestartStrategy getAndParseErrorLog(String engineJobId, IClient client) {
+    public IJobRestartStrategy getAndParseErrorLog(String jobId, String engineJobId, String appId, IClient client) {
         return null;
     };
 

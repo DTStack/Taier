@@ -158,7 +158,7 @@ public class RestartDealer {
                 return false;
             }
 
-            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, engineJobId);
+            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId );
 
             if (restartStrategy == null) {
                 return false;
@@ -215,10 +215,10 @@ public class RestartDealer {
      * @return
      * @throws Exception
      */
-    private IJobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String engineJobId) throws Exception {
+    private IJobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String jobId, String engineJobId, String appId) throws Exception {
         IClient client = clientCache.getClient(engineType, pluginInfo);
         ARestartService restartService = client.getRestartService();
-        IJobRestartStrategy strategy = restartService.getAndParseErrorLog(engineJobId, client);
+        IJobRestartStrategy strategy = restartService.getAndParseErrorLog(jobId, engineJobId, appId, client);
         return strategy;
     }
 
