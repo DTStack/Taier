@@ -313,7 +313,7 @@ class MessageList extends Component {
         };
 
         return (
-            <div className="m-panel" style={{ overflowY: 'auto', height: 'calc(100% - 80px)' }}>
+            <div className="m-panel" style={{ overflowY: 'auto', height: '100%' }}>
                 <Menu
                     selectedKeys={[selectedApp]}
                     onSelect={this.onAppSelect}
@@ -343,7 +343,7 @@ class MessageList extends Component {
         const paneContent = this.renderPane();
 
         return (
-            <div className="box-1 m-tabs" style={{ height: 'calc(100% - 40px)' }}>
+            <div className="box-1 m-tabs c-messgae__list" style={{ height: 'calc(100% - 40px)' }}>
                 <Tabs
                     animated={false}
                     // style={{ overflowY: 'auto' }}

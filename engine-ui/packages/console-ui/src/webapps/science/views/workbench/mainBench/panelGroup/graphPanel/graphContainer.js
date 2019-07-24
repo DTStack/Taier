@@ -844,11 +844,11 @@ class GraphContainer extends React.Component {
         const { data, onRefGraph } = this.props;
         const graphData = cloneDeep(data.graphData);
         return (
-            <div className="exp-graph-view" style={{ width: '100%' }}>
+            <div className="exp-graph-view" style={{ width: '100%', height: '100%' }}>
                 <input id="mockInput" readOnly style={{ opacity: 0, width: 1, height: 1, outline: 0, border: 0 }} />
                 <GraphEditor
                     version={data.version}
-                    data={graphData || {}}
+                    data={graphData || []}
                     key={data.id}
                     onSearchNode={this.initShowSearch}
                     registerContextMenu={this.initContextMenu}

@@ -13,6 +13,19 @@ export const PROJECT_STATUS = {
     FAILED: 2,
     CANCEL: 3
 }
+// 资源类型
+export const RESOURCE_TYPE = {
+    0: 'other',
+    OTHER: 0,
+    1: 'jar',
+    JAR: 1,
+    2: 'py',
+    PY: 2,
+    3: 'zip',
+    ZIP: 3,
+    4: 'egg',
+    EGG: 4
+}
 /**
  * 目录类型
  */
@@ -48,13 +61,26 @@ export const siderBarType = {
     notebook: 'notebook',
     experiment: 'laboratory',
     component: 'component',
-    model: 'model'
+    model: 'model',
+    resource: 'resource'
 }
 export const modelComponentType = {
     NOTEBOOK: {
         value: 0,
         text: 'notebook'
     }
+}
+export const TASK_TYPE = { // 任务类型
+    PYTHON: 6,
+    PYSPARK: 3
+}
+export const PYTON_VERSION = {
+    PYTHON2: 2,
+    PYTHON3: 3
+}
+export const DEAL_MODEL_TYPE = {// python和pySpark操作类型
+    RESOURCE: 0,
+    EDIT: 1
 }
 export const taskType = {
     NOTEBOOK: 13,

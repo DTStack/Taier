@@ -44,6 +44,9 @@ export function taskTypeIcon (type, task = {}) {
     const { pythonVersion, learningType, scriptType } = task;
     if (scriptType == null) {
         switch (type) {
+            case TASK_TYPE.HIVESQL: {
+                return 's-hivesql';
+            }
             case TASK_TYPE.CUBE_KYLIN: {
                 return 's-cubeKylin';
             }

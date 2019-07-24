@@ -31,12 +31,26 @@ class Container extends Component {
         }
     }
 
+    state = {
+        collapsed: true,
+        mode: 'inline'
+    };
+    onCollapse = (collapsed) => {
+        this.setState({
+            collapsed,
+            mode: collapsed ? 'vertical' : 'inline'
+        });
+    }
     render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-datamanagement g-datamanage">
-                <Sider className="bg-w">
-                    <Sidebar {...this.props} />
+                <Sider className="bg-w"
+                    collapsible
+                    collapsed={this.state.collapsed}
+                    onCollapse={this.onCollapse}
+                >
+                    <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content style={{ position: 'relative' }}>
                     { children || '概览' }

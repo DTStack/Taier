@@ -153,6 +153,8 @@ export function TaskTimeType (props) {
 export function DatabaseType (props) {
     const value = props.value
     switch (value) {
+        case DATA_SOURCE.KYLIN:
+            return <span>KYLIN</span>
         case DATA_SOURCE.MYSQL:
             return <span>MySQL</span>
         case DATA_SOURCE.ORACLE:
@@ -197,6 +199,8 @@ export function DatabaseType (props) {
 export function TaskType (props) {
     const value = props.value
     switch (value) {
+        case TASK_TYPE.HIVESQL:
+            return <span>HiveSQL</span>
         case TASK_TYPE.CUBE_KYLIN:
             return <span>Kylin</span>
         case TASK_TYPE.VIRTUAL_NODE:

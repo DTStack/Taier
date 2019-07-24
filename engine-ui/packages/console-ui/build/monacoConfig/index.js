@@ -44,5 +44,6 @@ exports.languages = [
     'json',
     'sql',
     'shell',
-    'python'
+    'python',
+    'xml'
 ];

@@ -54,7 +54,7 @@ class AdminDashboard extends Component {
                         defaultValue={this.getDateChoose()}
                         className="no-bd nobackground"
                         onChange={this.props.chooseAdminDate.bind(this, 10)}
-                        style={{ marginTop: '8.5px', float: 'right' }}
+                        style={{ float: 'right' }}
                     >
                         <RadioButton value='1'>最近24小时</RadioButton>
                         <RadioButton value='7'>最近7天</RadioButton>

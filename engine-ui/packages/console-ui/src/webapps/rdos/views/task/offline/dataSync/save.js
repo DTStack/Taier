@@ -22,7 +22,7 @@ export default class Save extends React.Component {
 
         return <div className="g-step5">
             <div className="m-preview"
-                style={{ padding: '0 20' }}
+                style={{ padding: '0px 20px' }}
             >
                 <Card bordered={ false }
                     style={{ marginBottom: 10 }}

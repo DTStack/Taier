@@ -18,7 +18,7 @@ const defaultPro = {
 
 class Container extends Component {
     state = {
-        collapsed: false,
+        collapsed: true,
         mode: 'inline'
     };
 
@@ -52,7 +52,11 @@ class Container extends Component {
         const { children } = this.props
         return (
             <Layout className="dt-operation">
-                <Sider className="bg-w">
+                <Sider className="bg-w"
+                    collapsible
+                    collapsed={this.state.collapsed}
+                    onCollapse={this.onCollapse}
+                >
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content>

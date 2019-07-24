@@ -551,6 +551,7 @@ class JobGraphView extends Component {
                     tip="Loading..."
                     size="large"
                     spinning={this.state.loading === 'loading'}
+                    wrapperClassName='c-jobGraph__spin-box'
                 >
                     <div
                         className="editor pointer"
@@ -587,7 +588,7 @@ class JobGraphView extends Component {
                     <span style={{ marginLeft: '15px' }}>{get(data, 'batchTask.createUser.userName', '-')}</span>&nbsp;
                     { isPro ? '发布' : '提交' }于&nbsp;
                     <span>{ utils.formatDateTime(get(data, 'batchTask.gmtModified')) }</span>&nbsp;
-                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId' )) }} style={{ marginRight: '8' }}>查看日志</a>
+                    <a title="双击任务可快速查看日志" onClick={() => { showJobLog(get(data, 'jobId' )) }} style={{ marginRight: '8' }}>查看日志</a>&nbsp;
                     {isCurrentProjectTask(data.batchTask) && (<a onClick={() => { goToTaskDev(get(data, 'batchTask.id')) }}>查看代码</a>)}
                 </div>
             </div>
@@ -747,6 +748,7 @@ class JobGraphView extends Component {
         style[mxConstants.STYLE_FONTSIZE] = '12';
         style[mxConstants.STYLE_FONTFAMILY] = 'PingFangSC-Regular';
         style[mxConstants.FONT_BOLD] = 'normal';
+        style[mxConstants.STYLE_WHITE_SPACE] = 'nowrap';
         // style[mxConstants.STYLE_OVERFLOW] = 'hidden';
 
         return style;

@@ -13,7 +13,8 @@ const FormItem = Form.Item;
 @connect(state => {
     return {
         [siderBarType.notebook]: state.notebook.files,
-        [siderBarType.experiment]: state.experiment.files
+        [siderBarType.experiment]: state.experiment.files,
+        [siderBarType.resource]: state.resource.files
     }
 }, dispatch => {
     const actions = bindActionCreators(fileTreeActions, dispatch);

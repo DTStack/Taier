@@ -1,4 +1,14 @@
 .dt-operation {
+    min-height: 100%;
+    .c-realtime__list {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        min-height: calc(100% - 40px);
+        box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1);
+        background: #FFFFFF;
+    }
     .operation-content {
         padding: 20px;
         min-height: 100%;
@@ -323,6 +333,7 @@
     background: #fff;
     border:1px solid #dddddd;
     position: relative;
+    height: 100%;
     header{
         padding: 7.5px 0px 8.5px 21px;
         font-size: 14px;
@@ -435,4 +446,28 @@
         background: #fff;
     }
 }
-
+.c-runcode {
+    >.ant-tabs-content {
+        height: calc(100% - 36px);
+        >.ant-tabs-tabpane {
+            height: 100%;
+        }
+    }
+}
+.m-tabs {
+    >.c-runcode {
+        >.ant-tabs-bar{
+            >.ant-tabs-nav-container{
+                >.ant-tabs-nav-wrap{
+                    margin-bottom: 0px;
+                }
+                .ant-tabs-nav .ant-tabs-tab{
+                    line-height: 18px;
+                    &.ant-tabs-tab-active {
+                        line-height: 20px;
+                    }
+                }
+            }
+        }
+    }
+}

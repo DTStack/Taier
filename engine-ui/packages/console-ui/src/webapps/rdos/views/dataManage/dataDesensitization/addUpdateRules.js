@@ -222,7 +222,7 @@ class AddUpdateRules extends Component {
         return (
             <Modal
                 visible={this.props.visible}
-                width='600'
+                width='600px'
                 title={isEdit ? '编辑规则' : '创建规则'}
                 onCancel={this.cancel}
                 onOk={this.submit}
@@ -309,7 +309,7 @@ class AddUpdateRules extends Component {
                         )}
                     </FormItem>
                     { getFieldValue('maskType') ? <FormItem>
-                        <div style={{ margin: '-10 0 0 150' }}>
+                        <div style={{ margin: '-10 0 0 150px' }}>
                             将从
                             <InputNumber
                                 style={{ width: '70px' }}
@@ -331,7 +331,7 @@ class AddUpdateRules extends Component {
                     <FormItem
                         {...formItemLayout}
                     >
-                        <div style={{ margin: '-10 0 0 150' }}>
+                        <div style={{ margin: '-10px 0 0 150px' }}>
                             <Button
                                 type="primary"
                                 onClick={this.preview}

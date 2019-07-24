@@ -6,8 +6,8 @@ import Api from '../../../api/console'
 import { getComponentConfKey, exChangeComponentConf, showTestResult, validateAllRequired,
     myUpperCase, myLowerCase, toChsKeys } from '../../../consts/clusterFunc';
 import { formItemLayout, ENGINE_TYPE, COMPONENT_TYPE_VALUE, SPARK_KEY_MAP,
-    SPARK_KEY_MAP_DOTS, DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
-    DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS, notExtKeysFlink, notExtKeysSpark, notExtKeysLearning,
+    SPARK_KEY_MAP_DOTS, FLINK_KEY_MAP, FLINK_KEY_MAP_DOTS, DEFAULT_COMP_TEST, DEFAULT_COMP_REQUIRED,
+    DTYARNSHELL_KEY_MAP, DTYARNSHELL_KEY_MAP_DOTS, notExtKeysFlink, notExtKeysSpark, notExtKeysHiveServer, notExtKeysLearning,
     notExtKeysDtyarnShell, notExtKeysSparkThrift, notExtKeysLibraSql } from '../../../consts';
 import { updateTestStatus, updateRequiredStatus } from '../../../reducers/modules/cluster';
 import GoBack from 'main/components/go-back';
@@ -15,6 +15,7 @@ import SparkConfig from './sparkConfig'
 import FlinkConfig from './flinkConfig';
 import LearningConfig from './learningConfig';
 import DtyarnShellConfig from './dtYarnshellConfig';
+import HiveServerConfig from './hiveServerConfig';
 import LibraSqlConfig from './libraSqlConfig';
 import ZipConfig from './zipConfig';
 import { SparkThriftConfig, CarbonDataConfig } from './sparkThriftAndCarbonData';
@@ -59,6 +60,7 @@ class EditCluster extends React.Component {
         flink_params: [],
         spark_params: [],
         sparkThrif_params: [],
+        hiveServer_params: [],
         learning_params: [],
         dtyarnshell_params: [],
         libraSql_params: [],
@@ -102,6 +104,9 @@ class EditCluster extends React.Component {
         for (let key in copyComp) {
             if (key == 'sparkConf') {
                 copyComp[key] = toChsKeys(copyComp[key] || {}, SPARK_KEY_MAP)
+            }
+            if (key == 'flinkConf') {
+                copyComp[key] = toChsKeys(copyComp[key] || {}, FLINK_KEY_MAP)
             }
             if (key == 'learningConf') {
                 copyComp[key] = myUpperCase(copyComp[key])
@@ -166,12 +171,12 @@ class EditCluster extends React.Component {
                             zipConfig: JSON.stringify({
                                 yarnConf: componentConf.yarnConf,
                                 hadoopConf: componentConf.hadoopConf,
-                                hiveMeta: componentConf.hiveMeta, // (暂无用数据)
-                                md5zip: componentConf.md5zip || {}
+                                hiveMeta: componentConf.hiveMeta // (暂无用数据)
                             }),
                             flink_params: extParams.flinkKeys,
                             spark_params: extParams.sparkKeys,
                             sparkThrif_params: extParams.sparkThriftKeys,
+                            hiveServer_params: extParams.hiveServerKeys,
                             learning_params: extParams.learningKeys,
                             dtyarnshell_params: extParams.dtyarnshellKeys,
                             libraSql_params: extParams.libraSqlKeys,
@@ -201,6 +206,7 @@ class EditCluster extends React.Component {
             flinkKeys: [],
             sparkKeys: [],
             sparkThriftKeys: [],
+            hiveServerKeys: [],
             learningKeys: [],
             dtyarnshellKeys: [],
             libraSqlKeys: [],
@@ -209,6 +215,7 @@ class EditCluster extends React.Component {
         let flinkConfig = config.flinkConf || {};
         let sparkConfig = config.sparkConf || {};
         let hiveConfig = config.hiveConf || {};
+        let hiveServerConfig = config.hiveServerConf || {};
         let learningConfig = config.learningConf || {};
         let dtyarnshellConfig = config.dtyarnshellConf || {};
         let libraConfig = config.libraConf || {};
@@ -231,6 +238,7 @@ class EditCluster extends React.Component {
         setDefault(flinkConfig, notExtKeysFlink, 'flink', result.flinkKeys)
         setDefault(sparkConfig, notExtKeysSpark, 'spark', result.sparkKeys)
         setDefault(hiveConfig, notExtKeysSparkThrift, 'sparkThrift', result.sparkThriftKeys)
+        setDefault(hiveServerConfig, notExtKeysHiveServer, 'hiveServer', result.hiveServerKeys)
         setDefault(learningConfig, notExtKeysLearning, 'learning', result.learningKeys)
         setDefault(dtyarnshellConfig, notExtKeysDtyarnShell, 'dtyarnshell', result.dtyarnshellKeys)
         setDefault(libraConfig, notExtKeysLibraSql, 'libra', result.libraSqlKeys)
@@ -263,7 +271,9 @@ class EditCluster extends React.Component {
                             file: file,
                             securityStatus: res.data.security,
                             zipConfig: {
-                                hadoopConf: conf.HDFS,
+                                hadoopConf: Object.assign({}, conf.HDFS, {
+                                    md5zip: conf.md5zip
+                                }),
                                 yarnConf: conf.YARN
                             }
                         })
@@ -280,7 +290,7 @@ class EditCluster extends React.Component {
     }
     /* eslint-disable */
     addParam (type) {
-        const { flink_params, spark_params, sparkThrif_params, learning_params, dtyarnshell_params, libraSql_params } = this.state;
+        const { flink_params, spark_params, sparkThrif_params, hiveServer_params, learning_params, dtyarnshell_params, libraSql_params } = this.state;
         if (type == 'flink') {
             this.setState({
                 flink_params: [...flink_params, {
@@ -296,6 +306,12 @@ class EditCluster extends React.Component {
         } else if (type == 'sparkThrift') {
             this.setState({
                 sparkThrif_params: [...sparkThrif_params, {
+                    id: giveMeAKey()
+                }]
+            })
+        } else if (type == 'hiveServer') {
+            this.setState({
+                hiveServer_params: [...hiveServer_params, {
                     id: giveMeAKey()
                 }]
             })
@@ -320,7 +336,7 @@ class EditCluster extends React.Component {
         }
     }
     deleteParam (id, type) {
-        const { flink_params, spark_params, sparkThrif_params, learning_params, dtyarnshell_params, libraSql_params } = this.state;
+        const { flink_params, spark_params, sparkThrif_params, hiveServer_params, learning_params, dtyarnshell_params, libraSql_params } = this.state;
         let tmpParams;
         let tmpStateName;
         if (type == 'flink') {
@@ -332,6 +348,9 @@ class EditCluster extends React.Component {
         } else if (type == 'sparkThrift') {
             tmpStateName = 'sparkThrif_params';
             tmpParams = sparkThrif_params;
+        } else if (type == 'hiveServer') {
+            tmpStateName = 'hiveServer_params';
+            tmpParams = hiveServer_params;
         } else if (type == 'learning') {
             tmpStateName = 'learning_params';
             tmpParams = learning_params;
@@ -352,7 +371,7 @@ class EditCluster extends React.Component {
         })
     }
     renderExtraParam (type) {
-        const { flink_params, spark_params, sparkThrif_params, learning_params, dtyarnshell_params, libraSql_params, extDefaultValue } = this.state;
+        const { flink_params, spark_params, sparkThrif_params, hiveServer_params, learning_params, dtyarnshell_params, libraSql_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view'
@@ -365,6 +384,8 @@ class EditCluster extends React.Component {
             tmpParams = learning_params;
         } else if (type == 'sparkThrift') {
             tmpParams = sparkThrif_params
+        } else if (type == 'hiveServer') {
+            tmpParams = hiveServer_params
         } else if (type == 'libra') {
             tmpParams = libraSql_params
         } else if (type == 'dtyarnshell') {
@@ -438,7 +459,8 @@ class EditCluster extends React.Component {
             configString: JSON.stringify(componentConf[getComponentConfKey(component.componentTypeCode)])
         }).then(res => {
             if (res.code === 1) {
-                this.getDataList(this.state.defaultEngineType);
+                // 避免上传配置文件的组件hdfs、yarn保存之后会导致另一项组件数据清空，这里不请求数据
+                // this.getDataList(this.state.defaultEngineType);
                 message.success(`${component.componentName}保存成功`)
             }
         })
@@ -526,7 +548,7 @@ class EditCluster extends React.Component {
         switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 form.setFieldsValue({
-                    flinkConf: allComponentConf.flinkConf
+                    flinkConf: toChsKeys(allComponentConf.flinkConf || {}, FLINK_KEY_MAP)
                 })
                 break;
             }
@@ -539,6 +561,12 @@ class EditCluster extends React.Component {
             case COMPONENT_TYPE_VALUE.CARBONDATA: {
                 form.setFieldsValue({
                     carbonConf: allComponentConf.carbonConf
+                })
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+                form.setFieldsValue({
+                    hiveServerConf: allComponentConf.hiveServerConf
                 })
                 break;
             }
@@ -608,7 +636,8 @@ class EditCluster extends React.Component {
             componentTypeCode == COMPONENT_TYPE_VALUE.SPARK ||
             componentTypeCode == COMPONENT_TYPE_VALUE.LEARNING ||
             componentTypeCode == COMPONENT_TYPE_VALUE.DTYARNSHELL ||
-            componentTypeCode == COMPONENT_TYPE_VALUE.CARBONDATA) {
+            componentTypeCode == COMPONENT_TYPE_VALUE.CARBONDATA ||
+            componentTypeCode == COMPONENT_TYPE_VALUE.HIVESERVER) {
             Api.deleteComponent({
                 componentId: componentId
             }).then(res => {
@@ -635,12 +664,10 @@ class EditCluster extends React.Component {
      * @param componentValue 组件
      */
     renderExtFooter = (isView, component) => {
-        const { defaultEngineType } = this.state;
-        const isHadoop = defaultEngineType == ENGINE_TYPE.HADOOP;
         return (
             <React.Fragment>
                 {isView ? null : (
-                    <div className={ isHadoop ? 'config-bottom-long' : 'config-bottom-short' }>
+                    <div className='config-bottom-long'>
                         <Row>
                             <Col span={4}></Col>
                             <Col span={formItemLayout.wrapperCol.sm.span}>
@@ -665,6 +692,7 @@ class EditCluster extends React.Component {
         const flinkExtParams = this.getCustomParams(formValues, 'flink')
         const sparkThriftExtParams = this.getCustomParams(formValues, 'sparkThrift')
         const learningExtParams = this.getCustomParams(formValues, 'learning');
+        const hiveServerExtParams = this.getCustomParams(formValues, 'hiveServer');
         const dtyarnshellExtParams = this.getCustomParams(formValues, 'dtyarnshell');
         const libraExtParams = this.getCustomParams(formValues, 'libra')
         const learningTypeName = {
@@ -673,14 +701,15 @@ class EditCluster extends React.Component {
         const dtyarnshellTypeName = {
             typeName: 'dtyarnshell'
         }
-        componentConf['md5zip'] = zipConfig.md5zip || {};
+        // md5zip 随hdfs组件一起保存
         componentConf['hadoopConf'] = zipConfig.hadoopConf;
         componentConf['yarnConf'] = zipConfig.yarnConf;
         componentConf['hiveMeta'] = zipConfig.hiveMeta;
         componentConf['hiveConf'] = { ...formValues.hiveConf, ...sparkThriftExtParams } || {};
         componentConf['carbonConf'] = formValues.carbonConf || {};
+        componentConf['hiveServerConf'] = { ...formValues.hiveServerConf, ...hiveServerExtParams } || {};
         componentConf['sparkConf'] = { ...toChsKeys(formValues.sparkConf || {}, SPARK_KEY_MAP_DOTS), ...sparkExtParams };
-        componentConf['flinkConf'] = { ...formValues.flinkConf, ...flinkExtParams };
+        componentConf['flinkConf'] = { ...toChsKeys(formValues.flinkConf || {}, FLINK_KEY_MAP_DOTS), ...flinkExtParams };
         componentConf['learningConf'] = { ...learningTypeName, ...myLowerCase(formValues.learningConf), ...learningExtParams };
         componentConf['dtyarnshellConf'] = { ...dtyarnshellTypeName, ...toChsKeys(formValues.dtyarnshellConf || {}, DTYARNSHELL_KEY_MAP_DOTS), ...dtyarnshellExtParams };
         componentConf['libraConf'] = { ...formValues.libraConf, ...libraExtParams };
@@ -689,6 +718,8 @@ class EditCluster extends React.Component {
         componentConf['hiveConf'].password = componentConf['hiveConf'].password || '';
         componentConf['carbonConf'].username = componentConf['carbonConf'].username || '';
         componentConf['carbonConf'].password = componentConf['carbonConf'].password || '';
+        componentConf['hiveServerConf'].username = componentConf['hiveServerConf'].username || '';
+        componentConf['hiveServerConf'].password = componentConf['hiveServerConf'].password || '';
         return componentConf;
     }
     getCustomParams (data, ParamKey) {
@@ -779,7 +810,7 @@ class EditCluster extends React.Component {
         const { clusterData, file, uploadLoading, core, nodeNumber, memory } = this.state;
         const { mode } = this.props.location.state || {};
         const isView = mode == 'view';
-        return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20 20 10 20' }} noHovering>
+        return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
             <div style={{ marginTop: '20px', borderBottom: '1px dashed #DDDDDD' }}>
                 <Row>
                     <Col span={14} pull={2}>
@@ -915,6 +946,21 @@ class EditCluster extends React.Component {
                     />
                 )
             }
+            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+                return (
+                    <HiveServerConfig
+                        isView={isView}
+                        getFieldDecorator={getFieldDecorator}
+                        customView={(
+                            <>
+                                {this.renderExtraParam('hiveServer')}
+                                {this.showAddCustomParam(isView, 'hiveServer')}
+                            </>
+                        )}
+                        singleButton={this.renderExtFooter(isView, component)}
+                    />
+                )
+            }
             case COMPONENT_TYPE_VALUE.FLINK: {
                 return (
                     <FlinkConfig
@@ -1042,7 +1088,7 @@ class EditCluster extends React.Component {
                                         {this.displayResource(engineType)}
                                         {
                                             isView ? null : (
-                                                <div style={{ margin: '5 20 0 20', textAlign: 'right' }}>
+                                                <div style={{ margin: '5px 20px 0px 20px', textAlign: 'right' }}>
                                                     {isHadoop && <Button onClick={() => {
                                                         this.setState({
                                                             modalKey: Math.random(),
@@ -1061,8 +1107,8 @@ class EditCluster extends React.Component {
                                         }
                                         {/* 组件配置 */}
                                         <Card
-                                            className='shadow console-tabs cluster-tab-width'
-                                            style={{ margin: '10 20 20 20', height: isHadoop ? '500' : 'calc(100% - 50px)' }}
+                                            className='shadow console-tabs cluster-tab-width console-compontent'
+                                            // style={{ margin: '10px 20px 20px 20px', height: '500px' }}
                                             noHovering
                                         >
                                             <Tabs
@@ -1084,7 +1130,7 @@ class EditCluster extends React.Component {
                                                                 forceRender={true}
                                                                 key={`${componentTypeCode}`}
                                                             >
-                                                                <div className={isHadoop ? 'tabpane-content-max' : 'tabpane-content-min'}>
+                                                                <div className='tabpane-content-max'>
                                                                     {this.renderComponentConf(item)}
                                                                 </div>
                                                             </TabPane>

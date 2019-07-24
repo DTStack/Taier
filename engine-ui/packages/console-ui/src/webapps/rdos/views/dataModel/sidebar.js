@@ -69,32 +69,36 @@ export default class Sidebar extends Component {
             <div className="sidebar m-ant-menu">
                 <Menu
                     onClick={this.handleClick}
-                    style={{ width: 200, height: '100%' }}
+                    style={{ height: '100%' }}
                     selectedKeys={[this.state.current]}
                     defaultSelectedKeys={[this.state.current]}
-                    mode="inline"
+                    mode={this.props.mode}
                 >
                     <Menu.Item key="overview">
                         <Link to={`${base}/overview`}>
-                            <Icon type="pie-chart" />总览
+                            <Icon type="pie-chart" />
+                            <span className="nav-text">总览</span>
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="check">
                         <Link to={`${base}/check`}>
-                            <Icon type="filter" />检测中心
+                            <Icon type="filter" />
+                            <span className="nav-text">检测中心</span>
                         </Link>
                     </Menu.Item>
                     {couldEdit && (
                         <Menu.Item key="table">
                             <Link to={`${base}/table`}>
-                                <Icon type="api" />模型设计
+                                <Icon type="api" />
+                                <span className="nav-text">模型设计</span>
                             </Link>
                         </Menu.Item>
                     )}
                     {couldEdit && (
                         <Menu.Item key="config">
                             <Link to={`${base}/config`}>
-                                <Icon type="tool" />配置中心
+                                <Icon type="tool" />
+                                <span className="nav-text">配置中心</span>
                             </Link>
                         </Menu.Item>
                     )}

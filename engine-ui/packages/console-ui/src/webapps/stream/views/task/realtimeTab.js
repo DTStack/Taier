@@ -620,6 +620,7 @@ class RealTimeTabPane extends Component {
                                 <Tooltip title="刷新" placement="bottom">
                                     <Icon
                                         type="sync"
+                                        style={{ fontSize: '12px' }}
                                         onClick={() => this.reloadTreeNodes(menuItem.children[0].id, MENU_TYPE.TASK_DEV)}
                                     />
                                 </Tooltip>

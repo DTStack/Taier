@@ -1,4 +1,5 @@
 import React from 'react'
+// import { get } from 'lodash';
 
 import {
     Tabs
@@ -6,19 +7,23 @@ import {
 import SlidePane from 'widgets/slidePane'
 import { TaskStatus } from '../../../../components/status'
 import AlarmMsg from './tabs/alarmMsg'
-import BaseInfo from './tabs/baseInfo'
+import RunLog from './tabs/runLog'
 import CheckPoint from './tabs/checkPoint'
 import DataDelay from './tabs/dataDelay'
 import RunCode from './tabs/runCode'
 import HelpDoc from '../../../helpDoc'
 
 import { TASK_TYPE, TASK_STATUS } from '../../../../../stream/comm/const';
+import TaskGraph from './tabs/taskGraph';
 
 const TabPane = Tabs.TabPane;
 
 class TaskDetailPane extends React.Component {
-    state = {
-        tabKey: 'taskFlow'
+    constructor (props) {
+        super(props);
+        this.state = {
+            tabKey: this.getInitTabKey(props.data)
+        }
     }
 
     // eslint-disable-next-line
@@ -27,30 +32,31 @@ class TaskDetailPane extends React.Component {
         const { data: nextData = {} } = nextProps;
         if (data.id != nextData.id) {
             this.setState({
-                tabKey: 'taskFlow'
-            })
+                tabKey: this.getInitTabKey(nextData)
+            });
         }
+    }
+    getInitTabKey (data = {}) {
+        return 'taskGraph';
+        // if (this.showGraph(get(data, 'status'))) {
+        //     return 'taskGraph';
+        // } else {
+        //     return 'runLog';
+        // }
+    }
+    showGraph (status) {
+        return status == TASK_STATUS.RUNNING || status == TASK_STATUS.WAIT_RUN;
     }
     onTabChange (activeKey) {
         this.setState({
             tabKey: activeKey
         })
     }
-    getTaskFlowName (status) {
-        switch (status) {
-            case TASK_STATUS.RUN_FAILED:
-            case TASK_STATUS.SUBMIT_FAILED: {
-                return '错误日志'
-            }
-            default: {
-                return '数据曲线'
-            }
-        }
-    }
     getTabs () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType, status } = data;
+        const { taskType } = data;
+        let tabs = [];
         const scrollStyle = {
             position: 'absolute',
             top: '36px',
@@ -71,28 +77,34 @@ class TaskDetailPane extends React.Component {
                 <RunCode isShow={tabKey == 'runCode'} data={data} />
             </TabPane>
         )
-        const baseInfoView = (
-            <TabPane style={scrollStyleNoPt} tab={this.getTaskFlowName(status)} key="taskFlow">
-                <BaseInfo isShow={tabKey == 'taskFlow'} data={data} />
+        const runInfoView = (
+            <TabPane style={scrollStyleNoPt} tab={'运行日志'} key="runLog">
+                <RunLog isShow={tabKey == 'runLog'} data={data} />
             </TabPane>
         )
         const alarmMsgView = (
-            <TabPane style={scrollStyleNoPt} tab="告警信息" key="alarmMsg">
+            <TabPane style={scrollStyleNoPt} tab="告警" key="alarmMsg">
                 <AlarmMsg data={data} />
+            </TabPane>
+        )
+        const taskGraph = (
+            <TabPane style={scrollStyleNoPt} tab="数据曲线" key="taskGraph">
+                <TaskGraph isShow={tabKey == 'taskGraph'} data={data} />
             </TabPane>
         )
         switch (taskType) {
             case TASK_TYPE.DATA_COLLECTION: {
-                return [
-                    baseInfoView,
+                tabs = [
+                    runInfoView,
                     runCodeView,
                     alarmMsgView
                 ]
+                break;
             }
             case TASK_TYPE.SQL:
             case TASK_TYPE.MR: {
-                return [
-                    baseInfoView,
+                tabs = [
+                    runInfoView,
                     <TabPane
                         style={scrollStyleNoPt}
                         tab={(
@@ -113,12 +125,15 @@ class TaskDetailPane extends React.Component {
                     </TabPane>,
                     runCodeView,
                     alarmMsgView
-                ]
+                ];
+                break;
             }
             default: {
-                return []
+                tabs = [];
             }
         }
+        tabs.unshift(taskGraph);
+        return tabs;
     }
     render () {
         const {
@@ -132,32 +147,29 @@ class TaskDetailPane extends React.Component {
             top: '11px'
         }
         return (
-            <div>
-                <SlidePane
-                    className="m-tabs bd-top bd-right m-slide-pane"
-                    onClose={closeSlidePane}
-                    visible={visibleSlidePane}
-                    style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
-                >
-                    <div className="pane-height100-box">
-                        <header className="detailPane-header">
-                            <span style={{ fontSize: '14px' }}>{data.name}</span>
-                            <span style={{ marginLeft: '25px' }}><TaskStatus value={data.status} /></span>
-                            <span style={extButtonStyle}>{extButton}</span>
-                        </header>
-                        <Tabs
-                            className="pane-tabs"
-                            style={{ borderTop: '1px solid #DDDDDD', position: 'relative' }}
-                            animated={false}
-                            onChange={this.onTabChange.bind(this)}
-                            activeKey={tabKey}
-                        >
-                            {this.getTabs()}
-                        </Tabs>
-                    </div>
-                </SlidePane>
-            </div>
-
+            <SlidePane
+                className="m-tabs bd-top bd-right m-slide-pane"
+                onClose={closeSlidePane}
+                visible={visibleSlidePane}
+                style={{ right: '0px', width: '75%', height: '100%', minHeight: '600px' }}
+            >
+                <div className="pane-height100-box">
+                    <header className="detailPane-header">
+                        <span style={{ fontSize: '14px' }}>{data.name}</span>
+                        <span style={{ marginLeft: '25px' }}><TaskStatus value={data.status} /></span>
+                        <span style={extButtonStyle}>{extButton}</span>
+                    </header>
+                    <Tabs
+                        className="pane-tabs"
+                        style={{ borderTop: '1px solid #DDDDDD', position: 'relative' }}
+                        animated={false}
+                        onChange={this.onTabChange.bind(this)}
+                        activeKey={tabKey}
+                    >
+                        {this.getTabs()}
+                    </Tabs>
+                </div>
+            </SlidePane>
         )
     }
 }

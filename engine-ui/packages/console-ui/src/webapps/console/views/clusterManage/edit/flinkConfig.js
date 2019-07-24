@@ -193,6 +193,7 @@ export default class FlinkConfig extends React.Component {
                             <Select disabled={isView} style={{ width: '100px' }}>
                                 <Option value="flink140">1.4</Option>
                                 <Option value="flink150">1.5</Option>
+                                <Option value="flink180">1.8</Option>
                             </Select>
                         )}
                     </FormItem>
@@ -269,6 +270,46 @@ export default class FlinkConfig extends React.Component {
                                 message: '请输入flinkJobHistory'
                             }]
                             // initialValue: "/opt/dtstack/flinkplugin"
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="yarn.jobmanager.help.mb"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('flinkConf.yarnJobmanagerHelpMb', {
+                            initialValue: 1024
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label="yarn.taskmanager.help.mb"
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('flinkConf.yarnTaskmanagerHelpMb', {
+                            initialValue: 1024
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="yarn.taskmanager.numberOfTaskSlots">yarn.taskmanager.numberOfTaskSlots</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('flinkConf.yarnTaskmanagerNumberOfTaskSlots', {
+                            initialValue: 2
+                        })(
+                            <Input disabled={isView} />
+                        )}
+                    </FormItem>
+                    <FormItem
+                        label={<Tooltip title="yarn.taskmanager.numberOfTaskManager">yarn.taskmanager.numberOfTaskManager</Tooltip>}
+                        {...formItemLayout}
+                    >
+                        {getFieldDecorator('flinkConf.yarnTaskmanagerNumberOfTaskManager', {
+                            initialValue: 2
                         })(
                             <Input disabled={isView} />
                         )}

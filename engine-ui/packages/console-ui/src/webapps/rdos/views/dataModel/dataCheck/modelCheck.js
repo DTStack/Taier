@@ -200,7 +200,7 @@ export default class ModelCheck extends Component {
                 <Form
                     className="m-form-inline"
                     layout="inline"
-                    style={{ margin: '10 0 0 20' }}
+                    style={{ margin: '10px 0 0 20px' }}
                 >
                     <FormItem>
                         <Input.Search

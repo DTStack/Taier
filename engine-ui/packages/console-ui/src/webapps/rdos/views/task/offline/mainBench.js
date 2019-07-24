@@ -199,6 +199,7 @@ export default class MainBench extends React.Component {
                     }
                     return <DataSync saveTab={saveTab} key={tabData.id} {...tabData} />
                 case TASK_TYPE.SQL: // SQL
+                case TASK_TYPE.HIVESQL:
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}
                         key={tabData.id}
@@ -235,7 +236,7 @@ export default class MainBench extends React.Component {
                 case TASK_TYPE.PYTHON:
                 case TASK_TYPE.PYTHON_23:
                 case TASK_TYPE.NOTEBOOK:
-                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT || tabData.taskType == TASK_TYPE.NOTEBOOK) {
+                    if (tabData.operateModel == DEAL_MODEL_TYPE.EDIT) {
                         return <CommonEditor
                             mode="python"
                             taskCustomParams={taskCustomParams}

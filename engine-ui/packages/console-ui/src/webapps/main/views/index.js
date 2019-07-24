@@ -5,7 +5,7 @@ import { cloneDeep, get } from 'lodash';
 
 import utils from 'utils/index';
 import NotFund from 'widgets/notFund';
-import { initNotification } from 'funcs';
+import { initNotification, isCurrentProjectChanged, isCookieBeProjectType } from 'funcs';
 import ChromeDownload from 'widgets/chromeDownload';
 import Cookies from 'widgets/cookies';
 import * as apps from 'config/base';
@@ -484,7 +484,20 @@ class Main extends Component {
 
     onFieldsChanged = (fields) => {
         if (fields.length > 0 && !document.hasFocus()) {
-            window.location.reload();
+            let shouldReload = false;
+            for (let i = 0; i < fields.length; i++) {
+                let key = fields[i].key;
+                if (isCookieBeProjectType(key)) {
+                    if (isCurrentProjectChanged(key)) {
+                        shouldReload = true;
+                        break;
+                    }
+                } else {
+                    shouldReload = true;
+                    break;
+                }
+            }
+            shouldReload && window.location.reload();
         }
     }
 
@@ -502,7 +515,7 @@ class Main extends Component {
         }
         return <Cookies
             watchFields={[ // 当页面cookie如下字段的值发生变更时会触发页面刷新
-                'dt_token', 'dt_tenant_id', 'dt_user_id'
+                'dt_token', 'dt_tenant_id', 'dt_user_id', 'project_id', 'science_project_id', 'stream_project_id'
             ]}
             onFieldsChanged={this.onFieldsChanged}
         >

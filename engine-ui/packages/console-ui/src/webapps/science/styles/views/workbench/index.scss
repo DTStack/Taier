@@ -5,6 +5,15 @@
 @import './modelView.scss';
 @import './graph.scss';
 
+@mixin set-catalogue-top ($top) {
+    top: $top;
+}
+.s-catalogue-top {
+    @include set-catalogue-top(35px);
+}
+.s-resource-catalogue-top {
+    @include set-catalogue-top(0);
+}
 .sidebar {
     &.c-component-siderbar{
         .s-catalogue{
@@ -14,7 +23,6 @@
    .s-catalogue {
 
         position: absolute;
-        top: 35px;
         right: 0px;
         left: 0px;
         bottom: 0px;
@@ -107,6 +115,34 @@
         font-family: "anticon" !important;
     }
 }
+.o-tree-icon--notebook_python {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/python.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
+.o-tree-icon--notebook_python2 {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/python2.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
+.o-tree-icon--notebook_python3 {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/python3.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
+.o-tree-icon--notebook_pyspark {
+    .ant-tree-iconEle {
+        background-image: url(/public/rdos/img/spark_python.svg);
+        width: 14px;
+        height: 14px;
+    }
+}
 .o-tree-icon--experiment {
     .ant-tree-iconEle::before {
         color: #2491F7;
@@ -191,7 +227,37 @@
         background-image: url(/public/analyticsEngine/img/datamap.svg);
     }
 }
-
+// 资源
+.s-jaricon-r {
+    .ant-tree-icon__docu {
+        background-image: url(/public/rdos/img/icon/jaricon.svg);
+    }
+}
+.s-pythonicon-r {
+    .ant-tree-icon__docu {
+        background-image: url(/public/rdos/img/icon/pyicon.svg)
+    }
+}
+.s-zipicon-r {
+    .ant-tree-icon__docu {
+        background-image: url(/public/rdos/img/icon/zipicon.svg)
+    }
+}
+.s-eggicon-r {
+    .ant-tree-icon__docu {
+        background-image: url(/public/rdos/img/icon/eggicon.svg)
+    }
+}
+.s-othericon-r {
+    .ant-tree-icon__docu {
+        background-image: url(/public/rdos/img/icon/othericon.svg)
+    }
+}
+.resource_dropdown {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+}
 .table-detail-container{
     .ant-pagination{
         .ant-pagination-item-active{

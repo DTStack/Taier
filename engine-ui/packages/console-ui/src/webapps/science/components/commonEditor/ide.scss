@@ -130,6 +130,9 @@
         }
 
         .ant-tabs-content {
+            >.ant-tabs-tabpane {
+                height: 100%;
+            }
             position: absolute;
             top: 32px;
             bottom: 0px;
@@ -221,8 +224,14 @@
 }
 
 .c-panel-siderbar{
+    height: 100%;
     width: 30px;
     z-index: 999;
+    >.ant-tabs-content{
+        >.ant-tabs-tabpane{
+            height: 100%;
+        }
+    }
     &.c-panel-siderbar--open{
         width:329px;
         box-shadow: -4px 10px 10px 0 rgba(0, 0, 0, 0.1);

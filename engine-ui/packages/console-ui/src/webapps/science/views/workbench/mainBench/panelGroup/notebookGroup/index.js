@@ -5,10 +5,11 @@ import { Tabs, Icon } from 'antd';
 
 import PanelGroup from '../index';
 import EditorPanel from '../editorPanel';
+import NormalTaskPanel from '../normalTaskPanel';
 import DefaultNotebookView from '../../default/defaultNotebookView';
 
 import * as tabActions from '../../../../../actions/base/tab';
-import { siderBarType } from '../../../../../consts';
+import { siderBarType, DEAL_MODEL_TYPE } from '../../../../../consts';
 import * as commActions from '../../../../../actions/base';
 import { checkAndcloseTabs } from '../../../../../actions/base/helper';
 
@@ -67,6 +68,15 @@ class NoteBookGroup extends React.Component {
         const { tabs = [], currentTabIndex } = this.props;
         this.props.closeTab(siderBarType.notebook, parseInt(tabId), tabs, currentTabIndex);
     }
+    renderBench (tabData) {
+        if (tabData.operateModel != DEAL_MODEL_TYPE.RESOURCE) {
+            return (
+                <EditorPanel currentTab={tabData.id} data={tabData} />
+            )
+        } else {
+            return <NormalTaskPanel currentTab={tabData.id} data={tabData} />
+        }
+    }
     render () {
         const { loading } = this.state;
         const { tabs = [], currentTabIndex } = this.props;
@@ -92,7 +102,7 @@ class NoteBookGroup extends React.Component {
                                     )}
                                     key={tab.id}
                                 >
-                                    <EditorPanel currentTab={tab.id} data={tab} />
+                                    {this.renderBench(tab)}
                                 </TabPane>
                             )
                         })

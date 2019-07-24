@@ -1,6 +1,6 @@
 {
   "name": "data-stack-web",
-  "version": "3.6.0-beta.4",
+  "version": "3.6.0-beta.4.1",
   "description": "Making data valuable.",
   "main": "src/app.js",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "handsontable": "^6.2.2",
     "highlight.js": "9.14.2",
     "history": "4.6.1",
-    "lodash": "4.17.11",
+    "lodash": "4.17.12",
     "mirror-creator": "1.1.0",
     "moment": "2.22.2",
     "monaco-editor": "0.13.1",

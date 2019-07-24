@@ -103,10 +103,11 @@ class ProjectMember extends Component {
         const { project, dispatch } = this.props
         const form = this.memberForm.props.form
         const projectRole = form.getFieldsValue()
+        // console.log(projectRole);
 
         // 塞入要添加的用户列表
         const targetUsers = [];
-        const uids = projectRole.targetUserIds;
+        const uids = projectRole.targetUserIds || [];
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
             if (user) {

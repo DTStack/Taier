@@ -43,9 +43,9 @@ class Console extends Component {
                 switch (tabType) {
                     case 'log': {
                         return <TabPane isShow={isShow} tab={extData.name} key={tab.id} closable={!extData.disableClose}>
-                            <div style={{ position: 'relative' }}>
+                            <div style={{ position: 'relative', height: '100%' }}>
                                 <CodeEditor
-                                    style={{ minHeight: 'auto' }}
+                                    style={{ minHeight: 'auto', height: '100%' }}
                                     ref={e => {
                                         this.editor = e;
                                     }}
@@ -68,7 +68,7 @@ class Console extends Component {
                             >
                                 {(() => {
                                     if (typeof data == 'string') {
-                                        return <div style={{ position: 'relative' }}>
+                                        return <div style={{ position: 'relative', height: '100%' }}>
                                             <CodeEditor
                                                 style={{ minHeight: 'auto' }}
                                                 ref={e => {
