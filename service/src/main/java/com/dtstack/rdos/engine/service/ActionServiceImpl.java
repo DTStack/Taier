@@ -455,10 +455,11 @@ public class ActionServiceImpl {
             List<RdosEngineBatchJobRetry> batchJobRetrys = batchJobRetryDAO.getJobRetryByJobId(jobId);
             if (CollectionUtils.isNotEmpty(batchJobRetrys)) {
                 batchJobRetrys.forEach(jobRetry->{
-                    Map<String,String> log = new HashMap<String,String>(3);
+                    Map<String,String> log = new HashMap<String,String>(4);
                     log.put("retryNum",jobRetry.getRetryNum().toString());
                     log.put("logInfo",jobRetry.getLogInfo());
                     log.put("engineLog",jobRetry.getEngineLog());
+                    log.put("retryTaskParams",jobRetry.getRetryTaskParams());
                     logs.add(log);
                 });
             }
