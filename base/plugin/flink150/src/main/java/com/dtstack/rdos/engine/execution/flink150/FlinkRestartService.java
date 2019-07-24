@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.flink150;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
@@ -52,10 +53,11 @@ public class FlinkRestartService extends ARestartService {
     }
 
     @Override
-    public boolean checkCanRestart(String jobId, String engineJobId, IClient client,
+    public boolean checkCanRestart(String jobId, String engineJobId, String appId,IClient client,
                                    int alreadyRetryNum, int maxRetryNum) {
 
-        String msg = getErrorMsgByURL(engineJobId, client);
+        JobIdentifier jobIdentifier = JobIdentifier.createInstance(engineJobId, appId, jobId);
+        String msg = client.getJobLog(jobIdentifier);
         return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
     }
 

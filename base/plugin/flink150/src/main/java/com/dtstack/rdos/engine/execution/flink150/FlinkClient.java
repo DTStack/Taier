@@ -42,6 +42,7 @@ import org.apache.flink.client.deployment.ClusterSpecification;
 import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.PackagedProgram;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.runtime.clusterframework.messages.GetClusterStatusResponse;
 import org.apache.flink.runtime.jobgraph.JobGraph;
 import org.apache.flink.runtime.jobgraph.SavepointRestoreSettings;
 import org.apache.flink.util.Preconditions;
@@ -606,7 +607,6 @@ public class FlinkClient extends AbsClient {
     }
 
     public String getReqUrl(ClusterClient clusterClient){
-
         boolean isYarnClusterClient = clusterClient instanceof YarnClusterClient;
         if(!isYarnClusterClient){
             return clusterClient.getWebInterfaceURL();

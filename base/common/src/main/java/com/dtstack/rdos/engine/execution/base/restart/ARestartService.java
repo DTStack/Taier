@@ -22,7 +22,7 @@ public abstract class ARestartService {
 
     public abstract boolean checkNOResource(String msg);
 
-    public boolean checkCanRestart(String jobId, String engineJobId, IClient client,
+    public boolean checkCanRestart(String jobId, String engineJobId, String appId, IClient client,
                                             int alreadyRetryNum, int maxRetryNum) {
         return retry(jobId, alreadyRetryNum, maxRetryNum);
     }

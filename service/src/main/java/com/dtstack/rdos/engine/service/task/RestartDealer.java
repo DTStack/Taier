@@ -136,7 +136,7 @@ public class RestartDealer {
      * @param pluginInfo
      * @return
      */
-    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String engineType,
+    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId, String engineType,
                                           Integer computeType, String pluginInfo){
         if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
             return false;
@@ -144,7 +144,7 @@ public class RestartDealer {
         try {
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
             // 是否需要重新提交
-            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum);
+            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, appId, engineType, pluginInfo, computeType, alreadyRetryNum);
             LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
                                         jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
 
@@ -257,6 +257,7 @@ public class RestartDealer {
 
     private boolean checkNeedResubmit(String jobId,
                                       String engineJobId,
+                                      String appId,
                                       String engineType,
                                       String pluginInfo,
                                       Integer computeType,
@@ -302,7 +303,7 @@ public class RestartDealer {
             return false;
         }
         // 未到达失败重试次数
-        return restartService.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
+        return restartService.checkCanRestart(jobId, engineJobId, appId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
     }
 
     private void resetStatus(JobClient jobClient, boolean submitFailed){
