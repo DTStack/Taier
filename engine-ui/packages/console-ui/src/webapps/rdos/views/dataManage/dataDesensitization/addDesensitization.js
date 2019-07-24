@@ -378,15 +378,17 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ margin: '-6 0 10 120' }}>
+                    <div style={{ margin: '-6px 0 10px 120px' }}>
                         <div>
-                            <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
+                            <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5px 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
                         </div>
                         {
-                            upwardColumnsInfo && upwardColumnsInfo.length > 0 ? <div style={{ width: '287' }}>
-                                <Icon type="info-circle-o" style={{ fontSize: 14, margin: '10 5 0 0', color: '#999999' }}/>
-                                {`您选择的表至少存在1个上游表(${upwardColumnsInfo[0].tableName}.${upwardColumnsInfo[0].columnName})，建议将脱敏规则配置在根节点表`}
-                            </div> : ''
+                            upwardColumnsInfo && upwardColumnsInfo.length > 0 ? (
+                                <div style={{ width: '287px' }}>
+                                    <Icon type="info-circle-o" style={{ fontSize: 14, margin: '10px 5px 0 0', color: '#999999' }}/>
+                                    {`您选择的表至少存在1个上游表(${upwardColumnsInfo[0].tableName}.${upwardColumnsInfo[0].columnName})，建议将脱敏规则配置在根节点表`}
+                                </div>
+                            ) : ''
                         }
                     </div>
                     <FormItem
