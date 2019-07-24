@@ -1,10 +1,13 @@
 package com.dtstack.rdos.engine.service;
 
+import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Param;
+import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,5 +66,24 @@ public class StreamTaskServiceImpl {
         }
 
         return status;
+    }
+
+    public String getRunningTaskLogUrl(@Param("taskId") String taskId){
+
+        Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
+
+        RdosEngineStreamJob streamJob = rdosEngineStreamJobDAO.getRdosTaskByTaskId(taskId);
+        Preconditions.checkNotNull(streamJob, "can't find record by taskId" + taskId);
+
+        //只获取运行中的任务的log—url
+        Byte status = streamJob.getStatus();
+        Preconditions.checkState(RdosTaskStatus.RUNNING.getStatus().equals(status.intValue()), String.format("current task %s is not running now.", taskId));
+
+        Preconditions.checkState(StringUtils.isNotEmpty(streamJob.getApplicationId()), String.format("current task %s don't have application id.", taskId));
+
+        //如何获取url前缀
+
+
+        return "";
     }
 }
