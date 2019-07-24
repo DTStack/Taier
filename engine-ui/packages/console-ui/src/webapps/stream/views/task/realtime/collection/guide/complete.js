@@ -43,7 +43,7 @@ class CollectionComplete extends React.Component {
                             onClick={() => this.navtoStep(1)}>修改</a>
                         }
                     >
-                        <Target collectionData={collectionData} readonly />
+                        <Target collectionData={collectionData} updateTargetMap={this.props.updateTargetMap} readonly />
                         <Mask />
                     </Card>
                 </div>
