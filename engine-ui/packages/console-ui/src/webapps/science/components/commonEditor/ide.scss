@@ -256,6 +256,19 @@
             .ant-tabs-ink-bar{
                 width: 0px;
             }
+            .ant-tabs-tab-active {
+                &:after {
+                    content: "";
+                    position: absolute;
+                    top: 0px;
+                    right: -1px;
+                    width: 5px;
+                    height: 100%;
+                    opacity: 0.8;
+                    z-index: 999;
+                    background: #2491F7;
+                }
+            }
         }
         > .ant-tabs-content{
             overflow-y: auto;
