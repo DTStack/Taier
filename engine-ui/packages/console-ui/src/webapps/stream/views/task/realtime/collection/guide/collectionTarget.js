@@ -365,6 +365,9 @@ class CollectionTargetForm extends React.Component {
                                 {getFieldDecorator('analyticalRules', {
                                     rules: [{
                                         required: false, message: '该字段不能为空'
+                                    }, {
+                                        pattern: /^[^.\s]*$/,
+                                        message: '不能包含空格、小数点等特殊字符，需符合Hive表建表规范'
                                     }]
                                 })(
                                     // eslint-disable-next-line
@@ -406,7 +409,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择表'
                                 }]
                             })(
-                                <Select placeholder='请选择表'>
+                                <Select showSearch placeholder='请选择表'>
                                     {tableList.map((tableName) => {
                                         return <Option key={tableName} value={tableName}>{tableName}</Option>
                                     })}
@@ -425,7 +428,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择分区'
                                 }]
                             })(
-                                <Select>
+                                <Select showSearch>
                                     {partitions.map((partition) => {
                                         return <Option key={partition} value={partition}>{partition}</Option>
                                     })}

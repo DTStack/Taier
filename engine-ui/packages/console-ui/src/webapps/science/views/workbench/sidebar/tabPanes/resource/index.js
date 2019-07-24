@@ -195,7 +195,7 @@ class ResourceManage extends Component {
                                         title: '确认删除',
                                         content: `确认删除文件夹？`,
                                         onOk: () => {
-                                            this.props.deleteNotebookFolder(activeNode);
+                                            this.props.deleteResourceFolder(activeNode);
                                         }
                                     })
                                 }

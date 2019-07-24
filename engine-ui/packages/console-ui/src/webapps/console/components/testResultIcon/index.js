@@ -54,6 +54,7 @@ export default class TestRestIcon extends Component {
             learningTestResult,
             hdfsTestResult,
             yarnTestResult,
+            hiveServerTestResult,
             libraSqlTestResult } = testStatus;
         let testCompResult = {}
         switch (componentTypeCode) {
@@ -79,6 +80,10 @@ export default class TestRestIcon extends Component {
             }
             case COMPONENT_TYPE_VALUE.LEARNING: {
                 testCompResult = learningTestResult;
+                break;
+            }
+            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+                testCompResult = hiveServerTestResult;
                 break;
             }
             case COMPONENT_TYPE_VALUE.HDFS: {
