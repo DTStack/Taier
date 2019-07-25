@@ -90,7 +90,7 @@ export default class TablePartition extends React.Component {
             <div className="box">
                 <Table
                     key="table_partition"
-                    className={`m-table ${havaBorder ? 'border-table' : ''}`}
+                    className={`dt-ant-table dt-ant-table--border ${havaBorder ? 'border-table' : ''}`}
                     pagination={realPagination}
                     columns={this.initClumuns()}
                     dataSource={result.data || []}

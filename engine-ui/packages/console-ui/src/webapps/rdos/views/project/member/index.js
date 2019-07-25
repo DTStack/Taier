@@ -308,7 +308,7 @@ class ProjectMember extends Component {
                     >
                         <Table
                             rowKey="userId"
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}

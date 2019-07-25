@@ -694,7 +694,7 @@ class PackageCreate extends React.Component {
                     </div>
                     <Table
                         rowKey="id"
-                        className="m-table select-all-table"
+                        className="dt-ant-table dt-ant-table--border select-all-table"
                         columns={this.initColumns()}
                         pagination={tableParams.pagination}
                         dataSource={packageList}

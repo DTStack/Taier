@@ -120,12 +120,11 @@ class DeriveIndexDefine extends AtomIndexDefine {
                         <Form
                             className="m-form-inline"
                             layout="inline"
-                            style={{ marginTop: '10px' }}
                         >
                             <FormItem label="">
                                 <Input.Search
                                     placeholder="按指标名称搜索"
-                                    style={{ width: 200 }}
+                                    style={{ width: '200px' }}
                                     size="default"
                                     onChange={this.changeSearchName}
                                     onSearch={this.loadData}
@@ -147,7 +146,7 @@ class DeriveIndexDefine extends AtomIndexDefine {
                 >
                     <Table
                         rowKey="id"
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         pagination={pagination}
                         loading={loading}
                         columns={this.initColumns()}

@@ -192,7 +192,7 @@ class dbSyncHistoryModal extends Component {
 
                     <Table
                         rowKey="id"
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         style={{ marginTop: 10 }}
                         columns={this.initColumns()}
                         pagination={false}
@@ -215,7 +215,7 @@ class dbSyncHistoryModal extends Component {
                     返回
                     <Table
                         rowKey="id"
-                        className="m-table m-v-10"
+                        className="dt-ant-table dt-ant-table--border m-v-10"
                         columns={this.initDbTableColumns()}
                         pagination={false}
                         dataSource={syncDetail.migrationTasks}

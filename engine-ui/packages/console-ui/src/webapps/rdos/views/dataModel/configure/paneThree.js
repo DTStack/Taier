@@ -108,7 +108,7 @@ class FreshFrequency extends BasePane {
                 >
                     <Table
                         rowKey="id"
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         style={{ marginTop: '1px' }}
                         pagination={pagination}
                         loading={loading}

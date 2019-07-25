@@ -234,7 +234,7 @@ export default class FieldCheck extends Component {
                 </Form>
                 <Table
                     rowKey="id"
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     pagination={pagination}
                     loading={loading}
                     columns={this.initColumns()}

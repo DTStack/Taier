@@ -174,6 +174,7 @@ export default class TableInfoPane extends React.Component {
                 <TabPane tab="字段信息" key="1">
                     <div className="box">
                         <Table
+                            className="dt-ant-table dt-ant-table--border"
                             rowKey="id"
                             columns={this.initColums()}
                             dataSource={this.state.column}
@@ -194,6 +195,7 @@ export default class TableInfoPane extends React.Component {
                 <TabPane tab="数据预览" key="3">
                     <div className="box">
                         {previewData ? <Table
+                            className="dt-ant-table dt-ant-table--border"
                             columns={this.previewCols.map(str => ({
                                 width: 20 + str.length * 10,
                                 title: str,

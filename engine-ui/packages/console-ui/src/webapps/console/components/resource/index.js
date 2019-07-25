@@ -224,7 +224,7 @@ class Resource extends Component {
                     visible={this.props.visible}
                     onCancel={this.props.onCancel}
                     onOk={this.props.onCancel}
-                    width="600"
+                    width="600px"
                     className="m-card"
                     footer={[
                         <Button key="submit" type="primary" size="large" onClick={this.props.onCancel}>

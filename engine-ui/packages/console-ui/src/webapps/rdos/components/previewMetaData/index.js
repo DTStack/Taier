@@ -84,7 +84,7 @@ export default class PreviewMetaData extends Component {
             >
                 <div style={{ padding: '0 0 10 5' }}>{`数据库名：${dbName}`}</div>
                 <Table
-                    className='m-table'
+                    className='dt-ant-table dt-ant-table--border'
                     loading={loading}
                     columns={columns}
                     onChange={this.handleTable}

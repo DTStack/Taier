@@ -60,7 +60,7 @@
             color: #FFFFFF;
             .ant-tabs-tab {
                 height: auto;
-                padding: 10px 5px;
+                padding: 10px 4px 10px 5px;
                 writing-mode: tb-rl;
                 letter-spacing: 3px;
                 margin-bottom: 0;
@@ -69,12 +69,12 @@
             // .ant-tabs-tab:hover{
             //     background:#eef6fe;
             // }
-            .ant-tabs-tab-active {
+            // .ant-tabs-tab-active {
                 // border-top: 1px solid #dddddd;
-                border-top: 1px solid hsla(0,0%,100%,.2);
+                // border-top: 1px solid hsla(0,0%,100%,.2);
                 // border-bottom: 1px solid #dddddd;
-                border-bottom: 1px solid hsla(0,0%,100%,.2)
-            }
+                // border-bottom: 1px solid hsla(0,0%,100%,.2)
+            // }
             .ant-tabs-nav {
                 background: none;
             }
@@ -92,6 +92,13 @@
 
         &>.ant-menu-inline, .ant-menu-vertical {
             border-right: 0;
+        }
+        .ant-tabs-content {
+            .ant-collapse-item {
+                .ant-collapse-content {
+                    background-color: #F5F5F5;
+                }
+            }
         }
     }
 
@@ -294,7 +301,7 @@
                 .anticon {
                     font-size: 14px;
                     cursor: pointer;
-                    line-height: 20px;
+                    line-height: 32px;
                     margin-left: 8px;
                     color: #94A8C6;
                     letter-spacing: 0;
@@ -382,6 +389,13 @@
                 }
                 .ant-pagination {
                     margin-right: 10px;
+                }
+                .ant-pagination-simple .ant-pagination-simple-pager input {
+                    padding: 0;
+                    margin: 0 6px;
+                }
+                &.tb-info--noBorderBottom .ant-tabs-bar {
+                    border-bottom: none;
                 }
             }
             

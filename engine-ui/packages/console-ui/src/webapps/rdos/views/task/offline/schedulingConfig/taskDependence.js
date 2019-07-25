@@ -239,7 +239,7 @@ class TaskDependence extends React.Component {
                         ? <Row>
                             <Col>
                                 <Table
-                                    className="m-table"
+                                    className="dt-ant-table dt-ant-table--border"
                                     columns={this.initColumn()}
                                     bordered={false}
                                     dataSource={tabData.taskVOS}

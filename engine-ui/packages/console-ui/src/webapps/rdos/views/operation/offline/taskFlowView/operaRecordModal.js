@@ -93,7 +93,7 @@ class OperaRecordModal extends Component {
                 }
             >
                 <Table
-                    className='m-table'
+                    className='dt-ant-table dt-ant-table--border'
                     loading={loading}
                     rowKey={(r, index) => index}
                     dataSource={dataSource}

@@ -317,7 +317,7 @@ class PatchDataList extends Component {
                     <Table
                         rowKey="id"
                         columns={this.initTaskColumns()}
-                        className="m-table full-screen-table-90"
+                        className="dt-ant-table dt-ant-table--border full-screen-table-90"
                         style={{ marginTop: 1 }}
                         pagination={pagination}
                         dataSource={tasks.data || []}

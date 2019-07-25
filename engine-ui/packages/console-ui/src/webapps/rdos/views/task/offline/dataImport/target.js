@@ -485,7 +485,7 @@ class ImportTarget extends Component {
                 </Row>
                 <Row>
                     <Table
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         rowKey="id"
                         bordered
                         columns={columns}
