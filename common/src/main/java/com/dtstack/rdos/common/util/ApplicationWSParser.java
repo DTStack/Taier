@@ -1,11 +1,11 @@
 package com.dtstack.rdos.common.util;
 
 import com.dtstack.rdos.commom.exception.RdosException;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.apache.commons.math3.util.Pair;
-import org.dom4j.Document;
 import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
@@ -22,15 +22,16 @@ import java.util.regex.Pattern;
 
 public class ApplicationWSParser {
 
+    private static final String AM_ROOT_TAG = "app";
     private static final String AM_CONTAINER_LOGS_TAG = "amContainerLogs";
 
     private static final Pattern ERR_INFO_BYTE_PATTERN = Pattern.compile("(\\d+)\\s*bytes");
 
-    public static String getAMContainerLogsURL(String xmlStr) throws DocumentException {
-        Document document = DocumentHelper.parseText(xmlStr);
-        Element rootEle = document.getRootElement();
-        Element conEle = rootEle.element(AM_CONTAINER_LOGS_TAG);
-        return conEle.getStringValue();
+    public static String getAMContainerLogsURL(String jsonStr) throws DocumentException {
+        JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonStr);
+        JsonObject roogEle = jsonObject.getAsJsonObject(AM_ROOT_TAG);
+        JsonElement amContainerLogsEle = roogEle.get(AM_CONTAINER_LOGS_TAG);
+        return amContainerLogsEle.getAsString();
     }
 
     public static Pair<String, String> parserAMContainerPreViewHttp(String httpText){
