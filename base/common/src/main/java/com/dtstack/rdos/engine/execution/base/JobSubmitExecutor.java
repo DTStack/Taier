@@ -9,6 +9,8 @@ import com.dtstack.rdos.engine.execution.base.queue.OrderLinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * Company: www.dtstack.com
  * @author xuchao
  */
-public class JobSubmitExecutor {
+public class JobSubmitExecutor implements Closeable{
 
     private static final Logger logger = LoggerFactory.getLogger(JobSubmitExecutor.class);
 
@@ -213,5 +215,11 @@ public class JobSubmitExecutor {
             return result;
         }
     }
+
+    @Override
+    public void close() throws IOException {
+
+    }
+
 }
 

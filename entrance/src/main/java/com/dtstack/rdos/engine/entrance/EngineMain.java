@@ -61,6 +61,6 @@ public class EngineMain {
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed,jobSubmitExecutor).addShutDownHook();
 	}
 }
