@@ -304,8 +304,8 @@ class EditorContainer extends Component {
             // 根据代码中出现的表来获取所有的字段
             for (let location of autoComplete.locations) {
                 if (location.type == 'table') {
-                    for (let identifierChain of location.identifierChain) {
-                        let columns = this.getTableColumns(identifierChain.name);
+                    if (location.identifierChain && location.identifierChain.length) {
+                        let columns = this.getTableColumns(location.identifierChain.map(item => item.name).join('.'));
                         promiseList.push(columns)
                     }
                 }
@@ -398,22 +398,23 @@ class EditorContainer extends Component {
         let tmpTables = {};
         for (let location of locations) {
             if (location.type == 'table') {
-                for (let identifierChain of location.identifierChain) {
+                if (location.identifierChain && location.identifierChain.length) {
+                    const tableName = location.identifierChain.map(item => item.name).join('.');
                     /**
                      * 去除重复表
                      */
-                    if (tmpTables[identifierChain.name]) {
+                    if (tmpTables[tableName]) {
                         continue;
                     }
-                    tmpTables[identifierChain.name] = true;
+                    tmpTables[tableName] = true;
                     /**
                      * 获取sql中存在的table
                      */
-                    tables.push(identifierChain.name);
+                    tables.push(tableName);
                     /**
                      * 获取table的colums
                      */
-                    let tmpColumns = this.getTableColumns(identifierChain.name);
+                    let tmpColumns = this.getTableColumns(tableName);
                     /**
                      * 把获取column的接口都放到promiselist里面统一请求
                      */
