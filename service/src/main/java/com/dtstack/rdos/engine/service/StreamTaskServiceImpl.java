@@ -1,17 +1,28 @@
 package com.dtstack.rdos.engine.service;
 
+import com.dtstack.rdos.commom.exception.ErrorCode;
 import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.common.annotation.Param;
+import com.dtstack.rdos.common.http.PoolHttpClient;
+import com.dtstack.rdos.common.util.ApplicationWSParser;
+import com.dtstack.rdos.common.util.PublicUtil;
+import com.dtstack.rdos.common.util.UrlUtil;
+import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
+import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
 import com.dtstack.rdos.engine.service.db.dataobject.RdosStreamTaskCheckpoint;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -27,6 +38,11 @@ public class StreamTaskServiceImpl {
     private RdosStreamTaskCheckpointDAO rdosStreamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
     private RdosEngineStreamJobDAO rdosEngineStreamJobDAO = new RdosEngineStreamJobDAO();
+
+    private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
+
+    private static final String APPLICATION_REST_API_TMP = "%s/ws/v1/cluster/apps/%s";
+
 
     /**
      * 查询checkPoint
@@ -68,7 +84,12 @@ public class StreamTaskServiceImpl {
         return status;
     }
 
-    public String getRunningTaskLogUrl(@Param("taskId") String taskId){
+    /**
+     * 获取实时计算运行中任务的日志URL
+     * @param taskId
+     * @return
+     */
+    public Pair<String, String> getRunningTaskLogUrl(@Param("taskId") String taskId) {
 
         Preconditions.checkState(StringUtils.isNotEmpty(taskId), "taskId can't be empty");
 
@@ -82,8 +103,25 @@ public class StreamTaskServiceImpl {
         Preconditions.checkState(StringUtils.isNotEmpty(streamJob.getApplicationId()), String.format("current task %s don't have application id.", taskId));
 
         //如何获取url前缀
+        try{
+            RdosEngineJobCache rdosEngineJobCache = rdosEngineJobCacheDAO.getJobById(taskId);
+            String jobInfo = rdosEngineJobCache.getJobInfo();
+            ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
+            JobClient jobClient = new JobClient(paramAction);
+            String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo());
+            String rootURL = UrlUtil.getHttpRootURL(jobMaster);
+            String requestURl = String.format(APPLICATION_REST_API_TMP, rootURL, streamJob.getApplicationId());
 
-        return "";
+            String response = PoolHttpClient.get(requestURl);
+            String amContainerLogsURL = ApplicationWSParser.getAMContainerLogsURL(response);
+
+            String amContainerPreViewHttp = PoolHttpClient.get(amContainerLogsURL);
+            return ApplicationWSParser.parserAMContainerPreViewHttp(amContainerPreViewHttp);
+
+        }catch (Exception e){
+            throw new RdosException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
+        }
+
     }
 }

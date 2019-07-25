@@ -87,4 +87,13 @@ public class ClientOperator {
         }
     }
 
+    public String getJobMaster(String engineType, String pluginInfo){
+        try{
+            IClient client = clientCache.getClient(engineType, pluginInfo);
+            return client.getJobMaster();
+        }catch (Exception e){
+            throw new RdosException("get job master exception:" + ExceptionUtil.getErrorMessage(e));
+        }
+    }
+
 }
