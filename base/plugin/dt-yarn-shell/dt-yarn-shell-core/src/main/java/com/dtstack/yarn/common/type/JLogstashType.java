@@ -89,6 +89,7 @@ public class JLogstashType extends AppType {
                     break;
                 }
             }
+            boolean isChg = false;
             if (StringUtils.isNotBlank(fStr)) {
                 Map configs = objectMapper.readValue(fStr, Map.class);
                 List<Map> inputs = (List<Map>) MapUtils.getObject(configs, "inputs", Collections.EMPTY_LIST);
@@ -101,6 +102,7 @@ public class JLogstashType extends AppType {
                             String inputType = inputEntry.getKey();
                             Map<String, Object> inputConfig = inputEntry.getValue();
                             if ("Beats".equalsIgnoreCase(inputType)) {
+                                isChg = true;
                                 int configPort = MapUtils.getInteger(inputConfig, "port", 6767);
                                 int port = NetUtils.getAvailablePortRange(configPort);
                                 inputConfig.put("port", port);
@@ -114,8 +116,9 @@ public class JLogstashType extends AppType {
                 }
                 fStr = objectMapper.writeValueAsString(configs);
             }
-            if (idx != -1) {
-                args[idx] = URLEncoder.encode(fStr, "UTF-8");
+            if (idx != -1 && isChg) {
+                args[idx] = GZipUtil.compress(Base64Util.baseEncode(fStr));
+
                 cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {
