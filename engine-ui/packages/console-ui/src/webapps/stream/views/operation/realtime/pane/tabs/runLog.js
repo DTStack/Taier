@@ -2,34 +2,67 @@ import React from 'react'
 
 import LogInfo from '../../logInfo'
 import Api from '../../../../../api'
+import { TASK_STATUS } from '../../../../../comm/const';
 
 class RunLog extends React.Component {
+    MAX_ENGINE_LOG = 10240
     state = {
-        logInfo: ''
+        logInfo: '',
+        offset: -1
     }
+    _clock = null
+    isUnmount = false;
     componentDidMount () {
         this.getLog();
     }
-    // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
-        const { data = {} } = this.props;
-        const { data: nextData = {} } = nextProps;
-        if (data.id != nextData.id) {
-            this.getLog(nextData);
+    componentWillUnmount () {
+        this.isUnmount = true;
+        window.clearTimeout(this._clock);
+    }
+    prepareLogInfo (logInfo = {}) {
+        let { engineLog } = logInfo;
+        const { engineLog: oldEngineLog } = this.state.logInfo;
+        if (oldEngineLog) {
+            engineLog = oldEngineLog + engineLog;
+        }
+        if (engineLog.length > this.MAX_ENGINE_LOG) {
+            engineLog = engineLog.substr(-this.MAX_ENGINE_LOG);
+        }
+        return {
+            ...logInfo,
+            engineLog: engineLog.substr(-this.MAX_ENGINE_LOG)
         }
     }
-    getLog (data) {
-        data = data || this.props.data;
-        this.setState({
-            logInfo: ''
-        })
-        Api.getTaskLogs({ taskId: data.id }).then((res) => {
-            if (res.code === 1) {
+    async getLog () {
+        if (this.isUnmount) {
+            return;
+        }
+        const data = this.props.data;
+        if (!data || !data.id) {
+            return;
+        }
+        const { offset } = this.state;
+        let res;
+        console.trace(Date.now());
+        if (data.status == TASK_STATUS.RUNNING) {
+            res = await Api.getTaskRunningLogs({ taskId: data.id, start: offset });
+            if (res && res.code == 1) {
+                this.setState({
+                    logInfo: this.prepareLogInfo(res.data),
+                    offset: res.data.totalFileLength
+                });
+                this._clock = setTimeout(() => {
+                    this.getLog();
+                }, 2000);
+            }
+        } else {
+            res = await Api.getTaskLogs({ taskId: data.id });
+            if (res && res.code == 1) {
                 this.setState({
                     logInfo: res.data
-                })
+                });
             }
-        })
+        }
     }
     getBaseInfo () {
         const { data = {}, isShow } = this.props;
