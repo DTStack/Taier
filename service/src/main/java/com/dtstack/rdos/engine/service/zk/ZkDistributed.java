@@ -618,6 +618,7 @@ public class ZkDistributed implements Closeable{
 	public void close() throws IOException {
 		try{
 			disableBrokerHeartNode(this.localAddress, false);
+			zkLocalCache.close();
 //			lockRelease();
 //			executors.shutdown();
 		}catch (Throwable e){

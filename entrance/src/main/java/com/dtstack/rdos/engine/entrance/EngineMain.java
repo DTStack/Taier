@@ -28,7 +28,7 @@ public class EngineMain {
 
 	private static ZkDistributed zkDistributed;
 
-	private static ZkLocalCache zkLocalCache;
+	private static JobSubmitExecutor jobSubmitExecutor;
 
 	public static void main(String[] args) throws Exception {
 		try {
@@ -41,8 +41,7 @@ public class EngineMain {
 			initService(nodeConfig);
 			// add hook
 			addShutDownHook();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Throwable e) {
 			logger.error("node start error:{}", e);
 			System.exit(-1);
 		}
@@ -51,21 +50,17 @@ public class EngineMain {
 	
 	private static void initService(Map<String,Object> nodeConfig) throws Exception{
 
-		JobSubmitExecutor.getInstance();
+		jobSubmitExecutor = JobSubmitExecutor.getInstance();
 
-		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig);
+		zkDistributed = ZkDistributed.createZkDistributed(nodeConfig).zkRegistration();
 
 		vertxHttpServer = new VertxHttpServer(nodeConfig);
-
-		zkDistributed.zkRegistration();
-
-		zkLocalCache = ZkLocalCache.getInstance();
 
 		logger.warn("start engine success...");
 
 	}
 	
 	private static void addShutDownHook(){
-		new ShutDownHook(vertxHttpServer,zkDistributed,zkLocalCache).addShutDownHook();
+		new ShutDownHook(vertxHttpServer,zkDistributed).addShutDownHook();
 	}
 }
