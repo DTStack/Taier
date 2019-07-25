@@ -446,7 +446,7 @@ class TableRelation extends Component {
                     title={this.getCardTitle()}
                 >
                     <Table
-                        className="m-table m-table-desen"
+                        className="dt-ant-table dt-ant-table--border m-table-desen"
                         bordered
                         style={{marginLeft: '20px'}}
                         rowKey="id"

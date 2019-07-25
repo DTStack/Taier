@@ -357,7 +357,7 @@ class TableList extends Component {
                     <div style={{ marginTop: '1px' }}>
                         <Table
                             rowKey="id"
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             columns={columns}
                             dataSource={data}
                             pagination={pagination}

@@ -134,7 +134,7 @@ class TableLog extends React.Component {
                     loading={false}
                 >
                     <Table columns={columns}
-                        className="m-table bd"
+                        className="dt-ant-table dt-ant-table--border bd"
                         rowKey="id"
                         style={{ borderBottom: 0 }}
                         dataSource={logs.data}
@@ -338,7 +338,7 @@ class Log extends React.Component {
                                 }
                             }
                             dataSource={data || []}
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             rowKey="id"
                             pagination={false}
                             onChange={this.handleTableChange}

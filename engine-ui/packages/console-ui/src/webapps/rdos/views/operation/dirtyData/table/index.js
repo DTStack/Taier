@@ -238,9 +238,6 @@ export default class TableDetail extends React.Component {
                                                         onChange={this.switchType.bind(
                                                             this
                                                         )}
-                                                        style={{
-                                                            marginTop: 10
-                                                        }}
                                                     >
                                                         <RadioButton value={0}>
                                                             非分区字段
@@ -267,7 +264,7 @@ export default class TableDetail extends React.Component {
                                                 {tableData && (
                                                     <Table
                                                         rowKey="index"
-                                                        className="m-table"
+                                                        className="dt-ant-table dt-ant-table--border dt-ant-table--padding"
                                                         columns={columns}
                                                         dataSource={fieldsData}
                                                     />

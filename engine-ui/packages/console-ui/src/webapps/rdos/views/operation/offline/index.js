@@ -234,7 +234,7 @@ class OfflineStatistics extends Component {
                             <Table
                                 rowKey="id"
                                 pagination={false}
-                                className="m-table"
+                                className="dt-ant-table"
                                 style={{ minHeight: '0' }}
                                 columns={this.topTaskTiming()}
                                 dataSource={topTiming || []}
@@ -250,7 +250,7 @@ class OfflineStatistics extends Component {
                             title="近30天出错排行">
                             <Table
                                 rowKey="id"
-                                className="m-table"
+                                className="dt-ant-table"
                                 pagination={false}
                                 style={{ minHeight: '0' }}
                                 columns={this.topTaskError()}

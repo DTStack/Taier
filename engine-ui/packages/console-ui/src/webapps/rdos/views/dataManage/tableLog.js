@@ -147,7 +147,7 @@ class TableLog extends React.Component {
                     loading={false}
                 >
                     <Table columns={columns}
-                        className="m-table bd"
+                        className="dt-ant-table dt-ant-table--border bd"
                         rowKey="id"
                         loading={loading}
                         style={{ borderBottom: 0 }}

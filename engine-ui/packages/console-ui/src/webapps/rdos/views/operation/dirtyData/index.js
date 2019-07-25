@@ -504,7 +504,7 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="tableName"
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     pagination={pagination}
                     style={{ minHeight: '0', height: 'calc(100% - 482px)' }}
                     loading={loading}

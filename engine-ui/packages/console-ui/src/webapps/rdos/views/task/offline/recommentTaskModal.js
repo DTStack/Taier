@@ -79,7 +79,7 @@ class RecommentTaskModal extends React.Component {
             >
                 <p style={{ margin: '10px 10px' }}>提示：该分析仅基于您已发布过的任务进行分析</p>
                 <Table
-                    className="m-table select-all-table"
+                    className="dt-ant-table dt-ant-table--border select-all-table"
                     columns={this.initColumns()}
                     dataSource={taskList}
                     pagination={false}

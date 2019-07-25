@@ -360,7 +360,7 @@ class PackagePublish extends React.Component {
                     title={this.getTableTitle()}
                 >
                     <Table
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         columns={this.initColumns()}
                         pagination={tableParams.pagination}
                         dataSource={packageList}

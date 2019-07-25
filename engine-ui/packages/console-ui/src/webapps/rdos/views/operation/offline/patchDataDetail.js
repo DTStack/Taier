@@ -712,7 +712,7 @@ class PatchDataDetail extends Component {
                                     <FormItem label="">
                                         <MultiSearchInput
                                             placeholder="按任务名称搜索"
-                                            style={{ width: 200, height: '26px' }}
+                                            style={{ width: '200px', height: '26px' }}
                                             value={taskName}
                                             searchType={searchType}
                                             onChange={this.changeTaskName}
@@ -782,7 +782,7 @@ class PatchDataDetail extends Component {
                             defaultExpandAllRows={true}
                             style={{ marginTop: '1px' }}
                             scroll={{ x: '1350px' }}
-                            className="m-table full-screen-table-120"
+                            className="dt-ant-table dt-ant-table--border full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}
