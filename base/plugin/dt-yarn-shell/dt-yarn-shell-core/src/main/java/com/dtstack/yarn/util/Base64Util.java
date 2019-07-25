@@ -18,7 +18,7 @@ public class Base64Util {
      * @author toutian
      */
     public static String baseEncode(String text) {
-        return Base64.getEncoder().encodeToString(text.getBytes(StandardCharsets.UTF_8));
+        return new String(Base64.getEncoder().encode(text.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
     }
 
     /**
@@ -29,6 +29,17 @@ public class Base64Util {
      * @author toutian
      */
     public static String baseDecode(String encode) {
-        return new String(Base64.getDecoder().decode(encode), StandardCharsets.UTF_8);
+        new String(Base64.getDecoder().decode(encode), StandardCharsets.UTF_8);
+
+        return new String(Base64.getDecoder().decode(encode.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+    }
+
+
+    public static byte[] baseEncode(byte[] encode) {
+        return Base64.getEncoder().encode(encode);
+    }
+
+    public static byte[] baseDecode(byte[] encode) {
+        return Base64.getDecoder().decode(encode);
     }
 }

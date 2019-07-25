@@ -22,9 +22,6 @@ public class GZipUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(GZipUtil.class);
 
-    private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
-
-
     public static byte[] compress(byte[] data) {
         ByteArrayOutputStream bos = null;
         GZIPOutputStream gzip = null;
@@ -85,10 +82,10 @@ public class GZipUtil {
     }
 
     public static String compress(String rowData) {
-        return Base64Util.baseEncode(new String(compress(rowData.getBytes(StandardCharsets.UTF_8)), DEFAULT_CHARSET));
+        return new String(Base64Util.baseEncode(compress(rowData.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8);
     }
 
     public static String deCompress(String rowData) {
-        return new String(deCompress(Base64Util.baseDecode(rowData).getBytes(DEFAULT_CHARSET)), StandardCharsets.UTF_8);
+        return new String(deCompress(Base64Util.baseDecode(rowData.getBytes(StandardCharsets.UTF_8))), StandardCharsets.UTF_8);
     }
 }
