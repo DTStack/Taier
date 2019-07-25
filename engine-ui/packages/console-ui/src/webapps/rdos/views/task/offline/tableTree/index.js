@@ -195,7 +195,7 @@ class TableTree extends React.Component {
                     </div>
                 </div>
                 {
-                    tableId && <div className="tb-info">
+                    tableId && <div className="tb-info tb-info--noBorderBottom">
                         <TableInfoPane tableId={tableId} />
                     </div>
                 }

@@ -93,6 +93,13 @@
         &>.ant-menu-inline, .ant-menu-vertical {
             border-right: 0;
         }
+        .ant-tabs-content {
+            .ant-collapse-item {
+                .ant-collapse-content {
+                    background-color: #F5F5F5;
+                }
+            }
+        }
     }
 
     .task-sidebar {
@@ -382,6 +389,13 @@
                 }
                 .ant-pagination {
                     margin-right: 10px;
+                }
+                .ant-pagination-simple .ant-pagination-simple-pager input {
+                    padding: 0;
+                    margin: 0 6px;
+                }
+                &.tb-info--noBorderBottom .ant-tabs-bar {
+                    border-bottom: none;
                 }
             }
             
