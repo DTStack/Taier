@@ -149,7 +149,7 @@ class TableTree extends React.Component {
         return (
             <div className="menu-content" style={{ position: 'relative' }}>
                 <header style={{ left: '13px' }}>
-                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: '90px', float: 'left', marginLeft: '8px' }}>
+                    <Select value={projectId} onChange={this.tableChange.bind(this)} size="small" style={{ width: '103px', float: 'left', margin: '5px 0 0 12px' }}>
                         <Option value="all">全部项目</Option>
                         <Option value={project.id}>{project.projectAlias}</Option>
                     </Select>
