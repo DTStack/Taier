@@ -480,7 +480,7 @@ class Keymap extends React.Component {
                     return <div className="four-cells">
                         <div className="cell" title={cf}>{ cf || '-' }</div>
                         <div className="cell" title={name}>{ name }</div>
-                        {/* <div className="cell" title={typeValue}>{ type }</div> */}
+                        <div className="cell" title={typeValue}>{ type }</div>
                         <div className="cell">
                             { col ? opt : '操作' }
                         </div>
@@ -652,26 +652,33 @@ class Keymap extends React.Component {
             </div>
             switch (targetType) {
                 case DATA_SOURCE.HDFS: {
+                    const name = col ? scrollText(col.key) : '字段名称';
+                    const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
-                        <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" title={type}>{type}</div>
                         <div className="cell">
                             { col ? operations : '操作' }
                         </div>
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
+                    const name = col ? col.cf : '列族';
+                    const column = col ? scrollText(col.key) : '列名';
+                    const type = col ? scrollText(col.type.toUpperCase()) : '类型';
                     return <div className="four-cells">
-                        <div className="cell">{col ? col.cf : '列族' }</div>
-                        <div className="cell">{col ? scrollText(col.key) : '列名' }</div>
-                        {/* <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div> */}
+                        <div className="cell" title={name}>{name}</div>
+                        <div className="cell" title={column}>{column}</div>
+                        <div className="cell" title={type}>{type}</div>
                         <div className="cell">{ col ? operations : '操作' }</div>
                     </div>
                 }
                 case DATA_SOURCE.FTP: {
+                    const column = col ? scrollText(col.key) : '字段名称';
+                    const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
-                        <div className="cell">{col ? scrollText(col.key) : '字段名称' }</div>
-                        <div className="cell">{col ? col.type.toUpperCase() : '类型' }</div>
+                        <div className="cell" title={column}>{column}</div>
+                        <div className="cell" title={type}>{type}</div>
                         <div className="cell">
                             { col ? operations : '操作' }
                         </div>
@@ -679,9 +686,10 @@ class Keymap extends React.Component {
                 }
                 default: {
                     const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
+                    const fieldName = col ? scrollText(col.key) : '字段名称';
                     return <div>
-                        <div className="cell">{col ? scrollText(col.key) : '字段名称'}</div>
-                        <div className="cell">{ typeText }</div>
+                        <div className="cell" title={fieldName}>{fieldName}</div>
+                        <div className="cell" title={typeText}>{ typeText }</div>
                     </div>
                 }
             }
@@ -846,7 +854,7 @@ class Keymap extends React.Component {
         } else {
             typeCol && typeCol.forEach(item => {
                 const field = utils.checkExist(item.key) ? item.key : undefined;
-                if (field !== undefined) initialVal += `${item.cf || '-'}:${field},\n`;
+                if (field !== undefined) initialVal += `${item.cf || '-'}:${field}:${item.type},\n`;
             })
         }
         return initialVal;
@@ -870,8 +878,8 @@ class Keymap extends React.Component {
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                sPlaceholder = 'cf1: field1,\ncf1: field2,...'
-                sDesc = 'columnFamily: fieldName,'
+                sPlaceholder = 'cf1: field1: STRING,\ncf1: field2: INTEGER,...'
+                sDesc = 'columnFamily: fieldName: type,'
                 break;
             }
         }
@@ -884,8 +892,8 @@ class Keymap extends React.Component {
                 break;
             }
             case DATA_SOURCE.HBASE: {
-                tPlaceholder = 'cf1: field1,\ncf1: field2,...'
-                tDesc = 'columnFamily: fieldName,'
+                tPlaceholder = 'cf1: field1: STRING,\ncf2: field2: INTEGER,...'
+                tDesc = 'columnFamily: fieldName: type,'
                 break;
             }
         }
@@ -1236,9 +1244,15 @@ class Keymap extends React.Component {
                     const map = item.split(':')
                     const cf = utils.trim(map[0])
                     const name = utils.trim(map[1])
+                    const type = utils.trim(map[2])
+                    if (!hdfsFieldTypes.includes(type)) {
+                        message.error(`字段${name}的数据类型错误！`)
+                        return;
+                    }
                     params.push({
                         cf: cf,
-                        key: name
+                        key: name,
+                        type
                     });
                 }
                 break;
@@ -1338,9 +1352,15 @@ class Keymap extends React.Component {
                     if (map.length < 2) { break; };
                     const cf = utils.trim(map[0]);
                     const name = utils.trim(map[1]);
+                    const type = utils.trim(map[2]);
+                    if (!hdfsFieldTypes.includes(type)) {
+                        message.error(`字段${name}的数据类型错误！`)
+                        return;
+                    }
                     params.push({
                         cf: cf,
-                        key: name
+                        key: name,
+                        type
                     });
                 }
                 break;

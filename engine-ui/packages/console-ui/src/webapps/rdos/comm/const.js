@@ -268,6 +268,7 @@ export const hdfsFieldTypes = [ // hdfs 类型
     'INT',
     'BIGINT',
     'FLOAT',
+    'DECIMAL',
     'DOUBLE',
     'TIMESTAMP',
     'DATE'
