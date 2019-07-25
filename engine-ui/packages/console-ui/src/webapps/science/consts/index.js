@@ -74,6 +74,13 @@ export const TASK_TYPE = { // 任务类型
     PYTHON: 6,
     PYSPARK: 3
 }
+export const TASK_TYPE_TEXT = [{
+    value: TASK_TYPE.PYTHON,
+    text: 'Python3'
+}, {
+    value: TASK_TYPE.PYSPARK,
+    text: 'PySpark'
+}]
 export const PYTON_VERSION = {
     PYTHON2: 2,
     PYTHON3: 3
