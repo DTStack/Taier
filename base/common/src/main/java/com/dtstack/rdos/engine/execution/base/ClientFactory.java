@@ -26,6 +26,7 @@ public class ClientFactory {
         typeRefClassName.put("flink140", "com.dtstack.rdos.engine.execution.flink140.FlinkClient");
         typeRefClassName.put("flink150", "com.dtstack.rdos.engine.execution.flink150.FlinkClient");
         typeRefClassName.put("flink170", "com.dtstack.rdos.engine.execution.flink170.FlinkClient");
+        typeRefClassName.put("flink180", "com.dtstack.rdos.engine.execution.flink180.FlinkClient");
         typeRefClassName.put("spark", "com.dtstack.rdos.engine.execution.spark210.SparkClient");
         typeRefClassName.put("datax", "com.dtstack.rdos.engine.execution.datax.DataxClient");
         typeRefClassName.put("spark_yarn", "com.dtstack.rdos.engine.execution.sparkyarn.SparkYarnClient");
@@ -39,6 +40,7 @@ public class ClientFactory {
         typeRefClassName.put("hive", "com.dtstack.rdos.engine.execution.hive.HiveClient");
         typeRefClassName.put("learning", "com.dtstack.rdos.engine.execution.learning.LearningClient");
         typeRefClassName.put("dtyarnshell", "com.dtstack.rdos.engine.execution.yarnshell.DtYarnShellClient");
+        typeRefClassName.put("kylin", "com.dtstack.rdos.engine.execution.kylin.KylinClient");
     }
 
     public static ClassLoader getClassLoader(String pluginType){

@@ -20,6 +20,8 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateTaskStatus(@Param("taskId") String taskId, @Param("status") int stauts);
 
+	void updateTaskStatusNotStopped(@Param("taskId") String taskId, @Param("status") int status, @Param("stopStatuses") List<Integer> stopStatuses);
+
 	void updateTaskPluginId(@Param("taskId") String taskId, @Param("pluginId") long pluginId);
 
 	void updateTaskEngineIdAndStatus(@Param("taskId") String taskId,@Param("engineId") String engineId, @Param("applicationId") String applicationId, @Param("status") int status);
@@ -47,4 +49,5 @@ public interface RdosEngineStreamJobMapper {
 	List<String> getTaskIdsByStatus(@Param("status") Integer status);
 
 	void updateRetryNum(@Param("taskId")String taskId, @Param("retryNum")Integer retryNum);
+
 }

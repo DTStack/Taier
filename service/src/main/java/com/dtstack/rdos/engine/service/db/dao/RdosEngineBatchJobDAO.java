@@ -56,6 +56,20 @@ public class RdosEngineBatchJobDAO {
 		});
 	}
 
+	public void updateTaskStatusNotStopped(final String jobId,final int status, final List<Integer> stopStatuses){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				rdosTaskMapper.updateTaskStatusNotStopped(jobId, status, stopStatuses);
+				return null;
+			}
+
+		});
+	}
+
 	public Integer updateTaskStatusCompareOld(String jobId, Integer status, Integer oldStatus,String jobName) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 
@@ -132,6 +146,19 @@ public class RdosEngineBatchJobDAO {
 			public Object execute(SqlSession sqlSession) throws Exception {
 				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
 				rdosTaskMapper.updateJobEngineId(jobId, engineId,applactionId);
+				return null;
+			}
+		});
+	}
+
+	public void updateRetryTaskParams(final String jobId, final String retryTaskParams){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineBatchJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+				rdosTaskMapper.updateRetryTaskParams(jobId, retryTaskParams);
 				return null;
 			}
 		});
@@ -222,4 +249,14 @@ public class RdosEngineBatchJobDAO {
 			}
 		});
 	}
+
+	public Integer resetExecTime(final String jobId){
+	    return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>() {
+            @Override
+            public Integer execute(SqlSession sqlSession) throws Exception {
+                RdosEngineBatchJobMapper mapper = sqlSession.getMapper(RdosEngineBatchJobMapper.class);
+                return mapper.resetExecTime(jobId);
+            }
+        });
+    }
 }

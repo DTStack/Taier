@@ -4,27 +4,27 @@ import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.engine.execution.base.ClientCache;
 import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.JobClient;
-import com.dtstack.rdos.engine.execution.base.enums.ComputeType;
-import com.dtstack.rdos.engine.execution.base.enums.EJobCacheStage;
-import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
+import com.dtstack.rdos.engine.execution.base.enums.*;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
+import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineBatchJobRetryDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobDAO;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineStreamJobRetryDAO;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineBatchJobRetry;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineJobCache;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJob;
-import com.dtstack.rdos.engine.service.db.dataobject.RdosEngineStreamJobRetry;
+import com.dtstack.rdos.engine.service.db.dao.RdosStreamTaskCheckpointDAO;
+import com.dtstack.rdos.engine.service.db.dataobject.*;
 import com.dtstack.rdos.engine.service.node.WorkNode;
 import com.dtstack.rdos.engine.service.util.TaskIdUtil;
 import com.dtstack.rdos.engine.service.zk.cache.ZkLocalCache;
 import com.google.common.base.Strings;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Map;
 
 
 /**
@@ -49,6 +49,8 @@ public class RestartDealer {
     private RdosEngineStreamJobDAO engineStreamJobDAO = new RdosEngineStreamJobDAO();
 
     private RdosEngineStreamJobRetryDAO engineStreamJobRetryDAO = new RdosEngineStreamJobRetryDAO();
+
+    private RdosStreamTaskCheckpointDAO streamTaskCheckpointDAO = new RdosStreamTaskCheckpointDAO();
 
     private ClientCache clientCache = ClientCache.getInstance();
 
@@ -109,7 +111,7 @@ public class RestartDealer {
                 return false;
             }
 
-            IRestartStrategy restartStrategy = client.getRestartStrategy();
+            ARestartService restartStrategy = client.getRestartService();
             if(restartStrategy == null){
                 LOG.warn("engineType " + engineType + " not support restart." );
                 return false;
@@ -134,14 +136,15 @@ public class RestartDealer {
      * @param pluginInfo
      * @return
      */
-    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String engineType,
+    public boolean checkAndRestart(Integer status, String jobId, String engineJobId, String appId, String engineType,
                                           Integer computeType, String pluginInfo){
         if(!RdosTaskStatus.FAILED.getStatus().equals(status) && !RdosTaskStatus.SUBMITFAILD.getStatus().equals(status)){
             return false;
         }
         try {
             Integer alreadyRetryNum = getAlreadyRetryNum(jobId, computeType);
-            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, engineType, pluginInfo, computeType, alreadyRetryNum);
+            // 是否需要重新提交
+            boolean needResubmit = checkNeedResubmit(jobId, engineJobId, appId, engineType, pluginInfo, computeType, alreadyRetryNum);
             LOG.info("[checkAndRestart] jobId:{} engineJobId:{} status:{} engineType:{} alreadyRetryNum:{} needResubmit:{}",
                                         jobId, engineJobId, status, engineType, alreadyRetryNum, needResubmit);
 
@@ -155,8 +158,23 @@ public class RestartDealer {
                 return false;
             }
 
-            String jobInfo = jobCache.getJobInfo();
+            IJobRestartStrategy restartStrategy = getRestartStrategy(engineType, pluginInfo, jobId, engineJobId, appId );
+
+            if (restartStrategy == null) {
+                return false;
+            }
+
+            String lastRetryParams = "";
+            if (alreadyRetryNum > 0)  {
+                lastRetryParams = getLastRetryParams(jobId, alreadyRetryNum-1);
+            }
+
+            //   根据策略调整参数配置
+            String jobInfo =  restartStrategy.restart(jobCache.getJobInfo(), alreadyRetryNum, lastRetryParams);
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
+
+            saveRetryTaskParam(jobId, paramAction.getTaskParams());
+
             JobClient jobClient = new JobClient(paramAction);
             String finalJobId = jobClient.getTaskId();
             Integer finalComputeType = jobClient.getComputeType().getType();
@@ -164,7 +182,17 @@ public class RestartDealer {
                 updateJobStatus(finalJobId, finalComputeType, jobStatus);
             });
 
+            if(EngineType.Kylin.name().equalsIgnoreCase(jobClient.getEngineType())){
+                setRetryTag(jobClient);
+            }
+
+            // checkpoint的路径
+            if(EJobType.SYNC.equals(jobClient.getJobType())){
+                setCheckpointPath(jobClient);
+            }
+
             resetStatus(jobClient, false);
+            //  添加到重试队列中
             addToRestart(jobClient);
             // update retryNum
             increaseJobRetryNum(jobId, computeType);
@@ -176,8 +204,75 @@ public class RestartDealer {
         }
     }
 
+    private String getLastRetryParams(String jobId, int retrynum) {
+        String taskParams = "";
+        try {
+            taskParams = engineBatchJobRetryDAO.getRetryTaskParams(jobId, retrynum);
+        } catch (Exception e) {
+            LOG.error("", e);
+        }
+        return taskParams;
+    }
+
+    private void saveRetryTaskParam(String jobId, String taskParams) {
+        try {
+            engineBatchJobDAO.updateRetryTaskParams(jobId, taskParams);
+        } catch (Exception e) {
+            LOG.error("saveRetryTaskParam error..", e);
+        }
+    }
+
+    /**
+     *   根据日志提取重试策略
+     * @param engineType
+     * @param pluginInfo
+     * @param engineJobId
+     * @return
+     * @throws Exception
+     */
+    private IJobRestartStrategy getRestartStrategy(String engineType, String pluginInfo, String jobId, String engineJobId, String appId) throws Exception {
+        IClient client = clientCache.getClient(engineType, pluginInfo);
+        ARestartService restartService = client.getRestartService();
+        IJobRestartStrategy strategy = restartService.getAndParseErrorLog(jobId, engineJobId, appId, client);
+        return strategy;
+    }
+
+    private void setRetryTag(JobClient jobClient){
+        try {
+            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(jobClient.getPluginInfo(), Map.class);
+            pluginInfoMap.put("retry", true);
+            jobClient.setPluginInfo(PublicUtil.objToString(pluginInfoMap));
+        } catch (IOException e) {
+            LOG.warn("Set retry tag error:", e);
+        }
+    }
+
+    /**
+     * 设置这次实例重试的checkpoint path为上次任务实例生成的最后一个checkpoint path
+     * @param jobClient client
+     */
+    private void setCheckpointPath(JobClient jobClient){
+        boolean openCheckpoint = Boolean.parseBoolean(jobClient.getConfProperties().getProperty("openCheckpoint"));
+        if (!openCheckpoint){
+            return;
+        }
+
+        String jobId = jobClient.getTaskId();
+        if(StringUtils.isEmpty(jobId)){
+            return;
+        }
+
+        LOG.info("Set checkpoint path for job:{}", jobId);
+        RdosStreamTaskCheckpoint taskCheckpoint = streamTaskCheckpointDAO.getByTaskId(jobId);
+        if(taskCheckpoint != null){
+            LOG.info("Set checkpoint path:{}", taskCheckpoint.getCheckpointSavepath());
+            jobClient.setExternalPath(taskCheckpoint.getCheckpointSavepath());
+        }
+    }
+
     private boolean checkNeedResubmit(String jobId,
                                       String engineJobId,
+                                      String appId,
                                       String engineType,
                                       String pluginInfo,
                                       Integer computeType,
@@ -202,8 +297,9 @@ public class RestartDealer {
             return false;
         }
 
-        IRestartStrategy restartStrategy = client.getRestartStrategy();
-        if(restartStrategy == null){
+        ARestartService restartService = client.getRestartService();
+
+        if(restartService == null){
             LOG.warn("engineType " + engineType + " not support restart." );
             return false;
         }
@@ -221,8 +317,8 @@ public class RestartDealer {
         if(!jobClient.getIsFailRetry()){
             return false;
         }
-
-        return restartStrategy.checkCanRestart(jobId, engineJobId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
+        // 未到达失败重试次数
+        return restartService.checkCanRestart(jobId, engineJobId, appId, client, alreadyRetryNum, jobClient.getMaxRetryNum());
     }
 
     private void resetStatus(JobClient jobClient, boolean submitFailed){
@@ -254,6 +350,8 @@ public class RestartDealer {
             jobRetryRecord(jobClient);
             engineBatchJobDAO.updateSubmitLog(jobId, null);
             engineBatchJobDAO.updateEngineLog(jobId, null);
+            engineBatchJobDAO.updateRetryTaskParams(jobId, null);
+            engineBatchJobDAO.resetExecTime(jobId);
         }else{
             LOG.error("not support for computeType:{}", computeType);
         }

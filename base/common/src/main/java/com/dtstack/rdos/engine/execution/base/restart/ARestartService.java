@@ -11,9 +11,9 @@ import org.slf4j.Logger;
  * @author xuchao
  */
 
-public abstract class IRestartStrategy {
+public abstract class ARestartService {
 
-    private static Logger logger = LoggerFactory.getLogger(IRestartStrategy.class);
+    private static Logger logger = LoggerFactory.getLogger(ARestartService.class);
 
     private final static Integer RETRY_LIMIT = 3;
 
@@ -22,7 +22,7 @@ public abstract class IRestartStrategy {
 
     public abstract boolean checkNOResource(String msg);
 
-    public boolean checkCanRestart(String jobId, String engineJobId, IClient client,
+    public boolean checkCanRestart(String jobId, String engineJobId, String appId, IClient client,
                                             int alreadyRetryNum, int maxRetryNum) {
         return retry(jobId, alreadyRetryNum, maxRetryNum);
     }
@@ -42,4 +42,9 @@ public abstract class IRestartStrategy {
     public boolean retry(String jobId, int alreadyRetryNum, int maxRetryNum){
         return alreadyRetryNum < maxRetryNum;
     }
+
+    public IJobRestartStrategy getAndParseErrorLog(String jobId, String engineJobId, String appId, IClient client) {
+        return null;
+    };
+
 }

@@ -60,7 +60,7 @@ public class WorkNode {
 
     private ZkLocalCache zkLocalCache = ZkLocalCache.getInstance();
 
-    private RdosEngineJobCacheDAO engineJobCacheDao = new RdosEngineJobCacheDAO();
+    private RdosEngineJobCacheDAO rdosEngineJobCacheDAO = new RdosEngineJobCacheDAO();
 
     private RdosEngineBatchJobDAO rdosEngineBatchJobDao = new RdosEngineBatchJobDAO();
 
@@ -108,7 +108,7 @@ public class WorkNode {
         priorityQueueMap.forEach((engineType, queue) -> engineTypeQueueSizeInfo.computeIfAbsent(engineType, k->{
             Map<String,GroupInfo> groupInfos = Maps.newHashMap();
             queue.getGroupPriorityQueueMap().forEach((group, groupQueue)->groupInfos.computeIfAbsent(group,sk-> {
-                int queueSize = engineJobCacheDao.countGroupQueueJob(engineType, group, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),localAddress);
+                int queueSize = rdosEngineJobCacheDAO.countGroupQueueJob(engineType, group, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),localAddress);
                 GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setSize(queueSize);
                 JobClient topJob = groupQueue.getTop();
@@ -182,7 +182,7 @@ public class WorkNode {
     }
 
     public void masterSendSubmitJob(List<String> jobIds){
-        List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobByIds(jobIds);
+        List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobByIds(jobIds);
         for (RdosEngineJobCache jobCache :jobCaches){
             try {
                 ParamAction paramAction = PublicUtil.jsonStrToObject(jobCache.getJobInfo(), ParamAction.class);
@@ -202,61 +202,12 @@ public class WorkNode {
         priorityQueueMap.forEach((k,v)->v.resetStartId());
     }
 
-    public void addStopJob(ParamAction paramAction){
-        try {
-            String jobId = paramAction.getTaskId();
-            if(!checkCanStop(jobId, paramAction.getComputeType())){
-                return;
-            }
 
-            //在zk上查找任务所在的worker-address
-            Integer computeType  = paramAction.getComputeType();
-            String zkTaskId = TaskIdUtil.getZkTaskId(computeType, paramAction.getEngineType(), jobId);
-            String address = zkLocalCache.getJobLocationAddr(zkTaskId);
-            if(address == null){
-                LOG.info("can't get info from engine zk for jobId" + jobId);
-                return;
-            }
 
-            if (!address.equals(zkDistributed.getLocalAddress())){
-                paramAction.setRequestStart(RequestStart.NODE.getStart());
-                HttpSendClient.actionStopJobToWorker(address, paramAction);
-                LOG.info("action stop job:{} to worker node addr:{}." + paramAction.getTaskId(), address);
-                return;
-            }
-            jobStopQueue.addJob(paramAction);
-        } catch (Exception e) {
-            LOG.error("", e);
-        }
+    public boolean workSendStop(ParamAction paramAction){
+        return jobStopQueue.tryPutStopJobQueue(paramAction);
     }
 
-    public void workSendStop(ParamAction paramAction){
-        jobStopQueue.addJob(paramAction);
-    }
-
-
-    /**
-     * 判断任务是否可停止
-     * @param taskId
-     * @param computeType
-     * @return
-     */
-    private boolean checkCanStop(String taskId, Integer computeType){
-
-        Integer sta;
-        if(ComputeType.BATCH.getType().equals(computeType)){
-            RdosEngineBatchJob rdosEngineBatchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(taskId);
-            sta = rdosEngineBatchJob.getStatus().intValue();
-        }else if(ComputeType.STREAM.getType().equals(computeType)){
-            RdosEngineStreamJob rdosEngineStreamJob = rdosEngineStreamJobDao.getRdosTaskByTaskId(taskId);
-            sta = rdosEngineStreamJob.getStatus().intValue();
-        }else{
-            LOG.error("invalid compute type:{}", computeType);
-            return false;
-        }
-
-        return RdosTaskStatus.getCanStopStatus().contains(sta);
-    }
 
     private void updateJobStatus(String jobId, Integer computeType, Integer status) {
         if (ComputeType.STREAM.getType().equals(computeType)) {
@@ -269,15 +220,15 @@ public class WorkNode {
     public void saveCache(JobClient jobClient, int stage, boolean insert){
         String nodeAddress = zkDistributed.getLocalAddress();
         if(insert){
-            engineJobCacheDao.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
+            rdosEngineJobCacheDAO.insertJob(jobClient.getTaskId(), jobClient.getEngineType(), jobClient.getComputeType().getType(), stage, jobClient.getParamAction().toString(), nodeAddress, jobClient.getJobName(), jobClient.getPriority(), jobClient.getGroupName());
         } else {
-            engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
+            rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
         }
     }
 
     public void updateCache(JobClient jobClient, int stage){
         String nodeAddress = zkDistributed.getLocalAddress();
-        engineJobCacheDao.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
+        rdosEngineJobCacheDAO.updateJobStage(jobClient.getTaskId(), stage, nodeAddress, jobClient.getPriority(), jobClient.getGroupName());
     }
 
     private void updateJobClientPluginInfo(String jobId, Integer computeType, String pluginInfoStr){
@@ -311,7 +262,7 @@ public class WorkNode {
         if(result){
             String zkTaskId = TaskIdUtil.getZkTaskId(computeType, engineType, jobId);
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.CANCELED.getStatus());
-            engineJobCacheDao.deleteJob(jobId);
+            rdosEngineJobCacheDAO.deleteJob(jobId);
             //修改任务状态
             if(ComputeType.BATCH.getType().equals(computeType)){
                 rdosEngineBatchJobDao.updateJobStatus(jobId, RdosTaskStatus.CANCELED.getStatus());
@@ -321,6 +272,35 @@ public class WorkNode {
         }
 
         return result;
+    }
+
+    /**
+     * 根据taskId 补齐 engineTaskId
+     * @param paramAction
+     */
+    public void fillJobClientEngineId(ParamAction paramAction){
+        Integer computeType = paramAction.getComputeType();
+        String jobId = paramAction.getTaskId();
+
+        if(paramAction.getEngineTaskId() == null){
+            //从数据库补齐数据
+            if(ComputeType.STREAM.getType().equals(computeType)){
+                RdosEngineStreamJob streamJob = rdosEngineStreamJobDao.getRdosTaskByTaskId(jobId);
+                if(streamJob != null){
+                    paramAction.setEngineTaskId(streamJob.getEngineTaskId());
+                    paramAction.setApplicationId(streamJob.getApplicationId());
+                }
+            }
+
+            if(ComputeType.BATCH.getType().equals(computeType)){
+                RdosEngineBatchJob batchJob = rdosEngineBatchJobDao.getRdosTaskByTaskId(jobId);
+                if(batchJob != null){
+                    paramAction.setEngineTaskId(batchJob.getEngineJobId());
+                    paramAction.setApplicationId(batchJob.getApplicationId());
+                }
+            }
+        }
+
     }
 
     /**
@@ -372,7 +352,7 @@ public class WorkNode {
      * @param taskId
      */
     public void dealSubmitFailJob(String taskId, Integer computeType, String errorMsg){
-        engineJobCacheDao.deleteJob(taskId);
+        rdosEngineJobCacheDAO.deleteJob(taskId);
         if(ComputeType.BATCH.typeEqual(computeType)){
             rdosEngineBatchJobDao.submitFail(taskId, RdosTaskStatus.SUBMITFAILD.getStatus(), generateErrorMsg(errorMsg));
         }else if(ComputeType.STREAM.typeEqual(computeType)){
@@ -409,7 +389,7 @@ public class WorkNode {
             locks = zkDistributed.acquireBrokerLock(Lists.newArrayList(localAddress),true);
             long startId = 0L;
             while (true) {
-                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, null, null);
+                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobForPriorityQueue(startId, localAddress, null, null);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     //两种情况：
                     //1. 可能本身没有jobcaches的数据
@@ -446,7 +426,7 @@ public class WorkNode {
             int count = 0;
             outLoop :
             while (true) {
-                List<RdosEngineJobCache> jobCaches = engineJobCacheDao.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
+                List<RdosEngineJobCache> jobCaches = rdosEngineJobCacheDAO.getJobForPriorityQueue(startId, localAddress, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(), engineType);
                 if (CollectionUtils.isEmpty(jobCaches)) {
                     break;
                 }

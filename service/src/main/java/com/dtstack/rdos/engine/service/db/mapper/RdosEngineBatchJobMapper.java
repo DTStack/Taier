@@ -21,6 +21,8 @@ public interface RdosEngineBatchJobMapper {
 	
 	void updateJobStatus(@Param("jobId") String jobId, @Param("status") int status);
 
+	void updateTaskStatusNotStopped(@Param("jobId") String jobId, @Param("status") int status, @Param("stopStatuses") List<Integer> stopStatuses);
+
 	void updateJobPluginId(@Param("jobId") String jobId, @Param("pluginId") long pluginId);
 
 	void updateJobStatusAndExecTime(@Param("jobId") String jobId, @Param("status") int status);
@@ -37,6 +39,8 @@ public interface RdosEngineBatchJobMapper {
 
 	void updateEngineLog(@Param("jobId")String jobId, @Param("engineLog")String engineLog);
 
+	void updateRetryTaskParams(@Param("jobId")String jobId,  @Param("retryTaskParams")String retryTaskParams);
+
 	void updateSubmitLog(@Param("jobId") String jobId, @Param("submitLog") String submitLog);
 
     Integer updateTaskStatusCompareOld(@Param("jobId") String jobId, @Param("status")Integer status,@Param("oldStatus") Integer oldStatus, @Param("jobName")String jobName);
@@ -46,4 +50,7 @@ public interface RdosEngineBatchJobMapper {
     List<String> listNames(@Param("jobName") String jobName);
 
 	void updateRetryNum(@Param("jobId")String jobId, @Param("retryNum")Integer retryNum);
+
+	Integer resetExecTime(@Param("jobId")String jobId);
+
 }

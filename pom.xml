@@ -26,11 +26,13 @@
 		<module>base/plugin/learning</module>
 		<module>base/plugin/flink150</module>
 		<module>base/plugin/flink170</module>
-		<!--<module>base/plugin/flink130</module>-->
-		<!--<module>base/plugin/flink140</module>-->
-		<!--<module>base/plugin/spark160-yarn</module>-->
+		<module>base/plugin/flink180</module>
+<!--		<module>base/plugin/flink130</module>-->
+<!--		<module>base/plugin/flink140</module>-->
+<!--		<module>base/plugin/spark160-yarn</module>-->
 		<module>base/plugin/dt-yarn-shell</module>
-	</modules>
+        <module>base/plugin/kylin</module>
+    </modules>
 
 	<dependencies>
 	

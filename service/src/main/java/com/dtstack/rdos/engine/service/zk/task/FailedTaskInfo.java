@@ -11,9 +11,9 @@ import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 
 public class FailedTaskInfo {
 
-    private static final Integer TRY_LOG_LIMIT = 3;
+    private static final Integer MAX_WAIT_LIMIT = 3;
 
-    private Integer currLogTry = 0;
+    private Integer currWaitNum = 0;
 
     private String jobId;
 
@@ -33,12 +33,12 @@ public class FailedTaskInfo {
         this.pluginInfo = pluginInfo;
     }
 
-    public Integer getCurrLogTry() {
-        return currLogTry;
+    public Integer getCurrWaitNum() {
+        return currWaitNum;
     }
 
-    public void setCurrLogTry(Integer currLogTry) {
-        this.currLogTry = currLogTry;
+    public void setCurrWaitNum(Integer currWaitNum) {
+        this.currWaitNum = currWaitNum;
     }
 
     public String getJobId() {
@@ -81,16 +81,16 @@ public class FailedTaskInfo {
         this.jobIdentifier = jobIdentifier;
     }
 
-    public boolean canTryLogAgain(){
-        if(currLogTry >= TRY_LOG_LIMIT){
+    public boolean allowClean(){
+        if(currWaitNum >= MAX_WAIT_LIMIT){
             return false;
         }
 
         return true;
     }
 
-    public void tryLog(){
-        currLogTry++;
+    public void waitClean(){
+        currWaitNum++;
     }
 
 }

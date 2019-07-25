@@ -146,7 +146,7 @@ public class FlinkClient extends AbsClient {
     public static ThreadLocal<JobClient> jobClientThreadLocal = new ThreadLocal<>();
 
     public FlinkClient(){
-        this.restartStrategy = new FlinkRestartStrategy();
+        this.restartService = new FlinkRestartStrategy();
     }
 
     @Override

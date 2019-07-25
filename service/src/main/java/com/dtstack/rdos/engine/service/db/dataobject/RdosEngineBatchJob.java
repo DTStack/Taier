@@ -38,6 +38,8 @@ public class RdosEngineBatchJob extends DataObject{
 
     private String engineLog;
 
+    private String retryTaskParams;
+
     private long pluginInfoId;
 
     private Integer sourceType;
@@ -148,5 +150,13 @@ public class RdosEngineBatchJob extends DataObject{
 
     public void setRetryNum(Integer retryNum) {
         this.retryNum = retryNum;
+    }
+
+    public String getRetryTaskParams() {
+        return retryTaskParams;
+    }
+
+    public void setRetryTaskParams(String retryTaskParams) {
+        this.retryTaskParams = retryTaskParams;
     }
 }

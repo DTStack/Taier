@@ -1,8 +1,8 @@
-package com.dtstack.rdos.engine.execution.flink150;
+package com.dtstack.rdos.engine.execution.flink180;
 
 import com.dtstack.rdos.engine.execution.base.IClient;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
-import com.dtstack.rdos.engine.execution.flink150.constrant.ExceptionInfoConstrant;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
+import com.dtstack.rdos.engine.execution.flink180.constrant.ExceptionInfoConstrant;
 import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
  * @author xuchao
  */
 
-public class FlinkRestartStrategy extends IRestartStrategy {
+public class FlinkRestartStrategy extends ARestartService {
 
     private final static String FLINK_EXCEPTION_URL = "/jobs/%s/exceptions";
 
@@ -38,15 +38,9 @@ public class FlinkRestartStrategy extends IRestartStrategy {
     }
 
 //    @Override
-//    public boolean checkCanRestart(String jobId,String engineJobId, IClient client,
-//                                   int alreadyRetryNum, int maxRetryNum) {
+//    public boolean checkCanRestart(String jobId,String engineJobId, IClient client, int alreadyRetryNum, int maxRetryNum) {
 //        String reqURL = String.format(FLINK_EXCEPTION_URL, engineJobId);
-//        String msg;
-//        try {
-//            msg = client.getMessageByHttp(reqURL);
-//        } catch (Exception e){
-//            msg = null;
-//        }
+//        String msg = client.getMessageByHttp(reqURL);
 //        return checkCanRestart(jobId, msg, alreadyRetryNum, maxRetryNum);
 //    }
 //

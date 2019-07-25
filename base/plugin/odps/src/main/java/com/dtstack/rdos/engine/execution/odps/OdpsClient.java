@@ -71,17 +71,24 @@ public class OdpsClient extends AbsClient {
             String[] sqls = jobClient.getSql().split(SPLIT);
             Job job = new Job();
             String guid = UUID.randomUUID().toString();
-            for (String sql : sqls) {
+            String taskName = "query_task_" + Calendar.getInstance().getTimeInMillis();
+            for (int i = 0; i < sqls.length; i++) {
+                String sql = sqls[i];
+                if(StringUtils.isEmpty(sql.trim())){
+                    continue;
+                }
+
                 if (!sql.endsWith(SPLIT)) {
                     sql = sql + SPLIT;
                 }
-                String taskName = StringUtils.isBlank(jobClient.getJobName())?"query_task_" + Calendar.getInstance().getTimeInMillis():jobClient.getJobName();
+
                 SQLTask task = new SQLTask();
-                task.setName(taskName);
+                task.setName(String.format("%s_%s", taskName, i));
                 task.setQuery(sql);
                 task.setProperty("guid", guid);
                 job.addTask(task);
             }
+
             Instance instance = odps.instances().create(job);
             return JobResult.createSuccessResult(instance.getId());
         } catch (OdpsException e) {

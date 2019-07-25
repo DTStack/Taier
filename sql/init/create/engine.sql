@@ -14,23 +14,25 @@ CREATE TABLE `rdos_engine_batch_job` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
   `job_id` varchar(256) NOT NULL COMMENT '离线任务id',
-  `engine_job_id` varchar(256)  COMMENT '离线任务计算引擎id',
-  `application_id` varchar(256)  COMMENT '独立运行的任务需要记录额外的id',
-  `job_name` VARCHAR(256) DEFAULT NULL COMMENT '任务名称',
-  `exec_start_time` datetime  COMMENT '执行开始时间',
-  `exec_end_time` datetime  COMMENT '执行结束时间',
+  `engine_job_id` varchar(256) DEFAULT NULL COMMENT '离线任务计算引擎id',
+  `application_id` varchar(256) DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+  `job_name` varchar(256) DEFAULT NULL COMMENT '任务名称',
+  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
+  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
   `exec_time` int(11) DEFAULT '0' COMMENT '执行时间',
   `retry_num` int(10) NOT NULL DEFAULT '0',
   `log_info` mediumtext COMMENT '错误信息',
   `engine_log` longtext COMMENT '引擎错误信息',
-  `plugin_info_id` int(11) COMMENT '插件信息',
-  `source_type` tinyint(2) COMMENT '任务来源',
+  `plugin_info_id` int(11) DEFAULT NULL COMMENT '插件信息',
+  `source_type` tinyint(2) DEFAULT NULL COMMENT '任务来源',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `version_id` int(11) DEFAULT NULL COMMENT '任务对应版本id',
+  `retry_task_params` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_engine_job_id` (`engine_job_id`(128)),
-  unique KEY `index_job_id` (`job_id`(128),`is_deleted`),
   KEY `index_status` (`status`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -57,18 +59,19 @@ CREATE TABLE `rdos_engine_stream_job` (
   KEY `index_status` (`status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
 
-create table `rdos_stream_task_checkpoint`(
-  `id` int(11) not null AUTO_INCREMENT,
-  `task_id` varchar(64) not null COMMENT '任务id',
-  `task_engine_id` varchar(64) not null COMMENT '任务对于的引擎id',
-  `checkpoint` longtext,
-  `trigger_start` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `trigger_end` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CREATE TABLE `rdos_stream_task_checkpoint` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` varchar(64) NOT NULL COMMENT '任务id',
+  `task_engine_id` varchar(64) NOT NULL COMMENT '任务对于的引擎id',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
-  PRIMARY KEY (`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `checkpoint_id` varchar(64) DEFAULT NULL,
+  `checkpoint_trigger` timestamp NULL DEFAULT NULL COMMENT 'checkpoint触发时间',
+  `checkpoint_savepath` varchar(128) DEFAULT NULL COMMENT 'checkpoint存储路径',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `taskid_checkpoint` (`task_id`,`checkpoint_id`) COMMENT 'taskid和checkpoint组成的唯一索引'
+) ENGINE=InnoDB AUTO_INCREMENT=26474 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `rdos_engine_job_cache` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -117,16 +120,17 @@ CREATE TABLE `rdos_engine_batch_job_retry` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '任务状态 UNSUBMIT(0),CREATED(1),SCHEDULED(2),DEPLOYING(3),RUNNING(4),FINISHED(5),CANCELING(6),CANCELED(7),FAILED(8)',
   `job_id` varchar(256) NOT NULL COMMENT '离线任务id',
-  `engine_job_id` varchar(256)  COMMENT '离线任务计算引擎id',
-  `application_id` varchar(256)  COMMENT '独立运行的任务需要记录额外的id',
-  `exec_start_time` datetime  COMMENT '执行开始时间',
-  `exec_end_time` datetime  COMMENT '执行结束时间',
+  `engine_job_id` varchar(256) DEFAULT NULL COMMENT '离线任务计算引擎id',
+  `application_id` varchar(256) DEFAULT NULL COMMENT '独立运行的任务需要记录额外的id',
+  `exec_start_time` datetime DEFAULT NULL COMMENT '执行开始时间',
+  `exec_end_time` datetime DEFAULT NULL COMMENT '执行结束时间',
   `retry_num` int(10) NOT NULL DEFAULT '0',
   `log_info` mediumtext COMMENT '错误信息',
   `engine_log` longtext COMMENT '引擎错误信息',
   `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  `retry_task_params` varchar(256) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -147,3 +151,16 @@ CREATE TABLE `rdos_engine_stream_job_retry` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `rdos_engine_job_stop_record` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` varchar(256) NOT NULL COMMENT '任务id',
+  `task_type` int(10) DEFAULT NULL COMMENT '任务类型',
+  `engine_type` varchar(256) NOT NULL COMMENT '任务的执行引擎类型',
+  `compute_type` tinyint(2) NOT NULL COMMENT '计算类型stream/batch',
+  `group_name` VARCHAR(256) DEFAULT NULL COMMENT 'group name',
+  `version` int(10) DEFAULT '0' COMMENT '版本号',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '新增时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0正常 1逻辑删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

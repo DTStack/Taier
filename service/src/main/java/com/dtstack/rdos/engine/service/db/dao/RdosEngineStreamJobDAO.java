@@ -58,6 +58,20 @@ public class RdosEngineStreamJobDAO {
 		});
 	}
 
+	public void updateTaskStatusNotStopped(final String taskId,final int status, final List<Integer> stopStatuses){
+
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.updateTaskStatusNotStopped(taskId, status, stopStatuses);
+				return null;
+			}
+
+		});
+	}
+
 	public Integer updateTaskStatusCompareOld(String taskId, Integer status, Integer oldStatus,String taskName) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 

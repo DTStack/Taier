@@ -1,12 +1,11 @@
 #engine
 slots: 10
-localAddress: localhost:8090
-#nodeZkAddress: node1:24002,node2:24002,node3:24002/xc_engine
-nodeZkAddress: 172.16.10.34:2181,172.16.10.45:2181,172.16.10.86:2181/engine
-exeQueueSize: 1
-#debug模式关闭数据校验
+#localAddress: 172.16.10.45:8090
+
+nodeZkAddress: node001:2181,node002:2181,node003:2181/engine
 isDebug: true
 isSecurity: false
+queueSize: 20
 
 db:
    url: jdbc:mysql://172.16.10.45:3306/ide?charset=utf8&autoReconnect=true

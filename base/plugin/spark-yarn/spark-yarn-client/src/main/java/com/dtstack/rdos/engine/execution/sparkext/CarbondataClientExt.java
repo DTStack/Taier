@@ -32,7 +32,7 @@ public class CarbondataClientExt extends ClientExt{
     public void loadHadoopConfFromHdfs(scala.collection.mutable.HashMap hadoopConfFiles){
         String confDirName = getConfDirName();
         File confDir = new File(confDirName);
-        File[] files = confDir.listFiles((dir, name) -> name.endsWith(XML_SUFFIX));
+        File[] files = confDir.listFiles((dir, name) -> name.endsWith(XML_SUFFIX) || name.endsWith(CONF_SUFFIX));
 
         for(File file : files){
             String fileName = file.getName();

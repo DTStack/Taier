@@ -12,8 +12,6 @@ import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.EngineResourceInfo;
 import com.dtstack.rdos.engine.execution.base.pojo.JobResult;
 import com.dtstack.learning.client.Client;
-import com.dtstack.rdos.engine.execution.base.restart.DefaultRestartStrategy;
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
 import com.google.gson.Gson;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;

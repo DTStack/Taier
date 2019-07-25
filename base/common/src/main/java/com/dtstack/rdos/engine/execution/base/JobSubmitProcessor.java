@@ -47,7 +47,7 @@ public class JobSubmitProcessor implements Runnable {
                 logger.error("Get available slots error:{}", e);
             }
 
-            if (resourceInfo != null && resourceInfo.judgeSlots(jobClient)) {
+            if (resourceInfo != null) {
                 if (logger.isInfoEnabled()) {
                     logger.info("--------submit job:{} to engine start----.", jobClient.toString());
                 }

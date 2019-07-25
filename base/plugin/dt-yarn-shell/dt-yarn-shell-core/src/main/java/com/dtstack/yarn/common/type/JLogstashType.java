@@ -1,5 +1,6 @@
 package com.dtstack.yarn.common.type;
 
+import ch.qos.logback.classic.Level;
 import com.dtstack.yarn.client.ClientArguments;
 import com.dtstack.yarn.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
@@ -25,9 +26,9 @@ public class JLogstashType extends AppType {
         if (StringUtils.isBlank(root)) {
             throw new IllegalArgumentException("Must specify jlogstash.root");
         }
-        String javaHome = conf.get("java.home");
-        if (StringUtils.isBlank(javaHome)) {
-            throw new IllegalArgumentException("Must specify java.home");
+        String javaHome = conf.get("java.home", "");
+        if (StringUtils.isNotBlank(javaHome) && !javaHome.endsWith("/")) {
+            javaHome += "/";
         }
         String cmdOpts = clientArguments.getCmdOpts();
         if (StringUtils.isBlank(cmdOpts)) {
@@ -51,13 +52,13 @@ public class JLogstashType extends AppType {
         }
 
         List<String> jlogstashArgs = new ArrayList<>(20);
-        jlogstashArgs.add(javaHome + "/java");
+        jlogstashArgs.add(javaHome + "java");
         jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");
-        jlogstashArgs.add("-vvv");
+        jlogstashArgs.add("-" + getJlogstashLogLevel(clientArguments.getLogLevel().toUpperCase()));
         jlogstashArgs.add("-f " + encodedOpts);
         jlogstashArgs.add("-p " + root);
         jlogstashArgs.add("-name " + appName);
@@ -66,12 +67,28 @@ public class JLogstashType extends AppType {
         for (String arg : jlogstashArgs) {
             command.append(arg).append(" ");
         }
-        if (buildCmdLog.isDebugEnabled()){
+        if (buildCmdLog.isDebugEnabled()) {
             buildCmdLog.debug("jlogstash launch command: " + command.toString());
         }
 
         return command.toString();
 
+    }
+
+    private String getJlogstashLogLevel(String logLevel) {
+        if (Level.TRACE.levelStr.equals(logLevel)) {
+            return "vvvvv";
+        } else if (Level.DEBUG.levelStr.equals(logLevel)) {
+            return "vvvv";
+        } else if (Level.INFO.levelStr.equals(logLevel)) {
+            return "vvv";
+        } else if (Level.WARN.levelStr.equals(logLevel)) {
+            return "vv";
+        } else if (Level.ERROR.levelStr.equals(logLevel)) {
+            return "v";
+        } else {
+            return "vvv";
+        }
     }
 
     /**

@@ -1,8 +1,8 @@
 package com.dtstack.yarn.client;
 
+import ch.qos.logback.classic.Level;
 import com.dtstack.yarn.DtYarnConfiguration;
 import com.dtstack.yarn.common.type.AppType;
-import com.dtstack.yarn.common.JobPriority;
 import com.dtstack.yarn.common.type.DummyType;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -38,7 +38,6 @@ public class ClientArguments {
     int maxAppAttempts;
     String[] files;
     Boolean localFile = false;
-//    Configuration remoteConf;
     String[] libJars;
     String launchCmd;
     int priority;
@@ -60,6 +59,7 @@ public class ClientArguments {
     String uploadFiles;
     Boolean exclusive;
     String applicationId;
+    String logLevel;
 
 
 
@@ -162,14 +162,6 @@ public class ClientArguments {
     public Boolean getLocalFile() {
         return localFile;
     }
-
-    //    public Configuration getRemoteConf() {
-//        return remoteConf;
-//    }
-//
-//    public void setRemoteConf(Configuration remoteConf) {
-//        this.remoteConf = remoteConf;
-//    }
 
     public String[] getLibJars() {
         return libJars;
@@ -339,6 +331,14 @@ public class ClientArguments {
         this.applicationId = applicationId;
     }
 
+    public String getLogLevel() {
+        return logLevel;
+    }
+
+    public void setLogLevel(String logLevel) {
+        this.logLevel = logLevel;
+    }
+
     public ClientArguments(String[] args) throws IOException, ParseException, ClassNotFoundException {
         this.init();
         this.cliParser(args);
@@ -368,7 +368,7 @@ public class ClientArguments {
         userClasspathFirst = DtYarnConfiguration.DEFAULT_LEARNING_USER_CLASSPATH_FIRST;
         exclusive = DtYarnConfiguration.DEFAULT_APP_NODEMANAGER_EXCLUSIVE;
         maxAppAttempts = 3;
-
+        logLevel = Level.INFO.toString();
 
         allOptions = new Options();
         allOptions.addOption("test", "test", false, "test mode");
@@ -418,6 +418,7 @@ public class ClientArguments {
         allOptions.addOption("cacheArchive", "cacheArchive", true,
                 "add the XLearning hdfsPackage PATH");
         allOptions.addOption("priority", "priority", true, "Application Priority. Default DEFAULT");
+        allOptions.addOption("logLevel", "logLevel", true, "Log Level");
         allOptions.addOption("queue", "queue", true,
                 "RM Queue in which this application is to be submitted");
         allOptions.addOption("userClasspathFirst", "user-classpath-first", true,
@@ -530,6 +531,10 @@ public class ClientArguments {
             priority = NumberUtils.toInt(priorityStr, priority);
         }
 
+        if (commandLine.hasOption("logLevel")) {
+            logLevel = commandLine.getOptionValue("logLevel");
+        }
+
         if (commandLine.hasOption("queue")) {
             queue = commandLine.getOptionValue("queue");
         }
@@ -549,17 +554,6 @@ public class ClientArguments {
                 localFile = Boolean.TRUE;
             }
         }
-
-//        if (commandLine.hasOption(CliOptions.OPT_REMOTE_DFS_CONFIG)) {
-//            String json = commandLine.getOptionValue(CliOptions.OPT_REMOTE_DFS_CONFIG);
-//            Map<String, String> map = new Gson().fromJson(json, Map.class);
-//            remoteConf = new Configuration();
-//            remoteConf.set("fs.hdfs.impl.disable.cache", "true");
-//            remoteConf.set("fs.hdfs.impl", DistributedFileSystem.class.getName());
-//            for (Map.Entry<String, String> entry : map.entrySet()) {
-//                remoteConf.set(entry.getKey(), entry.getValue());
-//            }
-//        }
 
         if (commandLine.hasOption("jars")) {
             libJars = StringUtils.split(commandLine.getOptionValue("jars"), ",");

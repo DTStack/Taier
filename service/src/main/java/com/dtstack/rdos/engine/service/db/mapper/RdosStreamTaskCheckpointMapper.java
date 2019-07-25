@@ -16,10 +16,27 @@ import java.util.List;
 public interface RdosStreamTaskCheckpointMapper {
 
     int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId,
-               @Param("checkpoint") String checkpoint, @Param("triggerStart") Timestamp triggerStart,
-               @Param("triggerEnd") Timestamp triggerEnd);
+               @Param("checkpointId") String checkpointId,
+               @Param("checkpointTrigger") Timestamp checkpointTrigger,
+               @Param("checkpointSavepath") String checkpointSavepath);
 
-    List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskId") String taskId, @Param("triggerStart") Long triggerStart, @Param("triggerEnd") Long triggerEnd);
+    List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskId") String taskEngineId,
+                                                                              @Param("triggerStart") Long triggerStart,
+                                                                              @Param("triggerEnd") Long triggerEnd);
 
     RdosStreamTaskCheckpoint getByTaskIdAndEngineTaskId(@Param("taskId") String taskId, @Param("taskEngineId") String taskEngineId);
+
+    void deleteByEngineTaskIdAndCheckpointID(@Param("taskEngineId") String taskEngineId, @Param("checkpointId") String checkpointId);
+
+    List<RdosStreamTaskCheckpoint> getByTaskEngineIDAndCheckpointIndexAndCount(@Param("taskEngineID") String taskEngineID,
+                                                                        @Param("startIndex") int startIndex,
+                                                                        @Param("count") int count);
+
+    void cleanAllCheckpointByTaskEngineId(@Param("taskEngineId")  String taskEngineId);
+
+    Integer updateCheckpoint(@Param("taskId") String taskId, @Param("checkpoint") String checkpoint);
+
+    RdosStreamTaskCheckpoint getByTaskId(@Param("taskId") String taskId);
+
+    Integer deleteByTaskId(@Param("taskId") String taskId);
 }
