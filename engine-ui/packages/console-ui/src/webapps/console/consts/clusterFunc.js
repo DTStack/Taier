@@ -1,6 +1,6 @@
 // cluster function
 import { TASK_STATE, COMPONENT_TYPE_VALUE, ENGINE_TYPE, validateFlinkParams, validateHiveParams,
-    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateLibraParams } from './index';
+    validateCarbonDataParams, validateSparkParams, validateDtYarnShellParams, validateLearningParams, validateHiveServerParams, validateLibraParams } from './index';
 
 /**
  * 返回组件不同key
@@ -30,6 +30,9 @@ export function getComponentConfKey (componentValue) {
         }
         case COMPONENT_TYPE_VALUE.YARN: {
             return 'yarnConf'
+        }
+        case COMPONENT_TYPE_VALUE.HIVESERVER: {
+            return 'hiveServerConf'
         }
         case COMPONENT_TYPE_VALUE.LIBRASQL: {
             return 'libraConf'
@@ -62,6 +65,9 @@ export function validateCompParams (componentValue) {
         }
         case COMPONENT_TYPE_VALUE.LEARNING: {
             return validateLearningParams
+        }
+        case COMPONENT_TYPE_VALUE.HIVESERVER: {
+            return validateHiveServerParams
         }
         case COMPONENT_TYPE_VALUE.HDFS: {
             return []
@@ -137,6 +143,12 @@ export function exChangeComponentConf (hadoopComp, libraComp) {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+                componentConf = Object.assign(componentConf, {
+                    hiveServerConf: item.config
+                })
+                break;
+            }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 componentConf = Object.assign(componentConf, {
                     libraConf: item.config
@@ -205,6 +217,12 @@ export function showTestResult (testResults, engineType) {
                 })
                 break;
             }
+            case COMPONENT_TYPE_VALUE.HIVESERVER: {
+                testStatus = Object.assign(testStatus, {
+                    hiveServerTestResult: isHadoop ? comp : {}
+                })
+                break;
+            }
             case COMPONENT_TYPE_VALUE.LIBRASQL: {
                 testStatus = Object.assign(testStatus, {
                     libraSqlTestResult: !isHadoop ? comp : {}
@@ -256,6 +274,16 @@ export function validateAllRequired (validateFields, tabCompData) {
                 } else {
                     obj = Object.assign(obj, {
                         carbonShowRequired: true
+                    })
+                }
+            } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.HIVESERVER) {
+                if (!err) {
+                    obj = Object.assign(obj, {
+                        hiveServerShowRequired: false
+                    })
+                } else {
+                    obj = Object.assign(obj, {
+                        hiveServerShowRequired: true
                     })
                 }
             } else if (item.componentTypeCode === COMPONENT_TYPE_VALUE.SPARK) {

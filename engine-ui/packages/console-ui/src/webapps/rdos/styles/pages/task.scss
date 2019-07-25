@@ -289,7 +289,7 @@
                 background: #F5F5F5;
                 padding-right: 15px;
                 padding-top: 5px;
-                padding-bottom: 5px;
+                padding-bottom: 3px;
                 margin-left: 1px;
                 .anticon {
                     font-size: 14px;
@@ -694,6 +694,9 @@
                 padding-right: 0;
                 >.ant-tabs-tabpane{
                     height: 100%;
+                    .ant-collapse-header {
+                        padding-bottom: 6px;
+                    }
                 }
             }
             .ant-tabs-tab {
@@ -714,6 +717,7 @@
                 background: #fff;
                 border-bottom: 2px solid #e9e9e9;
                 border-top: 1px solid #e9e9e9;
+                margin-left: 1px;
                 &:after{
                     content:"";
                     position: absolute;

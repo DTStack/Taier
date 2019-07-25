@@ -52,7 +52,7 @@
     }
     .my-table {
         background: #fff;
-        font-size: 12px;
+        font-size: 13px;
         width: 100%;
         border-collapse: collapse;
         tr td {
@@ -114,6 +114,7 @@
         height: 100%;
         .ant-checkbox-wrapper {
             margin-left: 0px;
+            font-size: 13px;
         }
         .ant-form-inline .ant-form-item {
             margin-bottom: 10px;
@@ -142,7 +143,7 @@
     }
     .filter-bar {
         padding: 0 10px 10px 10px;
-        font-size: 12px;
+        font-size: 13px;
     }
 }
 
@@ -175,7 +176,7 @@
 
 .ope-statistics {
     font-weight: bold;
-    font-size: 12px;
+    font-size: 13px;
     span {
         margin-right: 24px;
         white-space: nowrap;
@@ -211,7 +212,7 @@
     .runtime-section {
         margin-top: 10px;
         h1 {
-            font-size: 12px;
+            font-size: 13px;
             color: #333333;
             line-height: 30px;
             padding: 0;
@@ -238,7 +239,8 @@
         margin-bottom: 0;
     }
     .select-task{
-        margin-right: 12px;
+        margin-right: 13px;
+        font-size: 13px;
     }
     tr > td:first-child, .m-card .m-table tr > th:first-child {
         padding-left: 6px
@@ -250,14 +252,14 @@
     .m-table {
         .ant-table-footer {
             background: #fff;
-            padding: 10 0 0;
+            padding: 10px 0 0;
             border-bottom: 0;
             border-top: 1px solid #e8e8e8;
         }
         .ant-pagination {
             position: relative;
             top: -32px;
-            right: 20;
+            right: 20px;
             margin-right: 0;
         }
         .ant-table-pagination.ant-pagination {

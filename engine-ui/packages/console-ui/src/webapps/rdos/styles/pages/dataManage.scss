@@ -357,7 +357,7 @@
     .ant-checkbox-wrapper {
         min-width: 100px;
         cursor: pointer;
-        font-size: 12px;
+        font-size: 13px;
         display: inline-block;
     }
 }
@@ -389,6 +389,7 @@
 }
 
 .ant-layout-sider-trigger {
+    position: absolute;
     background: #2E3943;
     color: #959FB1;
     border-right: 1px solid #e9e9e9;
@@ -398,6 +399,9 @@
 }
 
 .m-table-desen {
+    .ant-table {
+        border-width: 0;
+    }
     .ant-table-thead > tr > th.ant-table-selection-column, .ant-table-tbody > tr > td.ant-table-selection-column {
         text-align: center;
         padding-right: 0;

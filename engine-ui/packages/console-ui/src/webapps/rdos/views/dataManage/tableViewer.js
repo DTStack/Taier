@@ -389,7 +389,7 @@ export default class TableViewer extends React.Component {
                                             scroll={{ x: 200 * this.previewCols.length }}
                                         ></Table>
                                             : <p style={{
-                                                marginTop: 20,
+                                                marginTop: '20px',
                                                 textAlign: 'center',
                                                 fontSize: 12,
                                                 color: '#ddd'
@@ -412,7 +412,7 @@ export default class TableViewer extends React.Component {
 
             <Modal className="m-codemodal"
                 title="建表语句"
-                width="750"
+                width="750px"
                 visible={this.state.visible}
                 maskClosable={false}
                 closable

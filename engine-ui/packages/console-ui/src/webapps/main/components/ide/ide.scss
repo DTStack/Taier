@@ -72,7 +72,7 @@
         }
         .ant-tabs-bar .ant-tabs-tab-active {
             background: #fff;
-            padding-bottom: 4px;
+            padding-bottom: 5px;
             &:after{
                 content:"";
                 position: absolute;
@@ -87,7 +87,7 @@
 
         .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
-            border-bottom: 1px solid #dddddd;
+            // border-bottom: 1px solid #dddddd;
         }
 
         .ant-tabs-nav div:nth-child(2) {

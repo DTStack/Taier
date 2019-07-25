@@ -55,6 +55,7 @@ class TableDetail extends Component {
             for (let i = 0; i < fields.length; i++) {
                 const field = fields[i];
                 columns.push({
+                    width: 200,
                     title: field,
                     dataIndex: field,
                     key: field,

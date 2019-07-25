@@ -17,7 +17,7 @@ import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as notebookActions from '../../../../../actions/notebookActions'
 
-import { siderBarType } from '../../../../../consts';
+import { siderBarType, TASK_TYPE } from '../../../../../consts';
 
 // const Search = Input.Search;
 
@@ -26,6 +26,7 @@ import { siderBarType } from '../../../../../consts';
         return {
             routing: state.routing,
             files: state.notebook.files,
+            isShowFixResource: state.resource.isShowFixResource, // 是否显示资源管理高度
             currentTabIndex: state.notebook.currentTabIndex,
             tabs: state.notebook.localTabs,
             expandedKeys: state.notebook.expandedKeys
@@ -103,7 +104,15 @@ class NotebookSidebar extends Component {
                         treeData={files}
                         nodeClass={(item) => {
                             if (item.type == 'file') {
-                                return 'anchor-notebook-file o-tree-icon--notebook'
+                                switch (item.taskType) {
+                                    case TASK_TYPE.PYTHON: {
+                                        return 'anchor-notebook-file o-tree-icon--notebook_python3'
+                                    }
+                                    case TASK_TYPE.PYSPARK: {
+                                        return 'anchor-notebook-file o-tree-icon--notebook_pyspark'
+                                    }
+                                    default: return 'anchor-notebook-file';
+                                }
                             }
                             if (item.level == 13) {
                                 return 'anchor-notebook-root'
@@ -240,9 +249,10 @@ class NotebookSidebar extends Component {
             moveData,
             moveModalVisible
         } = this.state;
+        const { isShowFixResource } = this.props;
         return (
             <>
-                <div className="sidebar" style={{ height: '70%' }}>
+                <div className="sidebar" style={{ height: !isShowFixResource ? 'calc(100% - 45px)' : '70%' }}>
                     <ToolBar
                         toolbarItems={[
                             {

@@ -17,7 +17,8 @@ const TabPane = Tabs.TabPane;
         files: {
             notebook: state.notebook.files,
             experiment: state.experiment.files,
-            component: state.component.files
+            component: state.component.files,
+            resource: state.resource.files
         }
     }
 }, (dispatch) => {
@@ -41,7 +42,7 @@ class SiderBarContainer extends React.Component {
         if (siderkey) {
             this.props.changeSiderBar(siderkey);
         }
-        if (!files.notebook.length && !files.experiment.length && !files.component.length) {
+        if (!files.notebook.length && !files.resource.length && !files.experiment.length && !files.component.length) {
             this.props.initLoadTreeNode();
         }
     }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { get } from 'lodash';
+// import { get } from 'lodash';
 
 import {
     Tabs
@@ -37,11 +37,12 @@ class TaskDetailPane extends React.Component {
         }
     }
     getInitTabKey (data = {}) {
-        if (this.showGraph(get(data, 'status'))) {
-            return 'taskGraph';
-        } else {
-            return 'runLog';
-        }
+        return 'taskGraph';
+        // if (this.showGraph(get(data, 'status'))) {
+        //     return 'taskGraph';
+        // } else {
+        //     return 'runLog';
+        // }
     }
     showGraph (status) {
         return status == TASK_STATUS.RUNNING || status == TASK_STATUS.WAIT_RUN;
@@ -54,7 +55,7 @@ class TaskDetailPane extends React.Component {
     getTabs () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType, status } = data;
+        const { taskType } = data;
         let tabs = [];
         const scrollStyle = {
             position: 'absolute',
@@ -131,9 +132,7 @@ class TaskDetailPane extends React.Component {
                 tabs = [];
             }
         }
-        if (status == TASK_STATUS.RUNNING || status == TASK_STATUS.WAIT_RUN) {
-            tabs.unshift(taskGraph);
-        }
+        tabs.unshift(taskGraph);
         return tabs;
     }
     render () {

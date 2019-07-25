@@ -23,6 +23,7 @@ import { resourceTypeIcon } from '../../../../../comm';
         return {
             routing: state.routing,
             files: state.resource.files,
+            isShowFixResource: state.resource.isShowFixResource, // 是否显示资源管理高度
             expandedKeys: state.resource.expandedKeys
         }
     },
@@ -83,8 +84,12 @@ class ResourceManage extends Component {
     asynLoadCatalogue = (treeNode) => {
         return this.props.loadTreeData(siderBarType.resource, treeNode.props.data.id)
     }
-
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys, { expanded, node }) => {
+        const resNode = node.props.data || {};
+        const { level, catalogueType } = resNode;
+        if (level == 13 && catalogueType == siderBarType.resource) { // 根目录资源管理
+            this.props.getFixResource(!this.props.isShowFixResource)
+        }
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
@@ -139,6 +144,7 @@ class ResourceManage extends Component {
                                 </div>
                             )
                         }}
+                        isShowFixResource={this.props.isShowFixResource}
                         nodeClass={(item) => {
                             const resClassName = resourceTypeIcon(item.resourceType)
                             if (item.type == 'file') {
@@ -195,7 +201,7 @@ class ResourceManage extends Component {
                                         title: '确认删除',
                                         content: `确认删除文件夹？`,
                                         onOk: () => {
-                                            this.props.deleteNotebookFolder(activeNode);
+                                            this.props.deleteResourceFolder(activeNode);
                                         }
                                     })
                                 }
@@ -247,9 +253,11 @@ class ResourceManage extends Component {
         const { newFolderVisible, newFolderData, uploadModalVisible,
             resourceData, isCoverUpload,
             resDetailModal, resEditModal } = this.state;
+        const { isShowFixResource } = this.props;
+        const extClassName = !isShowFixResource ? 'resource_file_bottom' : 'resource_file_top'
         return (
-            <div className="sidebar" style={{ height: '30%', overflow: 'auto', borderTop: '1px solid #ddd', backgroundColor: '#fff' }}>
-                <div>
+            <div className="sidebar" style={{ background: '#fff', height: !isShowFixResource ? '45px' : '30%' }}>
+                <div className={extClassName}>
                     {
                         this.renderFolderContent()
                     }
