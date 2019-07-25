@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.math3.util.Pair;
-import org.dom4j.DocumentException;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 
@@ -27,14 +26,14 @@ public class ApplicationWSParser {
 
     private static final Pattern ERR_INFO_BYTE_PATTERN = Pattern.compile("(\\d+)\\s*bytes");
 
-    public static String getAMContainerLogsURL(String jsonStr) throws DocumentException {
+    public static String getAMContainerLogsURL(String jsonStr) {
         JsonObject jsonObject = (JsonObject) new JsonParser().parse(jsonStr);
         JsonObject roogEle = jsonObject.getAsJsonObject(AM_ROOT_TAG);
         JsonElement amContainerLogsEle = roogEle.get(AM_CONTAINER_LOGS_TAG);
         return amContainerLogsEle.getAsString();
     }
 
-    public static Pair<String, String> parserAMContainerPreViewHttp(String httpText){
+    public static Pair<String, String> parserAMContainerPreViewHttp(String httpText, String preURL){
         org.jsoup.nodes.Document document = Jsoup.parse(httpText);
         Elements el = document.getElementsByClass("content");
         if(el.size() < 1){
@@ -45,6 +44,7 @@ public class ApplicationWSParser {
         String amErrURL = afs.first().attr("href");
         //截取url参数部分
         amErrURL = amErrURL.substring(0, amErrURL.indexOf("?"));
+        amErrURL = preURL + amErrURL;
 
         String jobErrByteStr = afs.first().text();
 

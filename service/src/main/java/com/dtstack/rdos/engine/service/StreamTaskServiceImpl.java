@@ -22,7 +22,6 @@ import org.apache.commons.math3.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -116,8 +115,9 @@ public class StreamTaskServiceImpl {
             String response = PoolHttpClient.get(requestURl);
             String amContainerLogsURL = ApplicationWSParser.getAMContainerLogsURL(response);
 
+            String logPreURL = UrlUtil.getHttpRootURL(amContainerLogsURL);
             String amContainerPreViewHttp = PoolHttpClient.get(amContainerLogsURL);
-            return ApplicationWSParser.parserAMContainerPreViewHttp(amContainerPreViewHttp);
+            return ApplicationWSParser.parserAMContainerPreViewHttp(amContainerPreViewHttp, logPreURL);
 
         }catch (Exception e){
             throw new RdosException(String.format("get job:%s ref application url error..", taskId), ErrorCode.UNKNOWN_ERROR, e);
