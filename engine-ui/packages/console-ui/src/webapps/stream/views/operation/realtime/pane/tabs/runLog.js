@@ -5,16 +5,18 @@ import Api from '../../../../../api'
 import { TASK_STATUS } from '../../../../../comm/const';
 
 class RunLog extends React.Component {
-    MAX_ENGINE_LOG = 2000
+    MAX_ENGINE_LOG = 10240
     state = {
         logInfo: '',
         offset: -1
     }
     _clock = null
+    isUnmount = false;
     componentDidMount () {
         this.getLog();
     }
     componentWillUnmount () {
+        this.isUnmount = true;
         window.clearTimeout(this._clock);
     }
     prepareLogInfo (logInfo = {}) {
@@ -32,12 +34,16 @@ class RunLog extends React.Component {
         }
     }
     async getLog () {
+        if (this.isUnmount) {
+            return;
+        }
         const data = this.props.data;
         if (!data || !data.id) {
             return;
         }
         const { offset } = this.state;
         let res;
+        console.trace(Date.now());
         if (data.status == TASK_STATUS.RUNNING) {
             res = await Api.getTaskRunningLogs({ taskId: data.id, start: offset });
             if (res && res.code == 1) {
