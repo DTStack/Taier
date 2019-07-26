@@ -13,6 +13,7 @@ export default {
     SEARCH_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/showTables`,
     GET_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getTable`,
     GET_TABLE_BY_NAME: `${RDOS_BASE_URL}/batch/batchTableInfo/getTableByName`,
+    GET_TABLE_LIST_BY_PROJECT: `${RDOS_BASE_URL}/batch/batchCatalogue/getProjectTableList`,
     PREVIEW_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/getData`,
     SAVE_TABLE: `${RDOS_BASE_URL}/batch/batchTableInfo/alterTable`,
     SEARCH_LOG: `${RDOS_BASE_URL}/batch/batchActionRecord/getRecords`,

@@ -31,7 +31,7 @@ import { updateUser } from '../../../../store/modules/user';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { editorAction } from '../../../../store/modules/editor/actionTypes';
 
-import { getTableList } from '../../../../store/modules/offlineTask/comm';
+import { getTableList, getTableListByProject } from '../../../../store/modules/offlineTask/comm';
 
 const isTableTipPane = function (editor) {
     return editor.showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE;
@@ -57,6 +57,7 @@ class EditorContainer extends Component {
 
     _tableColumns = {}
     _tableLoading = {}
+    _projectLoading = {}
 
     componentDidMount () {
         const currentNode = this.props.currentTabData;
@@ -274,7 +275,7 @@ class EditorContainer extends Component {
     tableCompleteItems (tableList) {
         return tableList.map(
             (table) => {
-                return [table.name, '表名', '1200', 'Field']
+                return [table.name, '当前项目表', '1200', 'Field']
             }
         )
     }
@@ -284,7 +285,7 @@ class EditorContainer extends Component {
         return tables[projectId];
     }
 
-    completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
+    async completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
         const { autoComplete = {}, context = {} } = status;
         const { funcCompleteItems } = this.state;
         const tableList = this.getTableList();
@@ -297,6 +298,22 @@ class EditorContainer extends Component {
         // 假如触发上下文为点，则去除初始点几个完成项
         if (context.completionContext.triggerCharacter == '.') {
             defaultItems = [];
+        }
+        if (context.tableContext) {
+            let result = await this.getTableListByProject(context.tableContext);
+            const projectIdentifier = result[0];
+            const _projectTableList = result[1];
+            if (_projectTableList) {
+                defaultItems = defaultItems.concat(
+                    customCompletionItemsCreater(_projectTableList.map(
+                        (table) => {
+                            return [table.name, `${projectIdentifier}项目表`, '1100', 'Field']
+                        }
+                    ))
+                )
+            }
+            resolve(defaultItems);
+            return;
         }
         // 开始解析具体语境
         if (autoComplete && autoComplete.locations) {
@@ -366,7 +383,19 @@ class EditorContainer extends Component {
         if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName]
         }
-        this._tableLoading[tableName] = API.getTableByName({ tableName })
+        let projectAndTableName = tableName.split('.');
+        let params = {};
+        if (projectAndTableName.length > 1) {
+            params = {
+                tableName: projectAndTableName[1],
+                projectIdentifier: projectAndTableName[0]
+            }
+        } else {
+            params = {
+                tableName
+            }
+        }
+        this._tableLoading[tableName] = API.getTableByName(params)
             .then(
                 (res) => {
                     this._tableLoading[tableName] = null;
@@ -383,6 +412,23 @@ class EditorContainer extends Component {
                 }
             )
         return this._tableLoading[tableName];
+    }
+    getTableListByProject (projectIdentifier) {
+        const { projectTables } = this.props;
+        if (projectTables[projectIdentifier]) {
+            return Promise.resolve([projectIdentifier, projectTables[projectIdentifier]])
+        }
+        // 共用现有请求线.
+        if (this._projectLoading[projectIdentifier]) {
+            return this._projectLoading[projectIdentifier]
+        }
+        this._projectLoading[projectIdentifier] = this.props.getTableListByProject(projectIdentifier)
+            .then(
+                (data) => {
+                    return data;
+                }
+            )
+        return this._projectLoading[projectIdentifier];
     }
     /**
      * 每一次语法解析完成之后的触发事件
@@ -633,6 +679,7 @@ export default connect(state => {
         project: state.project,
         user: state.user,
         tables: state.offlineTask.comm.tables,
+        projectTables: state.offlineTask.comm.projectTables,
         showTableTooltip: state.offlineTask.workbench.showTableTooltip
     }
 }, dispatch => {
@@ -645,6 +692,9 @@ export default connect(state => {
         },
         getTableList: (projectId, type) => {
             dispatch(getTableList(projectId, type));
+        },
+        getTableListByProject: (projectId) => {
+            return dispatch(getTableListByProject(projectId));
         }
     })
     return actions;

@@ -10,6 +10,7 @@ import {
 import { TASK_TYPE } from '../../../comm/const';
 
 import Api from '../../../api';
+import manageApi from '../../../api/dataManage';
 
 const taskTypes = (state = [], action) => {
     switch (action.type) {
@@ -49,12 +50,25 @@ const scriptTypes = (state = [], action) => {
         default: return state;
     }
 }
+const projectTables = (state = {}, action) => {
+    const { type, payload = {} } = action;
+    const { projectIdentifier, tableList } = payload;
+    const newState = assign({}, state);
+    switch (type) {
+        case commAction.SET_PROJECT_TABLE_LIST: {
+            newState[projectIdentifier] = tableList;
+            return newState;
+        }
 
+        default: return newState;
+    }
+}
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
     tables,
-    scriptTypes
+    scriptTypes,
+    projectTables
 });
 
 /**
@@ -76,6 +90,25 @@ export const getTableList = (projectId, type) => {
                     payload: data.children,
                     key: projectId
                 })
+            }
+        })
+    }
+}
+export const getTableListByProject = (projectIdentifier, type) => {
+    return (dispatch, getState) => {
+        return manageApi.getTableListByProjectList({
+            projectIdentifier
+        }).then((res) => {
+            if (res.code == 1) {
+                let { data } = res;
+                dispatch({
+                    type: commAction.SET_PROJECT_TABLE_LIST,
+                    payload: {
+                        projectIdentifier,
+                        tableList: data.children
+                    }
+                });
+                return [projectIdentifier, data.children];
             }
         })
     }
