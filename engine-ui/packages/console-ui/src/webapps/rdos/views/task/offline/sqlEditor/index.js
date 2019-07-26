@@ -327,44 +327,42 @@ class EditorContainer extends Component {
                     }
                 }
             }
-            Promise.all(promiseList)
-                .then(
-                    (values) => {
-                        let _tmpCache = {}
-                        // value:[tableName,data]
-                        for (let value of values) {
-                            // 去除未存在的表
-                            if (!value || !value[1] || !value[1].length) {
-                                continue;
-                            }
-                            // 防止添加重复的表
-                            if (_tmpCache[value[0]]) {
-                                continue;
-                            }
-                            _tmpCache[value[0]] = true;
-                            // 在当前语境为column的情况下，提升该表所有column的优先级
-                            let priority = '100';
-                            if (!context.columnContext || context.columnContext.indexOf(value[0]) == -1) {
-                                // 当触发上下文是点，则不显示其余补全项
-                                if (context.completionContext.triggerCharacter == '.') {
-                                    continue;
-                                }
-                                priority = '1100';
-                            }
-                            defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(value[1].concat(value[3]).map(
-                                    (column) => {
-                                        return [column.columnName, value[0], priority, 'Variable']
-                                    }
-                                ))
-                            )
-                        }
-                        resolve(defaultItems);
+            try {
+                let values = await Promise.all(promiseList);
+                let _tmpCache = {}
+                // value:[tableName,data]
+                for (let value of values) {
+                    // 去除未存在的表
+                    if (!value || !value[1] || !value[1].length) {
+                        continue;
                     }
-                ).catch((e) => {
-                    console.log(e)
-                    resolve(defaultItems);
-                })
+                    // 防止添加重复的表
+                    if (_tmpCache[value[0]]) {
+                        continue;
+                    }
+                    _tmpCache[value[0]] = true;
+                    // 在当前语境为column的情况下，提升该表所有column的优先级
+                    let priority = '100';
+                    if (!context.columnContext || context.columnContext.indexOf(value[0]) == -1) {
+                        // 当触发上下文是点，则不显示其余补全项
+                        if (context.completionContext.triggerCharacter == '.') {
+                            continue;
+                        }
+                        priority = '1100';
+                    }
+                    defaultItems = defaultItems.concat(
+                        customCompletionItemsCreater(value[1].concat(value[3]).map(
+                            (column) => {
+                                return [column.columnName, value[0], priority, 'Variable']
+                            }
+                        ))
+                    )
+                }
+                resolve(defaultItems);
+            } catch (e) {
+                console.log(e)
+                resolve(defaultItems);
+            };
         } else {
             resolve(defaultItems)
         }
