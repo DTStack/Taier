@@ -31,7 +31,7 @@ baseConf.mode = "production";
 // JS loader
 baseConf.module.rules.unshift(
     {
-        test: /\.js$/,
+        test: /\.[jt]sx?$/,
         include: MY_PATH.APP_PATH,
         exclude: [
             path.resolve(MY_PATH.ROOT_PATH, "node_modules"),

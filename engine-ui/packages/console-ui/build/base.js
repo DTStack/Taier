@@ -7,6 +7,7 @@ const HappyPack = require('happypack');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const os = require('os');
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const MY_PATH = require('./consts');
 const monacoConfig = require('./monacoConfig');
@@ -82,7 +83,7 @@ module.exports = function () {
         },
         resolve: {
             modules: ["node_modules"],
-            extensions: ["ts", "tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
+            extensions: [".ts", ".tsx", ".js", ".jsx", ".scss", ".css"], //后缀名自动补全
             alias: {
                 // 全局公共模块目录
                 utils: path.resolve(MY_PATH.APP_PATH, "utils"), // 工具文件夹
@@ -109,6 +110,7 @@ module.exports = function () {
             }
         },
         plugins: [
+            new ForkTsCheckerWebpackPlugin(),
             new webpack.HashedModuleIdsPlugin(),
             new MonacoWebpackPlugin({
                 features: monacoConfig.features,

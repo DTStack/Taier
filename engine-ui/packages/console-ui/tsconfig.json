@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "noEmit": true,  // Don't emit; allow Babel to transform files.
         "outDir":"./dist/",
         "baseUrl": ".",
         "experimentalDecorators": true,

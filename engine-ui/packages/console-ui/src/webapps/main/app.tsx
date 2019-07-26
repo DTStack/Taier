@@ -1,14 +1,16 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 
 import { getStore } from 'utils/reduxUtils'
 
-import Root from './root'
+import Root from './root';
 
-const render = (Component) => {
+declare var module: any;
+
+const render = (Component: any) => {
     const rootReducer = require('./reducers').default;
-    const { store, history } = getStore(rootReducer);
+    const { store, history } = getStore(rootReducer, null);
 
     ReactDOM.render(
         <AppContainer>
