@@ -11,16 +11,16 @@
 @mixin set-catalogue-overflow ($val) {
     overflow: $val;
 }
-.s-catalogue-top {
+.s-catalogue__comm {
     @include set-catalogue-top(35px);
     @include set-catalogue-overflow(auto);
     padding: 6px 15px 5px 12px;
 
 }
-.s-resource-catalogue-top {
+.s-resource-catalogue__cus {
     @include set-catalogue-top(0);
     @include set-catalogue-overflow(unset);
-    padding: 6px 0px 5px 12px;
+    padding: 0px 0px 5px 12px;
 }
 .sidebar {
     &.c-component-siderbar{
@@ -261,38 +261,38 @@
         background-image: url(/public/rdos/img/icon/othericon.svg)
     }
 }
-.resource_file_bottom {
+// 资源folder
+.s-resource_file_wrap_close {
     position: absolute;
     bottom: 0;
     border-top: 1px solid #dddddd;
-    height: 45px;
+    height: 35px;
     width: 100%;
     background: #f5f5f5;
 }
-.resource_file_top {
-    height: 45px;
+.s-resource-folder-wrap_open {
+    height: 35px;
     width: 100%;
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
 
 }
-.resource_fix {
+.s-resource-floder-fixed {
     height: 100%;
+    & > li {
+        height: 100%;
+    }
+    & > li > ul {
+        margin-top: 5px;
+        padding-bottom: 35px;
+        height: 100%;
+        overflow: auto;
+    }
 
 }
-.resource_fix > li {
-    height: 100%;
-    
-}
-.resource_fix > li > ul {
-    margin-top: 10px;
-    padding-bottom: 35px;
-    height: 100%;
-    overflow: auto;
-}
-.resource_dropdown {
+.s-resource_dropdown {
     position: absolute;
-    top: 15px;
+    top: 9px;
     right: 10px;
 }
 .table-detail-container{
