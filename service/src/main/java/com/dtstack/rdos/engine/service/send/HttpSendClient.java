@@ -52,8 +52,7 @@ public class HttpSendClient {
         if(!resultMap.containsKey("data")){
             return null;
         }
-        Map<String, Object> result = (Map<String, Object>) resultMap.get("data");
-        return MathUtil.getBoolean(result.get("send"), false);
+        return MathUtil.getBoolean(resultMap.get("data"), false);
     }
 
     public static void masterSendJobs(String target,Map<String, Object> params) {
