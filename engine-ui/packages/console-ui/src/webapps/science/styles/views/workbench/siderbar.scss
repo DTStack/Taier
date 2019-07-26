@@ -42,16 +42,14 @@
         margin-bottom: 2px;
     }
     .toolbar {
-        height: 35px;
-        padding: 7px 7px;
-        line-height: 35px;
+        padding: 7px;
         border-bottom: 1px solid #dddddd;
  
         .btn-icon {
+            display: inline-block;
             font-size: 15px;
-            line-height: 21px;
+            line-height: 27px;
             margin-right: 12px;
-            vertical-align: top;
             cursor: pointer;
         }
     }
