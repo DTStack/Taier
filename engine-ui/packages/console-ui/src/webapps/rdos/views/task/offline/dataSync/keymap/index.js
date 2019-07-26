@@ -62,9 +62,9 @@ function isFieldMatch (source, target) {
 }
 const rowkeyTxt =
 `变量写法：
-    • $(colFamily.colName)：列族、列名
-    • 支持md5函数，使用时必须以md5开头
-    • 支持多字段拼接，例如：md5($(cf1.userName)_$(cf2.userAge))
+(colFamily.colName)：列族、列名
+持md5函数，使用时必须以md5开头
+持多字段拼接，例如：md5($(cf1.userName)_$(cf2.userAge))
 `;
 class Keymap extends React.Component {
     constructor (props) {
@@ -971,7 +971,7 @@ class Keymap extends React.Component {
         const noKeyMapping = !keymap.source || keymap.source.length === 0;
         const focusSty = {
             width: isFocus ? '285px' : '185px',
-            verticalAlign: 'text-top'
+            verticalAlign: isFocus ? '-97px' : '0px'
             // border: !isSuccess ? '1px solid #f04134' : '1px solid #dddddd'
         }
         return <Resize onResize={this.resize}>
