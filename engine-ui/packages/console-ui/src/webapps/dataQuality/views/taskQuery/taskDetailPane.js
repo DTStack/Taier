@@ -139,14 +139,15 @@ export default class TaskDetailPane extends Component {
     render () {
         const { visible, currentRecord, taskDetail, showSnapshot, ruleDetailTableModalVisible, ruleRecord } = this.state;
         const { data } = this.props;
-        const filterTaskDetail = taskDetail ? taskDetail.filter(
-            (item) => {
-                if (showSnapshot) {
-                    return true;
-                }
-                return item.isSnapshot == 0;
-            }
-        ) : []
+        // const filterTaskDetail = taskDetail ? taskDetail.filter( // 原本由前端控制查看历史规则的显示和隐藏
+        //     (item) => {
+        //         if (showSnapshot) {
+        //             return true;
+        //         }
+        //         return item.isSnapshot == 0;
+        //     }
+        // ) : []
+        // console.log(filterTaskDetail)
 
         let cardTitle = (
             !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
@@ -158,8 +159,8 @@ export default class TaskDetailPane extends Component {
 
         return (
             <div style={{ padding: '15px 20px' }}>
-                <Checkbox value={showSnapshot} style={{ marginBottom: '10px' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
-                {filterTaskDetail.map((rule) => {
+                <Checkbox value={showSnapshot} style={{ marginBottom: '10px', display: 'none' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
+                {taskDetail.map((rule) => {
                     return <RuleView
                         key={rule.id}
                         tableName={data.tableName}
