@@ -382,7 +382,7 @@ class CollectionTargetForm extends React.Component {
                                     </Radio>
                                 ) : null}
                                 <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
-                                    手动选择
+                                        手动选择分区表
                                 </Radio>
                             </RadioGroup>
                         )}
