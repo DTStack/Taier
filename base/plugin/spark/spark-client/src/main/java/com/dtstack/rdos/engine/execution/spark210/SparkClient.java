@@ -61,7 +61,7 @@ public class SparkClient extends AbsClient {
     private String deployMode = "cluster";
 
     public SparkClient(){
-        this.restartStrategy = new SparkRestartStrategy();
+        this.restartService = new SparkRestartStrategy();
     }
 
     @Override
