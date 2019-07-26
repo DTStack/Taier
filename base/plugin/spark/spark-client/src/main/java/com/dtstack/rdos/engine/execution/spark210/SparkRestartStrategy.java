@@ -1,6 +1,6 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
-import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
+import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
 
 /**
  * Reason:
@@ -9,7 +9,7 @@ import com.dtstack.rdos.engine.execution.base.restart.IRestartStrategy;
  * @author xuchao
  */
 
-public class SparkRestartStrategy extends IRestartStrategy {
+public class SparkRestartStrategy extends ARestartService {
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
