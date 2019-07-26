@@ -17,7 +17,7 @@ import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import workbenchActions from '../../../../../actions/workbenchActions';
 import * as notebookActions from '../../../../../actions/notebookActions'
 
-import { siderBarType, TASK_TYPE } from '../../../../../consts';
+import { siderBarType, TASK_TYPE, TASK_TYPE_TEXT } from '../../../../../consts';
 
 // const Search = Input.Search;
 
@@ -250,9 +250,10 @@ class NotebookSidebar extends Component {
             moveModalVisible
         } = this.state;
         const { isShowFixResource } = this.props;
+        const taskMap = new Map(TASK_TYPE_TEXT.map(task => { return [task.value, task.text] }));
         return (
             <>
-                <div className="sidebar" style={{ height: !isShowFixResource ? 'calc(100% - 45px)' : '70%' }}>
+                <div className="sidebar" style={{ height: !isShowFixResource ? 'calc(100% - 35px)' : '70%' }}>
                     <ToolBar
                         toolbarItems={[
                             {
@@ -359,7 +360,7 @@ class NotebookSidebar extends Component {
                             edit: true
                         }, {
                             label: '作业类型',
-                            value: 'Python3'
+                            value: taskMap.get(editParamsData.taskType)
                         }, {
                             label: '创建人',
                             value: editParamsData.createUser

@@ -352,7 +352,6 @@ export default class TableViewer extends React.Component {
                                             <RadioGroup
                                                 defaultValue={showType}
                                                 onChange={this.switchType.bind(this)}
-                                                style={{ marginTop: 10 }}
                                             >
                                                 <RadioButton value={0}>非分区字段</RadioButton>
                                                 {isHiveTable && <RadioButton value={1}>分区字段</RadioButton>}
@@ -365,7 +364,7 @@ export default class TableViewer extends React.Component {
                                         }
                                     >
                                         {tableData && <Table
-                                            className="m-table"
+                                            className="dt-ant-table dt-ant-table--border"
                                             columns={columns}
                                             rowKey="id"
                                             dataSource={showType === 0 ? tableData.column : tableData.partition}
@@ -384,7 +383,7 @@ export default class TableViewer extends React.Component {
                                                 key: str + i,
                                                 width: '200px'
                                             }))}
-                                            className="m-table"
+                                            className="dt-ant-table dt-ant-table--border"
                                             dataSource={previewData}
                                             scroll={{ x: 200 * this.previewCols.length }}
                                         ></Table>

@@ -121,7 +121,7 @@ class RoleManagement extends Component {
                     >
                         <Table
                             rowKey="id"
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}

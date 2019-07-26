@@ -125,7 +125,11 @@
     .ant-card-body {
         padding: 11px 20px;
         .dt-ant-table {
-            
+            &.dt-ant-table--padding {
+                .ant-table-body {
+                    margin: 0 20px;
+                }
+            }
             .ant-table-footer {
                 border-bottom: 0;
                 margin-top: 10px;

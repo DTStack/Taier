@@ -265,7 +265,7 @@ class RuleManage extends Component {
                 >
                     <Spin tip="正在加载中..." spinning={cardLoading}>
                         <Table
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             columns={columns}
                             dataSource={table}
                             pagination={pagination}

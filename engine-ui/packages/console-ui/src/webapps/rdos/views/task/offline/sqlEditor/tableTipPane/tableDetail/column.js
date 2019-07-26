@@ -94,7 +94,7 @@ class ExtraPaneTableDetailColumn extends React.Component {
                     onChange={this.search.bind(this)}
                 />
                 <Table
-                    className="m-table border-table"
+                    className="dt-ant-table dt-ant-table--border border-table"
                     columns={this.initColumns()}
                     dataSource={this.filterColumns()}
                     pagination={{ size: 'small' }}

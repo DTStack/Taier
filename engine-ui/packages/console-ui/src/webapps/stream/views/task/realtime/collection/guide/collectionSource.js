@@ -413,6 +413,7 @@ class CollectionSourceForm extends React.Component {
                                 <MultipleTableSelect tableList={tableList} onComplete={this.onCompleteMultipleTableSelect} />
                             </FormItem>
                             {distributeTable && distributeTable.map((table, index) => {
+                                const couldEdit = !(isEdit && table.isSaved);
                                 return (
                                     <FormItem
                                         key={`${index}`}
@@ -420,7 +421,7 @@ class CollectionSourceForm extends React.Component {
                                         label="分组"
                                         required
                                     >
-                                        <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={isEdit} placeholder='请输入分组名' />
+                                        <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={!couldEdit} placeholder='请输入分组名' />
                                         <div>
                                             {(table.tables || []).map((tableName) => {
                                                 return <span style={{ marginTop: '5px', paddingRight: '8px' }} key={tableName} ><Tag>{tableName}</Tag></span>
@@ -429,7 +430,7 @@ class CollectionSourceForm extends React.Component {
                                                 <Button onClick={this.editMultipleTable.bind(this, index)} size="small" type="dashed"> + 编辑</Button>
                                             </span>
                                         </div>
-                                        {(isEdit && table.isSaved) || (<a onClick={this.deleteGroup.bind(this, index)} style={{ position: 'absolute', right: '-30px', top: '0px' }}>删除</a>)}
+                                        {couldEdit && (<a onClick={this.deleteGroup.bind(this, index)} style={{ position: 'absolute', right: '-30px', top: '0px' }}>删除</a>)}
                                     </FormItem>
                                 )
                             })}
@@ -705,11 +706,9 @@ const WrapCollectionSourceForm = Form.create({
             clear = true
         }
         if (fields.hasOwnProperty('multipleTable')) {
-            if (fields['multipleTable']) {
-                fields.table = [];
-                fields.distributeTable = [];
-                fields.allTable = false;
-            }
+            fields.table = [];
+            fields.distributeTable = [];
+            fields.allTable = false;
         }
         /**
          * moment=>时间戳,并且清除其他的选项

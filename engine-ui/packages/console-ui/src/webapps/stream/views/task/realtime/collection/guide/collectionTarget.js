@@ -34,6 +34,7 @@ function getSourceInitialField (sourceType, data) {
             // eslint-disable-next-line
             initialFields.partitionType = partitionTypes.DAY;
             initialFields.analyticalRules = prefixRule;
+            initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
@@ -542,7 +543,7 @@ class CollectionTargetForm extends React.Component {
                                 required: true
                             }]
                         })(
-                            <RadioGroup disabled >
+                            <RadioGroup >
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>

@@ -253,7 +253,7 @@ class DataSourceMana extends Component {
         },
         {
             title: '操作',
-            width: '120px',
+            width: '140px',
             key: 'operation',
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
@@ -417,7 +417,7 @@ class DataSourceMana extends Component {
                         bordered={false}
                     >
                         <Table
-                            className="m-table td-pad_low full-screen-table-47"
+                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
                             rowKey="id"
                             pagination={pagination}
                             onChange={this.handleTableChange}

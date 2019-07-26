@@ -79,7 +79,7 @@ class TaskDetailPane extends React.Component {
         )
         const runInfoView = (
             <TabPane style={scrollStyleNoPt} tab={'运行日志'} key="runLog">
-                <RunLog isShow={tabKey == 'runLog'} data={data} />
+                <RunLog key={data.id + '~' + data.status} isShow={tabKey == 'runLog'} data={data} />
             </TabPane>
         )
         const alarmMsgView = (

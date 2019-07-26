@@ -159,7 +159,7 @@ class RelationDetail extends React.Component {
                         <Table
                             columns={this.initialCols()}
                             rowKey="relationId"
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             pagination={false}
                             dataSource={(relationTasks && relationTasks.data) || []}
                         />

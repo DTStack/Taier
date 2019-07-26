@@ -336,7 +336,7 @@ class SearchTable extends Component {
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="id"
-                                className="m-table full-screen-table-90"
+                                className="dt-ant-table dt-ant-table--border full-screen-table-90"
                                 columns={this.initialColumns()}
                                 dataSource={table.data}
                                 pagination={pagination}

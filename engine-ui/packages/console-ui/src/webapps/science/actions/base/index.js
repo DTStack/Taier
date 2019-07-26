@@ -104,6 +104,10 @@ export function setProject (project) {
                 type: experimentFilesType.CLEAR_TREE
             })
             dispatch({
+                type: resourceFilesType.UPDATE_EXPANDEDKEYS,
+                payload: []
+            })
+            dispatch({
                 type: projectType.SET_CURRENT_PROJECT,
                 payload: project
             });

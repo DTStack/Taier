@@ -408,6 +408,9 @@
         min-width: 40px;
         width: 40px;
     }
+    .ant-table-bordered .ant-table-header {
+        margin-bottom: -20px !important;
+    }
     .ant-table-bordered .ant-table-thead > tr > th {
         border-bottom: none;
     }
