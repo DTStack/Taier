@@ -270,7 +270,7 @@
     background: #f5f5f5;
 }
 .resource_file_top {
-    height: 40px;
+    height: 45px;
     width: 100%;
     border-top: 1px solid #dddddd;
     border-bottom: 1px solid #dddddd;
@@ -285,7 +285,8 @@
     
 }
 .resource_fix > li > ul {
-    padding-bottom: 21px;
+    margin-top: 10px;
+    padding-bottom: 35px;
     height: 100%;
     overflow: auto;
 }
