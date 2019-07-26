@@ -221,7 +221,7 @@ class PublishModal extends React.Component {
                     }}
                     onChange={this.onTableChange.bind(this)}
                     pagination={pagination}
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     columns={this.initColumns()}
                     dataSource={data.items}
                 />

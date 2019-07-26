@@ -243,7 +243,7 @@ class TableList extends Component {
             {
                 title: '占用存储',
                 key: 'tableSize',
-                width: 90,
+                width: 110,
                 fixed: 'right',
                 sorter: true,
                 dataIndex: 'tableSize'
@@ -251,7 +251,7 @@ class TableList extends Component {
             {
                 title: '生命周期',
                 key: 'lifeDay',
-                width: 90,
+                width: 110,
                 fixed: 'right',
                 sorter: true,
                 dataIndex: 'lifeDay'
@@ -398,7 +398,7 @@ class TableList extends Component {
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="id"
-                                className="m-table"
+                                className="dt-ant-table dt-ant-table--border"
                                 rowClassName={
                                     (record, index) => {
                                         if (this.state.tableLog && this.state.tableLog.tableId == record.id) {

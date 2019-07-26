@@ -1,24 +1,28 @@
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { Input } from 'antd'
+import { Input, Tooltip } from 'antd'
 import React, { Component } from 'react'
 
 const searchTypeList = [
     {
         key: 'caseSensitive',
-        svg: 'jqpp'
+        svg: 'jqpp',
+        tip: '区分大小写匹配'
     },
     {
         key: 'precise',
-        svg: 'jq'
+        svg: 'jq',
+        tip: '精确匹配'
     },
     {
         key: 'front',
-        svg: 'kt'
+        svg: 'kt',
+        tip: '头部匹配'
     },
     {
         key: 'tail',
-        svg: 'jw'
+        svg: 'jw',
+        tip: '尾部匹配'
     }
 ]
 
@@ -75,7 +79,7 @@ class MultiSearchInput extends Component {
                     placeholder={placeholder}
                     style={{
                         ...style,
-                        paddingRight: `${filterOptions.length * 32}px`
+                        paddingRight: `${filterOptions.length * 26 + 5}px`
                     }}
                     onChange={(e) => {
                         this.setState({ value: e.target.value });
@@ -91,10 +95,11 @@ class MultiSearchInput extends Component {
                         height: '100%',
                         top: '0px',
                         right: '0px',
-                        width: `${filterOptions.length * 32}px`,
+                        width: `${filterOptions.length * 26 + 5}px`,
                         display: 'flex',
                         justifyContent: 'space-around',
-                        alignItems: 'center'
+                        alignItems: 'center',
+                        paddingRight: '5px'
                     }}
                 >
                     {
@@ -117,13 +122,19 @@ class MultiSearchInput extends Component {
                                         onTypeChange(newSearchType)
                                     }}
                                 >
-                                    <img
-                                        src={`/public/widgets/img/${item.svg}_icon.svg`}
-                                        style={{
-                                            marginTop: '-6px',
-                                            marginLeft: '-3px'
-                                        }}
-                                    />
+                                    <Tooltip
+                                        title={item.tip}
+                                        mouseEnterDelay={0.5}
+                                    >
+                                        <img
+                                            src={`/public/widgets/img/${item.svg}_icon.svg`}
+                                            // title={item.tip}
+                                            style={{
+                                                marginTop: '-6px',
+                                                marginLeft: '-3px'
+                                            }}
+                                        />
+                                    </Tooltip>
                                 </div>
                             );
                         })

@@ -773,7 +773,7 @@ class AuthMana extends Component {
             selectedRowKeys,
             onChange: this.onSelectChange
         } : null;
-        const selectCalssName = isShowRowSelection ? 'm-table-fix m-table' : 'm-table'
+        const selectCalssName = isShowRowSelection ? 'm-table-fix dt-ant-table dt-ant-table--border' : 'dt-ant-table dt-ant-table--border'
         return <div className="m-tablelist">
             <div className="m-card card-tree-select">
                 <Card noHovering bordered={false} title={title} className="full-screen-table-80">

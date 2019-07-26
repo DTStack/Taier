@@ -769,7 +769,7 @@ class OfflineTaskList extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table full-screen-table-120"
+                            className="dt-ant-table dt-ant-table--border full-screen-table-120"
                             expandedRowKeys={this.state.expandedRowKeys}
                             rowSelection={rowSelection}
                             pagination={pagination}

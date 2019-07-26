@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Transfer, Button } from 'antd';
 
-class MultipleTableSelect extends React.Component {
+class MultipleTableSelect extends React.PureComponent {
     state = {
         selectKeys: []
     }

@@ -279,7 +279,7 @@ class OfflinePanel extends Component {
                     <Table
                         rowKey="id"
                         key="offlineAlarmList"
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         pagination={pagination}
                         loading={this.state.loading}
                         columns={this.initColumns()}
