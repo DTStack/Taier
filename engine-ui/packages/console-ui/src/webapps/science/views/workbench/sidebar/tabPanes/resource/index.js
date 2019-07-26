@@ -125,7 +125,7 @@ class ResourceManage extends Component {
                         treeData={files}
                         dropDownTab={() => {
                             return (
-                                <div className='resource_dropdown'>
+                                <div className='s-resource_dropdown'>
                                     <Dropdown overlay={
                                         <Menu onClick={this.onMenuClick}>
                                             <Menu.Item key="resource:upload">
@@ -254,9 +254,9 @@ class ResourceManage extends Component {
             resourceData, isCoverUpload,
             resDetailModal, resEditModal } = this.state;
         const { isShowFixResource } = this.props;
-        const extClassName = !isShowFixResource ? 'resource_file_bottom' : 'resource_file_top'
+        const extClassName = !isShowFixResource ? 's-resource_file_wrap_close' : 's-resource-folder-wrap_open'
         return (
-            <div className="sidebar" style={{ background: '#fff', height: !isShowFixResource ? '45px' : '30%' }}>
+            <div className="sidebar" style={{ background: '#fff', height: !isShowFixResource ? '35px' : '30%' }}>
                 <div className={extClassName}>
                     {
                         this.renderFolderContent()

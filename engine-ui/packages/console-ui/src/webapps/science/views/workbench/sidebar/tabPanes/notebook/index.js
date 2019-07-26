@@ -253,7 +253,7 @@ class NotebookSidebar extends Component {
         const taskMap = new Map(TASK_TYPE_TEXT.map(task => { return [task.value, task.text] }));
         return (
             <>
-                <div className="sidebar" style={{ height: !isShowFixResource ? 'calc(100% - 45px)' : '70%' }}>
+                <div className="sidebar" style={{ height: !isShowFixResource ? 'calc(100% - 35px)' : '70%' }}>
                     <ToolBar
                         toolbarItems={[
                             {

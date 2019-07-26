@@ -543,7 +543,7 @@ class CollectionTargetForm extends React.Component {
                                 required: true
                             }]
                         })(
-                            <RadioGroup disabled >
+                            <RadioGroup >
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>

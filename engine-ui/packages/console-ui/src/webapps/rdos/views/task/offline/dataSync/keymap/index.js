@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, isObject, isNaN } from 'lodash'
+import { isNumber, isObject, isNaN, get } from 'lodash'
 import {
     Button, Row, Col,
     Input, Tooltip,
@@ -444,7 +444,6 @@ class Keymap extends React.Component {
 
     /* eslint-disable no-useless-escape */
     isOkRowkey = val => {
-        // /^\$\(([\w\n]+\.[\w\n]+)\)(?:_\$\(([\w\n]+\.[\w\n]+)\))*$|^md5\(\$\(([\w\n]+\.[\w\n]+)\)(?:_\$\(([\w\n]+\.[\w\n]+)\))*\)$/
         const obase = '([\\w\\n]+\\.[\\w\\n]+)'
         const base = `\\$\\(${obase}\\)`;
         const regexBaseVar = `${base}(?:_${base})*`;
@@ -453,12 +452,7 @@ class Keymap extends React.Component {
     }
 
     handleBlurRowkeyCheck = (e) => {
-        // const targetVal = e.target.value || '';
-        // const value = utils.trim(targetVal);
-        // const isOkRowkey = this.isOkRowkey(value);
-        // if (!isOkRowkey) message.error('rowkey格式有误');
         this.setState({
-            // isSuccess: isOkRowkey,
             isFocus: false
         });
     }
@@ -1010,7 +1004,7 @@ class Keymap extends React.Component {
                                         autoFocus={ isFocus }
                                         type={ isFocus ? 'textarea' : 'text' }
                                         style={ focusSty }
-                                        defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
+                                        defaultValue={get(targetMap, 'type.rowkey', '')}
                                         placeholder={ rowkeyTxt }
                                         onChange={ this.debounceRowkeyChange }
                                         onFocus={() => { this.setState({ isFocus: true }) }}

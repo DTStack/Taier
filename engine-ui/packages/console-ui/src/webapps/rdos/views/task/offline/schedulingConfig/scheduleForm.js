@@ -163,7 +163,7 @@ class ScheduleForm extends React.Component {
                         label="生效日期"
                     >
                         {getFieldDecorator('beginDate', {
-                            initialValue: moment(scheduleConf.beginDate, 'YYYY-MM-DD')
+                            initialValue: scheduleConf.beginDate && moment(scheduleConf.beginDate, 'YYYY-MM-DD')
                         })(
                             <DatePicker
                                 disabled={isScienceTask}
@@ -173,7 +173,7 @@ class ScheduleForm extends React.Component {
                         )}
                         <span className="split-text" style={{ float: 'none' }} >-</span>
                         {getFieldDecorator('endDate', {
-                            initialValue: moment(scheduleConf.endDate, 'YYYY-MM-DD')
+                            initialValue: scheduleConf.endDate && moment(scheduleConf.endDate, 'YYYY-MM-DD')
                         })(
                             <DatePicker
                                 disabled={isScienceTask}

@@ -500,7 +500,7 @@ class TaskDetail extends Component {
                 title: '状态',
                 dataIndex: 'status',
                 render (text, record) {
-                    displayTaskStatus(text)
+                    return displayTaskStatus(text)
                 }
             },
             {
