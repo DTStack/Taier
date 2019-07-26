@@ -51,8 +51,8 @@ const scriptTypes = (state = [], action) => {
     }
 }
 const projectTables = (state = {}, action) => {
-    const { type, payload = {} } = action;
-    const { projectIdentifier, tableList } = payload;
+    const { type, payload } = action;
+    const { projectIdentifier, tableList } = payload || {};
     const newState = assign({}, state);
     switch (type) {
         case commAction.SET_PROJECT_TABLE_LIST: {
