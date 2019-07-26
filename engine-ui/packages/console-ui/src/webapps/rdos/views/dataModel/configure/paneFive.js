@@ -186,22 +186,24 @@ class ModelDefineRule extends Component {
                                 hasFeedback
                             >
                                 {this.renderTableNameRules()}
-                                <Button
-                                    icon="plus"
-                                    title="添加规则"
-                                    size="normal"
-                                    style={{ marginRight: '5px' }}
-                                    onClick={this.appendTbNameRule}
-                                />
-                                {
-                                    tbNameRules.length > 1 && <Button
-                                        icon="minus"
-                                        title="移除规则"
+                                <div style={{ display: 'inline-block', marginBottom: '5px', lineHeight: 1.5 }}>
+                                    <Button
+                                        icon="plus"
+                                        title="添加规则"
                                         size="normal"
                                         style={{ marginRight: '5px' }}
-                                        onClick={() => this.removeTbNameRule(tbNameRules.length - 1)}
+                                        onClick={this.appendTbNameRule}
                                     />
-                                }
+                                    {
+                                        tbNameRules.length > 1 && <Button
+                                            icon="minus"
+                                            title="移除规则"
+                                            size="normal"
+                                            style={{ marginRight: '5px' }}
+                                            onClick={() => this.removeTbNameRule(tbNameRules.length - 1)}
+                                        />
+                                    }
+                                </div>
                             </FormItem>
                             <FormItem
                                 {...formItemLayout}

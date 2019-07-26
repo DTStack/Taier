@@ -209,6 +209,18 @@
                 font-weight: 400;
             }
         }
+        .ant-table-scroll .ant-table-header { // 设置scroll的table 造成的表头header滚动条与head部分border-bottom造成的双border 隐藏滚动条
+            margin-bottom: -20px;
+            > .ant-table-fixed {
+                > .ant-table-thead {
+                    tr {
+                        th {
+                            border-bottom: 0;
+                        }
+                    }
+                }
+            }
+        }
         .ant-table-tbody>tr:hover {
             background: #E7F7FF;
         }
@@ -239,9 +251,9 @@
                 }
             }
         }
-        .ant-table-placeholder {
-            border-bottom: 0;
-        }
+        // .ant-table-placeholder {
+        //     border-bottom: 0;
+        // }
     }
 }
 .dt-ant-table--border {
