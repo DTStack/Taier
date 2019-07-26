@@ -179,7 +179,7 @@ class EngineConfig extends Component {
     render () {
         const { unUseEngineList, dBList, confirmLoading } = this.state;
         return (
-            <div>
+            <div style={{ height: '100%' }}>
                 <h1 className="box-title">
                     计算引擎配置
                     <Button
@@ -190,7 +190,7 @@ class EngineConfig extends Component {
                             添加计算引擎
                     </Button>
                 </h1>
-                <div className="box-2 m-tabs m-card">
+                <div className="box-2 m-tabs m-card" style={{ height: '100%' }}>
                     <Tabs
                         animated={false}
                         style={{ height: 'auto', minHeight: 'calc(100% - 40px)' }}
