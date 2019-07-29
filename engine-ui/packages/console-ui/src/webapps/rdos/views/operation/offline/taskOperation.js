@@ -422,7 +422,7 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: '350px',
+            width: '408px',
             render: (text, record) => {
                 let name = record.batchTask && record.batchTask.name
                 let originText = name;
