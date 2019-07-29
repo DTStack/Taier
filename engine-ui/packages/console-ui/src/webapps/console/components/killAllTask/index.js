@@ -24,7 +24,7 @@ class killAllTask extends Component {
                     })
                 }, delayTime)
             } else {
-                message.success('操作失败');
+                message.error('操作失败');
                 this.setState({
                     confirmLoading: false
                 })
