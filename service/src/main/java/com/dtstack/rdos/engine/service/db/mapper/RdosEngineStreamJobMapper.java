@@ -50,4 +50,5 @@ public interface RdosEngineStreamJobMapper {
 
 	void updateRetryNum(@Param("taskId")String taskId, @Param("retryNum")Integer retryNum);
 
+	void updateStreamTaskEndTime(@Param("taskId") String taskId);
 }

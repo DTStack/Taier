@@ -305,12 +305,23 @@ public class TaskStatusListener implements Runnable{
                     FailedTaskInfo failedTaskInfo = new FailedTaskInfo(taskId, jobIdentifier,
                             engineTypeName, computeType, pluginInfoStr);
                     addFailedJob(failedTaskInfo);
+
+                    updateStreamTaskEndTime(taskId);
                 }
             }
         } else {
             zkLocalCache.updateLocalMemTaskStatus(zkTaskId, RdosTaskStatus.FAILED.getStatus());
             rdosEngineJobCacheDao.deleteJob(taskId);
         }
+    }
+
+    private void updateStreamTaskEndTime(String taskId) {
+        try {
+            rdosStreamTaskDAO.updateStreamTaskEndTime(taskId);
+        } catch (Exception e) {
+            logger.error("update stream task endtime error", e);
+        }
+
     }
 
     private void dealBatchJob(String taskId, String engineTypeName, String zkTaskId, int computeType) throws Exception {

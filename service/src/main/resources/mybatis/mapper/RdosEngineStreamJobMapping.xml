@@ -104,4 +104,8 @@
     <update id="updateRetryNum">
         update rdos_engine_stream_job set retry_num = #{retryNum} where task_id = #{taskId}
     </update>
+
+    <update id="updateStreamTaskEndTime">
+      update rdos_engine_stream_job set exec_end_time=now() where task_id = #{taskId}
+    </update>
 </mapper>
