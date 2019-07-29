@@ -363,7 +363,8 @@ class OutputOrigin extends Component {
                             <Editor
                                 style={{
                                     minHeight: 202,
-                                    border: '1px solid #ddd'
+                                    border: '1px solid #ddd',
+                                    height: '100%'
                                 }}
                                 key="params-editor"
                                 sync={sync}
