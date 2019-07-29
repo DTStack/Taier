@@ -707,7 +707,7 @@ const WrapCollectionSourceForm = Form.create({
         }
         if (fields.hasOwnProperty('multipleTable')) {
             fields.table = [];
-            fields.distributeTable = [];
+            fields.distributeTable = undefined;
             fields.allTable = false;
         }
         /**
