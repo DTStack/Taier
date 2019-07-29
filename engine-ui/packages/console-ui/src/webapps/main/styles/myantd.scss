@@ -432,15 +432,23 @@
     height: 'auto';
     min-height: calc(100% - 50px);
 }
-.dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll .ant-table-header {
-    overflow-y: hidden;
-    margin-bottom: -20px !important;
-    padding-right: 16px;
-    .ant-table-thead > tr {
-        > th:last-child {
-            border-right-width: 0;
-        }
+.dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll {
+    .ant-table-header {
+        margin-bottom: -17px !important;
     }
+    // .ant-table-header {
+    //     overflow-y: auto;
+    //     margin-bottom: -20px !important;
+    //     padding-right: 16px;
+    //     .ant-table-thead > tr {
+    //         > th:last-child {
+    //             border-right-width: 0;
+    //         }
+    //     }
+    // }
+    // .ant-table-body::-webkit-scrollbar {
+    //     display: none;
+    // }
 }
 
 .full-screen-table-60{
