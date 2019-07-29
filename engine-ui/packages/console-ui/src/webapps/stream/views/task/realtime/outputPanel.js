@@ -354,7 +354,7 @@ class OutputOrigin extends Component {
                             : <Col span="18" style={{ marginBottom: 20, height: 200 }}>
                                 {isShow && (
                                     <Editor
-                                        style={{ minHeight: 202, border: '1px solid #ddd' }}
+                                        style={{ minHeight: 202, border: '1px solid #ddd', height: '100%' }}
                                         sync={sync}
                                         placeholder={'字段 类型, 比如 id int 一行一个字段'}
                                         value={panelColumn[index].columnsText}
