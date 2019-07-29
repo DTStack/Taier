@@ -30,6 +30,7 @@ export default function BatchModal (props) {
             title={title}
             onOk={onOk}
             onCancel={onCancel}
+            maskClosable={false}
             visible={visible}>
             <div>
                 { isNotHBase ? '批量导入的语法格式（index 从 0 开始）：' : '批量添加的语法格式:' }
