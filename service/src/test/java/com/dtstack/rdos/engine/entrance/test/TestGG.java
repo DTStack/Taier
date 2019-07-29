@@ -1,8 +1,10 @@
 package com.dtstack.rdos.engine.entrance.test;
 
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.google.common.collect.Maps;
+import sun.misc.Unsafe;
 
 
 /**
@@ -10,13 +12,27 @@ import com.google.common.collect.Maps;
  */
 public class TestGG {
 	
-	public static void main(String[] args){
-		Map<String,Object> kk = Maps.newLinkedHashMap();
-		kk.put("ysqys", 123);
-		kk.put("ffg", 1234);
-		while(kk.keySet().iterator().hasNext()){
-			kk.remove(kk.keySet().iterator().next());
+	public static void main(String[] args) throws Exception{
+
+		List<Object> list = new ArrayList<>();
+		int i = 0;
+		while (true) {
+			System.out.println("omObject");
+
+			list.add(new OMObject());
+			System.out.println("loop: " + i++);
+			if (i>10){
+				Thread.sleep(3000);
+			}
 		}
-		System.out.println(kk.size());
+	}
+
+	public static class OMObject {
+
+		private byte[] OM_OBJECT;
+
+		public OMObject() {
+			this.OM_OBJECT = new byte[1024 * 1024 * 2];
+		}
 	}
 }

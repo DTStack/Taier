@@ -53,6 +53,7 @@ public class ClientArguments {
     Properties confs;
     String pythonVersion;
     String cmdOpts;
+    String jvmOpts;
     String outputs;
     String inputs;
     String cacheFiles;
@@ -283,6 +284,14 @@ public class ClientArguments {
         this.cmdOpts = cmdOpts;
     }
 
+    public String getJvmOpts() {
+        return jvmOpts;
+    }
+
+    public void setJvmOpts(String jvmOpts) {
+        this.jvmOpts = jvmOpts;
+    }
+
     public String getOutputs() {
         return outputs;
     }
@@ -361,6 +370,7 @@ public class ClientArguments {
         outputs = "";
         inputs = "";
         cmdOpts = "";
+        jvmOpts = "-server -XX:+UseConcMarkSweepGC -XX:MaxDirectMemorySize=128m -XX:MaxMetaspaceSize=128m -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow";
         appMasterJar = "";
         userPath = "";
         priority = DtYarnConfiguration.DEFAULT_LEARNING_APP_PRIORITY;
@@ -440,6 +450,8 @@ public class ClientArguments {
         allOptions.addOption("help", "help", false, "Print usage");
 
         allOptions.addOption("cmdOpts", "cmd-opts", true, "command opts");
+
+        allOptions.addOption("jvmOpts", "jvmOpts", true, "jvm opts");
 
         allOptions.addOption("pythonVersion", "python-version", true, "python version");
 
@@ -570,6 +582,10 @@ public class ClientArguments {
 
         if (commandLine.hasOption(CliOptions.OPT_CMD_OPTS)) {
             cmdOpts = commandLine.getOptionValue(CliOptions.OPT_CMD_OPTS);
+        }
+
+        if (commandLine.hasOption(CliOptions.OPT_JVM_OPTS)) {
+            jvmOpts = commandLine.getOptionValue(CliOptions.OPT_JVM_OPTS);
         }
 
         if (commandLine.hasOption(CliOptions.OPT_PYTHON_VERTION)) {

@@ -2,12 +2,13 @@ package com.dtstack.yarn.common.type;
 
 import ch.qos.logback.classic.Level;
 import com.dtstack.yarn.client.ClientArguments;
+import com.dtstack.yarn.util.Base64Util;
+import com.dtstack.yarn.util.GZipUtil;
 import com.dtstack.yarn.util.NetUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,27 +40,21 @@ public class JLogstashType extends AppType {
             appName = "jlogstashJob";
         }
 
-        String encodedOpts = "";
-        try {
-            encodedOpts = URLEncoder.encode(clientArguments.getCmdOpts(), "UTF-8");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
         if (buildCmdLog.isDebugEnabled()) {
-            buildCmdLog.debug("encodedOpts: " + encodedOpts);
+            buildCmdLog.debug("encodedOpts: " + clientArguments.getCmdOpts());
             buildCmdLog.debug("Building jlogstash launch command");
         }
 
         List<String> jlogstashArgs = new ArrayList<>(20);
         jlogstashArgs.add(javaHome + "java");
+        jlogstashArgs.add(clientArguments.getJvmOpts());
         jlogstashArgs.add("-Xms" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-Xmx" + clientArguments.getWorkerMemory() + "m");
         jlogstashArgs.add("-cp " + root + "/jlogstash*.jar");
         jlogstashArgs.add("com.dtstack.jlogstash.JlogstashMain");
         jlogstashArgs.add("-l stdout");
         jlogstashArgs.add("-" + getJlogstashLogLevel(clientArguments.getLogLevel().toUpperCase()));
-        jlogstashArgs.add("-f " + encodedOpts);
+        jlogstashArgs.add("-f " + clientArguments.getCmdOpts());
         jlogstashArgs.add("-p " + root);
         jlogstashArgs.add("-name " + appName);
 
@@ -106,11 +101,12 @@ public class JLogstashType extends AppType {
             int idx = -1;
             for (int i = 0; i < args.length - 1; ++i) {
                 if (args[i].equals("-f")) {
-                    fStr = URLDecoder.decode(args[i + 1], "UTF-8");
+                    fStr = Base64Util.baseDecode(GZipUtil.deCompress(args[i + 1]));
                     idx = i + 1;
                     break;
                 }
             }
+            boolean isChg = false;
             if (StringUtils.isNotBlank(fStr)) {
                 Map configs = objectMapper.readValue(fStr, Map.class);
                 List<Map> inputs = (List<Map>) MapUtils.getObject(configs, "inputs", Collections.EMPTY_LIST);
@@ -123,6 +119,7 @@ public class JLogstashType extends AppType {
                             String inputType = inputEntry.getKey();
                             Map<String, Object> inputConfig = inputEntry.getValue();
                             if ("Beats".equalsIgnoreCase(inputType)) {
+                                isChg = true;
                                 int configPort = MapUtils.getInteger(inputConfig, "port", 6767);
                                 int port = NetUtils.getAvailablePortRange(configPort);
                                 inputConfig.put("port", port);
@@ -136,8 +133,9 @@ public class JLogstashType extends AppType {
                 }
                 fStr = objectMapper.writeValueAsString(configs);
             }
-            if (idx != -1) {
-                args[idx] = URLEncoder.encode(fStr, "UTF-8");
+            if (idx != -1 && isChg) {
+                args[idx] = GZipUtil.compress(Base64Util.baseEncode(fStr));
+
                 cmd = StringUtils.join(args, " ");
             }
         } catch (Exception e) {

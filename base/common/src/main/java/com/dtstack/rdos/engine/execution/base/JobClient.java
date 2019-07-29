@@ -291,17 +291,17 @@ public class JobClient extends OrderObject{
         this.classArgs = classArgs;
     }
 
-	public void stopJob() throws Exception {
+    public void stopJob() throws Exception {
         JobSubmitExecutor.getInstance().stopJob(this);
-	}
+    }
 
-	public int getAgain() {
-		return again;
-	}
+    public int getAgain() {
+        return again;
+    }
 
-	public void setAgain(int again) {
-		this.again = again;
-	}
+    public void setAgain(int again) {
+        this.again = again;
+    }
 
     public void setSql(String sql) {
         this.sql = sql;
