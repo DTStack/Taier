@@ -44,8 +44,6 @@ class KillTask extends Component {
                 this.props.autoRefresh();
                 // 异步,成功之后才能关闭
                 this.props.onCancel();
-            } else {
-                message.success('操作失败');
             }
         })
     }
