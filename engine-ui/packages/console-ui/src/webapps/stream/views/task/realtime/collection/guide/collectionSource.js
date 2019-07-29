@@ -422,7 +422,7 @@ class CollectionSourceForm extends React.Component {
                                         required
                                     >
                                         <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={!couldEdit} placeholder='请输入分组名' />
-                                        <div>
+                                        <div style={{ maxHeight: '200px', overflow: 'hidden' }}>
                                             {(table.tables || []).map((tableName) => {
                                                 return <span style={{ marginTop: '5px', paddingRight: '8px' }} key={tableName} ><Tag>{tableName}</Tag></span>
                                             })}
@@ -707,7 +707,7 @@ const WrapCollectionSourceForm = Form.create({
         }
         if (fields.hasOwnProperty('multipleTable')) {
             fields.table = [];
-            fields.distributeTable = [];
+            fields.distributeTable = undefined;
             fields.allTable = false;
         }
         /**
