@@ -246,6 +246,7 @@ class DataSourceMana extends Component {
         {
             title: '映射状态',
             dataIndex: 'linkSourceName',
+            width: '80px',
             key: 'linkSourceName',
             render: (linkSourceName, record) => {
                 return linkSourceName ? '已配置' : '未配置';
@@ -253,7 +254,7 @@ class DataSourceMana extends Component {
         },
         {
             title: '操作',
-            width: '140px',
+            width: '130px',
             key: 'operation',
             render: (text, record) => {
                 // active  '0：未启用，1：使用中'。  只有为0时，可以修改
