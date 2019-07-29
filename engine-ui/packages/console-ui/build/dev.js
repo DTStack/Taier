@@ -37,7 +37,7 @@ baseConf.module.rules.unshift(
         loader: [
             "react-hot-loader/webpack",
             "happypack/loader?id=happy-babel-js",
-            "eslint-loader",
+            // "eslint-loader",
         ]
     }
 )

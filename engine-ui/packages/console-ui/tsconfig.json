@@ -5,6 +5,7 @@
         "baseUrl": ".",
         "experimentalDecorators": true,
         "noImplicitAny": true,
+        "strictNullChecks": true,
         "allowJs": true,
         "module": "commonjs",
         "target": "es5",

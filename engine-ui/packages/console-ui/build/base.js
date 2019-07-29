@@ -7,7 +7,6 @@ const HappyPack = require('happypack');
 const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const os = require('os');
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length });
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 
 const MY_PATH = require('./consts');
 const monacoConfig = require('./monacoConfig');
@@ -110,7 +109,6 @@ module.exports = function () {
             }
         },
         plugins: [
-            new ForkTsCheckerWebpackPlugin(),
             new webpack.HashedModuleIdsPlugin(),
             new MonacoWebpackPlugin({
                 features: monacoConfig.features,
