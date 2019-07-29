@@ -422,11 +422,11 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: '408px',
+            width: '390px',
             render: (text, record) => {
                 let name = record.batchTask && record.batchTask.name
                 let originText = name;
-                name = utils.textOverflowExchange(name, 45);
+                // name = utils.textOverflowExchange(name, 45);
                 let showName;
                 if (record.batchTask.isDeleted === 1) {
                     showName = `${name} (已删除)`;
