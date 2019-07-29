@@ -632,6 +632,8 @@
         .tab-ellipsis {
             width: 120px;
             line-height: 19px;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .workflow-name {
