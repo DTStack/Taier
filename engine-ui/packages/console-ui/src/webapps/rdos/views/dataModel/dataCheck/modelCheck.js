@@ -200,7 +200,7 @@ export default class ModelCheck extends Component {
                 <Form
                     className="m-form-inline"
                     layout="inline"
-                    style={{ margin: '10 0 0 20' }}
+                    style={{ margin: '10px 0 0 20px' }}
                 >
                     <FormItem>
                         <Input.Search
@@ -253,7 +253,7 @@ export default class ModelCheck extends Component {
                 </Form>
                 <Table
                     rowKey="id"
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     pagination={pagination}
                     loading={loading}
                     columns={this.initColumns()}

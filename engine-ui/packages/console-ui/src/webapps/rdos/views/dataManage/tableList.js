@@ -6,9 +6,10 @@ import {
 } from 'antd';
 
 import { Link, hashHistory } from 'react-router';
-
+import { TABLE_NAME_BY_TABLE_TYPE } from '../../comm/const';
 import utils from 'utils';
-
+import { getTenantTableTypes } from '../../store/modules/tableType';
+import EngineSelect from '../../components/engineSelect';
 import SlidePane from 'widgets/slidePane';
 import TableLog from './tableLog';
 import CatalogueTree from './catalogTree';
@@ -26,14 +27,22 @@ const ORDER_BY = {
 @connect(state => {
     return {
         allProjects: state.allProjects,
+        allTenantsProjects: state.allTenantsProjects,
         user: state.user,
-        dataCatalogues: state.dataManage.dataCatalogues
+        dataCatalogues: state.dataManage.dataCatalogues,
+        teantTableTypes: state.tableTypes.teantTableTypes
+    }
+}, dispatch => {
+    return {
+        getTenantTableTypes: (params) => {
+            dispatch(getTenantTableTypes(params))
+        }
     }
 })
 class TableList extends Component {
     constructor (props) {
         super(props);
-        const { listType, pId, tableName, pageIndex, catalogueId } = props.location.query;
+        const { listType, pId, tableName, pageIndex, catalogueId, tableType } = props.location.query;
 
         this.state = {
             table: [],
@@ -50,6 +59,7 @@ class TableList extends Component {
                 pageIndex: pageIndex || 1,
                 pageSize: 20,
                 catalogueId,
+                tableType,
                 pId,
                 tableName,
                 showDeleted: false
@@ -59,6 +69,7 @@ class TableList extends Component {
     }
 
     componentDidMount () {
+        this.props.getTenantTableTypes();
         this.search();
     }
 
@@ -159,7 +170,8 @@ class TableList extends Component {
         tableLog.tableName = tableName;
         tableLog.visible = true;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: table
         })
     }
 
@@ -169,7 +181,8 @@ class TableList extends Component {
         tableLog.tableId = undefined;
         tableLog.tableName = undefined;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: {}
         })
     }
 
@@ -212,6 +225,14 @@ class TableList extends Component {
                 dataIndex: 'projectAlias'
             },
             {
+                title: '表类型',
+                key: 'tableType',
+                dataIndex: 'tableType',
+                render (text) {
+                    return TABLE_NAME_BY_TABLE_TYPE[text]
+                }
+            },
+            {
                 title: '创建时间',
                 key: 'gmtCreate',
                 dataIndex: 'gmtCreate',
@@ -222,7 +243,7 @@ class TableList extends Component {
             {
                 title: '占用存储',
                 key: 'tableSize',
-                width: 90,
+                width: 110,
                 fixed: 'right',
                 sorter: true,
                 dataIndex: 'tableSize'
@@ -230,7 +251,7 @@ class TableList extends Component {
             {
                 title: '生命周期',
                 key: 'lifeDay',
-                width: 90,
+                width: 110,
                 fixed: 'right',
                 sorter: true,
                 dataIndex: 'lifeDay'
@@ -295,8 +316,8 @@ class TableList extends Component {
 
     renderPane = () => {
         const { table, queryParams, dataCatalogue, loading } = this.state;
-        const { allProjects } = this.props;
-        const projectOptions = allProjects.map(proj => <Option
+        const { allTenantsProjects, teantTableTypes } = this.props;
+        const projectOptions = allTenantsProjects.map(proj => <Option
             title={proj.projectAlias}
             key={proj.id}
             name={proj.projectAlias}
@@ -306,7 +327,7 @@ class TableList extends Component {
         </Option>)
 
         const title = (
-            <Form className="m-form-inline" layout="inline" style={{ marginTop: '10px' }}>
+            <Form className="m-form-inline" layout="inline">
                 <FormItem label="类目">
                     <span style={{ width: 200, display: 'inline-block' }}>
                         <CatalogueTree
@@ -332,6 +353,17 @@ class TableList extends Component {
                     >
                         {projectOptions}
                     </Select>
+                </FormItem>
+                <FormItem label="表类型">
+                    <EngineSelect
+                        allowClear
+                        showSearch
+                        style={{ width: 126 }}
+                        placeholder="选择表类型"
+                        tableTypes={teantTableTypes}
+                        value={queryParams.tableType}
+                        onChange={(value) => this.changeParams('tableType', value)}
+                    />
                 </FormItem>
                 <FormItem>
                     <Input.Search
@@ -366,7 +398,7 @@ class TableList extends Component {
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="id"
-                                className="m-table"
+                                className="dt-ant-table dt-ant-table--border"
                                 rowClassName={
                                     (record, index) => {
                                         if (this.state.tableLog && this.state.tableLog.tableId == record.id) {
@@ -390,7 +422,7 @@ class TableList extends Component {
     }
 
     render () {
-        const { tableLog, queryParams } = this.state;
+        const { tableLog, queryParams, editRecord } = this.state;
         const projectUsers = [];
         return (
             <div className="box-1 m-tabs">
@@ -422,7 +454,7 @@ class TableList extends Component {
                     style={{ right: '-20px', width: '80%', height: '100%', minHeight: '600px' }}
                 >
                     {tableLog.visible ? <div className="m-loglist">
-                        <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} />
+                        <TableLog key={tableLog.tableId} {...tableLog} projectUsers={projectUsers} editRecord={editRecord} />
                     </div> : ''}
                 </SlidePane>
             </div>

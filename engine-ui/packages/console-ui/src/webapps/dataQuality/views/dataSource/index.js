@@ -277,7 +277,7 @@ class DataSource extends Component {
         const cardTitle = (
             <Search
                 placeholder="数据源名称"
-                style={{ width: 200, margin: '10px 0' }}
+                style={{ width: 200 }}
                 onSearch={this.searchDataSources}
             />
         );

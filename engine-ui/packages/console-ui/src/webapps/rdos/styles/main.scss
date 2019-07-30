@@ -10,7 +10,7 @@ body {
 }
 
 table {
-    font-size: 12px;
+    font-size: 13px;
 }
 
 .dt-dev-tools {
@@ -32,6 +32,20 @@ body:-webkit-full-screen {
     z-index: 998;
     top: 0;
     left: 0;
+}
+
+.ant-slider-pos {
+    .ant-slider-pos--collapsed {
+        background: #262E36;
+        color: #fff;
+        width: 100%;
+        border: none;
+        border-radius: 0;
+        text-align: center;
+        line-height: 42px;
+        height: 42px;
+        border-right: 1px solid #e9e9e9;
+    }
 }
 
 .bg-w {
@@ -68,7 +82,13 @@ body:-webkit-full-screen {
 }
 
 .vertical-center-modal .ant-modal {
-    width: 536px !important;
+    width: 536px;
+    display: inline-block;
+    vertical-align: middle;
+    top: 0;
+    text-align: left;
+}
+.vertical-center-modal-no-width .ant-modal {
     display: inline-block;
     vertical-align: middle;
     top: 0;
@@ -128,13 +148,6 @@ body:-webkit-full-screen {
 .ant-calendar-picker-input,
 .ant-calendar-range-picker-input {
     vertical-align: initial !important;
-}
-
-
-// 调整input 整体表单的行高
-
-.ant-input-search {
-    height: 28px;
 }
 
 .org-tree-select-wrap {
@@ -222,10 +235,12 @@ body:-webkit-full-screen {
 }
 .form-item-follow-text{
     margin:-14px 0px 14px 0px;
-    .ant-transfer-list-search-action {
-        padding-top: 8px;
+    .ant-transfer-list-header-selected {
+        .ant-transfer-list-header-title { // 覆盖antd Transfer组件标题默认样式
+            position: relative;
+            right: 0;
+        }
     }
-    .ant-transfer-list-header-title {}
 }
 .warning-color{
     color:#ffbf00;

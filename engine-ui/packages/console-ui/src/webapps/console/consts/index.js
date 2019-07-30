@@ -35,6 +35,91 @@ export const DATA_SOURCE = {
     MAXCOMPUTE: 10,
     ADSMAXCOMPUTE: 11
 }
+export const ENGINE_TYPE = {
+    HADOOP: 1,
+    LIBRA: 2
+}
+export const ENGINE_TYPE_NAME = {
+    HADOOP: 'Hadoop',
+    LIBRA: 'LibrA'
+}
+export const ENGINE_TYPE_ARRAY = [{ // 引擎类型下拉框数据
+    name: 'Hadoop',
+    value: 'Hadoop'
+}, {
+    name: 'LibrA',
+    value: 'LibrA'
+}]
+export const COMPONENT_TYPE_VALUE = {
+    FLINK: 0,
+    SPARK: 1,
+    LEARNING: 2,
+    DTYARNSHELL: 3,
+    HDFS: 4,
+    YARN: 5,
+    SPARKTHRIFTSERVER: 6,
+    CARBONDATA: 7,
+    LIBRASQL: 8,
+    HIVESERVER: 9
+}
+export const DEFAULT_COMP_TEST = { // 测试结果默认数据
+    flinkTestResult: {},
+    sparkTestResult: {},
+    dtYarnShellTestResult: {},
+    learningTestResult: {},
+    hdfsTestResult: {},
+    yarnTestResult: {},
+    sparkThriftTestResult: {},
+    carbonTestResult: {},
+    hiveServerTestResult: {},
+    libraSqlTestResult: {}
+}
+export const DEFAULT_COMP_REQUIRED = { // 必填默认数据
+    flinkShowRequired: false,
+    sparkShowRequired: false,
+    dtYarnShellShowRequired: false,
+    learningShowRequired: false,
+    hdfsShowRequired: false,
+    yarnShowRequired: false,
+    hiveShowRequired: false,
+    carbonShowRequired: false,
+    hiveServerShowRequired: false,
+    libraShowRequired: false
+}
+export const hadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
+    { label: 'Flink', value: 0 },
+    { label: 'Spark', value: 1 },
+    { label: 'Learning', value: 2 },
+    { label: 'DTYarnShell', value: 3 },
+    { label: 'HDFS', value: 4, disabled: true },
+    { label: 'YARN', value: 5, disabled: true },
+    { label: 'SparkThrift', value: 6, disabled: true },
+    { label: 'CarbonData', value: 7 },
+    { label: 'Hive Server', value: 9 }
+];
+export const noDisablehadoopEngineOptionsValue = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
+    { label: 'Flink', value: 0 },
+    { label: 'Spark', value: 1 },
+    { label: 'Learning', value: 2 },
+    { label: 'DTYarnShell', value: 3 },
+    { label: 'HDFS', value: 4 },
+    { label: 'YARN', value: 5 },
+    { label: 'SparkThrift', value: 6 },
+    { label: 'CarbonData', value: 7 },
+    { label: 'Hive Server', value: 9 }
+];
+export const hadoopEngineOptions = [ // 华为集群支持的引擎 options
+    'Flink',
+    'Spark',
+    'DTYarnShell',
+    'Learning',
+    'HDFS',
+    'YARN',
+    'SparkThrift',
+    'CarbonData',
+    'Hive Server',
+    'LibrA'
+];
 export const API_MODE = {
     GUIDE: 0,
     SQL: 1
@@ -112,6 +197,147 @@ export const dataSourceTypes = [ // 数据源类型
     'HBase',
     'FTP',
     'MaxCompute'
+]
+// hdfs、yarn、learning、libra暂无必填数据,
+// 为了能获取到一组域数据，validateFields第一个参数不可为空，取每组数据任一参数
+export const validateFlinkParams = [ // flink
+    'flinkConf.flinkZkAddress',
+    'flinkConf.flinkHighAvailabilityStorageDir',
+    'flinkConf.flinkZkNamespace',
+    'flinkConf.gatewayHost',
+    'flinkConf.gatewayPort',
+    'flinkConf.gatewayJobName',
+    'flinkConf.deleteOnShutdown',
+    'flinkConf.randomJobNameSuffix',
+    'flinkConf.typeName',
+    'flinkConf.clusterMode',
+    'flinkConf.flinkJarPath',
+    'flinkConf.flinkJobHistory',
+    'flinkConf.flinkPrincipal',
+    'flinkConf.flinkKeytabPath',
+    'flinkConf.flinkKrb5ConfPath',
+    'flinkConf.zkPrincipal',
+    'flinkConf.zkKeytabPath',
+    'flinkConf.zkLoginName'
+]
+export const validateHiveParams = [ // hive <=> Spark Thrift Server
+    'hiveConf.jdbcUrl',
+    'hiveConf.driverClassName'
+]
+export const validateCarbonDataParams = [ // carbonData
+    'carbonConf.jdbcUrl'
+]
+export const validateHiveServerParams = [ // carbonData
+    'hiveServerConf.jdbcUrl'
+]
+export const validateSparkParams = [ // spark
+    'sparkConf.typeName',
+    'sparkConf.sparkYarnArchive',
+    'sparkConf.sparkSqlProxyPath',
+    'sparkConf.sparkPythonExtLibPath',
+    'sparkConf.sparkPrincipal',
+    'sparkConf.sparkKeytabPath',
+    'sparkConf.sparkKrb5ConfPath',
+    'sparkConf.zkPrincipal',
+    'sparkConf.zkKeytabPath',
+    'sparkConf.zkLoginName'
+]
+export const validateDtYarnShellParams = [
+    'dtyarnshellConf.jlogstashRoot',
+    'dtyarnshellConf.javaHome',
+    'dtyarnshellConf.hadoopHomeDir',
+    'dtyarnshellConf.hdfsPrincipal',
+    'dtyarnshellConf.hdfsKeytabPath',
+    'dtyarnshellConf.hdfsKrb5ConfPath'
+]
+
+export const validateLearningParams = [
+    'learningConf.learningPython3Path'
+]
+export const validateLibraParams = [
+    'libraConf.jdbcUrl',
+    'libraConf.driverClassName'
+]
+// key_map
+export const SPARK_KEY_MAP = {
+    'spark.yarn.appMasterEnv.PYSPARK_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_PYTHON',
+    'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON'
+}
+export const SPARK_KEY_MAP_DOTS = {
+    'sparkYarnAppMasterEnvPYSPARK_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+    'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON': 'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON'
+}
+export const DTYARNSHELL_KEY_MAP = {
+    'jlogstash.root': 'jlogstashRoot',
+    'java.home': 'javaHome',
+    'hadoop.home.dir': 'hadoopHomeDir',
+    'python2.path': 'python2Path',
+    'python3.path': 'python3Path'
+}
+export const DTYARNSHELL_KEY_MAP_DOTS = {
+    'jlogstashRoot': 'jlogstash.root',
+    'javaHome': 'java.home',
+    'hadoopHomeDir': 'hadoop.home.dir',
+    'python2Path': 'python2.path',
+    'python3Path': 'python3.path'
+}
+export const FLINK_KEY_MAP = {
+    'yarn.jobmanager.help.mb': 'yarnJobmanagerHelpMb',
+    'yarn.taskmanager.help.mb': 'yarnTaskmanagerHelpMb',
+    'yarn.taskmanager.numberOfTaskSlots': 'yarnTaskmanagerNumberOfTaskSlots',
+    'yarn.taskmanager.numberOfTaskManager': 'yarnTaskmanagerNumberOfTaskManager'
+}
+export const FLINK_KEY_MAP_DOTS = {
+    'yarnJobmanagerHelpMb': 'yarn.jobmanager.help.mb',
+    'yarnTaskmanagerHelpMb': 'yarn.taskmanager.help.mb',
+    'yarnTaskmanagerNumberOfTaskSlots': 'yarn.taskmanager.numberOfTaskSlots',
+    'yarnTaskmanagerNumberOfTaskManager': 'yarn.taskmanager.numberOfTaskManager'
+}
+// 非用户自定义参数
+export const notExtKeysFlink = [
+    'typeName', 'flinkZkAddress',
+    'flinkHighAvailabilityStorageDir',
+    'flinkZkNamespace', 'reporterClass',
+    'gatewayHost', 'gatewayPort',
+    'gatewayJobName', 'deleteOnShutdown',
+    'randomJobNameSuffix', 'jarTmpDir',
+    'flinkPluginRoot', 'remotePluginRootDir',
+    'clusterMode', 'flinkJarPath',
+    'flinkJobHistory', 'flinkPrincipal', 'flinkKeytabPath', 'flinkKrb5ConfPath',
+    'zkPrincipal', 'zkKeytabPath', 'zkLoginName', 'yarn.jobmanager.help.mb',
+    'yarn.taskmanager.help.mb', 'yarn.taskmanager.numberOfTaskSlots', 'yarn.taskmanager.numberOfTaskManager'
+];
+export const notExtKeysSpark = [
+    'typeName', 'sparkYarnArchive',
+    'sparkSqlProxyPath', 'sparkPythonExtLibPath', 'spark.yarn.appMasterEnv.PYSPARK_PYTHON',
+    'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON', 'sparkPrincipal', 'sparkKeytabPath',
+    'sparkKrb5ConfPath', 'zkPrincipal', 'zkKeytabPath', 'zkLoginName'
+];
+export const notExtKeysLearning = [
+    'typeName', 'learning.python3.path',
+    'learning.python2.path',
+    'learning.history.address', 'learning.history.webapp.address',
+    'learning.history.webapp.https.address'
+];
+export const notExtKeysDtyarnShell = [
+    'typeName', 'jlogstash.root',
+    'java.home', 'hadoop.home.dir', 'python2.path',
+    'python3.path', 'hdfsPrincipal', 'hdfsKeytabPath', 'hdfsKrb5ConfPath'
+]
+export const notExtKeysSparkThrift = [
+    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'useConnectionPool', 'maxPoolSize',
+    'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
+    'queryTimeout', 'checkTimeout'
+]
+export const notExtKeysHiveServer = [
+    'jdbcUrl', 'username', 'password'
+]
+export const notExtKeysLibraSql = [
+    'jdbcUrl', 'username', 'password',
+    'driverClassName', 'useConnectionPool', 'maxPoolSize',
+    'minPoolSize', 'initialPoolSize', 'jdbcIdel', 'maxRows',
+    'queryTimeout', 'checkTimeout'
 ]
 
 export const formItemLayout = { // 表单常用布局

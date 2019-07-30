@@ -3,7 +3,7 @@ import assign from 'object-assign';
 import {
     modalAction
 } from './actionType';
-
+import { ENGINE_SOURCE_TYPE } from '../../../comm/const';
 const initModalState = {
     createTask: false,
     editTask: false,
@@ -25,11 +25,17 @@ const initModalState = {
     workFlowLists: [],
     confirmSaveVisible: false,
     showPublish: false,
-    theReqIsEnd: true
+    theReqIsEnd: true,
+    editModalKey: null,
+    engineType: ENGINE_SOURCE_TYPE.HADOOP // 引擎类型 默认Hadoop
 };
 
 export const modalShowReducer = (state = initModalState, action) => {
     switch (action.type) {
+        case modalAction.SET_ENGINE_TYPE:
+            return assign({}, state, {
+                engineType: action.payload
+            });
         case modalAction.TOGGLE_CREATE_TASK:
             return assign({}, state, {
                 createTask: !state.createTask
@@ -116,6 +122,11 @@ export const modalShowReducer = (state = initModalState, action) => {
             return assign({}, state, {
                 resViewModal: false,
                 resId: undefined
+            });
+        }
+        case modalAction.SET_MODAL_KEY: {
+            return assign({}, state, {
+                editModalKey: action.payload
             });
         }
         // 保存提交

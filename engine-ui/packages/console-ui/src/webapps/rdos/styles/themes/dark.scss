@@ -7,7 +7,21 @@ $borderColor1: #5A5A5A;
 $fontColor1: #2491F7;
 
 .theme-dark {
-
+    .dt-ant-table--border {
+        .ant-table-body, .ant-table-body-outer {
+            border-width: 1px 1px 0px 1px;
+            border-color: #5A5A5A;
+            border-style: solid;
+        }
+        .ant-table-body-outer {
+            border-width: 1px 0 0;
+        }
+        .ant-table-placeholder{
+            border-width: 0px 1px 1px 1px;
+            border-style: solid;
+            border-color: #5A5A5A;
+        }
+    }
     background: $color1 !important;
     color: $fontColor;
 
@@ -275,6 +289,11 @@ $fontColor1: #2491F7;
     .ant-table-header,
     .ant-table-fixed-header > .ant-table-content > .ant-table-scroll > .ant-table-body {
         background: #2D2D2D;
+    }
+    .ant-table-header {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        overflow: hidden;
     }
 
     .ant-modal-mask {

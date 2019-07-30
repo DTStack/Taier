@@ -39,6 +39,7 @@ const getTableReqParams = (tableDetail) => {
     } else {
         const params = {
             tableName: tableDetail.tableName,
+            tableId: tableDetail.tableId,
             configId: tableDetail.configId,
             belongProjectId: tableDetail.projectId || tableDetail.belongProjectId,
             column: tableDetail.columnName || tableDetail.column,

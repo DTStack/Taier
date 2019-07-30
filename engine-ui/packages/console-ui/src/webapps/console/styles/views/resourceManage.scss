@@ -29,3 +29,83 @@
         display: none;
     }
 }
+// 改版
+.resource-wrapper {
+    padding: 20px;
+    .cluster-select {
+        float: left;
+    }
+    .terent-button {
+        float: right;
+    }
+    .resource-content {
+        margin-top: 15px;
+        background: #FFFFFF;
+        box-shadow: 0 0 6px 0 rgba(0,0,0,0.10);
+        .ant-card-wider-padding .ant-card-body {
+            padding: 0;
+        }
+        .tab-pane-wrapper {
+            border: 1px solid #DDDDDD;
+            margin: 20px;
+        }
+    }
+}
+.console-tabs .engine-detail-tabs .ant-tabs-nav .ant-tabs-tab-active {
+    color: #2491F7;
+    background: #ffffff;
+}
+.engine-detail-tabs .ant-tabs-nav .ant-tabs-tab {
+    display: inline-block;
+    height: auto;
+    margin-right: 24px;
+    box-sizing: border-box;
+    position: relative;
+    padding: 8px 20px;
+    transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+    cursor: pointer;
+    text-decoration: none;
+}
+.ant-tabs-bar {
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 0px;
+    outline: none;
+    transition: padding 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.ant-tabs:not(.ant-tabs-vertical) > .ant-tabs-content {
+    width: 100%;
+    height: 100%;
+}
+.no-padding-modal .ant-modal-body {
+    padding: 0px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.info-title {
+    font-family: PingFangSC-Regular;
+    font-size: 13px;
+    color: #333333;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    background: #F5F5F5;
+    border-bottom: 1px dashed #DDDDDD;
+}
+.info-title .info-text {
+    display: inline-block;
+    margin-left: 10px;
+    height: 100%;
+}
+.border-item {
+    width: 100%;
+    height: 90px;
+    border-top: 1px dashed #DDDDDD;
+}
+.border-item .engine-title {
+    font-family: PingFangSC-Medium;
+    font-size: 14px;
+    color: #333333;
+    padding: 10px 0 10px 60px;
+}

@@ -16,6 +16,11 @@ module.exports = {
             '/api/rdos': {
                 // target: 'http://172.16.10.86:9020', // test
                 target: "http://172.16.8.107:9020", // dev server
+                // target: "http://172.16.0.14:9020", // dev server
+                // target: "http://172.16.1.173:9020", // dev server
+                // target: "http://test.dtstack.insight.com",
+                // target: "http://dev.insight.dtstack.net",
+                // target: "http://172.16.0.34:9020",
                 // target: "http://172.16.10.51:9020", // test
                 // target: "http://172.16.10.97:9020",
                 // target: "http://172.16.0.220:9020",
@@ -37,8 +42,9 @@ module.exports = {
                 secure: false
             },
             '/uic': { // UIC地址
-                target: 'http://dtuic.dtstack.net',
-                // target: "http://uic.insight.com",
+                // target: 'http://dtuic.dtstack.net',
+                // target: 'http://uic.insight.cn',
+                target: "http://uic.insight.com",
                 // target: 'http://172.16.1.92:8668',
                 changeOrigin: true,
                 // pathRewrite:{"^/uic":"/"},
@@ -75,7 +81,7 @@ module.exports = {
                 secure: false
             },
             '/api/analysis': { // 分析引擎
-                target: 'http://172.16.8.105:9022', // 开发环境
+                target: 'http://172.16.8.108:9022', // 开发环境
                 // target: "http://172.16.10.45:9022", // 测试环境
                 // pathRewrite:{"^/api/tag/service":"/server/index.php?g=Web&c=Mock&o=simple&projectID=5&uri=/api/tag"},
                 changeOrigin: true,

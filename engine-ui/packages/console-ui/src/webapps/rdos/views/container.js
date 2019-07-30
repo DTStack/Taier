@@ -12,7 +12,7 @@ import Dashboard from '../views/dashboard'
 import * as ProjectAction from '../store/modules/project'
 import * as UserAction from '../store/modules/user'
 import DataManageAction from '../store/modules/dataManage/actionCreator';
-import { getTaskTypes } from '../store/modules/offlineTask/comm';
+import { getTaskTypes, getScriptTypes } from '../store/modules/offlineTask/comm';
 import { getTenantList } from '../store/modules/tenant';
 import API from '../api';
 
@@ -29,8 +29,11 @@ class Container extends Component {
         dispatch(UserAction.getUser())
         dispatch(ProjectAction.getProjects())
         dispatch(ProjectAction.getAllProjects())
+        dispatch(ProjectAction.getTenantProjects())
+        dispatch(ProjectAction.getProjectSupportEngine())
         dispatch(DataManageAction.getCatalogues({ isGetFile: false }))
         dispatch(getTaskTypes());
+        dispatch(getScriptTypes())
         dispatch(updateApp(rdosApp))
         dispatch(getTenantList());
         this.initProject();
@@ -57,9 +60,16 @@ class Container extends Component {
 
     // eslint-disable-next-line
     componentWillReceiveProps (nextProps) {
-        const nowId = nextProps.params.pid
+        const nowId = nextProps.params.pid;
+        const project = nextProps.project
+        const oldProj = this.props.project
         if (nowId && nowId !== this.props.params.pid) {
             this.props.dispatch(ProjectAction.getProject(nowId))
+        }
+        if (oldProj && project && oldProj.id !== project.id) {
+            this.props.dispatch(getTaskTypes())
+            this.props.dispatch(getScriptTypes())
+            this.props.dispatch(ProjectAction.getProjectSupportEngine())
         }
     }
 

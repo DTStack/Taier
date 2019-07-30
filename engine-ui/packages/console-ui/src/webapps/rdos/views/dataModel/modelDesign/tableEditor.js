@@ -18,7 +18,7 @@ import ColumnsPartition from './columnsPartition';
 import actions from '../../../store/modules/dataManage/actionCreator';
 import LifeCycle from '../../dataManage/lifeCycle';
 import CatalogueTree from '../../dataManage/catalogTree';
-
+import { TABLE_TYPE } from '../../../comm/const'
 const FormItem = Form.Item
 const confirm = Modal.confirm;
 
@@ -39,7 +39,6 @@ class TableEditor extends Component {
         });
         this.loadTableInfo();
     }
-
     loadTableInfo = () => {
         ajax.getDataCatalogues().then(res => {
             this.setState({
@@ -63,7 +62,7 @@ class TableEditor extends Component {
 
         const {
             tableName, project, gmtCreate,
-            desc, chargeUser, lifeDay, catalogueId
+            desc, chargeUser, lifeDay, catalogueId, tableType
         } = tableData;
 
         const formItemLayout = {
@@ -71,7 +70,7 @@ class TableEditor extends Component {
             wrapperCol: { span: 12 }
         };
         console.log('tableEditor', tableData);
-
+        const isHiveTable = tableType == TABLE_TYPE.HIVE;
         return <div className="g-tableeditor box-1">
             <div className="box-card">
                 <main>
@@ -122,19 +121,23 @@ class TableEditor extends Component {
                                     />
                                 )}
                             </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="生命周期"
-                            >
-                                <LifeCycle
-                                    key={`lifeCycle-${tableData.id}`}
-                                    width={80}
-                                    value={lifeDay}
-                                    onChange={(val) => {
-                                        modifyDesc({ name: 'lifeDay', value: val < 0 ? 1 : val })
-                                    }}
-                                />
-                            </FormItem>
+                            {
+                                isHiveTable && (
+                                    <FormItem
+                                        {...formItemLayout}
+                                        label="生命周期"
+                                    >
+                                        <LifeCycle
+                                            key={`lifeCycle-${tableData.id}`}
+                                            width={80}
+                                            value={lifeDay}
+                                            onChange={(val) => {
+                                                modifyDesc({ name: 'lifeDay', value: val < 0 ? 1 : val })
+                                            }}
+                                        />
+                                    </FormItem>
+                                )
+                            }
                             <FormItem
                                 {...formItemLayout}
                                 label="描述"

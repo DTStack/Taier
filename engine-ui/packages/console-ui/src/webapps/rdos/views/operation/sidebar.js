@@ -49,7 +49,7 @@ export default class Sidebar extends Component {
                     style={{ height: '100%' }}
                     mode={this.props.mode}
                 >
-                    <Menu.Item key="overview">
+                    <Menu.Item key="overview" className="ant-itempad_small">
                         <Link to={`${base}`}><Icon type="line-chart" />
                             <span className="nav-text">运维总览</span>
                         </Link>
@@ -83,9 +83,10 @@ export default class Sidebar extends Component {
                             </Link>
                         </Menu.Item>
                     </SubMenu>
-                    <Menu.Item key="dirty-data">
+                    <Menu.Item key="dirty-data" className="ant-itempad_small">
                         <Link to={`${base}/dirty-data`}>
-                            <Icon type="book" />脏数据管理
+                            <Icon type="book" />
+                            <span className="nav-text">脏数据管理</span>
                         </Link>
                     </Menu.Item>
                     {/* <Menu.Item key="log">

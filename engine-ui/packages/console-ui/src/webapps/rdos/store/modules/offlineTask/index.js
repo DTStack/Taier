@@ -3,6 +3,9 @@ import { combineReducers } from 'redux';
 import {
     taskTreeReducer,
     resourceTreeReducer,
+    sparkFnTreeReducer, // 存spark第一级数据
+    libraFnTreeReducer, // 存libra第一级数据
+    libraSysFnTreeReducer,
     functionTreeReducer,
     sysFunctionTreeReducer,
     scriptTreeReducer,
@@ -20,6 +23,9 @@ export const offlineTask = combineReducers({
     modalShow: modalShowReducer,
     taskTree: taskTreeReducer,
     resourceTree: resourceTreeReducer,
+    sparkTree: sparkFnTreeReducer,
+    libraTree: libraFnTreeReducer,
+    libraSysFnTree: libraSysFnTreeReducer,
     functionTree: functionTreeReducer,
     tableTree: tableTreeReducer,
     sysFunctionTree: sysFunctionTreeReducer,

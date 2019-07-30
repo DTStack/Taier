@@ -147,9 +147,9 @@ class RunCode extends React.Component {
             width: '100%'
         }
         return (
-            <div className="m-tabs">
+            <div className="m-tabs" style={{ height: '100%' }}>
                 <Tabs
-                    className="nav-border content-border"
+                    className="nav-border content-border c-runcode"
                     animated={false}
                     tabBarStyle={{ background: 'transparent', borderWidth: '0px' }}
                     onChange={this.changeTab.bind(this)}

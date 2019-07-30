@@ -139,7 +139,7 @@ export default class TableAnalytics extends Component {
 
         const tablePane = <Table
             columns={cols}
-            className="m-table"
+            className="dt-ant-table dt-ant-table--border"
             dataSource={showData}
             loading={this.state.loading}
             scroll={{ x: true, y: 280 }}

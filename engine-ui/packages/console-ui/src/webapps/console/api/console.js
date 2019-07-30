@@ -15,7 +15,7 @@ export default {
         return http.postAsFormData(req.UPLOAD_CLUSTER_RESOURCE, params);
     },
     getTenantList (params) {
-        return http.post(req.GET_USER_LIST, params);
+        return http.post(req.GET_TENANT_LIST, params);
     },
     testCluster (params) {
         return http.post(req.TEST_CLUSTER_CONNECT, params);
@@ -26,9 +26,9 @@ export default {
     bindUserToQuere (params) {
         return http.post(req.BIND_USER_TO_RESOURCE, params);
     },
-    getClusterInfo (params) {
-        return http.post(req.GET_CLUSTER, params);
-    },
+    // getClusterInfo (params) {
+    //     return http.post(req.GET_CLUSTER, params);
+    // },
     updateCluster (params) {
         return http.postAsFormData(req.UPDATE_CLUSTER, params);
     },
@@ -89,5 +89,45 @@ export default {
     // 查看剩余资源
     getClusterResources (params) {
         return http.post(req.GET_CLUSTER_RESOURCES, params);
+    },
+    uploadResource (params) {
+        return http.postAsFormData(req.UPLOAD_RESOURCE, params);
+    },
+    testComponent (params) {
+        return http.post(req.TEST_COMPONENT_CONNECT, params);
+    },
+    addCluster (params) {
+        return http.post(req.ADD_CLUSTER, params); // 新增集群
+    },
+    addComponent (params) {
+        return http.post(req.ADD_COMPONENT, params);
+    },
+    saveComponent (params) {
+        return http.post(req.SAVE_COMPONENT, params);
+    },
+    deleteComponent (params) {
+        return http.post(req.DELETE_COMPONENT, params); // 删除组件
+    },
+    addEngine (params) {
+        return http.post(req.ADD_ENGINE, params);
+    },
+    getClusterInfo (params) {
+        return http.post(req.GET_CLUSTER_INFO, params);
+    },
+    // 资源管理
+    getAllCluster (params) {
+        return http.post(req.GET_ALL_CLUSTER, params); // 返回数据包含集群下的engine，以及队列
+    },
+    searchTenant (params) {
+        return http.post(req.SEARCH_TENANT, params);
+    },
+    getQueue (params) {
+        return http.post(req.GET_QUEUE, params);
+    },
+    bindTenant (params) {
+        return http.post(req.BIND_TENANT, params);
+    },
+    switchQueue (params) {
+        return http.post(req.SWITCH_QUEUE, params);
     }
 }

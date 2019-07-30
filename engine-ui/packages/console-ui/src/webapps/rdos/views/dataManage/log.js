@@ -27,7 +27,6 @@ class LogSearchForm extends React.Component {
             <Form
                 className="m-form-inline"
                 layout="inline"
-                style={{ marginTop: '10px' }}
             >
                 <FormItem label="变更时间">
                     {getFieldDecorator('range', {
@@ -135,7 +134,7 @@ class TableLog extends React.Component {
                     loading={false}
                 >
                     <Table columns={columns}
-                        className="m-table bd"
+                        className="dt-ant-table dt-ant-table--border bd"
                         rowKey="id"
                         style={{ borderBottom: 0 }}
                         dataSource={logs.data}
@@ -339,7 +338,7 @@ class Log extends React.Component {
                                 }
                             }
                             dataSource={data || []}
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             rowKey="id"
                             pagination={false}
                             onChange={this.handleTableChange}

@@ -19,7 +19,7 @@ export default class TabIcon extends Component {
                     break;
                 }
                 case TASK_TYPE.SQL: {
-                    iconName = 'sql.svg';
+                    iconName = 'sparksql.svg';
                     break;
                 }
                 case TASK_TYPE.MR:
@@ -91,13 +91,17 @@ export default class TabIcon extends Component {
                     iconName = 'experiment.svg';
                     break;
                 }
+                case TASK_TYPE.LIBRASQL: {
+                    iconName = 'librasql.svg';
+                    break;
+                }
                 default:
                     return '';
             }
         } else {
             switch (type) {
                 case SCRIPT_TYPE.SQL: {
-                    iconName = 'sql.svg';
+                    iconName = 'sparksql.svg';
                     break;
                 }
                 case SCRIPT_TYPE.PYTHON2: {
@@ -110,6 +114,10 @@ export default class TabIcon extends Component {
                 }
                 case SCRIPT_TYPE.SHELL: {
                     iconName = 'shell.svg';
+                    break;
+                }
+                case SCRIPT_TYPE.LIBRASQL: {
+                    iconName = 'librasql.svg';
                     break;
                 }
                 default:

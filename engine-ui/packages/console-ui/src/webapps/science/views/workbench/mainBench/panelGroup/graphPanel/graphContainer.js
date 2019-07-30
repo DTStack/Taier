@@ -54,6 +54,10 @@ const applyCellStyle = (cellState, style) => {
     return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
 })
 class GraphContainer extends React.Component {
+    constructor (props) {
+        super(props);
+    }
+
     state = {
         showSearch: false,
         searchResult: null,
@@ -70,7 +74,9 @@ class GraphContainer extends React.Component {
     _graph = null;
 
     componentDidMount () {
-        console.log('graph did mount', this.props);
+        if (this.props.onRef) {
+            this.props.onRef(this);
+        }
     }
 
     shouldComponentUpdate (nextProps) {
@@ -212,8 +218,10 @@ class GraphContainer extends React.Component {
     initGraphEvent = (graph) => {
         const ctx = this;
         let selectedCell = null;
+
         const { saveSelectedCell, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
+
         const attachMouseOverStyle = function (cell) {
             const cellState = graph.view.getState(cell);
             const style = {}
@@ -833,10 +841,10 @@ class GraphContainer extends React.Component {
             showSearch, searchResult, detailModalVisible,
             runningLogVisible, evaluateReportVisible, outputDataVisible
         } = this.state;
-        const { data } = this.props;
+        const { data, onRefGraph } = this.props;
         const graphData = cloneDeep(data.graphData);
         return (
-            <div className="exp-graph-view" style={{ width: '100%' }}>
+            <div className="exp-graph-view" style={{ width: '100%', height: '100%' }}>
                 <input id="mockInput" readOnly style={{ opacity: 0, width: 1, height: 1, outline: 0, border: 0 }} />
                 <GraphEditor
                     version={data.version}
@@ -846,6 +854,8 @@ class GraphContainer extends React.Component {
                     registerContextMenu={this.initContextMenu}
                     registerEvent={this.initGraphEvent}
                     executeLayout={this.executeLayout}
+                    disableToolbar={true}
+                    onRef={onRefGraph}
                 />
                 <SearchModal
                     visible={showSearch}

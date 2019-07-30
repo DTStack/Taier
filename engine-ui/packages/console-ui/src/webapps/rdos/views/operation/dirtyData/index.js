@@ -102,7 +102,8 @@ class DirtyData extends Component {
             tableId: undefined,
             tableName: undefined,
             visible: false
-        }
+        },
+        editRecord: {}
     };
 
     componentDidMount () {
@@ -291,7 +292,7 @@ class DirtyData extends Component {
         const columns = [
             {
                 title: '任务名称',
-                width: 100,
+                width: '100px',
                 dataIndex: 'taskName',
                 key: 'taskName'
             },
@@ -299,7 +300,7 @@ class DirtyData extends Component {
                 title: '脏数据表',
                 dataIndex: 'tableName',
                 key: 'tableName',
-                width: 100
+                width: '100px'
             },
             {
                 title: '累计产生（条）',
@@ -331,12 +332,12 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="taskName"
-                    className="full-screen-table-50"
+                    className="full-screen-table-50 dirt-table-header_rmscroll"
                     pagination={false}
                     loading={loadingTop}
                     columns={columns}
                     dataSource={top30 || []}
-                    scroll={{ y: 251 }}
+                    scroll={{ y: '251px' }}
                 />
             </Card>
         );
@@ -349,7 +350,8 @@ class DirtyData extends Component {
         tableLog.tableName = tableName;
         tableLog.visible = true;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: table
         });
     }
 
@@ -359,7 +361,8 @@ class DirtyData extends Component {
         tableLog.tableId = undefined;
         tableLog.tableName = undefined;
         this.setState({
-            tableLog
+            tableLog,
+            editRecord: {}
         });
     };
 
@@ -455,13 +458,12 @@ class DirtyData extends Component {
             <Form
                 layout="inline"
                 className="m-form-inline"
-                style={{ marginTop: '10px' }}
             >
                 <FormItem label="选择任务">
                     <Select
                         allowClear
                         showSearch
-                        style={{ width: 126 }}
+                        style={{ width: '126px' }}
                         placeholder="选择任务"
                         optionFilterProp="name"
                         onChange={this.onTableSelectTask}
@@ -472,7 +474,7 @@ class DirtyData extends Component {
                 <FormItem>
                     <Search
                         placeholder="按表名称搜索"
-                        style={{ width: 200 }}
+                        style={{ width: '200px' }}
                         size="default"
                         onChange={this.onTableNameChange}
                         onSearch={this.search}
@@ -502,7 +504,7 @@ class DirtyData extends Component {
             >
                 <Table
                     rowKey="tableName"
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     pagination={pagination}
                     style={{ minHeight: '0', height: 'calc(100% - 482px)' }}
                     loading={loading}
@@ -515,7 +517,7 @@ class DirtyData extends Component {
     };
 
     render () {
-        const { taskList, tableLog } = this.state;
+        const { taskList, tableLog, editRecord } = this.state;
         const projectUsers = [];
         const taskOptions =
             taskList &&
@@ -547,7 +549,7 @@ class DirtyData extends Component {
                         </RadioGroup>
                     </span>
                 </h1>
-                <Row style={{ margin: '0 20px', height: 350 }}>
+                <Row style={{ margin: '8px 20px 0', height: '350px' }}>
                     <Col span={12} style={{ paddingRight: '10px' }}>
                         <Card
                             className="shadow"
@@ -558,7 +560,7 @@ class DirtyData extends Component {
                                 <Select
                                     allowClear
                                     showSearch
-                                    style={{ width: 150, marginTop: '10px' }}
+                                    style={{ width: '150px', marginTop: '10px' }}
                                     placeholder="请选择任务"
                                     onChange={this.onTrendSelectTask}
                                     optionFilterProp="name"
@@ -601,6 +603,7 @@ class DirtyData extends Component {
                                 key={tableLog.tableId}
                                 {...tableLog}
                                 projectUsers={projectUsers}
+                                editRecord={editRecord}
                             />
                         </div>
                     </SlidePane>

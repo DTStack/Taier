@@ -20,7 +20,7 @@ import SyntaxHelpPane from './syntaxTipPane';
 import RightTableButton from './tableTipPane/rightButton';
 import RightSyntaxButton from './syntaxTipPane/rightButton';
 
-import { matchTaskParams, isProjectCouldEdit } from '../../../../comm';
+import { matchTaskParams, isProjectCouldEdit, isSparkEngine } from '../../../../comm';
 
 import {
     workbenchActions
@@ -31,7 +31,7 @@ import { updateUser } from '../../../../store/modules/user';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { editorAction } from '../../../../store/modules/editor/actionTypes';
 
-import { getTableList } from '../../../../store/modules/offlineTask/comm';
+import { getTableList, getTableListByProject } from '../../../../store/modules/offlineTask/comm';
 
 const isTableTipPane = function (editor) {
     return editor.showRightExtraPane === editorAction.SHOW_TABLE_TIP_PANE;
@@ -57,14 +57,16 @@ class EditorContainer extends Component {
 
     _tableColumns = {}
     _tableLoading = {}
+    _projectLoading = {}
 
     componentDidMount () {
         const currentNode = this.props.currentTabData;
+        const projectId = this.props.project.id;
         if (currentNode) {
             this.props.getTab(currentNode.id)// 初始化console所需的数据结构
         }
-        this.initTableList();
-        this.initFuncList();
+        this.initTableList(projectId, this.getTaskOrScriptType(currentNode));
+        this.initFuncList(this.getTaskOrScriptType(currentNode));
     }
 
     // eslint-disable-next-line
@@ -74,23 +76,37 @@ class EditorContainer extends Component {
         const project = nextProps.project
         const oldProject = this.props.project
         if (project.id != oldProject.id) {
-            this.initTableList(project.id);
+            this.initTableList(project.id, this.getTaskOrScriptType(current));
         }
         if (current && current.id !== old.id) {
             this.props.getTab(current.id)
         }
     }
-    initTableList (id) {
+
+    getTaskOrScriptType (task) {
+        if (task) {
+            if (task.hasOwnProperty('taskType')) {
+                return {
+                    taskType: task.taskType
+                }
+            } else {
+                return {
+                    scriptType: task.type
+                }
+            }
+        }
+    }
+    initTableList (id, type) {
         id = id || this.props.project.id;
         if (!id) {
             console.log('project id 0 remove')
             return;
         }
-        this.props.getTableList(id);
+        this.props.getTableList(id, type);
     }
 
-    initFuncList () {
-        API.getAllFunction()
+    initFuncList (type) {
+        API.getAllFunction({ ...type })
             .then(
                 (res) => {
                     if (res.code == 1) {
@@ -189,7 +205,7 @@ class EditorContainer extends Component {
             .then((complete) => {
                 if (complete) {
                     this._tableColumns = {};
-                    this.initTableList();
+                    this.initTableList(params.projectId, this.getTaskOrScriptType(task));
                 }
             });
     };
@@ -259,7 +275,7 @@ class EditorContainer extends Component {
     tableCompleteItems (tableList) {
         return tableList.map(
             (table) => {
-                return [table.name, '表名', '1200', 'Field']
+                return [table.name, '当前项目表', '1200', 'Field']
             }
         )
     }
@@ -269,7 +285,7 @@ class EditorContainer extends Component {
         return tables[projectId];
     }
 
-    completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
+    async completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
         const { autoComplete = {}, context = {} } = status;
         const { funcCompleteItems } = this.state;
         const tableList = this.getTableList();
@@ -283,56 +299,70 @@ class EditorContainer extends Component {
         if (context.completionContext.triggerCharacter == '.') {
             defaultItems = [];
         }
+        if (context.tableContext) {
+            let result = await this.getTableListByProject(context.tableContext);
+            const projectIdentifier = result[0];
+            const _projectTableList = result[1];
+            if (_projectTableList) {
+                defaultItems = defaultItems.concat(
+                    customCompletionItemsCreater(_projectTableList.map(
+                        (table) => {
+                            return [table.name, `${projectIdentifier}项目表`, '1100', 'Field']
+                        }
+                    ))
+                )
+            }
+            resolve(defaultItems);
+            return;
+        }
         // 开始解析具体语境
         if (autoComplete && autoComplete.locations) {
             let promiseList = [];
             // 根据代码中出现的表来获取所有的字段
             for (let location of autoComplete.locations) {
                 if (location.type == 'table') {
-                    for (let identifierChain of location.identifierChain) {
-                        let columns = this.getTableColumns(identifierChain.name);
+                    if (location.identifierChain && location.identifierChain.length) {
+                        let columns = this.getTableColumns(location.identifierChain.map(item => item.name).join('.'));
                         promiseList.push(columns)
                     }
                 }
             }
-            Promise.all(promiseList)
-                .then(
-                    (values) => {
-                        let _tmpCache = {}
-                        // value:[tableName,data]
-                        for (let value of values) {
-                            // 去除未存在的表
-                            if (!value || !value[1] || !value[1].length) {
-                                continue;
-                            }
-                            // 防止添加重复的表
-                            if (_tmpCache[value[0]]) {
-                                continue;
-                            }
-                            _tmpCache[value[0]] = true;
-                            // 在当前语境为column的情况下，提升该表所有column的优先级
-                            let priority = '100';
-                            if (!context.columnContext || context.columnContext.indexOf(value[0]) == -1) {
-                                // 当触发上下文是点，则不显示其余补全项
-                                if (context.completionContext.triggerCharacter == '.') {
-                                    continue;
-                                }
-                                priority = '1100';
-                            }
-                            defaultItems = defaultItems.concat(
-                                customCompletionItemsCreater(value[1].concat(value[3]).map(
-                                    (column) => {
-                                        return [column.columnName, value[0], priority, 'Variable']
-                                    }
-                                ))
-                            )
-                        }
-                        resolve(defaultItems);
+            try {
+                let values = await Promise.all(promiseList);
+                let _tmpCache = {}
+                // value:[tableName,data]
+                for (let value of values) {
+                    // 去除未存在的表
+                    if (!value || !value[1] || !value[1].length) {
+                        continue;
                     }
-                ).catch((e) => {
-                    console.log(e)
-                    resolve(defaultItems);
-                })
+                    // 防止添加重复的表
+                    if (_tmpCache[value[0]]) {
+                        continue;
+                    }
+                    _tmpCache[value[0]] = true;
+                    // 在当前语境为column的情况下，提升该表所有column的优先级
+                    let priority = '100';
+                    if (!context.columnContext || context.columnContext.indexOf(value[0]) == -1) {
+                        // 当触发上下文是点，则不显示其余补全项
+                        if (context.completionContext.triggerCharacter == '.') {
+                            continue;
+                        }
+                        priority = '1100';
+                    }
+                    defaultItems = defaultItems.concat(
+                        customCompletionItemsCreater(value[1].concat(value[3]).map(
+                            (column) => {
+                                return [column.columnName, value[0], priority, 'Variable']
+                            }
+                        ))
+                    )
+                }
+                resolve(defaultItems);
+            } catch (e) {
+                console.log(e)
+                resolve(defaultItems);
+            };
         } else {
             resolve(defaultItems)
         }
@@ -351,7 +381,19 @@ class EditorContainer extends Component {
         if (this._tableLoading[tableName]) {
             return this._tableLoading[tableName]
         }
-        this._tableLoading[tableName] = API.getTableByName({ tableName })
+        let projectAndTableName = tableName.split('.');
+        let params = {};
+        if (projectAndTableName.length > 1) {
+            params = {
+                tableName: projectAndTableName[1],
+                projectIdentifier: projectAndTableName[0]
+            }
+        } else {
+            params = {
+                tableName
+            }
+        }
+        this._tableLoading[tableName] = API.getTableByName(params)
             .then(
                 (res) => {
                     this._tableLoading[tableName] = null;
@@ -369,6 +411,23 @@ class EditorContainer extends Component {
             )
         return this._tableLoading[tableName];
     }
+    getTableListByProject (projectIdentifier) {
+        const { projectTables } = this.props;
+        if (projectTables[projectIdentifier]) {
+            return Promise.resolve([projectIdentifier, projectTables[projectIdentifier]])
+        }
+        // 共用现有请求线.
+        if (this._projectLoading[projectIdentifier]) {
+            return this._projectLoading[projectIdentifier]
+        }
+        this._projectLoading[projectIdentifier] = this.props.getTableListByProject(projectIdentifier)
+            .then(
+                (data) => {
+                    return data;
+                }
+            )
+        return this._projectLoading[projectIdentifier];
+    }
     /**
      * 每一次语法解析完成之后的触发事件
      * @param {*} autoComplete
@@ -383,22 +442,23 @@ class EditorContainer extends Component {
         let tmpTables = {};
         for (let location of locations) {
             if (location.type == 'table') {
-                for (let identifierChain of location.identifierChain) {
+                if (location.identifierChain && location.identifierChain.length) {
+                    const tableName = location.identifierChain.map(item => item.name).join('.');
                     /**
                      * 去除重复表
                      */
-                    if (tmpTables[identifierChain.name]) {
+                    if (tmpTables[tableName]) {
                         continue;
                     }
-                    tmpTables[identifierChain.name] = true;
+                    tmpTables[tableName] = true;
                     /**
                      * 获取sql中存在的table
                      */
-                    tables.push(identifierChain.name);
+                    tables.push(tableName);
                     /**
                      * 获取table的colums
                      */
-                    let tmpColumns = this.getTableColumns(identifierChain.name);
+                    let tmpColumns = this.getTableColumns(tableName);
                     /**
                      * 把获取column的接口都放到promiselist里面统一请求
                      */
@@ -440,7 +500,6 @@ class EditorContainer extends Component {
     renderExtraPane = () => {
         const { editor, currentTabData, updateSyntaxPane } = this.props;
         const { columns, partition, extraPaneLoading } = this.state;
-
         if (isTableTipPane(editor)) {
             return <TableTipPane
                 data={columns}
@@ -462,7 +521,7 @@ class EditorContainer extends Component {
     renderRightButton = () => {
         const {
             hideRightPane, editor,
-            showRightTablePane, showRightSyntaxPane
+            showRightTablePane, showRightSyntaxPane, notShowSyntax
         } = this.props;
         const { options } = editor;
         return (
@@ -475,6 +534,7 @@ class EditorContainer extends Component {
                 />
                 <RightSyntaxButton
                     theme={options.theme}
+                    notShowSyntax={notShowSyntax}
                     showRightSyntaxPane={showRightSyntaxPane}
                     hideRightPane={hideRightPane}
                     showSyntaxPane={isSQLSyntaxTipPane(editor)}
@@ -550,6 +610,8 @@ class EditorContainer extends Component {
             isDisEabledDownload: project.isAllowDownload == 0
         }
 
+        const extraPne = isSparkEngine(currentTabData.engineType) ? this.renderExtraPane() : null;
+
         return (
             <div className="m-editor" style={{ height: '100%' }}>
                 <IDEEditor
@@ -557,7 +619,7 @@ class EditorContainer extends Component {
                     editor={editorOpts}
                     toolbar={toolbarOpts}
                     console={consoleOpts}
-                    extraPane={this.renderExtraPane()}
+                    extraPane={extraPne}
                 />
                 <div id="JS_ddl_confirm_modal">
                     <Modal
@@ -615,6 +677,7 @@ export default connect(state => {
         project: state.project,
         user: state.user,
         tables: state.offlineTask.comm.tables,
+        projectTables: state.offlineTask.comm.projectTables,
         showTableTooltip: state.offlineTask.workbench.showTableTooltip
     }
 }, dispatch => {
@@ -625,8 +688,11 @@ export default connect(state => {
         updateUser: (user) => {
             dispatch(updateUser(user));
         },
-        getTableList: (projectId) => {
-            dispatch(getTableList(projectId));
+        getTableList: (projectId, type) => {
+            dispatch(getTableList(projectId, type));
+        },
+        getTableListByProject: (projectId) => {
+            return dispatch(getTableListByProject(projectId));
         }
     })
     return actions;

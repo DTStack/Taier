@@ -120,9 +120,9 @@ class Console extends Component {
                     onEdit={this.onEdit}
                 >
                     <TabPane tab="日志" key="console-log">
-                        <div style={{ position: 'relative' }}>
+                        <div style={{ position: 'relative', height: '100%' }}>
                             <CodeEditor
-                                style={{ minHeight: 'auto' }}
+                                style={{ minHeight: 'auto', height: '100%' }}
                                 ref={e => {
                                     this.editor = e;
                                 }}

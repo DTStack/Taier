@@ -9,17 +9,18 @@ import React, { Component } from 'react';
 import { Select, Table, Button, message, Radio, Row, Col, Checkbox, Dropdown, Menu } from 'antd'
 import moment from 'moment';
 import '../../styles/main.scss'
+import { displayTaskStatus } from '../../consts/clusterFunc';
 import ViewDetail from '../../components/viewDetail';
 import KillTask from '../../components/killTask';
 import Reorder from '../../components/reorder';
 import Resource from '../../components/resource';
 import Api from '../../api/console';
-import { TASK_STATE } from '../../consts/index.js';
 import KillAllTask from '../../components/killAllTask';
 const PAGE_SIZE = 10;
 // const Search = Input.Search;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+
 class TaskDetail extends Component {
     state = {
         dataSource: [],
@@ -66,7 +67,8 @@ class TaskDetail extends Component {
         isClickGroup: false,
         selectedRowKeys: [],
         isShowAllKill: false,
-        isKillAllTasks: false // 是否杀死全部任务
+        isKillAllTasks: false, // 是否杀死全部任务
+        killTaskInfo: []
     }
     componentDidMount () {
         const { query = {} } = this.props;
@@ -93,6 +95,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 table: {
                     ...table,
                     total: 0
@@ -183,7 +186,8 @@ class TaskDetail extends Component {
         const { pageIndex } = table;
         this.setState({
             dataSource: [],
-            selectedRowKeys: []
+            selectedRowKeys: [],
+            killTaskInfo: []
         })
         if (jobName) {
             Api.searchTaskList({
@@ -259,13 +263,15 @@ class TaskDetail extends Component {
                 table: {
                     ...table,
                     total: 0
-                }
+                },
+                killTaskInfo: []
             })
         } else {
             this.setState({
                 node: value,
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 groupName: undefined,
                 table: {
                     ...table,
@@ -301,6 +307,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 engineType: undefined,
                 groupName: undefined,
                 node: node,
@@ -314,6 +321,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 jobName: undefined,
                 engineType: value,
                 groupName: undefined,
@@ -347,7 +355,8 @@ class TaskDetail extends Component {
         } else {
             this.setState({
                 dataSource: [],
-                selectedRowKeys: []
+                selectedRowKeys: [],
+                killTaskInfo: []
             })
         }
     }
@@ -364,6 +373,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 groupName: value,
                 table: {
                     ...table,
@@ -387,7 +397,8 @@ class TaskDetail extends Component {
         const { pageIndex } = table;
         this.setState({
             dataSource: [],
-            selectedRowKeys: []
+            selectedRowKeys: [],
+            killTaskInfo: []
         })
         if (engineType && groupName && node) {
             this.setState({
@@ -465,7 +476,8 @@ class TaskDetail extends Component {
         const table = Object.assign(this.state.table, { pageIndex: pagination.current })
         this.setState({
             table,
-            selectedRowKeys: []
+            selectedRowKeys: [],
+            killTaskInfo: []
         },
         () => {
             this.getDetailTaskList();
@@ -499,52 +511,7 @@ class TaskDetail extends Component {
                 title: '状态',
                 dataIndex: 'status',
                 render (text, record) {
-                    switch (text) {
-                        case TASK_STATE.UNSUBMIT:
-                            return 'UNSUBMIT';
-                        case TASK_STATE.CREATED:
-                            return 'CREATED';
-                        case TASK_STATE.SCHEDULED:
-                            return 'SCHEDULED';
-                        case TASK_STATE.DEPLOYING:
-                            return 'DEPLOYING';
-                        case TASK_STATE.RUNNING:
-                            return 'RUNNING';
-                        case TASK_STATE.FINISHED:
-                            return 'FINISHED';
-                        case TASK_STATE.CANCELLING:
-                            return 'CANCELLING';
-                        case TASK_STATE.CANCELED:
-                            return 'CANCELED';
-                        case TASK_STATE.FAILED:
-                            return 'FAILED';
-                        case TASK_STATE.SUBMITFAILD:
-                            return 'SUBMITFAILD';
-                        case TASK_STATE.SUBMITTING:
-                            return 'SUBMITTING';
-                        case TASK_STATE.RESTARTING:
-                            return 'RESTARTING';
-                        case TASK_STATE.MANUALSUCCESS:
-                            return 'MANUALSUCCESS';
-                        case TASK_STATE.KILLED:
-                            return 'KILLED';
-                        case TASK_STATE.SUBMITTED:
-                            return 'SUBMITTED';
-                        case TASK_STATE.NOTFOUND:
-                            return 'NOTFOUND';
-                        case TASK_STATE.WAITENGINE:
-                            return 'WAITENGINE';
-                        case TASK_STATE.WAITCOMPUTE:
-                            return 'WAITCOMPUTE';
-                        case TASK_STATE.FROZEN:
-                            return 'FROZEN';
-                        case TASK_STATE.ENGINEACCEPTED:
-                            return 'ENGINEACCEPTED';
-                        case TASK_STATE.ENGINEDISTRIBUTE:
-                            return 'ENGINEDISTRIBUTE';
-                        default:
-                            return null;
-                    }
+                    return displayTaskStatus(text)
                 }
             },
             {
@@ -577,7 +544,7 @@ class TaskDetail extends Component {
                 width: '70px'
             },
             {
-                title: '引擎',
+                title: '组件',
                 dataIndex: 'engine',
                 render (text, record) {
                     return record.engineType;
@@ -727,13 +694,24 @@ class TaskDetail extends Component {
     }
     onCheckAllChange = (e) => {
         let selectedRowKeys = [];
+        let killTaskInfo = [];
         if (e.target.checked) {
             selectedRowKeys = this.state.dataSource.map(item => item.taskId);
+            killTaskInfo = this.state.dataSource.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+                return {
+                    taskId,
+                    groupName,
+                    jobType,
+                    engineType,
+                    computeType
+                }
+            })
         }
 
         this.setState({
             selectedRowKeys,
-            checkAll: e.target.checked
+            checkAll: e.target.checked,
+            killTaskInfo
         })
     }
     handleKillAll = (e) => {
@@ -748,6 +726,7 @@ class TaskDetail extends Component {
         this.setState({
             dataSource: [],
             selectedRowKeys: [],
+            killTaskInfo: [],
             table: {
                 ...table,
                 total: 0
@@ -799,7 +778,7 @@ class TaskDetail extends Component {
     render () {
         const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill, isKillAllTasks } = this.state;
         const columns = this.initTableColumns();
-        const { dataSource, table, selectedRowKeys } = this.state;
+        const { dataSource, table, selectedRowKeys, killTaskInfo } = this.state;
         const { loading } = table;
         const { resource } = this.state;
         const { killResource, priorityResource } = this.state;
@@ -815,7 +794,16 @@ class TaskDetail extends Component {
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
-                    selectedRowKeys
+                    selectedRowKeys,
+                    killTaskInfo: selectedRows.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+                        return {
+                            taskId,
+                            groupName,
+                            jobType,
+                            engineType,
+                            computeType
+                        }
+                    })
                 })
             },
             selectedRowKeys: selectedRowKeys
@@ -841,9 +829,9 @@ class TaskDetail extends Component {
                         >
                             {this.getClusterListOptionView()}
                         </Select>
-                        引擎：
+                        组件：
                         <Select
-                            placeholder="请选择引擎"
+                            placeholder="请选择组件"
                             style={{ width: '150px', marginRight: '10px' }}
                             onChange={this.changeEngineValue.bind(this)}
                             value={this.state.engineType}
@@ -952,7 +940,7 @@ class TaskDetail extends Component {
                     onCancel={this.handleCloseKill.bind(this)}
                     killSuccess={this.killSuccess.bind(this)}
                     autoRefresh={this.autoRefresh.bind(this)}
-                    killResource={selectedRowKeys}
+                    killResource={killTaskInfo}
                     node={node}
                     totalModel={totalModel}
                     totalSize={total}

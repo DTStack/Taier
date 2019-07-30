@@ -288,7 +288,6 @@ class OfflineConfig extends Component {
                         <Form
                             className="m-form-inline"
                             layout="inline"
-                            style={{ marginTop: '10px' }}
                         >
                             <FormItem label="任务名称">
                                 <Input
@@ -336,7 +335,7 @@ class OfflineConfig extends Component {
                     <Table
                         rowKey="alarmId"
                         key="offlineConfig"
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         pagination={pagination}
                         loading={loading}
                         columns={this.initColumns()}

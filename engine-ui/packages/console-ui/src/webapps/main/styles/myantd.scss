@@ -114,9 +114,6 @@
             height: 36px;
         }
         .ant-tabs-nav {
-            .ant-tabs-tab-active {
-                background: #ffffff;
-            }
             .ant-tabs-ink-bar {
                 top: 0;
                 bottom: auto;
@@ -124,7 +121,7 @@
             }
             .ant-tabs-tab {
                 margin-right: 0;
-                font-size: 12px;
+                font-size: 13px;
                 line-height: 20px;
                 border-right: 1px solid #DDDDDD;
             }
@@ -157,16 +154,15 @@
 }
 .border-table{
     .ant-spin-container{
-        border-width: 1px 1px 0px 1px;
-        border-color: #dcdcdc;
-        border-style: solid;
         .ant-table-placeholder{
             border-bottom: 1px solid #e9e9e9;
         }
     }
 }
 .m-table {
-    
+    &.td-pad_low .ant-table-body >tr>td {
+        padding: 6px 8px;
+    }
     &.m-table-showselect{
         .ant-table-thead{
             .ant-table-selection-column>span{
@@ -181,7 +177,7 @@
             height: 26px;
             line-height: 26px;
             a {
-                font-size: 12px;
+                font-size: 13px;
                 color: #333333;
                 letter-spacing: 0;
             }
@@ -194,61 +190,97 @@
             }
         }
     }
-    .ant-table-thead {
-        .ant-table-selection-column>span {
-            visibility: hidden;
-        }
-        &>tr>th {
-            font-size: 12px;
-            color: #333333;
-            letter-spacing: 0;
-            padding: 8.5px 8px;
-        }
-    }
-    .ant-table-tbody>tr:hover {
-        background: #E7F7FF;
-    }
-    .ant-table-tbody {
-        &>tr>td {
-            padding: 6px 8px;
-            border-bottom: 1px solid $tbBorderColor;
-            font-size: 12px;
-        }
-    }
-    .ant-table-footer {
-        background: #fff;
-        padding: 0;
-        border-bottom: 1px solid $tbBorderColor;
-        &>tr>td {
-            padding: 4px 8px;
-            font-size: 12px;
-        }
-        .ant-btn {
-            height: 28px;
-            font-size: 12px;
-            margin-right: 16px;
-        }
-        .ant-dropdown-button {
-            margin-right: 16px;
-            .ant-btn {
-                margin-right:0;
+    .ant-table {
+        background-color: #ffffff;
+        .ant-table-thead {
+            .ant-table-selection-column>span {
+                visibility: hidden;
+            }
+            &>tr>th {
+                font-size: 13px;
+                color: #333333;
+                letter-spacing: 0;
+                padding: 11px 8px;
+                background-color: #fafafa;
+                border-bottom: 1px solid #ddd;
+                color: #666;
+                font-weight: 400;
             }
         }
-    }
-    .ant-table-placeholder {
-        border-bottom: 0;
+        .ant-table-scroll .ant-table-header { // 设置scroll的table 造成的表头header滚动条与head部分border-bottom造成的双border 隐藏滚动条
+            margin-bottom: -20px;
+            > .ant-table-fixed {
+                > .ant-table-thead {
+                    tr {
+                        th {
+                            border-bottom: 0;
+                        }
+                    }
+                }
+            }
+        }
+        .ant-table-tbody>tr:hover {
+            background: #E7F7FF;
+        }
+        .ant-table-tbody {
+            &>tr>td {
+                padding: 11px 8px;
+                border-bottom: 1px solid $tbBorderColor;
+                font-size: 13px;
+            }
+        }
+        .ant-table-footer {
+            background: #fff;
+            // padding: 0;
+            border-bottom: 1px solid $tbBorderColor;
+            &>tr>td {
+                padding: 4px 8px;
+                font-size: 13px;
+            }
+            .ant-btn {
+                height: 28px;
+                font-size: 13px;
+                margin-right: 16px;
+            }
+            .ant-dropdown-button {
+                margin-right: 16px;
+                .ant-btn {
+                    margin-right:0;
+                }
+            }
+        }
+        // .ant-table-placeholder {
+        //     border-bottom: 0;
+        // }
     }
 }
 .dt-ant-table--border {
-    .ant-table-body{
-        border-width: 1px 1px 0px 1px;
+    .ant-table-body, .ant-table-body-outer {
+        border-width: 1px 0 0;
         border-color: #dcdcdc;
         border-style: solid;
+    }
+    .ant-table-body-outer {
+        border-width: 1px 0 0;
+        border-top-width: 1px;
     }
     .ant-table-placeholder{
         border-width: 0px 1px 1px 1px;
         border-style: solid;
         border-color: #dcdcdc;
+    }
+}
+.dt-ant-table--border-lr {
+    .ant-table-body, .ant-table-body-outer {
+        border-left-width: 1px;
+        border-right-width: 1px;
+    }
+}
+.dt-ant-table--bg-white {
+    .ant-table-body {
+        table {
+            background-color: #fff;
+        }
     }
 }
 .m-card {
@@ -285,12 +317,31 @@
     }
 }
 
-.ant-input-search {
-    height: 28px;
-}
 
 .m-ant-menu {
     // sidebar styles
+    .ant-menu-inline-collapsed {
+        .hide-text {
+            font-size: 0;
+        }
+        .ant-itempad_small {
+            padding-left: 18px !important;
+        }
+        &.ele-padd_small {
+            > .ant-menu-item, .ant-menu-submenu {
+                padding-top: 10px !important;
+            }
+        }
+        .ant-menu-submenu-selected {
+            height: 42px;
+            background: #2491F7;
+        }
+        // .sidebar__icon {
+        //     float: left;
+        //     display: block;
+        //     margin: 0px 10px 0 0 !important;
+        // }
+    }
     .ant-menu.ant-menu-inline,
     .ant-menu.ant-menu-vertical {
         background: #262E36;
@@ -302,7 +353,7 @@
         .ant-menu-item>a,
         .ant-menu-submenu-title {
             font-family: PingFangSC-Regular;
-            font-size: 12px;
+            font-size: 13px;
             color: #FFFFFF;
             letter-spacing: 0;
         }
@@ -393,6 +444,24 @@
     height: 'auto';
     min-height: calc(100% - 50px);
 }
+.dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll {
+    .ant-table-header {
+        margin-bottom: -17px !important;
+    }
+    // .ant-table-header {
+    //     overflow-y: auto;
+    //     margin-bottom: -20px !important;
+    //     padding-right: 16px;
+    //     .ant-table-thead > tr {
+    //         > th:last-child {
+    //             border-right-width: 0;
+    //         }
+    //     }
+    // }
+    // .ant-table-body::-webkit-scrollbar {
+    //     display: none;
+    // }
+}
 
 .full-screen-table-60{
     height: 'auto';
@@ -459,7 +528,7 @@
         right:46px;
         top: 14px;
         line-height: 17px;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: normal;
         user-select: none;
         &:hover{
@@ -480,10 +549,13 @@
     > .ant-spin-nested-loading {
         > .ant-spin-container {
             > .ant-table {
-                table{
+                table {
                     font-size: 13px;
                     color: #333;
                     .ant-table-thead {
+                        // .ant-table-selection-column>span {
+                        //     visibility: hidden;
+                        // }
                         tr {
                             th {
                                 background-color: #fafafa;
@@ -492,6 +564,12 @@
                                 border-bottom: 1px solid #DDDDDD;
                                 color: #666;
                                 font-weight: normal;
+                                &:first-child {
+                                    padding-left: 20px;
+                                }
+                                &:last-child {
+                                    padding-right: 15px;
+                                }
                             }
                         }
                     }
@@ -500,8 +578,57 @@
                             td {
                                 padding-top: 11px;
                                 padding-bottom: 11px;
+                                &:first-child {
+                                    padding-left: 20px;
+                                }
+                                &:last-child {
+                                    padding-right: 15px;
+                                }
                             }
                         }
+                    }
+                    .ant-table-placeholder {
+                        border-bottom: 0;
+                    }
+                }
+                .ant-table-footer {
+                    background: #fff;
+                    padding: 0;
+                    // border-bottom: 1px solid $tbBorderColor;
+                    &>tr>td {
+                        padding: 4px 8px;
+                        font-size: 13px;
+                    }
+                    .ant-btn {
+                        height: 28px;
+                        font-size: 13px;
+                        margin-right: 16px;
+                    }
+                    .ant-dropdown-button {
+                        margin-right: 16px;
+                        .ant-btn {
+                            margin-right:0;
+                        }
+                    }
+                }
+            }
+            > .ant-pagination {
+                margin-right: 20px !important;
+                .ant-pagination-item {
+                    min-width: 26px;
+                    height: 26px;
+                    line-height: 26px;
+                    a {
+                        font-size: 13px;
+                        color: #333333;
+                        letter-spacing: 0;
+                    }
+                }
+                .ant-pagination-item-active {
+                    background-color: #ffffff;
+                    border-color: $primaryColor;
+                    a {
+                        color: $primaryColor;
                     }
                 }
             }
@@ -510,9 +637,10 @@
 }
 
 .ant-calendar table {
-    font-size: 12px;
+    font-size: 13px;
 }
 .c-tabs--scroll {
+    height: 100%;
     > .ant-tabs {
         > .ant-tabs-content {
             height: calc(100% - 36px);

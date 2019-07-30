@@ -173,7 +173,8 @@ class TaskView extends Component {
         return (
             <div
                 style={{
-                    position: 'relative'
+                    position: 'relative',
+                    height: '100%'
                 }}
             >
                 <TaskGraphView

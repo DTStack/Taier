@@ -245,6 +245,7 @@ class FolderTree extends React.Component {
                 }
                 break;
             case MENU_TYPE.SYSFUC:
+            case MENU_TYPE.LIBRASYSFUN:
                 operations = [];
                 break;
             case MENU_TYPE.SCRIPT:
@@ -439,6 +440,7 @@ class FolderTree extends React.Component {
             .then(res => {
                 if (res.code === 1) {
                     this.props.setModalDefault(res.data);
+                    this.props.setModalKey(Math.random())
                     this.props.toggleCreateScript();
                 }
             })
@@ -495,6 +497,9 @@ class FolderTree extends React.Component {
 
     onRightClick = (e) => {
         console.log(e);
+        const { saveEngineType } = this.props;
+        const engineType = e.node.props.data.engineType;
+        saveEngineType(engineType)
     }
 
     genetateTreeNode () {

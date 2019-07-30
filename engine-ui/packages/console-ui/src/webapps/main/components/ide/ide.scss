@@ -37,7 +37,8 @@
                 height: 100%;
             }
             .extra-view{
-               overflow: auto;
+                height: 100%;
+                overflow: auto;
             }
     }
 
@@ -62,7 +63,7 @@
 
     .ide-console {
         width: 100%;
-        margin-top: 2px;
+        // margin-top: 2px;
         position: relative;
         z-index: 1;
         .ant-tabs {
@@ -72,6 +73,7 @@
         }
         .ant-tabs-bar .ant-tabs-tab-active {
             background: #fff;
+            padding-bottom: 5px;
             &:after{
                 content:"";
                 position: absolute;
@@ -86,7 +88,7 @@
 
         .ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
             margin-right: -1px;
-            border-bottom: 1px solid #dddddd;
+            // border-bottom: 1px solid #dddddd;
         }
 
         .ant-tabs-nav div:nth-child(2) {
@@ -121,13 +123,17 @@
                 right: 30px;;
             }
         }
-
-        .ant-tabs-content {
-            position: absolute;
-            top: 32px;
-            bottom: 0px;
-            height: auto;
-            overflow: auto;
+        >.ant-tabs {
+            >.ant-tabs-content {
+                position: absolute;
+                top: 32px;
+                bottom: 0px;
+                height: auto;
+                overflow: auto;
+                >.ant-tabs-tabpane{
+                    height: 100%;
+                }
+            }
         }
 
         .CodeMirror {
@@ -210,5 +216,11 @@
 }
 .c-ide-result__tools__pagination{
     float: right;
+    padding-right: 5px;
+}
+.c-ide-result__mark {
+    float: right;
     padding-right: 18px;
+    color: #ccc;
+    line-height: 1.8;
 }

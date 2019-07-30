@@ -153,6 +153,8 @@ export function TaskTimeType (props) {
 export function DatabaseType (props) {
     const value = props.value
     switch (value) {
+        case DATA_SOURCE.KYLIN:
+            return <span>KYLIN</span>
         case DATA_SOURCE.MYSQL:
             return <span>MySQL</span>
         case DATA_SOURCE.ORACLE:
@@ -185,6 +187,8 @@ export function DatabaseType (props) {
             return <span>DB2</span>
         case DATA_SOURCE.CARBONDATA:
             return <span>CarbonData</span>
+        case DATA_SOURCE.LIBRASQL:
+            return <span>LibrA</span>
         case DATA_SOURCE.GBASE:
             return <span>GBase</span>
         default:
@@ -227,6 +231,8 @@ export function TaskType (props) {
             return <span>Notebook</span>
         case TASK_TYPE.EXPERIMENT:
             return <span>算法实验</span>
+        case TASK_TYPE.LIBRASQL:
+            return <span>LibraSQL</span>
         default:
             return <span>SparkSQL</span>
     }

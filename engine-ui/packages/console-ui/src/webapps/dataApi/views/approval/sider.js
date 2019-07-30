@@ -19,7 +19,7 @@ class ApprovalAndSecuritySider extends React.Component {
     render () {
         const base = `/api/approvalAndsecurity`;
         return (
-            <div className="m-ant-menu">
+            <div className="m-ant-menu" style={{ height: '100%' }}>
                 <Menu
 
                     style={{ width: 200, height: '100%' }}

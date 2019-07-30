@@ -12,6 +12,7 @@
            width: 20px;
            height: 20px;
            margin-right: 8px;
+           vertical-align: top;
            cursor: pointer;
        }
    }
@@ -19,7 +20,7 @@
    .s-catalogue {
         padding: 6px 15px 5px 12px;
         padding-bottom: 80px;
-        height: 100%;
+        height: calc(100% - 43px);
         overflow-y: auto;
         overflow-x: hidden;
 
@@ -105,7 +106,9 @@
         }
     }
 
-    .pane-wrapper,
+    .pane-wrapper{
+        height: 100%;
+    }
     .ant-tabs-content {
         height: calc(100% - 32px);
     }
@@ -120,9 +123,16 @@
     }
 
     &>.ant-tabs {
-        
+        height: 100%;
+        >.ant-tabs-content {
+            >.ant-tabs-tabpane{
+                height: 100%;
+                >.m-content{
+                    height: 100%;
+                }
+            }
+        }
         &>.ant-tabs-bar {
-
             margin-bottom: 0px;
             border-radius: 0px;
             margin-left: -1px;
@@ -130,14 +140,14 @@
 
             .ant-tabs-tab {
                 margin-right: 0px;
-                line-height: 20px;
+                line-height: 21px;
                 padding-left: 28px;
                 padding-right: 26px;
                 border-left: none;
                 text-align: left;
                 min-width: 150px;
                 border-radius: 0;
-                border-bottom: 1px solid #dddddd;
+                // border-bottom: 1px solid #dddddd;
                 background: #FAFAFA;
                 font-size: 12px;
                 color: #333333;
@@ -156,6 +166,7 @@
                 text-overflow: ellipsis;
                 max-width: 120px;
                 color: #333333;
+                vertical-align: top;
             }
 
             .ant-tabs-tab-active {
@@ -297,7 +308,7 @@
                 padding: 0;
                 color: #333333;
                 left: 50%;
-                margin-left: -31.5;
+                margin-left: -31.5px;
                 width: 64px;
             }
             .ant-collapse-content-box{
@@ -501,7 +512,6 @@
         margin-top: 5px;
         .ant-card-head {
             padding: 0;
-            height: 40px;
         }
     }
 }

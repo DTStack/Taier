@@ -28,6 +28,7 @@
 
         &.experiment {
             
+            height: auto;
             .ant-tabs-content.ant-tabs-content-no-animated {
                 height: 0px;
                 min-height: 0px;
@@ -42,10 +43,13 @@
             border-radius: 0px;
             margin-left: -1px;
             border-left: none;
-
+            .ant-tabs-tab-active.ant-tabs-tab{
+                padding-bottom: 4px;
+            }
             .ant-tabs-tab {
+                vertical-align: top;
                 margin-right: 0px;
-                line-height: 20px;
+                line-height: 21px;
                 padding-left: 28px;
                 padding-right: 26px;
                 border-left: none;
@@ -139,4 +143,7 @@
             }
         }
     }
+}
+.c-panelGroup__content {
+    height: calc(100% - 32px);
 }

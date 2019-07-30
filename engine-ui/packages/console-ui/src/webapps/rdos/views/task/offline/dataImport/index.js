@@ -8,7 +8,7 @@ import {
 import DataSource from './source'
 import DataTarget from './target'
 import API from '../../../../api/dataManage'
-
+import { getProjectTableTypes } from '../../../../store/modules/tableType'
 import { getUploadStatus } from '../../../../store/modules/uploader'
 
 const defaultState = {
@@ -21,6 +21,7 @@ const defaultState = {
     splitSymbol: ',',
     charset: 'UTF-8',
     step: 'source',
+    tableType: '', // 项目表类型
     tableData: {}, // 表数据
     targetTable: '', // 目标表
     tableList: [], // table列表
@@ -36,12 +37,33 @@ const defaultState = {
     originLineCount: 0, // 原数据总条数
     targetExchangeWarning: false// target界面是否提示未选择源字段
 }
-@connect()
+@connect(state => {
+    return {
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
+    }
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId));
+        },
+        getUploadStatus: (params) => {
+            dispatch(getUploadStatus(params))
+        }
+    }
+})
 class ImportLocalData extends Component {
     state = Object.assign({}, defaultState)
-
-    importData = () => {
-        const { dispatch } = this.props;
+    form = React.createRef()
+    componentDidMount () {
+        // const { getProjectTableTypes, project } = this.props;
+        // const projectId = project.id;
+        // if (projectId) {
+        //     getProjectTableTypes(projectId)
+        // }
+    }
+    async importData () {
+        const { getUploadStatus } = this.props;
         const { file } = this.state;
         const params = this.getParams()
         if (this.checkParams(params)) {
@@ -50,20 +72,17 @@ class ImportLocalData extends Component {
             this.setState({
                 loading: true
             })
-            API.importLocalData(params).then((res) => {
+            const res = await API.importLocalData(params);
+            if (res.code === 1) {
                 this.setState({
                     loading: false
                 })
-                if (res.code === 1) {
-                    getUploadStatus({
-                        queryParams: { queryKey: res.data },
-                        fileName: file.name
-                    }, dispatch)
-                    this.setState({
-                        ...defaultState
-                    })
-                }
-            })
+                getUploadStatus({
+                    queryParams: { queryKey: res.data },
+                    fileName: file.name
+                })
+                this.onCancel();
+            }
         }
     }
 
@@ -71,6 +90,11 @@ class ImportLocalData extends Component {
         let flag = true
         const { originPartitions, columnMap, matchType } = this.state
         const partitions = params.partitions
+
+        if (!params.tableType) {
+            message.error('请选择目标表！')
+            return false;
+        }
 
         if (!params.tableId) {
             message.error('请选择要导入的目标表！')
@@ -117,7 +141,7 @@ class ImportLocalData extends Component {
             file, targetTable, splitSymbol,
             charset, startLine, asTitle,
             matchType, columnMap, partitions,
-            overwriteFlag
+            overwriteFlag, tableType
         } = this.state
         return {
             tableId: targetTable.id,
@@ -129,7 +153,8 @@ class ImportLocalData extends Component {
             matchType,
             startLine,
             partitions,
-            overwriteFlag
+            overwriteFlag,
+            tableType
         }
     }
 
@@ -225,14 +250,14 @@ class ImportLocalData extends Component {
 
     onCancel = () => {
         this.setState({ ...defaultState });
+        this.form.resetFields();
     }
-
     footer () {
         const { step, loading } = this.state
         return (
             <div>
                 <Button onClick={() => {
-                    this.setState({ ...defaultState })
+                    this.onCancel()
                 }}>取消</Button>
                 <Button
                     style={{
@@ -257,7 +282,9 @@ class ImportLocalData extends Component {
                         display: step === 'target'
                             ? 'inline-block' : 'none'
                     }}
-                    onClick={this.importData}
+                    onClick={() => {
+                        this.importData()
+                    }}
                     loading={loading}
                     type="primary">
                     导入
@@ -283,7 +310,7 @@ class ImportLocalData extends Component {
                     maskClosable={false}
                     title="本地数据导入"
                     visible={visible}
-                    onCancel={this.onCancel}
+                    onCancel={() => { this.onCancel() }}
                     footer={this.footer()}
                 >
                     <DataSource
@@ -294,6 +321,7 @@ class ImportLocalData extends Component {
                         changeStatus={this.changeStatus}
                     />
                     <DataTarget
+                        ref={(ref) => { this.form = ref; }}
                         visible={visible}
                         warning={targetExchangeWarning}
                         data={data}

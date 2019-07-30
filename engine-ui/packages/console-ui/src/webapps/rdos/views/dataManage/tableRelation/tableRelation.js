@@ -39,7 +39,8 @@ const getTableReqParams = (tableData) => {
         pageIndex: 1,
         pageSize: 6,
         belongProjectId: tableData.belongProjectId,
-        dataSourceId: tableData.dataSourceId
+        dataSourceId: tableData.dataSourceId,
+        tableId: tableData.id
     }
     return params;
 }

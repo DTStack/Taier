@@ -1,5 +1,6 @@
 import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 import DtWoker from './dtsql.worker.js';
+import { get } from 'lodash';
 
 let _DtParserInstance;
 class DtParser {
@@ -65,10 +66,10 @@ function loadDtParser () {
  * select __+ thing __+ from __+ Table (__* , __*table)* __*;
  * thing=([,.\w])
  */
-const selectRegExp = /Select\s+[\s\S]+\s+from(\s+\w+)((\s*,\s*\w+)*)\s*;/i;
+// const selectRegExp = /Select\s+[\s\S]+\s+from(\s+\w+)((\s*,\s*\w+)*)\s*;/i;
 let cacheKeyWords = [];
 let _completeProvideFunc = {};
-let _tmp_decorations = [];
+let _tmpDecorations = [];
 function dtsqlWords () {
     return {
         // builtinFunctions: ["FROM_UNIXTIME", "UNIX_TIMESTAMP", "TO_DATE", "YEAR", "QUARTER", "MONTH", "DAY", "HOUR", "MINUTE", "SECOND", "WEEKOFYEAR", "DATEDIFF", "DATE_ADD", "DATE_SUB", "FROM_UTC_TIMESTAMP", "TO_UTC_TIMESTAMP", "CURRENT_DATE", "CURRENT_TIMESTAMP", "ADD_MONTHS", "LAST_DAY", "NEXT_DAY", "TRUNC", "MONTHS_BETWEEN", "DATE_FORMAT", "ROUND", "BROUND", "FLOOR", "CEIL", "RAND", "EXP", "LN", "LOG10", "LOG2", "LOG", "POW", "SQRT", "BIN", "HEX", "UNHEX", "CONV", "ABS", "PMOD", "SIN", "ASIN", "COS", "ACOS", "TAN", "ATAN", "DEGREES", "RADIANS", "POSITIVE", "NEGATIVE", "SIGN", "E", "PI", "FACTORIAL", "CBRT", "SHIFTLEFT", "SHIFTRIGHT", "SHIFTRIGHTUNSIGNED", "GREATEST", "LEAST", "ASCII", "BASE64", "CONCAT", "CHR", "CONTEXT_NGRAMS", "CONCAT_WS", "DECODE", "ENCODE", "FIND_IN_SET", "FORMAT_NUMBER", "GET_JSON_OBJECT", "IN_FILE", "INSTR", "LENGTH", "LOCATE", "LOWER", "LPAD", "LTRIM", "NGRAMS", "PARSE_URL", "PRINTF", "REGEXP_EXTRACT", "REGEXP_REPLACE", "REPEAT", "REVERSE", "RPAD", "RTRIM", "SENTENCES", "SPACE", "SPLIT", "STR_TO_MAP", "SUBSTR", "SUBSTRING_INDEX", "TRANSLATE", "TRIM", "UNBASE64", "UPPER", "INITCAP", "LEVENSHTEIN", "SOUNDEX", "SIZE", "MAP_KEYS", "MAP_VALUES", "ARRAY_CONTAINS", "SORT_ARRAY", "ROW_NUMBER"],
@@ -152,10 +153,17 @@ monaco.languages.registerCompletionItemProvider('dtsql', {
                 const dtParser = loadDtParser();
                 let autoComplete = await dtParser.parserSql([textValue.substr(0, cursorIndex), textValue.substr(cursorIndex)]);
                 let columnContext;
+                let tableContext;
+                let suggestTablesIdentifierChain = get(autoComplete, 'suggestTables.identifierChain', []);
+                if (suggestTablesIdentifierChain.length) {
+                    tableContext = suggestTablesIdentifierChain[0].name;
+                }
                 if (autoComplete.suggestColumns && autoComplete.suggestColumns.tables && autoComplete.suggestColumns.tables.length) {
                     columnContext = autoComplete.suggestColumns.tables.map(
                         (table) => {
-                            return table.identifierChain[0].name;
+                            return table.identifierChain.map((identifier) => {
+                                return identifier.name
+                            }).join('.');
                         }
                     )
                 }
@@ -167,6 +175,7 @@ monaco.languages.registerCompletionItemProvider('dtsql', {
                     autoComplete: autoComplete,
                     context: {
                         columnContext: columnContext,
+                        tableContext: tableContext,
                         completionContext: CompletionContext
                     }
                 });
@@ -211,9 +220,9 @@ export async function onChange (value = '', _editor, callback) {
             message: `[语法错误！] \n${message}`,
             severity: 8
         }])
-        _tmp_decorations = _editor.deltaDecorations(_tmp_decorations, createLineMarker(syntax))
+        _tmpDecorations = _editor.deltaDecorations(_tmpDecorations, createLineMarker(syntax))
     } else {
-        _editor.deltaDecorations(_tmp_decorations, [])
+        _editor.deltaDecorations(_tmpDecorations, [])
         monaco.editor.setModelMarkers(model, model.getModeId(), [])
     }
     if (callback) {

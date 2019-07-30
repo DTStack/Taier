@@ -228,7 +228,7 @@ class InputOrigin extends Component {
                         <Col span="18" style={{ marginBottom: 20, height: 202 }}>
                             {isShow && (
                                 <Editor
-                                    style={{ minHeight: 202 }}
+                                    style={{ minHeight: 202, height: '100%' }}
                                     className="bd"
                                     sync={sync}
                                     placeholder={'字段 类型, 比如 id int 一行一个字段\n\n仅支持JSON格式数据源，若为嵌套格式，\n字段名称由JSON的各层级key组合隔，例如：\n\nkey1.keya INT AS columnName \nkey1.keyb VARCHAR AS columnName'}
@@ -269,7 +269,7 @@ class InputOrigin extends Component {
                             <Col span="18" style={{ marginBottom: 20, height: 202 }}>
                                 {isShow && (
                                     <Editor
-                                        style={{ minHeight: 202 }}
+                                        style={{ minHeight: 202, height: '100%' }}
                                         className="bd"
                                         sync={sync}
                                         placeholder="分区 偏移量，比如pt 2 一行一对值"

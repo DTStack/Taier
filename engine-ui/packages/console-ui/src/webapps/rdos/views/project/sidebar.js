@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Menu } from 'antd'
+import { Menu, Icon } from 'antd'
 import { Link } from 'react-router'
 require('../iconfont/iconfont');
 export default class Sidebar extends Component {
@@ -40,18 +40,24 @@ export default class Sidebar extends Component {
             <div className="sidebar m-ant-menu">
                 <Menu
                     onClick={this.handleClick}
-                    style={{ width: 200, height: '100%' }}
+                    style={{ height: '100%' }}
+                    defaultOpenKeys={[]}
                     selectedKeys={[this.state.current]}
                     defaultSelectedKeys={[this.state.current]}
-                    mode="inline"
+                    mode={this.props.mode}
                 >
-
                     <Menu.Item key="config">
                         <Link to={`${base}/config`}>
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-project_set"></use>
                             </svg>
-                            <span>项目配置</span>
+                            <span className="hide-text">项目配置</span>
+                        </Link>
+                    </Menu.Item>
+                    <Menu.Item key="engine">
+                        <Link to={`${base}/engine`}>
+                            <Icon className="icon-svg" type="api" style={{ lineHeight: '19px' }}/>
+                            <span className="hide-text">计算引擎</span>
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="member">
@@ -59,7 +65,7 @@ export default class Sidebar extends Component {
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-chengyuan"></use>
                             </svg>
-                            <span>项目成员管理</span>
+                            <span className="hide-text">项目成员管理</span>
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="role">
@@ -67,7 +73,7 @@ export default class Sidebar extends Component {
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-jiaoseguanli"></use>
                             </svg>
-                            <span>角色管理</span>
+                            <span className="hide-text">角色管理</span>
                         </Link>
                     </Menu.Item>
                 </Menu>

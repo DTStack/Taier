@@ -61,7 +61,6 @@ export default class RoleEdit extends Component {
 
     render () {
         const { app, roleInfo } = this.state;
-
         return (
             <div className="box-1">
                 <div className="box-card">
@@ -71,6 +70,7 @@ export default class RoleEdit extends Component {
                             <RoleForm
                                 roleInfo={roleInfo}
                                 ref={(e) => this.form = e}
+                                isDisabled={true}
                             />
                             <Row>
                                 <Col {...formItemLayout.labelCol}></Col>

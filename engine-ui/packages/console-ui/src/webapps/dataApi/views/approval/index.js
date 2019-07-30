@@ -300,8 +300,8 @@ class APIApproval extends Component {
     getCardTitle () {
         return (
             <div className="flex font-12">
-                <InputGroup compact style={{ width: 500, margin: '10px 0px' }} >
-                    <Select defaultValue="用户名称" onChange={this.selectSearchType.bind(this)}>
+                <InputGroup compact style={{ width: 500 }} >
+                    <Select style={{ marginTop: '10px' }} defaultValue="用户名称" onChange={this.selectSearchType.bind(this)}>
                         <Option value="用户名称">用户名称</Option>
                         <Option value="API名称">API名称</Option>
                     </Select>

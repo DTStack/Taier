@@ -1,6 +1,7 @@
 import React from 'react';
 import { hashHistory } from 'react-router';
-import { Card, Table, Button } from 'antd';
+import { Card, Table, Button, message } from 'antd';
+import AddCommModal from '../../components/addCommModal';
 import moment from 'moment';
 import Api from '../../api/console'
 const PAGE_SIZE = 10;
@@ -12,7 +13,9 @@ class ClusterManage extends React.Component {
             pageIndex: 1,
             total: 0,
             loading: true
-        }
+        },
+        newClusterModal: false,
+        editModalKey: ''
     }
     componentDidMount () {
         this.getResourceList();
@@ -58,26 +61,27 @@ class ClusterManage extends React.Component {
         return [
             {
                 title: '集群名称',
-                dataIndex: 'clusterName'
+                dataIndex: 'clusterName',
+                width: '400px'
             },
-            {
-                title: '节点数量',
-                dataIndex: 'totalNode'
-            },
-            {
-                title: '总资源数',
-                dataIndex: 'totalCore',
-                width: '200px',
-                render (text, record) {
-                    const memory = record.totalMemory / 1024;
-                    const haveDot = Math.floor(memory) != memory
-                    return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
-                }
-            },
+            // {
+            //     title: '节点数量',
+            //     dataIndex: 'totalNode'
+            // },
+            // {
+            //     title: '总资源数',
+            //     dataIndex: 'totalCore',
+            //     width: '200px',
+            //     render (text, record) {
+            //         const memory = record.totalMemory / 1024;
+            //         const haveDot = Math.floor(memory) != memory
+            //         return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
+            //     }
+            // },
             {
                 title: '修改时间',
                 dataIndex: 'gmtModified',
-                width: '200px',
+                width: '300px',
                 render (text) {
                     return moment(text).format('YYYY-MM-DD HH:mm:ss')
                 }
@@ -85,6 +89,7 @@ class ClusterManage extends React.Component {
             {
                 title: '操作',
                 dataIndex: 'deal',
+                width: '400px',
                 render: (text, record) => {
                     return (
                         <div>
@@ -116,17 +121,46 @@ class ClusterManage extends React.Component {
         })
     }
     newCluster () {
-        hashHistory.push({
-            pathname: '/console/clusterManage/editCluster'
+        this.setState({
+            editModalKey: Math.random(),
+            newClusterModal: true
         })
     }
+    onCancel () {
+        this.setState({ newClusterModal: false })
+    }
+    onSubmit (params) {
+        const { canSubmit, reqParams } = params;
+        if (canSubmit) {
+            Api.addCluster({ ...reqParams }).then(res => {
+                if (res.code === 1) {
+                    this.onCancel()
+                    // 采用接口返回数据
+                    hashHistory.push({
+                        pathname: '/console/clusterManage/editCluster',
+                        state: {
+                            mode: 'new',
+                            cluster: res.data
+                        }
+                    })
+                    message.success('集群新增成功！')
+                }
+            })
+        }
+    }
+    handleTableChange = (pagination, filters, sorter) => {
+        const queryParams = Object.assign(this.state.table, { pageIndex: pagination.current, loading: true })
+        this.setState({
+            table: queryParams
+        }, this.getResourceList)
+    }
     render () {
-        const { dataSource, table } = this.state;
+        const { dataSource, table, newClusterModal, editModalKey } = this.state;
         const { loading } = table;
         const columns = this.initTableColumns();
 
         const cardTitle = (
-            <div>多集群管理 <Button type="primary" onClick={this.newCluster} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
+            <div>多集群管理 <Button type="primary" onClick={this.newCluster.bind(this)} style={{ float: 'right', marginTop: '9px' }}>新增集群</Button></div>
         )
         return (
             <div className="contentBox m-card">
@@ -143,8 +177,18 @@ class ClusterManage extends React.Component {
                         loading={loading}
                         dataSource={dataSource}
                         columns={columns}
+                        onChange={this.handleTableChange}
                     />
                 </Card>
+                <AddCommModal
+                    key={editModalKey}
+                    title='新增集群'
+                    visible={newClusterModal}
+                    isAddCluster={true}
+                    isRequired={false}
+                    onCancel={this.onCancel.bind(this)}
+                    onOk={this.onSubmit.bind(this)}
+                />
             </div>
         )
     }

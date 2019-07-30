@@ -444,9 +444,9 @@ class RealTimeTaskList extends Component {
         } else {
             let arr = [];
 
-            arr.push(<a onClick={() => { this.openTask(record) }}>修改</a>)
-            goOn && arr.push(<a onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>)
-            normal && arr.push(<a onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
+            arr.push(<a key='change' onClick={() => { this.openTask(record) }}>修改</a>)
+            goOn && arr.push(<a key='goon' onClick={() => { this.updateTaskStatus(record) }}>{goOn}</a>)
+            normal && arr.push(<a key='normal' onClick={() => { this.updateTaskStatus(record, 'normal') }}>{normal}</a>)
             recover && arr.push(<Popconfirm
                 okText="确定"
                 cancelText="取消"
@@ -461,7 +461,7 @@ class RealTimeTaskList extends Component {
              */
             arr = arr.reduce((one, two) => {
                 if (one.length) {
-                    return one.concat(<span className="ant-divider" />, two);
+                    return one.concat(<span key={one.length + 'divider'} className="ant-divider" />, two);
                 }
                 return one.concat(two);
             }, [])
@@ -496,7 +496,7 @@ class RealTimeTaskList extends Component {
             current: current
         };
         return (
-            <div className="box-1 m-card">
+            <div className="c-realtime__list m-card">
                 <Card
                     noHovering
                     bordered={false}
@@ -505,7 +505,7 @@ class RealTimeTaskList extends Component {
                         <div>
                             <Search
                                 placeholder="按任务名称搜索"
-                                style={{ width: 200, marginTop: '10px' }}
+                                style={{ width: 200 }}
                                 defaultValue={utils.getParameterByName('tname') || ''}
                                 onSearch={this.searchTask}
                             />

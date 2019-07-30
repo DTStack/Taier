@@ -131,16 +131,16 @@ export default class TaskVersion extends React.Component {
         </div> : null;
 
         return (
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: '16px' }}>
                 <Table
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border dt-ant-table--border-lr dt-ant-table--bg-white"
                     rowKey="id"
                     dataSource={taskInfo.taskVersions || []}
                     columns={this.taskVersionCols()}
                     pagination={false}
                 />
                 <Modal
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
+                    wrapClassName=".vertical-center-modal-no-width modal-body-nopadding"
                     title="版本对比"
                     width="900px"
                     bodyStyle={{ minHeight: '500px', paddingBottom: 20 }}

@@ -46,7 +46,7 @@ module.exports = {
             secure: false
         },
         '/uic': { // UIC地址
-            target: 'http://uic.dtstack.net',
+            target: 'http://dtuic.dtstack.net',
             changeOrigin: true,
             secure: false
         },

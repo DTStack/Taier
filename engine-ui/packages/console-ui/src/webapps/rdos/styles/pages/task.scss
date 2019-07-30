@@ -3,13 +3,13 @@
 @import './taskComponent/index.scss';
 
 .dt-dev-task {
-
     .noMarginBottom {
         margin-bottom: 0;
     }
 
     .ant-layout-sider {
-        background: #ffffff;
+        // background: #ffffff;
+        background-color: #F5F5F5;
     }
 
     .operation-card {
@@ -55,22 +55,25 @@
         &>.ant-tabs-bar {
             width: 30px;
             height: 100%;
-
+            background: #262E36;
+            color: #FFFFFF;
             .ant-tabs-tab {
                 height: auto;
-                padding: 10px 5px;
+                padding: 10px 4px 10px 5px;
                 writing-mode: tb-rl;
                 letter-spacing: 3px;
                 margin-bottom: 0;
                 font-size: 12px;
             }
-            .ant-tabs-tab:hover{
-                background:#eef6fe;
-            }
-            .ant-tabs-tab-active {
-                border-top: 1px solid #dddddd;
-                border-bottom: 1px solid #dddddd;
-            }
+            // .ant-tabs-tab:hover{
+            //     background:#eef6fe;
+            // }
+            // .ant-tabs-tab-active {
+                // border-top: 1px solid #dddddd;
+                // border-top: 1px solid hsla(0,0%,100%,.2);
+                // border-bottom: 1px solid #dddddd;
+                // border-bottom: 1px solid hsla(0,0%,100%,.2)
+            // }
             .ant-tabs-nav {
                 background: none;
             }
@@ -81,6 +84,7 @@
         }
 
         &>.ant-tabs-content {
+            height: 100%;
             margin: 0;
             padding: 0;
         }
@@ -88,12 +92,20 @@
         &>.ant-menu-inline, .ant-menu-vertical {
             border-right: 0;
         }
+        .ant-tabs-content {
+            .ant-collapse-item {
+                .ant-collapse-content {
+                    background-color: #F5F5F5;
+                }
+            }
+        }
     }
 
     .task-sidebar {
 
         .ant-tabs-tabpane {
             overflow: hidden;
+            height: 100%;
         }
 
         .ant-menu-submenu-title {
@@ -129,7 +141,7 @@
         }
         .s-sqlicon {
             .ant-tree-icon__docu {
-                background-image: url(/public/rdos/img/sql.svg);
+                background-image: url(/public/rdos/img/sparksql.svg);
             }
         }
         .s-mlicon {
@@ -254,12 +266,16 @@
                 background-image: url(/public/rdos/img/experiment.svg)
             }
         }
+        .s-librasql {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/librasql.svg)
+            }
+        }
         .s-table {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/table.svg)
             }
         }
-
         .menu-content {
             height: 100%;
             display: flex;
@@ -267,24 +283,25 @@
             &::-webkit-scrollbar-track {
                 border-right: none;
             }
-
             header {
+                height: 41px;
                 flex-grow: 0;
                 flex-shrink: 0;
-                border-bottom: 1px solid #E8E8E8;
+                // border-bottom: 1px solid #E8E8E8;
+                border-bottom: 1px solid #DDDDDD;
                 line-height: 32px;
                 text-align: right;
-                font-size: 18px;
                 z-index: 999;
-                background: #ffffff;
+                // background: #ffffff;
+                background: #F5F5F5;
                 padding-right: 15px;
-                padding-top: 5px;
-                padding-bottom: 5px;
-                
+                padding-top: 4px;
+                padding-bottom: 3px;
+                margin-left: 1px;
                 .anticon {
                     font-size: 14px;
                     cursor: pointer;
-                    line-height: 20px;
+                    line-height: 32px;
                     margin-left: 8px;
                     color: #94A8C6;
                     letter-spacing: 0;
@@ -373,6 +390,13 @@
                 .ant-pagination {
                     margin-right: 10px;
                 }
+                .ant-pagination-simple .ant-pagination-simple-pager input {
+                    padding: 0;
+                    margin: 0 6px;
+                }
+                &.tb-info--noBorderBottom .ant-tabs-bar {
+                    border-bottom: none;
+                }
             }
             
             .ant-tree-title {
@@ -392,6 +416,7 @@
     }
     // -----------------离线---------------------
     .g-taskOfflineSidebar {
+        height: 100%;
         .m-tasktitle {
             margin-top: -10px;
             text-align: right;
@@ -406,12 +431,12 @@
 
 .diff-params {
     .title{
-        padding: 0 10 10;
+        padding: 0 10px 10px;
         font-size: 14px;
     }
     .box-padding {
-       margin-left: 10;
-       padding-left: 10;
+       margin-left: 10px;
+       padding-left: 10px;
        border: 1px solid #ccc;
        .schedulingCycle{
            min-height: 281px;
@@ -472,7 +497,11 @@
         border-top: 1px solid #dddddd;
 
         .browser-tabs {
-
+            >.ant-tabs-bar{
+                >.ant-tabs-extra-content{
+                    height: 30px;
+                }
+            }
             .ant-tabs-nav-container{
                 font-size: 12px;
                 height: 30px;
@@ -496,7 +525,7 @@
         .ant-tabs.ant-tabs-card>.ant-tabs-bar .ant-tabs-tab .anticon-close {
             margin-top: -5px;
             line-height: 10px;
-            opacity: 1;
+            // opacity: 1;
             font-size: 11px;
         }
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab {
@@ -505,9 +534,10 @@
             padding-left: 28px;
             border-top: none;
             border-left: none;
-            text-align: left;
+            text-align: left; 
             min-width: 120px;
             border-radius: 0;
+            padding-bottom: 6px;
         }
 
         .browser-tabs.ant-tabs.ant-tabs-card > .ant-tabs-bar .ant-tabs-tab:hover{
@@ -594,12 +624,15 @@
         .normal-tab,
         .workflow-name {
             display: inline-block;
-            overflow: hidden;
+            // overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .tab-ellipsis {
             width: 120px;
+            line-height: 19px;
+            white-space: nowrap;
+            overflow: hidden;
         }
 
         .workflow-name {
@@ -618,11 +651,8 @@
         .browser-content {
             &>.ant-tabs {
                 .ant-tabs-bar {
-                    margin-bottom: 1px;
+                    margin-bottom: 0px;
                     border-bottom: 0;
-                    border-radius: 0px;
-                    margin-left: -1px;
-                    border-left: none;
                 }
         
                 .ant-tabs-content {
@@ -678,6 +708,15 @@
                 border-bottom: 1px solid #e9e9e9;
                 border-radius: 4px;
                 padding-right: 0;
+                >.ant-tabs-tabpane{
+                    &.ant-tabs-tabpane-active .ant-collapse-borderless {
+                        background: #F5F5F5;
+                    }
+                    height: 100%;
+                    .ant-collapse-header {
+                        padding-bottom: 5px;
+                    }
+                }
             }
             .ant-tabs-tab {
                 font-size: 12px;
@@ -697,6 +736,7 @@
                 background: #fff;
                 border-bottom: 2px solid #e9e9e9;
                 border-top: 1px solid #e9e9e9;
+                margin-left: 1px;
                 &:after{
                     content:"";
                     position: absolute;
@@ -944,6 +984,7 @@
             }
             .remove-cell,
             .edit-cell {
+                line-height: 1;
                 display: inline-block;
                 position: absolute;
                 top: 14px;
@@ -1056,7 +1097,9 @@
         padding-right:0px;
         border-radius: 0px;
         border-left: 1px solid #e9e9e9;
-        background: #ffffff;
+        // background: #ffffff;
+        background: #F5F5F5;
+        border: 1px solid #DDDDDD;
     }
 }
 
@@ -1135,4 +1178,63 @@
     width: 100%;
     height: 100%;
     background: #fff;
+}
+
+.c-funcMa__collapse {
+    .folder-box {
+        padding: 0 !important;
+    }
+    .ant-collapse {
+        border: 0;
+        border-radius: 0;
+        & > .ant-collapse-item > .ant-collapse-header {
+            padding: 4px 0 4px 32px;
+
+            .arrow {
+                line-height: 30px;
+
+                &::before {
+                    content: "\E606";
+                    transform: rotate(270deg);
+                    font-size: 12px;
+                    font-weight: bold;
+                }
+            }
+        }
+
+        .ant-collapse-item-active > .ant-collapse-header {
+            border-bottom: 1px solid #dddddd;
+        }
+    }
+}
+.ant-dropdown-menu-submenu-title {
+    padding: 7px 13px;
+    margin: 0;
+    clear: both;
+    font-size: 12px;
+    font-weight: normal;
+    color: rgba(0, 0, 0, 0.65);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.ant-dropdown-menu-submenu-title:after {
+    font-family: "anticon" !important;
+    position: absolute;
+    content: "\E61F";
+    right: 0;
+    color: rgba(0, 0, 0, 0.43);
+    display: inline-block;
+    font-size: 12px;
+    transform: scale(0.83333333) rotate(0deg);
+    zoom: 1;
+}
+.c-task__content__spin-box {
+    height: 100%;
+    >.ant-spin-container {
+        height: 100%;
+        >.c-task__main-box {
+            height: 100%;
+        }
+    }
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
-import { formItemLayout } from '../../../comm/const';
+import { formItemLayout, TABLE_TYPE } from '../../../comm/const';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
@@ -60,11 +60,12 @@ class AddDesensitization extends Component {
     tableListOption () {
         const { tableList } = this.state;
         return tableList.map((item, index) => {
+            const tableTypeName = item.tableType == TABLE_TYPE.HIVE ? '(hive)' : '(libra)'
             return <Option
                 key={item.id}
                 value={`${item.id}`}
             >
-                {item.tableName}
+                {`${item.tableName}${tableTypeName}`}
             </Option>
         })
     }
@@ -120,7 +121,7 @@ class AddDesensitization extends Component {
                 key={item.id}
                 value={`${item.id}`}
             >
-                {item.name}
+                {`${item.name}`}
             </Option>
         })
     }
@@ -377,15 +378,17 @@ class AddDesensitization extends Component {
                             </Select>
                         )}
                     </FormItem>
-                    <div style={{ margin: '-6 0 10 120' }}>
+                    <div style={{ margin: '-6px 0 10px 120px' }}>
                         <div>
-                            <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
+                            <Icon type="info-circle-o" style={{ fontSize: 14, margin: '0 5px 0 0', color: '#999999' }}/>上游表、下游表的相关字段会自动脱敏
                         </div>
                         {
-                            upwardColumnsInfo && upwardColumnsInfo.length > 0 ? <div style={{ width: '287' }}>
-                                <Icon type="info-circle-o" style={{ fontSize: 14, margin: '10 5 0 0', color: '#999999' }}/>
-                                {`您选择的表至少存在1个上游表(${upwardColumnsInfo[0].tableName}.${upwardColumnsInfo[0].columnName})，建议将脱敏规则配置在根节点表`}
-                            </div> : ''
+                            upwardColumnsInfo && upwardColumnsInfo.length > 0 ? (
+                                <div style={{ width: '287px' }}>
+                                    <Icon type="info-circle-o" style={{ fontSize: 14, margin: '10px 5px 0 0', color: '#999999' }}/>
+                                    {`您选择的表至少存在1个上游表(${upwardColumnsInfo[0].tableName}.${upwardColumnsInfo[0].columnName})，建议将脱敏规则配置在根节点表`}
+                                </div>
+                            ) : ''
                         }
                     </div>
                     <FormItem

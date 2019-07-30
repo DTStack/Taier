@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router';
 import PropTypes from 'prop-types'
-import { Layout } from 'antd'
+import { Layout, Icon } from 'antd'
 
 import Sidebar from './sidebar'
 
@@ -21,6 +21,11 @@ const defaultPro = {
     }
 })
 class Container extends Component {
+    state = {
+        collapsed: false,
+        mode: 'inline'
+    };
+
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps (nextProps) {
         const { params = {}, project = {} } = nextProps;
@@ -29,12 +34,24 @@ class Container extends Component {
             hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i, `$1${project.id}$2`))
         }
     }
+    toggleCollapsed = () => {
+        this.setState({
+            collapsed: !this.state.collapsed,
+            mode: !this.state.collapsed ? 'vertical' : 'inline'
+        });
+    }
+
     render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-project">
-                <Sider className="bg-w">
-                    <Sidebar {...this.props} />
+                <Sider className="bg-w ant-slider-pos"
+                    collapsed={this.state.collapsed}
+                >
+                    <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>
+                        <Icon type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'} />
+                    </div>
+                    <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content>
                     { children || "i'm container." }

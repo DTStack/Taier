@@ -10,7 +10,7 @@ import { TASK_TYPE } from '../../../comm/const'
 import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
-
+import { getProject } from '../../../store/modules/project';
 function renderLevel (level) {
     if (level === -1) {
         return <span style={{ color: 'rgb(236, 105, 65);' }}>环形血缘</span>
@@ -23,6 +23,9 @@ function renderLevel (level) {
     return {
         goToTaskDev: (id) => {
             actions.openTaskInDev(id)
+        },
+        getProject: (projectId) => {
+            dispatch(getProject(projectId))
         }
     }
 })
@@ -31,24 +34,27 @@ class RelationDetail extends React.Component {
         current: 1,
         pageSize: 5,
         visibleRecord: false,
-        recordInfo: {}
+        recordInfo: {},
+        editKey: ''
     }
 
     showRecord = (item) => {
-        const { goToTaskDev } = this.props;
+        const { goToTaskDev, getProject } = this.props;
 
         if (item.taskType !== -1) { // 任务
             CommApi.getOfflineTaskDetail({
                 id: item.relationId
             }).then(res => {
                 if (res.code === 1) {
-                    if (item.taskType === TASK_TYPE.SQL) {
+                    if (item.taskType === TASK_TYPE.SQL || item.taskType === TASK_TYPE.LIBRASQL) {
                         this.setState({
                             recordInfo: res.data,
-                            visibleRecord: true
+                            visibleRecord: true,
+                            editKey: Math.random()
                         })
                     } else {
                         goToTaskDev(item.relationId)
+                        getProject(item.projectId) // 获取项目信息
                     }
                 }
             });
@@ -59,7 +65,8 @@ class RelationDetail extends React.Component {
                 if (res.code === 1) {
                     this.setState({
                         recordInfo: res.data,
-                        visibleRecord: true
+                        visibleRecord: true,
+                        editKey: Math.random()
                     })
                 }
             })
@@ -152,7 +159,7 @@ class RelationDetail extends React.Component {
                         <Table
                             columns={this.initialCols()}
                             rowKey="relationId"
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             pagination={false}
                             dataSource={(relationTasks && relationTasks.data) || []}
                         />
@@ -174,6 +181,7 @@ class RelationDetail extends React.Component {
                     footer={null}
                 >
                     <Editor
+                        key={this.state.editKey}
                         sync={true}
                         value={recordInfo.sqlText || recordInfo.scriptText }
                         style={{ height: '600px' }}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { isNumber, isObject, isNaN } from 'lodash'
+import { isNumber, isObject, isNaN, get } from 'lodash'
 import {
     Button, Row, Col,
     Input, Tooltip,
@@ -10,6 +10,9 @@ import {
 import { select, selectAll, mouse } from 'd3-selection';
 import scrollText from 'widgets/scrollText';
 import Resize from 'widgets/resize';
+import {
+    debounceEventHander
+} from 'funcs'
 
 import {
     keyMapActions
@@ -57,7 +60,12 @@ function isFieldMatch (source, target) {
         return source === target
     }
 }
-
+const rowkeyTxt =
+`变量写法：
+(colFamily:colName)：列族、列名
+持md5函数，使用时必须以md5开头
+持多字段拼接，例如：md5($(cf1:userName)_$(cf:userAge))
+`;
 class Keymap extends React.Component {
     constructor (props) {
         super(props);
@@ -88,7 +96,9 @@ class Keymap extends React.Component {
                 batchText: ''
             },
             sourceColumnFamily: '', // 源表列族
-            targetColumnFamily: '' // 目标列族
+            targetColumnFamily: '', // 目标列族
+            isFocus: false
+            // isSuccess: true // 用于判定rowkey是否符合期望格式
         };
     }
 
@@ -106,6 +116,10 @@ class Keymap extends React.Component {
     }
 
     componentDidMount () {
+        // const { targetMap } = this.props;
+        // this.setState({
+        //     isSuccess: this.isOkRowkey(targetMap.type.rowkey)
+        // });
         /**
          * step容器
          */
@@ -383,7 +397,6 @@ class Keymap extends React.Component {
             sourceSrcType, targetSrcType
         } = this.props;
         const ctx = this
-
         const getColumnFamily = (params, succCall) => {
             Api.getHBaseColumnFamily(params).then(res => {
                 if (res.code === 1) {
@@ -414,12 +427,33 @@ class Keymap extends React.Component {
         }
     }
 
-    hbaseRowKeyChange = (e) => {
-        const value = utils.trim(e.target.value)
-        const { handleTargetMapChange } = this.props
+    debounceRowkeyChange = debounceEventHander(this.hbaseRowKeyChange.bind(this), 50, { 'maxWait': 2000 })
+
+    hbaseRowKeyChange (e) {
+        const targetVal = e.target.value || '';
+        const value = utils.trim(targetVal);
+        const { handleTargetMapChange } = this.props;
         if (value) {
-            handleTargetMapChange({ rowkey: value })
+            handleTargetMapChange({ rowkey: value });
+            // this.setState({
+            //     isSuccess: this.isOkRowkey(value)
+            // });
         }
+    }
+
+    /* eslint-disable no-useless-escape */
+    isOkRowkey = val => {
+        const obase = '([\\w\\n]+\\.[\\w\\n]+)'
+        const base = `\\$\\(${obase}\\)`;
+        const regexBaseVar = `${base}(?:_${base})*`;
+        const testRegExp = new RegExp(`^${regexBaseVar}$ | ^md5\\(${regexBaseVar}\\)$`, 'ig');
+        return testRegExp.test(val);
+    }
+
+    handleBlurRowkeyCheck = (e) => {
+        this.setState({
+            isFocus: false
+        });
     }
 
     renderSource () {
@@ -623,9 +657,9 @@ class Keymap extends React.Component {
     renderTarget () {
         const { w, h, W, padding } = this.state;
         const {
-            sourceSrcType, targetSrcType,
+            targetSrcType,
             targetFileType, removeTargetKeyRow,
-            targetCol, sourceCol, readonly, targetMap
+            targetCol, sourceCol, readonly
         } = this.props;
 
         const colStyle = {
@@ -708,16 +742,6 @@ class Keymap extends React.Component {
                             <span className="col-plugin" onClick={this.importFields}>
                                 +文本模式
                             </span>
-                            <div className="m-col" style={{ padding: '0 10px' }}>
-                                rowkey: <Input
-                                    style={{ width: '160px' }}
-                                    defaultValue={(targetMap.type && targetMap.type.rowkey) || ''}
-                                    placeholder={
-                                        sourceSrcType === DATA_SOURCE.HBASE
-                                            ? '$(colFamily1:colName1)' : '$(colName)'
-                                    }
-                                    onChange={this.hbaseRowKeyChange}/>
-                            </div>
                         </div>;
                         break;
                     case DATA_SOURCE.HDFS: {
@@ -940,18 +964,57 @@ class Keymap extends React.Component {
             sourceSrcType,
             targetSrcType,
             addSourceKeyRow,
-            navtoStep, targetCol, sourceCol
+            navtoStep, targetCol, sourceCol,
+            targetMap
         } = this.props;
-
+        const { isFocus } = this.state;
         const H = h * (Math.max(targetCol.length, sourceCol.length) + 1);
         const noKeyMapping = !keymap.source || keymap.source.length === 0;
-
+        const focusSty = {
+            width: isFocus ? '285px' : '185px',
+            verticalAlign: isFocus ? 'text-top' : 'middle'
+            // border: !isSuccess ? '1px solid #f04134' : '1px solid #dddddd'
+        }
         return <Resize onResize={this.resize}>
-            <div style={{ margin: '0 20' }}>
-                <p style={{ fontSize: 12, color: '#ccc', marginTop: -20, textAlign: 'center' }}>
+            <div style={{ margin: '0 20px' }}>
+                <p style={{ fontSize: 12, color: '#ccc', marginTop: '-20px', textAlign: 'center' }}>
                     您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
                     &nbsp;{ noKeyMapping ? <a onClick={this.keymapHelpModal}>如何快速配置字段映射？</a> : '' }
                 </p>
+                { targetSrcType === DATA_SOURCE.HBASE ? (
+
+                    <Row>
+                        <Col span="21" style={{ textAlign: 'center' }}>
+                            <div className="m-keymapbox"
+                                style={{
+                                    width: W + 200,
+                                    height: h - 18,
+                                    marginTop: 18,
+                                    zIndex: 1000,
+                                    display: 'inline-block'
+                                }}
+                            >
+                                <div className="pa"
+                                    style={{
+                                        left: W - (padding + w) + 100
+                                    }}
+                                >
+                                    <span>rowkey</span>: <Input
+                                        autoFocus={ isFocus }
+                                        type={ isFocus ? 'textarea' : 'text' }
+                                        style={ focusSty }
+                                        defaultValue={get(targetMap, 'type.rowkey', '')}
+                                        placeholder={ rowkeyTxt }
+                                        onChange={ this.debounceRowkeyChange }
+                                        onFocus={() => { this.setState({ isFocus: true }) }}
+                                        onBlur={ this.handleBlurRowkeyCheck }
+                                        autosize={{ minRows: 4, maxRows: 12 }}
+                                    />
+                                </div>
+                            </div>
+                        </Col>
+                    </Row>
+                ) : null}
                 <Row>
                     <Col span="21" style={{ textAlign: 'center' }}>
                         <div className="m-keymapbox"
@@ -1052,6 +1115,11 @@ class Keymap extends React.Component {
             message.error('尚未配置数据同步的字段映射！');
             return;
         }
+
+        // if (!this.state.isSuccess) {
+        //     message.error('rowkey格式有误！');
+        //     return;
+        // }
 
         const isCarbonDataCheckPartition = () => {
             if (targetSrcType === DATA_SOURCE.CARBONDATA && !isNativeHive) {
@@ -1536,6 +1604,7 @@ class Keymap extends React.Component {
 const mapState = state => {
     const { dataSync } = state.offlineTask;
     return {
+        targetMap: dataSync.targetMap,
         targetCol: dataSync.targetMap.column || [],
         targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type, // 目标数据源类型
         targetFileType: dataSync.sourceMap.type && dataSync.targetMap.type.fileType,

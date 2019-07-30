@@ -14,3 +14,10 @@ export const DDL_IDE_PLACEHOLDER =
     destination String)
     STORED AS ORC
     lifecycle 10`;
+
+export const LIBRA_DDL_IDE_PLACEHOLDER =
+    `CREATE TABLE user_temp (
+        eid int,
+        name varChar,
+        salary varChar,
+        gender int);`;

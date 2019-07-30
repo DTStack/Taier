@@ -1003,7 +1003,8 @@ class WorkflowEditor extends Component {
                 <div className="graph-editor"
                     style={{
                         position: 'relative',
-                        overflow: 'hidden'
+                        overflow: 'hidden',
+                        height: '100%'
                     }}
                 >
                     { this.renderToolBar() }

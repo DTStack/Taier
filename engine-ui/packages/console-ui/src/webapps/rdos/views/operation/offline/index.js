@@ -68,18 +68,18 @@ class OfflineStatistics extends Component {
         const ctx = this
         const { handleTiming } = this.state
         const params = {
-            startTime: handleTiming.set({
+            startTime: handleTiming && handleTiming.set({
                 'hour': 0,
                 'minute': 0,
                 'second': 0
             }).unix(),
-            endTime: handleTiming.set({
+            endTime: handleTiming && handleTiming.set({
                 'hour': 23,
                 'minute': 59,
                 'second': 59
             }).unix()
         }
-        Api.getJobTopTime(params).then((res) => {
+        Api.getJobTopTime(handleTiming && params).then((res) => {
             if (res.code === 1) {
                 ctx.setState({ topTiming: res.data })
             }
@@ -159,11 +159,8 @@ class OfflineStatistics extends Component {
             }
         }, {
             title: '任务实例类型',
-            dataIndex: 'type',
-            key: 'type',
-            render: (text, record) => {
-                return record.type === 1 ? '补数据' : '周期调度'
-            }
+            dataIndex: 'taskTypeName',
+            key: 'taskTypeName'
         }, {
             title: '调度时间',
             dataIndex: 'cycTime',
@@ -237,7 +234,7 @@ class OfflineStatistics extends Component {
                             <Table
                                 rowKey="id"
                                 pagination={false}
-                                className="m-table"
+                                className="dt-ant-table"
                                 style={{ minHeight: '0' }}
                                 columns={this.topTaskTiming()}
                                 dataSource={topTiming || []}
@@ -253,7 +250,7 @@ class OfflineStatistics extends Component {
                             title="近30天出错排行">
                             <Table
                                 rowKey="id"
-                                className="m-table"
+                                className="dt-ant-table"
                                 pagination={false}
                                 style={{ minHeight: '0' }}
                                 columns={this.topTaskError()}

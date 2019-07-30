@@ -10,6 +10,7 @@ import {
 import { TASK_TYPE } from '../../../comm/const';
 
 import Api from '../../../api';
+import manageApi from '../../../api/dataManage';
 
 const taskTypes = (state = [], action) => {
     switch (action.type) {
@@ -41,19 +42,46 @@ const tables = (state = {}, action) => {
         default: return newState;
     }
 }
+const scriptTypes = (state = [], action) => {
+    switch (action.type) {
+        case commAction.GET_SCRIPT_TYPES: {
+            return action.payload;
+        }
+        default: return state;
+    }
+}
+const projectTables = (state = {}, action) => {
+    const { type, payload } = action;
+    const { projectIdentifier, tableList } = payload || {};
+    const newState = assign({}, state);
+    switch (type) {
+        case commAction.SET_PROJECT_TABLE_LIST: {
+            newState[projectIdentifier] = tableList;
+            return newState;
+        }
+
+        default: return newState;
+    }
+}
 export const commReducer = combineReducers({
     taskTypes,
     taskTypeFilter,
-    tables
+    tables,
+    scriptTypes,
+    projectTables
 });
 
 /**
  *  Actions
  */
-export const getTableList = (projectId) => {
+/**
+ * @param type 任务类型/脚本任务，获取spark,libra任务/脚本不同表
+ */
+export const getTableList = (projectId, type) => {
     return (dispatch, getState) => {
         Api.getTableListByName({
-            appointProjectId: projectId
+            appointProjectId: projectId,
+            ...type
         }).then((res) => {
             if (res.code == 1) {
                 let { data } = res;
@@ -66,13 +94,27 @@ export const getTableList = (projectId) => {
         })
     }
 }
+export const getTableListByProject = (projectIdentifier, type) => {
+    return (dispatch, getState) => {
+        return manageApi.getTableListByProjectList({
+            projectIdentifier
+        }).then((res) => {
+            if (res.code == 1) {
+                let { data } = res;
+                dispatch({
+                    type: commAction.SET_PROJECT_TABLE_LIST,
+                    payload: {
+                        projectIdentifier,
+                        tableList: data.children
+                    }
+                });
+                return [projectIdentifier, data.children];
+            }
+        })
+    }
+}
 export const getTaskTypes = () => {
     return (dispatch, getState) => {
-        const currentState = getState();
-        const { offlineTask } = currentState;
-        if (offlineTask.comm.taskTypes && offlineTask.comm.taskTypes.length > 0) {
-            return {};
-        }
         Api.getTaskTypes().then(res => {
             if (res.code === 1) {
                 const taskTypes = res.data;
@@ -93,6 +135,19 @@ export const getTaskTypes = () => {
                 dispatch({
                     type: commAction.GET_TASK_TYPE_FILTER,
                     payload: (offlineTaskTypeFilter || []).concat({ id: TASK_TYPE.NOTEBOOK, value: TASK_TYPE.NOTEBOOK, text: 'Notebook' }, { id: TASK_TYPE.EXPERIMENT, value: TASK_TYPE.EXPERIMENT, text: '算法实验' })
+                })
+            }
+        })
+    }
+}
+export const getScriptTypes = () => {
+    return (dispatch, getState) => {
+        Api.getScriptTypes().then(res => {
+            if (res.code === 1) {
+                const scriptTypes = res.data;
+                dispatch({
+                    type: commAction.GET_SCRIPT_TYPES,
+                    payload: scriptTypes || []
                 })
             }
         })

@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import {
     Steps, Button, message, Form, Input,
     Row, Col, Icon, Select, Radio, Tooltip, InputNumber
@@ -6,9 +7,10 @@ import {
 import assign from 'object-assign';
 import { range, isObject } from 'lodash';
 import { browserHistory, hashHistory } from 'react-router'
-
+import EngineSelect from '../../components/engineSelect';
+import { getProjectTableTypes } from '../../store/modules/tableType';
 import ajax from '../../api/dataManage';
-import { formItemLayout } from '../../comm/const';
+import { formItemLayout, TABLE_TYPE } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
 
@@ -16,6 +18,19 @@ const Step = Steps.Step;
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+
+@connect(state => {
+    return {
+        project: state.project,
+        projectTableTypes: state.tableTypes.projectTableTypes
+    }
+}, dispatch => {
+    return {
+        getProjectTableTypes: (projectId) => {
+            dispatch(getProjectTableTypes(projectId))
+        }
+    }
+})
 
 /**
  * @description step1:基本信息
@@ -29,11 +44,17 @@ class BaseForm extends React.Component {
         this.state = {
             type: props.location ? '2' : '1', // 1: 内部表 2:外部表
             dataCatalogue: [],
-            storedType: props.storedType
+            storedType: props.storedType,
+            tableType: props.tableType
         };
     }
 
     componentDidMount () {
+        const { getProjectTableTypes, project } = this.props;
+        const projectId = project && project.id;
+        if (projectId) {
+            getProjectTableTypes(projectId);
+        }
         this.loadCatalogue();
     }
 
@@ -50,12 +71,35 @@ class BaseForm extends React.Component {
     }
 
     render () {
-        const { getFieldDecorator } = this.props.form;
-        const { tableName, desc, delim, location, lifeDay, catalogueId } = this.props;
-        const { type, dataCatalogue, storedType } = this.state;
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const { tableName, desc, delim, location, lifeDay, catalogueId, projectTableTypes } = this.props;
+        const { type, dataCatalogue, storedType, tableType } = this.state;
         const isShowDelim = storedType == 'textfile';
-
+        const isHiveTable = getFieldValue('tableType') == TABLE_TYPE.HIVE;
         return <Form>
+            <FormItem
+                {...formItemLayout}
+                label="表类型"
+            >
+                {getFieldDecorator('tableType', {
+                    rules: [{
+                        required: true,
+                        message: '表类型不可为空！'
+                    }],
+                    initialValue: tableType
+                })(
+                    <EngineSelect
+                        allowClear
+                        placeholder="表类型"
+                        tableTypes={projectTableTypes}
+                        onChange={(value) => {
+                            this.setState({
+                                tableType: value
+                            })
+                        }}
+                    />
+                )}
+            </FormItem>
             <FormItem
                 {...formItemLayout}
                 label="表名"
@@ -76,36 +120,42 @@ class BaseForm extends React.Component {
                     <Input placeholder="请输入表名" autoComplete="off" />
                 )}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="类型"
-                hasFeedback
-            >
-                <RadioGroup value={this.state.type}
-                    onChange={this.handleChange.bind(this)}
-                >
-                    <Radio value={'1'}>内部表</Radio>
-                    <Radio value={'2'}>外部表</Radio>
-                </RadioGroup>
-            </FormItem>
-            {type == 2 && <FormItem
-                {...formItemLayout}
-                label="外部表地址"
-                hasFeedback
-            >
-                {getFieldDecorator('location', {
-                    rules: [{
-                        required: true,
-                        message: '外部表地址不可为空！'
-                    }, {
-                        validator: this.validateLoc.bind(this)
-                    }],
-                    initialValue: location,
-                    validateTrigger: 'onBlur'
-                })(
-                    <Input placehoder="外部表地址" />
-                )}
-            </FormItem>}
+            {
+                isHiveTable && (
+                    <>
+                        <FormItem
+                            {...formItemLayout}
+                            label="类型"
+                            hasFeedback
+                        >
+                            <RadioGroup value={this.state.type}
+                                onChange={this.handleChange.bind(this)}
+                            >
+                                <Radio value={'1'}>内部表</Radio>
+                                <Radio value={'2'}>外部表</Radio>
+                            </RadioGroup>
+                        </FormItem>
+                        {type == 2 && <FormItem
+                            {...formItemLayout}
+                            label="外部表地址"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('location', {
+                                rules: [{
+                                    required: true,
+                                    message: '外部表地址不可为空！'
+                                }, {
+                                    validator: this.validateLoc.bind(this)
+                                }],
+                                initialValue: location,
+                                validateTrigger: 'onBlur'
+                            })(
+                                <Input placehoder="外部表地址" />
+                            )}
+                        </FormItem>}
+                    </>
+                )
+            }
             <FormItem
                 {...formItemLayout}
                 label="所属类目"
@@ -125,44 +175,50 @@ class BaseForm extends React.Component {
                     />
                 )}
             </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="生命周期"
-            >
-                {getFieldDecorator('lifeDay', {
-                    rules: [{
-                        required: true,
-                        message: '生命周期不可为空！'
-                    }],
-                    initialValue: lifeDay || 90
-                })(
-                    <LifeCycle
-                        onChange={this.lifeCycleChange}
-                    />
-                )}
-            </FormItem>
-            <FormItem
-                {...formItemLayout}
-                label="存储格式"
-                hasFeedback
-            >
-                {getFieldDecorator('storedType', {
-                    rules: [{
-                        required: true, message: '存储格式不可为空！'
-                    }],
-                    initialValue: storedType
-                })(
-                    <Select onChange={(value) => {
-                        this.setState({
-                            storedType: value
-                        })
-                    }}>
-                        <Option value="textfile">textfile</Option>
-                        <Option value="orc">orc</Option>
-                        <Option value="parquet">parquet</Option>
-                    </Select>
-                )}
-            </FormItem>
+            {
+                isHiveTable && (
+                    <>
+                        <FormItem
+                            {...formItemLayout}
+                            label="生命周期"
+                        >
+                            {getFieldDecorator('lifeDay', {
+                                rules: [{
+                                    required: true,
+                                    message: '生命周期不可为空！'
+                                }],
+                                initialValue: lifeDay || 90
+                            })(
+                                <LifeCycle
+                                    onChange={this.lifeCycleChange}
+                                />
+                            )}
+                        </FormItem>
+                        <FormItem
+                            {...formItemLayout}
+                            label="存储格式"
+                            hasFeedback
+                        >
+                            {getFieldDecorator('storedType', {
+                                rules: [{
+                                    required: true, message: '存储格式不可为空！'
+                                }],
+                                initialValue: storedType
+                            })(
+                                <Select onChange={(value) => {
+                                    this.setState({
+                                        storedType: value
+                                    })
+                                }}>
+                                    <Option value="textfile">textfile</Option>
+                                    <Option value="orc">orc</Option>
+                                    <Option value="parquet">parquet</Option>
+                                </Select>
+                            )}
+                        </FormItem>
+                    </>
+                )
+            }
             {isShowDelim && (
                 <FormItem
                     {...formItemLayout}
@@ -213,19 +269,25 @@ class BaseForm extends React.Component {
 
     validateTableName (rule, value, callback) {
         const ctx = this;
-        value ? ajax.checkTableExist({
-            tableName: value
-        }).then(res => {
-            if (res.code === 1) {
-                // 转换为小写
-                ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
-                if (res.data) {
-                    const error = '该表已经存在！'
-                    callback(error);
+        const tableType = ctx.props.form.getFieldValue('tableType')
+        if (tableType) {
+            value ? ajax.checkTableExist({
+                tableName: value,
+                tableType
+            }).then(res => {
+                if (res.code === 1) {
+                    // 转换为小写
+                    ctx.props.form.setFieldsValue({ tableName: value.toLowerCase() })
+                    if (res.data) {
+                        const error = '该表已经存在！'
+                        callback(error);
+                    }
                 }
-            }
-        })
-            .then(callback) : callback();
+            })
+                .then(callback) : callback();
+        } else {
+            message.error('请先选择表类型！')
+        }
     }
 
     validateLoc (rule, value, callback) {
@@ -285,11 +347,11 @@ export class RowItem extends React.Component {
         const newData = assign({}, data, { [iptName]: value });
         const TYPE = newData.columnType.toUpperCase();
 
-        if (TYPE === 'DECIMAL') {
+        if (TYPE === 'DECIMAL' || TYPE === 'NUMERIC') {
             if (!newData.precision) newData.precision = 10;
             if (!newData.scale) newData.scale = 0;
         }
-        if (TYPE === 'CHAR') {
+        if (TYPE === 'CHAR' || TYPE === 'CHARACTER' || TYPE === 'CHARACTER VARYING') {
             if (!newData.charLen) newData.charLen = 10;
         }
         if (TYPE === 'VARCHAR') {
@@ -321,17 +383,18 @@ export class RowItem extends React.Component {
     }
 
     render () {
-        const { data } = this.props;
+        const { data, tableType } = this.props;
         const { isSaved, isPartition, columnType, columnName, comment } = data;
-
-        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR'].indexOf(columnType.toUpperCase()) !== -1;
+        const isHiveTable = tableType == TABLE_TYPE.HIVE;
+        const needExtra = ['DECIMAL', 'VARCHAR', 'CHAR', 'CHARACTER', 'CHARACTER VARYING', 'NUMERIC'].indexOf(columnType.toUpperCase()) !== -1;
         // const needExtra = true;
-        const TYPES = isPartition
-            ? ['STRING', 'BIGINT']
-            : ['TINYINT', 'SMALLINT', 'INT', 'BIGINT', 'BOOLEAN',
+        const TYPES = isHiveTable
+            ? (isPartition ? ['STRING', 'BIGINT'] : ['TINYINT', 'SMALLINT', 'INT', 'BIGINT', 'BOOLEAN',
                 'FLOAT', 'DOUBLE', 'STRING', 'BINARY', 'TIMESTAMP',
                 'DECIMAL', 'DATE', 'VARCHAR', 'CHAR'
-            ];
+            ])
+            : ['SMALLINT', 'INTEGER', 'BIGINT', 'BOOLEAN', 'CHARACTER', 'CHARACTER VARYING',
+                'TEXT', 'NUMERIC', 'REAL', 'DOUBLE PRECISION', 'TIMESTAMP', 'DATE'];
 
         return <Row className="row">
             <Col span={4} className="cell">
@@ -387,6 +450,7 @@ export class RowItem extends React.Component {
         columnType = columnType.toUpperCase();
         switch (columnType) {
             case 'DECIMAL':
+            case 'NUMERIC':
                 result = <span className="extra-ipt">
                     <Select name="precision"
                         style={{ marginLeft: '2%', width: '18%' }}
@@ -416,6 +480,8 @@ export class RowItem extends React.Component {
                 </span>
                 break;
             case 'CHAR':
+            case 'CHARACTER':
+            case 'CHARACTER VARYING':
                 result = <span className="extra-ipt">
                     <InputNumber name="charLen" defaultValue={charLen || 10}
                         min={1}
@@ -463,9 +529,10 @@ export class ColumnsPartition extends React.Component {
     }
 
     addRow (type) {
+        const isHiveTable = this.props.tableType == TABLE_TYPE.HIVE;
         this.props.addRow({
             columnName: '',
-            columnType: 'STRING',
+            columnType: isHiveTable ? 'STRING' : 'INTEGER',
             columnDesc: '',
             uuid: Date.now()
         }, type);
@@ -487,9 +554,10 @@ export class ColumnsPartition extends React.Component {
         const {
             columns,
             partition_keys,// eslint-disable-line
-            isEdit
+            isEdit,
+            tableType
         } = this.props;
-
+        const isHiveTable = tableType == TABLE_TYPE.HIVE;
         return <div className="m-columnspartition">
             <div className="columns box">
                 <h3>字段信息</h3>
@@ -506,39 +574,44 @@ export class ColumnsPartition extends React.Component {
                         delRow={this.delRow.bind(this, 1)}
                         replaceRow={this.replaceRow.bind(this, 1)}
                         moveRow={this.moveRow.bind(this, 1)}
+                        tableType={tableType}
                     />)}
                 </div>
                 <div className="fn">
-                    <a href="javascript:void(0)" onClick={this.addRow.bind(this, 1)}>
+                    <a href="javascript:void(0)" disabled={isEdit} onClick={this.addRow.bind(this, 1)}>
                         <Icon type="plus-circle-o" /> 新增字段
                     </a>
                 </div>
             </div>
-            <div className="partition box">
-                <h3>分区信息</h3>
-                <div className="table">
-                    <Row className="title">
-                        <Col span={4} className="cell">字段名</Col>
-                        <Col span={8} className="cell">类型</Col>
-                        <Col span={7} className="cell">注释</Col>
-                        <Col span={5} className="cell">操作</Col>
-                    </Row>
-                    {partition_keys.map((partition, i) => <RowItem
-                        data={{ ...partition, isPartition: true }}
-                        key={partition.uuid || i}
-                        delRow={this.delRow.bind(this, 2)}
-                        replaceRow={this.replaceRow.bind(this, 2)}
-                        moveRow={this.moveRow.bind(this, 2)}
-                    />)}
-                </div>
-                <div className="fn">
-                    <a href="javascript:void(0)"
-                        disabled={isEdit}
-                        onClick={this.addRow.bind(this, 2)}>
-                        <Icon type="plus-circle-o" /> 新增分区字段
-                    </a>
-                </div>
-            </div>
+            {
+                isHiveTable && (
+                    <div className="partition box">
+                        <h3>分区信息</h3>
+                        <div className="table">
+                            <Row className="title">
+                                <Col span={4} className="cell">字段名</Col>
+                                <Col span={8} className="cell">类型</Col>
+                                <Col span={7} className="cell">注释</Col>
+                                <Col span={5} className="cell">操作</Col>
+                            </Row>
+                            {partition_keys.map((partition, i) => <RowItem
+                                data={{ ...partition, isPartition: true }}
+                                key={partition.uuid || i}
+                                delRow={this.delRow.bind(this, 2)}
+                                replaceRow={this.replaceRow.bind(this, 2)}
+                                moveRow={this.moveRow.bind(this, 2)}
+                            />)}
+                        </div>
+                        <div className="fn">
+                            <a href="javascript:void(0)"
+                                disabled={isEdit}
+                                onClick={this.addRow.bind(this, 2)}>
+                                <Icon type="plus-circle-o" /> 新增分区字段
+                            </a>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     }
 }
@@ -551,6 +624,7 @@ class TableCreator extends React.Component {
             current: 0,
 
             table: {
+                tableType: undefined,
                 tableName: '',
                 desc: '',
                 delim: '',
@@ -609,7 +683,12 @@ class TableCreator extends React.Component {
 
     prev () {
         const current = this.state.current - 1;
-        this.setState({ current });
+        this.setState({
+            current,
+            table: Object.assign({}, this.state.table, {
+                columns: []
+            })
+        });
     }
 
     doCreate () {

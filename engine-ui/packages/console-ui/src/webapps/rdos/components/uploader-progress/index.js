@@ -8,14 +8,17 @@ import {
 
 const defaultStyle = {
     height: '28px',
-    lineHeight: '28px'
+    lineHeight: '28px',
+    position: 'absolute',
+    zIndex: '999',
+    right: 80,
+    top: 40
 }
 class UploaderProgressBar extends Component {
     constructor (props) {
         super(props)
         this.state = {};
     }
-
     render () {
         const { uploader } = this.props;
         let msg = ``;
@@ -28,7 +31,7 @@ class UploaderProgressBar extends Component {
             msg = `导入失败!`;
         }
         return (
-            <Col className="right" style={defaultStyle}>
+            <Col style={defaultStyle}>
                 <span>文件 <a style={{ maxWidth: 80, cursor: 'initial' }} className="ellipsis">{uploader.fileName}</a> { msg }</span>
                 <Progress
                     style={{ width: 80 }}

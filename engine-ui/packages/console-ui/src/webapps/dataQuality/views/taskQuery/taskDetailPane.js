@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { isEmpty, cloneDeep } from 'lodash';
-import { Card, Checkbox, Icon, Tooltip } from 'antd';
+import { Card, Icon, Tooltip } from 'antd';
 import moment from 'moment';
 
 import Resize from 'widgets/resize';
@@ -24,7 +24,7 @@ export default class TaskDetailPane extends Component {
             visible: false,
             taskDetail: [],
             currentRecord: {},
-            showSnapshot: false,
+            // showSnapshot: false, // 原来的查看历史规则checkbox的值
             ruleRecord: null,
             ruleDetailTableModalVisible: false
         };
@@ -55,11 +55,11 @@ export default class TaskDetailPane extends Component {
         }
     }
 
-    isSnapshotChange (e) {
-        this.setState({
-            showSnapshot: e.target.checked
-        });
-    }
+    // isSnapshotChange (e) {
+    //     this.setState({
+    //         showSnapshot: e.target.checked
+    //     });
+    // }
 
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
@@ -137,16 +137,17 @@ export default class TaskDetailPane extends Component {
     }
 
     render () {
-        const { visible, currentRecord, taskDetail, showSnapshot, ruleDetailTableModalVisible, ruleRecord } = this.state;
+        const { visible, currentRecord, taskDetail, ruleDetailTableModalVisible, ruleRecord } = this.state;
         const { data } = this.props;
-        const filterTaskDetail = taskDetail ? taskDetail.filter(
-            (item) => {
-                if (showSnapshot) {
-                    return true;
-                }
-                return item.isSnapshot == 0;
-            }
-        ) : []
+        // const filterTaskDetail = taskDetail ? taskDetail.filter( // 原本由前端控制查看历史规则的显示和隐藏
+        //     (item) => {
+        //         if (showSnapshot) {
+        //             return true;
+        //         }
+        //         return item.isSnapshot == 0;
+        //     }
+        // ) : []
+        // console.log(filterTaskDetail)
 
         let cardTitle = (
             !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
@@ -158,8 +159,8 @@ export default class TaskDetailPane extends Component {
 
         return (
             <div style={{ padding: '15px 20px' }}>
-                <Checkbox value={showSnapshot} style={{ marginBottom: '10px' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox>
-                {filterTaskDetail.map((rule) => {
+                {/* <Checkbox value={showSnapshot} style={{ marginBottom: '10px', display: 'none' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox> */}
+                {taskDetail.map((rule) => {
                     return <RuleView
                         key={rule.id}
                         tableName={data.tableName}

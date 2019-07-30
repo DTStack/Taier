@@ -5,7 +5,7 @@ import { isEmpty, cloneDeep, get } from 'lodash';
 
 import {
     Table, message, Modal,
-    Card, Input, Button, Select,
+    Card, Button, Select,
     Icon, DatePicker, Tooltip,
     Form, Checkbox, Dropdown,
     Menu
@@ -34,11 +34,11 @@ import {
 
 import TaskJobFlowView from './taskJobFlowView'
 import KillJobForm from './killJobForm';
+import MultiSearchInput from 'widgets/multiSearchInput';
 
 const Option = Select.Option
 const confirm = Modal.confirm
 const warning = Modal.warning
-const Search = Input.Search
 const FormItem = Form.Item
 const RangePicker = DatePicker.RangePicker
 const yesterDay = moment().subtract(1, 'days');
@@ -71,7 +71,8 @@ class OfflineTaskList extends Component {
         selectedTask: '',
         selectedRowKeys: [],
         expandedRowKeys: [],
-        killJobVisible: false
+        killJobVisible: false,
+        searchType: 'fuzzy'
     }
 
     componentDidMount () {
@@ -94,7 +95,7 @@ class OfflineTaskList extends Component {
             bussinessDate, businessDateSort, jobType, current,
             taskType, taskPeriodId, execTimeSort,
             execStartSort, execEndSort,
-            cycSort, cycDate
+            cycSort, cycDate, searchType
         } = this.state
         const reqParams = {
             currentPage: current
@@ -132,6 +133,7 @@ class OfflineTaskList extends Component {
         reqParams.execEndSort = execEndSort || undefined;
         reqParams.cycSort = cycSort || undefined;
         reqParams.businessDateSort = businessDateSort || undefined;
+        reqParams.searchType = searchType;
 
         return reqParams;
     }
@@ -346,8 +348,13 @@ class OfflineTaskList extends Component {
         })
     }
 
-    changeTaskName = (e) => {
-        this.setState({ jobName: e.target.value })
+    changeTaskName = (v) => {
+        this.setState({ jobName: v })
+    }
+
+    changeSearchType = (type) => {
+        this.setState({ searchType: type });
+        this.onSearchByTaskName()
     }
 
     onSearchByTaskName = () => {
@@ -415,11 +422,11 @@ class OfflineTaskList extends Component {
             title: '任务名称',
             dataIndex: 'id',
             key: 'id',
-            width: '350px',
+            width: '460px',
             render: (text, record) => {
                 let name = record.batchTask && record.batchTask.name
                 let originText = name;
-                name = utils.textOverflowExchange(name, 45);
+                // name = utils.textOverflowExchange(name, 45);
                 let showName;
                 if (record.batchTask.isDeleted === 1) {
                     showName = `${name} (已删除)`;
@@ -495,6 +502,11 @@ class OfflineTaskList extends Component {
             dataIndex: 'execTime',
             key: 'execTime',
             sorter: true
+        }, {
+            title: '重试次数',
+            dataIndex: 'batchEngineJob.retryNum',
+            key: 'retryNum'
+            // sorter: true
         }, {
             title: '责任人',
             dataIndex: 'createUser',
@@ -581,7 +593,7 @@ class OfflineTaskList extends Component {
             tasks, selectedRowKeys, jobName,
             bussinessDate, current, statistics,
             selectedTask, visibleSlidePane, cycDate,
-            killJobVisible
+            killJobVisible, searchType
         } = this.state
 
         const { projectUsers, project } = this.props
@@ -668,16 +680,16 @@ class OfflineTaskList extends Component {
                         title={
                             <Form
                                 layout="inline"
-                                style={{ marginTop: '10px' }}
                                 className="m-form-inline"
                             >
                                 <FormItem label="">
-                                    <Search
+                                    <MultiSearchInput
                                         placeholder="按任务名称搜索"
-                                        style={{ width: 200 }}
-                                        size="default"
+                                        style={{ width: 250, height: '26px' }}
                                         value={jobName}
+                                        searchType={searchType}
                                         onChange={this.changeTaskName}
+                                        onTypeChange={this.changeSearchType}
                                         onSearch={this.onSearchByTaskName}
                                     />
                                 </FormItem>
@@ -757,7 +769,7 @@ class OfflineTaskList extends Component {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className="m-table full-screen-table-120"
+                            className="dt-ant-table dt-ant-table--border full-screen-table-120"
                             expandedRowKeys={this.state.expandedRowKeys}
                             rowSelection={rowSelection}
                             pagination={pagination}
@@ -768,7 +780,7 @@ class OfflineTaskList extends Component {
                             footer={this.tableFooter}
                             onExpand={this.onExpand}
                             onExpandedRowsChange={this.onExpandRows}
-                            scroll={{ x: '1550px' }}
+                            scroll={{ x: '2050px' }}
                         />
                         <SlidePane
                             className="m-tabs bd-top bd-right m-slide-pane"

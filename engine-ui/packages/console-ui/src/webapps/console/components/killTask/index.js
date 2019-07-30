@@ -34,6 +34,7 @@ class KillTask extends Component {
             computeTypeInt: computeTypeInt,
             engineType: killResource.engineType,
             jobId: killResource.taskId,
+            jobType: killResource.jobType,
             queueName: queueName,
             node: this.props.node,
             clusterName: clusterName
@@ -44,8 +45,6 @@ class KillTask extends Component {
                 this.props.autoRefresh();
                 // 异步,成功之后才能关闭
                 this.props.onCancel();
-            } else {
-                message.success('操作失败');
             }
         })
     }

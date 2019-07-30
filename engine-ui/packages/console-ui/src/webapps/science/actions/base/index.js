@@ -1,7 +1,8 @@
 import Api from '../../api';
 import commonActionType from '../../consts/commonActionType';
-import { experimentFilesType, componentFilesType, notebookFilesType } from '../../consts/actionType/filesType';
+import { experimentFilesType, componentFilesType, notebookFilesType, resourceFilesType } from '../../consts/actionType/filesType';
 import projectType from '../../consts/actionType/projectType';
+import resourceType from '../../consts/actionType/resourceExt';
 import { deleteAllTab } from './tab';
 import { siderBarType } from '../../consts';
 import utils from 'utils';
@@ -84,6 +85,10 @@ export function setProject (project) {
             dispatch(deleteAllTab(siderBarType.notebook));
             dispatch(deleteAllTab(siderBarType.experiment));
             dispatch({
+                type: resourceType.SHOW_FIX_RESOURCE,
+                payload: false
+            })
+            dispatch({
                 type: experimentFilesType.CLEAR_TREE
             })
             dispatch({
@@ -91,6 +96,16 @@ export function setProject (project) {
             })
             dispatch({
                 type: notebookFilesType.CLEAR_TREE
+            })
+            dispatch({
+                type: resourceFilesType.CLEAR_TREE
+            })
+            dispatch({
+                type: experimentFilesType.CLEAR_TREE
+            })
+            dispatch({
+                type: resourceFilesType.UPDATE_EXPANDEDKEYS,
+                payload: []
             })
             dispatch({
                 type: projectType.SET_CURRENT_PROJECT,

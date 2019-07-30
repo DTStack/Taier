@@ -389,23 +389,45 @@ class CollectionTargetForm extends React.Component {
                         <HelpDoc overlayClassName='big-tooltip' doc='writeTableType' />
                     </FormItem>,
                     writeTableType == writeTableTypes.AUTO && (
-                        <FormItem
-                            {...formItemLayout}
-                            label="表名拼装规则"
-                            key="analyticalRules"
-                        >
-                            {getFieldDecorator('analyticalRules', {
-                                rules: [{
-                                    required: false, message: '该字段不能为空'
-                                }, {
-                                    pattern: /^[^.&%\s]*$/,
-                                    message: '不能包含空格、小数点等特殊字符，需符合Hive表建表规范'
-                                }]
-                            })(
-                                <Input addonBefore={`stream_${prefixRule}`} />
-                            )}
-                            <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
-                        </FormItem>
+                        <React.Fragment>
+                            <FormItem
+                                {...formItemLayout}
+                                label="表名拼装规则"
+                                key="analyticalRules"
+                            >
+                                {getFieldDecorator('analyticalRules', {
+                                    rules: [{
+                                        required: false, message: '该字段不能为空'
+                                    }, {
+                                        pattern: /^[^.&%\s]*$/,
+                                        message: '不能包含空格、小数点等特殊字符，需符合Hive表建表规范'
+                                    }]
+                                })(
+                                    <Input addonBefore={`stream_${prefixRule}`} />
+                                )}
+                                <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
+                            </FormItem>
+                            <FormItem
+                                {...formItemLayout}
+                                label="存储类型"
+                                key="fileType"
+                            >
+                                {getFieldDecorator('fileType', {
+                                    rules: [{
+                                        required: true, message: '存储类型不能为空'
+                                    }]
+                                })(
+                                    <RadioGroup>
+                                        <Radio value="orc" style={{ float: 'left' }}>
+                                            orc
+                                        </Radio>
+                                        <Radio value="text" style={{ float: 'left' }}>
+                                            text
+                                        </Radio>
+                                    </RadioGroup>
+                                )}
+                            </FormItem>
+                        </React.Fragment>
                     ),
                     <FormItem
                         {...formItemLayout}
@@ -439,7 +461,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择表'
                                 }]
                             })(
-                                <Select placeholder='请选择表'>
+                                <Select showSearch placeholder='请选择表'>
                                     {tableList.map((tableName) => {
                                         return <Option key={tableName} value={tableName}>{tableName}</Option>
                                     })}
@@ -605,9 +627,11 @@ const WrapCollectionTargetForm = Form.create({
         if (fields.hasOwnProperty('writeTableType')) {
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
+                fields['fileType'] = 'orc';
                 fields['analyticalRules'] = prefixRule;
             } else {
                 fields['analyticalRules'] = undefined;
+                fields['fileType'] = undefined;
             }
             fields['table'] = undefined;
             fields['partition'] = undefined;
@@ -659,6 +683,9 @@ const WrapCollectionTargetForm = Form.create({
             table: {
                 value: targetMap.table
             },
+            fileType: {
+                value: targetMap.fileType || 'orc'
+            },
             partition: {
                 value: targetMap.partition
             },
@@ -679,9 +706,6 @@ const WrapCollectionTargetForm = Form.create({
             },
             fieldDelimiter: {
                 value: targetMap.fieldDelimiter
-            },
-            fileType: {
-                value: targetMap.fileType
             },
             fileName: {
                 value: targetMap.fileName

@@ -256,7 +256,7 @@ class DesensitizationMange extends Component {
                             </Select>
                             <Search
                                 placeholder='按脱敏名称搜索'
-                                style={{ width: '200px', marginTop: '10px' }}
+                                style={{ width: '200px' }}
                                 onChange={this.changeName}
                                 onSearch={this.search}
                             />
@@ -274,7 +274,7 @@ class DesensitizationMange extends Component {
                 >
                     <Spin tip="正在加载中..." spinning={cardLoading}>
                         <Table
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             rowClassName={
                                 (record, index) => {
                                     if (this.state.selectedId && this.state.selectedId.id == record.id) {

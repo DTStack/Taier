@@ -9,7 +9,7 @@ import {
 
 import GoBack from 'main/components/go-back';
 
-import { APPLY_RESOURCE_TYPE } from '../../comm/const';
+import { APPLY_RESOURCE_TYPE, INTERNAL_OR_EXTERNAL_TABLE, TABLE_TYPE } from '../../comm/const';
 import Editor from 'widgets/editor';
 import ajax from '../../api/dataManage';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -196,7 +196,8 @@ export default class TableViewer extends React.Component {
 
     render () {
         const { showType, tableData, previewData, isMark, applyModal, applyButton } = this.state;
-
+        const { table } = tableData;
+        const isHiveTable = table && table.tableType == TABLE_TYPE.HIVE;
         const columns = [{
             title: '序号',
             dataIndex: 'columnIndex',
@@ -254,6 +255,10 @@ export default class TableViewer extends React.Component {
                                         <td>{tableData.table.projectAlias}</td>
                                     </tr>
                                     <tr>
+                                        <th>表类型属性</th>
+                                        <td>{isHiveTable ? 'hive' : 'libra'}</td>
+                                    </tr>
+                                    <tr>
                                         <th>负责人</th>
                                         <td>{tableData.table.chargeUser}</td>
                                     </tr>
@@ -261,15 +266,23 @@ export default class TableViewer extends React.Component {
                                         <th>创建时间</th>
                                         <td>{moment(tableData.table.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
+                                    {
+                                        isHiveTable && (
+                                            <tr>
+                                                <th>表类型</th>
+                                                <td>
+                                                    {tableData.table.externalOrManaged == INTERNAL_OR_EXTERNAL_TABLE.EXTERNAL ? (
+                                                        <span>外部表({tableData.table.location})</span>
+                                                    ) : (
+                                                        <span>内部表</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        )
+                                    }
                                     <tr>
-                                        <th>表类型</th>
-                                        <td>
-                                            {tableData.table.tableType == 'EXTERNAL' ? (
-                                                <span>外部表({tableData.table.location})</span>
-                                            ) : (
-                                                <span>内部表</span>
-                                            )}
-                                        </td>
+                                        <th>{isHiveTable ? 'Database' : 'Schema'}</th>
+                                        <td>{table && table.dbName}</td>
                                     </tr>
                                     <tr>
                                         <th>所属类目</th>
@@ -292,10 +305,14 @@ export default class TableViewer extends React.Component {
                                         <th>物理存储量</th>
                                         <td>{tableData.table.tableSize}</td>
                                     </tr>
-                                    <tr>
-                                        <th>生命周期</th>
-                                        <td>{tableData.table.lifeDay}天</td>
-                                    </tr>
+                                    {
+                                        isHiveTable && (
+                                            <tr>
+                                                <th>生命周期</th>
+                                                <td>{tableData.table.lifeDay}天</td>
+                                            </tr>
+                                        )
+                                    }
                                     <tr>
                                         <th>是否分区</th>
                                         <td>{tableData.table.partition ? '是' : '否'}</td>
@@ -308,10 +325,14 @@ export default class TableViewer extends React.Component {
                                         <th>数据最后变更时间</th>
                                         <td>{moment(tableData.table.lastDmlTime).format('YYYY-MM-DD HH:mm:ss')}</td>
                                     </tr>
-                                    <tr>
-                                        <th>存储格式</th>
-                                        <td>{tableData.table.storedType}</td>
-                                    </tr>
+                                    {
+                                        isHiveTable && (
+                                            <tr>
+                                                <th>存储格式</th>
+                                                <td>{tableData.table.storedType}</td>
+                                            </tr>
+                                        )
+                                    }
                                 </tbody>
                             </table>}
                         </Col>
@@ -331,10 +352,9 @@ export default class TableViewer extends React.Component {
                                             <RadioGroup
                                                 defaultValue={showType}
                                                 onChange={this.switchType.bind(this)}
-                                                style={{ marginTop: 10 }}
                                             >
                                                 <RadioButton value={0}>非分区字段</RadioButton>
-                                                <RadioButton value={1}>分区字段</RadioButton>
+                                                {isHiveTable && <RadioButton value={1}>分区字段</RadioButton>}
                                             </RadioGroup>
                                         }
                                         extra={
@@ -344,16 +364,16 @@ export default class TableViewer extends React.Component {
                                         }
                                     >
                                         {tableData && <Table
-                                            className="m-table"
+                                            className="dt-ant-table dt-ant-table--border"
                                             columns={columns}
                                             rowKey="id"
                                             dataSource={showType === 0 ? tableData.column : tableData.partition}
                                         />}
                                     </Card>
                                 </TabPane>
-                                <TabPane tab="分区信息" key="2">
+                                {isHiveTable && <TabPane tab="分区信息" key="2">
                                     <TablePartition table={tableData && tableData.table} />
-                                </TabPane>
+                                </TabPane>}
                                 <TabPane tab="数据预览" key="3">
                                     <div className="box">
                                         {previewData ? <Table
@@ -363,12 +383,12 @@ export default class TableViewer extends React.Component {
                                                 key: str + i,
                                                 width: '200px'
                                             }))}
-                                            className="m-table"
+                                            className="dt-ant-table dt-ant-table--border"
                                             dataSource={previewData}
                                             scroll={{ x: 200 * this.previewCols.length }}
                                         ></Table>
                                             : <p style={{
-                                                marginTop: 20,
+                                                marginTop: '20px',
                                                 textAlign: 'center',
                                                 fontSize: 12,
                                                 color: '#ddd'
@@ -391,7 +411,7 @@ export default class TableViewer extends React.Component {
 
             <Modal className="m-codemodal"
                 title="建表语句"
-                width="750"
+                width="750px"
                 visible={this.state.visible}
                 maskClosable={false}
                 closable

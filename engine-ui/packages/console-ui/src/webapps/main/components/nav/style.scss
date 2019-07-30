@@ -6,7 +6,6 @@ $activeColor: #262e36; // 主色
     background: $bgColor2;
     padding-left: 44px;
     height: 50px;
-    line-height: 50px;
     position: absolute;
     top: 0;
     left: 0;
@@ -87,15 +86,16 @@ $activeColor: #262e36; // 主色
     .menu-right {
         background: inherit;
         padding-right: 20px;
-        width: 100%;
         height: 100%;
+        display: flex;
+        align-items: center;
 
         .menu-item {
-            padding: 16px 10px;
+            display: block;
+            line-height: 0;
             color: #fff;
-            float: left;
-            height: 50px;
             cursor: pointer;
+            padding: 0px 10px;
         }
 
         .anticon {
@@ -117,16 +117,14 @@ $activeColor: #262e36; // 主色
         }
 
         .user-info {
-            float: right;
             color: #fff;
             cursor: pointer;
-            height: 48px;
         }
 
         .user-name {
             max-width: 100px;
             text-overflow: ellipsis;
-            display: inline-block;
+            display: block;
             overflow: hidden;
             white-space: nowrap;
         }

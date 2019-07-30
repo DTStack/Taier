@@ -56,5 +56,8 @@ export default {
     },
     updateDataSource (params) {
         return http.post(req.UPDATE_DATA_SOURCE, params);
+    },
+    getSupportTaskTypes (params) {
+        return http.post(req.GET_SUPPORT_TASK_TYPES, params);
     }
 }
