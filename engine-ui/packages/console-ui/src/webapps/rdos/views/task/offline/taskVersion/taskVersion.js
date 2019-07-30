@@ -133,7 +133,7 @@ export default class TaskVersion extends React.Component {
         return (
             <div style={{ marginBottom: '16px' }}>
                 <Table
-                    className="dt-ant-table dt-ant-table--border"
+                    className="dt-ant-table dt-ant-table--border dt-ant-table--border-lr dt-ant-table--bg-white"
                     rowKey="id"
                     dataSource={taskInfo.taskVersions || []}
                     columns={this.taskVersionCols()}

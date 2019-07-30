@@ -35,6 +35,9 @@
         .ant-menu-submenu-vertical>.ant-menu-submenu-title:after {
             display: none;
         }
+        .ant-slider-pos--collapsed i.anticon {
+            margin-left: 0;
+        }
     }
     .count {
         font-size: 36px;
