@@ -146,6 +146,10 @@ class CollectionSource extends React.Component {
                     message.warn('请填写分组名！');
                     return false;
                 }
+                if (!/^\w*$/.test(table.name)) {
+                    message.warn('分组名只能由字母、数字和下划线组成！');
+                    return false;
+                }
                 if (nameMap[table.name]) {
                     message.warn('分组名不允许重复！');
                     return false;
@@ -421,7 +425,7 @@ class CollectionSourceForm extends React.Component {
                                         label="分组"
                                         required
                                     >
-                                        <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={!couldEdit} placeholder='请输入分组名' />
+                                        <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={!couldEdit} placeholder='请输入分组名，将参与写入目标名称的拼接，例如：写入Hive表时，分组名将作为Hive表名的一部分' />
                                         <div style={{ maxHeight: 200, overflow: 'auto' }}>
                                             <span style={{ marginTop: '5px', padding: '0px 18px 0px 8px' }}>
                                                 <Button onClick={this.editMultipleTable.bind(this, index)} size="small" type="dashed"> + 编辑</Button>
