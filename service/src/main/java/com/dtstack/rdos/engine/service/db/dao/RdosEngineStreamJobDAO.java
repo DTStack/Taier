@@ -72,6 +72,20 @@ public class RdosEngineStreamJobDAO {
 		});
 	}
 
+	public void updateStreamTaskEndTime(final String taskId){
+		MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
+
+			@Override
+			public Object execute(SqlSession sqlSession) throws Exception {
+				RdosEngineStreamJobMapper rdosTaskMapper = sqlSession.getMapper(RdosEngineStreamJobMapper.class);
+				rdosTaskMapper.updateStreamTaskEndTime(taskId);
+				return null;
+			}
+		});
+	}
+
+
+
 	public Integer updateTaskStatusCompareOld(String taskId, Integer status, Integer oldStatus,String taskName) {
 		return MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Integer>(){
 
