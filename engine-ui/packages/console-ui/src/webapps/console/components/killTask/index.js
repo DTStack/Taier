@@ -34,6 +34,7 @@ class KillTask extends Component {
             computeTypeInt: computeTypeInt,
             engineType: killResource.engineType,
             jobId: killResource.taskId,
+            jobType: killResource.jobType,
             queueName: queueName,
             node: this.props.node,
             clusterName: clusterName
