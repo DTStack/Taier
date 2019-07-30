@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Layout } from 'antd'
+import { Layout, Icon } from 'antd'
 import { connect } from 'react-redux';
 
 import Sidebar from './sidebar';
@@ -35,21 +35,22 @@ class Container extends Component {
         collapsed: false,
         mode: 'inline'
     };
-    onCollapse = (collapsed) => {
+    toggleCollapsed = () => {
         this.setState({
-            collapsed,
-            mode: collapsed ? 'vertical' : 'inline'
+            collapsed: !this.state.collapsed,
+            mode: !this.state.collapsed ? 'vertical' : 'inline'
         });
     }
     render () {
         const { children } = this.props
         return (
             <Layout className="dt-dev-datamanagement g-datamanage">
-                <Sider className="bg-w"
-                    collapsible
+                <Sider className="bg-w ant-slider-pos"
                     collapsed={this.state.collapsed}
-                    onCollapse={this.onCollapse}
                 >
+                    <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>
+                        <Icon type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'} />
+                    </div>
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content style={{ position: 'relative' }}>

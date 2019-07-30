@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Layout } from 'antd'
+import { Layout, Icon } from 'antd'
 import { connect } from 'react-redux'
 
 import Sidebar from './sidebar'
@@ -8,7 +8,6 @@ import * as UserAction from '../../store/modules/user'
 import { getTaskTypes } from '../../store/modules/offlineTask/comm';
 
 const { Sider, Content } = Layout;
-
 const propType = {
     children: PropTypes.node
 }
@@ -41,10 +40,11 @@ class Container extends Component {
             this.props.dispatch(UserAction.getProjectUsers());
         }
     }
-    onCollapse = (collapsed) => {
+
+    toggleCollapsed = () => {
         this.setState({
-            collapsed,
-            mode: collapsed ? 'vertical' : 'inline'
+            collapsed: !this.state.collapsed,
+            mode: !this.state.collapsed ? 'vertical' : 'inline'
         });
     }
 
@@ -52,11 +52,12 @@ class Container extends Component {
         const { children } = this.props
         return (
             <Layout className="dt-operation">
-                <Sider className="bg-w"
-                    collapsible
+                <Sider className="bg-w ant-slider-pos"
                     collapsed={this.state.collapsed}
-                    onCollapse={this.onCollapse}
                 >
+                    <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>
+                        <Icon type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'} />
+                    </div>
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content>

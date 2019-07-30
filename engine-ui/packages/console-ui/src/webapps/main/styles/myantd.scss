@@ -3,9 +3,7 @@
 /**
 ** 自定义antd样式
 */
-.ant-tabs-tabpane-active .ant-collapse-borderless {
-    background: #F5F5F5;
-}
+
 .m-tabs {
     .content-border{
         &.ant-tabs{
@@ -264,11 +262,25 @@
     }
     .ant-table-body-outer {
         border-width: 1px 0 0;
+        border-top-width: 1px;
     }
     .ant-table-placeholder{
         border-width: 0px 1px 1px 1px;
         border-style: solid;
         border-color: #dcdcdc;
+    }
+}
+.dt-ant-table--border-lr {
+    .ant-table-body, .ant-table-body-outer {
+        border-left-width: 1px;
+        border-right-width: 1px;
+    }
+}
+.dt-ant-table--bg-white {
+    .ant-table-body {
+        table {
+            background-color: #fff;
+        }
     }
 }
 .m-card {
@@ -432,15 +444,23 @@
     height: 'auto';
     min-height: calc(100% - 50px);
 }
-.dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll .ant-table-header {
-    overflow-y: hidden;
-    margin-bottom: -20px !important;
-    padding-right: 16px;
-    .ant-table-thead > tr {
-        > th:last-child {
-            border-right-width: 0;
-        }
+.dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll {
+    .ant-table-header {
+        margin-bottom: -17px !important;
     }
+    // .ant-table-header {
+    //     overflow-y: auto;
+    //     margin-bottom: -20px !important;
+    //     padding-right: 16px;
+    //     .ant-table-thead > tr {
+    //         > th:last-child {
+    //             border-right-width: 0;
+    //         }
+    //     }
+    // }
+    // .ant-table-body::-webkit-scrollbar {
+    //     display: none;
+    // }
 }
 
 .full-screen-table-60{

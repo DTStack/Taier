@@ -14,8 +14,8 @@
 .s-catalogue__comm {
     @include set-catalogue-top(35px);
     @include set-catalogue-overflow(auto);
-    padding: 6px 15px 5px 12px;
-
+    padding: 0px 15px 5px 12px;
+    margin-top: 6px;
 }
 .s-resource-catalogue__cus {
     @include set-catalogue-top(0);

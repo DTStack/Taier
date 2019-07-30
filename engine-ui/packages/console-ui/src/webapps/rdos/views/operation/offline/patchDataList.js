@@ -170,7 +170,6 @@ class PatchDataList extends Component {
             title: '补数据名称',
             dataIndex: 'fillDataJobName',
             key: 'fillDataJobName',
-            width: 150,
             render: (text, record) => {
                 return (
                     <Link to={`/operation/task-patch-data/${text}`}>{text}</Link>
@@ -178,7 +177,7 @@ class PatchDataList extends Component {
             }
         },
         {
-            width: 150,
+            width: 135,
             title: '成功/已完成/总实例',
             dataIndex: 'doneJobSum',
             key: 'doneJobSum',
@@ -191,7 +190,7 @@ class PatchDataList extends Component {
             }
         },
         {
-            width: 150,
+            width: 170,
             title: '业务日期',
             dataIndex: 'fromDay',
             key: 'fromDay',
@@ -204,12 +203,12 @@ class PatchDataList extends Component {
             dataIndex: 'createTime',
             key: 'createTime'
         }, {
-            width: 100,
+            width: 135,
             title: '操作人',
             dataIndex: 'dutyUserName',
             key: 'dutyUserName'
         }, {
-            width: 100,
+            width: 115,
             title: '操作',
             dataIndex: 'id',
             key: 'id',

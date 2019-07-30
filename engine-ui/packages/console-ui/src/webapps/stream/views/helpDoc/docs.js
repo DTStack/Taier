@@ -233,6 +233,7 @@ export const sourceFormat = (
 export const analyticalRules = (
     <div>
         <p>自动建表的表名，将按照固定前缀（stream）、源表所属的schema、表名拼接</p>
+        <p>若配置了分表模式，则{'{table}'}将被替换为每个分组名称</p>
     </div>
 )
 export const multipleTable = (
