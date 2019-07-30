@@ -426,7 +426,6 @@ class CollectionTargetForm extends React.Component {
                                         </Radio>
                                     </RadioGroup>
                                 )}
-                                <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
                             </FormItem>
                         </React.Fragment>
                     ),
