@@ -197,7 +197,7 @@ public class TaskStatusListener implements Runnable{
                         //主动清理超过范围的checkpoint
                         checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
                     } else {
-                        // default or true   remove all
+                        // true then remove all
                         checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
                     }
                     //集合中移除该任务
