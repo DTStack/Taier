@@ -3,6 +3,8 @@ import { message } from 'antd';
 import { siderBarType } from '../../consts';
 import { loadTreeData } from '../base/fileTree';
 import api from '../../api/resource';
+import actionType from '../../consts/actionType/resourceExt';
+
 import fileApi from '../../api/fileTree';
 export function addResource (resParams, resourceData, type) {
     return dispatch => {
@@ -54,6 +56,15 @@ export function renameResource (params) {
                 dispatch(loadTreeData(siderBarType.resource, params.parentId))
                 resolve(res);
             }
+        })
+    }
+}
+// 是否显示资源管理高度
+export function getFixResource (params) {
+    return dispatch => {
+        dispatch({
+            type: actionType.SHOW_FIX_RESOURCE,
+            payload: params
         })
     }
 }

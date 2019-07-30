@@ -23,6 +23,9 @@ export default {
     getTablesByName (params) {
         return http.post(dataManageReq.GET_TABLES_BY_NAME, params)
     },
+    getTableListByProjectList (params) {
+        return http.post(dataManageReq.GET_TABLE_LIST_BY_PROJECT, params)
+    },
     previewTable (params) {
         return http.post(dataManageReq.PREVIEW_TABLE, params)
     },

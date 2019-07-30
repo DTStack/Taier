@@ -279,7 +279,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_RPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'rps 条/秒',
+                                            unit: 'rps',
                                             legend: ['输入RPS', '输出RPS']
                                         }}
                                         desc="输入/输出数据量，单位是RecordPerSecond。"
@@ -291,7 +291,7 @@ class StreamDetailGraph extends React.Component {
                                         lineData={{
                                             ...lineDatas[metricsType.DATA_COLLECTION_BPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'bps 条/秒',
+                                            unit: 'bps',
                                             legend: ['输入BPS', '输出BPS']
                                         }}
                                         desc="输入/输出数据量，单位是BytePerSecond。"

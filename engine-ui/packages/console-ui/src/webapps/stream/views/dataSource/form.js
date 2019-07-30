@@ -180,7 +180,7 @@ class BaseForm extends Component {
                 const formItems = [
                     <FormItem
                         {...formItemLayout}
-                        label="DefaultFS"
+                        label="defaultFS"
                         key="defaultFS"
                         hasFeedback
                     >

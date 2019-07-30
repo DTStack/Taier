@@ -4,16 +4,14 @@ import {
 } from 'antd';
 
 import {
-    DATA_SOURCE
+    DATA_SOURCE,
+    hdfsFieldTypes
 } from '../../../../../comm/const';
 
 const renderHDFSTypes = () => {
-    return <span>
-        <b>STRING</b>,
-        <b> LONG</b>,
-        <b> DOUBLE</b>,
-        <b> BOOLEAN</b>,
-        <b> DATE</b>
+    const types = hdfsFieldTypes.map(type => <b key={type}>{type}, </b>)
+    return <span style={{ wordBreak: 'break-all' }}>
+        {types}
     </span>
 }
 
@@ -32,6 +30,7 @@ export default function BatchModal (props) {
             title={title}
             onOk={onOk}
             onCancel={onCancel}
+            maskClosable={false}
             visible={visible}>
             <div>
                 { isNotHBase ? '批量导入的语法格式（index 从 0 开始）：' : '批量添加的语法格式:' }
@@ -44,29 +43,17 @@ export default function BatchModal (props) {
                         ) : { desc }
                     }
                 </b>
+                <p>常用数据类型（type)：
+                    <span style={{ color: 'rgb(255, 102, 0)' }}>
+                        {renderHDFSTypes()}
+                    </span>
+                </p>
+                {columnFamily ? <p>已有列族：
+                    <span style={{ color: 'rgb(255, 102, 0)' }}>
+                        {columnFamily.map(col => `${col},`) }
+                    </span>
+                </p> : ''}
             </div>
-            {
-                isNotHBase ? columnFamily ? (
-                    <div>
-                        <p>常用数据类型（type)：
-                            <span style={{ color: 'rgb(255, 102, 0)' }}>
-                                {renderHDFSTypes()}
-                            </span>
-                        </p>
-                        <p>已有列族：
-                            <span style={{ color: 'rgb(255, 102, 0)' }}>
-                                {columnFamily.map(col => `${col},`) }
-                            </span>
-                        </p>
-                    </div>
-                ) : (
-                    <p>常用数据类型（type)：
-                        <span style={{ color: 'rgb(255, 102, 0)' }}>
-                            {renderHDFSTypes()}
-                        </span>
-                    </p>
-                ) : null
-            }
             <br/>
             <Input
                 type="textarea"
