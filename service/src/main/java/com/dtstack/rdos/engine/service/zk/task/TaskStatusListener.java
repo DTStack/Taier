@@ -193,11 +193,11 @@ public class TaskStatusListener implements Runnable{
             if (null != jobIdentifier && StringUtils.isNotBlank(jobIdentifier.getEngineJobId())) {
                 if (checkOpenCheckPoint(failedTaskInfo.getJobId())) {
                     Boolean cleanMode = MathUtil.getBoolean(getParmaFromJobCache(failedTaskInfo.getJobId(), CHECKPOINT_CLEANUP_MODE_KEY));
-                    if (null != cleanMode && !cleanMode ) {
+                    if (null == cleanMode || null != cleanMode && !cleanMode ) {
                         //主动清理超过范围的checkpoint
                         checkpointListener.SubtractionCheckpointRecord(jobIdentifier.getEngineJobId());
                     } else {
-                        // default or true   remove all
+                        // true then remove all
                         checkpointListener.cleanAllCheckpointByTaskEngineId(jobIdentifier.getEngineJobId());
                     }
                     //集合中移除该任务
