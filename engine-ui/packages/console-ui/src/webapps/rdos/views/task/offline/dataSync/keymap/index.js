@@ -397,7 +397,6 @@ class Keymap extends React.Component {
             sourceSrcType, targetSrcType
         } = this.props;
         const ctx = this
-
         const getColumnFamily = (params, succCall) => {
             Api.getHBaseColumnFamily(params).then(res => {
                 if (res.code === 1) {
@@ -973,12 +972,12 @@ class Keymap extends React.Component {
         const noKeyMapping = !keymap.source || keymap.source.length === 0;
         const focusSty = {
             width: isFocus ? '285px' : '185px',
-            verticalAlign: isFocus ? '-97px' : '0px'
+            verticalAlign: isFocus ? 'text-top' : 'middle'
             // border: !isSuccess ? '1px solid #f04134' : '1px solid #dddddd'
         }
         return <Resize onResize={this.resize}>
-            <div style={{ margin: '0 20' }}>
-                <p style={{ fontSize: 12, color: '#ccc', marginTop: -20, textAlign: 'center' }}>
+            <div style={{ margin: '0 20px' }}>
+                <p style={{ fontSize: 12, color: '#ccc', marginTop: '-20px', textAlign: 'center' }}>
                     您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射
                     &nbsp;{ noKeyMapping ? <a onClick={this.keymapHelpModal}>如何快速配置字段映射？</a> : '' }
                 </p>
@@ -1605,6 +1604,7 @@ class Keymap extends React.Component {
 const mapState = state => {
     const { dataSync } = state.offlineTask;
     return {
+        targetMap: dataSync.targetMap,
         targetCol: dataSync.targetMap.column || [],
         targetSrcType: dataSync.targetMap.type && dataSync.targetMap.type.type, // 目标数据源类型
         targetFileType: dataSync.sourceMap.type && dataSync.targetMap.type.fileType,
