@@ -3,7 +3,9 @@
 @import './taskComponent/index.scss';
 
 .dt-dev-task {
-
+    .ant-tabs-tabpane-active .ant-collapse-borderless {
+        background: #F5F5F5;
+    }
     .noMarginBottom {
         margin-bottom: 0;
     }
@@ -710,6 +712,9 @@
                 border-radius: 4px;
                 padding-right: 0;
                 >.ant-tabs-tabpane{
+                    &.ant-tabs-tabpane-active .ant-collapse-borderless {
+                        background: #F5F5F5;
+                    }
                     height: 100%;
                     .ant-collapse-header {
                         padding-bottom: 5px;
