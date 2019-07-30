@@ -112,7 +112,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             }
             resourceInfo.setContainerLimit(containerLimit);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Flink judgePerjobResource error: ", e);
         }
         return resourceInfo.judgeSlots(jobClient);
     }
@@ -141,7 +141,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         try {
             return PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
         } catch (IOException e) {
-            return null;
+            throw new RuntimeException("Json to object error:  ", e);
         }
     }
 
