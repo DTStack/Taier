@@ -1,13 +1,13 @@
 import * as React from 'react'
 import { Tabs } from 'antd'
 
-const TabPane = Tabs.TabPane
+const TabPane: any = Tabs.TabPane
 
-export default function AppTabs (props) {
+export default function AppTabs (props: any) {
     const { apps, content, onPaneChange, activeKey } = props
-    const enableApps = apps.filter(app => app.enable && app.id !== 'main')
+    const enableApps = apps.filter((app: any) => app.enable && app.id !== 'main')
 
-    const tabPanes = enableApps.length > 0 && enableApps.map(app => {
+    const tabPanes = enableApps.length > 0 && enableApps.map((app: any) => {
         const isShow = !app.disableExt && !app.disableSetting;
 
         return isShow && (<TabPane tab={app.name} key={app.id} data={app}>

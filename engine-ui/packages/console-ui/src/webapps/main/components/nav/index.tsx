@@ -9,9 +9,10 @@ import { MY_APPS } from '../../consts';
 import 'public/dtinsightFont/iconfont.css'
 import './style.scss'
 
-/* eslint-disable */
+declare var window: any;
+declare var APP_CONF: any;
+
 const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
-/* eslint-disable */
 
 export const Title = styled.span`
     color: #ffffff;
@@ -22,8 +23,8 @@ export const MyIcon = styled.span`
     font-size: 18px;
 `
 
-function renderMenuItems (menuItems) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu =>
+function renderMenuItems (menuItems: any) {
+    return menuItems && menuItems.length > 0 ? menuItems.map((menu: any) =>
         menu.enable ? <Menu.Item key={menu.id}>
             <Link to={menu.link} target={menu.target} className="dropdown-content">{menu.name}</Link>
         </Menu.Item> : ''
@@ -31,7 +32,7 @@ function renderMenuItems (menuItems) {
 }
 
 // 比较apps和licenseApps,控制显示主页菜单以及右下拉菜单
-export function compareEnable (apps, licenseApps) {
+export function compareEnable (apps: any, licenseApps: any) {
     if (licenseApps && licenseApps.length) {
         const newApps = cloneDeep(apps);
         for (let i = 0; i < newApps.length; i++) {
@@ -43,15 +44,15 @@ export function compareEnable (apps, licenseApps) {
         }
         return newApps
     }else { // 空数组只显示首页菜单栏
-        const mainApp = apps.find(item => {
+        const mainApp = apps.find((item: any) => {
             return item.id == MY_APPS.MAIN
         })
         return [mainApp]
     }
 }
 
-function renderATagMenuItems (menuItems, isRoot, isRenderIcon = false) {
-    return menuItems && menuItems.length > 0 ? menuItems.map(menu => {
+function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = false) {
+    return menuItems && menuItems.length > 0 ? menuItems.map((menu: any) => {
         const isShow = menu.enable && (!menu.needRoot || (menu.needRoot && isRoot))
         return isShow ? (<Menu.Item key={menu.id}>
             <a href={menu.link} target={menu.target} className="dropdown-content">
@@ -61,14 +62,14 @@ function renderATagMenuItems (menuItems, isRoot, isRenderIcon = false) {
         </Menu.Item>) : ''
     }) : []
 }
-export function Logo (props) {
+export function Logo (props: any) {
     const { linkTo, img } = props
     return (
         <Link to={linkTo}><img alt="logo" src={img} /></Link>
     )
 }
 
-export function MenuLeft (props) {
+export function MenuLeft (props: any) {
     const { activeKey, onClick, menuItems, user, licenseApps, customItems = [] } = props;
     return (
         <div className="menu left">
@@ -84,7 +85,7 @@ export function MenuLeft (props) {
     )
 }
 
-export function MenuRight (props) {
+export function MenuRight (props: any) {
     const {
         onClick, settingMenus, user, licenseApps,
         apps, app, showHelpSite, helpUrl
@@ -148,7 +149,7 @@ export function MenuRight (props) {
                 ) : null
 
                 }
-                <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
+                <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <span className="menu-item">
                         <Icon type="home" />
                     </span>
@@ -157,16 +158,13 @@ export function MenuRight (props) {
                 {isShowExt && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
                         <Icon type="message" />
-                        {/* <Badge dot>
-                        </Badge> */}
                     </span>
                 </a>}
-                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
+                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>}
-                <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode) => triggerNode.parentNode}>
+                <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <div className="user-info">
-                        {/* <Icon className="avatar" type="user" /> */}
                         <div className="user-name" title={user && user.userName}>
                             {(user && user.userName) || '未登录'}
                         </div>
@@ -179,7 +177,7 @@ export function MenuRight (props) {
 
 @pureRender
 class Navigator extends React.Component<any, any> {
-    constructor(props) {
+    constructor(props: any) {
         super(props)
         this.state = {
             current: ''
@@ -190,7 +188,7 @@ class Navigator extends React.Component<any, any> {
         this.updateSelected()
     }
 
-    componentDidUpdate (prevProps){
+    componentDidUpdate (prevProps: any){
         if (this.props.routing) {
             if (this.props.routing.locationBeforeTransitions.pathname != prevProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();
@@ -198,13 +196,13 @@ class Navigator extends React.Component<any, any> {
         }
     }
 
-    handleClick = (e) => {
+    handleClick = (e: any) => {
         const { onMenuClick } = this.props
         this.setState({ current: e.key });
         if (onMenuClick) onMenuClick(e)
     }
 
-    clickUserMenu = (obj) => {
+    clickUserMenu = (obj: any) => {
         if (obj.key === 'logout') {
             UserApi.logout();
         }
@@ -214,7 +212,7 @@ class Navigator extends React.Component<any, any> {
         const menuItems = this.props.menuItems
         let pathname = `${window.location.pathname}${window.location.hash}`;
         if (menuItems && menuItems.length > 0) {
-            const pathFund = menuItems.find(item => {
+            const pathFund = menuItems.find((item: any) => {
                 return pathname.indexOf(item.id) > -1
             });
 

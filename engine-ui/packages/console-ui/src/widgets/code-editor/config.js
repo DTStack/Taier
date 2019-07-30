@@ -5,7 +5,8 @@ export const defaultEditorOptions = {
     smartIndent: true,
     lineNumbers: true,
     autofocus: false,
-    lineWrapping: true
+    lineWrapping: true,
+    readOnly: undefined,
 };
 
 export const propEditorOptions = { // 编辑器选项

@@ -1,5 +1,5 @@
 // 常量
-
+declare var window: any;
 /**
  * 所有应用的唯一ID
 */
@@ -98,14 +98,14 @@ export const tailFormItemLayout = { // 表单末尾布局
  * @param {string} app 应用id
  * @param {string} theme 主题
  */
-export function getHeaderLogo (app, theme) {
+export function getHeaderLogo (app?: any, theme?: any) {
     theme = theme || window.APP_CONF.theme || 'default';
     app = app || MY_APPS.MAIN;
     const logo = window.APP_CONF.logo;
     const defaultLogo = 'public/main/img/logo.svg';
     const aliyunDefaultLogo = 'public/main/img/aliyun-logo.svg';
 
-    const themeLogoMap = {
+    const themeLogoMap: any = {
         default: logo || defaultLogo,
         aliyun: aliyunDefaultLogo
     }
@@ -113,7 +113,7 @@ export function getHeaderLogo (app, theme) {
     return themeLogoMap[theme] || defaultLogo;
 }
 
-export function getThemeBanner (theme) {
+export function getThemeBanner (theme?: string) {
     theme = theme || window.APP_CONF.theme || 'default';
     switch (theme) {
         case 'aliyun': {

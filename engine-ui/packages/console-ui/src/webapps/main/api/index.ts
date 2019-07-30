@@ -16,19 +16,19 @@ import {
 import analyEngineUrls from '../consts/analyEngineUrls';
 
 export default {
-    checkRoot (params) {
+    checkRoot (params?: any) {
         return http.post(req.CHECKISROOT, params, { isSilent: true });
     },
     // 查看license目录
-    getLicenseApp (params) {
+    getLicenseApp () {
         return http.get(`${UIC_BASE_URL}/v2/license/menu/RDOS`)
     },
     // 检查是否过期
-    checkisOverdue (params) {
+    checkisOverdue (params?: any) {
         return http.get(req.CHECK_IS_OVERDUE, params);
     },
     // ================== 公共模块 ==================//
-    getProjects (app, params) {
+    getProjects (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.getProjects(params);
@@ -41,7 +41,7 @@ export default {
     },
 
     // 获取数据库列表
-    getDatabase (app, params) {
+    getDatabase (app: any, params?: any) {
         switch (app) {
             case MY_APPS.ANALYTICS_ENGINE:
                 return http.post(analyEngineUrls.ANALYENGINE_GET_DBLIST, params);
@@ -50,7 +50,7 @@ export default {
     },
 
     // ================== 角色相关 ==================//
-    queryRole (app, params) {
+    queryRole (app: any, params?: any) {
         switch (app) {
             case MY_APPS.DATA_QUALITY:
                 return DqSysApi.queryRole(params);
@@ -70,7 +70,7 @@ export default {
         }
     },
 
-    updateRole (app, params) {
+    updateRole (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.updateRole(params);
@@ -90,7 +90,7 @@ export default {
         }
     },
 
-    deleteRole (app, params) {
+    deleteRole (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.deleteRole(params);
@@ -110,7 +110,7 @@ export default {
         }
     },
 
-    getRoleInfo (app, params) {
+    getRoleInfo (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.getRoleInfo(params);
@@ -130,7 +130,7 @@ export default {
         }
     },
 
-    getRoleTree (app, params) {
+    getRoleTree (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.getRoleTree(params);
@@ -151,7 +151,7 @@ export default {
     },
 
     // ================== 消息相关 ================== //
-    getMessage (app, params) {
+    getMessage (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.MASSAGE_QUERY, params)
@@ -171,7 +171,7 @@ export default {
         }
     },
 
-    getMsgById (app, params) {
+    getMsgById (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.GET_MASSAGE_BY_ID, params)
@@ -191,7 +191,7 @@ export default {
         }
     },
 
-    markAsRead (app, params) {
+    markAsRead (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.MASSAGE_MARK_AS_READ, params)
@@ -211,7 +211,7 @@ export default {
         }
     },
 
-    markAsAllRead (app, params) {
+    markAsAllRead (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.MASSAGE_MARK_AS_ALL_READ, params)
@@ -231,7 +231,7 @@ export default {
         }
     },
 
-    deleteMsgs (app, params) {
+    deleteMsgs (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(rdosUrls.MASSAGE_DELETE, params)
@@ -252,7 +252,7 @@ export default {
     },
 
     // ================== 用户相关 ================== //
-    queryUser (app, params) {
+    queryUser (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.getProjectUsers(params);
@@ -275,7 +275,7 @@ export default {
     /**
      * 获取待添加到项目中的用户列表
      */
-    loadUsersNotInProject (app, params) {
+    loadUsersNotInProject (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(req.RDOS_SEARCH_UIC_USERS, params)
@@ -295,7 +295,7 @@ export default {
         }
     },
 
-    addRoleUser (app, params) {
+    addRoleUser (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return http.post(req.RDOS_ADD_USER, params)
@@ -315,7 +315,7 @@ export default {
         }
     },
 
-    removeProjectUser (app, params) {
+    removeProjectUser (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.removeProjectUser(params);
@@ -335,7 +335,7 @@ export default {
         }
     },
 
-    updateUserRole (app, params) {
+    updateUserRole (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 return RdosApi.updateUserRole(params);
@@ -355,7 +355,7 @@ export default {
         }
     },
 
-    getSafeAuditList (app, params) {
+    getSafeAuditList (app: any, params?: any) {
         switch (app) {
             case MY_APPS.RDOS:
                 params.appTag = 'BATCH'; // app类型：BATCH,STREAM,ANALYZE,QUALITY,API,SCIENCE

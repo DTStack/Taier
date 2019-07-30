@@ -11,10 +11,11 @@ export default class SelectSearch extends React.Component<any, any> {
     wrapOption () {
         const searchValue = this.state.searchValue;
         const { children } = this.props;
+        const reactNodeArr: any = children;
 
-        if (children && children.length > 0) {
-            for (let i = 0; i < children.length; i++) {
-                if (children[i].props.title ? children[i].props.title == searchValue : children[i].props.value == searchValue) {
+        if (reactNodeArr && reactNodeArr.length > 0) {
+            for (let i = 0; i < reactNodeArr.length; i++) {
+                if (reactNodeArr[i].props.title ? reactNodeArr[i].props.title == searchValue : reactNodeArr[i].props.value == searchValue) {
                     return null;
                 }
             }
@@ -30,7 +31,7 @@ export default class SelectSearch extends React.Component<any, any> {
         ) : null
     }
 
-    onSearch (value) {
+    onSearch (value: any) {
         this.setState({
             searchValue: value
         })

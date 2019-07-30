@@ -12,6 +12,7 @@ import { formItemLayout } from '../../../consts'
 import { AppName } from '../../../components/display'
 
 export default class RoleAdd extends React.Component<any, any> {
+    form: any;
     state = {
         app: utils.getParameterByName('app')
     }
@@ -24,7 +25,7 @@ export default class RoleAdd extends React.Component<any, any> {
         const ctx = this
         const app = this.state.app
 
-        ctx.form.validateFieldsAndScroll((err, roleData) => {
+        ctx.form.validateFieldsAndScroll((err: any, roleData: any) => {
             if (!err) {
                 roleData.roleType = 1; // 表示功能权限类型，还有数据类型权限
                 Api.updateRole(app, roleData).then((res) => {

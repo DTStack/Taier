@@ -5,32 +5,32 @@ import { singletonNotification } from 'funcs'
 import { authAfterFormated, authBeforeFormate } from '../interceptor'
 
 class Http {
-    get (url, params) { // GET请求
+    get (url: any, params?: any) { // GET请求
         const newUrl = params ? this.build(url, params) : url
         return this.request(newUrl, {
             method: 'GET'
         })
     }
 
-    post (url, body, extOption = {}) { // POST请求
-        let options = { method: 'POST' }
+    post (url: any, body?: any, extOption?: any) { // POST请求
+        let options: any = { method: 'POST' }
         if (body) options.body = JSON.stringify(body)
         return this.request(url, options, extOption)
     }
 
-    postAsFormData (url, params) {
-        let options = { method: 'POST' }
+    postAsFormData (url: any, params?: any) {
+        let options: any = { method: 'POST' }
         if (params) options.body = this.buildFormData(params)
         return this.request(url, options)
     }
 
-    postForm (url, form) {
-        let options = { method: 'POST' }
+    postForm (url: any, form: any) {
+        let options: any = { method: 'POST' }
         if (form) options.body = new FormData(form)
         return this.request(url, options)
     }
 
-    request (url, options, extOption = {}) {
+    request (url: any, options: any, extOption: any = {}) {
         ProgressBar.show()
         options.credentials = 'same-origin'
         return fetch(url, options)
@@ -63,7 +63,7 @@ class Http {
         return header
     }
 
-    build (url, params) { // URL构建方法
+    build (url: any, params: any) { // URL构建方法
         const ps = []
         if (params) {
             for (let p in params) {
@@ -75,7 +75,7 @@ class Http {
         return url + '?' + ps.join('&')
     }
 
-    buildFormData (params) {
+    buildFormData (params: any) {
         if (params) {
             const data = new FormData()
             for (let p in params) {

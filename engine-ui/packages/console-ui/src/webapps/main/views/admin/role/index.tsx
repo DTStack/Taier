@@ -15,7 +15,7 @@ import { MY_APPS } from '../../../consts'
 const Option = Select.Option
 
 class AdminRole extends React.Component<any, any> {
-    state = {
+    state: any = {
         active: '',
         data: '',
         projects: [],
@@ -36,14 +36,14 @@ class AdminRole extends React.Component<any, any> {
         if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
 
-            const defaultApp = apps.find(app => app.default);
+            const defaultApp = apps.find((app: any) => app.default);
             const appKey = initialApp || defaultApp.id;
 
             this.setState({ active: appKey }, this.loadData)
         }
     }
 
-    hasDatabase (app) {
+    hasDatabase(app: any) {
         return app === 'analyticsEngine';
     }
 
@@ -80,7 +80,7 @@ class AdminRole extends React.Component<any, any> {
         }
     }
 
-    loadRoles = (app, params) => {
+    loadRoles = (app: any, params: any) => {
         if (params.projectId == '无项目') {
             this.setState({ loading: 'success' })
             return;
@@ -89,7 +89,7 @@ class AdminRole extends React.Component<any, any> {
             data: [],
             loading: 'loading'
         })
-        Api.queryRole(app, params).then(res => {
+        Api.queryRole(app, params).then((res: any) => {
             if (res.code == 1) {
                 this.setState({
                     data: res.data
@@ -102,10 +102,10 @@ class AdminRole extends React.Component<any, any> {
     }
 
     // 获取数据库
-    getDatabase = (app) => {
+    getDatabase = (app: any) => {
         const ctx = this
 
-        Api.getDatabase(app).then((res) => {
+        Api.getDatabase(app).then((res: any) => {
             if (res.code === 1) {
                 if (app == MY_APPS.ANALYTICS_ENGINE) {
                     ctx.setState({
@@ -120,10 +120,10 @@ class AdminRole extends React.Component<any, any> {
         })
     }
 
-    getProjects = (app) => {
+    getProjects = (app: any) => {
         const ctx = this
 
-        Api.getProjects(app).then((res) => {
+        Api.getProjects(app).then((res: any) => {
             if (res.code === 1) {
                 const selectedProject = get(res, 'data[0].id', '无项目')
 
@@ -147,10 +147,10 @@ class AdminRole extends React.Component<any, any> {
         })
     }
 
-    removeRole = (role) => {
+    removeRole = (role: any) => {
         const appKey = this.state.active;
 
-        Api.deleteRole(appKey, { roleId: role.id }).then((res) => {
+        Api.deleteRole(appKey, { roleId: role.id }).then((res: any) => {
             if (res.code === 1) {
                 message.success('移除角色成功！')
                 this.loadData()
@@ -158,7 +158,7 @@ class AdminRole extends React.Component<any, any> {
         })
     }
 
-    onPaneChange = (key) => {
+    onPaneChange = (key: any) => {
         this.setState({
             active: key,
             currentPage: 1
@@ -168,34 +168,34 @@ class AdminRole extends React.Component<any, any> {
         })
     }
 
-    handleTableChange = (pagination, filters) => {
+    handleTableChange = (pagination: any, filters: any) => {
         this.setState({
             currentPage: pagination.current
         }, this.loadData)
     }
 
     // 数据库改变
-    onDatabaseSelect = (value) => {
+    onDatabaseSelect = (value: any) => {
         this.setState({
             selecteDatabase: value,
             currentPage: 1
         }, this.loadData)
     }
 
-    onProjectSelect = (value) => {
+    onProjectSelect = (value: any) => {
         this.setState({
             selectedProject: value,
             currentPage: 1
         }, this.loadData)
     }
 
-    onStreamProjectSelect = (value) => {
+    onStreamProjectSelect = (value: any) => {
         this.setState({
             streamSelectedProject: value,
             currentPage: 1
         }, this.loadData)
     }
-    onScienceProjectSelect = (value) => {
+    onScienceProjectSelect = (value: any) => {
         this.setState({
             scienceSelectedProject: value,
             currentPage: 1
@@ -208,7 +208,7 @@ class AdminRole extends React.Component<any, any> {
             title: '角色名称',
             dataIndex: 'roleName',
             key: 'roleName',
-            render (text, record) {
+            render(text: any, record: any) {
                 return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
             width: '150px'
@@ -220,7 +220,7 @@ class AdminRole extends React.Component<any, any> {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render (time) {
+            render(time: any) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -228,7 +228,7 @@ class AdminRole extends React.Component<any, any> {
             dataIndex: 'person',
             key: 'person',
             width: 120,
-            render (text) {
+            render(text: any) {
                 return text || '-'
             }
         }, {
@@ -236,7 +236,7 @@ class AdminRole extends React.Component<any, any> {
             dataIndex: 'id',
             key: 'id',
             width: 80,
-            render (id, record) {
+            render(id: any, record: any) {
                 return <span>
                     <Link to={`/admin/role/edit/${id}?app=${active}`}>查看</Link>
                     {/* <span className="ant-divider" />
@@ -281,13 +281,13 @@ class AdminRole extends React.Component<any, any> {
             onSelectChange = this.onDatabaseSelect;
         }
 
-        const projectOpts = projectsOptions && projectsOptions.map(project =>
+        const projectOpts = projectsOptions && projectsOptions.map((project: any) =>
             <Option value={project.id} key={project.id}>
                 {project.projectAlias}
             </Option>
         )
 
-        const databaseOpts = databaseOptions && databaseOptions.map(item =>
+        const databaseOpts = databaseOptions && databaseOptions.map((item: any) =>
             <Option value={`${item.id}`} key={`${item.id}`}>
                 {item.name}
             </Option>
@@ -337,12 +337,6 @@ class AdminRole extends React.Component<any, any> {
 
             </span>
         )
-
-        // const extra = (
-        //     <Button style={{ marginTop: '10px' }} type="primary">
-        //         <Link to={`/admin/role/add?app=${active}`}>新建角色</Link>
-        //     </Button>
-        // )
 
         const pagination = {
             total: data && data.totalCount,

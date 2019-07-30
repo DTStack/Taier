@@ -20,13 +20,16 @@ import EditMemberRoleForm from './editRole'
 const Option = Select.Option
 const Search = Input.Search;
 
-@connect(state => {
+@(connect((state: any) => {
     return {
         user: state.user
     }
-})
+}) as any)
 class AdminUser extends React.Component<any, any> {
-    state = {
+    memberForm: any;
+    eidtRoleForm: any;
+
+    state: any = {
         active: '',
         loading: 'success',
 
@@ -59,7 +62,7 @@ class AdminUser extends React.Component<any, any> {
         if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
 
-            const defaultApp = apps.find(app => app.default);
+            const defaultApp = apps.find((app: any) => app.default);
             const appKey = initialApp || defaultApp.id;
 
             this.setState({ active: appKey }, () => {
@@ -67,7 +70,7 @@ class AdminUser extends React.Component<any, any> {
             })
         }
     }
-    hasDatabase (app) {
+    hasDatabase(app: any) {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
@@ -82,9 +85,9 @@ class AdminUser extends React.Component<any, any> {
     /**
      * 这边加一个isGetProjectsBack，当是getProjects调用的时候，防止服务器返回一个空数组，而不断的重复调用
      */
-    loadData = (isGetProjectsBack, isGetDatabaseBack) => {
+    loadData = (isGetProjectsBack?: any, isGetDatabaseBack?: any) => {
         const { active, selectedProject, streamSelectedProject, scienceSelectedProject, currentPage, dataBase, selecteDatabase } = this.state;
-        const params = {
+        const params: any = {
             pageSize: 10,
             currentPage
         }
@@ -116,9 +119,7 @@ class AdminUser extends React.Component<any, any> {
                 params.projectId = scienceSelectedProject;
             }
 
-            // else if (MY_APPS.ANALYTICS_ENGINE == active) {
-            //     params.databaseId = selecteDatabase;
-            // }
+
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1
@@ -128,7 +129,7 @@ class AdminUser extends React.Component<any, any> {
         this.getOwnRole(active, params);
     }
 
-    getOwnRole (app, params) {
+    getOwnRole(app: any, params: any) {
         const queryParams = {
             ...params,
             currentPage: 1,
@@ -136,7 +137,7 @@ class AdminUser extends React.Component<any, any> {
             name: this.props.user.userName
         }
 
-        Api.queryUser(app, queryParams).then((res) => {
+        Api.queryUser(app, queryParams).then((res: any) => {
             if (res.code != 1) {
                 return;
             }
@@ -188,7 +189,7 @@ class AdminUser extends React.Component<any, any> {
             })
         })
     }
-    loadUsers = (app, params) => {
+    loadUsers = (app: any, params: any) => {
         const { searchName } = this.state;
         const ctx = this
 
@@ -201,7 +202,7 @@ class AdminUser extends React.Component<any, any> {
         const queryParams = { ...params }// 复制一份
 
         queryParams.name = searchName;
-        Api.queryUser(app, queryParams).then((res) => {
+        Api.queryUser(app, queryParams).then((res: any) => {
             ctx.setState({
                 loading: false
             })
@@ -212,10 +213,10 @@ class AdminUser extends React.Component<any, any> {
         })
     }
 
-    loadRoles = (app, params) => {
+    loadRoles = (app: any, params: any) => {
         const ctx = this;
 
-        Api.queryRole(app, params).then((res) => {
+        Api.queryRole(app, params).then((res: any) => {
             if (res.code == 1) {
                 ctx.setState({ roles: res.data && res.data.data })
             }
@@ -223,10 +224,10 @@ class AdminUser extends React.Component<any, any> {
     }
 
     // 获取数据库
-    getDatabase = (app) => {
+    getDatabase = (app: any) => {
         const ctx = this
 
-        Api.getDatabase(app).then((res) => {
+        Api.getDatabase(app).then((res: any) => {
             if (res.code === 1) {
                 if (app == MY_APPS.ANALYTICS_ENGINE) {
                     ctx.setState({
@@ -238,15 +239,15 @@ class AdminUser extends React.Component<any, any> {
         })
     }
 
-    getProjects = (app) => {
+    getProjects = (app: any) => {
         const ctx = this
 
-        Api.getProjects(app).then((res) => {
-            function getNotNullProject (projectId, data) {
+        Api.getProjects(app).then((res: any) => {
+            function getNotNullProject(projectId: any, data: any) {
                 if (!data || !data.length) {
                     return null;
                 }
-                return data.find((p) => {
+                return data.find((p: any) => {
                     return p.id == projectId;
                 }) ? projectId : null
             }
@@ -280,9 +281,9 @@ class AdminUser extends React.Component<any, any> {
         })
     }
 
-    loadUsersNotInProject = (userName) => {
+    loadUsersNotInProject = (userName?: any) => {
         const { active, selecteDatabase } = this.state;
-        const params = {
+        const params: any = {
             userName
         }
 
@@ -296,7 +297,7 @@ class AdminUser extends React.Component<any, any> {
             }
         }
 
-        Api.loadUsersNotInProject(active, params).then((res) => {
+        Api.loadUsersNotInProject(active, params).then((res: any) => {
             this.setState({ notProjectUsers: res.data })
         })
     }
@@ -312,16 +313,16 @@ class AdminUser extends React.Component<any, any> {
         const uids = projectRole.targetUserIds;
 
         for (let i = 0; i < uids.length; i++) {
-            const user = notProjectUsers.find(u => `${u.userId}` === uids[i])
+            const user = notProjectUsers.find((u: any) => `${u.userId}` === uids[i])
 
-            if (user) {
+            if(user) {
                 targetUsers.push(user);
             }
         }
 
         projectRole.targetUsers = targetUsers;
 
-        form.validateFields((err) => {
+        form.validateFields((err: any) => {
             if (!err) {
                 if (hasProject(active)) {
                     projectRole.projectId = this.getProjectId(active);
@@ -333,7 +334,7 @@ class AdminUser extends React.Component<any, any> {
                     }
                 }
 
-                Api.addRoleUser(active, projectRole).then((res) => {
+                Api.addRoleUser(active, projectRole).then((res: any) => {
                     if (res.code === 1) {
                         ctx.setState({ visible: false }, () => {
                             form.resetFields()
@@ -345,7 +346,7 @@ class AdminUser extends React.Component<any, any> {
             }
         });
     }
-    getProjectId (active) {
+    getProjectId(active: any) {
         const { selectedProject, streamSelectedProject, scienceSelectedProject } = this.state;
         let map = {
             [MY_APPS.RDOS]: selectedProject,
@@ -354,10 +355,10 @@ class AdminUser extends React.Component<any, any> {
         }
         return map[active];
     }
-    removeUserFromProject = (member) => {
+    removeUserFromProject = (member: any) => {
         const ctx = this
         const { active, selecteDatabase } = this.state
-        const params = {
+        const params: any = {
             targetUserId: member.userId
         }
 
@@ -371,7 +372,7 @@ class AdminUser extends React.Component<any, any> {
             }
         }
 
-        Api.removeProjectUser(active, params).then((res) => {
+        Api.removeProjectUser(active, params).then((res: any) => {
             if (res.code === 1) {
                 ctx.loadData()
                 message.success('移出成员成功!')
@@ -379,7 +380,7 @@ class AdminUser extends React.Component<any, any> {
         })
     }
 
-    updateMemberRole = (item) => {
+    updateMemberRole = (item: any) => {
         const ctx = this
         const { editTarget, active, selecteDatabase } = this.state;
 
@@ -391,7 +392,7 @@ class AdminUser extends React.Component<any, any> {
             return;
         }
 
-        const params = {
+        const params: any = {
             targetUserId: editTarget.userId,
             roleIds: memberRole.roleIds
         }
@@ -406,7 +407,7 @@ class AdminUser extends React.Component<any, any> {
             }
         }
 
-        Api.updateUserRole(active, params).then((res) => {
+        Api.updateUserRole(active, params).then((res: any) => {
             if (res.code === 1) {
                 message.success('设置成功！')
                 ctx.setState({ visibleEditRole: false })
@@ -415,7 +416,7 @@ class AdminUser extends React.Component<any, any> {
         })
     }
 
-    onRoleIdsChange = (roleIds) => {
+    onRoleIdsChange = (roleIds: any) => {
         this.setState({
             roleIds
         })
@@ -438,13 +439,13 @@ class AdminUser extends React.Component<any, any> {
         })
     }
 
-    handleTableChange = (pagination) => {
+    handleTableChange = (pagination: any) => {
         this.setState({
             currentPage: pagination.current
         }, this.loadData)
     }
 
-    onPaneChange = (key) => {
+    onPaneChange = (key: any) => {
         this.setState({
             active: key,
             currentPage: 1,
@@ -458,26 +459,26 @@ class AdminUser extends React.Component<any, any> {
     }
 
     // 数据库改变
-    onDatabaseSelect = (value) => {
+    onDatabaseSelect = (value: any) => {
         this.setState({
             selecteDatabase: value,
             currentPage: 1
         }, this.loadData)
     }
 
-    onProjectSelect = (value) => {
+    onProjectSelect = (value: any) => {
         this.setState({
             selectedProject: value,
             currentPage: 1
         }, this.loadData)
     }
-    onStreamProjectSelect = (value) => {
+    onStreamProjectSelect = (value: any) => {
         this.setState({
             streamSelectedProject: value,
             currentPage: 1
         }, this.loadData)
     }
-    onScienceProjectSelect = (value) => {
+    onScienceProjectSelect = (value: any) => {
         this.setState({
             scienceSelectedProject: value,
             currentPage: 1
@@ -498,7 +499,7 @@ class AdminUser extends React.Component<any, any> {
             title: '账号',
             dataIndex: 'user.userName',
             key: 'account',
-            render (text, record) {
+            render(text: any, record: any) {
                 return <a onClick={() => {
                     ctx.setState({
                         visibleEditRole: true,
@@ -519,8 +520,8 @@ class AdminUser extends React.Component<any, any> {
             width: 120,
             dataIndex: 'roles',
             key: 'roles',
-            render (roles) {
-                const roleNames = roles.map(role => role && role.roleName)
+            render(roles: any) {
+                const roleNames = roles.map((role: any) => role && role.roleName)
 
                 return roleNames.join(',')
             }
@@ -528,7 +529,7 @@ class AdminUser extends React.Component<any, any> {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render (time) {
+            render(time: any) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -536,7 +537,7 @@ class AdminUser extends React.Component<any, any> {
             dataIndex: 'id',
             width: 140,
             key: 'id',
-            render (id, record) {
+            render(id: any, record: any) {
                 return <span>
                     <a onClick={() => {
                         ctx.setState({
@@ -561,13 +562,13 @@ class AdminUser extends React.Component<any, any> {
         }]
     }
 
-    searchProjectUser = (user) => {
+    searchProjectUser = (user: any) => {
         this.setState({
             searchName: user
         }, this.loadData)
     }
 
-    searchNameChange = (e) => {
+    searchNameChange = (e: any) => {
         this.setState({
             searchName: e.target.value
         })
@@ -610,12 +611,12 @@ class AdminUser extends React.Component<any, any> {
             onSelectChange = this.onScienceProjectSelect
         }
 
-        const projectOpts = projectsOptions && projectsOptions.map(project =>
+        const projectOpts = projectsOptions && projectsOptions.map((project: any) =>
             <Option value={`${project.id}`} key={`${project.id}`}>
                 {project.projectAlias}
             </Option>
         )
-        const databaseOpts = databaseOptions && databaseOptions.map(item =>
+        const databaseOpts = databaseOptions && databaseOptions.map((item: any) =>
             <Option value={`${item.id}`} key={`${item.id}`}>
                 {item.name}
             </Option>
@@ -634,7 +635,7 @@ class AdminUser extends React.Component<any, any> {
                                 placeholder="按项目名称搜索"
                                 optionFilterProp="name"
                                 onSelect={onSelectChange}
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {projectOpts}
                             </Select>
@@ -652,7 +653,7 @@ class AdminUser extends React.Component<any, any> {
                                 placeholder="按数据库名称搜索"
                                 optionFilterProp="name"
                                 onSelect={onSelectChange}
-                                filterOption={(input, option) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+                                filterOption={(input: any, option: any) => option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                             >
                                 {databaseOpts}
                             </Select>
@@ -662,9 +663,9 @@ class AdminUser extends React.Component<any, any> {
                 <Search
                     placeholder="请输入要搜索的账号"
                     value={searchName}
-                    onChange={e => this.searchNameChange(e)}
+                    onChange={(e: any) => this.searchNameChange(e)}
                     style={{ width: 200 }}
-                    onSearch={value => this.searchProjectUser(value)}
+                    onSearch={(value: any) => this.searchProjectUser(value)}
                 />
             </span>
         )
@@ -740,7 +741,7 @@ class AdminUser extends React.Component<any, any> {
                 >
                     <MemberForm
                         myRoles={myRoles}
-                        wrappedComponentRef={(e) => { this.memberForm = e }}
+                        wrappedComponentRef={(e: any) => { this.memberForm = e }}
                         roles={roles}
                         app={active}
                         user={user}
@@ -762,7 +763,7 @@ class AdminUser extends React.Component<any, any> {
                         app={active}
                         roles={roles}
                         loginUser={user}
-                        wrappedComponentRef={(e) => { this.eidtRoleForm = e }}
+                        wrappedComponentRef={(e: any) => { this.eidtRoleForm = e }}
                     />
                 </Modal>
             </div>

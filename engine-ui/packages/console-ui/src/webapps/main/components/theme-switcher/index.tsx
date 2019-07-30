@@ -15,9 +15,10 @@ class ThemeSwitcher extends React.Component<any, any> {
     }
 
     render () {
+        const titleFix = { title: '主题' };
         return (
             <Dropdown overlay={this.viewMenu()} trigger={['click']}>
-                <Button icon="skin" title="主题" style={{ paddingLeft: 0 }}>
+                <Button icon="skin" {...titleFix} style={{ paddingLeft: 0 }}>
                     主题<Icon type="down" />
                 </Button>
             </Dropdown>

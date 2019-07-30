@@ -14,6 +14,7 @@ import { AppName } from '../../../components/display'
 import RoleForm from './form'
 
 export default class RoleEdit extends React.Component<any, any> {
+    form: any;
     state = {
         roleInfo: {},
         loading: false,
@@ -32,11 +33,11 @@ export default class RoleEdit extends React.Component<any, any> {
         const ctx = this
         const app = this.state.app
 
-        ctx.form.validateFieldsAndScroll((err, roleData) => {
+        ctx.form.validateFieldsAndScroll((err: any, roleData: any) => {
             if (!err) {
                 const updateData = assign(this.state.roleInfo, roleData)
 
-                Api.updateRole(app, updateData).then((res) => {
+                Api.updateRole(app, updateData).then((res: any) => {
                     if (res.code === 1) {
                         message.success('角色更新成功！')
                         ctx.goIndex()
@@ -52,7 +53,7 @@ export default class RoleEdit extends React.Component<any, any> {
         const { params } = ctx.props
 
         ctx.setState({ loading: true })
-        Api.getRoleInfo(app, { roleId: params.roleId }).then(res => {
+        Api.getRoleInfo(app, { roleId: params.roleId }).then((res: any) => {
             if (res.code === 1) {
                 ctx.setState({ roleInfo: res.data, loading: false })
             }
@@ -69,7 +70,7 @@ export default class RoleEdit extends React.Component<any, any> {
                         <article className="section">
                             <RoleForm
                                 roleInfo={roleInfo}
-                                ref={(e) => this.form = e}
+                                ref={(e: any) => this.form = e}
                                 isDisabled={true}
                             />
                             <Row>

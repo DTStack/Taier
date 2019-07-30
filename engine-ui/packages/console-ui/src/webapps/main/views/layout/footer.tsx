@@ -1,5 +1,7 @@
-import * as React from 'react'
 import styled from 'styled-components';
+
+declare var window: any;
+declare var APP: any;
 
 class Footer extends React.Component<any, any> {
     render () {
@@ -18,8 +20,8 @@ class Footer extends React.Component<any, any> {
                 <p>{window.APP_CONF.showCopyright ? '©Copyright 2016-2018 杭州玳数科技有限公司 浙ICP备15044486号-1' : ''}版本：v{APP.VERSION}</p>
             </Footer>
         )
-        /* eslint-disable */
     }
 }
 
 export default Footer
+import * as React from 'react'

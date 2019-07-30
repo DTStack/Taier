@@ -22,7 +22,7 @@ export default class GoBack extends React.Component<any, any> {
     getButtonView () {
         const { style } = this.props;
 
-        let iconStyle = {
+        let iconStyle: any = {
             cursor: 'pointer',
             fontFamily: 'anticon',
             fontSize: '18px',

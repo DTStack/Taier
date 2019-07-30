@@ -8,8 +8,8 @@ import GoBack from '../../components/go-back'
 import Api from '../../api'
 
 class MsgDetail extends React.Component<any, any> {
-    state = {
-        msgInfo: '',
+    state: any =  {
+        msgInfo: {},
         app: utils.getParameterByName('app')
     }
 
@@ -19,8 +19,8 @@ class MsgDetail extends React.Component<any, any> {
         this.loadMsg(msgId);
     }
 
-    loadMsg = (msgId) => {
-        Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then(res => {
+    loadMsg = (msgId: any) => {
+        Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then((res: any) => {
             this.setState({
                 msgInfo: res.data
             })
@@ -31,7 +31,7 @@ class MsgDetail extends React.Component<any, any> {
         })
     }
 
-    markAsRead = (msgId) => {
+    markAsRead = (msgId: any) => {
         const { app } = this.state;
 
         Api.markAsRead(app, {

@@ -13,7 +13,7 @@ const FormItem = Form.Item
 const TreeNode = Tree.TreeNode
 
 class RoleForm extends React.Component<any, any> {
-    state = {
+    state: any = {
         expandedKeys: [],
         autoExpandParent: true,
         checkedKeys: [],
@@ -23,7 +23,7 @@ class RoleForm extends React.Component<any, any> {
     componentDidMount () {
         const app = utils.getParameterByName('app')
 
-        Api.getRoleTree(app).then(res => {
+        Api.getRoleTree(app).then((res: any) => {
             if (res.code === 1) {
                 this.setState({
                     roleTree: (res.data && res.data.children) || []
@@ -34,16 +34,16 @@ class RoleForm extends React.Component<any, any> {
 
     /* eslint-disable */
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps: any) {
         if (nextProps.roleInfo !== this.props.roleInfo) {
             let ids = nextProps.roleInfo && (nextProps.roleInfo.permissionIds || []);
-            ids = ids && ids.map(id => `${id}`)
+            ids = ids && ids.map((id: any) => `${id}`)
             this.onCheck(ids)
         }
     }
     /* eslint-disable */
 
-    onCheck = (checkedKeys) => {
+    onCheck =(checkedKeys: any) => {
         this.setState({ checkedKeys }, () => {
             // 只需要叶子节点即可
             // const arr = this.getLeafNodes(checkedKeys)
@@ -51,11 +51,11 @@ class RoleForm extends React.Component<any, any> {
         });
     }
 
-    getLeafNodes = (checkedKeys) => {
+    getLeafNodes =(checkedKeys: any) => {
         const arr = [...checkedKeys]
         const { roleTree } = this.state
 
-        const loop = (data) => {
+        const loop =(data: any) => {
             for (let i = 0; i < data.length; i++) {
                 const item = data[i]
 
@@ -77,9 +77,9 @@ class RoleForm extends React.Component<any, any> {
         return arr;
     }
 
-    renderTreeNodes = (data) => {
+    renderTreeNodes =(data: any) => {
         const { isDisabled = false } = this.props;
-        return data && data.map(item => {
+        return data && data.map((item: any) => {
             const role = item.bindData
             const key = `${item.nodeId}`
 
@@ -161,6 +161,6 @@ class RoleForm extends React.Component<any, any> {
     }
 }
 
-const RoleFormWrapper = Form.create()(RoleForm)
+const RoleFormWrapper = Form.create<any>()(RoleForm)
 
 export default RoleFormWrapper;

@@ -1,6 +1,6 @@
 import appActions from 'main/consts/appActions'
 import Api from 'main/api'
-export function updateApp (fields) {
+export function updateApp (fields: any) {
     return {
         type: appActions.UPDATE_APP,
         data: fields
@@ -8,7 +8,7 @@ export function updateApp (fields) {
 }
 // licenseAction
 export function getLicenseApp () {
-    return (dispatch, getStore) => {
+    return (dispatch: any, getStore: any) => {
         const store = getStore();
         if (store.licenseApps.length === 0) {
             Api.getLicenseApp().then(res => {

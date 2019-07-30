@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Circle } from 'widgets/circle'
 
-export default function msgStatus (props) {
+export default function msgStatus (props: any) {
     const { value } = props;
     let color = '';
 

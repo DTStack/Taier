@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { MY_APPS } from '../../consts'
-export function DatabaseType (props) {
+export function DatabaseType (props: any) {
     const value = props.value
 
     switch (value) {
@@ -23,7 +23,7 @@ export function DatabaseType (props) {
     }
 }
 
-export function AppName (app) {
+export function AppName (app: any) {
     switch (app) {
         case MY_APPS.RDOS:
             return '开发套件'
@@ -41,7 +41,7 @@ export function AppName (app) {
     }
 }
 
-export function MsgTypeDesc (app, type) {
+export function MsgTypeDesc (app: any, type: any) {
     switch (app) {
         case MY_APPS.RDOS: {
             switch (type) {

@@ -12,14 +12,17 @@ import { getInitUser } from '../../actions/user'
 import { MY_APPS, getThemeBanner } from '../../consts';
 import '../../styles/views/portal.scss';
 
-@connect(state => {
+declare var window: any;
+
+@(connect((state: any) => {
     return {
         licenseApps: state.licenseApps,
         apps: state.apps,
         user: state.user
     }
-})
+}) as any)
 class Dashboard extends React.Component<any, any> {
+    _userLoaded: any;
     state = {
         alertShow: false,
         alertMessage: ''
@@ -36,15 +39,14 @@ class Dashboard extends React.Component<any, any> {
         setInterval(() => {
             const id = utils.getCookie('dt_user_id');
 
-            if (!this._userLoaded && id && id !== 0) {
+            if (!this._userLoaded && id && id !== '0') {
                 this._userLoaded = true;
                 dispatch(getInitUser())
             }
         }, 1000);
     }
-    /* eslint-disable */
     // 控制apps与licenseApps应用是否显示
-    compareEnable = (apps, licenseApps) => {
+    compareEnable = (apps: any, licenseApps: any) => {
         if (licenseApps && licenseApps.length) {
             const newApps = cloneDeep(apps);
             for (let i = 0; i < newApps.length; i++) {
@@ -61,7 +63,7 @@ class Dashboard extends React.Component<any, any> {
     }
     // 检查是否过期
     checkIsOverdue = () => {
-        Api.checkisOverdue().then(res => {
+        Api.checkisOverdue().then((res: any) => {
             if (res.data && res.data.code === 1) {
                 this.setState({
                     alertShow: true,
@@ -72,7 +74,7 @@ class Dashboard extends React.Component<any, any> {
     }
     renderApps = () => {
         const { apps, licenseApps, user } = this.props;
-        const sections = this.compareEnable(apps, licenseApps).map(app => {
+        const sections = this.compareEnable(apps, licenseApps).map((app: any) => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
             return isShow && app.id !== MY_APPS.MAIN && (
@@ -125,9 +127,9 @@ class Dashboard extends React.Component<any, any> {
                     <div className="applink l-content">
                         {showSummary && (
                             <section className='c-summary'>
-                                <h className='c-summary__title'>
+                                <h1 className='c-summary__title'>
                                     {window.APP_CONF.summary.title}
-                                </h>
+                                </h1>
                                 <div className='c-summary__content'>
                                     {window.APP_CONF.summary.content}
                                 </div>

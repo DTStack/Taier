@@ -11,12 +11,13 @@ const TabPane = Tabs.TabPane;
 const defaultConsoleTab = 'console-log';
 
 class Console extends React.Component<any, any> {
+    public editor: any;
     state = {
         activeKey: defaultConsoleTab
     };
     /* eslint-disable */
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps (nextProps: any) {
         const newConsole = nextProps.data;
         const oldConsole = this.props.data;
 
@@ -34,11 +35,11 @@ class Console extends React.Component<any, any> {
     }
     /* eslint-disable */
 
-    onEdit = (targetKey, action) => {
-        this[action](targetKey);
+    onEdit = (targetKey: any, action: any) => {
+        this[action as keyof Console](targetKey);
     };
 
-    onTabChange = activeKey => {
+    onTabChange = (activeKey: any) => {
         const { onConsoleTabChange } = this.props;
 
         this.setState({ activeKey }, () => {
@@ -58,17 +59,17 @@ class Console extends React.Component<any, any> {
         doc.setCursor(editor.lineCount(), null); // 控制滚动条在底部
     };
 
-    remove = targetKey => {
+    remove = (targetKey: any) => {
         const { onRemoveTab } = this.props;
 
         if (onRemoveTab) onRemoveTab(parseInt(targetKey, 10));
     };
 
-    renderTabs (tabs) {
+    renderTabs (tabs: any) {
         const { isDisEabledDownload } = this.props;
         const { activeKey }  = this.state;
         if (tabs && tabs.length > 0) {
-            return tabs.map((tab, index) => {
+            return tabs.map((tab: any, index: number) => {
                 const title = <span>结果{tab.id ? tab.id : (index + 1)}</span>;
 
                 return (
@@ -77,7 +78,7 @@ class Console extends React.Component<any, any> {
                         tab={title}
                         key={`${index}`}
                     >
-                        <Result isShow={index==activeKey} data={tab.data} extraView={!isDisEabledDownload && tab.jobId && tab.data ? (
+                        <Result isShow={index+'' == activeKey} data={tab.data} extraView={!isDisEabledDownload && tab.jobId && tab.data ? (
                             <a
                                 href={`${this.props.downloadUri}?jobId=${
                                     tab.jobId

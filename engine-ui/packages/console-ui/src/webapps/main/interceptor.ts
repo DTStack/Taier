@@ -5,7 +5,7 @@ import utils from 'utils'
 import localDb from 'utils/localDb'
 import UserApi from 'main/api/user'
 
-export function authBeforeFormate (response) {
+export function authBeforeFormate (response: any) {
     switch (response.status) {
         case 200:
             return response;
@@ -20,7 +20,7 @@ export function authBeforeFormate (response) {
     }
 }
 
-export function authAfterFormated (response, extOptions = {}) {
+export function authAfterFormated (response: any, extOptions: any = {}) {
     switch (response.code) {
         case 1:
             return response;

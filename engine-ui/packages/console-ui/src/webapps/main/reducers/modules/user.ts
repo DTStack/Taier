@@ -7,7 +7,7 @@ const initalUser = {
     isRoot: false
 }
 
-export function user (state = initalUser, action) {
+export function user (state = initalUser, action: any) {
     switch (action.type) {
         case userActions.GET_USER:
             return action.data

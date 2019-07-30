@@ -20,21 +20,24 @@ import Header from './layout/header';
 const propType = {
     children: PropTypes.node
 }
-const defaultPro = {
+const defaultPro: any = {
     children: []
 }
 
 initNotification();
-@connect(state => {
+@(connect((state: any) => {
     return {
         user: state.user,
         licenseApps: state.licenseApps,
         routing: state.routing,
         isLicenseLoaded: state.isLicenseLoaded
     }
-})
-
+}) as any)
 class Main extends React.Component<any, any> {
+
+    propTypes = propType
+    defaultProps = defaultPro
+
     componentDidMount () {
         const { user } = this.props;
         const userAction = getInitUser();
@@ -44,7 +47,7 @@ class Main extends React.Component<any, any> {
         this.isEnableLicenseApp();
     }
     // eslint-disable-next-line
-    UNSAFE_componentWillReceiveProps (nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { user } = nextProps;
 
         if (this.props.user.dtuicUserId != user.dtuicUserId && user.dtuicUserId) {
@@ -56,7 +59,7 @@ class Main extends React.Component<any, any> {
             }
         }
     }
-    componentDidUpdate (prevProps, prevState) {
+    componentDidUpdate(prevProps: any, prevState: any) {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
             console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
             this.isEnableLicenseApp();
@@ -65,7 +68,7 @@ class Main extends React.Component<any, any> {
     getCurrentPath () {
         return document.location.pathname + document.location.hash;
     }
-    loopIsIntercept (pathAddress, arr) {
+    loopIsIntercept(pathAddress: any, arr: any) {
         for (let i = 0; i < arr.length; i++) {
             if (pathAddress.indexOf(arr[i].url) > -1 && arr[i].isShow) {
                 window.location.href = '/';
@@ -74,10 +77,10 @@ class Main extends React.Component<any, any> {
         }
     }
     // rdos
-    fixRdosChildrenApps = (arr) => {
-        let fixRdosChildrenApps = [];
+    fixRdosChildrenApps = (arr: any) => {
+        let fixRdosChildrenApps: any = [];
         if (arr && arr.length > 1) {
-            arr.map(item => {
+            arr.map((item: any) => {
                 switch (item.name) {
                     case '数据源':
                         fixRdosChildrenApps[0] = item;
@@ -105,10 +108,10 @@ class Main extends React.Component<any, any> {
         }
     }
     // stream
-    fixStreamChildrenApps = (arr) => {
-        let fixStreamChildrenApps = [];
+    fixStreamChildrenApps = (arr: any) => {
+        let fixStreamChildrenApps: any = [];
         if (arr && arr.length > 1) {
-            arr.map(item => {
+            arr.map((item: any) => {
                 switch (item.name) {
                     case '数据源':
                         fixStreamChildrenApps[0] = item;
@@ -131,10 +134,10 @@ class Main extends React.Component<any, any> {
         }
     }
     // analyticsEngine
-    fixAnalyChildrenApps = (arr) => {
-        let fixAnalyChildrenApps = [];
+    fixAnalyChildrenApps = (arr: any) => {
+        let fixAnalyChildrenApps: any = [];
         if (arr && arr.length > 1) {
-            arr.map(item => {
+            arr.map((item: any) => {
                 switch (item.name) {
                     case '数据库管理':
                         fixAnalyChildrenApps[0] = item;
@@ -150,10 +153,10 @@ class Main extends React.Component<any, any> {
         }
     }
     // dataQuality
-    fixQualityChildrenApps = (arr) => {
-        let fixQualityChildrenApps = [];
+    fixQualityChildrenApps = (arr: any) => {
+        let fixQualityChildrenApps: any = [];
         if (arr && arr.length > 1) {
-            arr.map(item => {
+            arr.map((item: any) => {
                 switch (item.name) {
                     case '概览':
                         fixQualityChildrenApps[0] = item;
@@ -178,10 +181,10 @@ class Main extends React.Component<any, any> {
         }
     }
     // Api
-    fixApiChildrenApps = (arr) => {
-        let fixApiChildrenApps = [];
+    fixApiChildrenApps = (arr: any) => {
+        let fixApiChildrenApps: any = [];
         if (arr && arr.length > 1) {
-            arr.map(item => {
+            arr.map((item: any) => {
                 switch (item.name) {
                     case '概览':
                         fixApiChildrenApps[0] = item;
@@ -208,10 +211,10 @@ class Main extends React.Component<any, any> {
             return arr;
         }
     }
-    fixScienceChildrenApps = (arr) => {
-        let fixScienceChildrenApps = [];
+    fixScienceChildrenApps = (arr: any) => {
+        let fixScienceChildrenApps: any = [];
         if (arr && arr.length > 1) {
-            arr.map(item => {
+            arr.map((item: any) => {
                 switch (item.name) {
                     case '算法实验':
                         fixScienceChildrenApps[0] = item;
@@ -236,11 +239,11 @@ class Main extends React.Component<any, any> {
         // 成功返回数据
         if (licenseApps && licenseApps.length) {
             let fixLicenseApps = cloneDeep(licenseApps);
-            let licenseMap = {};
+            let licenseMap: any = {};
             console.log('license', licenseApps)
             console.log('fixlicense', fixLicenseApps)
-            fixLicenseApps.forEach((licenseApp) => {
-                let newChildren = [];
+            fixLicenseApps.forEach((licenseApp: any) => {
+                let newChildren: any = [];
                 switch (licenseApp.id) {
                     case apps.rdosApp.id: {
                         newChildren = this.fixRdosChildrenApps(licenseApp.children);
@@ -452,11 +455,11 @@ class Main extends React.Component<any, any> {
         }
         console.log('enter')
     }
-    checkRoot (user) {
+    checkRoot(user: any) {
         if (user && user.dtuicUserId) {
             http.checkRoot({ userId: user.dtuicUserId })
                 .then(
-                    (res) => {
+                    (res: any) => {
                         if (res.code == 1) {
                             this.props.dispatch({
                                 type: userActions.UPDATE_USER,
@@ -475,14 +478,14 @@ class Main extends React.Component<any, any> {
                     }
                 )
                 .catch(
-                    (e) => {
+                    (e: any) => {
                         console.log('控制台权限')
                     }
                 );
         }
     }
 
-    onFieldsChanged = (fields) => {
+    onFieldsChanged = (fields: any) => {
         if (fields.length > 0 && !document.hasFocus()) {
             let shouldReload = false;
             for (let i = 0; i < fields.length; i++) {
@@ -523,8 +526,5 @@ class Main extends React.Component<any, any> {
         </Cookies> || <NotFund />
     }
 }
-
-Main.propTypes = propType
-Main.defaultProps = defaultPro
 
 export default Main

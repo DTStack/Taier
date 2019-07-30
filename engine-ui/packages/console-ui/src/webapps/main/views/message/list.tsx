@@ -16,11 +16,11 @@ const TabPane = Tabs.TabPane;
 const MenuItem = Menu.Item;
 
 class MessageList extends React.Component<any, any> {
-    state = {
+    state: any = {
 
         selectedApp: '',
         table: {
-            data: []
+            data: [],
         },
 
         selectedRowKeys: [],
@@ -31,7 +31,7 @@ class MessageList extends React.Component<any, any> {
     componentDidMount () {
         const { apps } = this.props;
         const initialApp = utils.getParameterByName('app');
-        const defaultApp = apps.find(app => app.default)
+        const defaultApp = apps.find((app: any) => app.default)
 
         if (defaultApp) {
             this.setState({
@@ -40,7 +40,7 @@ class MessageList extends React.Component<any, any> {
         }
     }
 
-    loadMsg = (params) => {
+    loadMsg = (params?: any) => {
         const { msgList } = this.props;
         const { selectedApp } = this.state;
 
@@ -50,7 +50,7 @@ class MessageList extends React.Component<any, any> {
             mode: msgList.msgType
         }, params);
 
-        Api.getMessage(selectedApp, reqParams).then(res => {
+        Api.getMessage(selectedApp, reqParams).then((res: any) => {
             if (res.code == 1) {
                 this.setState({
                     table: res.data
@@ -61,9 +61,9 @@ class MessageList extends React.Component<any, any> {
 
     getUnreadRows = () => {
         const { selectedRows } = this.state;
-        const ids = []
+        const ids: any = []
 
-        selectedRows.forEach(item => {
+        selectedRows.forEach((item: any) => {
             if (item.readStatus === 0) { // 获取未读数据
                 ids.push(item.id)
             }
@@ -88,7 +88,7 @@ class MessageList extends React.Component<any, any> {
         if (this.selectedNotNull(unReadRows)) {
             Api.markAsRead(selectedApp, {
                 notifyRecordIds: unReadRows
-            }).then(res => {
+            }).then((res: any) => {
                 if (res.code === 1) {
                     this.resetRowKeys();
                     this.loadMsg();
@@ -104,7 +104,7 @@ class MessageList extends React.Component<any, any> {
 
         Api.markAsAllRead(selectedApp, {
             notifyRecordIds: unReadRows
-        }).then(res => {
+        }).then((res: any) => {
             if (res.code === 1) {
                 this.resetRowKeys();
                 this.loadMsg();
@@ -118,7 +118,7 @@ class MessageList extends React.Component<any, any> {
         if (this.selectedNotNull(selectedRowKeys)) {
             Api.deleteMsgs(selectedApp, {
                 notifyRecordIds: selectedRowKeys
-            }).then(res => {
+            }).then((res: any) => {
                 if (res.code === 1) {
                     this.loadMsg()
                     this.setState({
@@ -130,7 +130,7 @@ class MessageList extends React.Component<any, any> {
         }
     }
 
-    handleTableChange = (pagination, filters) => {
+    handleTableChange = (pagination: any, filters: any) => {
         this.props.updateMsg({
             currentPage: pagination.current
         })
@@ -140,7 +140,7 @@ class MessageList extends React.Component<any, any> {
         }, this.loadMsg)
     }
 
-    selectedNotNull (selected) {
+    selectedNotNull(selected: any) {
         if (!selected || selected.length <= 0) {
             message.error('请选择要操作的消息！')
 
@@ -150,7 +150,7 @@ class MessageList extends React.Component<any, any> {
         return true
     }
 
-    onPaneChange = (key) => {
+    onPaneChange = (key: any) => {
         this.props.updateMsg({
             currentPage: 1,
             msgType: key
@@ -160,7 +160,7 @@ class MessageList extends React.Component<any, any> {
         });
     }
 
-    onAppSelect = ({ key }) => {
+    onAppSelect = ({ key }: any) => {
         this.props.updateMsg({
             currentPage: 1
         });
@@ -170,7 +170,7 @@ class MessageList extends React.Component<any, any> {
         }, this.loadMsg)
     }
 
-    onCheckAllChange = (e) => {
+    onCheckAllChange = (e: any) => {
         const selectedRowKeys = []
         const selectedRows = []
 
@@ -192,7 +192,7 @@ class MessageList extends React.Component<any, any> {
         })
     }
 
-    tableFooter = (currentPageData) => {
+    tableFooter = (currentPageData: any) => {
         const { msgList } = this.props
         const { selectedAll, table } = this.state
         const disabled = !table || !table.data || (table.data.length === 0);
@@ -259,7 +259,7 @@ class MessageList extends React.Component<any, any> {
             title: '标题与内容',
             dataIndex: 'content',
             key: 'content',
-            render (text, record) {
+            render(text: any, record: any) {
                 return <Link to={`message/detail/${record.id}?app=${selectedApp}`}>
                     <MsgStatus value={record.readStatus} /> {text}
                 </Link>
@@ -269,7 +269,7 @@ class MessageList extends React.Component<any, any> {
             title: '状态',
             dataIndex: 'readStatus',
             key: 'readStatus',
-            render (status) {
+            render(status: any) {
                 let display = '未读'
 
                 if (status === 1) { // 已读
@@ -283,7 +283,7 @@ class MessageList extends React.Component<any, any> {
             title: '发送时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render (text) {
+            render(text: any) {
                 return utils.formatDateTime(text)
             }
         }, {
@@ -291,14 +291,14 @@ class MessageList extends React.Component<any, any> {
             title: '类型描述',
             dataIndex: 'status',
             key: 'status',
-            render (type) {
+            render(type: any) {
                 return MsgTypeDesc(selectedApp, type)
             }
         }]
 
         const rowSelection = {
             selectedRowKeys,
-            onChange: (selectedRowKeys, selectedRows) => {
+            onChange: (selectedRowKeys: any, selectedRows: any) => {
                 this.setState({
                     selectedRowKeys,
                     selectedRows

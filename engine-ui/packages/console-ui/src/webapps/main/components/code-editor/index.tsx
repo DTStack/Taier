@@ -31,6 +31,9 @@ const defaultEditorOptions = { // 编辑器选项
 
 @pureRender
 class CodeEditor extends React.Component<any, any> {
+    Editor: any;
+    self: any;
+
     componentDidMount () {
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions
@@ -47,24 +50,24 @@ class CodeEditor extends React.Component<any, any> {
         // 设置corsor位置
         if (cursor) this.self.doc.setCursor(cursor)
 
-        this.self.on('change', (doc) => {
+        this.self.on('change', (doc: any) => {
             if (onChange) {
                 onChange(value, doc.getValue(), doc)
             }
         })
-        this.self.on('focus', (doc) => {
+        this.self.on('focus', (doc: any) => {
             if (onFocus) {
                 onFocus(value, doc.getValue())
             }
         })
 
-        this.self.on('blur', (doc) => {
+        this.self.on('blur', (doc: any) => {
             if (focusOut) {
                 focusOut(value, doc.getValue())
             }
         })
 
-        this.self.on('cursorActivity', (doc) => {
+        this.self.on('cursorActivity', (doc: any) => {
             if (cursorActivity) {
                 cursorActivity(value, doc)
             }
@@ -73,7 +76,7 @@ class CodeEditor extends React.Component<any, any> {
 
     /* eslint-disable */
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps: any) {
         const { value, sync, cursor, cursorAlwaysInEnd, options } = nextProps
 
         if (options) this.self.setOption('readOnly', options.readOnly)
@@ -103,7 +106,7 @@ class CodeEditor extends React.Component<any, any> {
 
         renderClass = className
             ? `${renderClass} ${className}` : renderClass
-        let renderStyle = {
+        let renderStyle: any = {
             position: 'relative',
             minHeight: '400px'
         }

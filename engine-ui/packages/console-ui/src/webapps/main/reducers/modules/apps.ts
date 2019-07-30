@@ -1,13 +1,13 @@
 import { assign, cloneDeep } from 'lodash';
 import defaultApps from 'config/defaultApps';
 import appActions from 'main/consts/appActions';
-export function apps (state = defaultApps, action) {
+export function apps (state = defaultApps, action: any) {
     switch (action.type) {
         default:
             return state
     }
 }
-export function licenseApps (state = [], action) {
+export function licenseApps (state: any = [], action: any) {
     switch (action.type) {
         case appActions.GET_LICENSE_APP: {
             if (action.data != null) {
@@ -22,7 +22,7 @@ export function licenseApps (state = [], action) {
     }
 }
 
-export function app (state = {}, action) {
+export function app (state = {}, action: any) {
     switch (action.type) {
         case appActions.UPDATE_APP: {
             if (action.data !== null) {
@@ -36,7 +36,7 @@ export function app (state = {}, action) {
     }
 }
 
-export function isLicenseLoaded (state = false, action) {
+export function isLicenseLoaded (state = false, action: any) {
     switch (action.type) {
         case appActions.SET_LICENSE_LOADED: {
             return true;

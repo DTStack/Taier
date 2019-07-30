@@ -25,18 +25,16 @@ class EditRoleForm extends React.Component<any, any> {
         this.setFields(this.props.user)
     }
 
-    /* eslint-disable */
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps(nextProps: any) {
         if (this.props.user !== nextProps.user) {
             this.setFields(nextProps.user)
         }
     }
-    /* eslint-disable */
 
-    setFields = (user) => {
+    setFields = (user: any) => {
         const selectedRoles = user && user.roles
-            ? user.roles.map(role => role.id) : [];
+            ? user.roles.map((role: any) => role.id) : [];
 
         this.props.form.setFieldsValue({ roleIds: selectedRoles });
     }
@@ -45,10 +43,10 @@ class EditRoleForm extends React.Component<any, any> {
         const { roles, form, app, loginUser, myRoles } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
-        const roleOptions = [];
+        const roleOptions: any = [];
 
         if (roles) {
-            roles.forEach(role => {
+            roles.forEach((role: any) => {
                 const disabled = isDisabledRole(app, role.roleValue, loginUser, myRoles)
 
                 roleOptions.push({ label: role.roleName, value: role.id, disabled })
@@ -76,6 +74,6 @@ class EditRoleForm extends React.Component<any, any> {
     }
 }
 
-const FormWrapper = Form.create()(EditRoleForm)
+const FormWrapper = Form.create<any>()(EditRoleForm)
 
 export default FormWrapper

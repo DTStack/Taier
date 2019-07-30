@@ -17,13 +17,15 @@ const propType = {
 }
 
 class IDEEditor extends React.Component<any, any> {
-    state = {
+    propTypes = propType;
+
+    state: any = {
         changeTab: true,
         size: undefined,
         editorSize: undefined
     };
 
-    changeTab = state => {
+    changeTab = (state: any) => {
         let { changeTab } = this.state;
 
         if (state) {
@@ -136,7 +138,5 @@ class IDEEditor extends React.Component<any, any> {
         );
     }
 }
-
-IDEEditor.propTypes = propType
 
 export default IDEEditor;

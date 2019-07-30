@@ -4,16 +4,18 @@ import { connect } from 'react-redux'
 import Navigator, { compareEnable } from '../../components/nav';
 import { getHeaderLogo } from '../../consts'
 
-@connect(state => {
+declare var window: any;
+
+@(connect((state: any) => {
     return {
         user: state.user,
         apps: state.apps,
         licenseApps: state.licenseApps,
         routing: state.routing
     }
-})
+}) as any)
 class Header extends React.Component<any, any> {
-    constructor (props) {
+    constructor(props: any) {
         super(props)
         this.state = {}
     }

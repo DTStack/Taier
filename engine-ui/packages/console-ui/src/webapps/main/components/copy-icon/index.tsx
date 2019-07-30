@@ -3,6 +3,10 @@ import { Icon, Tooltip, message } from 'antd'
 import './style.css'
 
 export default class CopyIcon extends React.Component<any, any> {
+    fakeHandlerCallback: any;
+    fakeHandler: any = null;
+    fakeElem: any;
+
     state = {
 
     }
@@ -11,11 +15,11 @@ export default class CopyIcon extends React.Component<any, any> {
         this.removeFake();
     }
 
-    copy = (value) => {
+    copy = (value: any) => {
         this.removeFake();
 
         this.fakeHandlerCallback = () => this.removeFake();
-        this.fakeHandler = document.body.addEventListener('click', this.fakeHandlerCallback) || true;
+        this.fakeHandler = document.body.addEventListener('click', this.fakeHandlerCallback);
 
         this.fakeElem = document.createElement('textarea');
         // Prevent zooming on iOS
@@ -69,7 +73,7 @@ export default class CopyIcon extends React.Component<any, any> {
         this.handleResult(succeeded);
     }
 
-    handleResult (succeeded) {
+    handleResult (succeeded: any) {
         if (succeeded) {
             message.success('复制成功');
         } else {

@@ -7,7 +7,7 @@ const initalMsg = {
     msgType: '1'
 }
 
-export function msgList (state = initalMsg, action) {
+export function msgList (state = initalMsg, action: any) {
     switch (action.type) {
         case msgActions.UPDATE_MSG: {
             if (action.data !== null) {

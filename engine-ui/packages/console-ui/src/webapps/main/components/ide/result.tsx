@@ -9,8 +9,8 @@ class Result extends React.Component<any, any> {
             pageSize: 10
         }
     };
-    getPageData (data) {
-        let result = [];
+    getPageData (data: any) {
+        let result: any[] = [];
         if (!data) {
             return result;
         }
@@ -26,15 +26,6 @@ class Result extends React.Component<any, any> {
         const { extraView, data } = this.props;
         const showData = data.slice(1, data.length);
         return (
-            // <Table
-            //     rowKey="id"
-            //     scroll={{ x: true }}
-            //     className="console-table"
-            //     bordered
-            //     dataSource={showData}
-            //     onChange={this.onChange}
-            //     columns={columns}
-            // />
             <div className='c-ide-result'>
                 <div className='c-ide-result__table'>
                     <SpreadSheet

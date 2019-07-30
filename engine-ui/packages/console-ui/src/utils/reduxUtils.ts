@@ -4,18 +4,20 @@ import thunkMiddleware from 'redux-thunk'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { syncHistoryWithStore } from 'react-router-redux'
 
-function configureStoreDev (rootReducer) {
+declare var window: any;
+
+function configureStoreDev (rootReducer: any) {
     const store = createStore(
         rootReducer,
         compose(
             applyMiddleware(thunkMiddleware, createLogger()),
-            window.devToolsExtension ? window.devToolsExtension() : fn => fn
+            window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn
         )
     )
     return store;
 }
 
-function configureStoreProd (rootReducer) {
+function configureStoreProd (rootReducer: any) {
     const stroe = createStore(
         rootReducer,
         applyMiddleware(thunkMiddleware)
@@ -28,7 +30,7 @@ function configureStoreProd (rootReducer) {
  * @param { Object } rootReducer
  * @param { String } routeMode [hash, browser]
  */
-export function getStore (rootReducer, routeMode) {
+export function getStore (rootReducer: any, routeMode?: any) {
     const store = process.env.NODE_ENV === 'production'
         ? configureStoreProd(rootReducer) : configureStoreDev(rootReducer)
     const bhistory = !routeMode || routeMode !== 'hash' ? browserHistory : hashHistory

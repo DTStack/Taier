@@ -1,4 +1,4 @@
-function isEqual (a, b) {
+function isEqual (a: any, b: any) {
     for (const key in a) {
         if ({}.hasOwnProperty.call(a, key) &&
       (!{}.hasOwnProperty.call(b, key) || a[key] !== b[key])) {
@@ -13,8 +13,8 @@ function isEqual (a, b) {
     return true;
 }
 
-export default function shouldRender (targetComponent) {
-    targetComponent.prototype.shouldComponentUpdate = function (props, state) {
+export default function shouldRender (targetComponent: any) {
+    targetComponent.prototype.shouldComponentUpdate = function (props: any, state: any) {
         return !isEqual(this.state, state) || !isEqual(this.props, props)
     }
 }

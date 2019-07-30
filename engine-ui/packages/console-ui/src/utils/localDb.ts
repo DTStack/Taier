@@ -10,7 +10,7 @@ const localDb = {
      * @param {String} key   存贮数据的唯一标识
      * @param {String, Object} value 所要存贮的数据
      */
-    set (key, value) {
+    set (key: string|number, value: any) {
         if (!value) delete window.localStorage[key]
         else {
             const val = typeof value === 'object'
@@ -24,7 +24,7 @@ const localDb = {
      * @param  {String} key  获取数据的可以标识
      * @return {String, Object}  返回空，字符串或者对象
      */
-    get (key) {
+    get (key: string|number) {
         const str = window.localStorage[key] || ''
         return this.isJSONStr(str) ? JSON.parse(str) : str
     },
@@ -34,7 +34,7 @@ const localDb = {
      * @param  {String}  str 所要验证的字符串
      * @return {Boolean}   是否是JSON字符串
      */
-    isJSONStr (str) {
+    isJSONStr (str: string) {
         return (
             (str.charAt(0) === '{' && str.charAt(str.length - 1) === '}') ||
             (str.charAt(0) === '[' && str.charAt(str.length - 1) === ']')

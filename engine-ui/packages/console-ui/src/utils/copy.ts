@@ -7,11 +7,16 @@
  *  instance.copy(value, callback);
  */
 export default class CopyUtils {
-    copy (value, callback) {
+
+    fakeHandlerCallback: any;
+    fakeHandler: any = null;
+    fakeElem: any;
+
+    copy (value: any, callback: Function) {
         this.removeFake();
 
         this.fakeHandlerCallback = () => this.removeFake();
-        this.fakeHandler = document.body.addEventListener('click', this.fakeHandlerCallback) || true;
+        this.fakeHandler = document.body.addEventListener('click', this.fakeHandlerCallback);
 
         this.fakeElem = document.createElement('textarea');
         // Prevent zooming on iOS
@@ -52,7 +57,7 @@ export default class CopyUtils {
         }
     }
 
-    copyText (callback) {
+    copyText (callback: Function) {
         let succeeded;
 
         try {

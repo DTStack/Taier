@@ -1,17 +1,20 @@
 import { debounce, endsWith } from 'lodash';
-import { notification, Modal } from 'antd'
+import { notification, Modal } from 'antd';
+import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
 import { MY_APPS } from 'main/consts';
 import { rdosApp, streamApp, scienceApp } from 'config/base';
+
+declare var window: any;
 
 /**
  * 存放一些零碎的公共方法
 */
 
 // 请求防抖动
-export function debounceEventHander (...args) {
-    const debounced = debounce(...args)
-    return function (e) {
+export function debounceEventHander (func: any, wait?: number, options?: any) {
+    const debounced = debounce(func, wait, options)
+    return function (e: any) {
         e.persist()
         return debounced(e)
     }
@@ -20,7 +23,7 @@ export function debounceEventHander (...args) {
 /**
  * 查找树中的某个节点
  */
-export function findTreeNode (treeNode, node) {
+export function findTreeNode (treeNode: any, node: any) {
     let result = ''
     if (treeNode.id === parseInt(node.id, 10)) {
         return treeNode;
@@ -39,7 +42,7 @@ export function findTreeNode (treeNode, node) {
  * @param {Array} treeNodes 树状节点数据
  * @param {Object} target 目标节点
  */
-export function removeTreeNode (treeNodes, target) {
+export function removeTreeNode (treeNodes: any, target: any) {
     for (let i = 0; i < treeNodes.length; i += 1) {
         if (treeNodes[i].id === target.id && treeNodes[i].type == target.type) {
             treeNodes.splice(i, 1) // remove节点
@@ -54,7 +57,7 @@ export function removeTreeNode (treeNodes, target) {
 /**
  * 追加子节点
  */
-export function appendTreeNode (treeNode, append, target) {
+export function appendTreeNode (treeNode: any, append: any, target: any) {
     const targetId = parseInt(target.id, 10)
     if (treeNode.children) {
         const children = treeNode.children
@@ -70,7 +73,7 @@ export function appendTreeNode (treeNode, append, target) {
 /**
  * 遍历树形节点，用新节点替换老节点
 */
-export function replaceTreeNode (treeNode, replace) {
+export function replaceTreeNode (treeNode: any, replace: any) {
     if (
         treeNode.id === parseInt(replace.id, 10) && treeNode.type == replace.type
     ) {
@@ -90,7 +93,7 @@ export function replaceTreeNode (treeNode, replace) {
  * @param {*} origin
  * @param {*} mergeTo
  */
-export function mergeTreeNodes (origin, target) {
+export function mergeTreeNodes (origin: any, target: any) {
     replaceTreeNode(origin, target);
     if (target.children) {
         const children = target.children
@@ -105,7 +108,7 @@ export function mergeTreeNodes (origin, target) {
  * @param {*} url
  * @param {*} target
  */
-export function openNewWindow (url, target) {
+export function openNewWindow (url: any, target: any) {
     window.open(url, target || '_blank')
 }
 
@@ -113,21 +116,21 @@ export function openNewWindow (url, target) {
  * 检验改应用是否包含项目选项
  * @param {s} app
  */
-export function hasProject (app) {
+export function hasProject (app: any) {
     return app === MY_APPS.RDOS || app === MY_APPS.STREAM || app === MY_APPS.SCIENCE
 }
 
 /**
  * 字符串替换
  */
-export function replaceStrFormBeginToEnd (str, replaceStr, begin, end) {
+export function replaceStrFormBeginToEnd (str: any, replaceStr: any, begin: any, end: any) {
     return str.substring(0, begin) + replaceStr + str.substring(end + 1)
 }
 
 /**
  * 字符串替换（根据索引数组）
  */
-export function replaceStrFormIndexArr (str, replaceStr, indexArr) {
+export function replaceStrFormIndexArr (str: any, replaceStr: any, indexArr: any) {
     let result = '';
     let index = 0;
 
@@ -153,7 +156,7 @@ export function replaceStrFormIndexArr (str, replaceStr, indexArr) {
  * 过滤sql中的注释
  * @param {s} app
  */
-export function filterComments (sql) {
+export function filterComments (sql: string) {
     let tmpArr = [];
     const comments = [];
     if (!sql) {
@@ -216,7 +219,7 @@ export function filterComments (sql) {
  * 分割sql
  * @param {String} sqlText
  */
-export function splitSql (sqlText) {
+export function splitSql (sqlText: string) {
     if (!sqlText) {
         return sqlText;
     }
@@ -250,7 +253,7 @@ export function splitSql (sqlText) {
     return results.filter(Boolean);
 }
 
-export function getRandomInt (min, max) {
+export function getRandomInt (min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; // The maximum is exclusive and the minimum is inclusive
@@ -259,8 +262,8 @@ export function getRandomInt (min, max) {
 /**
  * 滚动元素到视窗范围内
  */
-export function scrollToView (id) {
-    const ele = document.getElementById(id);
+export function scrollToView (id: string) {
+    const ele: any = document.getElementById(id);
     if (ele && ele.scrollIntoViewIfNeeded) {
         ele.scrollIntoViewIfNeeded()
     } else if (ele && ele.scrollIntoView) {
@@ -273,7 +276,7 @@ export function scrollToView (id) {
  * @param {} promise
  * @param {*} ms
  */
-export function timeout (promise, ms) {
+export function timeout (promise: any, ms: number) {
     return new Promise(function (resolve, reject) {
         setTimeout(function () {
             reject(new Error('timeout'))
@@ -289,13 +292,13 @@ export function initNotification () {
         duration: 5
     })
     const changeArr = ['error', 'success']
-    const iconMap = {
+    const iconMap: any = {
         'error': <img src='public/main/img/icon/notification-error.svg' />,
         'success': <img src='public/main/img/icon/notification-success.svg' />
     }
-    changeArr.forEach((key) => {
-        const oldFunc = notification[key];
-        notification[key] = function (config = {}) {
+    changeArr.forEach((key: keyof NotificationApi) => {
+        const oldFunc: any = notification[key];
+        notification[key] = function (config: any = {}) {
             const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
             config = {
                 ...config,
@@ -321,7 +324,7 @@ export function initNotification () {
  * @param {*} title
  * @param {*} message
  */
-export function singletonNotification (title, message, type, style) {
+export function singletonNotification (title: any, message?: any, type?: any, style?: any) {
     const notifyMsgs = document.querySelectorAll('.ant-notification-notice-description');
 
     /**
@@ -353,14 +356,17 @@ function checkIsTimeout () {
     }
     return false;
 }
+
 /**
  * 包装一下
  */
-export function dtNotification (title, message, type, config) {
-    const showType = type || 'error';
+export function dtNotification (title: any, message: any, type: any, config: any) {
+    
+    const showType: any = type || 'error';
+    const WrapperModal: any = Modal;
     const showMessage = message.length > 100 ? (<span>
         {message.substring(0, 100)}... <a onClick={() => {
-            Modal[showType]({
+            WrapperModal[showType]({
                 title: title,
                 content: message,
                 width: 520,
@@ -368,13 +374,13 @@ export function dtNotification (title, message, type, config) {
             })
         }}>查看详情</a>
     </span>) : message;
-    notification[showType]({
+    notification[showType as keyof NotificationApi]({
         ...config,
         message: title,
         description: showMessage
     });
 }
-export function getContainer (id) {
+export function getContainer (id: string) {
     const container = document.createElement('div');
     document.getElementById(id).appendChild(container);
     return container;
@@ -386,8 +392,8 @@ export function getContainer (id) {
  * @param {*} targetField
  * @param {*} replaceName
  */
-export function replaceObjectArrayFiledName (data, targetField, replaceName) {
-    data && data.map(item => {
+export function replaceObjectArrayFiledName (data: any, targetField: any, replaceName: any) {
+    data && data.map((item: any) => {
         if (item[targetField] && item[targetField].length > 0) {
             item[replaceName] = [...item[targetField]];
             delete item[targetField];
@@ -411,7 +417,7 @@ export function initConfig () {
 /**
  * 不区分大小写的过滤 value Option
  */
-export const filterValueOption = (input, option) => {
+export const filterValueOption = (input: any, option: any) => {
     return option.props.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 }
 
@@ -422,7 +428,7 @@ export const removeToolTips = () => {
     const remove = () => {
         const tips = document.querySelectorAll('.mxTooltip');
         if (tips) {
-            tips.forEach(o => {
+            tips.forEach((o: any) => {
                 o.style.visibility = 'hidden';
             })
         }
@@ -432,9 +438,9 @@ export const removeToolTips = () => {
 /**
  * 把running:{ value: 0, text '运行中' } 结构的数据，转换为 0: { symbol: 'running', text: '运行中' }
  */
-export function generateValueDic (dic) {
-    let newDic = {};
-    Object.keys(dic).forEach((key) => {
+export function generateValueDic (dic: any) {
+    let newDic: any = {};
+    Object.keys(dic).forEach((key: any) => {
         let v = dic[key];
         newDic[v.value] = {
             symbol: key,
@@ -444,7 +450,7 @@ export function generateValueDic (dic) {
     return newDic;
 }
 
-export function toRdosGateway (uri, params = {}) {
+export function toRdosGateway (uri: any, params: any = {}) {
     params['redirect_uri'] = uri;
     const keyAndValues = Object.entries(params);
     const queryStr = keyAndValues.map(([key, value]) => {
@@ -452,11 +458,13 @@ export function toRdosGateway (uri, params = {}) {
     }).join('&');
     window.open(`${rdosApp.link}/gateway${queryStr ? `?${queryStr}` : ''}`, 'rdos_open');
 }
-export function isCookieBeProjectType (key) {
+
+export function isCookieBeProjectType (key: any) {
     return ['project_id', 'science_project_id', 'stream_project_id'].includes(key);
 }
-export function isCurrentProjectChanged (key) {
-    const projectIdCheckMap = {
+
+export function isCurrentProjectChanged (key: any) {
+    const projectIdCheckMap: any = {
         'project_id': rdosApp.filename,
         'science_project_id': scienceApp.filename,
         'stream_project_id': streamApp.filename

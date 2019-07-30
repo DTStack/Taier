@@ -12,7 +12,7 @@ import Navigator, { Title, MyIcon } from '../../components/nav'
 
 import '../../styles/views/message.scss';
 
-@connect(state => {
+@(connect((state: any) => {
     return {
         user: state.user,
         apps: state.apps,
@@ -20,7 +20,7 @@ import '../../styles/views/message.scss';
         routing: state.routing,
         msgList: state.msgList
     }
-}, dispatch => bindActionCreators(MsgActions, dispatch))
+}, (dispatch: any) => bindActionCreators(MsgActions, dispatch)) as any)
 class MessageCenter extends React.Component<any, any> {
     componentDidMount () {}
 
@@ -33,7 +33,7 @@ class MessageCenter extends React.Component<any, any> {
             <Title>消息中心</Title>
         </Link>)
 
-        const content = children ? React.cloneElement(children, {
+        const content = children ? React.cloneElement(children as any, {
             msgList,
             updateMsg,
             apps

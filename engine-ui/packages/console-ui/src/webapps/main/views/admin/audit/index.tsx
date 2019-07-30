@@ -16,13 +16,13 @@ import AppTabs from '../../../components/app-tabs'
 const Search = Input.Search;
 const { RangePicker } = DatePicker;
 
-@connect(state => {
+@(connect((state: any) => {
     return {
         user: state.user
     }
-})
+}) as any)
 class AdminAudit extends React.Component<any, any> {
-    state = {
+    state: any = {
         active: '',
         loading: 'success',
 
@@ -46,7 +46,7 @@ class AdminAudit extends React.Component<any, any> {
         if (apps && apps.length > 0) {
             const initialApp = utils.getParameterByName('app');
 
-            const defaultApp = apps.find(app => app.default);
+            const defaultApp = apps.find((app: any) => app.default);
             const appKey = initialApp || defaultApp.id;
 
             this.setState({ active: appKey }, () => {
@@ -76,7 +76,7 @@ class AdminAudit extends React.Component<any, any> {
         }
     }
 
-    onPaneChange = (key) => {
+    onPaneChange = (key: any) => {
         this.setState({
             active: key,
             reqParams: {
@@ -91,7 +91,7 @@ class AdminAudit extends React.Component<any, any> {
             title: '时间',
             dataIndex: 'createTime',
             key: 'createTime',
-            render (time, record) {
+            render (time: any, record: any) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -102,13 +102,13 @@ class AdminAudit extends React.Component<any, any> {
             title: '动作',
             dataIndex: 'action',
             key: 'action',
-            render (text) {
+            render (text: any) {
                 return text;
             }
         }]
     }
 
-    onSearchNameChange = (e) => {
+    onSearchNameChange = (e: any) => {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
@@ -117,7 +117,7 @@ class AdminAudit extends React.Component<any, any> {
         })
     }
 
-    onSearch = (value) => {
+    onSearch = (value: any) => {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
@@ -127,7 +127,7 @@ class AdminAudit extends React.Component<any, any> {
         }, this.fetchData)
     }
 
-    handleTableChange = (pagination) => {
+    handleTableChange = (pagination: any) => {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
@@ -136,7 +136,7 @@ class AdminAudit extends React.Component<any, any> {
         }, this.fetchData)
     }
 
-    onRangePickerChange = (arr) => {
+    onRangePickerChange = (arr: any) => {
         this.setState({
             reqParams: {
                 ...this.state.reqParams,
@@ -212,7 +212,7 @@ class AdminAudit extends React.Component<any, any> {
 
         const content = this.renderPane();
 
-        const finalApps = apps.filter(app => app.id == MY_APPS.RDOS);
+        const finalApps = apps.filter((app: any) => app.id == MY_APPS.RDOS);
 
         return (
             <div className="user-admin">

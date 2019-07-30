@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Input, Select } from 'antd';
+import { Input as mInput, Select } from 'antd';
 
 import pureRender from 'utils/pureRender'
 
 const Option = Select.Option;
+const Input: any = mInput;
 
 const options = [{
     name: '3天',
@@ -41,7 +42,7 @@ class LifeCycle extends React.Component<any, any> {
     }
 
     // eslint-disable-next-line
-	UNSAFE_componentWillReceiveProps (nextProps) {
+	UNSAFE_componentWillReceiveProps (nextProps: any) {
         const value = nextProps.value
 
         if (value && this.state.value !== value && !this.state.showCustom) {
@@ -49,7 +50,7 @@ class LifeCycle extends React.Component<any, any> {
         }
     }
 
-    initState = (value) => {
+    initState = (value: any) => {
         const res = options.find(opt => opt.value == value)
 
         if (!res) { // 自定义
@@ -64,7 +65,7 @@ class LifeCycle extends React.Component<any, any> {
         }
     }
 
-    onSelect = (value) => {
+    onSelect = (value: any) => {
         if (value === '-1') {
             this.setState({
                 showCustom: true,
@@ -79,7 +80,7 @@ class LifeCycle extends React.Component<any, any> {
         }
     }
 
-    customChange = (e) => {
+    customChange = (e: any) => {
         const value = e.target.value
 
         this.props.onChange(value < 0 ? 1 : value)

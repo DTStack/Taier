@@ -7,14 +7,14 @@ import NotFund from 'widgets/notFund'
 
 import Navigator, { Title, MyIcon } from '../../components/nav'
 
-@connect(state => {
+@(connect((state: any) => {
     return {
         user: state.user,
         apps: state.apps,
         licenseApps: state.licenseApps,
         routing: state.routing
     }
-})
+}) as any)
 class SysAdmin extends React.Component<any, any> {
     componentDidMount () {}
 
@@ -27,7 +27,7 @@ class SysAdmin extends React.Component<any, any> {
             <Title>系统管理</Title>
         </Link>)
 
-        const content = children ? React.cloneElement(children, {
+        const content = children ? React.cloneElement(children as any, {
             apps
         }) : <NotFund />;
 

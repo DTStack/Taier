@@ -19,7 +19,7 @@ const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
 // 过滤项目所有者，租户所有者，访客三种无效的授权对象
-export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
+export const isDisabledRole = (app: any, value: any, loginUser: any, myRoles: any = {}) => {
     switch (app) {
         case MY_APPS.RDOS:
         case MY_APPS.STREAM:
@@ -54,13 +54,13 @@ export const isDisabledRole = (app, value, loginUser, myRoles = {}) => {
 }
 
 class UserRoleForm extends React.Component<any, any> {
-    onSeachChange = (value) => {
+    onSeachChange = (value: any) => {
         this.props.form.setFieldsValue({
             targetUserIds: value
         })
     }
 
-    onSearch = (value) => {
+    onSearch = (value: any) => {
         const query = utils.trim(value);
         this.props.onSearchUsers(query);
     }
@@ -72,22 +72,21 @@ class UserRoleForm extends React.Component<any, any> {
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
-            .map(item =>
+            .map((item: any) =>
                 <Option
                     key={item.userId}
                     value={`${item.userId}`}
-                    name={item.userName}
-                    optionFilterProp="name"
+                    {...{ name: item.userName, optionFilterProp: 'name' }}
                 >
                     {item.userName}
                 </Option>
             )
 
-        const roleOptions = [];
-        const initialValue = [];
+        const roleOptions: any = [];
+        const initialValue: any = [];
 
         if (roles) {
-            roles.forEach(role => {
+            roles.forEach((role: any) => {
                 const disabled = isDisabledRole(app, role.roleValue, user, myRoles)
                 const isRdosOrStream = MY_APPS.RDOS == app || MY_APPS.STREAM == app
 
@@ -116,11 +115,11 @@ class UserRoleForm extends React.Component<any, any> {
                         <Select
                             mode="multiple"
                             showSearch
-                            showArrow={true}
+                            {...{ showArrow: true }}
                             style={{ width: '100%' }}
                             notFoundContent="当前用户不存在"
                             placeholder="请搜索并选择用户"
-                            filterOption={(inputValue, option) => {
+                            filterOption={(inputValue: any, option: any) => {
                                 const val = utils.trim(inputValue);
                                 return option.props.name.indexOf(val) > -1
                             }}
@@ -141,7 +140,6 @@ class UserRoleForm extends React.Component<any, any> {
                     })(
                         <CheckboxGroup
                             options={roleOptions}
-                            onChange={this.roleChange}
                         />
                     )}
                 </FormItem>
@@ -150,6 +148,6 @@ class UserRoleForm extends React.Component<any, any> {
     }
 }
 
-const FormWrapper = Form.create()(UserRoleForm)
+const FormWrapper = Form.create<any>()(UserRoleForm)
 
 export default FormWrapper

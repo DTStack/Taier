@@ -1,7 +1,7 @@
 /**
  * 用户
  */
-export type User = {
+export interface User {
     id?: number;
     userName?: string;
     email?: string;

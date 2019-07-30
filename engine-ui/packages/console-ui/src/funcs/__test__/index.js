@@ -1,6 +1,6 @@
-function filterComments (sql) {
-    return sql.replace(/([^'])(--)+(.)+(\n|\s)+/g, '')
-}
+// function filterComments (sql) {
+//     return sql.replace(/([^'])(--)+(.)+(\n|\s)+/g, '')
+// }
 
 const testStr = `
 -- test;afafa;afadfa;
@@ -12,10 +12,10 @@ PARTITIONED BY( dt STRING)
 lifecycle 365;
 `;
 
-function testFilterComments () {
-    const res = filterComments(testStr);
-    console.log('comments:', res);
-}
+// function testFilterComments () {
+//     const res = filterComments(testStr);
+//     console.log('comments:', res);
+// }
 
 function testSQLExtract () {
     // const sqls = testStr.split(/(;)/);
