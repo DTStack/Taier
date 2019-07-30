@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router';
 import PropTypes from 'prop-types'
-import { Layout } from 'antd'
+import { Layout, Icon } from 'antd'
 
 import Sidebar from './sidebar'
 
@@ -34,10 +34,10 @@ class Container extends Component {
             hashHistory.push(location.hash.replace(/.*?(\/project\/)[^\/]+(.*)/i, `$1${project.id}$2`))
         }
     }
-    onCollapse = (collapsed) => {
+    toggleCollapsed = () => {
         this.setState({
-            collapsed,
-            mode: collapsed ? 'vertical' : 'inline'
+            collapsed: !this.state.collapsed,
+            mode: !this.state.collapsed ? 'vertical' : 'inline'
         });
     }
 
@@ -45,11 +45,12 @@ class Container extends Component {
         const { children } = this.props
         return (
             <Layout className="dt-dev-project">
-                <Sider className="bg-w"
-                    collapsible
+                <Sider className="bg-w ant-slider-pos"
                     collapsed={this.state.collapsed}
-                    onCollapse={this.onCollapse}
                 >
+                    <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>
+                        <Icon type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'} />
+                    </div>
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content>

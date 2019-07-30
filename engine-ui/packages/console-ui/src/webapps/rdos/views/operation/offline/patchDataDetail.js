@@ -29,7 +29,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 import TaskJobFlowView from './taskJobFlowView'
-import utils from 'utils';
+// import utils from 'utils';
 import MultiSearchInput from 'widgets/multiSearchInput';
 
 const Option = Select.Option
@@ -416,12 +416,12 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
-            width: '350px',
+            width: '390px',
             fixed: 'left',
             render: (text, record) => {
                 let name = record.batchTask && record.batchTask.name
                 let originText = name;
-                name = utils.textOverflowExchange(name, 45);
+                // name = utils.textOverflowExchange(name, 45);
                 let showName;
                 if (record.batchTask.isDeleted === 1) {
                     showName = `${name} (已删除)`;

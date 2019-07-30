@@ -326,7 +326,7 @@ class DBSync extends Component {
                         <Table
                             bordered
                             rowKey="tableName"
-                            className="dt-ant-table dt-ant-table--border sync-table select-all-table dirt-table-header_rmscroll"
+                            className="dt-ant-table sync-table select-all-table dirt-table-header_rmscroll"
                             columns={this.initColumns()}
                             pagination={false}
                             rowSelection={rowSelection}
