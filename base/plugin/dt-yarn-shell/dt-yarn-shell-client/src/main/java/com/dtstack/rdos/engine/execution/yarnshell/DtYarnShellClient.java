@@ -17,17 +17,20 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.api.records.FinalApplicationStatus;
 import org.apache.hadoop.yarn.api.records.NodeReport;
 import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
+import org.apache.hadoop.yarn.client.api.YarnClient;
 import org.apache.hadoop.yarn.exceptions.YarnException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -48,6 +51,10 @@ import java.util.stream.Collectors;
 public class DtYarnShellClient extends AbsClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(DtYarnShellClient.class);
+
+    private static final String YARN_RM_WEB_KEY_PREFIX = "yarn.resourcemanager.webapp.address.";
+
+    private static final String APP_URL_FORMAT = "http://%s";
 
     private static final Gson gson = new Gson();
 
@@ -174,7 +181,42 @@ public class DtYarnShellClient extends AbsClient {
 
     @Override
     public String getJobMaster() {
-        throw new RdosException("dt-yarn-shell client not support method 'getJobMaster'");
+        YarnClient  yarnClient = client.getYarnClient();
+        String url = "";
+        try{
+            //调用一次远程,防止rm切换本地没有及时切换
+            yarnClient.getNodeReports();
+            Field rmClientField = yarnClient.getClass().getDeclaredField("rmClient");
+            rmClientField.setAccessible(true);
+            Object rmClient = rmClientField.get(yarnClient);
+
+            Field hField = rmClient.getClass().getSuperclass().getDeclaredField("h");
+            hField.setAccessible(true);
+            //获取指定对象中此字段的值
+            Object h = hField.get(rmClient);
+
+            Field currentProxyField = h.getClass().getDeclaredField("currentProxy");
+            currentProxyField.setAccessible(true);
+            Object currentProxy = currentProxyField.get(h);
+
+            Field proxyInfoField = currentProxy.getClass().getDeclaredField("proxyInfo");
+            proxyInfoField.setAccessible(true);
+            String proxyInfoKey = (String) proxyInfoField.get(currentProxy);
+
+            String key = YARN_RM_WEB_KEY_PREFIX + proxyInfoKey;
+            String addr = conf.get(key);
+
+            if(addr == null) {
+                addr = conf.get("yarn.resourcemanager.webapp.address");
+            }
+
+            url = String.format(APP_URL_FORMAT, addr);
+        }catch (Exception e){
+            LOG.error("Getting URL failed" + e);
+        }
+
+        LOG.info("get req url=" + url);
+        return url;
     }
 
     @Override

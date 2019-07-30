@@ -99,7 +99,8 @@ public class StreamTaskServiceImpl {
         Byte status = streamJob.getStatus();
         Preconditions.checkState(RdosTaskStatus.RUNNING.getStatus().equals(status.intValue()), String.format("current task %s is not running now.", taskId));
 
-        Preconditions.checkState(StringUtils.isNotEmpty(streamJob.getApplicationId()), String.format("current task %s don't have application id.", taskId));
+        String applicationId = streamJob.getApplicationId() == null ? streamJob.getEngineTaskId() : streamJob.getApplicationId();
+        Preconditions.checkState(applicationId.contains("application"), String.format("current task %s don't have application id.", taskId));
 
         //如何获取url前缀
         try{
@@ -110,7 +111,7 @@ public class StreamTaskServiceImpl {
             JobClient jobClient = new JobClient(paramAction);
             String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo());
             String rootURL = UrlUtil.getHttpRootURL(jobMaster);
-            String requestURl = String.format(APPLICATION_REST_API_TMP, rootURL, streamJob.getApplicationId());
+            String requestURl = String.format(APPLICATION_REST_API_TMP, rootURL, applicationId);
 
             String response = PoolHttpClient.get(requestURl);
             String amContainerLogsURL = ApplicationWSParser.getAMContainerLogsURL(response);
