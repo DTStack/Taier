@@ -422,13 +422,13 @@ class CollectionSourceForm extends React.Component {
                                         required
                                     >
                                         <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={!couldEdit} placeholder='请输入分组名' />
-                                        <div>
+                                        <div style={{ maxHeight: 200, overflow: 'auto' }}>
+                                            <span style={{ marginTop: '5px', padding: '0px 18px 0px 8px' }}>
+                                                <Button onClick={this.editMultipleTable.bind(this, index)} size="small" type="dashed"> + 编辑</Button>
+                                            </span>
                                             {(table.tables || []).map((tableName) => {
                                                 return <span style={{ marginTop: '5px', paddingRight: '8px' }} key={tableName} ><Tag>{tableName}</Tag></span>
                                             })}
-                                            <span style={{ marginTop: '5px' }}>
-                                                <Button onClick={this.editMultipleTable.bind(this, index)} size="small" type="dashed"> + 编辑</Button>
-                                            </span>
                                         </div>
                                         {couldEdit && (<a onClick={this.deleteGroup.bind(this, index)} style={{ position: 'absolute', right: '-30px', top: '0px' }}>删除</a>)}
                                     </FormItem>
