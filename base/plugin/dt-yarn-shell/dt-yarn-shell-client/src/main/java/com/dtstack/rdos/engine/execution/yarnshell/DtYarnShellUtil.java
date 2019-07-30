@@ -1,6 +1,7 @@
 package com.dtstack.rdos.engine.execution.yarnshell;
 
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.yarn.common.type.AppTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import sun.misc.BASE64Decoder;
 import java.io.IOException;
@@ -15,9 +16,18 @@ public class DtYarnShellUtil {
     public static String[] buildPythonArgs(JobClient jobClient) throws IOException {
         String exeArgs = jobClient.getClassArgs();
         String[] args = exeArgs.split("\\s+");
+
+        String appType = null;
+        for (int i = 0; i < args.length - 1; ++i){
+            if(args[i].equals("--app-type")){
+                appType = args[i+1];
+            }
+        }
         for(int i = 0; i < args.length - 1; ++i) {
-            if(args[i].equals("--launch-cmd")) {//|| args[i].equals("--cmd-opts")
-                args[i+1] = new String(decoder.decodeBuffer(args[i+1]), "UTF-8");
+            if(args[i].equals("--launch-cmd") || args[i].equals("--cmd-opts")) {
+                if (!AppTypeEnum.JLOGSTASH.name().equalsIgnoreCase(appType)){
+                    args[i+1] = new String(decoder.decodeBuffer(args[i+1]), "UTF-8");
+                }
             }
         }
 
