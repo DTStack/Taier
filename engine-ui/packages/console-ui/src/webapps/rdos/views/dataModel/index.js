@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Layout, Button, Icon } from 'antd'
+import { Layout, Icon } from 'antd'
 import { connect } from 'react-redux';
 
 import Sidebar from './sidebar';
@@ -33,9 +33,9 @@ class Container extends Component {
                 <Sider className="bg-w ant-slider-pos"
                     collapsed={this.state.collapsed}
                 >
-                    <Button className="ant-slider-pos--collapsed" style={{ borderRight: this.state.collapsed ? '1px solid #e9e9e9' : 'none' }} onClick={this.toggleCollapsed}>
+                    <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>
                         <Icon type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'} />
-                    </Button>
+                    </div>
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content style={{ position: 'relative' }}>

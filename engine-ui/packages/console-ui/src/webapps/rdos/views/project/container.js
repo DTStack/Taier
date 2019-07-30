@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { hashHistory } from 'react-router';
 import PropTypes from 'prop-types'
-import { Layout, Button, Icon } from 'antd'
+import { Layout, Icon } from 'antd'
 
 import Sidebar from './sidebar'
 
@@ -48,9 +48,9 @@ class Container extends Component {
                 <Sider className="bg-w ant-slider-pos"
                     collapsed={this.state.collapsed}
                 >
-                    <Button className="ant-slider-pos--collapsed" onClick={this.toggleCollapsed}>
+                    <div className="ant-slider-pos--collapsed" onClick={ this.toggleCollapsed }>
                         <Icon type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'} />
-                    </Button>
+                    </div>
                     <Sidebar {...this.props} mode={this.state.mode} />
                 </Sider>
                 <Content>
