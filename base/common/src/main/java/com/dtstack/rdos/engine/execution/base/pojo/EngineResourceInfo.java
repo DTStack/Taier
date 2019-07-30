@@ -16,6 +16,7 @@ public abstract class EngineResourceInfo {
 
     public final static String LIMIT_RESOURCE_ERROR = "LIMIT RESOURCE ERROR:";
     protected float capacity = 1;
+    protected float queueCapacity = 1;
     protected int totalFreeCore = 0;
     protected int totalFreeMem = 0;
     protected int totalCore = 0;
@@ -175,5 +176,9 @@ public abstract class EngineResourceInfo {
 
     public void setCapacity(float capacity) {
         this.capacity = capacity;
+    }
+
+    public void setQueueCapacity(float queueCapacity) {
+        this.queueCapacity = queueCapacity;
     }
 }
