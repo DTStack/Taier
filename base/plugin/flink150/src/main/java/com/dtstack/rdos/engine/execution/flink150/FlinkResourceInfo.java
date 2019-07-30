@@ -87,14 +87,11 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             List<NodeReport> nodeReports = yarnClient.getNodeReports(NodeState.RUNNING);
             int containerLimit = 0;
             float capacity = 1;
-            float queueCapacity = 1;
             if (!elasticCapacity){
                 capacity = getQueueRemainCapacity(1, queue, yarnClient.getRootQueueInfos());
-                queueCapacity = getQueueCapacity(1, queue, yarnClient.getRootQueueInfos());
             }
 
             resourceInfo.setCapacity(capacity);
-            resourceInfo.setQueueCapacity(queueCapacity);
             for(NodeReport report : nodeReports){
                 Resource capability = report.getCapability();
                 Resource used = report.getUsed();
@@ -127,30 +124,14 @@ public class FlinkResourceInfo extends EngineResourceInfo {
                 capacity = getQueueRemainCapacity(subCoefficient, queue, queueInfo.getChildQueues());
             }
             if (queue.equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+                queueCapacity = coefficient * queueInfo.getCapacity();
+                capacity = queueCapacity * (1 - queueInfo.getCurrentCapacity());
             }
             if (capacity>0){
                 return capacity;
             }
         }
         return capacity;
-    }
-
-    private float getQueueCapacity(float coefficient, String queue, List<QueueInfo> queueInfos){
-        float queueCapacity = 0;
-        for (QueueInfo queueInfo : queueInfos){
-            if (CollectionUtils.isNotEmpty(queueInfo.getChildQueues())) {
-                float subCoefficient = queueInfo.getCapacity() * coefficient;
-                queueCapacity = getQueueCapacity(subCoefficient, queue, queueInfo.getChildQueues());
-            }
-            if (queue.equals(queueInfo.getQueueName())){
-                queueCapacity = coefficient * queueInfo.getCapacity();
-            }
-            if (queueCapacity>0){
-                return queueCapacity;
-            }
-        }
-        return queueCapacity;
     }
 
     private FlinkConfig getJobFlinkConf(String pluginInfo) {
