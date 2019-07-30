@@ -192,6 +192,11 @@
                 background-image: url(/public/rdos/img/icon/othericon.svg)
             }
         }
+        .s-hivesql {
+            .ant-tree-icon__docu {
+                background-image: url(/public/rdos/img/hivesql.svg)
+            }
+        }
         .s-cubeKylin {
             .ant-tree-icon__docu {
                 background-image: url(/public/rdos/img/cube_kylin.svg)
@@ -919,8 +924,9 @@
                 float: left;
                 box-sizing: border-box;
                 padding: 0 10px;
-                text-align: left; // overflow: hidden;
-                // text-overflow: ellipsis;
+                text-align: left; 
+                overflow: hidden;
+                text-overflow: ellipsis;
                 font-size: 11px;
                 &:first-child {
                     width: 40%;
@@ -948,14 +954,18 @@
             .four-cells {
                 .cell {
                     &:first-child {
-                        width: 40%;
+                        width: 30%;
                         font-weight: bold;
                     }
                     &:nth-child(2) {
-                        width:40%;
+                        width: 30%;
                         text-align: left;
                     }
                     &:nth-child(3) {
+                        width: 20%;
+                        text-align: right;
+                    }
+                    &:nth-child(4) {
                         width: 20%;
                         text-align: right;
                     }

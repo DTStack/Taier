@@ -273,7 +273,9 @@ export function execDataSync (currentTab, params) {
             if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
-                selectData(dispatch, res.data.jobId, currentTab, TASK_TYPE.SYNC);
+                selectData(dispatch, res.data.jobId, currentTab, TASK_TYPE.SYNC).then(() => {
+                    dispatch(removeLoadingTab(currentTab))
+                });
             } else {
                 dispatch(output(currentTab, createLog(`执行返回结果异常`, 'error')))
                 dispatch(removeLoadingTab(currentTab))

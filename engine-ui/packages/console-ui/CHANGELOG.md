@@ -2,6 +2,61 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.6.0"></a>
+# [3.6.0](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.4.1...3.6.0) (2019-07-30)
+
+
+### Bug Fixes
+
+* **console:** fix hiverserver ([6049b78](http://git.dtstack.cn/dtstack/data-stack-web/commits/6049b78)), closes [#17590](http://redmine.prod.dtstack.cn/issues/17590)
+* **console:** fix result is null condition ([e0a636b](http://git.dtstack.cn/dtstack/data-stack-web/commits/e0a636b))
+* **rdos:** fix fetch table partition  bug ([f48fc1c](http://git.dtstack.cn/dtstack/data-stack-web/commits/f48fc1c)), closes [#17007](http://redmine.prod.dtstack.cn/issues/17007)
+* **rdos:** fix some bug ([1bc1621](http://git.dtstack.cn/dtstack/data-stack-web/commits/1bc1621)), closes [#17720](http://redmine.prod.dtstack.cn/issues/17720) [#17718](http://redmine.prod.dtstack.cn/issues/17718) [#17719](http://redmine.prod.dtstack.cn/issues/17719)
+* **rdos:** remove loading status after poll ([9eefaf1](http://git.dtstack.cn/dtstack/data-stack-web/commits/9eefaf1)), closes [#17642](http://redmine.prod.dtstack.cn/issues/17642)
+* **rdos:** set default  if date is null ([f57fc53](http://git.dtstack.cn/dtstack/data-stack-web/commits/f57fc53)), closes [#17646](http://redmine.prod.dtstack.cn/issues/17646)
+* **science:** add source task column ([30be20c](http://git.dtstack.cn/dtstack/data-stack-web/commits/30be20c)), closes [#17313](http://redmine.prod.dtstack.cn/issues/17313)
+* **stream:** change defaultfs ([71d1c68](http://git.dtstack.cn/dtstack/data-stack-web/commits/71d1c68))
+
+
+### Features
+
+* 17217 add xml language into monaco editor ([840b774](http://git.dtstack.cn/dtstack/data-stack-web/commits/840b774))
+* add a new API protocol webservice ([fb8d561](http://git.dtstack.cn/dtstack/data-stack-web/commits/fb8d561))
+* add request example when api detail ([2b3e961](http://git.dtstack.cn/dtstack/data-stack-web/commits/2b3e961))
+* hbase support add column type ([cf9738e](http://git.dtstack.cn/dtstack/data-stack-web/commits/cf9738e))
+* **stream:** change text ([b87bf02](http://git.dtstack.cn/dtstack/data-stack-web/commits/b87bf02))
+* watch cookies change ([86caec5](http://git.dtstack.cn/dtstack/data-stack-web/commits/86caec5))
+* **console:** feat add hive server params ([ea73c58](http://git.dtstack.cn/dtstack/data-stack-web/commits/ea73c58))
+* **rdos:** add task type ([776a4d6](http://git.dtstack.cn/dtstack/data-stack-web/commits/776a4d6))
+* **stream:** add default partition in auto mode ([e0a3295](http://git.dtstack.cn/dtstack/data-stack-web/commits/e0a3295))
+* **stream:** add mysql check ([9636826](http://git.dtstack.cn/dtstack/data-stack-web/commits/9636826))
+* **stream:** add overflow to multiple table ([13aca14](http://git.dtstack.cn/dtstack/data-stack-web/commits/13aca14))
+* **stream:** add valid ([6bed34d](http://git.dtstack.cn/dtstack/data-stack-web/commits/6bed34d))
+* **stream:** change hive default table ([4cf85fb](http://git.dtstack.cn/dtstack/data-stack-web/commits/4cf85fb))
+* **stream:** change text ([9b57bb2](http://git.dtstack.cn/dtstack/data-stack-web/commits/9b57bb2))
+* **stream:** change tip ([7b57c50](http://git.dtstack.cn/dtstack/data-stack-web/commits/7b57c50))
+* **stream:** change valid of group name ([5b8edf4](http://git.dtstack.cn/dtstack/data-stack-web/commits/5b8edf4))
+* **stream:** make pure ([1438470](http://git.dtstack.cn/dtstack/data-stack-web/commits/1438470))
+* **stream:** set distribute table  empty when length equal zero ([4dee6f6](http://git.dtstack.cn/dtstack/data-stack-web/commits/4dee6f6))
+* **stream:** set writemode editable ([39b3e58](http://git.dtstack.cn/dtstack/data-stack-web/commits/39b3e58))
+* **stream:** support hive multiple table ([8029f44](http://git.dtstack.cn/dtstack/data-stack-web/commits/8029f44))
+* **tabs:** auto reload when change project ([ac48012](http://git.dtstack.cn/dtstack/data-stack-web/commits/ac48012))
+* **tabs:** optimization code ([90d2611](http://git.dtstack.cn/dtstack/data-stack-web/commits/90d2611))
+* **widgets:** a window react component ([9ca6d6b](http://git.dtstack.cn/dtstack/data-stack-web/commits/9ca6d6b))
+* **widgets:** add a new cookies watching component ([929dc67](http://git.dtstack.cn/dtstack/data-stack-web/commits/929dc67))
+
+
+
+<a name="3.6.0-beta.4.1"></a>
+# [3.6.0-beta.4.1](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.4...3.6.0-beta.4.1) (2019-07-16)
+
+
+### Bug Fixes
+
+* **rdos:** fix task modal disabled bug ([5c560f4](http://git.dtstack.cn/dtstack/data-stack-web/commits/5c560f4))
+
+
+
 <a name="3.6.0-beta.4"></a>
 # [3.6.0-beta.4](http://git.dtstack.cn/dtstack/data-stack-web/compare/DTinsight_v3.6.0-beta.3.2...3.6.0-beta.4) (2019-07-12)
 

@@ -483,7 +483,8 @@ class ManageBasicProperties extends Component {
                                             { required: true, message: '请输入后端 Path' },
                                             { max: 200, message: '最大字符不能超过200' },
                                             { min: 2, message: '最小字符不能小于2' },
-                                            { pattern: new RegExp(/^(\/(\{[-\w]+\}|[.-\w]+))*(\/)?$/), message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }],
+                                            { pattern: this.props.form.getFieldValue('protocol') === 'HTTP/HTTPS' ? new RegExp(/^(\/(\{[-\w]+\}|[.-\w]+))*(\/)?$/) : null, message: '支持英文，数字，下划线，连字符(-)，限制2—200个字符，只能 / 开头' }
+                                        ],
                                         initialValue: this.props.originalPath
                                     })(
                                         <Input style={{ width: '85%' }} />
@@ -522,10 +523,27 @@ class ManageBasicProperties extends Component {
                             label="协议"
                         >
                             {getFieldDecorator('protocol', {
-                                initialValue: 'HTTP/HTTPS'
+                                initialValue: this.props.protocol || 'HTTP/HTTPS'
                             })(
-                                <Select style={{ width: '85%' }}>
+                                <Select
+                                    style={{ width: '85%' }}
+                                    onChange={(value) => {
+                                        if (value === 'WebService') {
+                                            this.props.form.setFieldsValue({
+                                                method: 1,
+                                                originalPath: this.props.form.getFieldValue('originalPath')
+                                            });
+                                        }
+                                    }}
+                                >
                                     <Option value="HTTP/HTTPS">HTTP/HTTPS</Option>
+                                    {
+                                        isRegister
+                                            ? (
+                                                <Option value="WebService">WebService</Option>
+                                            )
+                                            : null
+                                    }
                                 </Select>
                                 // <Input disabled  style={{ width: '85%' }}/>
                             )}
@@ -538,7 +556,7 @@ class ManageBasicProperties extends Component {
                                 rules: [{ required: true, message: '请选择请求方式' }],
                                 initialValue: (this.props.method || this.props.method == 0) ? this.props.method : API_METHOD.POST
                             })(
-                                <Select onChange={this.changeMethod.bind(this)} style={{ width: '85%' }}>
+                                <Select onChange={this.changeMethod.bind(this)} style={{ width: '85%' }} disabled={this.props.form.getFieldValue('protocol') === 'WebService'} >
                                     {this.renderMethod()}
                                 </Select>
                             )}

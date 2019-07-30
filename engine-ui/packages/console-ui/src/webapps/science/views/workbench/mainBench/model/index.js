@@ -195,6 +195,10 @@ class ModelView extends React.Component {
                 return parseFloat(t).toFixed(6);
             }
         }, {
+            title: '来源任务',
+            dataIndex: 'algorithmName',
+            width: '180px'
+        }, {
             title: '更新时间',
             dataIndex: 'gmtModified',
             width: '180px',

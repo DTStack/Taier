@@ -275,7 +275,7 @@ class BaseForm extends Component {
                 const formItems = [
                     <FormItem
                         {...formItemLayout}
-                        label="DefaultFS"
+                        label="defaultFS"
                         key="defaultFS"
                         hasFeedback
                     >
@@ -1005,7 +1005,7 @@ class BaseForm extends Component {
                     >
                         {getFieldDecorator('dataJson.password', {
                             rules: [{
-                                required: false, message: '密码不可为空！'
+                                required: true, message: '密码不可为空！'
                             }],
                             initialValue: ''
                         })(

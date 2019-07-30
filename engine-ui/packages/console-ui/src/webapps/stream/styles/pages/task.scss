@@ -1108,3 +1108,28 @@
     white-space: nowrap;
     width: 450px
 }
+
+.c-form__multipleTableSelect {
+    position: relative;
+    .c-form__multipleTableSelect__transfer {
+        width: 100%;
+        .ant-transfer-list {
+            background: #fff;
+            width: calc(50% - 25px);
+            height: 300px;
+            .ant-transfer-list-header-title {
+                position: relative;
+                right: 0px;
+            }
+            .ant-transfer-list-search-action .anticon {
+                line-height: inherit;
+            }
+        }
+        
+    }
+    .c-form__multipleTableSelect__add {
+        position: absolute;
+        right: -90px;
+        top: 0px;
+    }
+}

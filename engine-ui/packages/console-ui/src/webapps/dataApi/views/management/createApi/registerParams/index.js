@@ -6,6 +6,7 @@ import RegisterParamsNav, { NAV_KEYS } from './nav';
 import ErrorCode from './errorCode';
 import Params from './params';
 import Result from './result';
+import WebserviceView from './webserviceView';
 
 const ContentMap = {
     [NAV_KEYS.PARAMS]: Params,
@@ -65,44 +66,74 @@ class RegisterParams extends React.Component {
     render () {
         const { menuSelect } = this.state;
         const { registerParams, basicProperties } = this.props;
-        const { method } = basicProperties;
+        const { method, protocol } = basicProperties;
         const Content = ContentMap[menuSelect];
         return (
             <div>
                 <div className="steps-content">
-                    <div className='c-register-params'>
-                        <div className='c-register-params__nav'>
-                            <RegisterParamsNav
-                                value={menuSelect}
-                                onChange={this.changeTab.bind(this)}
-                            />
-                        </div>
-                        <div className='c-register-params__content'>
-                            <Content
-                                ref={this.contentRef}
-                                data={registerParams}
-                                method={method}
-                                updateData={this.updateData.bind(this)}
-                            />
-                        </div>
-                    </div>
+                    {
+                        protocol === 'WebService'
+                            ? (
+                                <div className='c-register-params'>
+                                    <WebserviceView
+                                        data={registerParams}
+                                        basicProperties={basicProperties}
+                                        method={method}
+                                        updateData={this.updateData.bind(this)}
+                                    />
+                                </div>
+                            )
+                            : (
+                                <div className='c-register-params'>
+                                    <div className='c-register-params__nav'>
+                                        <RegisterParamsNav
+                                            value={menuSelect}
+                                            onChange={this.changeTab.bind(this)}
+                                        />
+                                    </div>
+                                    <div className='c-register-params__content'>
+                                        <Content
+                                            ref={this.contentRef}
+                                            data={registerParams}
+                                            method={method}
+                                            updateData={this.updateData.bind(this)}
+                                        />
+                                    </div>
+                                </div>
+                            )
+                    }
                 </div>
-                <div
-                    className="steps-action"
-                >
-                    {
-                        <Button onClick={this.cancelAndSave.bind(this)}>
-                            保存并退出
-                        </Button>
-                    }
-                    {
-                        <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>上一步</Button>
-                    }
-                    {
-                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
-                    }
+                {
+                    protocol === 'WebService'
+                        ? (
+                            <div
+                                className="steps-action"
+                            >
+                                <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
+                                <Button type="primary" onClick={this.cancelAndSave.bind(this)}>
+                                    完成
+                                </Button>
+                            </div>
+                        )
+                        : (
+                            <div
+                                className="steps-action"
+                            >
+                                {
+                                    <Button onClick={this.cancelAndSave.bind(this)}>
+                                        保存并退出
+                                    </Button>
+                                }
+                                {
+                                    <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>上一步</Button>
+                                }
+                                {
+                                    <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.pass()}>下一步</Button>
+                                }
 
-                </div>
+                            </div>
+                        )
+                }
             </div>
         )
     }

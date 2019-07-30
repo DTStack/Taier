@@ -3,17 +3,20 @@ import React from 'react';
 
 import {
     Form, Select,
-    Button, Input, Radio
+    Button, Input, Radio, notification
 } from 'antd';
 
 import ajax from '../../../../../api/index'
-import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT, writeTableTypes, writeStrategys } from '../../../../../comm/const'
+import { formItemLayout, DATA_SOURCE, DATA_SOURCE_TEXT, writeTableTypes, writeStrategys, partitionTypes } from '../../../../../comm/const'
 import { isSupportedTargetSource, isKafka, isHive } from '../../../../../comm'
 import HelpDoc from '../../../../helpDoc';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
+
+// eslint-disable-next-line
+const prefixRule = '${schema}_${table}';
 
 function getSourceInitialField (sourceType, data) {
     const initialFields = { type: sourceType };
@@ -29,7 +32,9 @@ function getSourceInitialField (sourceType, data) {
         }
         case DATA_SOURCE.HIVE: {
             // eslint-disable-next-line
-            initialFields.analyticalRules = '${schema}_${table}';
+            initialFields.partitionType = partitionTypes.DAY;
+            initialFields.analyticalRules = prefixRule;
+            initialFields.partition = isMysqlSource ? 'pt' : undefined; // 后端（nanqi）要求自动建表默认加一个partition = pt。
             initialFields.writeTableType = isMysqlSource ? writeTableTypes.AUTO : writeTableTypes.HAND;
             initialFields.writeStrategy = writeStrategys.TIME;
             initialFields.interval = `${10 * 60 * 1000}`;
@@ -46,7 +51,8 @@ class CollectionTarget extends React.Component {
         this.state = {
             topicList: [],
             tableList: [],
-            partitions: []
+            partitions: [],
+            loading: false
         }
     }
 
@@ -83,14 +89,40 @@ class CollectionTarget extends React.Component {
         if (!sourceId || !tableName) {
             return;
         }
+        this.setState({
+            loading: true
+        })
         let res = await ajax.getHivePartitions({
             sourceId,
             tableName
         });
+        this.setState({
+            loading: false
+        })
         if (res && res.code == 1) {
-            this.setState({
-                partitions: res.data
-            })
+            const partitions = res.data;
+            if (partitions && partitions.length) {
+                let pt = partitions.find((p) => {
+                    return p == 'pt'
+                });
+                if (pt) {
+                    this.setState({
+                        partitions: res.data
+                    });
+                    this.props.updateTargetMap({
+                        partition: 'pt'
+                    });
+                    return;
+                }
+            }
+            notification.error({
+                message: '提示',
+                description: '目标表必须以pt作为分区字段，且string作为分区字段类型',
+                duration: 5
+            });
+            this.props.updateTargetMap({
+                table: null
+            });
         }
     }
     getTableList (sourceId) {
@@ -159,7 +191,7 @@ class CollectionTarget extends React.Component {
     }
 
     render () {
-        const { topicList, tableList, partitions } = this.state;
+        const { topicList, tableList, partitions, loading } = this.state;
         return (
             <div>
                 <WrapCollectionTargetForm
@@ -173,7 +205,7 @@ class CollectionTarget extends React.Component {
                 {!this.props.readonly && (
                     <div className="steps-action">
                         <Button style={{ marginRight: 8 }} onClick={() => this.prev()}>上一步</Button>
-                        <Button type="primary" onClick={() => this.next()}>下一步</Button>
+                        <Button loading={loading} type="primary" onClick={() => this.next()}>下一步</Button>
                     </div>
                 )}
             </div>
@@ -197,7 +229,7 @@ class CollectionTargetForm extends React.Component {
         if (!targetMap || !sourceMap) return [];
         const isOrc = targetMap.fileType == 'orc';
         const isMysqlSource = sourceMap.type == DATA_SOURCE.MYSQL;
-        const { writeTableType, writeStrategy, table } = targetMap;
+        const { writeTableType, writeStrategy, table, writeMode } = targetMap;
         const isWriteStrategyBeTime = writeStrategy == writeStrategys.TIME;
 
         switch (targetMap.type) {
@@ -343,17 +375,18 @@ class CollectionTargetForm extends React.Component {
                                 required: true
                             }]
                         })(
-                            <RadioGroup onChange={this.getTableList}>
+                            <RadioGroup disabled onChange={this.getTableList}>
                                 {isMysqlSource ? (
                                     <Radio key={writeTableTypes.AUTO} value={writeTableTypes.AUTO} style={{ float: 'left' }}>
                                         自动建表
                                     </Radio>
                                 ) : null}
                                 <Radio key={writeTableTypes.HAND} value={writeTableTypes.HAND} style={{ float: 'left' }}>
-                                    手动选择
+                                        手动选择分区表
                                 </Radio>
                             </RadioGroup>
                         )}
+                        <HelpDoc overlayClassName='big-tooltip' doc='writeTableType' />
                     </FormItem>,
                     writeTableType == writeTableTypes.AUTO && (
                         <FormItem
@@ -363,14 +396,38 @@ class CollectionTargetForm extends React.Component {
                         >
                             {getFieldDecorator('analyticalRules', {
                                 rules: [{
-                                    required: true, message: '该字段不能为空'
+                                    required: false, message: '该字段不能为空'
+                                }, {
+                                    pattern: /^[^.&%\s]*$/,
+                                    message: '不能包含空格、小数点等特殊字符，需符合Hive表建表规范'
                                 }]
                             })(
-                                <Input disabled addonBefore='stream_' />
+                                <Input addonBefore={`stream_${prefixRule}`} />
                             )}
                             <HelpDoc overlayClassName='big-tooltip' doc='analyticalRules' />
                         </FormItem>
                     ),
+                    <FormItem
+                        {...formItemLayout}
+                        label="分区粒度"
+                        key="partitionType"
+                    >
+                        {getFieldDecorator('partitionType', {
+                            rules: [{
+                                required: false, message: '该字段不能为空'
+                            }]
+                        })(
+                            <RadioGroup>
+                                <Radio value={partitionTypes.DAY} style={{ float: 'left' }}>
+                                    天
+                                </Radio>
+                                <Radio value={partitionTypes.HOUR} style={{ float: 'left' }}>
+                                    小时
+                                </Radio>
+                            </RadioGroup>
+                        )}
+                        <HelpDoc overlayClassName='big-tooltip' doc='partitionType' />
+                    </FormItem>,
                     writeTableType == writeTableTypes.HAND && (
                         <FormItem
                             {...formItemLayout}
@@ -401,7 +458,7 @@ class CollectionTargetForm extends React.Component {
                                     required: true, message: '请选择分区'
                                 }]
                             })(
-                                <Select>
+                                <Select disabled>
                                     {partitions.map((partition) => {
                                         return <Option key={partition} value={partition}>{partition}</Option>
                                     })}
@@ -463,15 +520,13 @@ class CollectionTargetForm extends React.Component {
                                 required: true
                             }]
                         })(
-                            <RadioGroup>
-                                <Radio value="replace" style={{ float: 'left' }}>
-                                    覆盖（Insert Overwrite）
-                                </Radio>
+                            <RadioGroup >
                                 <Radio value="insert" style={{ float: 'left' }}>
                                     追加（Insert Into）
                                 </Radio>
                             </RadioGroup>
                         )}
+                        {writeMode == 'replace' && <p style={{ color: 'red' }}>注意：切换为覆盖模式，任务启动时，将删除目标表和历史数据</p>}
                     </FormItem>
                 ].filter(Boolean);
             }
@@ -535,11 +590,22 @@ class CollectionTargetForm extends React.Component {
 
 const WrapCollectionTargetForm = Form.create({
     onValuesChange (props, fields) {
+        if (fields.hasOwnProperty('analyticalRules')) {
+            if (fields['analyticalRules']) {
+                if (fields['analyticalRules'][0] == '_') {
+                    fields['analyticalRules'] = prefixRule + fields['analyticalRules'];
+                } else {
+                    fields['analyticalRules'] = prefixRule + '_' + fields['analyticalRules'];
+                }
+            } else {
+                fields['analyticalRules'] = prefixRule
+            }
+        }
         // 建表模式
         if (fields.hasOwnProperty('writeTableType')) {
             if (fields['writeTableType'] == writeTableTypes.AUTO) {
                 // eslint-disable-next-line
-                fields['analyticalRules'] = '${schema}_${table}';
+                fields['analyticalRules'] = prefixRule;
             } else {
                 fields['analyticalRules'] = undefined;
             }
@@ -584,7 +650,8 @@ const WrapCollectionTargetForm = Form.create({
                 value: targetMap.topic
             },
             analyticalRules: {
-                value: targetMap.analyticalRules
+                // eslint-disable-next-line
+                value: targetMap.analyticalRules ? targetMap.analyticalRules.replace(prefixRule, '') : ''
             },
             writeTableType: {
                 value: targetMap.writeTableType
@@ -621,6 +688,9 @@ const WrapCollectionTargetForm = Form.create({
             },
             path: {
                 value: targetMap.path
+            },
+            partitionType: {
+                value: targetMap.partitionType
             }
         }
     }

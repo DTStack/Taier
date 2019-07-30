@@ -1,7 +1,8 @@
 import React from 'react';
 import moment from 'moment';
+import { get } from 'lodash';
 
-import { Form, Select, Radio, Checkbox, DatePicker, Input, Button, Icon } from 'antd';
+import { Form, Select, Radio, Checkbox, DatePicker, Input, Button, Icon, Tag, message } from 'antd';
 
 import { formItemLayout, DATA_SOURCE, CAT_TYPE, collectType } from '../../../../../comm/const'
 import HelpDoc from '../../../../helpDoc';
@@ -10,6 +11,8 @@ import { isKafka } from '../../../../../comm';
 import ajax from '../../../../../api/index';
 
 import DataPreviewModal from '../../dataPreviewModal';
+import MultipleTableSelect from './multipleTableSelect';
+import EditMultipleTableModal from './editMultipleTableModal';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -31,7 +34,7 @@ class CollectionSource extends React.Component {
         this.getSupportDaTypes();
         if (sourceMap.sourceId) {
             if (sourceMap.type === DATA_SOURCE.MYSQL) {
-                this.getTableList(sourceMap.sourceId);
+                this.getValidMysqlTableList(sourceMap.sourceId);
             }
             if (sourceMap.collectType == collectType.FILE) {
                 this.getBinLogList(sourceMap.sourceId);
@@ -47,7 +50,10 @@ class CollectionSource extends React.Component {
         const { sourceMap: oldSource = {} } = oldCol;
         if (sourceMap.sourceId && oldSource.sourceId != sourceMap.sourceId) {
             if (sourceMap.type === DATA_SOURCE.MYSQL && sourceMap.sourceId) {
-                this.getTableList(sourceMap.sourceId);
+                this.setState({
+                    tableList: []
+                });
+                this.getValidMysqlTableList(sourceMap.sourceId);
             }
         }
         /**
@@ -72,6 +78,15 @@ class CollectionSource extends React.Component {
                 }
             }
         )
+    }
+
+    async getValidMysqlTableList (sourceId) {
+        let res = await ajax.checkSourceIsValid({
+            sourceId
+        });
+        if (res && res.code == 1) {
+            this.getTableList(sourceId);
+        }
     }
 
     getTableList (sourceId) {
@@ -115,10 +130,41 @@ class CollectionSource extends React.Component {
             });
         }, 200);
     }
+    checkGroup () {
+        const { collectionData } = this.props;
+        const { sourceMap = {} } = collectionData;
+        const { distributeTable = [], multipleTable } = sourceMap;
+        if (multipleTable) {
+            if (!distributeTable.length) {
+                message.warn('分表模式下至少需要一个分组！');
+                return false;
+            }
+            let nameMap = {};
+            for (let i = 0; i < distributeTable.length; i++) {
+                let table = distributeTable[i];
+                if (!table.name) {
+                    message.warn('请填写分组名！');
+                    return false;
+                }
+                if (!/^\w*$/.test(table.name)) {
+                    message.warn('分组名只能由字母、数字和下划线组成！');
+                    return false;
+                }
+                if (nameMap[table.name]) {
+                    message.warn('分组名不允许重复！');
+                    return false;
+                }
+                nameMap[name] = true;
+            }
+        }
+        return true;
+    }
     next () {
         this._form.validateFields(null, {}, (err, values) => {
             if (!err) {
-                this.props.navtoStep(1)
+                if (this.checkGroup()) {
+                    this.props.navtoStep(1);
+                }
             }
         })
     }
@@ -149,7 +195,9 @@ class CollectionSourceForm extends React.Component {
         sourceList: [], // TODO 此处 sourceList 跟 MySQL 的并未共用
         topicList: [],
         previewParams: {},
-        previewVisible: false
+        previewVisible: false,
+        editMultipleTableModalVisible: false,
+        multipleTableDataIndex: null
     }
 
     componentDidMount () {
@@ -191,7 +239,14 @@ class CollectionSourceForm extends React.Component {
             });
         }
     }
-
+    onCompleteMultipleTableSelect = (selectKeys) => {
+        const { collectionData } = this.props;
+        const { sourceMap = {} } = collectionData;
+        const { distributeTable = [] } = sourceMap;
+        this.props.updateSourceMap({
+            distributeTable: [{ name: null, tables: selectKeys }, ...distributeTable]
+        })
+    }
     getTopicType (sourceId) {
         ajax.getTopicType({
             sourceId
@@ -203,7 +258,54 @@ class CollectionSourceForm extends React.Component {
             }
         })
     }
-
+    editMultipleTable (index) {
+        this._editMultipleTableModalKey = Math.random();
+        this.setState({
+            editMultipleTableModalVisible: true,
+            multipleTableDataIndex: index
+        })
+    }
+    deleteGroup (index) {
+        const { collectionData } = this.props;
+        const { sourceMap = {} } = collectionData;
+        const { distributeTable = [] } = sourceMap;
+        let newDistributeTable = [...distributeTable];
+        newDistributeTable.splice(index, 1);
+        this.props.updateSourceMap({
+            distributeTable: newDistributeTable
+        });
+    }
+    changeMultipleGroupName (index, e) {
+        const value = e.target.value;
+        const { collectionData } = this.props;
+        const { sourceMap = {} } = collectionData;
+        const { distributeTable = [] } = sourceMap;
+        let newDistributeTable = [...distributeTable];
+        newDistributeTable.splice(index, 1, {
+            ...distributeTable[index],
+            name: value
+        });
+        this.props.updateSourceMap({
+            distributeTable: newDistributeTable
+        });
+    }
+    changeMultipleTable (index, keys) {
+        const { collectionData } = this.props;
+        const { sourceMap = {} } = collectionData;
+        const { distributeTable = [] } = sourceMap;
+        let newDistributeTable = [...distributeTable];
+        newDistributeTable.splice(index, 1, {
+            ...distributeTable[index],
+            tables: keys
+        })
+        this.props.updateSourceMap({
+            distributeTable: newDistributeTable
+        });
+        this.setState({
+            editMultipleTableModalVisible: false,
+            multipleTableDataIndex: null
+        })
+    }
     renderByCatType () {
         const { collectionData, form, binLogList } = this.props;
         const { getFieldDecorator } = form;
@@ -258,12 +360,14 @@ class CollectionSourceForm extends React.Component {
     }
 
     renderForm () {
+        const { editMultipleTableModalVisible, multipleTableDataIndex } = this.state;
         let { collectionData, tableList } = this.props;
         let { dataSourceList = [], sourceMap, isEdit } = collectionData;
         if (!sourceMap) return [];
         const { getFieldDecorator } = this.props.form;
         const allTable = sourceMap.allTable;
-        const { type, sourceId } = sourceMap;
+        const { type, sourceId, multipleTable, distributeTable = [] } = sourceMap;
+        const multipleTableData = distributeTable[multipleTableDataIndex];
         const isCollectTypeEdit = !!sourceId;
 
         switch (type) {
@@ -292,31 +396,93 @@ class CollectionSourceForm extends React.Component {
                         )}
                     </FormItem>,
                     <FormItem
-                        key="table"
+                        key="multipleTable"
                         {...formItemLayout}
-                        label="表"
+                        label="是否分表"
                     >
-                        {getFieldDecorator('table', {
-                            rules: [{
-                                required: true, message: '请选择表'
-                            }]
+                        {getFieldDecorator('multipleTable', {
+                            valuePropName: 'checked'
                         })(
-                            <Select
-                                mode="multiple"
-                                style={{ width: '100%' }}
-                                placeholder="请选择表"
-
-                            >
-                                {tableList.length ? [<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
-                                    (table) => {
-                                        return <Option disabled={allTable} key={`${table}`} value={table}>
-                                            {table}
-                                        </Option>
-                                    }
-                                )) : [<Option key={-1} value={-1}>全部</Option>]}
-                            </Select>
+                            <Checkbox>分表</Checkbox>
                         )}
+                        <HelpDoc style={{ right: 'auto' }} doc="multipleTable" />
                     </FormItem>,
+                    multipleTable && (
+                        <React.Fragment>
+                            <FormItem
+                                key="onlyShowTable"
+                                {...formItemLayout}
+                                label="表"
+                            >
+                                <MultipleTableSelect tableList={tableList} onComplete={this.onCompleteMultipleTableSelect} />
+                            </FormItem>
+                            {distributeTable && distributeTable.map((table, index) => {
+                                const couldEdit = !(isEdit && table.isSaved);
+                                return (
+                                    <FormItem
+                                        key={`${index}`}
+                                        {...formItemLayout}
+                                        label="分组"
+                                        required
+                                    >
+                                        <Input onChange={this.changeMultipleGroupName.bind(this, index)} value={table.name} disabled={!couldEdit} placeholder='请输入分组名，将参与写入目标名称的拼接，例如：写入Hive表时，分组名将作为Hive表名的一部分' />
+                                        <div style={{ maxHeight: 200, overflow: 'auto' }}>
+                                            <span style={{ marginTop: '5px', padding: '0px 18px 0px 8px' }}>
+                                                <Button onClick={this.editMultipleTable.bind(this, index)} size="small" type="dashed"> + 编辑</Button>
+                                            </span>
+                                            {(table.tables || []).map((tableName) => {
+                                                return <span style={{ marginTop: '5px', paddingRight: '8px' }} key={tableName} ><Tag>{tableName}</Tag></span>
+                                            })}
+                                        </div>
+                                        {couldEdit && (<a onClick={this.deleteGroup.bind(this, index)} style={{ position: 'absolute', right: '-30px', top: '0px' }}>删除</a>)}
+                                    </FormItem>
+                                )
+                            })}
+                            <EditMultipleTableModal
+                                key={this._editMultipleTableModalKey}
+                                visible={editMultipleTableModalVisible}
+                                tableList={tableList}
+                                selectKeys={get(multipleTableData || {}, 'tables')}
+                                onCancel={() => {
+                                    this.setState({
+                                        editMultipleTableModalVisible: false,
+                                        multipleTableData: null
+                                    })
+                                }}
+                                onOk={(keys) => {
+                                    this.changeMultipleTable(multipleTableDataIndex, keys);
+                                }}
+                            />
+                        </React.Fragment>
+                    ),
+                    !multipleTable && (
+                        <FormItem
+                            key="table"
+                            {...formItemLayout}
+                            label="表"
+                        >
+                            {getFieldDecorator('table', {
+                                rules: [{
+                                    required: true, message: '请选择表'
+                                }]
+                            })(
+                                <Select
+                                    mode="multiple"
+                                    style={{ width: '100%' }}
+                                    placeholder="请选择表"
+
+                                >
+                                    {tableList.length ? [<Option key={-1} value={-1}>全部</Option>].concat(tableList.map(
+                                        (table) => {
+                                            return <Option disabled={allTable} key={`${table}`} value={table}>
+                                                {table}
+                                            </Option>
+                                        }
+                                    )) : [<Option key={-1} value={-1}>全部</Option>]}
+                                </Select>
+                            )}
+                        </FormItem>
+                    ),
                     <FormItem
                         key="collectType"
                         {...formItemLayout}
@@ -364,7 +530,7 @@ class CollectionSourceForm extends React.Component {
                         {getFieldDecorator('pavingData', {
                             valuePropName: 'checked'
                         })(
-                            <Checkbox>嵌套JSON平铺</Checkbox>
+                            <Checkbox disabled>嵌套JSON平铺</Checkbox>
                         )}
                         <HelpDoc style={{ right: 'auto' }} doc="sourceFormat" />
                     </FormItem>
@@ -540,8 +706,13 @@ const WrapCollectionSourceForm = Form.create({
         /**
          * sourceId改变,则清空表
          */
-        if (fields.sourceId != undefined) {
+        if (fields.hasOwnProperty('sourceId')) {
             clear = true
+        }
+        if (fields.hasOwnProperty('multipleTable')) {
+            fields.table = [];
+            fields.distributeTable = undefined;
+            fields.allTable = false;
         }
         /**
          * moment=>时间戳,并且清除其他的选项
@@ -612,6 +783,9 @@ const WrapCollectionSourceForm = Form.create({
             },
             macAndIp: {
                 value: '任务运行时自动分配，无需手动指定'
+            },
+            multipleTable: {
+                value: sourceMap.multipleTable
             }
         }
     }

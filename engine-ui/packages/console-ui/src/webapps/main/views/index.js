@@ -1,19 +1,21 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { cloneDeep, get } from 'lodash';
 
-import NotFund from 'widgets/notFund'
+import utils from 'utils/index';
+import NotFund from 'widgets/notFund';
+import { initNotification, isCurrentProjectChanged, isCookieBeProjectType } from 'funcs';
+import ChromeDownload from 'widgets/chromeDownload';
+import Cookies from 'widgets/cookies';
+import * as apps from 'config/base';
+
 import { getLicenseApp } from '../actions/app'
 import GlobalLoading from './layout/loading'
-import ChromeDownload from 'widgets/chromeDownload';
 import { getInitUser } from '../actions/user'
 import userActions from '../consts/userActions'
-import { initNotification } from 'funcs';
 import http from '../api';
-import { cloneDeep, get } from 'lodash';
 import Header from './layout/header';
-import utils from 'utils/index';
-import * as apps from 'config/base';
 
 const propType = {
     children: PropTypes.node
@@ -35,7 +37,7 @@ initNotification();
 class Main extends Component {
     componentDidMount () {
         const { user } = this.props;
-        const userAction = getInitUser()
+        const userAction = getInitUser();
         this.props.dispatch(userAction);
         this.checkRoot(user);
         this.props.dispatch(getLicenseApp());
@@ -480,6 +482,25 @@ class Main extends Component {
         }
     }
 
+    onFieldsChanged = (fields) => {
+        if (fields.length > 0 && !document.hasFocus()) {
+            let shouldReload = false;
+            for (let i = 0; i < fields.length; i++) {
+                let key = fields[i].key;
+                if (isCookieBeProjectType(key)) {
+                    if (isCurrentProjectChanged(key)) {
+                        shouldReload = true;
+                        break;
+                    }
+                } else {
+                    shouldReload = true;
+                    break;
+                }
+            }
+            shouldReload && window.location.reload();
+        }
+    }
+
     render () {
         let { children, licenseApps } = this.props;
         let browserCheck = utils.browserCheck();
@@ -492,7 +513,14 @@ class Main extends Component {
                 <ChromeDownload />
             </div>
         }
-        return children || <NotFund />
+        return <Cookies
+            watchFields={[ // 当页面cookie如下字段的值发生变更时会触发页面刷新
+                'dt_token', 'dt_tenant_id', 'dt_user_id', 'project_id', 'science_project_id', 'stream_project_id'
+            ]}
+            onFieldsChanged={this.onFieldsChanged}
+        >
+            {children}
+        </Cookies> || <NotFund />
     }
 }
 
