@@ -26,6 +26,7 @@ import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.yarn.api.ApplicationConstants;
 import org.apache.hadoop.yarn.api.records.ContainerId;
+import org.apache.hadoop.yarn.server.nodemanager.ContainerExecutor;
 import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -343,6 +344,10 @@ public class DtContainer {
             if (response.getExitValue() == 0) {
                 LOG.info("DtContainer " + container.getContainerId().toString() + " finish successfully");
                 container.reportSucceededAndExit();
+            } else if (response.getExitValue() == ContainerExecutor.ExitCode.FORCE_KILLED.getExitCode()
+                    || response.getExitValue() == ContainerExecutor.ExitCode.TERMINATED.getExitCode()) {
+                LOG.warn("DtContainer run exited!");
+                container.reportFailedAndExit(response.getErrorLog());
             } else {
                 LOG.error("DtContainer run failed! error");
                 container.reportFailedAndExit(response.getErrorLog());
