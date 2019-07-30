@@ -264,11 +264,25 @@
     }
     .ant-table-body-outer {
         border-width: 1px 0 0;
+        border-top-width: 1px;
     }
     .ant-table-placeholder{
         border-width: 0px 1px 1px 1px;
         border-style: solid;
         border-color: #dcdcdc;
+    }
+}
+.dt-ant-table--border-lr {
+    .ant-table-body, .ant-table-body-outer {
+        border-left-width: 1px;
+        border-right-width: 1px;
+    }
+}
+.dt-ant-table--bg-white {
+    .ant-table-body {
+        table {
+            background-color: #fff;
+        }
     }
 }
 .m-card {
