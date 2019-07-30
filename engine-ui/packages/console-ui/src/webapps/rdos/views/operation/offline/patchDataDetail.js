@@ -416,7 +416,7 @@ class PatchDataDetail extends Component {
             title: '任务名称',
             dataIndex: 'jobName',
             key: 'jobName',
-            width: '390px',
+            width: '460px',
             fixed: 'left',
             render: (text, record) => {
                 let name = record.batchTask && record.batchTask.name
@@ -781,7 +781,7 @@ class PatchDataDetail extends Component {
                             expandedRowKeys={this.state.expandedRowKeys}
                             defaultExpandAllRows={true}
                             style={{ marginTop: '1px' }}
-                            scroll={{ x: '1350px' }}
+                            scroll={{ x: '2050px' }}
                             className="dt-ant-table dt-ant-table--border full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
