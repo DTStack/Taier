@@ -67,7 +67,8 @@ class TaskDetail extends Component {
         isClickGroup: false,
         selectedRowKeys: [],
         isShowAllKill: false,
-        isKillAllTasks: false // 是否杀死全部任务
+        isKillAllTasks: false, // 是否杀死全部任务
+        killTaskInfo: []
     }
     componentDidMount () {
         const { query = {} } = this.props;
@@ -94,6 +95,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 table: {
                     ...table,
                     total: 0
@@ -184,7 +186,8 @@ class TaskDetail extends Component {
         const { pageIndex } = table;
         this.setState({
             dataSource: [],
-            selectedRowKeys: []
+            selectedRowKeys: [],
+            killTaskInfo: []
         })
         if (jobName) {
             Api.searchTaskList({
@@ -260,13 +263,15 @@ class TaskDetail extends Component {
                 table: {
                     ...table,
                     total: 0
-                }
+                },
+                killTaskInfo: []
             })
         } else {
             this.setState({
                 node: value,
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 groupName: undefined,
                 table: {
                     ...table,
@@ -302,6 +307,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 engineType: undefined,
                 groupName: undefined,
                 node: node,
@@ -315,6 +321,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 jobName: undefined,
                 engineType: value,
                 groupName: undefined,
@@ -348,7 +355,8 @@ class TaskDetail extends Component {
         } else {
             this.setState({
                 dataSource: [],
-                selectedRowKeys: []
+                selectedRowKeys: [],
+                killTaskInfo: []
             })
         }
     }
@@ -365,6 +373,7 @@ class TaskDetail extends Component {
             this.setState({
                 dataSource: [],
                 selectedRowKeys: [],
+                killTaskInfo: [],
                 groupName: value,
                 table: {
                     ...table,
@@ -388,7 +397,8 @@ class TaskDetail extends Component {
         const { pageIndex } = table;
         this.setState({
             dataSource: [],
-            selectedRowKeys: []
+            selectedRowKeys: [],
+            killTaskInfo: []
         })
         if (engineType && groupName && node) {
             this.setState({
@@ -466,7 +476,8 @@ class TaskDetail extends Component {
         const table = Object.assign(this.state.table, { pageIndex: pagination.current })
         this.setState({
             table,
-            selectedRowKeys: []
+            selectedRowKeys: [],
+            killTaskInfo: []
         },
         () => {
             this.getDetailTaskList();
@@ -683,13 +694,24 @@ class TaskDetail extends Component {
     }
     onCheckAllChange = (e) => {
         let selectedRowKeys = [];
+        let killTaskInfo = [];
         if (e.target.checked) {
             selectedRowKeys = this.state.dataSource.map(item => item.taskId);
+            killTaskInfo = this.state.dataSource.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+                return {
+                    taskId,
+                    groupName,
+                    jobType,
+                    engineType,
+                    computeType
+                }
+            })
         }
 
         this.setState({
             selectedRowKeys,
-            checkAll: e.target.checked
+            checkAll: e.target.checked,
+            killTaskInfo
         })
     }
     handleKillAll = (e) => {
@@ -704,6 +726,7 @@ class TaskDetail extends Component {
         this.setState({
             dataSource: [],
             selectedRowKeys: [],
+            killTaskInfo: [],
             table: {
                 ...table,
                 total: 0
@@ -755,7 +778,7 @@ class TaskDetail extends Component {
     render () {
         const { isShowResource, isShowViewDetail, isShowKill, isShowReorder, editModalKey, isShowAllKill, isKillAllTasks } = this.state;
         const columns = this.initTableColumns();
-        const { dataSource, table, selectedRowKeys } = this.state;
+        const { dataSource, table, selectedRowKeys, killTaskInfo } = this.state;
         const { loading } = table;
         const { resource } = this.state;
         const { killResource, priorityResource } = this.state;
@@ -771,7 +794,16 @@ class TaskDetail extends Component {
         const rowSelection = {
             onChange: (selectedRowKeys, selectedRows) => {
                 this.setState({
-                    selectedRowKeys
+                    selectedRowKeys,
+                    killTaskInfo: selectedRows.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+                        return {
+                            taskId,
+                            groupName,
+                            jobType,
+                            engineType,
+                            computeType
+                        }
+                    })
                 })
             },
             selectedRowKeys: selectedRowKeys
@@ -908,7 +940,7 @@ class TaskDetail extends Component {
                     onCancel={this.handleCloseKill.bind(this)}
                     killSuccess={this.killSuccess.bind(this)}
                     autoRefresh={this.autoRefresh.bind(this)}
-                    killResource={selectedRowKeys}
+                    killResource={killTaskInfo}
                     node={node}
                     totalModel={totalModel}
                     totalSize={total}
