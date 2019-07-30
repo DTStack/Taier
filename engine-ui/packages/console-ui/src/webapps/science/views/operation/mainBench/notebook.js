@@ -1,9 +1,8 @@
 import React, { PureComponent } from 'react';
 import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd';
-import { findKey } from 'lodash';
 import Api from '../../../api'
 import { offlineTaskPeriodFilter } from '../../../comm/const.js'
-import { taskType, TASK_TYPE } from '../../../consts';
+import { taskType, TASK_TYPE_TEXT } from '../../../consts';
 import { toRdosGateway } from 'funcs';
 import { appUriDict } from 'main/consts';
 
@@ -105,7 +104,8 @@ class Notebook extends PureComponent {
             title: '任务类型',
             dataIndex: 'taskType',
             render (text, record) {
-                return findKey(TASK_TYPE, text)
+                const taskMap = new Map(TASK_TYPE_TEXT.map(task => { return [task.value, task.text] }));
+                return taskMap.get(text)
             }
         }, {
             width: '20%',
