@@ -16,6 +16,8 @@ import org.apache.hadoop.yarn.api.records.QueueInfo;
 import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.hadoop.yarn.client.api.YarnClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
  */
 
 public class FlinkResourceInfo extends EngineResourceInfo {
+
+    private static final Logger logger = LoggerFactory.getLogger(FlinkResourceInfo.class);
 
     public static final String FLINK_SQL_ENV_PARALLELISM = "sql.env.parallelism";
 
@@ -112,7 +116,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             }
             resourceInfo.setContainerLimit(containerLimit);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Flink judgePerjobResource error: ", e);
         }
         return resourceInfo.judgeSlots(jobClient);
     }
@@ -141,6 +145,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
         try {
             return PublicUtil.jsonStrToObject(pluginInfo, FlinkConfig.class);
         } catch (IOException e) {
+            logger.error("Json to object error: ", e);
             return null;
         }
     }

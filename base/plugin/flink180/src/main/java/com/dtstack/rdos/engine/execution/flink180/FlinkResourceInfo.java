@@ -57,7 +57,7 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             return judgePerjobResource(jobClient, queue);
         }
 
-        return super.judgeSessionResource();
+        return true;
     }
 
     private boolean judgePerjobResource(JobClient jobClient, String queue) {
