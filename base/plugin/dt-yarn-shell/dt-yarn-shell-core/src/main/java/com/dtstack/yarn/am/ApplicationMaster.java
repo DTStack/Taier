@@ -194,6 +194,7 @@ public class ApplicationMaster extends CompositeService {
         LOG.info("Setting up container command");
         Vector<CharSequence> vargs = new Vector<>(10);
         vargs.add("${JAVA_HOME}" + "/bin/java");
+        vargs.add("-server -XX:+UseConcMarkSweepGC -XX:-UseCompressedClassPointers -XX:+DisableExplicitGC -XX:-OmitStackTraceInFastThrow");
         vargs.add("-Xmx" + containerMemory + "m");
         vargs.add("-Xms" + containerMemory + "m");
         String javaOpts = conf.get(DtYarnConfiguration.XLEARNING_CONTAINER_EXTRA_JAVA_OPTS, DtYarnConfiguration.DEFAULT_XLEARNING_CONTAINER_JAVA_OPTS_EXCEPT_MEMORY);

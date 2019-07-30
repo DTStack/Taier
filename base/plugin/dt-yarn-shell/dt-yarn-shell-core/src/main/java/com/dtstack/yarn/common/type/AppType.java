@@ -20,13 +20,13 @@ public abstract class AppType {
     public static AppType fromString(String type) {
         if (StringUtils.isBlank(type)) {
             return new DummyType();
-        } else if (type.equalsIgnoreCase("shell")) {
+        } else if (type.equalsIgnoreCase(AppTypeEnum.SHELL.name())) {
             return new ShellType();
-        } else if (type.equalsIgnoreCase("python") || type.equalsIgnoreCase("python2")) {
+        } else if (type.equalsIgnoreCase(AppTypeEnum.PYTHON.name()) || type.equalsIgnoreCase(AppTypeEnum.PYTHON2.name())) {
             return new Python2Type();
-        } else if (type.equalsIgnoreCase("python3")) {
+        } else if (type.equalsIgnoreCase(AppTypeEnum.PYTHON3.name())) {
             return new Python3Type();
-        } else if (type.equalsIgnoreCase("jlogstash")) {
+        } else if (type.equalsIgnoreCase(AppTypeEnum.JLOGSTASH.name())) {
             return new JLogstashType();
         }
         throw new IllegalArgumentException("Unsupported appType: " + type);
