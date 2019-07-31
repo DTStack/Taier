@@ -13,19 +13,19 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getCatalogue(pid: any) {
+    getCatalogue (pid: any) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    deleteCatalogue(pid: any) {
+    deleteCatalogue (pid: any) {
         return dispatch(apiManageActions.deleteCatalogue({ id: pid }));
     },
-    updateCatalogue(pid: any, nodeName: any) {
+    updateCatalogue (pid: any, nodeName: any) {
         return dispatch(apiManageActions.updateCatalogue({ id: pid, nodeName }));
     },
-    addCatalogue(pid: any, nodeName: any) {
+    addCatalogue (pid: any, nodeName: any) {
         return dispatch(apiManageActions.addCatalogue({ pid, nodeName }));
     },
-    addCatalogueEdit(tree: any) {
+    addCatalogueEdit (tree: any) {
         dispatch({
             type: ACTION_TYPE.GET_CATALOGUE,
             payload: tree
@@ -44,7 +44,7 @@ class ApiType extends React.Component<any, any> {
     componentDidMount () {
         this.props.getCatalogue(0);
     }
-    deleteCatalogue(pid: any) {
+    deleteCatalogue (pid: any) {
         this.props.deleteCatalogue(pid)
             .then(
                 (res: any) => {
@@ -55,7 +55,7 @@ class ApiType extends React.Component<any, any> {
                 }
             )
     }
-    addCatalogue(id: any, name: any) {
+    addCatalogue (id: any, name: any) {
         this.props.addCatalogue(id, name)
             .then(
                 (res: any) => {
@@ -66,7 +66,7 @@ class ApiType extends React.Component<any, any> {
                 }
             )
     }
-    updateCatalogue(id: any, nodeName: any) {
+    updateCatalogue (id: any, nodeName: any) {
         this.props.updateCatalogue(id, nodeName)
             .then(
                 (res: any) => {

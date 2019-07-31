@@ -15,7 +15,7 @@ declare var window: any;
     }
 }) as any)
 class Header extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {}
     }

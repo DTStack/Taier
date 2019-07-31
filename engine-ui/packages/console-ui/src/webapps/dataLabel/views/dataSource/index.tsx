@@ -15,7 +15,7 @@ const mapStateToProps = (state: any) => {
     return { dataSource }
 }
 const mapDispatchToProps = (dispatch: any) => ({
-    getDataSources(params: any) {
+    getDataSources (params: any) {
         dispatch(dataSourceActions.getDataSources(params));
     }
 })
@@ -41,7 +41,7 @@ class DataSource extends React.Component<any, any> {
     }
 
     searchDataSources = (name: any) => {
-        let params = {
+        let params: any = {
             ...this.state.params,
             /* eslint-disable-next-line */
             name: name ? name : undefined,
@@ -92,7 +92,7 @@ class DataSource extends React.Component<any, any> {
     handleTableChange = (page: any, filters: any) => {
         let active = filters.active;
         let type = filters.type;
-        let params = {
+        let params: any = {
             ...this.state.params,
             currentPage: page.current,
             active: active ? active[0] : undefined,
@@ -123,7 +123,7 @@ class DataSource extends React.Component<any, any> {
             filters: dataSourceFilter,
             filterMultiple: false,
             width: '10%',
-            render(text: any, record: any) {
+            render (text: any, record: any) {
                 return record.sourceTypeValue;
             }
         }, {
@@ -186,7 +186,7 @@ class DataSource extends React.Component<any, any> {
         const { visible, title, status, source, params } = this.state;
         const { sourceQuery, loading } = this.props.dataSource;
 
-        const pagination = {
+        const pagination: any = {
             current: params.currentPage,
             pageSize: params.pageSize,
             total: sourceQuery.totalCount

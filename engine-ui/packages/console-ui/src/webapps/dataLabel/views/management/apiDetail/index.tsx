@@ -19,14 +19,14 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getApiDetail(apiId: any) {
+    getApiDetail (apiId: any) {
         dispatch(
             apiMarketActions.getApiDetail({
                 apiId: apiId
             })
         )
     },
-    getApiExtInfo(apiId: any) {
+    getApiExtInfo (apiId: any) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId,
@@ -34,13 +34,13 @@ const mapDispatchToProps = (dispatch: any) => ({
             })
         )
     },
-    deleteApi(apiId: any) {
+    deleteApi (apiId: any) {
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
-    openApi(apiId: any) {
+    openApi (apiId: any) {
         return dispatch(apiManageActions.openApi(apiId));
     },
-    closeApi(apiId: any) {
+    closeApi (apiId: any) {
         return dispatch(apiManageActions.closeApi(apiId));
     }
 });
@@ -129,23 +129,23 @@ class APIManageDetail extends React.Component<any, any> {
             })
         }
     }
-    callback(key: any) {
+    callback (key: any) {
         console.log(key)
         this.setState({
             nowView: key
         })
     }
-    chooseCallStateDate(e: any) {
+    chooseCallStateDate (e: any) {
         this.setState({
             callStateDate: e.target.value
         });
     }
-    chooseErrorLogDate(e: any) {
+    chooseErrorLogDate (e: any) {
         this.setState({
             errorLogDate: e.target.value
         });
     }
-    getValue(key: any) {
+    getValue (key: any) {
         const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.state.apiId];
         if (api) {
             return api[key]

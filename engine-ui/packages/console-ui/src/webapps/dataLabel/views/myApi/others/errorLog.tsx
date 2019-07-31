@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Table, Modal } from 'antd'
 import utils from 'utils'
-const errorType = {
+const errorType: any = {
     1: '禁用',
     2: '未认证',
     3: '参数错误',
@@ -25,7 +25,7 @@ class errorLog extends React.Component<any, any> {
     componentDidMount () {
         this.getErrorInfo();
     }
-    getErrorInfo(apiId: any) {
+    getErrorInfo (apiId: any) {
         apiId = apiId || this.props.showRecord.apiId;
         if (!apiId) {
             return;
@@ -80,7 +80,7 @@ class errorLog extends React.Component<any, any> {
             title: '调用时间',
             dataIndex: 'invokeTime',
             key: 'invokeTime',
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text)
             }
 
@@ -88,7 +88,7 @@ class errorLog extends React.Component<any, any> {
             title: '错误类型',
             dataIndex: 'bizType',
             key: 'bizType',
-            render(text: any) {
+            render (text: any) {
                 return errorType[text]
             },
             filters: [
@@ -128,7 +128,7 @@ class errorLog extends React.Component<any, any> {
         return this.state.data;
     }
     // 表格换页/排序
-    onTableChange = (page, filter, sorter) => {
+    onTableChange = (page: any, filter: any, sorter: any) => {
         this.setState({
             pageIndex: page.current,
             filter: filter
@@ -137,7 +137,7 @@ class errorLog extends React.Component<any, any> {
             this.getErrorInfo();
         });
     }
-    lookAllErrorText(text: any) {
+    lookAllErrorText (text: any) {
         Modal.info({
             title: '错误日志',
             content: (
@@ -149,10 +149,10 @@ class errorLog extends React.Component<any, any> {
             onOk () { }
         });
     }
-    getErrorPercent(key: any) {
+    getErrorPercent (key: any) {
         return (this.state.error[key] && this.state.error[key].percent) || 0;
     }
-    getErrorCount(key: any) {
+    getErrorCount (key: any) {
         return (this.state.error[key] && this.state.error[key].count) || 0;
     }
     render () {

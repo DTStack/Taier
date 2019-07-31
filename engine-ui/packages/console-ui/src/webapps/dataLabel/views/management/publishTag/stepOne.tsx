@@ -18,16 +18,16 @@ const mapStateToProps = (state: any) => {
     return { dataSource, tagConfig, apiMarket }
 }
 const mapDispatchToProps = (dispatch: any) => ({
-    getDataSourcesList(params: any) {
+    getDataSourcesList (params: any) {
         dispatch(dataSourceActions.getDataSourcesList(params));
     },
-    getDataSourcesPreview(params: any) {
+    getDataSourcesPreview (params: any) {
         dispatch(dataSourceActions.getDataSourcesPreview(params));
     },
-    getCatalogue(pid: any) {
+    getCatalogue (pid: any) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    getAllIdentifyColumn(params: any) {
+    getAllIdentifyColumn (params: any) {
         dispatch(tagConfigActions.getAllIdentifyColumn(params));
     }
 })
@@ -253,7 +253,7 @@ class StepOne extends React.Component<any, any> {
                                         required: true,
                                         message: '请输入调用次数限制'
                                     }, {
-                                        validator: function(rule: any, value: any, callback: any) {
+                                        validator: function (rule: any, value: any, callback: any) {
                                             if (value && (value > 1000 || value < 1)) {
                                                 const msg = `请输入不大于1000的正整数`
                                                 callback(msg)

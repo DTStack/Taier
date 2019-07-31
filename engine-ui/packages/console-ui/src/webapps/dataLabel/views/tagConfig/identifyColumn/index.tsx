@@ -146,8 +146,8 @@ class IdentifyColumn extends React.Component<any, any> {
     }
 
     // 表格换页/排序
-    onTableChange = (page, filter, sorter) => {
-        let queryParams = {
+    onTableChange = (page: any, filter: any, sorter: any) => {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: page.current
         };
@@ -175,7 +175,7 @@ class IdentifyColumn extends React.Component<any, any> {
             </Button>
         )
 
-        const pagination = {
+        const pagination: any = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
             total: columnData.totalCount

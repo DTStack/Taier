@@ -4,7 +4,7 @@ import API from '../../api/apiMarket';
 export const apiMarketActions: any = {
 
     // 获取市场分离信息
-    getCatalogue(pid: any) {
+    getCatalogue (pid: any) {
         return (dispatch: any) => {
             API.getCatalogue({ pid: pid, lvNum: 10 }).then((res: any) => {
                 if (res.code === 1) {
@@ -17,7 +17,7 @@ export const apiMarketActions: any = {
         }
     },
     // 获取市场api列表
-    getApiMarketList(params: any) {
+    getApiMarketList (params: any) {
         return (dispatch: any) => {
             return API.listByCondition(params).then((res: any) => {
                 if (res.code === 1) {
@@ -31,7 +31,7 @@ export const apiMarketActions: any = {
         }
     },
     // 获取api详情
-    getApiDetail(params: any) {
+    getApiDetail (params: any) {
         return (dispatch: any) => {
             return API.getApiDetail(params).then((res: any) => {
                 if (res.code === 1) {
@@ -45,13 +45,13 @@ export const apiMarketActions: any = {
         }
     },
     // 获取api调用情况等
-    getApiExtInfo(params: any) {
+    getApiExtInfo (params: any) {
         let callFunc = 'getApiExtInfoForNormal'
         if (params.useAdmin) {
             callFunc = 'getApiExtInfoForManager'
         }
         return (dispatch: any) => {
-            return API[callFunc](params).then((res: any) => {
+            return (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: ACTION_TYPE.GET_API_EXT_INFO,
@@ -63,7 +63,7 @@ export const apiMarketActions: any = {
         }
     },
     // 申请api
-    apiApply(params: any) {
+    apiApply (params: any) {
         return (dispatch: any) => {
             return API.apiApply(params).then((res: any) => {
                 if (res.code === 1) {

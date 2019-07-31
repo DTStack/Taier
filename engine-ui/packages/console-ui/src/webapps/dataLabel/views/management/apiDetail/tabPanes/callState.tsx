@@ -24,7 +24,7 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getApiCallUserRankList(apiId: any, time: any) {
+    getApiCallUserRankList (apiId: any, time: any) {
         return dispatch(
             apiManageActions.getApiCallUserRankList({
                 apiId: apiId,
@@ -32,7 +32,7 @@ const mapDispatchToProps = (dispatch: any) => ({
             })
         )
     },
-    getApiCallInfo(apiId: any, time: any) {
+    getApiCallInfo (apiId: any, time: any) {
         return dispatch(
             mineActions.getApiCallInfo({
                 apiId: apiId,
@@ -150,7 +150,7 @@ class ApiManageCallState extends React.Component<any, any> {
         }
         let myChart = echarts.init(document.getElementById('manageApiDetail'));
         const option = cloneDeep(doubleLineAreaChartOptions);
-        option.tooltip.formatter = function(params: any) {
+        option.tooltip.formatter = function (params: any) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
                 let unit = '次'

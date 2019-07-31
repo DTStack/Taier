@@ -14,7 +14,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getDataSourcesColumn(params: any) {
+    getDataSourcesColumn (params: any) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
     }
 })

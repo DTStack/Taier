@@ -34,7 +34,6 @@ initNotification();
     }
 }) as any)
 class Main extends React.Component<any, any> {
-
     propTypes = propType
     defaultProps = defaultPro
 
@@ -59,7 +58,7 @@ class Main extends React.Component<any, any> {
             }
         }
     }
-    componentDidUpdate(prevProps: any, prevState: any) {
+    componentDidUpdate (prevProps: any, prevState: any) {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
             console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
             this.isEnableLicenseApp();
@@ -68,7 +67,7 @@ class Main extends React.Component<any, any> {
     getCurrentPath () {
         return document.location.pathname + document.location.hash;
     }
-    loopIsIntercept(pathAddress: any, arr: any) {
+    loopIsIntercept (pathAddress: any, arr: any) {
         for (let i = 0; i < arr.length; i++) {
             if (pathAddress.indexOf(arr[i].url) > -1 && arr[i].isShow) {
                 window.location.href = '/';
@@ -455,7 +454,7 @@ class Main extends React.Component<any, any> {
         }
         console.log('enter')
     }
-    checkRoot(user: any) {
+    checkRoot (user: any) {
         if (user && user.dtuicUserId) {
             http.checkRoot({ userId: user.dtuicUserId })
                 .then(

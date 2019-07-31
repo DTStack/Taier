@@ -21,22 +21,22 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getCatalogue(pid: any) {
+    getCatalogue (pid: any) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    getAllApiList(params: any) {
+    getAllApiList (params: any) {
         return dispatch(apiManageActions.getAllApiList(params));
     },
-    getDataSourceList(type: any) {
+    getDataSourceList (type: any) {
         return dispatch(apiManageActions.getDataSourceByBaseInfo({ type: type }));
     },
-    deleteApi(apiId: any) {
+    deleteApi (apiId: any) {
         return dispatch(apiManageActions.deleteApi({ apiIds: [apiId] }));
     },
-    openApi(apiId: any) {
+    openApi (apiId: any) {
         return dispatch(apiManageActions.openApi(apiId));
     },
-    closeApi(apiId: any) {
+    closeApi (apiId: any) {
         return dispatch(apiManageActions.closeApi(apiId));
     },
     getDataSourcesType () {
@@ -120,8 +120,8 @@ class APIMana extends React.Component<any, any> {
             );
     }
 
-    renderSourceType(id: any, root: any) {
-        function arrToOptions(arr: any) {
+    renderSourceType (id: any, root: any) {
+        function arrToOptions (arr: any) {
             if (!arr || arr.length < 1) {
                 return null;
             }
@@ -185,14 +185,14 @@ class APIMana extends React.Component<any, any> {
             this.getAllApi();
         })
     }
-    onUserSourceChange(key: any) {
+    onUserSourceChange (key: any) {
         this.setState({
             type2: key
         }, () => {
             this.getAllApi();
         })
     }
-    handleSearch(value: any) {
+    handleSearch (value: any) {
         this.setState({
             searchName: value || undefined,
             pageIndex: 1
@@ -218,7 +218,7 @@ class APIMana extends React.Component<any, any> {
             total: this.state.total
         }
     }
-    openDetail(text: any) {
+    openDetail (text: any) {
         this.props.router.push('/dl/manage/detail/' + text)
     }
     initColumns () {
@@ -248,7 +248,7 @@ class APIMana extends React.Component<any, any> {
             title: '数据源',
             dataIndex: 'dataSourceType',
             key: 'dataSourceType',
-            render(text: any, record: any) {
+            render (text: any, record: any) {
                 return dataSourceText(record.dataSourceType) + ' / ' + record.dataSourceName
             }
         }, {
@@ -272,7 +272,7 @@ class APIMana extends React.Component<any, any> {
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             sorter: true,
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text);
             }
         }, {
@@ -313,10 +313,10 @@ class APIMana extends React.Component<any, any> {
     getSource () {
         return this.props.apiManage.apiList;
     }
-    editApi(id: any) {
+    editApi (id: any) {
         this.props.router.push('/dl/manage/editApi/' + id);
     }
-    openApi(apiId: any) {
+    openApi (apiId: any) {
         confirm({
             title: '确认开启?',
             content: '确认开启标签',
@@ -342,7 +342,7 @@ class APIMana extends React.Component<any, any> {
             }
         });
     }
-    closeApi(apiId: any) {
+    closeApi (apiId: any) {
         confirm({
             title: '确认禁用?',
             content: '确认禁用标签',
@@ -369,7 +369,7 @@ class APIMana extends React.Component<any, any> {
         });
     }
     // 删除api
-    deleteApi(apiId: any) {
+    deleteApi (apiId: any) {
         confirm({
             title: '确认删除?',
             content: '确认删除标签',
@@ -401,7 +401,7 @@ class APIMana extends React.Component<any, any> {
         if (!type) {
             return null;
         }
-        return type.map(function(item: any, index: any) {
+        return type.map(function (item: any, index: any) {
             return <Option key={item.id}>{item.name}</Option>
         })
     }
@@ -426,7 +426,7 @@ class APIMana extends React.Component<any, any> {
         if (!typeList || typeList.length < 1) {
             return null;
         }
-        return typeList.map(function(item: any) {
+        return typeList.map(function (item: any) {
             return <Option key={item.value}>{item.text}</Option>
         })
     }
@@ -442,7 +442,7 @@ class APIMana extends React.Component<any, any> {
         })
     }
     // 数据源改变
-    dataSourceChange(key: any) {
+    dataSourceChange (key: any) {
         this.setState({
             dataSource: key
         },
@@ -450,7 +450,7 @@ class APIMana extends React.Component<any, any> {
             this.getAllApi();
         })
     }
-    changeManCheck(e: any) {
+    changeManCheck (e: any) {
         let changeMan = null;
         if (e.target.checked) {
             changeMan = this.props.user.id;

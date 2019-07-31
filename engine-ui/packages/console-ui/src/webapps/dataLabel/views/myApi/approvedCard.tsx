@@ -6,7 +6,7 @@ import SlidePaneDetail from './detailSlidePane'
 import utils from 'utils'
 const confirm = Modal.confirm;
 const Search = Input.Search;
-const exchangeDic = {
+const exchangeDic: any = {
     0: 'inhand',
     1: 'success',
     2: 'notPass',
@@ -14,10 +14,10 @@ const exchangeDic = {
     4: 'disabled'
 }
 
-const sortType = {
+const sortType: any = {
     'applyTime': 'gmt_create'
 }
-const orderType = {
+const orderType: any = {
     'ascend': 'asc',
     'descend': 'desc'
 }
@@ -85,7 +85,7 @@ class ApprovedCard extends React.Component<any, any> {
         }
     }
     // 表格换页/排序
-    onTableChange = (page, filter, sorter) => {
+    onTableChange = (page: any, filter: any, sorter: any) => {
         this.setState({
             pageIndex: page.current,
             sortedInfo: sorter,
@@ -104,13 +104,13 @@ class ApprovedCard extends React.Component<any, any> {
             showRecord: {}
         })
     }
-    apiClick(record: any) {
+    apiClick (record: any) {
         const method = this['state' + exchangeDic[record.status]]
         if (method) {
             method.call(this, record);
         }
     }
-    statesuccess(record: any) {
+    statesuccess (record: any) {
         this.setState({
             slidePaneShowSuccess: true,
             slidePaneShowNoApproved: false,
@@ -120,7 +120,7 @@ class ApprovedCard extends React.Component<any, any> {
         })
     }
 
-    statenotPass(record: any) {
+    statenotPass (record: any) {
         this.setState({
             slidePaneShowSuccess: false,
             slidePaneShowNoApproved: true,
@@ -128,7 +128,7 @@ class ApprovedCard extends React.Component<any, any> {
             showRecord: record || {}
         })
     }
-    statestop(record: any) {
+    statestop (record: any) {
         this.setState({
             slidePaneShowSuccess: true,
             slidePaneShowNoApproved: false,
@@ -136,7 +136,7 @@ class ApprovedCard extends React.Component<any, any> {
             showRecord: record || {}
         })
     }
-    statedisabled(record: any) {
+    statedisabled (record: any) {
         this.setState({
             slidePaneShowSuccess: false,
             slidePaneShowNoApproved: false,
@@ -144,13 +144,13 @@ class ApprovedCard extends React.Component<any, any> {
             showRecord: record || {}
         })
     }
-    dealClick(record: any) {
+    dealClick (record: any) {
         const method = this['deal' + exchangeDic[record.status]];
         if (method) {
             method.call(this, record);
         }
     }
-    dealsuccess(record: any) {
+    dealsuccess (record: any) {
         confirm({
             title: '确认停止',
             content: '确认停止接口？',
@@ -170,7 +170,7 @@ class ApprovedCard extends React.Component<any, any> {
             }
         });
     }
-    dealstop(record: any) {
+    dealstop (record: any) {
         confirm({
             title: '确认开启',
             content: '确认开启接口？',
@@ -190,7 +190,7 @@ class ApprovedCard extends React.Component<any, any> {
             }
         });
     }
-    dealnotPass(record: any) {
+    dealnotPass (record: any) {
         this.props.router.push('/dl/market')
     }
     initColumns () {
@@ -211,8 +211,8 @@ class ApprovedCard extends React.Component<any, any> {
             title: '授权状态',
             dataIndex: 'status',
             key: 'status',
-            render(text: any) {
-                const dic = {
+            render (text: any) {
+                const dic: any = {
                     success: '已通过',
                     disabled: '取消授权',
                     stop: '停用',
@@ -239,7 +239,7 @@ class ApprovedCard extends React.Component<any, any> {
             title: '最近24小时失败率',
             dataIndex: 'recentFailRate',
             key: 'recentFailRate',
-            render(text: any) {
+            render (text: any) {
                 return text + '%'
             }
         },
@@ -253,7 +253,7 @@ class ApprovedCard extends React.Component<any, any> {
             dataIndex: 'applyTime',
             key: 'applyTime',
             sorter: true,
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text)
             }
         }, {
@@ -261,7 +261,7 @@ class ApprovedCard extends React.Component<any, any> {
             dataIndex: 'deal',
             key: 'deal',
             render: (text: any, record: any) => {
-                const dic = {
+                const dic: any = {
                     success: '停用',
                     disabled: '',
                     stop: '启用',
@@ -288,7 +288,7 @@ class ApprovedCard extends React.Component<any, any> {
             total: this.getTotal()
         }
     }
-    handleApiSearch(key: any) {
+    handleApiSearch (key: any) {
         this.setState({
             apiName: key,
             pageIndex: 1

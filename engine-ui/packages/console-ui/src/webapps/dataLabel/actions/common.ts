@@ -2,9 +2,9 @@ import commonActionType from '../consts/commonActionType';
 import API from '../api/common';
 
 export const commonActions: any = {
-    getUserList(params: any) {
+    getUserList (params: any) {
         return (dispatch: any) => {
-            API.getUserList(params).then((res: any) => {
+            API.getUserList().then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_USER_LIST,
@@ -14,9 +14,9 @@ export const commonActions: any = {
             });
         }
     },
-    getAllMenuList(params: any) {
+    getAllMenuList (params: any) {
         return (dispatch: any) => {
-            API.getAllMenuList(params).then((res: any) => {
+            API.getAllMenuList().then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_ALL_MENU_LIST,
@@ -26,9 +26,9 @@ export const commonActions: any = {
             });
         }
     },
-    getPeriodType(params: any) {
+    getPeriodType (params: any) {
         return (dispatch: any) => {
-            API.getPeriodType(params).then((res: any) => {
+            API.getPeriodType().then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_PERIOD_TYPE,
@@ -38,9 +38,9 @@ export const commonActions: any = {
             });
         }
     },
-    getNotifyType(params: any) {
+    getNotifyType (params: any) {
         return (dispatch: any) => {
-            API.getNotifyType(params).then((res: any) => {
+            API.getNotifyType().then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_NOTIFY_TYPE,

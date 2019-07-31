@@ -21,10 +21,10 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    approvalList(params: any) {
+    approvalList (params: any) {
         return dispatch(approvalActions.allApplyList(params));
     },
-    handleApply(params: any) {
+    handleApply (params: any) {
         return dispatch(approvalActions.handleApply(params));
     }
 });
@@ -83,7 +83,7 @@ class APIApproval extends React.Component<any, any> {
             );
     }
 
-    handleSearch(key: any) {
+    handleSearch (key: any) {
         this.setState({
             userName: key,
             pageIndex: 1
@@ -93,7 +93,7 @@ class APIApproval extends React.Component<any, any> {
         })
     }
 
-    handleApiSearch(key: any) {
+    handleApiSearch (key: any) {
         this.setState({
             apiName: key,
             pageIndex: 1
@@ -131,7 +131,7 @@ class APIApproval extends React.Component<any, any> {
             total: this.state.total
         }
     }
-    getDealType(type: any) {
+    getDealType (type: any) {
         const dic: any = {
             'notApproved': '立即审批',
             'pass': '查看详情',
@@ -143,7 +143,7 @@ class APIApproval extends React.Component<any, any> {
         return dic[type || 'nothing']
     }
 
-    deal(record: any) {
+    deal (record: any) {
         const methodKey = 'deal' + EXCHANGE_APPLY_STATUS[record.status];
         const method: any = this[methodKey as keyof this];
         if (method) {
@@ -151,23 +151,23 @@ class APIApproval extends React.Component<any, any> {
         }
     }
 
-    dealrejected(record: any) {
+    dealrejected (record: any) {
         this.lookDetail(record);
     }
 
-    dealstop(record: any) {
+    dealstop (record: any) {
         this.lookDetail(record);
     }
 
-    dealdisabled(record: any) {
+    dealdisabled (record: any) {
         this.lookDetail(record);
     }
 
-    dealpass(record: any) {
+    dealpass (record: any) {
         this.lookDetail(record);
     }
 
-    dealnotApproved(record: any) {
+    dealnotApproved (record: any) {
         this.spShow(record);
     }
 
@@ -184,7 +184,7 @@ class APIApproval extends React.Component<any, any> {
             title: '状态',
             dataIndex: 'status',
             key: 'status',
-            render(text: any) {
+            render (text: any) {
                 const dic: any = {
                     'notApproved': '未审批',
                     'pass': '已通过',
@@ -231,7 +231,7 @@ class APIApproval extends React.Component<any, any> {
             dataIndex: 'applyTime',
             key: 'applyTime',
             sorter: true,
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text);
             }
         }, {
@@ -263,7 +263,7 @@ class APIApproval extends React.Component<any, any> {
         )
     }
     // 审批操作
-    sp(isPass: any) {
+    sp (isPass: any) {
         this.props.form.validateFields(
             (err: any, values: any) => {
                 if (!err) {
@@ -289,7 +289,7 @@ class APIApproval extends React.Component<any, any> {
             }
         )
     }
-    spShow(record: any) {
+    spShow (record: any) {
         this.props.form.resetFields();
         this.setState({
             spVisible: true,
@@ -297,7 +297,7 @@ class APIApproval extends React.Component<any, any> {
         })
     }
 
-    lookDetail(record: any) {
+    lookDetail (record: any) {
         this.setState({
             msgVisible: true,
             applyContent: record.applyContent,

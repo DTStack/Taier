@@ -15,19 +15,19 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getTagDataSourcesList(params: any) {
+    getTagDataSourcesList (params: any) {
         dispatch(dataSourceActions.getTagDataSourcesList(params));
     },
-    getAllIdentifyColumn(params: any) {
+    getAllIdentifyColumn (params: any) {
         dispatch(tagConfigActions.getAllIdentifyColumn(params));
     },
-    getDataSourcesTable(params: any) {
+    getDataSourcesTable (params: any) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
     resetDataSourcesTable () {
         dispatch(dataSourceActions.resetDataSourcesTable());
     },
-    getDataSourcesColumn(params: any) {
+    getDataSourcesColumn (params: any) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
     },
     resetDataSourcesColumn () {

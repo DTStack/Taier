@@ -12,7 +12,7 @@ class ApiTypeTree extends React.Component<any, any> {
         addPid: '',
         autoExpandParent: true
     }
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.editInput = null;
     }

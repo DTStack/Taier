@@ -90,7 +90,7 @@ class ApiCallState extends React.Component<any, any> {
         let myChart = echarts.init(document.getElementById('MyApiDetailState'));
         const option = cloneDeep(doubleLineAreaChartOptions);
         option.grid.right = '40px';
-        option.tooltip.formatter = function(params: any) {
+        option.tooltip.formatter = function (params: any) {
             var relVal = params[0].name;
             for (var i = 0, l = params.length; i < l; i++) {
                 let unit = '次'

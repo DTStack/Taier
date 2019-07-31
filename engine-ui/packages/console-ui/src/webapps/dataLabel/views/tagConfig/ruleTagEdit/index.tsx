@@ -18,7 +18,8 @@ import TCApi from '../../../api/tagConfig';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
-const initialSchedule = {
+
+const initialSchedule: any = {
     beginDate: moment().format('YYYY-MM-DD'),
     endDate: moment().add(100, 'years').format('YYYY-MM-DD'),
     periodType: '2',
@@ -33,7 +34,7 @@ const initialSchedule = {
     endMin: 0
 }
 
-const formItemLayout = {
+const formItemLayout: any = {
     labelCol: {
         xs: { span: 24 },
         sm: { span: 9 }
@@ -50,10 +51,10 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getDataSourcesList(params: any) {
+    getDataSourcesList (params: any) {
         dispatch(dataSourceActions.getDataSourcesList(params));
     },
-    getDataSourcesTable(params: any) {
+    getDataSourcesTable (params: any) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
     resetDataSourcesTable () {
@@ -169,8 +170,8 @@ class RuleTagEdit extends React.Component<any, any> {
         }]
     }
 
-    renderColumns (text, record, type) {
-        let obj = {
+    renderColumns (text: any, record: any, type: any) {
+        let obj: any = {
             children: <Form layout="inline">
                 {
                     record.editable ? this.renderEditTD(text, record, type) : this.renderTD(text, record, type)
@@ -182,11 +183,11 @@ class RuleTagEdit extends React.Component<any, any> {
         return obj;
     }
     // 编辑状态的TD
-    renderEditTD = (text, record, type) => {
+    renderEditTD = (text: any, record: any, type: any) => {
         const { form, dataSource } = this.props;
         const { getFieldDecorator } = form;
         const { sourceList, sourceTable } = dataSource;
-        switch (type) {
+        switch(type) {
             case 'dataSourceId': {
                 return <FormItem {...rowFormItemLayout} className="edit-td">
                             {
@@ -260,7 +261,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 已有数据
-    renderTD = (text, record, type) => {
+    renderTD = (text: any, record: any, type: any) => {
         switch (type) {
             case 'dataSourceId': {
                 return `${record.dataSourceName}（${record.sourceTypeValue}）`
@@ -282,7 +283,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 编辑规则
-    editCondition(id) {
+    editCondition(id: any) {
         const { curCondition, conditionList } = this.state;
 
         let newData = [...conditionList],
@@ -311,7 +312,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 取消编辑
-    cancelEdit(id) {
+    cancelEdit(id: any) {
         const { conditionList } = this.state;
 
         let newData = [...conditionList],
@@ -331,7 +332,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 删除规则
-    deleteCondition(id) {
+    deleteCondition(id: any) {
         let newData = [...this.state.conditionList],
             target = newData.filter((item: any) => id === item.id)[0],
             index = newData.indexOf(target);
@@ -343,7 +344,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 保存condition
-    saveCondition(id) {
+    saveCondition(id: any) {
         const { form, dataSource } = this.props;
         const { sourceList } = dataSource;
         const { tagId, curCondition, conditionList } = this.state;
@@ -390,7 +391,7 @@ class RuleTagEdit extends React.Component<any, any> {
             }
         }
 
-        let target = {
+        let target: any = {
             id: newData[0] ? newData[0].id + 1 : 1,
             editStatus: 'new',
             editable: true,
@@ -409,7 +410,7 @@ class RuleTagEdit extends React.Component<any, any> {
 
     // 调度周期回调
     onPeriodTypeChange = (type: any) => {
-        let scheduleConfObj = { ...initialSchedule, periodType: type };
+        let scheduleConfObj: any = { ...initialSchedule, periodType: type };
 
         this.setState({ scheduleConfObj });
     }
@@ -792,7 +793,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 检查调度开始时间
-    checkTime = (rule, value, callback) => {
+    checkTime = (rule: any, value: any, callback: any) => {
         const { form } = this.props;
         let beginHour = form.getFieldValue('beginHour'),
             beginMin = form.getFieldValue('beginMin'),
@@ -816,7 +817,7 @@ class RuleTagEdit extends React.Component<any, any> {
     }
 
     // 检查生效日期
-    checkDate = (rule, value, callback) => {
+    checkDate = (rule: any, value: any, callback: any) => {
         const { form } = this.props;
         let beginDate = form.getFieldValue('beginDate'),
             endDate = form.getFieldValue('endDate');

@@ -1,7 +1,10 @@
+/* eslint-disable no-useless-escape */
+/* eslint-disable no-cond-assign */
+/* eslint-disable no-unused-expressions */
 import * as moment from 'moment';
 
 import {
-    BrowserInter,
+    BrowserInter
 } from './interface';
 
 moment.locale('zh-cn');
@@ -11,10 +14,10 @@ const utils = {
      * 获取页面宽度
      * @return {[type]} [description]
      */
-    pageWidth() {
+    pageWidth () {
         return Math.max(
             document.documentElement.clientWidth,
-            window.innerWidth || 0,
+            window.innerWidth || 0
         );
     },
 
@@ -22,37 +25,37 @@ const utils = {
      * 获取页面高度
      * @return {[type]} [description]
      */
-    pageHeight() {
+    pageHeight () {
         return Math.max(
             document.documentElement.clientHeight,
-            window.innerHeight || 0,
+            window.innerHeight || 0
         );
     },
 
-    checkExist(prop: any) {
+    checkExist (prop: any) {
         return prop !== undefined && prop !== null && prop !== '';
     },
 
-    isMacOs() {
+    isMacOs () {
         return navigator.userAgent.indexOf('Macintosh') > -1;
     },
 
-    isWindows() {
+    isWindows () {
         return navigator.userAgent.indexOf('Windows') > -1;
     },
-    isMobileDevice() {
+    isMobileDevice () {
         return (typeof window.orientation !== 'undefined') || (navigator.userAgent.indexOf('IEMobile') !== -1);
     },
     /**
      * @description 浏览器类型和版本检测
      * @returns {Boolean} `true`表示通过兼容性检测,`false`表示不通过兼容性检测
      */
-    browserCheck() {
+    browserCheck () {
         const Sys: BrowserInter = {};
         if (this.isMobileDevice()) { return true; } // 忽略移动设备
         const ua = navigator.userAgent.toLowerCase();
         let s;
-        // tslint:disable:no-conditional-assignment
+        // eslint:disable:no-conditional-assignment
         (s = ua.match(/rv:([\d.]+)\) like gecko/)) ? Sys.ie = s[1]
             : (s = ua.match(/msie ([\d\.]+)/)) ? Sys.ie = s[1]
                 : (s = ua.match(/edge\/([\d\.]+)/)) ? Sys.edge = s[1]
@@ -72,7 +75,7 @@ const utils = {
      * @param  {[type]} name [description]
      * @param  {[type]} url  [description]
      */
-    getParameterByName(name: string, url?: string) {
+    getParameterByName (name: string, url?: string) {
         if (!url) { url = window.location.href; }
         name = name.replace(/[\[\]]/g, '\\$&');
         const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
@@ -88,7 +91,7 @@ const utils = {
      * @param  {[type]}   img      [description]
      * @param  {Function} callback [description]
      */
-    getBase64(img: any, callback: (img: any) => void) {
+    getBase64 (img: any, callback: (img: any) => void) {
         const reader = new FileReader();
         reader.addEventListener('load', () => callback(reader.result));
         reader.readAsDataURL(img);
@@ -99,7 +102,7 @@ const utils = {
      * @param  {[type]} num       [description]
      * @param  {[type]} precision [description]
      */
-    percent(num: number, precision: number) {
+    percent (num: number, precision: number) {
         if (!num || num === Infinity) { return 0 + '%'; }
         if (num > 1) { num = 1; }
         precision = precision || 2;
@@ -107,7 +110,7 @@ const utils = {
         return Math.round(num * precision * 100) / precision + '%';
     },
 
-    getCssText(object: any = {}) {
+    getCssText (object: any = {}) {
         let str = '';
         for (const attr in object) {
             if (object.hasOwnProperty(attr)) {
@@ -117,36 +120,36 @@ const utils = {
         return str;
     },
 
-    formatDateTime(timestap: string | number | Date) {
+    formatDateTime (timestap: string | number | Date) {
         return moment(timestap).format('YYYY-MM-DD HH:mm:ss');
     },
 
-    formatDate(timestap: string | number | Date) {
+    formatDate (timestap: string | number | Date) {
         return moment(timestap).format('YYYY-MM-DD');
     },
-    formatDateHours(timestap: string | number | Date) {
+    formatDateHours (timestap: string | number | Date) {
         return moment(timestap).format('YYYY-MM-DD HH:mm');
     },
-    formatDayHours(timestap: string | number | Date) {
+    formatDayHours (timestap: string | number | Date) {
         return moment(timestap).format('MM-DD HH:mm');
     },
-    formatHours(timestap: string | number | Date) {
+    formatHours (timestap: string | number | Date) {
         return moment(timestap).format('HH:mm');
     },
-    formatMinute(timestap: string | number | Date) {
+    formatMinute (timestap: string | number | Date) {
         return moment(timestap).format('HH:mm:ss');
     },
 
     /**
      * 去除空串
      */
-    trim(str: string) {
+    trim (str: string) {
         return typeof str === 'string'
             ? str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
             : str;
     },
 
-    trimlr(str: string) {
+    trimlr (str: string) {
         const res = str.replace(/^\s*/, ''); // 去左边
         return res.replace(/\s*$/, ''); // 去右边
     },
@@ -155,15 +158,15 @@ const utils = {
      * 原生 JavaScript 获取 cookie 值
      * @param name
      */
-    getCookie(name: string) {
+    getCookie (name: string) {
         const arr = document.cookie.match(
-            new RegExp('(^| )' + name + '=([^;]*)(;|$)'),
+            new RegExp('(^| )' + name + '=([^;]*)(;|$)')
         );
         if (arr != null) { return unescape(decodeURI(arr[2])); }
         return null;
     },
 
-    deleteCookie(name: string, domain?: string, path?: string) {
+    deleteCookie (name: string, domain?: string, path?: string) {
         const d = new Date(0);
         domain = domain ? `; domain=${domain}` : '';
         path = path || '/';
@@ -171,7 +174,7 @@ const utils = {
             name + '=; expires=' + d.toUTCString() + domain + '; path=' + path;
     },
 
-    deleteAllCookies(domain: string, path: string) {
+    deleteAllCookies (domain: string, path: string) {
         const cookies = document.cookie.split(';');
         // tslint:disable-next-line:prefer-for-of
         for (let i = 0; i < cookies.length; i++) {
@@ -181,7 +184,7 @@ const utils = {
         }
     },
 
-    setCookie(name: string, value: string | number | object, days: number) {
+    setCookie (name: string, value: string | number | object, days: number) {
         let expires = '';
         if (days) {
             const date = new Date();
@@ -192,22 +195,22 @@ const utils = {
     },
 
     // TODO, 可以修改为递归算法
-    convertBytes(value: number) {
+    convertBytes (value: number) {
         if (value >= 1024) {
-            const val0: number = Number((value / 1024).toFixed(2));
+            const val0 = Number((value / 1024).toFixed(2));
 
             if (val0 >= 1024) {
                 // to KB
 
-                const val1 =  Number((val0 / 1024).toFixed(2));
+                const val1 = Number((val0 / 1024).toFixed(2));
 
                 if (val1 >= 1024) {
                     // MB
 
-                    const val2 =  Number((val1 / 1024).toFixed(2));
+                    const val2 = Number((val1 / 1024).toFixed(2));
 
                     if (val2 >= 1024) {
-                        const val3 =  Number((val2 / 1024).toFixed(2));
+                        const val3 = Number((val2 / 1024).toFixed(2));
                         return `${val3} PB`;
                     } else {
                         return `${val2} GB`;
@@ -226,20 +229,20 @@ const utils = {
     /**
      * 时间转换 3661s--->1小时1分钟1秒
      */
-    formatTime(time: number = 0) {
+    formatTime (time: number = 0) {
         let second = 0;
         let minute = 0;
         let hour = 0;
 
-        function _formatHour(timestap: number) {
+        function _formatHour (timestap: number) {
             hour = Math.floor(timestap / 3600);
             return timestap - hour * 3600;
         }
-        function _formatMinute(timestap: number) {
+        function _formatMinute (timestap: number) {
             minute = Math.floor(timestap / 60);
             return timestap - minute * 60;
         }
-        function _formatSecond(timestap: number) {
+        function _formatSecond (timestap: number) {
             second = timestap;
             return second;
         }
@@ -248,7 +251,7 @@ const utils = {
     },
 
     // 千位分割
-    toQfw(str: string) {
+    toQfw (str: string) {
         if (!str) {
             return 0;
         }
@@ -258,7 +261,7 @@ const utils = {
         return str;
     },
     // 文字溢出转换
-    textOverflowExchange(text: string, length: number) {
+    textOverflowExchange (text: string, length: number) {
         if (text && text.length > length) {
             return text.substring(0, length) + '...';
         }
@@ -269,7 +272,7 @@ const utils = {
      * @param {格式化内容} text
      * @param {格式化占位符} space
      */
-    jsonFormat(text: string, space: number) {
+    jsonFormat (text: string, space: number) {
         if (!text) {
             return text;
         }
@@ -285,7 +288,7 @@ const utils = {
     /**
      * 多函数排序，匹配到0为止
      */
-    sortByCompareFunctions(arr: any[], ...compareFunctions: any[] ) {
+    sortByCompareFunctions (arr: any[], ...compareFunctions: any[]) {
         arr.sort((a, b) => {
             let result = 0;
             for (const func of compareFunctions) {
@@ -300,7 +303,7 @@ const utils = {
     /**
      * 转换排序字段
      */
-    exchangeOrder(order: string) {
+    exchangeOrder (order: string) {
         switch (order) {
             case 'ascend': {
                 return 'asc';
@@ -316,9 +319,9 @@ const utils = {
     /**
      * 生成一个key
      */
-    generateAKey() {
+    generateAKey () {
         // tslint:disable-next-line:no-bitwise
-        return '' + new Date().getTime() + ~~ (Math.random() * 1000000);
+        return '' + new Date().getTime() + ~~(Math.random() * 1000000);
     },
 
     /**
@@ -326,7 +329,7 @@ const utils = {
      * @param  {String}  str 所要验证的字符串
      * @return {Boolean}   是否是JSON字符串
      */
-    isJSONStr(str: string) {
+    isJSONStr (str: string) {
         str = this.trimlr(str);
         return (
             (str.charAt(0) === '{' && str.charAt(str.length - 1) === '}') ||
@@ -337,17 +340,17 @@ const utils = {
      * 随机生成一串6位同时包含数字、大小写字母的字符串
      * @param len number
      */
-    getRandomStr(len: number): string {
+    getRandomStr (len: number): string {
         const numChar = '0123456789';
         const lowerCaseChar = 'abcdefghijklmnopqrstuvwxyz';
         const upperCaseChar = 'ABCDEFGHIJKLMNOPQRSTUVXYZ';
-        function getChar(baseChar: string) {
-            const randomIndex = Math.random() * (baseChar.length - 1) ;
+        function getChar (baseChar: string) {
+            const randomIndex = Math.random() * (baseChar.length - 1);
             return baseChar.charAt(randomIndex);
         }
         let currentChar = 'num';
-        let str: string = '';
-        for (let i: number = 0; i < len; i++) {
+        let str = '';
+        for (let i = 0; i < len; i++) {
             if (currentChar === 'num') {
                 str += getChar(numChar);
                 currentChar = 'lower';
@@ -360,7 +363,7 @@ const utils = {
             }
         }
         return str;
-    },
+    }
 };
 
 export default utils;

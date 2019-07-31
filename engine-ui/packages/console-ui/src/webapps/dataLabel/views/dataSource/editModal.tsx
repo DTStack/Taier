@@ -29,7 +29,7 @@ const mapStateToProps = (state: any) => {
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getDataSourcesType(params: any) {
+    getDataSourcesType (params: any) {
         dispatch(dataSourceActions.getDataSourcesType(params));
     }
 })

@@ -20,7 +20,7 @@ class MessageList extends React.Component<any, any> {
 
         selectedApp: '',
         table: {
-            data: [],
+            data: []
         },
 
         selectedRowKeys: [],
@@ -140,7 +140,7 @@ class MessageList extends React.Component<any, any> {
         }, this.loadMsg)
     }
 
-    selectedNotNull(selected: any) {
+    selectedNotNull (selected: any) {
         if (!selected || selected.length <= 0) {
             message.error('请选择要操作的消息！')
 
@@ -259,7 +259,7 @@ class MessageList extends React.Component<any, any> {
             title: '标题与内容',
             dataIndex: 'content',
             key: 'content',
-            render(text: any, record: any) {
+            render (text: any, record: any) {
                 return <Link to={`message/detail/${record.id}?app=${selectedApp}`}>
                     <MsgStatus value={record.readStatus} /> {text}
                 </Link>
@@ -269,7 +269,7 @@ class MessageList extends React.Component<any, any> {
             title: '状态',
             dataIndex: 'readStatus',
             key: 'readStatus',
-            render(status: any) {
+            render (status: any) {
                 let display = '未读'
 
                 if (status === 1) { // 已读
@@ -283,7 +283,7 @@ class MessageList extends React.Component<any, any> {
             title: '发送时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text)
             }
         }, {
@@ -291,7 +291,7 @@ class MessageList extends React.Component<any, any> {
             title: '类型描述',
             dataIndex: 'status',
             key: 'status',
-            render(type: any) {
+            render (type: any) {
                 return MsgTypeDesc(selectedApp, type)
             }
         }]

@@ -9,10 +9,10 @@ const FormItem = Form.Item;
 const TextArea = Input.TextArea
 
 const mapDispatchToProps = (dispatch: any) => ({
-    apiApply(apiId: any, applyContent: any) {
+    apiApply (apiId: any, applyContent: any) {
         return dispatch(apiMarketActions.apiApply({ apiId: apiId, applyContent: applyContent }));
     },
-    getApiExtInfo(tagId: any) {
+    getApiExtInfo (tagId: any) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 tagId: tagId

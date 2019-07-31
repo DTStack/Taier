@@ -2,7 +2,7 @@ import { dataSourceActionType } from '../../consts/dataSourceActionType';
 import API from '../../api/dataSource';
 
 export const dataSourceActions: any = {
-    getDataSources(params: any) {
+    getDataSources (params: any) {
         return (dispatch: any) => {
             dispatch({
                 type: dataSourceActionType.CHANGE_LOADING
@@ -20,7 +20,7 @@ export const dataSourceActions: any = {
             });
         }
     },
-    getDataSourcesType(params: any) {
+    getDataSourcesType (params: any) {
         return (dispatch: any) => {
             API.getDataSourcesType(params).then((res: any) => {
                 if (res.code === 1) {
@@ -32,7 +32,7 @@ export const dataSourceActions: any = {
             });
         }
     },
-    getDataSourcesList(params: any) {
+    getDataSourcesList (params: any) {
         return (dispatch: any) => {
             API.getDataSourcesList(params).then((res: any) => {
                 if (res.code === 1) {
@@ -44,7 +44,7 @@ export const dataSourceActions: any = {
             });
         }
     },
-    getTagDataSourcesList(params: any) {
+    getTagDataSourcesList (params: any) {
         return (dispatch: any) => {
             API.getTagDataSourcesList(params).then((res: any) => {
                 if (res.code === 1) {
@@ -56,7 +56,7 @@ export const dataSourceActions: any = {
             });
         }
     },
-    getDataSourcesTable(params: any) {
+    getDataSourcesTable (params: any) {
         return (dispatch: any) => {
             API.getDataSourcesTable(params).then((res: any) => {
                 if (res.code === 1) {
@@ -80,7 +80,7 @@ export const dataSourceActions: any = {
             });
         }
     },
-    getDataSourcesColumn(params: any) {
+    getDataSourcesColumn (params: any) {
         return (dispatch: any) => {
             API.getDataSourcesColumn(params).then((res: any) => {
                 if (res.code === 1) {
@@ -99,7 +99,7 @@ export const dataSourceActions: any = {
             });
         }
     },
-    getDataSourcesPreview(params: any) {
+    getDataSourcesPreview (params: any) {
         return (dispatch: any) => {
             API.getDataSourcesPreview(params).then((res: any) => {
                 if (res.code === 1) {

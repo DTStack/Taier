@@ -4,7 +4,7 @@ import API from '../../api/apiManage';
 export const apiManageActions: any = {
 
     // 获取市场api列表
-    getAllApiList(params: any) {
+    getAllApiList (params: any) {
         return (dispatch: any) => {
             return API.getAllApiList(params).then((res: any) => {
                 if (res.code === 1) {
@@ -18,7 +18,7 @@ export const apiManageActions: any = {
         }
     },
     // 获取数据源信息
-    getDataSourceByBaseInfo(params: any) {
+    getDataSourceByBaseInfo (params: any) {
         return (dispatch: any) => {
             return API.getDataSourceByBaseInfo(params).then((res: any) => {
                 if (res.code === 1) {
@@ -28,7 +28,7 @@ export const apiManageActions: any = {
         }
     },
     // 删除api
-    deleteApi(params: any) {
+    deleteApi (params: any) {
         return (dispatch: any) => {
             return API.deleteApi(params).then((res: any) => {
                 if (res.code === 1) {
@@ -38,7 +38,7 @@ export const apiManageActions: any = {
         }
     },
     // 开启api
-    openApi(apiId: any) {
+    openApi (apiId: any) {
         return (dispatch: any) => {
             return API.updateApiStatus({ apiId: apiId, apiStatus: 0 }).then((res: any) => {
                 if (res.code === 1) {
@@ -48,7 +48,7 @@ export const apiManageActions: any = {
         }
     },
     // 关闭api
-    closeApi(apiId: any) {
+    closeApi (apiId: any) {
         return (dispatch: any) => {
             return API.updateApiStatus({ apiId: apiId, apiStatus: 1 }).then((res: any) => {
                 if (res.code === 1) {
@@ -58,7 +58,7 @@ export const apiManageActions: any = {
         }
     },
     // 获取排行
-    getApiCallUserRankList(params: any) {
+    getApiCallUserRankList (params: any) {
         return (dispatch: any) => {
             return API.getApiCallUserRankList(params).then((res: any) => {
                 if (res.code === 1) {
@@ -68,7 +68,7 @@ export const apiManageActions: any = {
         }
     },
     // 获取api订购状态
-    getApiUserApplyList(params: any) {
+    getApiUserApplyList (params: any) {
         return (dispatch: any) => {
             return API.getApiUserApplyList(params).then((res: any) => {
                 if (res.code === 1) {
@@ -78,7 +78,7 @@ export const apiManageActions: any = {
         }
     },
     // 更新节点
-    updateCatalogue(params: any) {
+    updateCatalogue (params: any) {
         return (dispatch: any) => {
             return API.updateCatalogue(params).then((res: any) => {
                 if (res.code === 1) {
@@ -88,7 +88,7 @@ export const apiManageActions: any = {
         }
     },
     // 删除节点
-    deleteCatalogue(params: any) {
+    deleteCatalogue (params: any) {
         return (dispatch: any) => {
             return API.deleteCatalogue(params).then((res: any) => {
                 if (res.code === 1) {
@@ -98,7 +98,7 @@ export const apiManageActions: any = {
         }
     },
     // 添加节点
-    addCatalogue(params: any) {
+    addCatalogue (params: any) {
         return (dispatch: any) => {
             return API.addCatalogue(params).then((res: any) => {
                 if (res.code === 1) {
@@ -108,7 +108,7 @@ export const apiManageActions: any = {
         }
     },
     // 新增api
-    createApi(params: any) {
+    createApi (params: any) {
         return (dispatch: any) => {
             return API.createApi(params).then((res: any) => {
                 if (res.code === 1) {
@@ -118,7 +118,7 @@ export const apiManageActions: any = {
         }
     },
     // 更新api
-    updateApi(params: any) {
+    updateApi (params: any) {
         return (dispatch: any) => {
             return API.updateApi(params).then((res: any) => {
                 if (res.code === 1) {
@@ -128,7 +128,7 @@ export const apiManageActions: any = {
         }
     },
     // 根据数据源获取数据表
-    tablelist(params: any) {
+    tablelist (params: any) {
         return (dispatch: any) => {
             return API.tablelist(params).then((res: any) => {
                 if (res.code === 1) {
@@ -138,7 +138,7 @@ export const apiManageActions: any = {
         }
     },
     // 根据表名获取表
-    tablecolumn(params: any) {
+    tablecolumn (params: any) {
         return (dispatch: any) => {
             return API.tablecolumn(params).then((res: any) => {
                 if (res.code === 1) {
@@ -148,7 +148,7 @@ export const apiManageActions: any = {
         }
     },
     // 数据预览
-    previewData(params: any) {
+    previewData (params: any) {
         return (dispatch: any) => {
             return API.previewData(params).then((res: any) => {
                 if (res.code === 1) {
@@ -158,7 +158,7 @@ export const apiManageActions: any = {
         }
     },
     // 获取api详细信息
-    getApiInfo(params: any) {
+    getApiInfo (params: any) {
         return (dispatch: any) => {
             return API.getApiInfo(params).then((res: any) => {
                 if (res.code === 1) {
@@ -168,7 +168,7 @@ export const apiManageActions: any = {
         }
     },
     // 查看api错误信息
-    getApiCallErrorInfo(params: any) {
+    getApiCallErrorInfo (params: any) {
         return (dispatch: any) => {
             return API.getApiCallErrorInfoForManager(params).then((res: any) => {
                 if (res.code === 1) {

@@ -43,7 +43,7 @@ export function compareEnable (apps: any, licenseApps: any) {
             }
         }
         return newApps
-    }else { // 空数组只显示首页菜单栏
+    } else { // 空数组只显示首页菜单栏
         const mainApp = apps.find((item: any) => {
             return item.id == MY_APPS.MAIN
         })
@@ -78,7 +78,7 @@ export function MenuLeft (props: any) {
                 onClick={onClick}
                 selectedKeys={[activeKey]}
                 mode="horizontal"
-            >   
+            >
                 {customItems.concat(renderATagMenuItems(menuItems, user.isRoot))}
             </Menu>
         </div>
@@ -177,7 +177,7 @@ export function MenuRight (props: any) {
 
 @pureRender
 class Navigator extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {
             current: ''
@@ -188,7 +188,7 @@ class Navigator extends React.Component<any, any> {
         this.updateSelected()
     }
 
-    componentDidUpdate (prevProps: any){
+    componentDidUpdate (prevProps: any) {
         if (this.props.routing) {
             if (this.props.routing.locationBeforeTransitions.pathname != prevProps.routing.locationBeforeTransitions.pathname) {
                 this.updateSelected();

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import utils from 'utils'
 import { apiManageActions } from '../../../../actions/apiManage';
 import { mineActions } from '../../../../actions/mine';
-const errorType = {
+const errorType: any = {
     1: 'disable',
     2: 'unauthorize',
     3: 'paramerror',
@@ -12,7 +12,7 @@ const errorType = {
     5: 'outlimit',
     6: 'other'
 }
-const errorExchange = {
+const errorExchange: any = {
     disable: '禁用',
     unauthorize: '未认证',
     paramerror: '参数错误',
@@ -26,7 +26,7 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getApiCallErrorInfo(id: any, date: any) {
+    getApiCallErrorInfo (id: any, date: any) {
         return dispatch(apiManageActions.getApiCallErrorInfo({
             apiId: id,
             time: date
@@ -58,7 +58,7 @@ class ManageErrorLog extends React.Component<any, any> {
     componentDidMount () {
         this.getErrorInfo();
     }
-    getErrorInfo(apiId: any) {
+    getErrorInfo (apiId: any) {
         apiId = apiId || this.props.apiId;
         if (!apiId) {
             return;
@@ -111,7 +111,7 @@ class ManageErrorLog extends React.Component<any, any> {
             title: '调用时间',
             dataIndex: 'invokeTime',
             key: 'invokeTime',
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text)
             }
 
@@ -124,7 +124,7 @@ class ManageErrorLog extends React.Component<any, any> {
             title: '错误类型',
             dataIndex: 'bizType',
             key: 'bizType',
-            render(text: any) {
+            render (text: any) {
                 return errorExchange[errorType[text]]
             },
             filters: [
@@ -173,7 +173,7 @@ class ManageErrorLog extends React.Component<any, any> {
             this.getErrorInfo();
         });
     }
-    lookAllErrorText(text: any) {
+    lookAllErrorText (text: any) {
         Modal.info({
             title: '错误日志',
             content: (
@@ -185,10 +185,10 @@ class ManageErrorLog extends React.Component<any, any> {
             onOk () { }
         });
     }
-    getErrorPercent(key: any) {
+    getErrorPercent (key: any) {
         return (this.state.error[key] && this.state.error[key].percent) || 0;
     }
-    getErrorCount(key: any) {
+    getErrorCount (key: any) {
         return (this.state.error[key] && this.state.error[key].count) || 0;
     }
     render () {

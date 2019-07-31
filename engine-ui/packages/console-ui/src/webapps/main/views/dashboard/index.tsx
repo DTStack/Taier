@@ -81,7 +81,7 @@ class Dashboard extends React.Component<any, any> {
                 <a href={app.link} className="app-tag" key={app.id}>
                     <img className="app-logo" src={app.icon} />
                     <h1>{app.name}</h1>
-                    <p style={{wordBreak: 'break-all'}}>{app.description}</p>
+                    <p style={{ wordBreak: 'break-all' }}>{app.description}</p>
                 </a>
             )
         })

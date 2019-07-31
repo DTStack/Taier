@@ -21,7 +21,7 @@ class ManageTopCard extends React.Component<any, any> {
         return null;
     }
 
-    editApi(id: any) {
+    editApi (id: any) {
         this.props.router.push('/dl/manage/editApi/' + id);
     }
     back () {
@@ -30,7 +30,7 @@ class ManageTopCard extends React.Component<any, any> {
     openApiDetail () {
         window.open(`${location.origin + location.pathname}#/dl/market/detail/${this.props.apiId}?isHideBack=true`)
     }
-    getValue(key: any) {
+    getValue (key: any) {
         const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.apiId];
         if (api) {
             return api[key]

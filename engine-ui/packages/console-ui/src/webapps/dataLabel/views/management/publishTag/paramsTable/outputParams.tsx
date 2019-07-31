@@ -32,7 +32,7 @@ class OutputParams extends React.Component<any, any> {
             this.initDataSource(nextProps.initValue);
         }
     }
-    initDataSource(initValue: any) {
+    initDataSource (initValue: any) {
         let data = initValue;
         if (!initValue) {
             data: [];
@@ -47,7 +47,7 @@ class OutputParams extends React.Component<any, any> {
     }
 
     // 通知父组件最新的值
-    backMsg(table: any) {
+    backMsg (table: any) {
         let arr: any = [];
         for (let i in table) {
             let item = table[i];
@@ -60,9 +60,9 @@ class OutputParams extends React.Component<any, any> {
         this.props.outputParamsChange(arr);
     }
 
-    addOutput(inputToOutputData: any) {
+    addOutput (inputToOutputData: any) {
         const table = cloneDeep(this.state.dataSource);
-        let dic = {
+        let dic: any = {
             key: Math.random(),
             fieldName: '',
             paramType: '',
@@ -116,7 +116,7 @@ class OutputParams extends React.Component<any, any> {
     }
 
     // 字段改变
-    changeTableParam(index: any, key: any) {
+    changeTableParam (index: any, key: any) {
         key = key.split('@@');
         if (!key) {
             return;
@@ -130,7 +130,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 选择框改变
-    setRequired(index: any, e: any) {
+    setRequired (index: any, e: any) {
         const table = cloneDeep(this.state.dataSource);
         table[index].required = e.target.checked
         this.setState({
@@ -138,7 +138,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 编辑说明
-    textAreaChange(index: any, e: any) {
+    textAreaChange (index: any, e: any) {
         const value = e.target.value;
 
         const table = cloneDeep(this.state.dataSource);
@@ -148,7 +148,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 参数名
-    paramNameChange(index: any, e: any) {
+    paramNameChange (index: any, e: any) {
         const value = e.target.value;
 
         const table = cloneDeep(this.state.dataSource);
@@ -158,7 +158,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 编辑操作符
-    operatorsChange(index: any, value: any) {
+    operatorsChange (index: any, value: any) {
         const table = cloneDeep(this.state.dataSource);
         table[index].operator = value
         this.setState({
@@ -166,7 +166,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 验证数据合法性
-    checkInfo(index: any, isTmp?: any) {
+    checkInfo (index: any, isTmp?: any) {
         const table = cloneDeep(this.state.dataSource);
         let checkItem = table[index];
         if (isTmp) {
@@ -199,7 +199,7 @@ class OutputParams extends React.Component<any, any> {
         }
         return true;
     }
-    checkVal(item: any) {
+    checkVal (item: any) {
         if (item.desc && item.desc.length > 200) {
             message.error('说明不得大于200字符')
             return false;
@@ -212,7 +212,7 @@ class OutputParams extends React.Component<any, any> {
         return true;
     }
     // 保存信息
-    saveInfo(index: any) {
+    saveInfo (index: any) {
         const table = cloneDeep(this.state.dataSource);
         if (!this.checkInfo(index)) {
             return;
@@ -227,7 +227,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 取消保存，假如是已有信息，则回滚，新增的则直接删除
-    cancelSave(index: any) {
+    cancelSave (index: any) {
         const table = cloneDeep(this.state.dataSource);
 
         if (table[index].tmp) {
@@ -245,7 +245,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 编辑操作
-    editInfo(index: any) {
+    editInfo (index: any) {
         const table = cloneDeep(this.state.dataSource);
 
         table[index].tmp = cloneDeep(table[index]);
@@ -256,7 +256,7 @@ class OutputParams extends React.Component<any, any> {
         })
     }
     // 删除
-    removeInfo(index: any) {
+    removeInfo (index: any) {
         const table = cloneDeep(this.state.dataSource);
         table.splice(index, 1);
         this.backMsg(table);
@@ -300,7 +300,7 @@ class OutputParams extends React.Component<any, any> {
             title: '数据类型',
             dataIndex: 'paramType',
             key: 'paramType',
-            render(text: any, record: any) {
+            render (text: any, record: any) {
                 return record.paramType || '';
             }
 

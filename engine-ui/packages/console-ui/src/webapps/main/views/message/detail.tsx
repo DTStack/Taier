@@ -8,7 +8,7 @@ import GoBack from '../../components/go-back'
 import Api from '../../api'
 
 class MsgDetail extends React.Component<any, any> {
-    state: any =  {
+    state: any = {
         msgInfo: {},
         app: utils.getParameterByName('app')
     }

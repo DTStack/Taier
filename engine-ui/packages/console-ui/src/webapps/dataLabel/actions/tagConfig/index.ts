@@ -2,7 +2,7 @@ import { tagConfigActionType } from '../../consts/tagConfigActionType';
 import API from '../../api/tagConfig';
 
 export const tagConfigActions: any = {
-    getRegisteredTagList(params: any) {
+    getRegisteredTagList (params: any) {
         return (dispatch: any) => {
             dispatch({
                 type: tagConfigActionType.CHANGE_LOADING
@@ -20,7 +20,7 @@ export const tagConfigActions: any = {
             });
         }
     },
-    getRuleTagList(params: any) {
+    getRuleTagList (params: any) {
         return (dispatch: any) => {
             dispatch({
                 type: tagConfigActionType.CHANGE_LOADING
@@ -38,7 +38,7 @@ export const tagConfigActions: any = {
             });
         }
     },
-    getAllIdentifyColumn(params: any) {
+    getAllIdentifyColumn (params: any) {
         return (dispatch: any) => {
             API.getAllIdentifyColumn(params).then((res: any) => {
                 if (res.code === 1) {

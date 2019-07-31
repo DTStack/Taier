@@ -22,7 +22,7 @@ class DisableTable extends React.Component<any, any> {
             title: '最近24小时失败率',
             dataIndex: 'recent24HFailRate',
             key: 'recent24HFailRate',
-            render(text: any) {
+            render (text: any) {
                 return text + '%';
             }
         }, {
@@ -44,7 +44,7 @@ class DisableTable extends React.Component<any, any> {
             title: '订购时间',
             dataIndex: 'applyTime',
             key: 'applyTime',
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text);
             }
 

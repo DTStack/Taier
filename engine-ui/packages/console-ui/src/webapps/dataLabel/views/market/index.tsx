@@ -9,17 +9,17 @@ import ApplyBox from './applyBox';
 
 const Option = Select.Option;
 const Search = Input.Search;
-let modal;
+let modal: any
 const mapStateToProps = (state: any) => {
     const { user, apiMarket } = state;
     return { apiMarket, user }
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getCatalogue(pid: any) {
+    getCatalogue (pid: any) {
         dispatch(apiMarketActions.getCatalogue(pid));
     },
-    getApiMarketList(params: any) {
+    getApiMarketList (params: any) {
         return dispatch(apiMarketActions.getApiMarketList(params));
     }
 });
@@ -47,10 +47,10 @@ class APIMarket extends React.Component<any, any> {
         this.setState({
             loading: true
         })
-        const dic = {
+        const dic: any = {
             updateTime: 'gmt_modified'
         }
-        const orderType = {
+        const orderType: any = {
             'ascend': 'asc',
             'descend': 'desc'
         }
@@ -80,8 +80,8 @@ class APIMarket extends React.Component<any, any> {
         this.props.getCatalogue(0);
         this.getMarketApi();
     }
-    renderSourceType(id: any, root: any) {
-        function arrToOptions(arr: any) {
+    renderSourceType (id: any, root: any) {
+        function arrToOptions (arr: any) {
             if (!arr || arr.length < 1) {
                 return null;
             }
@@ -112,7 +112,7 @@ class APIMarket extends React.Component<any, any> {
             if (!items) {
                 return null;
             }
-            let itemChild;// 二级目录
+            let itemChild: any;// 二级目录
             // 查找二级目录
             for (let i = 0; i < items.length; i++) {
                 if (items[i].id == id) {
@@ -137,7 +137,7 @@ class APIMarket extends React.Component<any, any> {
             return arrToOptions(arr);
         }
     }
-    onSourceChange(key: any) {
+    onSourceChange (key: any) {
         this.setState({
             type1: key,
             type2: undefined
@@ -145,14 +145,14 @@ class APIMarket extends React.Component<any, any> {
             this.getMarketApi();
         })
     }
-    onUserSourceChange(key: any) {
+    onUserSourceChange (key: any) {
         this.setState({
             type2: key
         }, () => {
             this.getMarketApi();
         })
     }
-    handleSearch(value: any) {
+    handleSearch (value: any) {
         this.setState({
             searchValue: value,
             pageIndex: 1
@@ -160,8 +160,8 @@ class APIMarket extends React.Component<any, any> {
             this.getMarketApi();
         })
     }
-    getDealType(type: any) {
-        const dic = {
+    getDealType (type: any) {
+        const dic: any = {
             'complete': '查看使用情况',
             'nothing': '申请',
             'applying': '查看审批进度'
@@ -169,7 +169,7 @@ class APIMarket extends React.Component<any, any> {
         return dic[type || 'nothing']
     }
 
-    doApply(record: any) {
+    doApply (record: any) {
         this.setState({
             applyBox: true,
             apply: {
@@ -182,7 +182,7 @@ class APIMarket extends React.Component<any, any> {
     }
 
     // 表格换页/排序
-    onTableChange = (page, filter, sorter) => {
+    onTableChange = (page: any, filter: any, sorter: any) => {
         this.setState({
             pageIndex: page.current,
             sorter: sorter
@@ -229,7 +229,7 @@ class APIMarket extends React.Component<any, any> {
             dataIndex: 'gmtModified',
             key: 'gmtModified',
             width: '20%',
-            render(time: any) {
+            render (time: any) {
                 return utils.formatDateTime(time);
             },
             sorter: true

@@ -7,7 +7,6 @@
  *  instance.copy(value, callback);
  */
 export default class CopyUtils {
-
     fakeHandlerCallback: any;
     fakeHandler: any = null;
     fakeElem: any;

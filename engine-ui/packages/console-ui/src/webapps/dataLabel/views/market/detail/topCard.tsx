@@ -35,7 +35,7 @@ class TopCard extends React.Component<any, any> {
     back () {
         this.props.router.replace('/dl/market');
     }
-    getValue(key: any) {
+    getValue (key: any) {
         const api = this.props.apiMarket && this.props.apiMarket.apiCallInfo && this.props.apiMarket.apiCallInfo[this.props.apiId];
         if (api) {
             return api[key]
@@ -43,7 +43,7 @@ class TopCard extends React.Component<any, any> {
             return null;
         }
     }
-    getApiValue(key: any) {
+    getApiValue (key: any) {
         const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.props.apiId];
         if (api) {
             return api[key]

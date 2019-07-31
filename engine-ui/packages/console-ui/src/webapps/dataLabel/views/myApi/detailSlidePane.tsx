@@ -17,18 +17,18 @@ class detailSlidePane extends React.Component<any, any> {
 
     }
 
-    callback(key: any) {
+    callback (key: any) {
         console.log(key)
         this.setState({
             nowView: key
         })
     }
-    chooseCallStateDate(e: any) {
+    chooseCallStateDate (e: any) {
         this.setState({
             callStateDate: e.target.value
         });
     }
-    chooseErrorLogDate(e: any) {
+    chooseErrorLogDate (e: any) {
         this.setState({
             errorLogDate: e.target.value
         });

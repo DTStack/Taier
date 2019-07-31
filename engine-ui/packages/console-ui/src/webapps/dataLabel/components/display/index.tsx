@@ -4,7 +4,7 @@ import {
     DATA_SOURCE
 } from '../../consts';
 
-export function dataSourceText(type: any) {
+export function dataSourceText (type: any) {
     switch (type) {
         case DATA_SOURCE.MYSQL: {
             return 'MySQL'
@@ -40,7 +40,7 @@ export function dataSourceText(type: any) {
  * 字段状态校验
  * @param {*} status
  */
-export function DetailCheckStatus(props: any) {
+export function DetailCheckStatus (props: any) {
     switch (props.value) {
         case true: {
             return <span>通过</span>

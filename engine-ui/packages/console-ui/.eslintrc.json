@@ -1,8 +1,9 @@
 {
-    "parser": "babel-eslint",
+    "parser": "@typescript-eslint/parser",
     "extends":[
         "standard",
-        "plugin:react/recommended"
+        "plugin:react/recommended",
+        "plugin:@typescript-eslint/recommended"
     ],
     "plugins": [ 
         "import",
@@ -42,7 +43,7 @@
         "eqeqeq": 0,
         "no-console": 0,
         "no-param-reassign": 0,
-        "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
+        "@typescript-eslint/no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
         "import/no-extraneous-dependencies": ["error", {"devDependencies": false, "optionalDependencies": false, "peerDependencies": false}],
         "react/display-name":[0],
         "react/sort-comp": 0,
@@ -51,7 +52,11 @@
         "react/jsx-closing-bracket-location": 0,
         "jsx-a11y/no-static-element-interactions": 0,
         "react/prop-types": [0, {"ignore": ["children"]}],
-        "react/jsx-filename-extension": [1, { "extensions": [".ts", ".tsx", ".js", ".jsx"] }],
-        "react/react-in-jsx-scope": 0
+        "react/jsx-filename-extension": [1, { "extensions": [".tsx", ".js", ".jsx"] }],
+        "react/react-in-jsx-scope": 0,
+        "@typescript-eslint/no-explicit-any": 0,
+        "@typescript-eslint/explicit-member-accessibility": 0,
+        "@typescript-eslint/explicit-function-return-type": 0,
+        "@typescript-eslint/no-use-before-define": 0
     }
 }

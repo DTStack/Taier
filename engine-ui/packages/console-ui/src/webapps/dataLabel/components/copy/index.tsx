@@ -69,7 +69,7 @@ export default class ClipBoard extends React.Component<any, any> {
         this.handleResult(succeeded);
     }
 
-    handleResult(succeeded: any) {
+    handleResult (succeeded: any) {
         if (succeeded) {
             message.success('复制成功');
         } else {

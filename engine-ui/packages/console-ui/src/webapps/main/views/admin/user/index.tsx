@@ -70,7 +70,7 @@ class AdminUser extends React.Component<any, any> {
             })
         }
     }
-    hasDatabase(app: any) {
+    hasDatabase (app: any) {
         return app === 'analyticsEngine';
     }
     isProjectExsit () {
@@ -119,7 +119,6 @@ class AdminUser extends React.Component<any, any> {
                 params.projectId = scienceSelectedProject;
             }
 
-
             this.loadUsers(active, params);
             this.loadRoles(active, assign(params, {
                 currentPage: 1
@@ -129,7 +128,7 @@ class AdminUser extends React.Component<any, any> {
         this.getOwnRole(active, params);
     }
 
-    getOwnRole(app: any, params: any) {
+    getOwnRole (app: any, params: any) {
         const queryParams = {
             ...params,
             currentPage: 1,
@@ -243,7 +242,7 @@ class AdminUser extends React.Component<any, any> {
         const ctx = this
 
         Api.getProjects(app).then((res: any) => {
-            function getNotNullProject(projectId: any, data: any) {
+            function getNotNullProject (projectId: any, data: any) {
                 if (!data || !data.length) {
                     return null;
                 }
@@ -315,7 +314,7 @@ class AdminUser extends React.Component<any, any> {
         for (let i = 0; i < uids.length; i++) {
             const user = notProjectUsers.find((u: any) => `${u.userId}` === uids[i])
 
-            if(user) {
+            if (user) {
                 targetUsers.push(user);
             }
         }
@@ -346,7 +345,7 @@ class AdminUser extends React.Component<any, any> {
             }
         });
     }
-    getProjectId(active: any) {
+    getProjectId (active: any) {
         const { selectedProject, streamSelectedProject, scienceSelectedProject } = this.state;
         let map = {
             [MY_APPS.RDOS]: selectedProject,
@@ -499,7 +498,7 @@ class AdminUser extends React.Component<any, any> {
             title: '账号',
             dataIndex: 'user.userName',
             key: 'account',
-            render(text: any, record: any) {
+            render (text: any, record: any) {
                 return <a onClick={() => {
                     ctx.setState({
                         visibleEditRole: true,
@@ -520,7 +519,7 @@ class AdminUser extends React.Component<any, any> {
             width: 120,
             dataIndex: 'roles',
             key: 'roles',
-            render(roles: any) {
+            render (roles: any) {
                 const roleNames = roles.map((role: any) => role && role.roleName)
 
                 return roleNames.join(',')
@@ -529,7 +528,7 @@ class AdminUser extends React.Component<any, any> {
             title: '加入时间',
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
-            render(time: any) {
+            render (time: any) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -537,7 +536,7 @@ class AdminUser extends React.Component<any, any> {
             dataIndex: 'id',
             width: 140,
             key: 'id',
-            render(id: any, record: any) {
+            render (id: any, record: any) {
                 return <span>
                     <a onClick={() => {
                         ctx.setState({

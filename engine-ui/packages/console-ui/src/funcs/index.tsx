@@ -318,6 +318,45 @@ export function initNotification () {
     })
 }
 
+let _singletonNotificationCursorTime = 0;
+/**
+ * 校验是否处在单实例的时间段
+ */
+function checkIsTimeout () {
+    const offset = 1000;
+    const now = new Date().getTime();
+    const old = _singletonNotificationCursorTime;
+
+    _singletonNotificationCursorTime = new Date().getTime();
+    if (now - offset > old) {
+        return true
+    }
+    return false;
+}
+
+/**
+ * 包装一下
+ */
+export function dtNotification (title: any, message: any, type: any, config: any) {
+    const showType: any = type || 'error';
+    const WrapperModal: any = Modal;
+    const showMessage = message.length > 100 ? (<span>
+        {message.substring(0, 100)}... <a onClick={() => {
+            WrapperModal[showType]({
+                title: title,
+                content: message,
+                width: 520,
+                style: { wordBreak: 'break-word' }
+            })
+        }}>查看详情</a>
+    </span>) : message;
+    notification[showType as keyof NotificationApi]({
+        ...config,
+        message: title,
+        description: showMessage
+    });
+}
+
 /**
  * 全局唯一的notification实例
  * 规则：在固定时间段内，相连并且相同的错误信息只会弹出一个。
@@ -340,45 +379,6 @@ export function singletonNotification (title: any, message?: any, type?: any, st
             style
         })
     }
-}
-let _singletonNotificationCursorTime = 0;
-/**
- * 校验是否处在单实例的时间段
- */
-function checkIsTimeout () {
-    const offset = 1000;
-    const now = new Date().getTime();
-    const old = _singletonNotificationCursorTime;
-
-    _singletonNotificationCursorTime = new Date().getTime();
-    if (now - offset > old) {
-        return true
-    }
-    return false;
-}
-
-/**
- * 包装一下
- */
-export function dtNotification (title: any, message: any, type: any, config: any) {
-    
-    const showType: any = type || 'error';
-    const WrapperModal: any = Modal;
-    const showMessage = message.length > 100 ? (<span>
-        {message.substring(0, 100)}... <a onClick={() => {
-            WrapperModal[showType]({
-                title: title,
-                content: message,
-                width: 520,
-                style: { wordBreak: 'break-word' }
-            })
-        }}>查看详情</a>
-    </span>) : message;
-    notification[showType as keyof NotificationApi]({
-        ...config,
-        message: title,
-        description: showMessage
-    });
 }
 export function getContainer (id: string) {
     const container = document.createElement('div');

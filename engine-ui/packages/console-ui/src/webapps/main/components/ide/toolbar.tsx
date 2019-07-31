@@ -26,7 +26,7 @@ export default class Toolbar extends React.Component<any, any> {
                 onClick={onRun}
                 loading={isRunning}
                 disabled={disableRun || isRunning}
-                {...{ title : '立即运行'}}
+                {...{ title: '立即运行' }}
                 icon="play-circle-o"
                 style={{ marginLeft: '0px' }}
             >
@@ -37,7 +37,7 @@ export default class Toolbar extends React.Component<any, any> {
                 key="btnStop"
                 onClick={onStop}
                 icon="pause-circle-o"
-                {...{ title : '立即停止'}}
+                {...{ title: '立即停止' }}
                 disabled={!isRunning}
             >
                 停止
@@ -66,14 +66,14 @@ export default class Toolbar extends React.Component<any, any> {
                     enableFormat &&
                     <Button
                         icon="appstore-o"
-                        {...{ title : '格式化'}}
+                        {...{ title: '格式化' }}
                         onClick={onFormat}
                     >
                         格式化
                     </Button>
                 }
                 {!disableEdit && <Dropdown overlay={this.editMenu()} trigger={['click']}>
-                    <Button icon="edit" {...{ title : '编辑'}}>
+                    <Button icon="edit" {...{ title: '编辑' }}>
                         编辑<Icon type="down" />
                     </Button>
                 </Dropdown>}

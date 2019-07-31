@@ -11,10 +11,10 @@ import { dataSourceActions } from '../actions/dataSource'
 import { commonActions } from '../actions/common'
 import { updateApp } from 'main/actions/app'
 
-const propType = {
+const propType: any = {
     children: PropTypes.node
 }
-const defaultPro = {
+const defaultPro: any = {
     children: []
 }
 

@@ -43,7 +43,7 @@ class AdminRole extends React.Component<any, any> {
         }
     }
 
-    hasDatabase(app: any) {
+    hasDatabase (app: any) {
         return app === 'analyticsEngine';
     }
 
@@ -208,7 +208,7 @@ class AdminRole extends React.Component<any, any> {
             title: '角色名称',
             dataIndex: 'roleName',
             key: 'roleName',
-            render(text: any, record: any) {
+            render (text: any, record: any) {
                 return <Link to={`/admin/role/edit/${record.id}?app=${active}`}>{text}</Link>
             },
             width: '150px'
@@ -220,7 +220,7 @@ class AdminRole extends React.Component<any, any> {
             title: '最近修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
-            render(time: any) {
+            render (time: any) {
                 return utils.formatDateTime(time);
             }
         }, {
@@ -228,7 +228,7 @@ class AdminRole extends React.Component<any, any> {
             dataIndex: 'person',
             key: 'person',
             width: 120,
-            render(text: any) {
+            render (text: any) {
                 return text || '-'
             }
         }, {
@@ -236,7 +236,7 @@ class AdminRole extends React.Component<any, any> {
             dataIndex: 'id',
             key: 'id',
             width: 80,
-            render(id: any, record: any) {
+            render (id: any, record: any) {
                 return <span>
                     <Link to={`/admin/role/edit/${id}?app=${active}`}>查看</Link>
                     {/* <span className="ant-divider" />

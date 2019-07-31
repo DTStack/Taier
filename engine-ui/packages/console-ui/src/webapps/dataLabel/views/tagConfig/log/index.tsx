@@ -93,7 +93,7 @@ export default class TagLog extends React.Component<any, any> {
 
     // 更新时间筛选
     onUpdateTimeChange = (date: any, dateString: any) => {
-        let queryParams = {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: 1,
             startTime: date[0] ? date[0].startOf('day').valueOf() : undefined,
@@ -110,7 +110,7 @@ export default class TagLog extends React.Component<any, any> {
 
     // 状态筛选
     onStatueChange = (value: any) => {
-        let queryParams = {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: 1,
             tagStatus: value || undefined
@@ -150,7 +150,7 @@ export default class TagLog extends React.Component<any, any> {
             </div>
         )
 
-        const pagination = {
+        const pagination: any = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
             total: logList.totalCount

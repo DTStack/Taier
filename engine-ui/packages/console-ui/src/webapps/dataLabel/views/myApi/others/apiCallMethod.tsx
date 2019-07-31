@@ -5,7 +5,7 @@ class ApiCallMethod extends React.Component<any, any> {
     state={
         callUrl: ''
     }
-    getApiCallUrl(apiId: any) {
+    getApiCallUrl (apiId: any) {
         apiId = apiId || this.props.showRecord.apiId;
         this.props.getApiCallUrl(apiId)
             .then(

@@ -12,12 +12,12 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getApiUserApplyList(params: any) {
+    getApiUserApplyList (params: any) {
         return dispatch(
             apiManageActions.getApiUserApplyList(params)
         )
     },
-    updateUserApiStatus(params: any) {
+    updateUserApiStatus (params: any) {
         return dispatch(mineActions.updateApplyStatus(params));
     }
 });
@@ -58,7 +58,7 @@ class BuyManageState extends React.Component<any, any> {
             }, nextProps.apiId)
         }
     }
-    tableChange(params: any, apiId: any) {
+    tableChange (params: any, apiId: any) {
         const { filter, page } = params;
         let status = filter.status
         if (!status || status.length < 1) {
@@ -71,7 +71,7 @@ class BuyManageState extends React.Component<any, any> {
         requestParams.status = status;
         this.getData(requestParams);
     }
-    getData(params: any) {
+    getData (params: any) {
         if (!params) { // 无参数，默认刷新
             params = this.state.requestParams;
         }
@@ -98,7 +98,7 @@ class BuyManageState extends React.Component<any, any> {
             )
     }
     // 取消api授权
-    cancelApi(applyId: any) {
+    cancelApi (applyId: any) {
         confirm({
             title: '确认取消?',
             content: '确认取消授权',
@@ -123,7 +123,7 @@ class BuyManageState extends React.Component<any, any> {
         });
     }
     // 增加api授权
-    applyApi(applyId: any) {
+    applyApi (applyId: any) {
         confirm({
             title: '确认授权?',
             content: '确认授权',

@@ -10,14 +10,14 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getApiDetail(apiId: any) {
+    getApiDetail (apiId: any) {
         dispatch(
             apiMarketActions.getApiDetail({
                 apiId: apiId
             })
         )
     },
-    getApiExtInfo(apiId: any) {
+    getApiExtInfo (apiId: any) {
         dispatch(
             apiMarketActions.getApiExtInfo({
                 apiId: apiId
@@ -59,7 +59,7 @@ class APIDetail extends React.Component<any, any> {
             title: '是否必填',
             dataIndex: 'required',
             key: 'required',
-            render(text: any) {
+            render (text: any) {
                 if (text) {
                     return '是'
                 }
@@ -89,7 +89,7 @@ class APIDetail extends React.Component<any, any> {
             title: '是否必填',
             dataIndex: 'required',
             key: 'required',
-            render(text: any) {
+            render (text: any) {
                 if (text) {
                     return '是'
                 }
@@ -102,7 +102,7 @@ class APIDetail extends React.Component<any, any> {
 
         }];
     }
-    getValue(key: any) {
+    getValue (key: any) {
         const api = this.props.apiMarket && this.props.apiMarket.api && this.props.apiMarket.api[this.state.apiId];
         if (api) {
             return api[key]

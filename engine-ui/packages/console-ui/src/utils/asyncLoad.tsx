@@ -1,19 +1,19 @@
 import * as React from 'react';
 
-export default (loader: any, collection: { name: string; }) => (
+export default (loader: any, collection: { name: string }) => (
 
     class AsyncComponent extends React.Component<any, any> {
-
         public static Component: any = null;
         public state: any = {
-            Component: null,
+            Component: null
         };
-        constructor(props: any) {
+        constructor (props: any) {
             super(props);
             this.state = { Component: AsyncComponent.Component, error: false };
         }
 
-        public componentWillMount() {
+        // eslint-disable-next-line react/no-deprecated
+        public componentWillMount () {
             if (!this.state.Component) {
                 loader().then((Component: any) => {
                     AsyncComponent.Component = Component;
@@ -22,13 +22,13 @@ export default (loader: any, collection: { name: string; }) => (
                     (e: any) => {
                         console.error(e);
                         this.setState({
-                            error: true,
+                            error: true
                         });
-                    },
+                    }
                 );
             }
         }
-        public render() {
+        public render () {
             const { error } = this.state;
             if (error) {
                 return (

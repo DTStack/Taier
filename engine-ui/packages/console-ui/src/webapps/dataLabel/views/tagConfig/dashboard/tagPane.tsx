@@ -21,10 +21,10 @@ const mapStateToProps = (state: any) => {
     return { apiMarket }
 }
 const mapDispatchToProps = (dispatch: any) => ({
-    getDataSourcesTable(params: any) {
+    getDataSourcesTable (params: any) {
         dispatch(dataSourceActions.getDataSourcesTable(params));
     },
-    getDataSourcesColumn(params: any) {
+    getDataSourcesColumn (params: any) {
         dispatch(dataSourceActions.getDataSourcesColumn(params));
     }
 })
@@ -330,7 +330,7 @@ class TagPane extends React.Component<any, any> {
 
     // 编辑标签基本信息
     editBaseInfo = (record: any) => {
-        let editData = {
+        let editData: any = {
             ...record,
             catalogueId: this.getCatalogueArray(record.catalogueId)
         };
@@ -416,7 +416,7 @@ class TagPane extends React.Component<any, any> {
 
     // 一级分类筛选
     onFirstCatalogueChange = (id: any) => {
-        let queryParams = {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: 1,
             pid: id ? id : undefined
@@ -444,7 +444,7 @@ class TagPane extends React.Component<any, any> {
 
     // 二级分类筛选
     onSecondCatalogueChange = (id: any) => {
-        let queryParams = {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: 1,
             cid: id ? id : undefined
@@ -456,7 +456,7 @@ class TagPane extends React.Component<any, any> {
 
     // name筛选
     onTagNameSearch = (name: any) => {
-        let queryParams = {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: 1,
             name: name ? name : undefined
@@ -494,8 +494,8 @@ class TagPane extends React.Component<any, any> {
     }
 
     // 表格换页/排序
-    onTableChange = (page, filter, sorter) => {
-        let queryParams = {
+    onTableChange = (page: any, filter: any, sorter: any) => {
+        let queryParams: any = {
             ...this.state.queryParams,
             currentPage: page.current,
         };
@@ -580,7 +580,7 @@ class TagPane extends React.Component<any, any> {
             </div>
         )
 
-        const pagination = {
+        const pagination: any = {
             current: queryParams.currentPage,
             pageSize: queryParams.pageSize,
             total: tagList.totalCount

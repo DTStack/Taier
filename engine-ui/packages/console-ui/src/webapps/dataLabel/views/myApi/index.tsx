@@ -11,7 +11,7 @@ const mapStateToProps = (state: any) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-    getApplyingList (currentPage, orderBy, sort, apiName) {
+    getApplyingList (currentPage: any, orderBy: any, sort: any, apiName: any) {
         return dispatch(mineActions.getApplyingList({
             currentPage: currentPage,
             pageSize: 20,
@@ -20,7 +20,7 @@ const mapDispatchToProps = (dispatch: any) => ({
             apiName: apiName
         }));
     },
-    getAppliedList (currentPage, orderBy, sort, status, apiName) {
+    getAppliedList (currentPage: any, orderBy: any, sort: any, status: any, apiName: any) {
         return dispatch(mineActions.getAppliedList({
             currentPage: currentPage,
             pageSize: 20,
@@ -30,31 +30,31 @@ const mapDispatchToProps = (dispatch: any) => ({
             apiName: apiName
         }));
     },
-    updateApplyStatus(id: any, status: any) {
+    updateApplyStatus (id: any, status: any) {
         return dispatch(mineActions.updateApplyStatus({
             applyId: id,
             status: status
         }));
     },
 
-    getApiCallInfo(id: any, time: any) {
+    getApiCallInfo (id: any, time: any) {
         return dispatch(mineActions.getApiCallInfo({
             apiId: id,
             time: time
         }));
     },
 
-    getApiCallErrorInfo(id: any) {
+    getApiCallErrorInfo (id: any) {
         return dispatch(mineActions.getApiCallErrorInfo({
             apiId: id
         }));
     },
-    getApiCallUrl(id: any) {
+    getApiCallUrl (id: any) {
         return dispatch(mineActions.getApiCallUrl({
             apiId: id
         }));
     },
-    queryApiCallLog (id, currentPage, bizType) {
+    queryApiCallLog (id: any, currentPage: any, bizType: any) {
         return dispatch(mineActions.queryApiCallLog({
             apiId: id,
             currentPage: currentPage,
@@ -62,7 +62,7 @@ const mapDispatchToProps = (dispatch: any) => ({
             pageSize: 5
         }));
     },
-    getApiCreatorInfo(apiId: any) {
+    getApiCreatorInfo (apiId: any) {
         return dispatch(mineActions.getApiCreatorInfo({
             apiId: apiId
         }));
@@ -75,7 +75,7 @@ class MyAPI extends React.Component<any, any> {
         nowView: 'notApproved',
         pageIndex: 1
     }
-    handleClick(e: any) {
+    handleClick (e: any) {
         this.setState({
             nowView: e
         })

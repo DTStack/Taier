@@ -25,7 +25,7 @@ export default class PublishTag extends React.Component<any, any> {
         Api.getApiInfo({ tagId }).then((res: any) => {
             if (res.code === 1) {
                 let data = res.data;
-                let basicInfo = {
+                let basicInfo: any = {
                     name: data.name,
                     catalogueId: data.catalogueId,
                     tagDesc: data.tagDesc,
@@ -60,12 +60,12 @@ export default class PublishTag extends React.Component<any, any> {
     }
 
     changeBasicInfo = (obj: any) => {
-        let basicInfo = { ...this.state.basicInfo, ...obj };
+        let basicInfo: any = { ...this.state.basicInfo, ...obj };
         this.setState({ basicInfo });
     }
 
     changeParamsConfig = (obj: any) => {
-        let paramsConfig = { ...this.state.paramsConfig, ...obj };
+        let paramsConfig: any = { ...this.state.paramsConfig, ...obj };
         this.setState({ paramsConfig });
     }
 

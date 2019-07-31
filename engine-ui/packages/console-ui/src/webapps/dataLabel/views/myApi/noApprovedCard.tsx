@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Card, Table, Input } from 'antd'
 import SlidePane from './approvedSlidePane';
 import utils from 'utils'
-const sortType = {
+const sortType: any = {
     'applyTime': 'gmt_modified'
 }
-const orderType = {
+const orderType: any = {
     'ascend': 'asc',
     'descend': 'desc'
 }
@@ -19,7 +19,7 @@ class NoApprovedCard extends React.Component<any, any> {
         showRecord: {},
         apiName: undefined
     }
-    getApplyingList(callback: any) {
+    getApplyingList (callback: any) {
         this.setState({
             loading: true
         })
@@ -48,7 +48,7 @@ class NoApprovedCard extends React.Component<any, any> {
             this.openCard(nextProps.apiId);
         }
     }
-    openCard(apiId: any) {
+    openCard (apiId: any) {
         const res = this.getSource();
         if (res) {
             for (let i in res) {
@@ -62,7 +62,7 @@ class NoApprovedCard extends React.Component<any, any> {
         }
     }
     // 表格换页/排序
-    onTableChange = (page, filter, sorter) => {
+    onTableChange = (page: any, filter: any, sorter: any) => {
         console.log(sorter)
         this.setState({
             pageIndex: page.current,
@@ -72,7 +72,7 @@ class NoApprovedCard extends React.Component<any, any> {
             this.getApplyingList();
         });
     }
-    openApprovedState(record: any) {
+    openApprovedState (record: any) {
         this.setState({
             slidePaneShow: true,
             showRecord: record || {}
@@ -103,7 +103,7 @@ class NoApprovedCard extends React.Component<any, any> {
             key: 'applyTime',
             width: '20%',
             sorter: true,
-            render(text: any) {
+            render (text: any) {
                 return utils.formatDateTime(text);
             }
         }]
@@ -127,7 +127,7 @@ class NoApprovedCard extends React.Component<any, any> {
             showRecord: {}
         })
     }
-    handleApiSearch(key: any) {
+    handleApiSearch (key: any) {
         this.setState({
             apiName: key,
             pageIndex: 1

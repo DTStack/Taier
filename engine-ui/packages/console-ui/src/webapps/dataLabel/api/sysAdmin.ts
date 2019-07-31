@@ -4,40 +4,40 @@ import req from '../consts/reqUrls'
 
 export default {
 
-    queryRole(params: any) {
+    queryRole (params: any) {
         return http.post(req.DL_ROLE_QUERY, params)
     },
-    updateRole(params: any) {
+    updateRole (params: any) {
         return http.post(req.DL_ROLE_UPDATE, params)
     },
-    deleteRole(params: any) {
+    deleteRole (params: any) {
         return http.post(req.DL_ROLE_DELETE, params)
     },
-    getRolePerissions(params: any) {
+    getRolePerissions (params: any) {
         return http.post(req.DL_ROLE_PERMISSION_TREE, params)
     },
-    getRolePerission(params: any) {
+    getRolePerission (params: any) {
         return http.post(req.DL_ROLE_PERMISSION, params)
     },
-    getUserById(params: any) {
+    getUserById (params: any) {
         return http.post(req.DL_GET_USER_BY_ID, params)
     },
-    addUser(params: any) {
+    addUser (params: any) {
         return http.post(req.DL_USER_ROLE_ADD, params)
     },
-    delUser(params: any) {
+    delUser (params: any) {
         return http.post(req.DL_USER_ROLE_DELETE, params)
     },
-    updateUser(params: any) {
+    updateUser (params: any) {
         return http.post(req.DL_USER_ROLE_UPDATE, params)
     },
-    getUsers(params: any) {
+    getUsers (params: any) {
         return http.post(req.DL_GET_USER_LIST, params)
     },
-    getUserPages(params: any) {
+    getUserPages (params: any) {
         return http.post(req.DL_GET_USER_PAGES, params)
     },
-    getUsersNotInProject(params: any) {
+    getUsersNotInProject (params: any) {
         return http.post(req.DL_GET_USER_NOT_IN_PROJECT, params)
     }
 }
