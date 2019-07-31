@@ -4,11 +4,11 @@ import { get } from 'lodash';
 
 import RuleForm from './ruleForm';
 
-@(connect((state: any) as any) => {
+@(connect((state: any)=> {
     return {
         monitorFunction: get(state, 'ruleConfig.monitorFunction')
     }
-})
+}) as any)
 class Rule extends React.Component<any, any> {
     constructor(props: any) {
         super(props);

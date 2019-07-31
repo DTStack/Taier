@@ -7,7 +7,7 @@ import Api from '../../api/taskQuery'
 const Option = Select.Option;
 
 class RuleDetailTableModal extends React.Component<any, any> {
-    _key = null;
+    _key: any = null;
     onCancel = () => {
         this._key = Math.random();
         this.props.onCancel();

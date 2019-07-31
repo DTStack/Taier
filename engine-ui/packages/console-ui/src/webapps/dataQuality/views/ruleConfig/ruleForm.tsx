@@ -13,11 +13,11 @@ import HelpDoc from '../helpDoc';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         verifyTypeList: get(state, 'common.allDict.verifyType', [])
     }
-})
+}) as any )
 class RuleForm extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -91,7 +91,7 @@ class RuleForm extends React.Component<any, any> {
             )}
         </FormItem>
     }
-    renderOperator(isTypeCheck: any) {
+    renderOperator(isTypeCheck?: any) {
         const { isEdit, data } = this.props;
         const { getFieldDecorator } = this.props.form;
         const isStringLength = (functionId: any) => {

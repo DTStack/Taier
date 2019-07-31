@@ -27,7 +27,7 @@ const FormItem = Form.Item;
 
 // API服务器
 // eslint-disable-next-line
-const API_SERVER = APP_CONF && APP_CONF.API_SERVER ? APP_CONF.API_SERVER : '';
+const API_SERVER = window.APP_CONF && window.APP_CONF.API_SERVER ? window.APP_CONF.API_SERVER : '';
 
 const mapStateToProps = (state: any) => {
     const { ruleConfig } = state;
@@ -43,10 +43,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class RemoteTriggerPane extends React.Component<any, any> {
     constructor (props: any) {
         super(props);

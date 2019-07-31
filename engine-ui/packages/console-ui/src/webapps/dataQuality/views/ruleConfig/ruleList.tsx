@@ -67,14 +67,14 @@ class RuleList extends React.Component<any, any> {
             ruleList: [newData, ...this.state.ruleList]
         }, this.emitChangeEvent)
     }
-    renderSaveAll () {
-        const { ruleList } = this.state;
-        const { couldSaveAll } = this.props;
-        const rule = ruleList.find((r: any) => {
-            return r.isEdit;
-        })
-        return (couldSaveAll && rule) ? (<Button onClick={this.saveAll}>保存全部</Button>) : null;
-    }
+    // renderSaveAll () {
+    //     const { ruleList } = this.state;
+    //     const { couldSaveAll } = this.props;
+    //     const rule = ruleList.find((r: any) => {
+    //         return r.isEdit;
+    //     })
+    //     return (couldSaveAll && rule) ? (<Button onClick={this.saveAll}>保存全部</Button>) : null;
+    // }
     renderHeader () {
         const { dataSourceType } = this.props.data;
         const disableColumnValid = dataSourceType == DATA_SOURCE.SQLSERVER;
