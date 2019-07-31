@@ -111,7 +111,8 @@ public class FlinkResourceInfo extends EngineResourceInfo {
                 capacity = getQueueRemainCapacity(subCoefficient, queue, queueInfo.getChildQueues());
             }
             if (queue.equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+                queueCapacity = coefficient * queueInfo.getCapacity();
+                capacity = queueCapacity * (1 - queueInfo.getCurrentCapacity());
             }
             if (capacity>0){
                 return capacity;
