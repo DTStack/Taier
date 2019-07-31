@@ -13,6 +13,7 @@ class CreateDatabaseModal extends React.Component<any, any> {
         submitted: false,
         requesting: false
     }
+    dbForm: any;
 
     onSubmit = async () => {
         this.setState({
@@ -49,7 +50,8 @@ class CreateDatabaseModal extends React.Component<any, any> {
                     });
                     loadCatalogue();
                     // 移除当前元素active样式
-                    document.activeElement.blur();
+                    const ele: any = document.activeElement;
+                    ele.blur();
                 }
                 this.setState({
                     requesting: false

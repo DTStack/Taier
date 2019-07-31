@@ -18,6 +18,8 @@ const defaultPro: any = {
 
 @(connect() as any)
 class Main extends React.Component<any, any> {
+    propTypes: any = propType;
+    defaultProps: any = defaultPro;
     componentDidMount () {
         const { dispatch } = this.props;
         dispatch(updateApp(aeApp));
@@ -35,7 +37,4 @@ class Main extends React.Component<any, any> {
         )
     }
 }
-Main.propTypes = propType
-Main.defaultProps = defaultPro
-
 export default Main

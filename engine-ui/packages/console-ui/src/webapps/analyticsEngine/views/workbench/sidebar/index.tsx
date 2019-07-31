@@ -20,7 +20,7 @@ import { CATALOGUE_TYPE } from '../../../consts';
 
 const Search = Input.Search;
 
-@connect(
+@(connect(
     (state: any) => {
         const { folderTree } = state.workbench;
         return {
@@ -31,7 +31,8 @@ const Search = Input.Search;
     (dispatch: any) => {
         const actions = bindActionCreators(workbenchActions, dispatch);
         return actions;
-    })
+    }) as any
+)
 class Sidebar extends React.Component<any, any> {
     constructor (props: any) {
         super(props)
@@ -101,7 +102,7 @@ class Sidebar extends React.Component<any, any> {
         });
     }
 
-    onNodeSelect = (selectedKeys, { node }) => {
+    onNodeSelect = (selectedKeys: any, { node }: any) => {
         const { expandedKeys } = this.state;
         const { eventKey, fileType, data } = node.props;
         this.setState({
@@ -125,7 +126,7 @@ class Sidebar extends React.Component<any, any> {
         }
     }
 
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any, { expanded }: any) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)

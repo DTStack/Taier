@@ -75,7 +75,7 @@ export default class PaneData extends React.Component<any, any> {
             paginationParams: paginationParams
         })
     }
-    getTableX (tableCol: any) {
+    getTableX (tableCol?: any) {
         let base = 100;
         if (tableCol) {
             for (let i = 0; i < tableCol.length; i++) {

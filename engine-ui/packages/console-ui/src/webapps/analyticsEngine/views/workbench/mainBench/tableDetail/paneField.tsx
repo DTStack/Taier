@@ -22,7 +22,7 @@ export default class PaneField extends React.Component<any, any> {
             dataType: 'column'
         }
     }
-    componentDidMount (props: any) {
+    componentDidMount () {
         this.initData(this.props);
     }
     changeData = (e: any) => {
@@ -86,21 +86,21 @@ export default class PaneField extends React.Component<any, any> {
             dataIndex: 'invert',
             render: (text: any, record: any) => (
                 text === 0 ? '-'
-                    : <Checkbox disabled={true} defaultChecked={text === 1} onChange={(e: any) => this.handleInvert(e, record)}></Checkbox>
+                    : <Checkbox disabled={true} defaultChecked={text === 1}></Checkbox>
             )
         }, {
             title: '字典编码',
             dataIndex: 'dictionary',
             render: (text: any, record: any) => (
                 text === 0 ? '-'
-                    : <Checkbox disabled={true} defaultChecked={text === 1} onChange={(e: any) => this.handleDictionary(e, record)}></Checkbox>
+                    : <Checkbox disabled={true} defaultChecked={text === 1}></Checkbox>
             )
         }, {
             title: '多维索引',
             dataIndex: 'sortColumn',
             render: (text: any, record: any) => (
                 text === 0 ? '-'
-                    : <Checkbox disabled={true} defaultChecked={text === 1} onChange={(e: any) => this.handleSortColumn(e, record)}></Checkbox>
+                    : <Checkbox disabled={true} defaultChecked={text === 1}></Checkbox>
             )
         }, {
             title: '类型',

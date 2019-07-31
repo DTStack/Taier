@@ -31,7 +31,7 @@ export default {
         return http.post(req.GET_DB_USER_LIST, params);
     },
 
-    getDBUserRoles (params: any) {
+    getDBUserRoles (params?: any) {
         return http.post(req.GET_DB_USER_ROLE_LIST, params);
     },
 

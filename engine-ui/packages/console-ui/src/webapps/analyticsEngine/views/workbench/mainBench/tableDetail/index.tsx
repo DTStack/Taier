@@ -44,7 +44,7 @@ class TableDetail extends React.Component<any, any> {
                 notification.error({
                     title: '提示',
                     description: res.message
-                })
+                } as any)
             }
         })
     }
@@ -63,12 +63,12 @@ class TableDetail extends React.Component<any, any> {
                 notification.error({
                     title: '提示',
                     description: res.message
-                })
+                } as any)
             }
         })
     }
 
-    onSelectMenu = ({ key }) => {
+    onSelectMenu = ({ key }: any) => {
         let self = this;
 
         const { databaseId, id } = this.props.data.tableDetail;
@@ -124,7 +124,7 @@ class TableDetail extends React.Component<any, any> {
         )
         return (
             <div className="table-detail-container pane-wrapper" id="table-detail-container">
-                <Row className="table-detail-panel" id="table-detail-panel">
+                <Row className="table-detail-panel" {...{ id: 'table-detail-panel' }}>
                     <div className="func-box">
                         <span className="title" style={{ fontWeight: 'bold' }}>表信息</span>
                         <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -146,7 +146,7 @@ class TableDetail extends React.Component<any, any> {
                         </span>
 
                     </div>
-                    <table className="table-info" width="100%" cellPadding="0" cellSpacing="0">
+                    <table className="table-info" {...{ width: '100%' }} cellPadding="0" cellSpacing="0">
                         <tbody>
                             <tr>
                                 <td>数据库</td>
@@ -193,7 +193,7 @@ class TableDetail extends React.Component<any, any> {
                     <div className="func-box">
                         <span className="title" style={{ fontWeight: 'bold' }}>压缩配置</span>
                     </div>
-                    <table className="table-info" width="100%" cellPadding="0" cellSpacing="0">
+                    <table className="table-info" {...{ width: '100%' }} cellPadding="0" cellSpacing="0">
                         <tbody>
                             <tr>
                                 <td>MAJOR_COMPACTION_SIZE</td>
@@ -218,7 +218,7 @@ class TableDetail extends React.Component<any, any> {
                 </Row>
                 <Row className="tabs-row" style={{ marginBottom: 40 }}>
                     <div className="tabs-container">
-                        <Tabs tabBarStyle={{ height: 36 }} tabBarGutter="0" type="card" onChange={this.handleTabsChange}>
+                        <Tabs tabBarStyle={{ height: 36 }} {...{ tabBarGutter: '0' }} type="card" onChange={this.handleTabsChange}>
                             {
                                 tabsData.map((o: any) => (
                                     <TabPane forceRender={true} tab={o.title} key={o.key}>{o.content}</TabPane>

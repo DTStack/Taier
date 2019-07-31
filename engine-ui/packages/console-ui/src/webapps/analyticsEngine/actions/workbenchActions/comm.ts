@@ -114,7 +114,7 @@ export function onSQLQuery (params: any) {
 /**
  * 加载左侧树形目录数据
  */
-export const loadCatalogue = function (data: any, fileType: any) {
+export const loadCatalogue = function (data?: any, fileType?: any) {
     return async (dispatch: any) => {
         let res: any = {};
         switch (fileType) {

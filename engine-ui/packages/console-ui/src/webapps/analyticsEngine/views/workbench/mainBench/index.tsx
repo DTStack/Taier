@@ -13,7 +13,7 @@ import BenchContent from './benchContent';
 
 const TabPane = Tabs.TabPane;
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench, user } = state;
         return {
@@ -25,7 +25,7 @@ const TabPane = Tabs.TabPane;
         const actions = bindActionCreators(workbenchActions, dispatch);
         return actions;
     }
-)
+) as any)
 class MainBench extends React.Component<any, any> {
     renderTabs = (tabs: any) => {
         if (tabs && tabs.length > 0) {
@@ -75,7 +75,7 @@ class MainBench extends React.Component<any, any> {
                     })}
                 </Menu>
             }>
-                <Icon type="bars" size="" style={{ margin: '7px 5px 0px 0px', fontSize: 18, display: 'block' }} />
+                <Icon type="bars" style={{ margin: '7px 5px 0px 0px', fontSize: 18, display: 'block' }} />
             </Dropdown>
         )
     }

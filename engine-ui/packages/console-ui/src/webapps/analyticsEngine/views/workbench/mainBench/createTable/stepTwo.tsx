@@ -119,7 +119,7 @@ const decimalPrecision: any = [
 const decimalScale: any = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 export default class StepTwo extends React.Component<any, any> {
     constructor (props: any) {
-        super();
+        super(props);
         this.state = {
             columns: [],
             partitions: {},
@@ -819,7 +819,7 @@ export default class StepTwo extends React.Component<any, any> {
         const { columns, partitions, bucketInfo } = this.state;
         console.log(columns);
         return (
-            <Row className="step-two-container step-container" id="table-panel">
+            <Row className="step-two-container step-container" id="table-panel" {...{ id: 'table-panel' }}>
                 <div className="table-panel" id="field_panel">
                     <span className="title">字段信息</span>
                     <Table
@@ -845,7 +845,6 @@ export default class StepTwo extends React.Component<any, any> {
                 >
                     <div className="area-title-container">
                         <span className="title">分区信息</span>
-                        {/* <a href="javascript:;"><Icon className="icon" type="question-circle-o"/>如何添加复杂的分区格式?</a> */}
                     </div>
                     <div style={{ marginBottom: 10 }}>
                         <span>分区模式：</span>

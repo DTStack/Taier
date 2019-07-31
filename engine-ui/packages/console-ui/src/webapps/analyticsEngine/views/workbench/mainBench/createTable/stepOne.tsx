@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Form, Radio, Input, Select, Button, Row, Collapse, Icon, Modal, message } from 'antd';
-// import { formItemLayout} from "../../../../consts/index"
 import API from '../../../../api';
 import CopyIcon from 'main/components/copy-icon';
 
@@ -63,8 +62,8 @@ const formItemLayout: any = {
 }
 
 class StepOne extends React.Component<any, any> {
-    constructor () {
-        super();
+    constructor (props: any) {
+        super(props);
 
         this.state = {
             databaseList: [],
@@ -75,7 +74,8 @@ class StepOne extends React.Component<any, any> {
             databaseId: undefined
         }
     }
-
+    DDLEditor: any;
+    _DDL: any;
     next = () => {
         const { form } = this.props;
         form.validateFields((err: any, values: any) => {
@@ -299,7 +299,7 @@ class StepOne extends React.Component<any, any> {
                         <HelpDoc style={relativeStyle} doc="blockSize" />
                     </FormItem>
                     <Collapse onChange={() => this.setState({ downIcon: !this.state.downIcon })}>
-                        <Panel showArrow={false} header={<span>压缩配置&nbsp;<Icon type={this.state.downIcon ? 'caret-down' : 'caret-up'} /></span>} key="1">
+                        <Panel showArrow={false} {...{ showArrow: false }} header={<span>压缩配置&nbsp;<Icon type={this.state.downIcon ? 'caret-down' : 'caret-up'} /></span>} key="1">
                             <FormItem
                                 {...formItemLayout}
                                 label="压缩模式">
@@ -393,7 +393,9 @@ class StepOne extends React.Component<any, any> {
                     title={(
                         <span>DDL建表<CopyIcon title="复制模版" style={{ marginLeft: '8px' }} copyText={DdlPlaceholderAnly} /></span>
                     )}
-                    maskClosable={false}>
+                    maskClosable={false}
+                    {...{ destroyOnClose: true }}
+                >
                     <FormItem
                         required
                         label="数据库"

@@ -41,6 +41,8 @@ class DatabaseDetail extends React.Component<any, any> {
         }
     }
 
+    _eidtRoleForm: any;
+
     componentDidMount () {
         this.loadDBUsers();
         this.loadDBUserRoles();
@@ -48,7 +50,7 @@ class DatabaseDetail extends React.Component<any, any> {
         this.onSearchUsers();
     }
 
-    loadDBUsers = async (params: any) => {
+    loadDBUsers = async (params?: any) => {
         this.setState({ loading: 'loading' });
         const reqParams = Object.assign(this.state.queryParams, params);
         const res = await API.getDBUsers(reqParams);
@@ -112,7 +114,7 @@ class DatabaseDetail extends React.Component<any, any> {
         }
     }
 
-    onSearchUsers = async (value: any) => {
+    onSearchUsers = async (value?: any) => {
         const res = await API.searchUsersNotInDB({
             userName: value
         });
@@ -184,7 +186,7 @@ class DatabaseDetail extends React.Component<any, any> {
         })
     }
 
-    onSelectMenu = ({ key }) => {
+    onSelectMenu = ({ key }: any) => {
         const { data, onRemoveDB } = this.props;
 
         if (key === 'RESET') {
@@ -331,7 +333,7 @@ class DatabaseDetail extends React.Component<any, any> {
                         数据库信息
                         {this.renderDropMenu()}
                     </h1>
-                    <table style={{ marginTop: 5 }} className="table-info" width="100%" cellPadding="0" cellSpacing="0">
+                    <table style={{ marginTop: 5 }} className="table-info" width="100%" {...{ width: '100%' }} cellPadding="0" cellSpacing="0">
                         <tbody>
                             <tr>
                                 <td>JDBC信息</td>

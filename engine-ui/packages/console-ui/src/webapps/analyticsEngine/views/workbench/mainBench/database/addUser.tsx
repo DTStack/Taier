@@ -24,6 +24,7 @@ class FormAddUser extends React.Component<any, any> {
                     value={`${item.userId}`}
                     name={item.userName}
                     optionFilterProp="name"
+                    {...{ name: item.userName, optionFilterProp: 'name' }}
                 >
                     {item.userName}
                 </Option>
@@ -72,6 +73,7 @@ class FormAddUser extends React.Component<any, any> {
                             mode="multiple"
                             showSearch
                             showArrow={true}
+                            {...{ showArrow: true }}
                             style={{ width: '100%' }}
                             notFoundContent="当前用户不存在"
                             placeholder="请搜索并选择用户"
@@ -92,7 +94,6 @@ class FormAddUser extends React.Component<any, any> {
                     })(
                         <CheckboxGroup
                             options={roleOptions}
-                            onChange={this.roleChange}
                         />
                     )}
                 </FormItem>
@@ -104,6 +105,8 @@ class FormAddUser extends React.Component<any, any> {
 const FormWrapper = Form.create<any>()(FormAddUser);
 
 class AddUser extends React.Component<any, any> {
+    _formInstance: any;
+
     addUser = () => {
         const { onSubmit } = this.props;
         const form = this._formInstance.props.form;

@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { Row, Button, Modal, message } from 'antd';
+
+import SplitPane from 'react-split-pane';
+import { singletonNotification } from 'funcs';
+
 import DataMapForm from './form';
 import Columns from './column';
 import API from '../../../../api';
-import { singletonNotification } from 'funcs';
 import { CATALOGUE_TYPE, dataMapStatus } from '../../../../consts';
 import '../../../../styles/views/dataMap.scss';
-import SplitPane from 'react-split-pane';
+
 const confirm = Modal.confirm;
 
 class DataMap extends React.Component<any, any> {
@@ -19,7 +22,9 @@ class DataMap extends React.Component<any, any> {
     }
 
     // 查询语句
-    _selectSQL = undefined;
+    _selectSQL: any = undefined;
+    formInstance: any;
+    _checkStatus: any;
 
     componentDidMount () {
         const data = this.props.data;

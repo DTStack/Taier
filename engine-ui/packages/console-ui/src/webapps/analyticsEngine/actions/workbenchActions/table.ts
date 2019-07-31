@@ -10,7 +10,7 @@ import { resetModal, openTab, updateModal, closeTab, loadCatalogue } from './com
 /**
  * 生成建表语句
  */
-export function onGenerateCreateSQL ({ tableId, databaseId }) {
+export function onGenerateCreateSQL ({ tableId, databaseId }: any) {
     return async (dispatch: any) => {
         const res = await API.getCreateSQL({
             tableId,
@@ -231,7 +231,7 @@ export function handleSave () {
             return;
         }
         let stopFlag = false;
-        let bucketList = [];
+        let bucketList: any = [];
         if (!params.columns || !params.columns.length) {
             notification.error({
                 message: '提示',
@@ -362,7 +362,7 @@ export function saveTableInfo (param: any) {
 
         lifeDay = lifeDay === -1 ? tableDetail.shortLisyCycle : lifeDay;
 
-        let flag = [];
+        let flag: any = [];
         columns.map((o: any) => {
             if (o.isNew) {
                 flag.push({
@@ -382,7 +382,6 @@ export function saveTableInfo (param: any) {
         const res = await API.saveTableInfo({ databaseId, tableName, tableDesc, lifeDay, columns: flag, partitions, id });
         if (res.code === 1) {
             message.success('修改成功')
-            // dispatch(handleCancel());
             dispatch(toTableDetail({ databaseId: tableDetail.databaseId, id: tableDetail.id }))
         } else {
             notification.error({

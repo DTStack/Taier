@@ -3,6 +3,9 @@ import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
+
+declare var window: any;
+
 @(connect((state: any) => {
     return {
         user: state.user,

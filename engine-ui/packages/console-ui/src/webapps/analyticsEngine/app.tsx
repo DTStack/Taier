@@ -6,6 +6,8 @@ import { getStore } from 'utils/reduxUtils'
 
 import Root from './root'
 
+declare var module: any;
+
 const render = (Component: any) => {
     const rootReducer = require('./reducers').default;
     const { store, history } = getStore(rootReducer, 'hash');

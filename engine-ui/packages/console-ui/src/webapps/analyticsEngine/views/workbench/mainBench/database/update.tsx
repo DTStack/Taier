@@ -13,6 +13,7 @@ class UpdateDatabaseModal extends React.Component<any, any> {
         submitted: false,
         requesting: false
     }
+    dbForm: any;
 
     onSubmit = () => {
         if (this.state.submitted) {

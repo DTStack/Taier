@@ -14,7 +14,7 @@ import workbenchActions from '../../actions/workbenchActions';
 
 const { Content } = Layout;
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench, modal } = state;
         return {
@@ -26,7 +26,7 @@ const { Content } = Layout;
         const actions = bindActionCreators(workbenchActions, dispatch);
         return actions;
     }
-)
+) as any)
 class Workbench extends React.Component<any, any> {
     componentDidMount () {
         if (process.env.NODE_ENV === 'production') {
@@ -77,13 +77,11 @@ class Workbench extends React.Component<any, any> {
     }
 
     beforeunload = (e: any) => {
-        /* eslint-disable */
-        const confirmationMessage = "\o/";
+        // eslint-disable-next-line no-useless-escape
+        const confirmationMessage = '\o/';
         (e || window.event).returnValue = confirmationMessage; // Gecko + IE
         return confirmationMessage; // Webkit, Safari, Chrome
-        /* eslint-disable */
     };
-
 }
 
 export default Workbench;

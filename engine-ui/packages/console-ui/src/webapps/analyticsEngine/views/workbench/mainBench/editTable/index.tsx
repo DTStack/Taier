@@ -479,7 +479,7 @@ class EditTable extends React.Component<any, any> {
                     </Form>
                 </Row>
 
-                <Row className="panel table-box" id="table-panel">
+                <Row className="panel table-box" id="table-panel" {...{ id: 'table-panel' }}>
                     <div className="title">字段信息</div>
                     <Table
                         size="small"

@@ -9,6 +9,7 @@ export default class StepFour extends React.Component<any, any> {
             siv: null
         }
     }
+    siv: any;
     componentDidMount () {
         console.log('MOunt')
         this.siv = setInterval(() => {

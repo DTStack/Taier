@@ -10,7 +10,7 @@ import * as tableActions from '../../../../actions/workbenchActions/table';
 
 const Step = Steps.Step;
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench } = state;
         return {
@@ -21,10 +21,10 @@ const Step = Steps.Step;
         const actions = bindActionCreators(tableActions, dispatch);
         return actions;
     }
-)
+) as any)
 class CreateTable extends React.Component<any, any> {
-    constructor () {
-        super();
+    constructor (props: any) {
+        super(props);
     }
     render () {
         const { currentStep } = this.props.data;

@@ -20,7 +20,7 @@ import commActions from '../../../../actions';
 
 const Option = Select.Option;
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench, editor } = state;
         const databaseList = workbench.folderTree.children || [];
@@ -37,8 +37,9 @@ const Option = Select.Option;
         const actionsThree = bindActionCreators(commActions, dispatch);
         return Object.assign(actionsOne, actionsTwo, actionsThree);
     }
-)
+) as any)
 class EditorContainer extends React.Component<any, any> {
+    _editor: any;
     state: any = {
         tableList: [],
         funcList: [],
@@ -130,7 +131,7 @@ class EditorContainer extends React.Component<any, any> {
 
     filterSql = (sql: any) => {
         const arr: any = [];
-        let sqls = filterComments(sql);
+        let sqls: any = filterComments(sql);
         // 如果有有效内容
         if (sqls) {
             sqls = splitSql(sqls);
@@ -222,9 +223,9 @@ class EditorContainer extends React.Component<any, any> {
     };
 
     completeProvider (
-        completeItems,
-        resolve,
-        customCompletionItemsCreater
+        completeItems: any,
+        resolve: any,
+        customCompletionItemsCreater: any
     ) {
         const { tableCompleteItems, funcCompleteItems } = this.state;
 
@@ -240,18 +241,19 @@ class EditorContainer extends React.Component<any, any> {
      * @param {表名} tableName
      */
     getTableColumns (tableName: any) {
-        let _tableColumns = this._tableColumns;
+        let _tableColumns: any = this._tableColumns;
+        let _tableLoading: any = this._tableLoading;
         if (_tableColumns[tableName]) {
             return Promise.resolve(_tableColumns[tableName]);
         }
         // 共用现有请求线程
-        if (this._tableLoading[tableName]) {
-            return this._tableLoading[tableName];
+        if (_tableLoading[tableName]) {
+            return _tableLoading[tableName];
         }
-        this._tableLoading[tableName] = API.getColumnsOfTable({
+        _tableLoading[tableName] = API.getColumnsOfTable({
             tableName
         }).then((res: any) => {
-            this._tableLoading[tableName] = null;
+            _tableLoading[tableName] = null;
             if (res.code == 1) {
                 _tableColumns[tableName] = [tableName, res.data];
                 return _tableColumns[tableName];
@@ -259,7 +261,7 @@ class EditorContainer extends React.Component<any, any> {
                 console.log('get table columns error');
             }
         });
-        return this._tableLoading[tableName];
+        return _tableLoading[tableName];
     }
 
     onSyntaxChange (autoComplete: any, syntax: any) {
