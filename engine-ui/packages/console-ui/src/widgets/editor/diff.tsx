@@ -22,51 +22,51 @@ import './style.scss';
 import { defaultOptions } from './config';
 
 export interface DiffEditorProps {
-    className: string;
-    style: object;
-    options: object;
-    theme: any;
-    language: any;
-    value: any;
+    className?: string;
+    style?: object;
+    options?: object;
+    theme?: any;
+    language?: any;
+    value?: any;
     /**
      * 该方法的入参为源文件Editor的引用
      */
-    editorInstanceRef: Function;
+    editorInstanceRef?: Function;
     /**
      * 源文件的属性对象
      * value:文件内容
      * cursorPosition:文件的指针位置
      */
-    original: { value: string, cursorPosition: object }
+    original?: { value: string, cursorPosition?: object }
     /**
      * 被对比文件的属性对象
      * value:文件内容
      */
-    modified: { value: string },
+    modified?: { value: string },
     /**
      * 源文件改变事件回调函数
      */
-    onChange: Function,
+    onChange?: Function,
     /**
      * 源文件失去焦点回调函数
      */
-    onBlur: Function,
+    onBlur?: Function,
     /**
      * 源文件获得焦点回调函数
      */
-    onFocus: Function,
+    onFocus?: Function,
     /**
      * 文件指针改变事件回调函数
      */
-    onCursorSelection: Function,
+    onCursorSelection?: Function,
     /**
      * 是否同步源文件内容
      */
-    sync: boolean,
+    sync?: boolean,
     /**
      * 是否打印编辑器日志
      */
-    isLog: boolean
+    isLog?: boolean
 }
 
 class DiffEditor extends React.Component<DiffEditorProps, any> {
