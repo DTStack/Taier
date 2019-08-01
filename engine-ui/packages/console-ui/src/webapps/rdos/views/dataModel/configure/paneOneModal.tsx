@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { isEmpty } from 'lodash';
 import {
-    Form, Input,
+    Form, Input as mInput,
     Modal, Checkbox
 } from 'antd'
 
@@ -9,7 +9,7 @@ import { formItemLayout } from '../../../comm/const'
 import LifeCycle from '../../dataManage/lifeCycle'
 
 const FormItem = Form.Item
-
+const Input: any = mInput;
 class ModelLevelModal extends React.Component<any, any> {
     state: any = { }
 

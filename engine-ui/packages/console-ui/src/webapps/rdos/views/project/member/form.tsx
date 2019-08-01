@@ -7,7 +7,7 @@ import {
 import { formItemLayout, PROJECT_ROLE } from '../../../comm/const'
 
 const FormItem = Form.Item
-const Option = Select.Option
+const Option: any = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
 class MemberForm extends React.Component<any, any> {
@@ -76,7 +76,7 @@ class MemberForm extends React.Component<any, any> {
                     })(
                         <CheckboxGroup
                             options={roleOptions}
-                            onChange={this.roleChange}
+                            // onChange={this.roleChange}
                         />
                     )}
                 </FormItem>

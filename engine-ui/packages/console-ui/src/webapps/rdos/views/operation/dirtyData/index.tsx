@@ -35,7 +35,7 @@ require('echarts/lib/component/title');
 
 const Search = Input.Search;
 const FormItem = Form.Item;
-const Option = Select.Option;
+const Option: any = Select.Option;
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 
@@ -70,7 +70,7 @@ const TIME_OBJ: any = {
     }
 };
 
-@connect(
+@(connect(
     (state: any) => {
         return {
             project: state.project
@@ -84,7 +84,7 @@ const TIME_OBJ: any = {
             }
         };
     }
-)
+) as any)
 class DirtyData extends React.Component<any, any> {
     state: any = {
         lineChart: '',
@@ -165,7 +165,7 @@ class DirtyData extends React.Component<any, any> {
         });
     };
 
-    loadProduceData = (params: any) => {
+    loadProduceData = (params?: any) => {
         const ctx = this;
         this.setState({ loading: true });
         Api.getDirtyDataTables(params).then((res: any) => {
@@ -178,7 +178,7 @@ class DirtyData extends React.Component<any, any> {
         });
     };
 
-    loadSyncTasks = (params: any) => {
+    loadSyncTasks = (params?: any) => {
         const ctx = this;
         Api.getPubSyncTask(params).then((res: any) => {
             if (res.code === 1) {

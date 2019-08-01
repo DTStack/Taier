@@ -10,6 +10,7 @@ import { formItemLayout } from '../../../comm/const'
 import RoleForm from './form'
 
 export default class RoleAdd extends React.Component<any, any> {
+    form: any;
     goIndex = () => {
         this.props.router.go(-1)
     }

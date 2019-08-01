@@ -12,11 +12,11 @@ import { PROJECT_TYPE } from '../../../comm/const';
 
 const TabPane = Tabs.TabPane;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class PackageContainer extends React.Component<any, any> {
     state={
     }
@@ -50,7 +50,7 @@ class PackageContainer extends React.Component<any, any> {
                     animated={false}
                     onChange={this.onChange.bind(this)}
                     activeKey={params.type}
-                    onEdit={this.onEdit}
+                    // onEdit={this.onEdit}
                     tabBarStyle={{ background: 'transparent', borderWidth: '0px' }}
                 >
                     <TabPane className="m-panel2" tab="创建发布包" key="create">

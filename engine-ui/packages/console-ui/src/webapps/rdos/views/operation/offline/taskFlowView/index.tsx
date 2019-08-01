@@ -21,11 +21,11 @@ const {
     mxPopupMenu
 } = Mx
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class TaskFlowView extends React.Component<any, any> {
     state: any = {
         loading: 'success',
@@ -37,7 +37,7 @@ class TaskFlowView extends React.Component<any, any> {
         visibleWorkflowVisible: false, // 是否打开工作流
         currentNodeData: {} // 缓存节点数据
     }
-
+    _originData: any;
     componentDidMount () {
         this.refresh();
     }
@@ -219,7 +219,7 @@ class TaskFlowView extends React.Component<any, any> {
     initGraphEvent = (graph: any) => {
         const ctx = this;
         let highlightEdges: any = [];
-        let selectedCell = null;
+        let selectedCell: any = null;
 
         if (graph) {
             graph.addListener(mxEvent.CELLS_FOLDED, function (sender: any, evt: any) {
@@ -285,7 +285,9 @@ class TaskFlowView extends React.Component<any, any> {
             recordModalVisible, currentNodeData,
             workflowData, graphData, selectedWorkflowNode
         } = this.state;
-
+        const heightFix = {
+            height: 600
+        }
         return (
             <div
                 style={{
@@ -307,7 +309,7 @@ class TaskFlowView extends React.Component<any, any> {
                 <Modal
                     zIndex={999}
                     width={900}
-                    height={600}
+                    {...heightFix}
                     footer={null}
                     maskClosable={true}
                     visible={this.state.visibleWorkflow}

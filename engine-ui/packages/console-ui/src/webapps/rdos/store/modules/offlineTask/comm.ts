@@ -77,7 +77,7 @@ export const commReducer = combineReducers({
 /**
  * @param type 任务类型/脚本任务，获取spark,libra任务/脚本不同表
  */
-export const getTableList = (projectId: any, type: any) => {
+export const getTableList = (projectId?: any, type?: any) => {
     return (dispatch: any, getState: any) => {
         Api.getTableListByName({
             appointProjectId: projectId,

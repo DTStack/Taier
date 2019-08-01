@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Select, message, Icon } from 'antd';
+import { Modal, Form, Input as mInput, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout, TABLE_TYPE } from '../../../comm/const';
 const FormItem = Form.Item;
-const Option = Select.Option;
-
-@(connect((state: any) as any) => {
+const Option: any = Select.Option;
+const Input: any = mInput;
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class AddDesensitization extends React.Component<any, any> {
     constructor(props: any) {
         super(props);

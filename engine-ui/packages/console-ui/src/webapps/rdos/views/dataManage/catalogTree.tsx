@@ -1,10 +1,11 @@
 import * as React from 'react'
 import {
-    Tree, TreeSelect, Icon, message,
+    Tree as mTree, TreeSelect as mTreeSelect, Icon, message,
     Tooltip, Popconfirm
 } from 'antd'
-
+const Tree: any = mTree; 
 const TreeNode = Tree.TreeNode
+const TreeSelect: any = mTreeSelect
 
 class CatalogueTree extends React.Component<any, any> {
     state: any = {
@@ -13,7 +14,7 @@ class CatalogueTree extends React.Component<any, any> {
         disabledAdd: false
     }
 
-    _expendKeys = []
+    _expendKeys: any = []
     _expanded = true
 
     componentDidMount () {}
@@ -40,7 +41,7 @@ class CatalogueTree extends React.Component<any, any> {
         })
     }
 
-    onEdit = (e: any) => {
+    onEdit = (e?: any) => {
         const inputEle = this._overRoot.querySelector('.normal-node')
         this._inputEle = inputEle;
         this.initEdit(inputEle)
@@ -257,7 +258,7 @@ class CatalogueTree extends React.Component<any, any> {
     }
 
     render () {
-        let treeContent = ''
+        let treeContent = null;
         const {
             onSelect, onChange, id, value, showSearch,
             isPicker, placeholder, defaultValue, treeCheckable

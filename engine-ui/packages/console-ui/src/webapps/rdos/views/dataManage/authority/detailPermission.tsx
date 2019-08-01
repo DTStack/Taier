@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { Form, Input, Modal, Button, Checkbox, Pagination, Icon, Tooltip } from 'antd'
+import { Form, Input as mInput, Modal, Button, Checkbox, Pagination, Icon, Tooltip } from 'antd'
 
 import ajax from '../../../api/dataManage';
 
 import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item;
-
+const Input: any = mInput;
 const CheckboxGroup = Checkbox.Group;
 const pageSize = 20;
 const formItemLayout1: any = { // ddl,dml表单布局

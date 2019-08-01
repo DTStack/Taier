@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { isEmpty } from 'lodash';
 import {
-    Form, Input, Select,
+    Form, Input as mInput, Select,
     Modal
 } from 'antd'
 
@@ -10,6 +10,7 @@ import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
 const Option = Select.Option;
+const Input: any = mInput;
 
 class AtomIndexDefineModal extends React.Component<any, any> {
     state: any = {

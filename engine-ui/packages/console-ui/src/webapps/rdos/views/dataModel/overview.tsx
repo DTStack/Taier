@@ -33,7 +33,10 @@ class Overview extends React.Component<any, any> {
         tableTrend: '',
         columnTrend: ''
     }
-
+    _chart1: any;
+    _chart2: any;
+    _chart3: any;
+    _chart4: any;
     componentDidMount () {
         this.statisticTotal();
         this.statisticTableRate();

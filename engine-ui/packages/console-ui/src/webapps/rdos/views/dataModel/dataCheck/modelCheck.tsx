@@ -162,11 +162,14 @@ export default class ModelCheck extends React.Component<any, any> {
             key: 'operation',
             render: (record: any) => {
                 const showText = record.isIgnore ? '恢复' : '忽略';
+                const isDisable = {
+                    disabled: !couldEdit
+                }
                 return (
                     <div key={record.id}>
                         <Link disabled={!couldEdit} to={`/data-model/table/modify/${record.id}`}>修改</Link>
                         <span className="ant-divider" />
-                        <a disabled={!couldEdit} onClick={() => { this.ignore(record) }}>{showText}</a>
+                        <a {...isDisable} onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
             }

@@ -55,12 +55,12 @@ export const isEqTable = (from: any, compareTo: any) => {
         from.belongProjectId === compareTo.belongProjectId &&
         from.column === compareTo.column
 }
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class BloodRelation extends React.Component<any, any> {
     state: any = {
         selectedData: '', // 选中的数据

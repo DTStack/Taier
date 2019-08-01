@@ -4,6 +4,7 @@ import { Modal } from 'antd';
 import EngineForm from '../../../components/engineForm';
 
 class CreateEngineModal extends React.Component<any, any> {
+    _refInstance: any
     onOk = () => {
         const { onOk } = this.props;
         const form = this._refInstance.props.form;

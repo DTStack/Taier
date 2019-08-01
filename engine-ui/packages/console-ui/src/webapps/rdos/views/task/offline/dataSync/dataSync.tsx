@@ -37,7 +37,7 @@ class DataSync extends React.Component<any, any> {
         currentStep: 0,
         loading: true
     }
-
+    _datasyncDom: any;
     componentDidMount () {
         const { currentTabData } = this.props;
 

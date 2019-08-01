@@ -38,10 +38,10 @@ export default {
     getModelRules (params: any) {
         return http.post(dataModelReq.MODEL_RULE_LIST, params)
     },
-    getColumnType (params: any) {
+    getColumnType (params?: any) {
         return http.post(dataModelReq.COLUMN_TYPE_LIST, params)
     },
-    getType (params: any) {
+    getType (params?: any) {
         return http.post(dataModelReq.TYPE_LIST, params)
     },
 
@@ -58,13 +58,13 @@ export default {
     deleteTable (params: any) {
         return http.post(dataModelReq.TABLE_DELETE, params)
     },
-    getTableNameRules (params: any) {
+    getTableNameRules (params?: any) {
         return http.post(dataModelReq.TABLE_NAME_RULE, params)
     },
     getTableListByType (params: any) {
         return http.post(dataModelReq.TABLE_LIST_BY_TYPE, params)
     },
-    getTablePartitions (params: any) {
+    getTablePartitions (params?: any) {
         return http.post(dataModelReq.TABLE_PARITIONS, params)
     },
     createTableByDDL (params: any) {
@@ -80,19 +80,19 @@ export default {
     },
 
     // ============ 总览 ============
-    statisticTotal (params: any) {
+    statisticTotal (params?: any) {
         return http.post(dataModelReq.STATISTICS_USAGE, params)
     },
-    statisticTableRate (params: any) {
+    statisticTableRate (params?: any) {
         return http.post(dataModelReq.STATISTICS_TABLE_RATE, params)
     },
-    statisticColumnRate (params: any) {
+    statisticColumnRate (params?: any) {
         return http.post(dataModelReq.STATISTICS_COLUMN_RATE, params)
     },
-    statisticTableTrend (params: any) {
+    statisticTableTrend (params?: any) {
         return http.post(dataModelReq.STATISTICS_TABLE_TREND, params)
     },
-    statisticColumnTrend (params: any) {
+    statisticColumnTrend (params?: any) {
         return http.post(dataModelReq.STATISTICS_COLUMN_TREND, params)
     }
 }

@@ -11,11 +11,11 @@ import utils from 'utils';
 import ModelLevelModal from './paneOneModal';
 import BasePane from './basePane';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class ModelLevel extends BasePane {
     constructor(props: any) {
         super(props);

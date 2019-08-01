@@ -11,11 +11,11 @@ import utils from 'utils';
 import BasePane from './basePane';
 import IncrementDefineModal from './paneFourModal';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class IncrementDefine extends BasePane {
     componentDidMount () {
         this.setState({

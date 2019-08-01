@@ -26,7 +26,7 @@ import * as editorActions from '../../../../store/modules/editor/editorAction';
 class CommonEditorContainer extends React.Component<any, any> {
     state: any = {
     }
-
+    _editor: any;
     componentDidMount () {
         const currentNode = this.props.currentTabData;
         if (currentNode) {

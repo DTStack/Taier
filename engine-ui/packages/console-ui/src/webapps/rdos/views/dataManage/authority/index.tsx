@@ -18,7 +18,7 @@ import ajax from '../../../api/dataManage';
 import ApprovalModal from './approvalModal';
 import DetailPermission from './detailPermission';
 const FormItem = Form.Item
-const Option = Select.Option
+const Option: any = Select.Option
 const TabPane = Tabs.TabPane
 const { RangePicker } = DatePicker;
 
@@ -54,7 +54,7 @@ const selectStatusList: any = [
     { status: 4, value: '已撤销' }
 ];
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         allProjects: state.allProjects,
         allTenantsProjects: state.allTenantsProjects,
@@ -67,7 +67,7 @@ const selectStatusList: any = [
             dispatch(getTenantTableTypes(params))
         }
     }
-})
+}) as any)
 class AuthMana extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -153,16 +153,6 @@ class AuthMana extends React.Component<any, any> {
             this.setState({ loading: false })
         })
     }
-
-    /* eslint-disable */
-    cancleMark = (applyData: any) => {
-        ajax.cancleMark(params).then((res: any) => {
-            if (res.code === 1) {
-                message.success('取消成功！')
-                this.search()
-            }
-        })
-    }
     /* eslint-enable */
 
     // 批量通过
@@ -190,7 +180,7 @@ class AuthMana extends React.Component<any, any> {
         })
     }
 
-    revoke = (ids = []) => {
+    revoke = (ids: any = []) => {
         let params: any;
         if (ids.length > 0) {
             params = { ids };

@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import {
-    Input, Button, Form, Tooltip, Icon
+    Input as mInput, Button, Form, Tooltip, Icon
 } from 'antd'
 
 import { isEmpty } from 'lodash';
@@ -20,7 +20,7 @@ import {
 
 import HelpDoc from '../../helpDoc';
 import CopyIcon from 'main/components/copy-icon';
-
+const Input: any = mInput;
 const FormItem = Form.Item;
 
 const hdfsConf =
@@ -278,7 +278,7 @@ class EngineSourceForm extends React.Component<any, any> {
         const { sourceType } = this.state;
 
         return (
-            <Form autoComplete="off">
+            <Form>
                 <FormItem
                     {...formItemLayout}
                     label="引擎类型"

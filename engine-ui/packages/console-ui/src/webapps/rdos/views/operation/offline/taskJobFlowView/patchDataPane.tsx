@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 
 import {
-    Row, Input, Select, message,
+    Row, Input, Select as mSelect, message,
     Pagination, Checkbox, Form,
     DatePicker, TimePicker, Tree
 } from 'antd'
@@ -18,7 +18,8 @@ import * as FlowAction from '../../../../store/modules/operation/taskflow'
 
 const Search = Input.Search
 const TreeNode = Tree.TreeNode
-const Option = Select.Option
+const Select: any = mSelect;
+const Option: any = Select.Option
 const FormItem = Form.Item
 
 function replaceTreeNode (treeNode: any, replace: any) {
@@ -83,7 +84,7 @@ class PatchData extends React.Component<any, any> {
         this.loadPatchData(params)
     }
 
-    loadPatchData (params: any) {
+    loadPatchData (params?: any) {
         const ctx = this
         this.setState({ loading: true, expandedKeys: [] })
         if (this.valideParams()) {
@@ -279,7 +280,7 @@ class PatchData extends React.Component<any, any> {
         this.setState({ expandedKeys })
     }
 
-    getTreeNodes = (data: any, parent: any) => {
+    getTreeNodes = (data?: any, parent?: any) => {
         if (data && data.length > 0) {
             const pid = parent ? parent.data : 0
             return data.map((item: any, index: any) => {
@@ -331,7 +332,6 @@ class PatchData extends React.Component<any, any> {
         const showTime = bussinessDate ? 'block' : 'none'
 
         const treeNodes = this.getTreeNodes(tasks.data)
-
         return (
             <div className="flow-operation">
                 <div className="filter-bar bd-bottom">

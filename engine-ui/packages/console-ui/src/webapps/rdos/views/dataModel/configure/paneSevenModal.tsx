@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { isEmpty } from 'lodash';
 import {
-    Form, Input, Select,
-    Modal, Button, message
+    Form, Input as mInput, Select,
+    Modal, Button as mButton, message
 } from 'antd'
 
 import Api from '../../../api/dataModel';
@@ -11,8 +11,9 @@ import {
 } from '../../../comm/const';
 
 const FormItem = Form.Item
-const Option = Select.Option;
-
+const Option: any = Select.Option;
+const Button: any = mButton;
+const Input: any = mInput;
 class DeriveIndexModal extends React.Component<any, any> {
     state: any = {
         indexNames: [],
@@ -50,7 +51,7 @@ class DeriveIndexModal extends React.Component<any, any> {
         })
     }
 
-    loadAtomIndex = (isEdit: any) => {
+    loadAtomIndex = (isEdit?: any) => {
         Api.getModelIndexs({
             type: 1,
             pageSize: 1000,

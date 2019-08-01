@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import {
     Select, Form, Card,
-    Button, message
+    Button as mButton, message
 } from 'antd';
 
 import {
@@ -14,19 +14,19 @@ import {
 
 import Api from '../../../api/dataModel';
 
-const Option = Select.Option;
+const Option: any = Select.Option;
 const FormItem = Form.Item;
-
+const Button: any = mButton;
 const defaultRule: any = {
     value: TABLE_MODEL_RULE.CUSTOM,
     name: '自定义'
 };
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class ModelDefineRule extends React.Component<any, any> {
     state: any = {
         tbNameRules: []

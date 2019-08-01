@@ -262,7 +262,7 @@ class TableEditor extends React.Component<any, any> {
     }
 
     delTable () {
-        const the = this;
+        const the: any = this;
         const { tableData } = this.props;
         const {
             belongProjectId

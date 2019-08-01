@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import {
     Modal, Tooltip,
-    Input, Form, message, Icon,
+    Input as mInput, Form, message, Icon,
     Switch
 } from 'antd'
 import BindProjectModal from './bindProject';
@@ -14,7 +14,7 @@ import utils from 'utils'
 import { formItemLayout, PROJECT_TYPE } from '../../comm/const'
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
-
+const Input: any = mInput;
 const FormItem = Form.Item
 
 function myFrom (props: any) {
@@ -62,7 +62,7 @@ class ProjectConfig extends React.Component<any, any> {
         isAllowDownloadLoading: false,
         visibleChangeProduce: false
     }
-
+    myForm: any;
     updateProjectDesc = () => {
         const { params, project, dispatch } = this.props
         const ctx = this

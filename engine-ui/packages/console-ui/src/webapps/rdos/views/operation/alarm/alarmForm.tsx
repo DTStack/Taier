@@ -1,13 +1,14 @@
 import * as React from 'react'
 import {
     Form, Input,
-    Select, Modal, Checkbox
+    Select as mSelect, Modal, Checkbox
 } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
-const Option = Select.Option
+const Select: any = mSelect;
+const Option: any = Select.Option
 const CheckboxGroup = Checkbox.Group
 
 class AlarmForm extends React.Component<any, any> {

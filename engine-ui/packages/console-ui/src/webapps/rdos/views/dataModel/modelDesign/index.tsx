@@ -47,7 +47,9 @@ class TableList extends React.Component<any, any> {
             editRecord: {}
         }
     }
-
+    searchInput: any;
+    _DDL: any;
+    DDLEditor: any;
     componentDidMount () {
         const { getProjectTableTypes, project } = this.props;
         const projectId = project && project.id;

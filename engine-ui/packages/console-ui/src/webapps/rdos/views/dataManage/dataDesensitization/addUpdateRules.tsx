@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input, Radio, InputNumber, Button, message, Select } from 'antd';
+import { Modal, Form, Input as mInput, Radio, InputNumber, Button, message, Select } from 'antd';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const Option = Select.Option;
-@(connect((state: any) as any) => {
+const Option: any = Select.Option;
+const Input: any = mInput;
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class AddUpdateRules extends React.Component<any, any> {
     state: any = {
         // 部分脱敏参数

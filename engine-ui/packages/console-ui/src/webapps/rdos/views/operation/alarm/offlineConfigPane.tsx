@@ -2,7 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 
 import {
-    Table, Select, Form, Card,
+    Table, Select as mSelect, Form, Card,
     Input, Button, message, Popconfirm
 } from 'antd'
 
@@ -16,8 +16,8 @@ import {
 } from '../../../components/status'
 
 import AlarmForm from './offLineAlarmForm'
-
-const Option = Select.Option
+const Select: any = mSelect;
+const Option: any = Select.Option
 const FormItem = Form.Item
 
 class OfflineConfig extends React.Component<any, any> {
@@ -48,7 +48,7 @@ class OfflineConfig extends React.Component<any, any> {
         }
     }
 
-    loadAlarmRules (params: any) {
+    loadAlarmRules (params?: any) {
         const ctx = this
         const reqForm = params || { pageIndex: 1 }
         this.setState({ loading: true })

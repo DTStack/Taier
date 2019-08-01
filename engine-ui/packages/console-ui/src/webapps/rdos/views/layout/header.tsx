@@ -16,14 +16,14 @@ const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
 const Search = Input.Search;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { workbench } = state.offlineTask;
 
     return {
         offlineTabs: workbench.tabs,
         licenseApps: state.licenseApps
     }
-})
+}) as any)
 class Header extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -71,7 +71,7 @@ class Header extends React.Component<any, any> {
             this.checkUnSaveTask(switchProject);
         }
     }
-    searchProject = (value: any) => {
+    searchProject = (value?: any) => {
         this.setState({
             filter: value || ''
         })

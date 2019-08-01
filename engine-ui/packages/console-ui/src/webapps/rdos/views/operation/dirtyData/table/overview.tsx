@@ -30,7 +30,7 @@ export default class TableOverview extends React.Component<any, any> {
             tableId: this.props.routeParams.tableId
         };
     }
-
+    _lineChart: any;
     componentDidMount () {
         const tableId = this.state.tableId;
         this.getTableOverview({ tableId: tableId, recentTime: '7' });

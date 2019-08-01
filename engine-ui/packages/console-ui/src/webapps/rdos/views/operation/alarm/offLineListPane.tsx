@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import {
-    Table, Row, Col, Select, Card,
-    Input, Button, DatePicker, Form
+    Table, Row, Col, Select as mSelect, Card,
+    Input as mInput, Button, DatePicker, Form
 } from 'antd'
 
 import utils from 'utils'
@@ -13,9 +13,10 @@ import {
     TaskType,
     AlarmTypes
 } from '../../../components/status'
-
+const Input: any = mInput;
+const Select: any = mSelect;
 const RangePicker = DatePicker.RangePicker
-const Option = Select.Option
+const Option: any = Select.Option
 const FormItem = Form.Item
 
 class OfflinePanel extends React.Component<any, any> {

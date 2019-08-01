@@ -68,7 +68,7 @@ export default {
     applyTable (params: any) {
         return http.post(dataManageReq.APPLY_TABLE, params)
     },
-    getUsersInTenant (params: any) {
+    getUsersInTenant (params?: any) {
         return http.post(dataManageReq.GET_USERS_IN_TENANT, params)
     },
     // =========== 血缘关系 ==================//
@@ -95,7 +95,7 @@ export default {
     },
 
     // =========== 类目管理 ==================//
-    getDataCatalogues (params: any) {
+    getDataCatalogues (params?: any) {
         return http.post(dataManageReq.GET_TABLE_CATALOGUE, params)
     },
     addDataCatalogue (params: any) {
@@ -165,7 +165,7 @@ export default {
     getDdlList (params: any) {
         return http.post(dataManageReq.GET_DDL_LIST, params)
     },
-    getDmlList (params: any) {
+    getDmlList (params?: any) {
         return http.post(dataManageReq.GET_DML_LIST, params)
     },
     getSimpleColumns (params: any) {
@@ -197,7 +197,7 @@ export default {
         return http.post(dataManageReq.GET_DESENSITIZATION_LIST, params)
     },
     // 检查新增脱敏是否有权限
-    voidCheckPermission (params: any) {
+    voidCheckPermission (params?: any) {
         return http.post(dataManageReq.CHECK_PERMISSION, params)
     },
     addDesensitization (params: any) {

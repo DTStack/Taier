@@ -18,7 +18,7 @@ function renderLevel(level: any) {
     return level
 }
 
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     const actions = workbenchActions(dispatch)
     return {
         goToTaskDev: (id: any) => {
@@ -28,7 +28,7 @@ function renderLevel(level: any) {
             dispatch(getProject(projectId))
         }
     }
-})
+}) as any)
 class RelationDetail extends React.Component<any, any> {
     state: any = {
         current: 1,

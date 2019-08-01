@@ -15,17 +15,18 @@ const defaultPro: any = {
     children: []
 }
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class Container extends React.Component<any, any> {
     state: any = {
         collapsed: false,
         mode: 'inline'
     };
-
+    static propTypes = propType
+    static defaultProps = defaultPro
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { params = {}, project = {} } = nextProps;
@@ -60,6 +61,5 @@ class Container extends React.Component<any, any> {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
+
 export default Container

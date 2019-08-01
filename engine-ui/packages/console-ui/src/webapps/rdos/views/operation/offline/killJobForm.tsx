@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Modal, Form, DatePicker, Checkbox, Row, Col, Alert, message } from 'antd';
+import { Modal, Form, DatePicker, Checkbox, Row, Col, Alert as mAlert, message } from 'antd';
 import moment from 'moment';
 import Api from '../../../api'
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker
 const CheckboxGroup = Checkbox.Group;
+const Alert: any = mAlert;
 const yesterDay = moment().subtract(1, 'days');
 const formItemLayout: any = {
     labelCol: {

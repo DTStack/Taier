@@ -5,13 +5,13 @@ import { Input, Spin, Table, Button, Card, Popconfirm, message, Select } from 'a
 import moment from 'moment';
 import AddUpdateRules from './addUpdateRules';
 const Search = Input.Search;
-const Option = Select.Option;
+const Option: any = Select.Option;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         projects: state.projects
     }
-}, null)
+}, null) as any)
 
 class RuleManage extends React.Component<any, any> {
     state: any = {

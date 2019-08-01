@@ -32,7 +32,7 @@ import TaskJobFlowView from './taskJobFlowView'
 // import utils from 'utils';
 import MultiSearchInput from 'widgets/multiSearchInput';
 
-const Option = Select.Option
+const Option: any = Select.Option
 const confirm = Modal.confirm
 const warning = Modal.warning
 const FormItem = Form.Item
@@ -63,11 +63,14 @@ class PatchDataDetail extends React.Component<any, any> {
         selectedTask: {},
         searchType: 'fuzzy'
     }
-
+    _timeClock: any;
+    _isUnmounted: any;
     componentDidMount () {
         this.setState({
             fillJobName: this.props.params.fillJobName
-        }, this.search)
+        }, () => {
+            this.search
+        })
     }
     componentWillUnmount () {
         this._isUnmounted = true;
@@ -144,7 +147,7 @@ class PatchDataDetail extends React.Component<any, any> {
         return reqParams;
     }
 
-    search = (isSilent: any) => {
+    search = (isSilent?: any) => {
         const reqParams = this.getReqParams();
         clearTimeout(this._timeClock);
         this.loadPatchRecords(reqParams, isSilent)
@@ -622,7 +625,6 @@ class PatchDataDetail extends React.Component<any, any> {
                 disabled: record.batchTask && record.batchTask.isDeleted === 1
             })
         };
-
         return (
             <div>
                 <h1 className="box-title" style={{ lineHeight: 2.5, height: 'auto', padding: '7px 20px' }}>
@@ -726,7 +728,6 @@ class PatchDataDetail extends React.Component<any, any> {
                                         <Select
                                             allowClear
                                             showSearch
-                                            size='Default'
                                             style={{ width: '126px' }}
                                             placeholder="责任人"
                                             optionFilterProp="name"

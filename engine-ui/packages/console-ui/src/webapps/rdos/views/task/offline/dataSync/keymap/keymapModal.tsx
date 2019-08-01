@@ -308,7 +308,7 @@ class KeyMapModal extends React.Component<any, any> {
             }
         })
     }
-
+    Form: any;
     cancel = () => {
         const { onCancel } = this.props
         onCancel()

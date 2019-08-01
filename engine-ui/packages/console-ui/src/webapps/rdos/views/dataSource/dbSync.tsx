@@ -217,7 +217,7 @@ class DBSync extends React.Component<any, any> {
     }
 
     // 逐表发布
-    publishSyncTask = async (params: any, mid: any) => {
+    publishSyncTask = async (params?: any, mid?: any) => {
         const { selectedTable, tableList } = this.state;
 
         let times = 1;
@@ -245,7 +245,7 @@ class DBSync extends React.Component<any, any> {
 
             let isFail = res.code != 1 || res.data.status != 1;
 
-            let percent = parseInt(((index + 1) / selectedTable.length) * 100);
+            let percent = parseInt(String(((index + 1) / selectedTable.length) * 100));
 
             if (res.code === 1) {
                 let newTableList: any = [...tableList];

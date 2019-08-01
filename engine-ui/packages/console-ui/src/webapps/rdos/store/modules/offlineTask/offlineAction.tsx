@@ -218,7 +218,7 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
 };
 
 // workbenchActions
-export const workbenchActions = (dispatch: any) => {
+export const workbenchActions = (dispatch?: any) => {
     const closeAll = (tabs: any) => {
         for (let i in tabs) {
             dispatch(stopSql(tabs[i].id, null, true))

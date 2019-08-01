@@ -2,7 +2,7 @@ import * as React from 'react'
 import moment from 'moment'
 import {
     Form, Input, Checkbox, InputNumber,
-    Select, Modal, TimePicker,
+    Select as mSelect, Modal, TimePicker,
     Tooltip, Icon
 } from 'antd'
 
@@ -11,7 +11,8 @@ import pureRender from 'utils/pureRender';
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
-const Option = Select.Option
+const Select: any = mSelect;
+const Option: any = Select.Option
 const CheckboxGroup = Checkbox.Group
 
 @pureRender

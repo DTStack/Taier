@@ -7,11 +7,11 @@ import GlobalLoading from '../../components/globalLoading';
 
 import * as ProjectAction from '../../store/modules/project'
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         licenseApps: state.licenseApps
     }
-})
+}) as any)
 class GateWay extends React.Component<any, any> {
     componentDidMount () {
         this.routerDispatch();

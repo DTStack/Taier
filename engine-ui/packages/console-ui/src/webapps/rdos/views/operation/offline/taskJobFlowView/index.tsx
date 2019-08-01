@@ -24,11 +24,11 @@ const {
     mxPopupMenu
 } = Mx
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class TaskJobFlowView extends React.Component<any, any> {
     state: any = {
         selectedJob: '', // 选中的Job
@@ -45,7 +45,7 @@ class TaskJobFlowView extends React.Component<any, any> {
         frontPeriodsList: [], // 前周期返回数据
         nextPeriodsList: []
     }
-
+    _originData: any;
     /* eslint-disable-next-line */
     componentWillReceiveProps(nextProps: any) {
         const currentJob = this.props.taskJob
@@ -302,7 +302,7 @@ class TaskJobFlowView extends React.Component<any, any> {
     initGraphEvent = (graph: any) => {
         const ctx = this;
         let highlightEdges: any = [];
-        let selectedCell = null;
+        let selectedCell: any = null;
 
         if (graph) {
             // Double event
@@ -364,7 +364,7 @@ class TaskJobFlowView extends React.Component<any, any> {
         }
     }
 
-    resetGraph = () => {
+    resetGraph = (cell: any) => {
         const { taskJob } = this.props
         if (taskJob) {
             this.loadTaskChidren({
@@ -389,6 +389,9 @@ class TaskJobFlowView extends React.Component<any, any> {
     render () {
         const { selectedJob, taskLog, workflowData, graphData, loading } = this.state;
         const { taskJob, goToTaskDev, isPro } = this.props;
+        const heightFix = {
+            height: 600
+        }
         return (
             <div
                 style={{
@@ -411,7 +414,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 />
                 <Modal
                     width={900}
-                    height={600}
+                    {...heightFix}
                     zIndex={999}
                     footer={null}
                     maskClosable={true}

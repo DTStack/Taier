@@ -19,7 +19,7 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         projectTableTypes: state.tableTypes.projectTableTypes
@@ -30,7 +30,7 @@ const RadioGroup = Radio.Group;
             dispatch(getProjectTableTypes(projectId))
         }
     }
-})
+}) as any)
 
 /**
  * @description step1:基本信息
@@ -150,7 +150,7 @@ class BaseForm extends React.Component<any, any> {
                                 initialValue: location,
                                 validateTrigger: 'onBlur'
                             })(
-                                <Input placehoder="外部表地址" />
+                                <Input placeholder="外部表地址" />
                             )}
                         </FormItem>}
                     </>
@@ -445,7 +445,7 @@ export class RowItem extends React.Component<any, any> {
     renderExtra(columnType: any) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
-        let result = '';
+        let result = null;
 
         columnType = columnType.toUpperCase();
         switch (columnType) {

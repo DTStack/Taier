@@ -16,7 +16,7 @@ import CatalogueTree from '../../dataManage/catalogTree';
 import LifeCycle from '../../dataManage/lifeCycle';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const Option: any = Select.Option;
 const RadioGroup = Radio.Group;
 
 /**
@@ -43,7 +43,7 @@ export default class BaseForm extends React.Component<any, any> {
         this.props.form.setFieldsValue({ 'lifeDay': value })
     }
 
-    changeTableName = (value: any, index: any, modelType: any, option: any) => {
+    changeTableName = (value?: any, index?: any, modelType?: any, option?: any) => {
         const newArrs: any = [...this.state.tableNameArr];
         newArrs[index] = value;
         this.setState({ tableNameArr: newArrs });

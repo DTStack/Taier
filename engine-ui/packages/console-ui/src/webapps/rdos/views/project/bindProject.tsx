@@ -11,12 +11,12 @@ import * as ProjectAction from '../../store/modules/project'
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         tenant: state.tenant
     }
-})
+}) as any)
 class BindProjectModal extends React.Component<any, any> {
     state: any = {
         bindLoading: false,

@@ -2,12 +2,13 @@ import * as React from 'react'
 
 import {
     Form, Table, Checkbox,
-    Input, Select, Row, Radio
+    Input as mInput, Select, Row, Radio
 } from 'antd';
 
 import TableCell from 'widgets/tableCell'
 import { formItemLayout } from '../../../../comm/const'
 
+const Input: any = mInput;
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group

@@ -394,7 +394,7 @@ export default class ProjectList extends React.Component<any, any> {
                                         value={selectedProject}
                                         onChange={this.projectOnChange}
                                         style={{ width: '100px' }}
-                                        title=""
+                                        // title=""
                                         filterOption={(input: any, option: any) => option.props.children.props.children.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
                                     >
                                         {projectOptions}

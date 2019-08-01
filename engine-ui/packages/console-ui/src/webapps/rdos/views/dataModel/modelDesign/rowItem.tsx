@@ -4,10 +4,10 @@ import { isEqual, range, isObject } from 'lodash';
 
 import {
     message, Input,
-    Row, Col, Icon, Select,
+    Row, Col, Icon, Select as mSelect,
     Tooltip, InputNumber
 } from 'antd';
-
+const Select: any = mSelect;
 const Option = Select.Option;
 
 /**
@@ -158,7 +158,7 @@ export default class RowItem extends React.Component<any, any> {
     renderExtra (columnType: any) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
-        let result = '';
+        let result = null;
 
         columnType = columnType.toUpperCase();
         switch (columnType) {

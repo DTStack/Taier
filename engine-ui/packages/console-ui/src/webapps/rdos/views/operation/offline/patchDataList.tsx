@@ -12,7 +12,7 @@ import {
 
 import Api from '../../../api'
 const Search = Input.Search
-const Option = Select.Option
+const Option: any = Select.Option
 const FormItem = Form.Item
 const confirm = Modal.confirm
 
@@ -42,7 +42,7 @@ class PatchDataList extends React.Component<any, any> {
         }
     }
 
-    loadPatchData = (params: any) => {
+    loadPatchData = (params?: any) => {
         const ctx = this
         this.setState({ loading: true })
         let defaultParams = this.getReqParams()
@@ -286,7 +286,6 @@ class PatchDataList extends React.Component<any, any> {
                     <Select
                         allowClear
                         showSearch
-                        size='Default'
                         style={{ width: '126px' }}
                         placeholder="操作人"
                         optionFilterProp="name"

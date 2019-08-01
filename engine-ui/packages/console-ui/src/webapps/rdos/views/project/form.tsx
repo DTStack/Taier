@@ -1,8 +1,8 @@
 import * as React from 'react'
-import { Form, Input, Modal, Switch } from 'antd'
+import { Form, Input as mInput, Modal, Switch } from 'antd'
 
 import { formItemLayout } from '../../comm/const'
-
+const Input: any = mInput;
 const FormItem = Form.Item
 
 class ProjectForm extends React.Component<any, any> {

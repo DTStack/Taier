@@ -244,7 +244,7 @@ class TableEditor extends React.Component<any, any> {
     }
 
     delTable () {
-        const the = this;
+        const the: any = this;
         confirm({
             title: '删除表',
             content: '删除表后无法恢复，确认将其删除？',

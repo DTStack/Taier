@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { isEmpty } from 'lodash';
 import {
-    Form, Input,
+    Form, Input as mInput,
     Modal
 } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
-
+const Input: any = mInput;
 class SubjectDomainModal extends React.Component<any, any> {
     state: any = { }
 

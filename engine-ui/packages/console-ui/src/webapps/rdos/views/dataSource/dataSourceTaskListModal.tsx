@@ -9,7 +9,7 @@ import {
 
 const Search = Input.Search
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
@@ -20,7 +20,7 @@ const Search = Input.Search
             actions.openTaskInDev(id)
         }
     }
-})
+}) as any)
 class DataSourceTaskListModal extends React.Component<any, any> {
     state: any = {
         visible: false,
@@ -43,7 +43,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
         })
         this.getTaskList();
     }
-    getTaskList(reqParams: any) {
+    getTaskList(reqParams?: any) {
         const { pagination } = this.state;
         const { type, dataSource } = this.props;
         this.setState({

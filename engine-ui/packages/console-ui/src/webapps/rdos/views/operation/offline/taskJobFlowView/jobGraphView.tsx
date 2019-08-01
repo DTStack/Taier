@@ -137,8 +137,10 @@ class JobGraphView extends React.Component<any, any> {
         loading: 'success',
     }
 
-    _view = null; // 存储view信息
-
+    _view: any = null; // 存储view信息
+    Container: any;
+    graph: any;
+    _cacheLevel: any;
     static getDerivedStateFromProps (props: any, state: any) {
         return {
             loading: props.loading
@@ -245,7 +247,7 @@ class JobGraphView extends React.Component<any, any> {
             return this.getNodeDisplayName(currentNode.batchTask);
         }
     }
-    getNodeDisplayName (node = {}) {
+    getNodeDisplayName (node: any = {}) {
         const { isCurrentProjectTask } = this.props;
         const taskName = node.name || '';
         if (isCurrentProjectTask(node)) {
@@ -277,7 +279,7 @@ class JobGraphView extends React.Component<any, any> {
         // 计算节点的 Level
         const caculateNodeLevel = (source: any, target: any, parent: any, level: any) => {
 
-            let node = null;
+            let node: any = null;
             if (source && !source._geometry) {
                 node = source;
             } else if (target && !target._geometry) {

@@ -12,7 +12,7 @@ import { getTaskTypes } from '../../../../store/modules/offlineTask/comm';
 const FormItem = Form.Item;
 const TextArea = Input.TextArea;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         taskTypes: {
@@ -24,7 +24,7 @@ const TextArea = Input.TextArea;
     return bindActionCreators({
         getTaskTypes
     }, dispatch);
-})
+}) as any)
 class PublishModal extends React.Component<any, any> {
     state: any = {
         pagination: {

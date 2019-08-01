@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Form, Input, Modal, InputNumber, Checkbox, Pagination, Icon, Tooltip } from 'antd'
+import { Form, Input as mInput, Modal, InputNumber, Checkbox, Pagination, Icon, Tooltip } from 'antd'
 
 import ajax from '../../../api/dataManage';
 
@@ -7,7 +7,7 @@ import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;
-
+const Input: any = mInput;
 const warning = Modal.warning
 
 const pageSize = 20;

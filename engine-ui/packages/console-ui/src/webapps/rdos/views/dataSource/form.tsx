@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import {
-    Input, Button,
+    Input as mInput, Button,
     Select, Form, Checkbox,
     Radio, Modal, Tooltip,
     Icon, Alert
@@ -26,7 +26,7 @@ import CopyIcon from 'main/components/copy-icon';
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
-
+const Input: any = mInput;
 const hdfsConf =
     `{
 "dfs.nameservices": "defaultDfs", 
@@ -48,7 +48,6 @@ class BaseForm extends React.Component<any, any> {
         hasCarbonDataConfig: false,
         ftpProtocal: 'ftp'
     }
-
     componentDidMount () {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
@@ -260,7 +259,8 @@ class BaseForm extends React.Component<any, any> {
                         })(
                             <Input
                                 className="no-scroll-bar"
-                                type="textarea" rows={5}
+                                type="textarea"
+                                rows={5}
                                 placeholder={kylinConf}
                             />
                         )}
@@ -909,7 +909,7 @@ class BaseForm extends React.Component<any, any> {
                         )}
                         <Tooltip overlayClassName="big-tooltip" title={
                             (
-                                <span style={{ wordBreak: ' break-all' }}>
+                                <span style={{ wordBreak: 'break-all' }}>
                                     SID示例：{jdbcUrlExample[sourceType][0]}
                                     <br />
                                     ServiceName示例：{jdbcUrlExample[sourceType][1]}
@@ -1039,7 +1039,7 @@ class BaseForm extends React.Component<any, any> {
         const { active } = sourceData;
 
         return (
-            <Form autoComplete="off">
+            <Form>
                 <FormItem
                     {...formItemLayout}
                     label="数据源类型"
@@ -1130,6 +1130,7 @@ class BaseForm extends React.Component<any, any> {
 }
 
 class DataSourceForm extends React.Component<any, any> {
+    myFrom: any;
     cancle = () => {
         const { handCancel } = this.props
         this.myFrom.resetFields()

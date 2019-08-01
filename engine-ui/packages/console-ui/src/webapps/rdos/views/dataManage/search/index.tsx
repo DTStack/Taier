@@ -14,11 +14,11 @@ import TableApplyModal from './tableApply';
 import ajax from '../../../api/dataManage';
 
 const FormItem = Form.Item
-const Option = Select.Option
+const Option: any = Select.Option
 
 const ROUTER_BASE = '/data-manage/table';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         allProjects: state.allProjects,
         allTenantsProjects: state.allTenantsProjects,
@@ -31,7 +31,7 @@ const ROUTER_BASE = '/data-manage/table';
             dispatch(getTenantTableTypes(params))
         }
     }
-})
+}) as any)
 class SearchTable extends React.Component<any, any> {
     constructor(props: any) {
         super(props);

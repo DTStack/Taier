@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { isNumber, isObject, isNaN, get } from 'lodash'
 import {
-    Button, Row, Col,
+    Button as mButton, Row, Col,
     Input, Tooltip,
     message, Icon, Modal
 } from 'antd';
@@ -30,7 +30,7 @@ import { isHdfsType, isFtpType } from '../../../../../comm';
 import KeyMapModal, { isValidFormatType } from './keymapModal'
 import BatchModal from './batchModal'
 import ConstModal from './constModal'
-
+const Button: any = mButton;
 const DefaultRowKey: any = { // HBase默认行健
     cf: '-',
     key: 'rowkey',
@@ -46,14 +46,14 @@ function isFieldMatch (source: any, target: any) {
     /**
      * TODO 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
      */
-    if (isObject(source) && isObject(target)) {
+    if (isObject(source as any) && isObject(target as any)) {
         const sourceVal = source.key || source.index;
         const tagetVal = target.key || target.index;
         return sourceVal === tagetVal;
-    } else if (isObject(source) && !isObject(target)) {
+    } else if (isObject(source as any) && !isObject(target as any)) {
         const sourceVal = source.key || source.index
         return sourceVal === target
-    } else if (!isObject(source) && isObject(target)) {
+    } else if (!isObject(source as any) && isObject(target as any)) {
         const targetVal = target.key || target.index
         return source === targetVal
     } else {
@@ -101,7 +101,10 @@ class Keymap extends React.Component<any, any> {
             // isSuccess: true // 用于判定rowkey是否符合期望格式
         };
     }
-
+    $canvas: any;
+    canvas: any;
+    $activeLine: any;
+    container: any;
     /**
      * 获取step容器的大小，最小为450，其他情况为panel大小的5/6;
      */
@@ -233,7 +236,7 @@ class Keymap extends React.Component<any, any> {
          */
         source.forEach((keyObj: any, ii: any) => {
             $dagL.each((dl: any, i: any) => {
-                let sx, sy, ex, ey;
+                let sx: any, sy: any, ex: any, ey: any;
 
                 if (matchKeymapToSourceColumn(dl, keyObj)) {
                     sx = padding;
@@ -467,7 +470,7 @@ class Keymap extends React.Component<any, any> {
 
         const colStyle: any = { left: padding, top: padding, width: w, height: h }
 
-        const renderTableRow = (sourceType: any, col: any, i: any) => {
+        const renderTableRow = (sourceType?: any, col?: any, i?: any) => {
             const removeOption = <div className="remove-cell"
                 onClick={() => removeSourceKeyRow(col, i)}>
                 <Tooltip title="删除当前列">
@@ -565,7 +568,7 @@ class Keymap extends React.Component<any, any> {
 
         const renderTableFooter = (sourceType: any) => {
             if (!readonly) {
-                let footerContent = '';
+                let footerContent = null;
                 const btnAddConst = (<span className="col-plugin" onClick={
                     () => {
                         this.setState({ visibleConst: true })
@@ -669,7 +672,7 @@ class Keymap extends React.Component<any, any> {
             height: h
         }
 
-        const renderTableRow = (targetType: any, col: any, i: any) => {
+        const renderTableRow = (targetType?: any, col?: any, i?: any) => {
             const operations = <div>
                 <div className="remove-cell" onClick={() => removeTargetKeyRow(col, i)}>
                     <Tooltip title="删除当前列">
@@ -731,7 +734,7 @@ class Keymap extends React.Component<any, any> {
 
         const renderTableFooter = (targetType: any) => {
             if (!readonly) {
-                let footerContent = ''
+                let footerContent = null;
                 switch (targetType) {
                     case DATA_SOURCE.HBASE:
                         footerContent = <div>
@@ -984,7 +987,7 @@ class Keymap extends React.Component<any, any> {
                 { targetSrcType === DATA_SOURCE.HBASE ? (
 
                     <Row>
-                        <Col span="21" style={{ textAlign: 'center' }}>
+                        <Col span={21} style={{ textAlign: 'center' }}>
                             <div className="m-keymapbox"
                                 style={{
                                     width: W + 200,
@@ -1016,7 +1019,7 @@ class Keymap extends React.Component<any, any> {
                     </Row>
                 ) : null}
                 <Row>
-                    <Col span="21" style={{ textAlign: 'center' }}>
+                    <Col span={21} style={{ textAlign: 'center' }}>
                         <div className="m-keymapbox"
                             ref={ (el: any) => this.container = el }
                             style={{
@@ -1050,7 +1053,7 @@ class Keymap extends React.Component<any, any> {
                             </svg>
                         </div>
                     </Col>
-                    <Col span="3">
+                    <Col span={3}>
                         {!this.props.readonly ? <div className="m-buttons">
                             <Button
                                 type={ this.state.rowMap ? 'primary' : 'default' }
@@ -1146,7 +1149,7 @@ class Keymap extends React.Component<any, any> {
         cb.call(null, 3);
     }
 
-    checkHBaseRowKey = (e: any) => {
+    checkHBaseRowKey = (e?: any) => {
         const { keymap, targetMap, sourceSrcType } = this.props
         const { type } = targetMap
         const source = keymap.source

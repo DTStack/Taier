@@ -24,7 +24,7 @@ export default class TaskLog extends React.Component<any, any> {
     state: any = {
         data: {}
     }
-
+    _chart: any;
     componentDidMount () {
         const currentTask = this.props.tabData
         if (currentTask) {
