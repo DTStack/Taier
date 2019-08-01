@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import moment from 'moment'
 
 import {
-    Row, Input, Select as mSelect, message,
+    Row, Input, Select, message,
     Pagination, Checkbox, Form,
     DatePicker, TimePicker, Tree
 } from 'antd'
@@ -17,9 +17,8 @@ import { TaskBadgeStatus } from '../../../../components/status'
 import * as FlowAction from '../../../../store/modules/operation/taskflow'
 
 const Search = Input.Search
-const TreeNode = Tree.TreeNode
-const Select: any = mSelect;
-const Option: any = Select.Option
+const TreeNode = Tree.TreeNode;
+const Option = Select.Option
 const FormItem = Form.Item
 
 function replaceTreeNode (treeNode: any, replace: any) {
@@ -319,13 +318,13 @@ class PatchData extends React.Component<any, any> {
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
                 return (
-                    <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                    <Option key={item.userId} value={`${item.userId}`}>
                         {item.user.userName}
                     </Option>)
             }) : []
         const statusFilter = offlineTaskStatusFilter && offlineTaskStatusFilter.length > 0
             ? offlineTaskStatusFilter.map((item: any) => {
-                return (<Option key={item.id} value={item.value} name={item.text}>
+                return (<Option key={item.id} value={item.value}>
                     {item.text}
                 </Option>)
             }) : []
@@ -389,7 +388,7 @@ class PatchData extends React.Component<any, any> {
                             <Select
                                 allowClear
                                 showSearch
-                                size='Default'
+                                size='default'
                                 style={{ width: '126px' }}
                                 placeholder="责任人"
                                 optionFilterProp="name"

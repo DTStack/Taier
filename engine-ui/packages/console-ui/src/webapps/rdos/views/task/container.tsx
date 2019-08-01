@@ -40,7 +40,8 @@ class Container extends React.Component<any, any> {
         };
         this.loadIDETheme(this.props.editor.options.theme);
     }
-
+    static propTypes = propType;
+    static defaultProps = defaultPro;
     componentDidMount () {
         if (process.env.NODE_ENV === 'production') {
             window.addEventListener('beforeunload', this.beforeunload, false);
@@ -144,7 +145,5 @@ class Container extends React.Component<any, any> {
         );
     }
 }
-Container.propTypes = propType;
-Container.defaultProps = defaultPro;
 
 export default Container;

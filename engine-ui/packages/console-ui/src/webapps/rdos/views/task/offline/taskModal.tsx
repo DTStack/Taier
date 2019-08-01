@@ -39,7 +39,8 @@ class TaskForm extends React.Component<any, any> {
 
         this._resChange = false;
     }
-
+    isEditExist: boolean;
+    _resChange: boolean;
     componentDidMount () {
         this.getAnalyDataSourceLists();
     }
@@ -535,7 +536,7 @@ class TaskForm extends React.Component<any, any> {
                         }],
                         initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.taskDesc
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入任务描述" />
+                        <Input.TextArea rows={4} placeholder="请输入任务描述" />
                     )}
                 </FormItem>
                 <FormItem style={{ display: 'none' }}>
@@ -616,6 +617,8 @@ class TaskModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
+    dtcount: number;
+    form: any;
     handleSubmit () {
         const {
             addOfflineTask, defaultData, workflow,

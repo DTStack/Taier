@@ -67,7 +67,7 @@ class CommonEditorContainer extends React.Component<any, any> {
 
     filterSql = (sql: any) => {
         const arr: any = [];
-        let sqls = filterComments(sql);
+        let sqls: any = filterComments(sql);
         // 如果有有效内容
         if (sqls) {
             sqls = splitSql(sqls);

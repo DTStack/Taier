@@ -93,7 +93,7 @@ class CloneTaskForm extends React.Component<any, any> {
                         }],
                         initialValue: defaultData.taskDesc
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入任务描述" />
+                        <Input.TextArea rows={4} placeholder="请输入任务描述" />
                     )}
                 </FormItem>
 
@@ -147,7 +147,8 @@ class CloneTaskModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
-
+    dtcount: number;
+    form: any;
     handleSubmit () {
         const {
             defaultData, confirmClone

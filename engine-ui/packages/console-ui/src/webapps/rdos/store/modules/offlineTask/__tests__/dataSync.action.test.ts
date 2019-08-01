@@ -27,7 +27,7 @@ describe('workbench actions', () => {
     test('reloadTaskTab action', () => {
         const task: any = { id: 10, name: 'testTask' };
         const resp: any = { code: 1, data: task };
-        api.getOfflineTaskDetail.mockResolvedValue(resp);
+        (api.getOfflineTaskDetail as any).mockResolvedValue(resp);
 
         const expectedActions: any = [{
             type: workbenchAction.UPDATE_TASK_TAB,
@@ -35,7 +35,7 @@ describe('workbench actions', () => {
         }];
 
         const store = mockStore(initialState);
-        const actions = workbenchActions(store.dispatch);
+        const actions: any = workbenchActions(store.dispatch);
         actions.reloadTaskTab();
 
         setTimeout(() => { // 此处 reloadTaskTab 中为异步调用，需要线程等待下

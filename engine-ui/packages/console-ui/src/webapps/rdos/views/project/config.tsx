@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 
 import {
     Modal, Tooltip,
-    Input as mInput, Form, message, Icon,
+    Input, Form, message, Icon,
     Switch
 } from 'antd'
 import BindProjectModal from './bindProject';
@@ -14,7 +14,6 @@ import utils from 'utils'
 import { formItemLayout, PROJECT_TYPE } from '../../comm/const'
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
-const Input: any = mInput;
 const FormItem = Form.Item
 
 function myFrom (props: any) {
@@ -46,7 +45,7 @@ function myFrom (props: any) {
                     }],
                     initialValue: props.project ? props.project.projectDesc : ''
                 })(
-                    <Input type="textarea" rows={4} />
+                    <Input.TextArea rows={4} />
                 )}
             </FormItem>
         </Form>

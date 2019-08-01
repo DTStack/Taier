@@ -75,7 +75,7 @@ class TableLog extends React.Component<any, any> {
             isDeleted: 1
         };
     }
-    searchForm = React.createRef();
+    searchForm: any = React.createRef();
     componentDidMount () {
         this.search();
     }

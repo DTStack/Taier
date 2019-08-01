@@ -1,10 +1,9 @@
 import * as React from 'react'
-import { Form, Input as mInput, Modal } from 'antd'
+import { Form, Input, Modal } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
-const Input: any = mInput;
 class ApprovelModal extends React.Component<any, any> {
     submit = (e: any) => {
         e.preventDefault()
@@ -97,7 +96,7 @@ class ApprovelModal extends React.Component<any, any> {
                                 message: '请控制在200个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" rows={4} placeholder="回复内容" />
+                            <Input.TextArea rows={4} placeholder="回复内容" />
                         )}
                     </FormItem>
                 </Form>

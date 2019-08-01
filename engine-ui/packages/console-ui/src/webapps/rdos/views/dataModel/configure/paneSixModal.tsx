@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { isEmpty } from 'lodash';
 import {
-    Form, Input as mInput, Select,
+    Form, Input, Select,
     Modal
 } from 'antd'
 
@@ -10,7 +10,6 @@ import { formItemLayout } from '../../../comm/const'
 
 const FormItem = Form.Item
 const Option = Select.Option;
-const Input: any = mInput;
 
 class AtomIndexDefineModal extends React.Component<any, any> {
     state: any = {
@@ -136,7 +135,7 @@ class AtomIndexDefineModal extends React.Component<any, any> {
                             }],
                             initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input.TextArea rows={4} />
                         )}
                     </FormItem>
                     <FormItem

@@ -603,7 +603,7 @@ class PatchDataDetail extends React.Component<any, any> {
         const {
             projectUsers, project, goToTaskDev
         } = this.props
-
+        const columns: any = this.initTaskColumns();
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
                 return (<Option key={item.id} value={`${item.userId}`} name={item.user.userName}>
@@ -780,14 +780,14 @@ class PatchDataDetail extends React.Component<any, any> {
                                 }
                             }
                             expandedRowKeys={this.state.expandedRowKeys}
-                            defaultExpandAllRows={true}
+                            {...{defaultExpandAllRows: true}}
                             style={{ marginTop: '1px' }}
                             scroll={{ x: '2050px' }}
                             className="dt-ant-table dt-ant-table--border full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}
-                            columns={this.initTaskColumns()}
+                            columns={columns}
                             dataSource={(table.data && table.data.recordList) || []}
                             onChange={this.handleTableChange}
                             onExpand={this.onExpand}

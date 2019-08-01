@@ -296,7 +296,7 @@ const mapState = (state: any) => {
 };
 
 const mapDispatch = (dispatch: any, ownProps: any) => {
-    const wbActions = new WBenchActions(dispatch, ownProps);
+    const wbActions = WBenchActions(dispatch);
 
     return {
         getDataSource: () => {

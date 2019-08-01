@@ -1515,8 +1515,7 @@ class SourceForm extends React.Component<any, any> {
                             <Input
                                 onChange={this.submitForm.bind(this)}
                                 placeholder="请输入大小, 默认为100"
-                                type="number"
-                                min={0}
+                                {...{ min: 0 }}
                                 suffix="列"
                             />
                         )}
@@ -1538,7 +1537,7 @@ class SourceForm extends React.Component<any, any> {
                             />
                             {index > 0 ? <Button
                                 onClick={this.onRemoveFtpPath.bind(this, index)}
-                                title="删除当前路径"
+                                {...{ title: "删除当前路径" }}
                                 shape="circle"
                                 style={removeBtnStyle}
                                 icon="minus"
@@ -1555,7 +1554,7 @@ class SourceForm extends React.Component<any, any> {
                     width: '20px',
                     height: '20px'
                 }
-                let pathItems = getItem(paths, 0);
+                let pathItems: any = getItem(paths, 0);
                 if (isArray(paths)) {
                     pathItems = paths.map && paths.map((path: any, index: any) => getItem(path, index));
                 }

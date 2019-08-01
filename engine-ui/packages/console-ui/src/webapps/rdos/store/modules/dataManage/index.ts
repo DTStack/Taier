@@ -4,7 +4,7 @@ import { tableAction, logAction, cataloguesAction, desensitizationAction } from 
 
 // move up/down
 /* eslint-disable */
-Array.prototype.__move = function (from: any, to: any) {
+(Array.prototype as any).__move = function (from: any, to: any) {
     this.splice(to, 0, this.splice(from, 1)[0]);
     return this;
 };

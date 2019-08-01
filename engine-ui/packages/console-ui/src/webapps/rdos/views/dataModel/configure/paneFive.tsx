@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import {
     Select, Form, Card,
-    Button as mButton, message
+    Button, message
 } from 'antd';
 
 import {
@@ -16,7 +16,6 @@ import Api from '../../../api/dataModel';
 
 const Option: any = Select.Option;
 const FormItem = Form.Item;
-const Button: any = mButton;
 const defaultRule: any = {
     value: TABLE_MODEL_RULE.CUSTOM,
     name: '自定义'
@@ -189,16 +188,16 @@ class ModelDefineRule extends React.Component<any, any> {
                                 <div style={{ display: 'inline-block', marginBottom: '5px', lineHeight: 1.5 }}>
                                     <Button
                                         icon="plus"
-                                        title="添加规则"
-                                        size="normal"
+                                        {...{title: "添加规则"}}
+                                        size="default"
                                         style={{ marginRight: '5px' }}
                                         onClick={this.appendTbNameRule}
                                     />
                                     {
                                         tbNameRules.length > 1 && <Button
                                             icon="minus"
-                                            title="移除规则"
-                                            size="normal"
+                                            {...{title: "移除规则"}}
+                                            size="default"
                                             style={{ marginRight: '5px' }}
                                             onClick={() => this.removeTbNameRule(tbNameRules.length - 1)}
                                         />

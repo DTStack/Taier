@@ -32,7 +32,7 @@ class TableEditor extends React.Component<any, any> {
         super(props);
         this.tableId = this.props.routeParams.tableId;
     }
-
+    tableId: any;
     componentDidMount () {
         this.props.getTableDetail({
             tableId: this.tableId
@@ -77,7 +77,7 @@ class TableEditor extends React.Component<any, any> {
                     <h1 className="card-title flex-middle"><GoBack type="textButton" /> {tableData && <span>编辑表：{tableName}</span>}</h1>
                     <Row className="box-card m-tablebasic">
                         <h3>基本信息</h3>
-                        <table width="100%" cellPadding="0" cellSpacing="0">
+                        <table {...{width: "100%"}} cellPadding="0" cellSpacing="0">
                             <tbody>
                                 <tr>
                                     <th>表名</th>

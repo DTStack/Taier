@@ -41,7 +41,7 @@ export function getDefaultSQLTemp (data: any) {
  * 获取任务类型指定图表className
  */
 export function taskTypeIcon (type: any, task = {}) {
-    const { pythonVersion, learningType, scriptType } = task;
+    const { pythonVersion, learningType, scriptType }: any = task;
     if (scriptType == null) {
         switch (type) {
             case TASK_TYPE.HIVESQL: {

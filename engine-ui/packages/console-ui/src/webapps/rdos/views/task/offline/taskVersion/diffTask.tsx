@@ -34,8 +34,8 @@ class TaskInfo extends React.Component<any, any> {
         })
     }
 
-    versionInfo = (version, taskInfo, contrast = {}) => {
-        const { attributes, upstreamTask, crosscycleDependence } = contrast;
+    versionInfo = (version: any, taskInfo: any, contrast = {}) => {
+        const { attributes, upstreamTask, crosscycleDependence }: any = contrast;
         const contrastStyle: any = { color: '#f00' };
         return (
             <Col span={12}>
@@ -45,32 +45,32 @@ class TaskInfo extends React.Component<any, any> {
                         <div className="sub-title" style={attributes ? contrastStyle : {}}>调度属性</div>
                         <div className="line"></div>
                         <Row>
-                            <Col span="6" className="txt-left">调度状态 : </Col>
-                            <Col span="18" className="txt-left">
+                            <Col span={6} className="txt-left">调度状态 : </Col>
+                            <Col span={18} className="txt-left">
                                 {taskInfo.scheduleStatus}
                             </Col>
                         </Row>
                         <Row>
-                            <Col span="6" className="txt-left">出错重试 : </Col>
-                            <Col span="18" className="txt-left">
+                            <Col span={6} className="txt-left">出错重试 : </Col>
+                            <Col span={18} className="txt-left">
                                 {taskInfo.isFailRetry}
                             </Col>
                         </Row>
                         <Row>
-                            <Col span="6" className="txt-left">生效日期 : </Col>
-                            <Col span="18" className="txt-left">
+                            <Col span={6} className="txt-left">生效日期 : </Col>
+                            <Col span={18} className="txt-left">
                                 {taskInfo.effectiveDate}
                             </Col>
                         </Row>
                         <Row>
-                            <Col span="6" className="txt-left">调度周期 : </Col>
-                            <Col span="18" className="txt-left">{taskInfo.schedulingCycle && taskInfo.schedulingCycle.period}</Col>
+                            <Col span={6} className="txt-left">调度周期 : </Col>
+                            <Col span={18} className="txt-left">{taskInfo.schedulingCycle && taskInfo.schedulingCycle.period}</Col>
                         </Row>
                         {
                             taskInfo.schedulingCycle && taskInfo.schedulingCycle.beginTime
                                 ? <Row>
-                                    <Col span="6" className="txt-left">开始时间 : </Col>
-                                    <Col span="18" className="txt-left">
+                                    <Col span={6} className="txt-left">开始时间 : </Col>
+                                    <Col span={18} className="txt-left">
                                         {taskInfo.schedulingCycle.beginTime}
                                     </Col>
                                 </Row> : ''
@@ -78,8 +78,8 @@ class TaskInfo extends React.Component<any, any> {
                         {
                             taskInfo.schedulingCycle && taskInfo.schedulingCycle.gapTime
                                 ? <Row>
-                                    <Col span="6" className="txt-left">间隔时间 : </Col>
-                                    <Col span="18" className="txt-left">
+                                    <Col span={6} className="txt-left">间隔时间 : </Col>
+                                    <Col span={18} className="txt-left">
                                         {taskInfo.schedulingCycle.gapTime}
                                     </Col>
                                 </Row> : ''
@@ -87,8 +87,8 @@ class TaskInfo extends React.Component<any, any> {
                         {
                             taskInfo.schedulingCycle && taskInfo.schedulingCycle.endTime
                                 ? <Row>
-                                    <Col span="6" className="txt-left">结束时间 : </Col>
-                                    <Col span="18" className="txt-left">
+                                    <Col span={6} className="txt-left">结束时间 : </Col>
+                                    <Col span={18} className="txt-left">
                                         {taskInfo.schedulingCycle.endTime}
                                     </Col>
                                 </Row> : ''
@@ -97,8 +97,8 @@ class TaskInfo extends React.Component<any, any> {
                         {
                             taskInfo.schedulingCycle && taskInfo.schedulingCycle.selectTime
                                 ? <Row>
-                                    <Col span="6" className="txt-left">选择时间 : </Col>
-                                    <Col span="18" className="txt-left">
+                                    <Col span={6} className="txt-left">选择时间 : </Col>
+                                    <Col span={18} className="txt-left">
                                         {taskInfo.schedulingCycle.selectTime}
                                     </Col>
                                 </Row> : ''
@@ -106,8 +106,8 @@ class TaskInfo extends React.Component<any, any> {
                         {
                             taskInfo.schedulingCycle && taskInfo.schedulingCycle.specificTime
                                 ? <Row>
-                                    <Col span="6" className="txt-left">具体时间 : </Col>
-                                    <Col span="18" className="txt-left">
+                                    <Col span={6} className="txt-left">具体时间 : </Col>
+                                    <Col span={18} className="txt-left">
                                         {taskInfo.schedulingCycle.specificTime}
                                     </Col>
                                 </Row> : ''
@@ -116,12 +116,12 @@ class TaskInfo extends React.Component<any, any> {
                     <div className="sub-title" style={upstreamTask ? contrastStyle : {}}>任务间依赖</div>
                     <div className="line"></div>
                     <Row>
-                        <Col span="24" className="txt-left">上游任务 : </Col>
+                        <Col span={24} className="txt-left">上游任务 : </Col>
                         <Tooltip title={taskInfo.upstreamTask} overlayStyle={{ fontSize: '14px' }}>
                             {
                                 _.map(taskInfo.upstreamTask, (item: any) => {
                                     return (
-                                        <Col span="20" style={{ wordBreak: 'break-word', whiteSpace: 'initial', lineHeight: '30px' }}>
+                                        <Col span={20} style={{ wordBreak: 'break-word', whiteSpace: 'initial', lineHeight: '30px' }}>
                                             {item.name} ({item.tenantName} | {item.projectName})
                                         </Col>
                                     )
@@ -133,7 +133,7 @@ class TaskInfo extends React.Component<any, any> {
                     <div className="line"></div>
                     <Row>
                         <Tooltip title={taskInfo.crosscycleDependence} overlayStyle={{ fontSize: '14px' }}>
-                            <Col span="20" className="word-break">
+                            <Col span={20} className="word-break">
                                 {taskInfo.crosscycleDependence}
                             </Col>
                         </Tooltip>

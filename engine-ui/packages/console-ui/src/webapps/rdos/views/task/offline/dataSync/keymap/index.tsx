@@ -6,7 +6,6 @@ import {
     Input, Tooltip,
     message, Icon, Modal
 } from 'antd';
-
 import { select, selectAll, mouse } from 'd3-selection';
 import scrollText from 'widgets/scrollText';
 import Resize from 'widgets/resize';
@@ -495,7 +494,7 @@ class Keymap extends React.Component<any, any> {
 
             switch (sourceType) {
                 case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
+                    const name: any = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
 
                     return <div>
                         <div className="cell" title={name}>{name}</div>
@@ -508,7 +507,7 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
+                    const name: any = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
                     const cf = col ? col.cf : '列族';
 
                     // 仅允许常量删除操作
@@ -539,7 +538,7 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.FTP: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
+                    const name: any = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
                     return <div>
                         <div className="cell" title={name}>{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
@@ -689,7 +688,7 @@ class Keymap extends React.Component<any, any> {
             </div>
             switch (targetType) {
                 case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.key) : '字段名称';
+                    const name: any = col ? scrollText(col.key) : '字段名称';
                     const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
                         <div className="cell" title={name}>{name}</div>
@@ -701,8 +700,8 @@ class Keymap extends React.Component<any, any> {
                 }
                 case DATA_SOURCE.HBASE: {
                     const name = col ? col.cf : '列族';
-                    const column = col ? scrollText(col.key) : '列名';
-                    const type = col ? scrollText(col.type.toUpperCase()) : '类型';
+                    const column: any = col ? scrollText(col.key) : '列名';
+                    const type: any = col ? scrollText(col.type.toUpperCase()) : '类型';
                     return <div className="four-cells">
                         <div className="cell" title={name}>{name}</div>
                         <div className="cell" title={column}>{column}</div>
@@ -711,7 +710,7 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.FTP: {
-                    const column = col ? scrollText(col.key) : '字段名称';
+                    const column: any = col ? scrollText(col.key) : '字段名称';
                     const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
                         <div className="cell" title={column}>{column}</div>
@@ -723,7 +722,7 @@ class Keymap extends React.Component<any, any> {
                 }
                 default: {
                     const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
-                    const fieldName = col ? scrollText(col.key) : '字段名称';
+                    const fieldName: any = col ? scrollText(col.key) : '字段名称';
                     return <div>
                         <div className="cell" title={fieldName}>{fieldName}</div>
                         <div className="cell" title={typeText}>{ typeText }</div>

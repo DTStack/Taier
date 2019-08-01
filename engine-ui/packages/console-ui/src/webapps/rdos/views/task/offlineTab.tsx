@@ -33,7 +33,7 @@ import { isProjectCouldEdit } from '../../comm';
 const TabPane = Tabs.TabPane;
 const Panel = Collapse.Panel;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { offlineTask, user } = state;
     const { currentTab, tabs } = offlineTask.workbench;
 
@@ -56,7 +56,7 @@ const Panel = Collapse.Panel;
         currentTab,
         currentTabData
     }
-}, workbenchActions)
+}, workbenchActions) as any)
 class OfflineTabPane extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -94,11 +94,11 @@ class OfflineTabPane extends React.Component<any, any> {
             if (nextTab && nextTab.scriptText !== undefined) {
                 type = MENU_TYPE.SCRIPT;
             }
-            this.locateFilePos(nextProps.currentTab, null, type, nextTab)
+            this.locateFilePos(nextProps.currentTab, null, type)
         }
     }
 
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any, { expanded }: any) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
@@ -150,7 +150,7 @@ class OfflineTabPane extends React.Component<any, any> {
     /**
      * 定位任务在文件树的具体位置
      */
-    locateFilePos = (currentTab: any, name: any, type: any) => {
+    locateFilePos = (currentTab?: any, name?: any, type?: any) => {
         const { expandedKeys, menu } = this.state;
         const {
             taskTreeData, scriptTreeData
@@ -335,7 +335,7 @@ class OfflineTabPane extends React.Component<any, any> {
         });
     }
 
-    onMenuClick = ({ key }) => {
+    onMenuClick = ({ key }: any) => {
         const {
             toggleCreateTask,
             toggleUpload,
@@ -405,7 +405,7 @@ class OfflineTabPane extends React.Component<any, any> {
         if (subMenus && subMenus.length > 0) {
             for (let i = 0; i < subMenus.length; i++) {
                 const menuItem = subMenus[i]
-                let menuContent = ''
+                let menuContent = null;
                 switch (menuItem.catalogueType) {
                     case MENU_TYPE.TASK: {
                         menuContent = <div className="menu-content">
@@ -653,7 +653,7 @@ class OfflineTabPane extends React.Component<any, any> {
                     }
                 }
                 menus.push(
-                    <TabPane tab={menuItem.name} id={`${menuItem.catalogueType}-${menuItem.id}`} key={menuItem.catalogueType}>
+                    <TabPane tab={menuItem.name} {...{ id: `${menuItem.catalogueType}-${menuItem.id}` }} key={menuItem.catalogueType}>
                         {menuContent}
                     </TabPane>
                 )

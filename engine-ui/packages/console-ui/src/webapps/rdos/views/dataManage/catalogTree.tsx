@@ -16,7 +16,11 @@ class CatalogueTree extends React.Component<any, any> {
 
     _expendKeys: any = []
     _expanded = true
-
+    _active: any;
+    _inputEle: any;
+    _overRoot: any;
+    _opeDom: any;
+    selEle: any;
     componentDidMount () {}
 
     componentDidUpdate () {
@@ -209,7 +213,7 @@ class CatalogueTree extends React.Component<any, any> {
                                             disabledAdd
                                                 ? <Icon type="edit" style={{ color: '#bfbfbf' }}/>
                                                 : <Icon type="edit"
-                                                    onLoad={(e: any) => { this.onLoadEditable(e, data) }}
+                                                    {...{onLoad:(e: any) => { this.onLoadEditable(e, data) }}}
                                                     onClick={this.onEdit} />
                                         }
                                     </Tooltip>

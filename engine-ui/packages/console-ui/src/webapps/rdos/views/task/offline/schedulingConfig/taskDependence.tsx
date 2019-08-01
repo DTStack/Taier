@@ -30,12 +30,12 @@ const formItemLayout: any = { // 表单正常布局
     }
 }
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         tenant: state.tenant,
         project: state.project
     }
-})
+}) as any)
 class TaskDependence extends React.Component<any, any> {
     state: any = {
         loading: false,

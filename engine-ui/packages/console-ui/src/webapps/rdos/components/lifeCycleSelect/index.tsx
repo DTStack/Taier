@@ -49,7 +49,7 @@ class LifeCycleSelect extends React.Component<any, any> {
     }
 
     onSelect = (value: any) => {
-        let nextValue = null;
+        let nextValue: any = null;
         if (value != '-1') {
             nextValue = parseInt(value, 10)
         } else {
@@ -98,8 +98,7 @@ class LifeCycleSelect extends React.Component<any, any> {
                         size="large"
                         value={value}
                         style={{ width: inputWidth || 220, marginLeft: '5px' }}
-                        type="number"
-                        min={0}
+                        {...{min:0}}
                         addonAfter={'天'}
                         placeholder="请输入生命周期"
                         onChange={this.customChange}

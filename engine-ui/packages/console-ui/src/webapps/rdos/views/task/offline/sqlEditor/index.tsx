@@ -56,9 +56,9 @@ class EditorContainer extends React.Component<any, any> {
     }
 
     _tableColumns = {}
-    _tableLoading = {}
-    _projectLoading = {}
-
+    _tableLoading: any = {}
+    _projectLoading: any = {}
+    _editor: any;
     componentDidMount () {
         const currentNode = this.props.currentTabData;
         const projectId = this.props.project.id;
@@ -149,7 +149,7 @@ class EditorContainer extends React.Component<any, any> {
 
     filterSql = (sql: any) => {
         const arr: any = [];
-        let sqls = filterComments(sql);
+        let sqls: any = filterComments(sql);
         // 如果有有效内容
         if (sqls) {
             sqls = splitSql(sqls);
@@ -285,8 +285,8 @@ class EditorContainer extends React.Component<any, any> {
         return tables[projectId];
     }
 
-    async completeProvider (completeItems, resolve, customCompletionItemsCreater, status = {}) {
-        const { autoComplete = {}, context = {} } = status;
+    async completeProvider (completeItems: any, resolve: any, customCompletionItemsCreater: any, status = {}) {
+        const { autoComplete = {}, context = {} }: any = status;
         const { funcCompleteItems } = this.state;
         const tableList = this.getTableList();
         const tableCompleteItems = this.tableCompleteItems(tableList);
@@ -328,7 +328,7 @@ class EditorContainer extends React.Component<any, any> {
                 }
             }
             try {
-                let values = await Promise.all(promiseList);
+                let values: any = await Promise.all(promiseList);
                 let _tmpCache: any = {}
                 // value:[tableName,data]
                 for (let value of values) {
@@ -372,7 +372,7 @@ class EditorContainer extends React.Component<any, any> {
      * @param {表名} tableName
      */
     getTableColumns (tableName: any) {
-        let _tableColumns = this._tableColumns;
+        let _tableColumns: any = this._tableColumns;
         tableName = tableName.toLowerCase();
         if (_tableColumns[tableName]) {
             return Promise.resolve(_tableColumns[tableName])

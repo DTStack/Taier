@@ -109,7 +109,7 @@ class TableList extends React.Component<any, any> {
     }
 
     cleanSearch () {
-        const $input = findDOMNode(this.searchInput).querySelector('input');// eslint-disable-line
+        const $input = (findDOMNode(this.searchInput) as any).querySelector('input');// eslint-disable-line
 
         if ($input.value.trim() === '') return;
 

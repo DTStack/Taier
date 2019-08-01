@@ -32,7 +32,9 @@ class ScheduleForm extends React.Component<any, any> {
         this.changeScheduleConf = this.props.handleScheduleConf;
         this.changeScheduleType = this.props.handleScheduleType;
     }
-
+    changeScheduleStatus: any;
+    changeScheduleConf: any;
+    changeScheduleType: any;
     render () {
         const { getFieldDecorator } = this.props.form;
         const { status, scheduleConf, isWorkflowNode, wFScheduleConf, isWorkflowRoot, isScienceTask } = this.props;
@@ -130,7 +132,7 @@ class ScheduleForm extends React.Component<any, any> {
                             {...formItemLayout}
                             label="重试次数"
                         >
-                            <Col span="6">
+                            <Col span={6}>
                                 {getFieldDecorator('maxRetryNum', {
                                     rules: [{
                                         required: true, message: '请选择重试次数'
@@ -186,7 +188,7 @@ class ScheduleForm extends React.Component<any, any> {
                         {...formItemLayout}
                         label="调度周期"
                     >
-                        <Col span="6">
+                        <Col span={6}>
                             {getFieldDecorator('periodType', {
                                 initialValue: `${scheduleConf.periodType}`,
                                 rules: [{
@@ -222,7 +224,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="开始时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('beginHour', {
                                         rules: [{
@@ -238,7 +240,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 </Col>
 
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('beginMin', {
                                         rules: [{
@@ -258,7 +260,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="间隔时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
                                     {getFieldDecorator('gapMin', {
                                         rules: [{
                                             required: true
@@ -284,7 +286,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="结束时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('endHour', {
                                         rules: [{
@@ -299,7 +301,7 @@ class ScheduleForm extends React.Component<any, any> {
 
                                 </Col>
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
                                     {getFieldDecorator('endMin', {
                                         rules: [{
                                             required: true
@@ -322,7 +324,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="开始时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('beginHour', {
                                         rules: [{
@@ -337,7 +339,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 </Col>
 
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('beginMin', {
                                         rules: [{
@@ -357,7 +359,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="间隔时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('gapHour', {
                                         rules: [{
@@ -384,7 +386,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="结束时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
                                     {getFieldDecorator('endHour', {
                                         rules: [{
                                             required: true
@@ -397,7 +399,7 @@ class ScheduleForm extends React.Component<any, any> {
                                     )}
                                 </Col>
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
                                     {getFieldDecorator('endMin', {
                                         rules: [{
                                             required: true
@@ -421,7 +423,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label={`${prefix}时间`}
                             >
-                                <Col span="6">
+                                <Col span={6}>
                                     {getFieldDecorator('hour', {
                                         rules: [{
                                             required: true
@@ -433,7 +435,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 </Col>
 
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('min', {
                                         rules: [{
@@ -456,7 +458,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="选择时间"
                             >
-                                <Col span="13">
+                                <Col span={13}>
                                     {getFieldDecorator('weekDay', {
                                         rules: [{
                                             required: true
@@ -471,7 +473,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="具体时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
                                     {getFieldDecorator('hour', {
                                         rules: [{
                                             required: true
@@ -483,7 +485,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 </Col>
 
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('min', {
                                         rules: [{
@@ -506,7 +508,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="选择时间"
                             >
-                                <Col span="13">
+                                <Col span={13}>
 
                                     {getFieldDecorator('day', {
                                         rules: [{
@@ -523,7 +525,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 {...formItemLayout}
                                 label="具体时间"
                             >
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('hour', {
                                         rules: [{
@@ -536,7 +538,7 @@ class ScheduleForm extends React.Component<any, any> {
                                 </Col>
 
                                 <span className="split-text">时</span>
-                                <Col span="6">
+                                <Col span={6}>
 
                                     {getFieldDecorator('min', {
                                         rules: [{

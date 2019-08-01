@@ -13,6 +13,7 @@ import ajax from '../../api/dataManage';
 import { formItemLayout, TABLE_TYPE } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
+import { any } from 'prop-types';
 
 const Step = Steps.Step;
 const FormItem = Form.Item;
@@ -335,7 +336,7 @@ export class RowItem extends React.Component<any, any> {
         const { data, replaceRow } = this.props;
         let iptName, value;
 
-        if (isObject(evt)) {
+        if (isObject(evt as any)) {
             iptName = evt.target.name;
             value = evt.target.value;
         } else {
@@ -405,7 +406,7 @@ export class RowItem extends React.Component<any, any> {
                 />
             </Col>
             <Col span={8} className="cell">
-                <Select name="columnType" defaultValue={columnType}
+                <Select defaultValue={columnType}
                     onChange={this.handleChange.bind(this, 'columnType')}
                     style={{ width: needExtra ? '40%' : '80%' }}
                     disabled={isSaved}
@@ -425,17 +426,17 @@ export class RowItem extends React.Component<any, any> {
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
                 <a href="javascript:void(0)"
-                    disabled={isSaved}
+                    {...{disabled:isSaved}}
                     onClick={() => this.props.moveRow(data.uuid, true)}
                 >上移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    disabled={isSaved}
+                    {...{disabled:isSaved}}
                     onClick={() => this.props.moveRow(data.uuid, false)}
                 >下移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    disabled={isSaved}
+                    {...{disabled:isSaved}}
                     onClick={() => this.props.delRow(data.uuid)}
                 >删除</a>
             </Col>
@@ -452,7 +453,7 @@ export class RowItem extends React.Component<any, any> {
             case 'DECIMAL':
             case 'NUMERIC':
                 result = <span className="extra-ipt">
-                    <Select name="precision"
+                    <Select
                         style={{ marginLeft: '2%', width: '18%' }}
                         value={`${precision}` || '10'}
                         onChange={this.handleChange.bind(this, 'precision')}
@@ -463,7 +464,7 @@ export class RowItem extends React.Component<any, any> {
                             key={n}
                         >{n}</Option>)}
                     </Select>
-                    <Select name="scale"
+                    <Select
                         style={{ marginLeft: '2%', width: '18%' }}
                         value={`${scale}` || '0'}
                         onChange={this.handleChange.bind(this, 'scale')}
@@ -578,7 +579,7 @@ export class ColumnsPartition extends React.Component<any, any> {
                     />)}
                 </div>
                 <div className="fn">
-                    <a href="javascript:void(0)" disabled={isEdit} onClick={this.addRow.bind(this, 1)}>
+                    <a href="javascript:void(0)" {...{disabled: isEdit}} onClick={this.addRow.bind(this, 1)}>
                         <Icon type="plus-circle-o" /> 新增字段
                     </a>
                 </div>
@@ -604,7 +605,7 @@ export class ColumnsPartition extends React.Component<any, any> {
                         </div>
                         <div className="fn">
                             <a href="javascript:void(0)"
-                                disabled={isEdit}
+                                {...{disabled: isEdit}}
                                 onClick={this.addRow.bind(this, 2)}>
                                 <Icon type="plus-circle-o" /> 新增分区字段
                             </a>
@@ -638,13 +639,13 @@ class TableCreator extends React.Component<any, any> {
 
         // move up/down
         /* eslint-disable */
-        Array.prototype.__move = function (from: any, to: any) {
+        (Array.prototype as any).__move = function (from: any, to: any) {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
         /* eslint-enable */
     }
-
+    baseForm: any;
     shouldComponentUpdate (nextProps: any, nextState: any) {
         let shouldUpdate = false;
 

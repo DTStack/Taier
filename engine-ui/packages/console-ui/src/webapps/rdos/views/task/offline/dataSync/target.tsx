@@ -416,7 +416,7 @@ class TargetForm extends React.Component<any, any> {
 
                                 return <Option
                                     key={src.id}
-                                    name={src.dataName}
+                                    {...{ name: src.dataName }}
                                     value={`${src.id}`}
                                     disabled={disableSelect}>
                                     {title}
@@ -622,7 +622,7 @@ class TargetForm extends React.Component<any, any> {
                             <Select
                                 mode="combobox"
                                 showSearch
-                                showArrow={true}
+                                {...{ showArrow: true }}
                                 optionFilterProp="value"
                                 placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
@@ -722,7 +722,7 @@ class TargetForm extends React.Component<any, any> {
                             <Select
                                 mode="combobox"
                                 showSearch
-                                showArrow={true}
+                                {...{ showArrow: true }}
                                 optionFilterProp="value"
                                 placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
@@ -962,7 +962,7 @@ class TargetForm extends React.Component<any, any> {
                                 onChange={this.submitForm.bind(this)}
                                 placeholder="请输入缓存大小"
                                 type="number"
-                                min={0}
+                                {...{ min: 0 }}
                                 suffix="KB"
                             ></Input>
                         )}
@@ -985,7 +985,7 @@ class TargetForm extends React.Component<any, any> {
                                 max: 200,
                                 message: '路径不得超过200个字符！'
                             }, {
-                                validator: this.validatePath
+                                // validator: this.validatePath
                             }],
                             validateTrigger: 'onSubmit',
                             initialValue: isEmpty(targetMap) ? '' : targetMap.type.path

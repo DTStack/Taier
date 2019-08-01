@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input as mInput, Select, message, Icon } from 'antd';
+import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout, TABLE_TYPE } from '../../../comm/const';
 const FormItem = Form.Item;
 const Option: any = Select.Option;
-const Input: any = mInput;
 @(connect((state: any) => {
     return {
         projects: state.projects,
@@ -401,7 +400,7 @@ class AddDesensitization extends React.Component<any, any> {
                                 message: '样例数据请控制在200个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" rows={4} placeholder='请输入样例数据，不超过200字符'/>
+                            <Input.TextArea rows={4} placeholder='请输入样例数据，不超过200字符'/>
                         )}
                     </FormItem>
                     <FormItem

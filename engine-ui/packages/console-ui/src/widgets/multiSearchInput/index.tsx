@@ -33,7 +33,7 @@ export interface MultiSearchInputProps {
     onSearch: any;
     onTypeChange: any;
     searchType: string; // input框中选中的筛选方式
-    filterOptions: any[]; // 数组
+    filterOptions?: any[]; // 数组
 }
 
 class MultiSearchInput extends React.Component<MultiSearchInputProps, any> {

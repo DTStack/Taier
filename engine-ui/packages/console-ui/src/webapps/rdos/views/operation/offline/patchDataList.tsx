@@ -12,7 +12,7 @@ import {
 
 import Api from '../../../api'
 const Search = Input.Search
-const Option: any = Select.Option
+const Option = Select.Option
 const FormItem = Form.Item
 const confirm = Modal.confirm
 
@@ -235,7 +235,7 @@ class PatchDataList extends React.Component<any, any> {
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
                 return (
-                    <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                    <Option key={item.userId} value={`${item.userId}`}>
                         {item.user.userName}
                     </Option>)
             }) : []

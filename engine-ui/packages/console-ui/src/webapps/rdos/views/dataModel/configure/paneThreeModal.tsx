@@ -1,14 +1,13 @@
 import * as React from 'react'
 import { isEmpty } from 'lodash';
 import {
-    Form, Input as mInput,
+    Form, Input,
     Modal
 } from 'antd'
 
 import { formItemLayout } from '../../../comm/const'
 
-const FormItem = Form.Item
-const Input: any = mInput;
+const FormItem = Form.Item;
 class FreshFrequencyModal extends React.Component<any, any> {
     state: any = {}
 
@@ -107,7 +106,7 @@ class FreshFrequencyModal extends React.Component<any, any> {
                             }],
                             initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input.TextArea rows={4} />
                         )}
                     </FormItem>
                 </Form>

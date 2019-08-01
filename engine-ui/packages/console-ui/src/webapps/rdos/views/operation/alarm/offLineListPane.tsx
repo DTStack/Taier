@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 import {
-    Table, Row, Col, Select as mSelect, Card,
-    Input as mInput, Button, DatePicker, Form
+    Table, Row, Col, Select, Card,
+    Input, Button, DatePicker, Form
 } from 'antd'
 
 import utils from 'utils'
@@ -13,10 +13,8 @@ import {
     TaskType,
     AlarmTypes
 } from '../../../components/status'
-const Input: any = mInput;
-const Select: any = mSelect;
 const RangePicker = DatePicker.RangePicker
-const Option: any = Select.Option
+const Option = Select.Option
 const FormItem = Form.Item
 
 class OfflinePanel extends React.Component<any, any> {
@@ -189,7 +187,6 @@ class OfflinePanel extends React.Component<any, any> {
                     <Option
                         key={item.id}
                         value={`${item.user.id}`}
-                        name={item.user.userName}
                     >
                         {item.user.userName}
                     </Option>
@@ -244,7 +241,6 @@ class OfflinePanel extends React.Component<any, any> {
                                 <Input
                                     size="default"
                                     placeholder="任务名称"
-                                    allowClear
                                     style={{ width: 126 }}
                                     onChange={this.changeTaskName}
                                     onPressEnter={this.search}
@@ -256,7 +252,7 @@ class OfflinePanel extends React.Component<any, any> {
                                 <Select
                                     allowClear
                                     showSearch
-                                    size='Default'
+                                    size='default'
                                     style={{ width: 126 }}
                                     placeholder="请选择接收人"
                                     optionFilterProp="name"

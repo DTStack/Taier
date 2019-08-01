@@ -8,9 +8,9 @@ import { getHeaderLogo } from 'main/consts';
 import Api from '../../api';
 import { PROJECT_TYPE, HELP_DOC_URL } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
-
+declare var window: any;
 // eslint-disable-next-line
-const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
+const UIC_URL_TARGET = window.APP_CONF.UIC_URL || '';
 
 const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;

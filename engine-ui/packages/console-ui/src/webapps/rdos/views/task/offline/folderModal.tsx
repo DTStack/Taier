@@ -124,7 +124,9 @@ class FolderModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
-
+    dtcount: number;
+    form: any;
+    isCreate: any;
     handleSubmit () {
         const { cateType, defaultData } = this.props;
         const form = this.form;

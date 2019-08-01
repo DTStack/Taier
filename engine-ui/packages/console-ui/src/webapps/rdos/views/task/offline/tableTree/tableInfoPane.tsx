@@ -22,7 +22,8 @@ export default class TableInfoPane extends React.Component<any, any> {
             column: []
         };
     }
-
+    previewCols: any;
+    searchInput: any;
     componentDidMount () {
         const tbId = this.props.tableId
         if (tbId) {
@@ -166,7 +167,7 @@ export default class TableInfoPane extends React.Component<any, any> {
         const isHiveTable = tableData && tableData.table.tableType == TABLE_TYPE.HIVE;
         return <div className="g-tableviewer">
             <Tabs
-                type="inline"
+                type="line"
                 size="small"
                 animated={false}
                 onChange={this.getPreview.bind(this)}

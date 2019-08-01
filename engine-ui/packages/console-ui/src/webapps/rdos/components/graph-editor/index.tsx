@@ -54,7 +54,11 @@ export default class Editor extends React.Component<any, any> {
         this.listenConnection()
         this.undoManager()
     }
-
+    Container: any;
+    graph: any;
+    btn1: any;
+    btn2: any;
+    undoMana: any;
     /* eslint-disable */
     initEditor() {
         // Overridden to define per-shape connection points
@@ -305,7 +309,7 @@ export default class Editor extends React.Component<any, any> {
         this.graph.zoomOut()
     }
 
-    removeCell(cells: any) {
+    removeCell(cells?: any) {
         // 获取选中的Cell
         const cell = cells || this.graph.getSelectionCells() // getSelectionCell
         if (cell && cell.length > 0) {

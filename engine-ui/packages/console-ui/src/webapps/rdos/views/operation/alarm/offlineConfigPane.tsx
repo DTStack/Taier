@@ -2,7 +2,7 @@ import * as React from 'react'
 import { connect } from 'react-redux'
 
 import {
-    Table, Select as mSelect, Form, Card,
+    Table, Select, Form, Card,
     Input, Button, message, Popconfirm
 } from 'antd'
 
@@ -16,8 +16,7 @@ import {
 } from '../../../components/status'
 
 import AlarmForm from './offLineAlarmForm'
-const Select: any = mSelect;
-const Option: any = Select.Option
+const Option = Select.Option
 const FormItem = Form.Item
 
 class OfflineConfig extends React.Component<any, any> {
@@ -267,7 +266,6 @@ class OfflineConfig extends React.Component<any, any> {
                     <Option
                         key={item.id}
                         value={`${item.user.id}`}
-                        name={item.user.userName}
                     >
                         {item.user.userName}
                     </Option>
@@ -302,7 +300,7 @@ class OfflineConfig extends React.Component<any, any> {
                                 <Select
                                     allowClear
                                     showSearch
-                                    size='Default'
+                                    size='default'
                                     style={{ width: 126 }}
                                     placeholder="选择创建人"
                                     optionFilterProp="name"

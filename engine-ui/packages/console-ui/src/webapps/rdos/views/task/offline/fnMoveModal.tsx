@@ -109,7 +109,8 @@ class FnMoveModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
-
+    dtcount: number;
+    form: any;
     shouldComponentUpdate (nextProps: any, nextState: any) {
         return this.props !== nextProps;
     }

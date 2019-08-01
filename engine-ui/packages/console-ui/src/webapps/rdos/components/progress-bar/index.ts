@@ -21,7 +21,9 @@ class ProcessBar {
                         </path>
                       </svg>`
     }
-
+    className: any;
+    hodor: any;
+    img: any;
     show () {
         document.body.appendChild(this.hodor)
         document.body.appendChild(this.img)

@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Modal, Form, DatePicker, Checkbox, Row, Col, Alert as mAlert, message } from 'antd';
+import { Modal, Form, DatePicker, Checkbox, Row, Col, Alert, message } from 'antd';
 import moment from 'moment';
 import Api from '../../../api'
 const FormItem = Form.Item;
 const RangePicker = DatePicker.RangePicker
 const CheckboxGroup = Checkbox.Group;
-const Alert: any = mAlert;
 const yesterDay = moment().subtract(1, 'days');
 const formItemLayout: any = {
     labelCol: {
@@ -106,6 +105,7 @@ class killJobForm extends React.Component<any, any> {
             >
                 <Alert
                     description="根据业务日期和调度周期来快速筛选大量实例，例如选择业务日期在2018-01-01~2018-01-20的分钟任务实例"
+                    message=""
                     type="info"
                     showIcon
                     style={{ padding: '5px 16px 5px 60px', marginBottom: 20 }}

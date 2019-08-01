@@ -25,20 +25,20 @@ function TaskInfo (props: any) {
     return (
         <Row className="task-info">
             <Row>
-                <Col span="10" className="txt-right">{labelPrefix}名称：</Col>
-                <Col span="14">
+                <Col span={10} className="txt-right">{labelPrefix}名称：</Col>
+                <Col span={14}>
                     {taskInfo.name}
                 </Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">{labelPrefix}类型：</Col>
-                <Col span="14">
+                <Col span={10} className="txt-right">{labelPrefix}类型：</Col>
+                <Col span={14}>
                     <TaskType value={taskInfo.taskType} />
                 </Col>
             </Row>
             {taskInfo.resourceList.length && <Row>
-                <Col span="10" className="txt-right">资源：</Col>
-                <Col span="14t">{taskInfo.resourceList.map((o: any) =>
+                <Col span={10} className="txt-right">资源：</Col>
+                <Col span={14}>{taskInfo.resourceList.map((o: any) =>
                     <Tag key={o.id} color="blue" style={{ marginTop: 10 }}>
                         {o.resourceName}
                     </Tag>)}
@@ -46,8 +46,8 @@ function TaskInfo (props: any) {
             </Row>}
 
             <Row>
-                <Col span="10" className="txt-right">责任人：</Col>
-                <Col span="14" style={{ position: 'relative' }}>
+                <Col span={10} className="txt-right">责任人：</Col>
+                <Col span={14} style={{ position: 'relative' }}>
                     <LockPanel lockTarget={taskInfo} />
                     {
                         taskInfo.ownerUser && taskInfo.ownerUser.userName
@@ -55,22 +55,22 @@ function TaskInfo (props: any) {
                 </Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">创建时间：</Col>
-                <Col span="14">
+                <Col span={10} className="txt-right">创建时间：</Col>
+                <Col span={14}>
                     {utils.formatDateTime(taskInfo.gmtCreate)}
                 </Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">最近修改人员：</Col>
-                <Col span="14">{taskInfo.readWriteLockVO.lastKeepLockUserName}</Col>
+                <Col span={10} className="txt-right">最近修改人员：</Col>
+                <Col span={14}>{taskInfo.readWriteLockVO.lastKeepLockUserName}</Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">最近修改时间：</Col>
-                <Col span="14">{utils.formatDateTime(taskInfo.gmtModified)}</Col>
+                <Col span={10} className="txt-right">最近修改时间：</Col>
+                <Col span={14}>{utils.formatDateTime(taskInfo.gmtModified)}</Col>
             </Row>
             <Row>
-                <Col span="10" className="txt-right">描述：</Col>
-                <Col span="14" style={{
+                <Col span={10} className="txt-right">描述：</Col>
+                <Col span={14} style={{
                     lineHeight: '20px',
                     padding: '10 0'
                 }}>{taskInfo.taskDesc}</Col>

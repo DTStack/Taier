@@ -6,7 +6,7 @@ import { createLogger } from 'redux-logger'
 import rootReducer from './reducers'
 
 const nextRootReducer = require('./reducers').default
-
+declare var window: any;
 /* eslint-disable */
 export default function configureStore(initialState: any) {
     const store = createStore(
@@ -17,8 +17,8 @@ export default function configureStore(initialState: any) {
             window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn
         ),
     )
-    if (module.hot) {
-        module.hot.accept('./reducers', () => {
+    if ((module as any).hot) {
+        (module as any).hot.accept('./reducers', () => {
             store.replaceReducer(nextRootReducer);
         })
     }

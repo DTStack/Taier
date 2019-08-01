@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import {
-    Input as mInput, Button, Form, Tooltip, Icon
+    Input, Button, Form, Tooltip, Icon
 } from 'antd'
 
 import { isEmpty } from 'lodash';
@@ -20,7 +20,6 @@ import {
 
 import HelpDoc from '../../helpDoc';
 import CopyIcon from 'main/components/copy-icon';
-const Input: any = mInput;
 const FormItem = Form.Item;
 
 const hdfsConf =
@@ -198,10 +197,9 @@ class EngineSourceForm extends React.Component<any, any> {
                             initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                 ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                         })(
-                            <Input
+                            <Input.TextArea
                                 className="no-scroll-bar"
-                                type="textarea" rows={5}
-
+                                rows={5}
                                 placeholder={hdfsConf}
                             />
                         )}

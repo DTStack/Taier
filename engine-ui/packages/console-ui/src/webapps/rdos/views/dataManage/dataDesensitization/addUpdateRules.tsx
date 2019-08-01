@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Form, Input as mInput, Radio, InputNumber, Button, message, Select } from 'antd';
+import { Modal, Form, Input, Radio, InputNumber, Button, message, Select } from 'antd';
 import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const Option: any = Select.Option;
-const Input: any = mInput;
 @(connect((state: any) => {
     return {
         projects: state.projects,
@@ -278,7 +277,7 @@ class AddUpdateRules extends React.Component<any, any> {
                             }],
                             initialValue: dataSource.example ? dataSource.example : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input.TextArea rows={4} />
                         )}
                     </FormItem>
                     <FormItem

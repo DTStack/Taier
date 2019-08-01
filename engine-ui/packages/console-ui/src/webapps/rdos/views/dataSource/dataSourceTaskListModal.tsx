@@ -61,7 +61,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
         } else if (type == 'offline') {
             func = 'getTaskOfOfflineSource';
         }
-        Api[func](params)
+        (Api as any)[func](params)
             .then(
                 (res: any) => {
                     this.setState({

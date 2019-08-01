@@ -102,7 +102,7 @@ class NormalTaskForm extends React.Component<any, any> {
                     rules: [{}],
                     initialValue: taskType
                 })(
-                    <RadioGroup disabled onChange={this.handleRadioChange}>
+                    <RadioGroup disabled>
                         {
                             taskTypeFilter.filter((item: any) => item.value == taskType)
                                 .map((task: any) => {
@@ -267,7 +267,7 @@ class NormalTaskForm extends React.Component<any, any> {
                     }],
                     initialValue: taskData.taskDesc
                 })(
-                    <Input disabled={!couldEdit} type="textarea" rows={4} />
+                    <Input.TextArea disabled={!couldEdit} rows={4} />
                 )}
             </FormItem>
             <FormItem style={{ display: 'none' }}>

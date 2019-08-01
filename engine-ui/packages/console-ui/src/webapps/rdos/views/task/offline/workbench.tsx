@@ -171,10 +171,10 @@ class Workbench extends React.Component<any, any> {
                         )}
                         hasFeedback
                     >
-                        <Input
-                            type="textarea"
+                        <Input.TextArea
                             value={publishDesc}
-                            name="publishDesc" rows={4}
+                            name="publishDesc"
+                            rows={4}
                             onChange={this.publishChange}
                         />
                     </FormItem>
@@ -243,14 +243,14 @@ class Workbench extends React.Component<any, any> {
                     {couldEdit && (
                         <span>
                             <Dropdown overlay={this.createMenu()} trigger={['click']}>
-                                <Button title="创建">
+                                <Button {...{title:"创建"}}>
                                     <MyIcon className="my-icon" type="focus" themeDark={themeDark} />
                                     新建<Icon type="down" />
                                 </Button>
                             </Dropdown>
                             <Button
                                 onClick={this.saveTab.bind(this, true, 'button')}
-                                title="保存任务"
+                                {...{title:"保存任务"}}
                                 disabled={!isSaveAvaliable}
                             >
                                 <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
@@ -265,7 +265,7 @@ class Workbench extends React.Component<any, any> {
                     </Dropdown>
                     <Button
                         onClick={this.searchTask}
-                        title="打开任务"
+                        {...{title:"打开任务"}}
                     >
                         <MyIcon className="my-icon" type="search" themeDark={themeDark} />
                         搜索
@@ -292,7 +292,7 @@ class Workbench extends React.Component<any, any> {
                                     isModify ? this.showConfirmModal : this.showPublish.bind(this)
                                 }
                             >
-                                <Icon type="upload" themeDark={themeDark} />提交
+                                <Icon type="upload" {...{ themeDark: themeDark }} />提交
                             </Button>
                         </Tooltip>
                         {isTest && <Tooltip
@@ -348,7 +348,7 @@ class Workbench extends React.Component<any, any> {
                                 })}
                             </Menu>
                         }>
-                            <Icon type="bars" size="" style={{ margin: '7 0 0 0', fontSize: 18 }} />
+                            <Icon type="bars" style={{ margin: '7 0 0 0', fontSize: 18 }} />
                         </Dropdown>}
                     >
                         {this.renderTabs(tabs)}
@@ -426,7 +426,7 @@ class Workbench extends React.Component<any, any> {
         if (currentTabData.taskType === TASK_TYPE.CUBE_KYLIN) {
             const exeArgsToJson = currentTabData.exeArgs ? JSON.parse(currentTabData.exeArgs) : '';
             if (exeArgsToJson) {
-                let { sourceId, cubeName, isUseSystemVar, startTime, endTime, systemVar, noPartition } = { ...exeArgsToJson };
+                let { sourceId, cubeName, isUseSystemVar, startTime, endTime, systemVar, noPartition }: any = { ...exeArgsToJson };
                 const isCubeOk = sourceId && cubeName && ((isUseSystemVar && systemVar) || (startTime && endTime));
                 if (!noPartition && !isCubeOk) {
                     message.warning('请完善相关参数！');
@@ -467,12 +467,12 @@ class Workbench extends React.Component<any, any> {
 
     submitTab () {
         const {
-            publishTask, dataSync,
+            publishTask,
             currentTab, reloadTaskTab
         } = this.props;
 
         const { publishDesc = '' } = this.state
-        const result = this.generateRqtBody(dataSync)
+        const result = this.generateRqtBody()
 
         // 添加发布描述信息
 

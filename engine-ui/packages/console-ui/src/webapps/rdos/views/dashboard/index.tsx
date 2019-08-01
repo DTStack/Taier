@@ -4,7 +4,7 @@ import { Link, hashHistory } from 'react-router';
 
 import moment from 'moment'
 
-import { Input, Card as mCard, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Select } from 'antd'
+import { Input, Card, Row, Col, Tooltip, Icon, Button, Pagination, message, Spin, Select } from 'antd'
 
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project';
@@ -12,7 +12,6 @@ import NoData from '../../components/no-data';
 
 const Search: any = Input.Search;
 const Option = Select.Option;
-const Card: any = mCard;
 class Index extends React.Component<any, any> {
     state: any = {
         loading: true,
@@ -27,7 +26,8 @@ class Index extends React.Component<any, any> {
             orderBy: undefined
         }
     }
-
+    _isUnmounted: any;
+    _timeClock: any;
     componentDidMount () {
         this.getProjectListInfo();
     }
@@ -384,9 +384,9 @@ class Index extends React.Component<any, any> {
                                                                 v.status != 1 || (taskNav && !taskNav.isShow) ? '' : (
                                                                     <Col span={12}>
                                                                         <Card className="card-task"
-                                                                            onClick={() => { this.setRouter('offline', v) }}
-                                                                            onMouseOver={(e: any) => { this.handleMouseOver(e) }}
-                                                                            onMouseOut={(e: any) => { this.handleMouseOut(e) }}
+                                                                            {...{onClick: () => { this.setRouter('offline', v) }}}
+                                                                            {...{onMouseOver: (e: any) => { this.handleMouseOver(e) }}}
+                                                                            {...{onMouseOut: (e: any) => { this.handleMouseOut(e) }}}
                                                                             noHovering
                                                                         >
                                                                             <span className="img-container">
@@ -401,7 +401,7 @@ class Index extends React.Component<any, any> {
                                                                 v.status != 1 || (operaNav && !operaNav.isShow) ? '' : (
                                                                     <Col span={12}>
                                                                         <Card className="card-task" style={{ padding: '1.5 0' }}
-                                                                            onClick={() => { this.setRouter('operation', v) }}
+                                                                            {...{onClick: () => { this.setRouter('operation', v) }}}
                                                                             noHovering
                                                                         >
                                                                             运维中心

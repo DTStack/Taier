@@ -63,7 +63,15 @@ export default class TableRelation extends React.Component<any, any> {
         currentParent: {},
         visible: false
     }
-
+    Container: any;
+    layout: any;
+    graph: any;
+    executeLayout: any;
+    _parentPrev: any;
+    _parentNext: any;
+    _childPrev: any;
+    _childNext: any;
+    rootCell: any;
     componentDidMount () {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.layout = '';

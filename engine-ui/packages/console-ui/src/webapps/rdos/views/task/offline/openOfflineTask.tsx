@@ -6,14 +6,14 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
 
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     const actions = workbenchActions(dispatch)
     return {
         goToTaskDev: (id: any) => {
             actions.openTaskInDev(id)
         }
     }
-})
+}) as any)
 class OpenOfflineTask extends React.Component<any, any> {
     componentDidMount () {
         const { params, goToTaskDev } = this.props
@@ -28,7 +28,7 @@ class OpenOfflineTask extends React.Component<any, any> {
                 <Spin
                     tip="Loading..."
                     size="large"
-                    spinning={'loading'}
+                    spinning={true}
                 />
             </div>
         )

@@ -35,7 +35,13 @@ export default class TableRelation extends React.Component<any, any> {
         columnName: '',
         visible: false
     }
-
+    _vertexCells: any;
+    Container: any;
+    layout: any;
+    graph: any;
+    cx: any;
+    cy: any;
+    executeLayout: any;
     componentDidMount () {
         this._vertexCells = [] // 用于缓存创建的顶点节点
         this.Container.innerHTML = ''; // 清理容器内的Dom元素

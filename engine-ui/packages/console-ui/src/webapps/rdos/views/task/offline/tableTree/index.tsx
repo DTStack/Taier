@@ -48,7 +48,7 @@ class TableTree extends React.Component<any, any> {
     }
     /* eslint-disable */
 
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any, { expanded }: any) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
@@ -58,7 +58,7 @@ class TableTree extends React.Component<any, any> {
         })
     }
 
-    handleSelect = (key, { node }) => {
+    handleSelect = (key: any, { node }: any) => {
         const table = node.props.data
         const { expandedKeys } = this.state;
         if (table && table.type !== 'folder') {
@@ -103,7 +103,7 @@ class TableTree extends React.Component<any, any> {
         this.setState({ tableId: '' })
     }
 
-    doReq = (queryName: any, id: any) => {
+    doReq = (queryName?: any, id?: any) => {
         const { projectId, searchName } = this.state;
         const { treeData, loadTreeNode, loadTableListNodeByName } = this.props;
         const nodeId = typeof id == 'undefined' ? treeData.id : id

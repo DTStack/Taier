@@ -386,7 +386,7 @@ class ImportTarget extends React.Component<any, any> {
         const { tableList, tableData, queryTable, asTitle, sync, sqlText, tableType } = formState
         const { pagination } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const columns = this.generateCols(data, tableData)
+        const columns = this.generateCols(data)
 
         const paritions = this.generatePartitions(tableData.partition || [])
         const dataSource = tableData && tableData.column

@@ -16,7 +16,10 @@ class TaskSelector extends React.Component<any, any> {
 
         this.state = { list: [], emptyError: false };
     }
-
+    $input: any;
+    searchVOS: any;
+    selectVOS: any;
+    taskId: any;
     fetchVOS (evt: any) {
         const value = evt.target.value;
         const { projectId } = this.props;

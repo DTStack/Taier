@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Input, Select } from 'antd';
+import { InputNumber, Select } from 'antd';
 
 import pureRender from 'utils/pureRender'
 
@@ -105,10 +105,9 @@ class LifeCycle extends React.Component<any, any> {
                 </Select>
                 &nbsp;
                 <span style={{ visibility: display }}>
-                    <Input
+                    <InputNumber
                         value={value}
                         style={{ width: '45%' }}
-                        type="number"
                         min={0}
                         onChange={this.customChange}
                     />

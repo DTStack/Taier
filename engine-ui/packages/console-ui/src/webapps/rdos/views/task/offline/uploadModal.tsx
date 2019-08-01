@@ -198,7 +198,7 @@ class ResForm extends React.Component<any, any> {
                         }],
                         initialValue: ''
                     })(
-                        <Input type="textarea" rows={4} />
+                        <Input.TextArea rows={4} />
                     )}
                 </FormItem>,
                 <FormItem key="computeType" style={{ display: 'none' }}>
@@ -309,7 +309,7 @@ class ResForm extends React.Component<any, any> {
                         }],
                         initialValue: defaultData.resourceDesc
                     })(
-                        <Input type="textarea" rows={4} />
+                        <Input.TextArea rows={4} />
                     )}
                 </FormItem>
             ]
@@ -390,7 +390,8 @@ class ResModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
-
+    dtcount: any;
+    form: any;
     handleSubmit () {
         const form = this.form;
         form.validateFields((err: any, values: any) => {

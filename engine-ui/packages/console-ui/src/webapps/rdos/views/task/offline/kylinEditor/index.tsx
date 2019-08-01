@@ -243,8 +243,7 @@ class KylinEditor extends React.Component<any, any> {
                                         return (
                                             <Option
                                                 key={src.id}
-                                                dataType={src.type}
-                                                name={src.dataName}
+                                                {...{dataType: src.type}}
                                                 value={`${src.id}`}
                                             >
                                                 { title }
