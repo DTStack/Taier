@@ -21,7 +21,7 @@ const {
 } = Mx;
 // const Search = Input.Search;
 
-@connect(
+@(connect(
     (state: any) => {
         const tab = state.experiment.localTabs.find((o: any) => o.id == state.experiment.currentTabIndex);
         const graph = state.component.graph[state.experiment.currentTabIndex] || {};
@@ -37,12 +37,12 @@ const {
     (dispatch: any) => {
         const actions = bindActionCreators({ ...fileTreeActions, ...experimentActions }, dispatch);
         return actions;
-    })
+    }) as any)
 class ComponentSidebar extends React.Component<any, any> {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props)
     }
-    _dragElements = [];
+    _dragElements: any[] = [];
     state: any = {
         expandedKeys: []
     }
@@ -65,17 +65,6 @@ class ComponentSidebar extends React.Component<any, any> {
     }
     componentDidUpdate (prevProps: any, prevState: any) {
         this.initDragger();
-    }
-    getCellData = (cell: any) => {
-        return cell && {
-            vertex: cell.vertex,
-            edge: cell.edge,
-            data: cell.data,
-            x: cell.geometry.x,
-            y: cell.geometry.y,
-            value: cell.value,
-            id: cell.id
-        }
     }
     // Returns the graph under the mouse
     graphF = (evt: any) => {
@@ -100,7 +89,7 @@ class ComponentSidebar extends React.Component<any, any> {
         const fileNodes = document.querySelectorAll('.anchor-component-file .ant-tree-node-content-wrapper');
         const { graph = {}, files, currentTabIndex } = this.props;
         const ctx = this;
-        const findNameInLoop = (name: any, arr: any) => {
+        const findNameInLoop = (name: any, arr: any): any => {
             if (!name) return false;
             for (let index = 0; index < arr.length; index++) {
                 const element = arr[index];
@@ -203,7 +192,7 @@ class ComponentSidebar extends React.Component<any, any> {
             style: cell.style
         }
     }
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any[], { expanded }: { expanded: any }) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)

@@ -21,7 +21,7 @@ import { siderBarType, TASK_TYPE, TASK_TYPE_TEXT } from '../../../../../consts';
 
 // const Search = Input.Search;
 
-@connect(
+@(connect(
     (state: any) => {
         return {
             routing: state.routing,
@@ -38,7 +38,7 @@ import { siderBarType, TASK_TYPE, TASK_TYPE_TEXT } from '../../../../../consts';
             ...bindActionCreators(workbenchActions, dispatch),
             ...bindActionCreators(notebookActions, dispatch)
         };
-    })
+    }) as any)
 class NotebookSidebar extends React.Component<any, any> {
     state: any = {
         expandedKeys: [],
@@ -51,7 +51,7 @@ class NotebookSidebar extends React.Component<any, any> {
         moveData: null
     }
 
-    newFolder (folder: any) {
+    newFolder (folder?: any) {
         this.setState({
             newFolderVisible: true,
             newFolderData: folder
@@ -67,7 +67,7 @@ class NotebookSidebar extends React.Component<any, any> {
         return this.props.loadTreeData(siderBarType.notebook, treeNode.props.data.id)
     }
 
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any[], { expanded }: { expanded: any }) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)

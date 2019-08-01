@@ -17,7 +17,7 @@ import * as runTaskActions from '../../../../../actions/runTaskActions';
 import * as notebookActions from '../../../../../actions/notebookActions';
 import * as commActions from '../../../../../actions/base';
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench, editor, common } = state;
         return {
@@ -34,7 +34,7 @@ import * as commActions from '../../../../../actions/base';
             ...bindActionCreators(notebookActions, dispatch)
         }
     }
-)
+) as any)
 class NormalTaskPanel extends React.Component<any, any> {
     state: any = {};
 
@@ -134,7 +134,6 @@ class NormalTaskPanel extends React.Component<any, any> {
     renderSaveButton () {
         return <Button
             icon="save"
-            title="保存"
             onClick={this.saveTab}
         >
             保存

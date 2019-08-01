@@ -16,6 +16,8 @@ import { PROJECT_STATUS, TASK_STATUS } from '../../comm/const';
 const Search = Input.Search;
 
 class Index extends React.Component<any, any> {
+    _isUnmounted: any;
+    _timeClock: any;
     state: any = {
         visible: false,
         loading: true,
@@ -70,7 +72,7 @@ class Index extends React.Component<any, any> {
         }
     }
 
-    getProjectListInfo = (params: any, isSilent: any) => {
+    getProjectListInfo = (params?: any, isSilent?: any) => {
         const { projectListParams } = this.state;
         const queryParsms: any = { ...projectListParams, ...params };
         if (!isSilent) {
@@ -120,7 +122,7 @@ class Index extends React.Component<any, any> {
         this.getProjectListInfo(params)
     }
 
-    setRouter = (type: any, v: any, filterError: any) => {
+    setRouter = (type: any, v: any, filterError?: any) => {
         let src: any;
         const { dispatch } = this.props;
         if (type === 'operation') {
@@ -184,7 +186,7 @@ class Index extends React.Component<any, any> {
         </div>
         const title = <div>
             <Row>
-                <Col span="20" >
+                <Col span={20} >
                     {data.status == PROJECT_STATUS.NORMAL ? (
                         <Link to={`/realtime/task?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
@@ -196,7 +198,7 @@ class Index extends React.Component<any, any> {
                     </span>)}
                     {this.renderTitleText(data)}
                 </Col>
-                <Col span="4">
+                <Col span={4}>
                     {tooltipImg}
                 </Col>
             </Row>
@@ -286,7 +288,7 @@ class Index extends React.Component<any, any> {
                     <div className="project-header" >
                         <div className="project-search-box">
                             <div className="project-search" >
-                                <Search placeholder="按项目名称、项目显示名称搜索" onSearch={(value: any) => this.searchProject(null, value)} onPressEnter={this.searchProject} />
+                                <Search placeholder="按项目名称、项目显示名称搜索" onSearch={(value: any) => this.searchProject(null, value)} onPressEnter={this.searchProject as any} />
                             </div>
                             <Button
                                 type="primary"
@@ -301,7 +303,7 @@ class Index extends React.Component<any, any> {
                         </div>
                     </div>
                     <Row >
-                        <Col span="24" >
+                        <Col span={24} >
                             <Row>
                                 {
                                     projectListInfo && projectListInfo.length === 0 && !loading ? <NoData /> : ''
@@ -309,10 +311,20 @@ class Index extends React.Component<any, any> {
                                 {
                                     projectListInfo && projectListInfo.map((v: any) => {
                                         const { taskCountMap } = v;
-                                        return <Col span="8" className="card-width" key={v.id} style={{ padding: 0 }}>
+                                        const cardFix = {
+                                            onClick: () => { this.setRouter('realtime', v) },
+                                            onMouseOver: (e: any) => { this.handleMouseOver('realtime', e) },
+                                            onMouseOut: (e: any) => { this.handleMouseOut('realtime', e) }
+                                        }
+                                        const cardFix1 = {
+                                            onClick: () => { this.setRouter('operation', v) },
+                                            onMouseOver: (e: any) => { this.handleMouseOver('operation', e) },
+                                            onMouseOut: (e: any) => { this.handleMouseOut('operation', e) }
+                                        }
+                                        return <Col span={8} className="card-width" key={v.id} style={{ padding: 0 }}>
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
-                                                    <Col span="17">
+                                                    <Col span={17}>
                                                         <div className="statistics" >已提交/总任务数： <span className="statistics-info">{`${taskCountMap.submitCount} / ${taskCountMap.allCount}`}</span></div>
                                                         <div className="statistics" >项目创建时间： <span className="statistics-info">{moment(v.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></div>
                                                         <div className="statistics" >
@@ -324,7 +336,7 @@ class Index extends React.Component<any, any> {
                                                             <span className="statistics-info">{taskCountMap.cancelCount}</span>
                                                         </div>
                                                     </Col>
-                                                    <Col span="7">
+                                                    <Col span={7}>
                                                         <div style={{ fontSize: 12, lineHeight: '26px' }}>任务失败数</div>
                                                         {v.status != PROJECT_STATUS.NORMAL ? (
                                                             <div className="number no-hover">
@@ -341,17 +353,18 @@ class Index extends React.Component<any, any> {
                                                         </div>)
                                                         }
                                                     </Col>
-                                                    <Col span="24" className="card-task-padding">
+                                                    <Col span={24} className="card-task-padding">
                                                         <Row>
                                                             {
                                                                 v.status != PROJECT_STATUS.NORMAL || (taskNav && !taskNav.isShow) ? '' : (
-                                                                    <Col span="12">
+                                                                    <Col span={12}>
                                                                         <Card className="card-task"
                                                                             style={{ marginRight: '6px' }}
-                                                                            onClick={() => { this.setRouter('realtime', v) }}
-                                                                            onMouseOver={(e: any) => { this.handleMouseOver('realtime', e) }}
-                                                                            onMouseOut={(e: any) => { this.handleMouseOut('realtime', e) }}
+                                                                            // onClick={() => { this.setRouter('realtime', v) }}
+                                                                            // onMouseOver={(e: any) => { this.handleMouseOver('realtime', e) }}
+                                                                            // onMouseOut={(e: any) => { this.handleMouseOut('realtime', e) }}
                                                                             noHovering
+                                                                            {...cardFix}
                                                                         >
                                                                             <span className="img-container">
                                                                                 <img className="task-img" src="/public/stream/img/icon/realtime.svg" />
@@ -363,13 +376,14 @@ class Index extends React.Component<any, any> {
                                                             }
                                                             {
                                                                 v.status != PROJECT_STATUS.NORMAL || (operaNav && !operaNav.isShow) ? '' : (
-                                                                    <Col span="12">
+                                                                    <Col span={12}>
                                                                         <Card className="card-task"
                                                                             style={{ marginLeft: '6px' }}
-                                                                            onClick={() => { this.setRouter('operation', v) }}
-                                                                            onMouseOver={(e: any) => { this.handleMouseOver('operation', e) }}
-                                                                            onMouseOut={(e: any) => { this.handleMouseOut('operation', e) }}
+                                                                            // onClick={() => { this.setRouter('operation', v) }}
+                                                                            // onMouseOver={(e: any) => { this.handleMouseOver('operation', e) }}
+                                                                            // onMouseOut={(e: any) => { this.handleMouseOut('operation', e) }}
                                                                             noHovering
+                                                                            {...cardFix1}
                                                                         >
                                                                             <span className="img-container">
                                                                                 <img className="task-img" src="/public/stream/img/icon/operation.svg" />

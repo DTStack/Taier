@@ -13,7 +13,7 @@ import workbenchActions from '../../actions/workbenchActions'
 
 const FormItem = Form.Item;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         files: state.experiment.files,
         modal: state.modal
@@ -24,11 +24,11 @@ const FormItem = Form.Item;
         ...bindActionCreators(experimentActions, dispatch),
         ...bindActionCreators(workbenchActions, dispatch)
     };
-})
+}) as any )
 class NewExperimentModal extends React.Component<any, any> {
     form = React.createRef();
     onSubmit = () => {
-        this.form.props.form.validateFields(async (err: any, values: any) => {
+        (this.form as any).props.form.validateFields(async (err: any, values: any) => {
             if (!err) {
                 let res = await this.props.addExperiment(values);
                 if (res) {

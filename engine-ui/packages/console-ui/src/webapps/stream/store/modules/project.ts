@@ -65,7 +65,7 @@ export function getProjects (params?: any) {
     }
 }
 
-export function getAllProjects (params: any) {
+export function getAllProjects (params?: any) {
     return function fn (dispatch: any) {
         Api.getAllProjects(params).then((res: any) => {
             return dispatch({

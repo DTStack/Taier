@@ -8,11 +8,11 @@ import MyIcon from '../../../../../../components/icon'
 import { matchTaskParams } from '../../../../../../comm';
 const Panel = Collapse.Panel;
 const InputGroup = Input.Group;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         sysParams: state.common.sysParams || []
     }
-})
+}) as any)
 class SqlScript extends React.Component<any, any> {
     state: any = {
         source: [{
@@ -113,7 +113,7 @@ class SqlScript extends React.Component<any, any> {
                                     {this.renderTooltips()}
                                 </div>
                             }
-                            id="sql-editor"
+                            {...{ id: 'sql-editor'}}
                             key="2"
                             style={{ height: 400, background: '#f5f5f5', paddingTop: 10 }}
                         >
@@ -121,14 +121,12 @@ class SqlScript extends React.Component<any, any> {
                                 <div className="toolbar ide-toolbar clear-offset" style={{ borderBottom: '1px solid #ddd' }}>
                                     <Button
                                         onClick={this.handleSaveSql}
-                                        title="保存任务"
                                     >
                                         <MyIcon style={{ width: 11, height: 11, marginRight: 5 }} type="save" />保存
                                     </Button>
                                     <FullScreenButton iconStyle={{ width: 12, height: 12, verticalAlign: 'top', marginRight: '0.4em' }} target="sql-editor" />
                                     <Button
                                         icon="appstore-o"
-                                        title="格式化"
                                         onClick={this.handleFormat}
                                     >
                                         格式化

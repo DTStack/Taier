@@ -17,12 +17,14 @@ const defaultPro: any = {
     children: []
 }
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class Main extends React.Component<any, any> {
+    static propTypes = propType;
+    static defaultProps = defaultPro;
     componentDidMount () {
         const { dispatch } = this.props;
         dispatch(updateApp(scienceApp));
@@ -44,7 +46,5 @@ class Main extends React.Component<any, any> {
         )
     }
 }
-Main.propTypes = propType
-Main.defaultProps = defaultPro
 
 export default Main

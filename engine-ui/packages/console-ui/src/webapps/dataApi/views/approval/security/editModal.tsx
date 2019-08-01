@@ -52,7 +52,7 @@ class EditModal extends React.Component<any, any> {
         form.validateFields(null, (err: any, values: any) => {
             if (!err) {
                 let params = values;
-                let func: any;
+                let func;
                 let successMsg: any;
                 if (mode == 'edit') {
                     params.id = record.id;
@@ -64,8 +64,8 @@ class EditModal extends React.Component<any, any> {
                 }
                 this.setState({
                     loading: true
-                })
-                api[func](params).then((res: any) => {
+                });
+                (api as any)[func](params).then((res: any) => {
                     this.setState({
                         loading: false
                     })

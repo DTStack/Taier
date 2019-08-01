@@ -59,7 +59,7 @@ class BuyManageState extends React.Component<any, any> {
             }, nextProps.apiId)
         }
     }
-    tableChange (params: any, apiId: any) {
+    tableChange (params: any, apiId?: any) {
         const { filter, page } = params;
         let status = filter.status
         if (!status || status.length < 1) {
@@ -72,7 +72,7 @@ class BuyManageState extends React.Component<any, any> {
         requestParams.status = status;
         this.getData(requestParams);
     }
-    getData (params: any) {
+    getData (params?: any) {
         if (!params) { // 无参数，默认刷新
             params = this.state.requestParams;
         }

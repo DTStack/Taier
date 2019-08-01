@@ -122,9 +122,11 @@ class paramSetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <InputNumber
-                            onBlur={(e: any) => this.handleSubmit('max_iter', e.target.value)}
-                            parser={(value: any) => isNumber(value) ? parseInt(value) : value}
-                            formatter={(value: any) => isNumber(value) ? parseInt(value) : value}
+                            {...{
+                                onBlur: (e: any) => this.handleSubmit('max_iter', e.target.value)
+                            }}
+                            parser={(value: any) => isNumber(value) ? ~~value : value}
+                            formatter={(value: any) => isNumber(value) ? ~~value : value}
                             style={inputStyle}
                         />
                     )}
@@ -142,9 +144,11 @@ class paramSetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <InputNumber
-                            onBlur={(e: any) => this.handleSubmit('c', e.target.value)}
-                            parser={(value: any) => isNumber(value) ? parseInt(value) : value}
-                            formatter={(value: any) => isNumber(value) ? parseInt(value) : value}
+                            {...{
+                                onBlur: (e: any) => this.handleSubmit('c', e.target.value)
+                            }}
+                            parser={(value: any) => isNumber(value) ? ~~value : value}
+                            formatter={(value: any) => isNumber(value) ? ~~value : value}
                             style={inputStyle}
                         />
                     )}
@@ -162,7 +166,9 @@ class paramSetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <InputNumber
-                            onBlur={(e: any) => this.handleSubmit('tol', e.target.value)}
+                            {...{
+                                onBlur: (e: any) => this.handleSubmit('tol', e.target.value)
+                            }}
                             step={0.0001}
                             style={inputStyle}
                         />
@@ -303,12 +309,12 @@ class FieldSetting extends React.PureComponent<any, any> {
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props)
     }
 }
 class LogisticRegression extends React.PureComponent<any, any> {
-    constructor (props: any) {
+    constructor(props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }

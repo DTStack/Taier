@@ -1,4 +1,11 @@
 export default class ColumnsModel {
+    public columnName: any;
+    public type: any;
+    public paramsName: any;
+    public operator: any;
+    public required: any;
+    public desc: any;
+    public id: any;
     constructor (column: any) {
         this.columnName = column.key;
         this.type = column.type;

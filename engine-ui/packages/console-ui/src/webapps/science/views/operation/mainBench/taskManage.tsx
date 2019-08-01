@@ -5,11 +5,11 @@ import Experiment from './experiment';
 import Notebook from './notebook';
 const TabPane = Tabs.TabPane;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         currentProject: state.project.currentProject
     }
-})
+}) as any)
 class TaskManage extends React.Component<any, any> {
     state: any = {
         activeKey: 'experiment'

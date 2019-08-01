@@ -289,7 +289,7 @@ class DataSource extends React.Component<any, any> {
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}
-                            columns={this.initColumns()}
+                            columns={this.initColumns() as any}
                             dataSource={sourceQuery.data}
                         />
                     </Card>

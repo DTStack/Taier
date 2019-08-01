@@ -17,7 +17,7 @@ export default {
     getApiCallNumTopN (params: any) {
         return http.post(req.GET_USER_API_CALL_RANK, params);
     },
-    getApiSubscribe (params: any) {
+    getApiSubscribe (params?: any) {
         return http.post(req.GET_USER_API_SUB_INFO, params);
     },
     getUserCallTopN (params: any) {

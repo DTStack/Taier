@@ -40,7 +40,7 @@ class PublishButtons extends React.Component<any, any> {
         return (
             <React.Fragment>
                 <Dropdown disabled={disabled} overlay={this.renderMenu()} trigger={['click']}>
-                    <Button icon="rocket" title="部署">
+                    <Button icon="rocket">
                         部署<Icon type="down" />
                     </Button>
                 </Dropdown>

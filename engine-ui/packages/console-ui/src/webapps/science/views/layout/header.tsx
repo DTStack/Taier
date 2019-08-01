@@ -9,7 +9,7 @@ import { getHeaderLogo } from 'main/consts';
 import { setProject } from '../../actions/base'
 
 const SubMenu = Menu.SubMenu;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         user: state.user,
         apps: state.apps,
@@ -25,7 +25,7 @@ const SubMenu = Menu.SubMenu;
             return dispatch(setProject(project))
         }
     }
-})
+}) as any)
 class Header extends React.Component<any, any> {
     constructor(props: any) {
         super(props)
@@ -53,7 +53,7 @@ class Header extends React.Component<any, any> {
             return e.key == project.id;
         }));
     }
-    getMenuLicense (licenseApps = []) {
+    getMenuLicense (licenseApps: any[] = []) {
         const result: any = {
             develop: true,
             operation: true,

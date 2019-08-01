@@ -109,8 +109,8 @@ class FieldSetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <InputNumber
-                            parser={(value: any) => isNumber(value) ? parseInt(value) : value}
-                            formatter={(value: any) => isNumber(value) ? parseInt(value) : value}
+                            parser={(value: any) => isNumber(value) ? ~~value : value}
+                            formatter={(value: any) => isNumber(value) ? ~~value : value}
                             style={{ width: '100%' }} />
                     )}
                 </FormItem>

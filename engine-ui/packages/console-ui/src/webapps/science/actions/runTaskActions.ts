@@ -52,7 +52,7 @@ function resetTaskStatus (tabId: any) {
     runTaskStatus[tabId] = RUN_TASK_STATUS.NONE;
 }
 
-export function exec (tabData, serverParams = {}, tasks) {
+export function exec (tabData: any, serverParams = {}, tasks: any) {
     return async (dispatch: any) => {
         const tabId = tabData.id;
         resetTaskStatus(tabId);
@@ -162,7 +162,7 @@ async function pollTask (tabId: any, jobId: any, dispatch: any) {
     }
 }
 
-export function stopTask (tabId, isSilent = false) {
+export function stopTask (tabId: any, isSilent = false) {
     return async (dispatch: any) => {
         if (isSilent) {
             dispatch(appendNotebookLog(tabId, createLog(`离开页面，执行已停止！`, 'error')))

@@ -18,6 +18,8 @@ const KEY_VALUE_ENUM: any = {
 }
 /* 选择字段弹出框 */
 export class ChooseModal extends React.PureComponent<any, any> {
+    warpClassName: any;
+    disabledType: string;
     constructor (props: any) {
         super(props);
         this.warpClassName = '.chooseWrap';
@@ -355,8 +357,8 @@ export class MemorySetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <InputNumber
-                            parser={(value: any) => isNumber(value) ? parseInt(value) : value}
-                            formatter={(value: any) => isNumber(value) ? parseInt(value) : value}
+                            parser={(value: any) => isNumber(value) ? ~~value : value}
+                            formatter={(value: any) => isNumber(value) ? ~~value : value}
                             style={inputStyle} />
                     )}
                 </FormItem>
@@ -373,8 +375,8 @@ export class MemorySetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <InputNumber
-                            parser={(value: any) => isNumber(value) ? parseInt(value) : value}
-                            formatter={(value: any) => isNumber(value) ? parseInt(value) : value}
+                            parser={(value: any) => isNumber(value) ? ~~value : value}
+                            formatter={(value: any) => isNumber(value) ? ~~value : value}
                             style={inputStyle} />
                     )}
                 </FormItem>

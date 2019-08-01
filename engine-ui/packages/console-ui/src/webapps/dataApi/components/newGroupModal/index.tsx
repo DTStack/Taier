@@ -7,9 +7,10 @@ import { apiMarketActions } from '../../actions/apiMarket'
 import { apiManageActions } from '../../actions/apiManage';
 
 const FormItem = Form.Item;
-const TreeNode = TreeSelect.TreeNode;
+const TreeNode = (TreeSelect as any).TreeNode;
 
 class NewGroupForm extends React.Component<any, any> {
+    onChange: (value: any, label: any) => void;
     getGroupTree (treeData: any, haveRoot: any, maxCouldChooseDeep: any) {
         const root: any = {
             id: 0,

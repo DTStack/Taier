@@ -21,7 +21,7 @@ class NoApprovedCard extends React.Component<any, any> {
         showRecord: {},
         apiName: utils.getParameterByName('apiName')
     }
-    getApplyingList (callback: any) {
+    getApplyingList (callback?: any) {
         this.setState({
             loading: true
         })

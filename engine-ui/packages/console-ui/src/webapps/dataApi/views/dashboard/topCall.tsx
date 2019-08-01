@@ -38,7 +38,7 @@ class TopCall extends React.Component<any, any> {
                     }]}
 
                     dataSource={this.props.data || []}
-                    onChange={this.onTableChange}
+                    onChange={(this as any).onTableChange}
                 />
 
             </Card>

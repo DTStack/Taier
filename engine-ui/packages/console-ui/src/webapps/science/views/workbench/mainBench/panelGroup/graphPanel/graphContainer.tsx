@@ -40,7 +40,7 @@ const applyCellStyle = (cellState: any, style: any) => {
 }
 
 /* eslint new-cap: ["error", { "newIsCap": false }] */
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { project, user, editor } = state;
     return {
         user,
@@ -52,7 +52,7 @@ const applyCellStyle = (cellState: any, style: any) => {
     }
 }, (dispatch: any) => {
     return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
-})
+}) as any)
 class GraphContainer extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -71,8 +71,10 @@ class GraphContainer extends React.Component<any, any> {
         outputDataVisible: false
     }
 
-    _graph = null;
-
+    _graph: any = null;
+    _activeNode: any;
+    _copyLock: Boolean;
+    _removeLock: number;
     componentDidMount () {
         if (this.props.onRef) {
             this.props.onRef(this);
@@ -217,7 +219,7 @@ class GraphContainer extends React.Component<any, any> {
     /* graph的事件监听 */
     initGraphEvent = (graph: any) => {
         const ctx = this;
-        let selectedCell = null;
+        let selectedCell: any = null;
 
         const { saveSelectedCell, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
@@ -283,7 +285,7 @@ class GraphContainer extends React.Component<any, any> {
                      * 当前没有处于重命名状态
                      */
                 ) {
-                    this.currentTitleContent = new ctx.mxTitleContent(state, isVertex);
+                    this.currentTitleContent = ctx.mxTitleContent(state, isVertex);
                     attachMouseOverStyle(state.cell);
                 }
             },
@@ -306,7 +308,7 @@ class GraphContainer extends React.Component<any, any> {
             // 当从编辑对象触发点击事件时，清除activeElement的焦点
             if (
                 activeElement && activeElement.className.indexOf('vertex-input') > -1) {
-                activeElement.blur();
+                (activeElement as any).blur();
             }
 
             if (cell && cell.vertex) {
@@ -365,7 +367,7 @@ class GraphContainer extends React.Component<any, any> {
         if (!graph) return;
         let restoreCell: any;
         const ctx = this;
-        const mockInput = document.getElementById('mockInput');
+        const mockInput = document.getElementById('mockInput') as HTMLInputElement;
         mxEvent.addListener(graph.container, 'click', mxUtils.bind(this, function(evt: any) {
             if (evt.target.nodeName === 'INPUT' && evt.target.className.indexOf('vertex-input') > -1) {
                 // 排除重命名的情况
@@ -564,7 +566,7 @@ class GraphContainer extends React.Component<any, any> {
      *  更新task的data
      *  @param eventName-事件名称
      *  */
-    handleUpdateTaskData = (eventName: any, cell: any) => {
+    handleUpdateTaskData = (eventName: any, cell?: any) => {
         const { data } = this.props;
         const graphData = this.getGraphData();
         const updateGraphVertex = (arrData: any, target: any) => {
@@ -600,7 +602,9 @@ class GraphContainer extends React.Component<any, any> {
                  */
                 return;
             }
-            const cellItem = this.getCellData(cell);
+            const cellItem: {
+                [propName: string]: any;
+            } = this.getCellData(cell);
             cellItem.source = this.getCellData(cell.source);
             cellItem.target = this.getCellData(cell.target);
             const valueArr = cell.value.split('_');
@@ -649,7 +653,7 @@ class GraphContainer extends React.Component<any, any> {
     }
     initEditTaskCell = (cell: any, task: any) => {
         const ctx = this;
-        const editTarget = document.getElementById(`JS_cell_${task.id}`);
+        const editTarget = document.getElementById(`JS_cell_${task.id}`) as HTMLInputElement;
         this.setCursorPosition(editTarget, editTarget.value.length);
         const { data } = this.props;
         const checkNodeName = function(name: any) {
@@ -666,7 +670,7 @@ class GraphContainer extends React.Component<any, any> {
         const editSucc = (evt: any) => {
             console.log(evt)
             const originName = task.name;
-            if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
+            if ((evt.type === 'keypress' && (event as any).keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
                 const value = utils.trim(editTarget.value);
                 if (checkNodeName(value) && value !== originName) {
@@ -740,7 +744,9 @@ class GraphContainer extends React.Component<any, any> {
         const cellData: any = [];
         for (let i = 0; i < cells.length; i++) {
             const cell = cells[i];
-            const cellItem = this.getCellData(cell);
+            const cellItem: {
+                [propName: string]: any
+            } = this.getCellData(cell);
             if (cell.edge) {
                 cellItem.source = this.getCellData(cell.source);
                 cellItem.target = this.getCellData(cell.target);

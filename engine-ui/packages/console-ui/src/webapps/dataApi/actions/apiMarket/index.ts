@@ -52,7 +52,7 @@ export const apiMarketActions: any = {
             callFunc = 'getApiExtInfoForManager'
         }
         return (dispatch: any) => {
-            return API[callFunc](params).then((res: any) => {
+            return (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: ACTION_TYPE.GET_API_EXT_INFO,

@@ -22,7 +22,7 @@ function getUniqueKey (id: any) {
     return `${id}_${moment().valueOf()}`
 }
 
-function getDataOver (dispatch: any, currentTab: any, res: any, jobId: any) {
+function getDataOver (dispatch: any, currentTab: any, res: any, jobId?: any) {
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
     }
@@ -33,7 +33,7 @@ function getDataOver (dispatch: any, currentTab: any, res: any, jobId: any) {
 }
 
 function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any) {
-    function outputStatus (status: any, extText: any) {
+    function outputStatus (status: any, extText?: any) {
         for (let i = 0; i < offlineTaskStatusFilter.length; i++) {
             if (offlineTaskStatusFilter[i].value == status) {
                 dispatch(output(currentTab, `${offlineTaskStatusFilter[i].text}${extText || ''}`))
@@ -41,7 +41,7 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any) {
             }
         }
     }
-    API.selectSQLResultData({
+    (API as any).selectSQLResultData({
         jobId: jobId
     })
         .then(
@@ -103,7 +103,7 @@ function selectData (dispatch: any, jobId: any, currentTab: any) {
     )
 }
 
-function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject) {
+function exec (dispatch: any, currentTab: any, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
     const key = getUniqueKey(task.id)
 
     params.sql = `${sqls[index]}`
@@ -164,10 +164,10 @@ function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject)
     }
     if (utils.checkExist(task.taskType)) { // 任务执行
         params.taskId = task.id;
-        API.execSQLImmediately(params).then(succCall)
+        (API as any).execSQLImmediately(params).then(succCall)
     } else if (utils.checkExist(task.type)) { // 脚本执行
         params.scriptId = task.id;
-        API.execScript(params).then(succCall)
+        (API as any).execScript(params).then(succCall)
     }
 }
 
@@ -224,12 +224,12 @@ export function stopSql (currentTab: any, currentTabData: any, isSilent: any) {
         }
 
         if (utils.checkExist(currentTabData.taskType)) { // 任务执行
-            API.stopSQLImmediately({
+            (API as any).stopSQLImmediately({
                 taskId: currentTabData.id,
                 jobId: jobId
             }).then(succCall)
         } else if (utils.checkExist(currentTabData.type)) { // 脚本执行
-            API.stopScript({
+            (API as any).stopScript({
                 scriptId: currentTabData.id,
                 jobId: jobId
             }).then(succCall)

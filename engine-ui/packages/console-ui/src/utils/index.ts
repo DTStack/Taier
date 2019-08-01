@@ -102,7 +102,7 @@ const utils = {
      * @param  {[type]} num       [description]
      * @param  {[type]} precision [description]
      */
-    percent (num: number, precision: number) {
+    percent (num: number, precision?: number) {
         if (!num || num === Infinity) { return 0 + '%'; }
         if (num > 1) { num = 1; }
         precision = precision || 2;
@@ -272,7 +272,7 @@ const utils = {
      * @param {格式化内容} text
      * @param {格式化占位符} space
      */
-    jsonFormat (text: string, space: number) {
+    jsonFormat (text: string, space?: number) {
         if (!text) {
             return text;
         }

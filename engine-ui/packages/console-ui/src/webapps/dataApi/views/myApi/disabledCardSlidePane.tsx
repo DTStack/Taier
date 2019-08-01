@@ -20,7 +20,7 @@ class DisabledCardSlidePane extends React.Component<any, any> {
             }
         }
     }
-    getApiCreatorInfo (apiId: any) {
+    getApiCreatorInfo (apiId?: any) {
         apiId = apiId || this.props.showRecord.apiId;
         if (!apiId) {
             return;

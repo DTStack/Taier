@@ -46,6 +46,7 @@ class CurveChart extends React.Component<any, any> {
         selectedBtn: 'roc',
         chartData: null
     }
+    _chart1: any;
     componentDidMount () {
         this._chart1 = echarts.init(document.getElementById('JS_CurveChart'));
         this.renderChart('roc');

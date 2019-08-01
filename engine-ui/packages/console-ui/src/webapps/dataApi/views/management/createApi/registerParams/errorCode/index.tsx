@@ -58,7 +58,7 @@ class RegisterErrorCode extends React.Component<any, any> {
     errroRef = React.createRef()
     validate = () => {
         return new Promise((resolve: any, reject: any) => {
-            this.errroRef.current.validateFieldsAndScroll({}, (err: any, values: any) => {
+            (this.errroRef.current as any).validateFieldsAndScroll({}, (err: any, values: any) => {
                 if (!err) {
                     resolve(true);
                 } else {
@@ -80,7 +80,7 @@ class RegisterErrorCode extends React.Component<any, any> {
                         )}
                     >
                         <ErrorForm
-                            ref={this.errroRef}
+                            ref={this.errroRef as any}
                             data={errorCodeList}
                             newColumn={this.newColumn.bind(this)}
                             deleteColumn={this.deleteColumn.bind(this)}

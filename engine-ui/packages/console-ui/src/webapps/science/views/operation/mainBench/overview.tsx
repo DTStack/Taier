@@ -30,6 +30,7 @@ class Overview extends React.PureComponent<any, any> {
             totalNotebookCount: 0
         }
     }
+    _chart: any;
     componentDidMount () {
         this.getStatistics();
         this.initData();
@@ -40,7 +41,7 @@ class Overview extends React.PureComponent<any, any> {
             // this.resizeChart();
         }
     }
-    drawCharts = (chartDatas: any, id: any) => {
+    drawCharts = (chartDatas?: any, id?: any) => {
         const { activeKey, experimentData, notebookData } = this.state;
         switch (activeKey) {
             case `${taskType.EXPERIMENT}`: {

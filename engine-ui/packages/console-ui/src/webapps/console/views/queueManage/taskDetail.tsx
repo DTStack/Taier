@@ -697,7 +697,8 @@ class TaskDetail extends React.Component<any, any> {
         let killTaskInfo: any = [];
         if (e.target.checked) {
             selectedRowKeys = this.state.dataSource.map((item: any) => item.taskId);
-            killTaskInfo = this.state.dataSource.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+            killTaskInfo = this.state.dataSource.map((item: any) => {
+                const { taskId, groupName, jobType, engineType, computeType } = item;
                 return {
                     taskId,
                     groupName,
@@ -795,7 +796,9 @@ class TaskDetail extends React.Component<any, any> {
             onChange: (selectedRowKeys: any, selectedRows: any) => {
                 this.setState({
                     selectedRowKeys,
-                    killTaskInfo: selectedRows.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+                    // killTaskInfo: selectedRows.map(({ taskId, groupName, jobType, engineType, computeType }) => {
+                    killTaskInfo: selectedRows.map((item: any) => {
+                        const { taskId, groupName, jobType, engineType, computeType } = item;
                         return {
                             taskId,
                             groupName,

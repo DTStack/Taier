@@ -13,8 +13,8 @@ import {
 } from './const';
 
 // 请求防抖动
-export function debounceEventHander (...args) {
-    const debounced = debounce(...args);
+export function debounceEventHander (...args:any) {
+    const debounced = debounce({...args});
     return function (e: any) {
         e.persist();
         return debounced(e);
@@ -37,8 +37,8 @@ export function getDefaultSQLTemp (data: any) {
 /**
  * 获取任务类型指定图表className
  */
-export function taskTypeIcon (type, task = {}) {
-    const { pythonVersion, learningType, scriptType } = task;
+export function taskTypeIcon (type: any, task = {}) {
+    const { pythonVersion, learningType, scriptType }:any = task;
     if (scriptType == null) {
         switch (type) {
             case TASK_TYPE.SQL: {

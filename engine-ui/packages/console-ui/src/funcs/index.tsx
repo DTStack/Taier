@@ -438,7 +438,18 @@ export const removeToolTips = () => {
 /**
  * 把running:{ value: 0, text '运行中' } 结构的数据，转换为 0: { symbol: 'running', text: '运行中' }
  */
-export function generateValueDic (dic: any) {
+export function generateValueDic (dic: any): {
+    [propName: number]: {
+        symbol: any,
+        [propName: string]: any,
+        [propName: number]: any
+    },
+    [propName: string]: {
+        symbol: any,
+        [propName: string]: any,
+        [propName: number]: any
+    }
+} {
     let newDic: any = {};
     Object.keys(dic).forEach((key: any) => {
         let v = dic[key];

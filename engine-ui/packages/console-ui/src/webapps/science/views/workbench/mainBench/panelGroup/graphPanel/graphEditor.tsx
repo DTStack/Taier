@@ -50,10 +50,11 @@ const {
 const BASE_COLOR = '#2491F7';
 
 /* eslint new-cap: ["error", { "newIsCap": false }] */
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     return bindActionCreators(componentActions, dispatch);
-})
+}) as any)
 class GraphEditor extends React.Component<any, any> {
+    static propTypes = propType;
     componentDidMount () {
         const { data, onRef } = this.props;
         this.initGraph(data);
@@ -61,7 +62,11 @@ class GraphEditor extends React.Component<any, any> {
             onRef(this);
         }
     }
-    _edges = []; //
+    _edges: any[] = [];
+    Container: any;
+    graph: any;
+    _cacheCells: any;
+    executeLayout: any;
     shouldComponentUpdate (nextProps: any, nextState: any) {
         console.group();
         console.log('version:', nextProps.version, '<-', this.props.version);
@@ -201,7 +206,7 @@ class GraphEditor extends React.Component<any, any> {
     }
     /* 重置一些添加事件的方法 */
     initEventListener = () => {
-        mxEventSource.prototype.addListener = function (name, funct, isUpdate = false) {
+        mxEventSource.prototype.addListener = function (name: any, funct: any, isUpdate: Boolean = false) {
             if (this.eventListeners == null) {
                 this.eventListeners = [];
             }
@@ -218,7 +223,7 @@ class GraphEditor extends React.Component<any, any> {
                 this.eventListeners.push(funct);
             }
         };
-        mxGraph.prototype.addMouseListener = function (listener, isUpdate = false) {
+        mxGraph.prototype.addMouseListener = function (listener: any, isUpdate: Boolean = false) {
             if (this.mouseListeners == null) {
                 this.mouseListeners = [];
             }
@@ -297,7 +302,7 @@ class GraphEditor extends React.Component<any, any> {
         }
     }
     /* 初始化事件 */
-    initGraphEvent = (graph: any) => {
+    initGraphEvent = () => {
         const { registerEvent } = this.props;
         if (registerEvent) {
             console.log('graph evt:', this.props.data, this.graph);
@@ -387,7 +392,7 @@ class GraphEditor extends React.Component<any, any> {
     /* 自定义插入的edge样式 */
     customizeInsertEdge = () => {
         const graph = this.graph;
-        mxConnectionHandler.prototype.insertEdge = function (parent, id, value, source, target, style) {
+        mxConnectionHandler.prototype.insertEdge = function (parent: any, id: any, value: any, source: any, target: any, style: any) {
             const sourceConstraint = graph.connectionHandler.sourceConstraint;
             const targetConstraint = graph.connectionHandler.constraintHandler.currentConstraint;
             if (sourceConstraint && sourceConstraint.id === 'outputs') {
@@ -535,7 +540,7 @@ class GraphEditor extends React.Component<any, any> {
                     icon.init(this.graph.getView().getDecoratorPane());
 
                     // Fixes lost event tracking for images in quirks / IE8 standards
-                    if (mxClient.IS_QUIRKS || document.documentMode == 8) {
+                    if (mxClient.IS_QUIRKS || (document as any).documentMode == 8) {
                         mxEvent.addListener(icon.node, 'dragstart', function(evt: any) {
                             mxEvent.consume(evt);
 
@@ -896,7 +901,5 @@ class GraphEditor extends React.Component<any, any> {
         return style
     }
 }
-
-GraphEditor.propTypes = propType
 
 export default GraphEditor;

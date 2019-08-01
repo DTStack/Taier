@@ -13,13 +13,13 @@ export default class InputColumnModel extends BaseModel {
     constructor (initData = {}) {
         super(initData)
         if (!(inputColumnsKeys.POSITION in initData)) {
-            this[inputColumnsKeys.POSITION] = PARAMS_POSITION.QUERY;
+            (this as any)[inputColumnsKeys.POSITION] = PARAMS_POSITION.QUERY;
         }
         if (!(inputColumnsKeys.TYPE in initData)) {
-            this[inputColumnsKeys.TYPE] = FIELD_TYPE_LIST[0];
+            (this as any)[inputColumnsKeys.TYPE] = FIELD_TYPE_LIST[0];
         }
         if (!(inputColumnsKeys.ISREQUIRED in initData)) {
-            this[inputColumnsKeys.ISREQUIRED] = true;
+            (this as any)[inputColumnsKeys.ISREQUIRED] = true;
         }
     }
 }

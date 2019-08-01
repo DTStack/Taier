@@ -74,7 +74,7 @@ class TopFail extends React.Component<any, any> {
                     }]}
 
                     dataSource={this.getDataSource()}
-                    onChange={this.onTableChange}
+                    onChange={(this as any).onTableChange}
                 />
 
             </Card>

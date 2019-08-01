@@ -64,8 +64,8 @@ class ManageBasicProperties extends React.Component<any, any> {
     updateRegisterColumns (path: any) {
         const { registerParams } = this.props;
         let { inputParam = [] } = registerParams;
-        let params = parseParamsPath(path);
-        params = [...new Set(params)];
+        let params: any[] = parseParamsPath(path);
+        params = [...(new Set(params) as any)];
         /**
         * 删除源数据已不存在的path参数
         */
@@ -117,7 +117,7 @@ class ManageBasicProperties extends React.Component<any, any> {
                     if (!isHostVaild) {
                         return false;
                     }
-                    if (values.APIPath && !this.checkParamsPath(values)) {
+                    if (values.APIPath && !(this as any).checkParamsPath(values)) {
                         return false;
                     }
                     this.updateRegisterColumns(values.originalPath)
@@ -335,13 +335,13 @@ class ManageBasicProperties extends React.Component<any, any> {
     }
     checkNameExist (rule: any, value: any, callback: any) {
         if (value) {
-            if (this._checkClockObj) {
-                clearTimeout(this._checkClockObj.clock)
-                this._checkClockObj.callback();
+            if ((this as any)._checkClockObj) {
+                clearTimeout((this as any)._checkClockObj.clock);
+                (this as any)._checkClockObj.callback();
             }
-            this._checkClockObj = {};
-            this._checkClockObj.callback = callback;
-            this._checkClockObj.clock = setTimeout(() => {
+            (this as any)._checkClockObj = {};
+            (this as any)._checkClockObj.callback = callback;
+            (this as any)._checkClockObj.clock = setTimeout(() => {
                 api.checkNameExist({
                     name: value,
                     apiId: utils.getParameterByName('apiId')

@@ -38,11 +38,11 @@ const defaultState: any = {
     originLineCount: 0, // 原数据总条数
     targetExchangeWarning: false// target界面是否提示未选择源字段
 }
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         currentProject: state.project.currentProject
     }
-})
+}) as any)
 class ImportLocalData extends React.Component<any, any> {
     state = Object.assign({ key: Math.random() }, defaultState)
 

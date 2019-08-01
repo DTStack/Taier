@@ -46,7 +46,7 @@ class TestApi extends React.Component<any, any> {
          * 假如是常量类型，直接显示值
          */
         if (isRegister && record instanceof ConstColumnModel) {
-            return record[constColumnsKeys.VALUE];
+            return (record as any)[constColumnsKeys.VALUE];
         }
         let data = inFields && inFields.inFields;
         let initialValue: any;
@@ -73,7 +73,7 @@ class TestApi extends React.Component<any, any> {
             >
                 {getFieldDecorator(isRegister ? record[inputColumnsKeys.NAME] : record.paramsName, {
                     rules: [{
-                        required: isRegister ? record[[inputColumnsKeys.ISREQUIRED]] : record.required,
+                        required: isRegister ? record[[inputColumnsKeys.ISREQUIRED] as any] : record.required,
                         message: '该参数为必填项'
                     }],
                     initialValue: initialValue

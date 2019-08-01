@@ -22,7 +22,7 @@ export const formItemLayout: any = {
         span: 24
     }
 };
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         selectedCell: state.component.selectedCell,
         currentTabIndex: state.experiment.currentTabIndex,
@@ -30,7 +30,7 @@ export const formItemLayout: any = {
     }
 }, (dispatch: any) => {
     return bindActionCreators({ ...experimentActions }, dispatch);
-})
+}) as any)
 class Params extends React.Component<any, any> {
     state: any = {
         lock: false

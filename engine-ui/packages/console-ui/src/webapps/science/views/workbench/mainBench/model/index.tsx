@@ -12,7 +12,7 @@ import utils from 'utils';
 import { generateValueDic } from 'funcs';
 
 class ModelView extends React.Component<any, any> {
-    _clock = null;
+    _clock: any = null;
     state: any = {
         detailModalVisible: false,
         detailData: null,
@@ -57,7 +57,7 @@ class ModelView extends React.Component<any, any> {
             })
         }
     }
-    loadData = async (disableLoading: any) => {
+    loadData = async (disableLoading?: any) => {
         this.clearDataLoad();
         if (!disableLoading) {
             this.setState({
@@ -75,12 +75,12 @@ class ModelView extends React.Component<any, any> {
             componentTypeList: filters.componentName
         }
         if (columnKey) {
-            let dic: any = {
+            let dic:{ [propName: string]: string } = {
                 fileSize: 'memorySort',
                 modelName: 'nameSort',
                 gmtModified: 'gmtModifySort'
             }
-            params[dic[columnKey]] = utils.exchangeOrder(order);
+            params[dic[columnKey as string]] = utils.exchangeOrder(order);
         }
         let res = await api.getModelList(params);
         if (res && res.code == 1) {

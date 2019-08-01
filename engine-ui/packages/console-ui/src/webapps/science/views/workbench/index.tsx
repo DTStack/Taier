@@ -16,7 +16,7 @@ import { siderBarType } from '../../consts'
 
 const { Content } = Layout;
 
-@connect(
+@(connect(
     (state: any) => {
         const { modal, common } = state;
         return {
@@ -28,7 +28,7 @@ const { Content } = Layout;
         const actions = bindActionCreators(workbenchActions, dispatch);
         return actions;
     }
-)
+) as any)
 class Workbench extends React.Component<any, any> {
     componentDidMount () {
         if (process.env.NODE_ENV === 'production') {
