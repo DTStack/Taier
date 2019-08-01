@@ -67,7 +67,7 @@ class Index extends React.Component<any, any> {
         }
     }
 
-    getProjectListInfo = (params: any, isSilent: any) => {
+    getProjectListInfo = (params?: any, isSilent?: any) => {
         const { projectListParams } = this.state;
         const queryParsms: any = { ...projectListParams, ...params };
         if (!isSilent) {
@@ -242,7 +242,7 @@ class Index extends React.Component<any, any> {
         }
     }
 
-    handleMouseOver = (type: any, e: any) => {
+    handleMouseOver = (type?: any, e?: any) => {
         switch (type) {
             case 'operation': {
                 e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/operation_select.svg';
@@ -258,7 +258,7 @@ class Index extends React.Component<any, any> {
         }
     }
 
-    handleMouseOut = (type: any, e: any) => {
+    handleMouseOut = (type?: any, e?: any) => {
         switch (type) {
             case 'operation': {
                 e.currentTarget.getElementsByTagName('img')[0].src = '/public/rdos/img/icon/operation.svg';

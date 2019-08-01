@@ -41,10 +41,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class DataSourceModal extends React.Component<any, any> {
     state: any = {
         sourceType: undefined,
@@ -198,8 +198,8 @@ class DataSourceModal extends React.Component<any, any> {
                                 initialValue: config.hadoopConfig || ''
                             })(
                                 <Input
+                                    {...{rows: 5}}
                                     type="textarea"
-                                    rows={5}
                                     placeholder={hdfsConf}
                                 />
                             )}
@@ -439,7 +439,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 }
                             ],
                             initialValue: sourceData.dataDesc || ''
-                        })(<Input type="textarea" rows={4} />)}
+                        })(<Input type="textarea" {...{rows: 4}} />)}
                     </FormItem>
 
                     {this.renderDynamic()}

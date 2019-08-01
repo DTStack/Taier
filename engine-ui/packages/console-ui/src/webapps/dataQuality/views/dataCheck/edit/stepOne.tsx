@@ -37,10 +37,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class StepOne extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
@@ -248,7 +248,7 @@ class StepOne extends React.Component<any, any> {
     };
 
     // 分区变化回调
-    handlePartChange = (value: any, label: any, extra: any) => {
+    handlePartChange = (value: any, label: any, extra?: any) => {
         const { origin } = this.props.editParams;
         let partition = value
             ? extra.triggerNode.props.dataRef.partColumn

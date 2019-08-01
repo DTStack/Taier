@@ -22,9 +22,9 @@ export function updateUser (fields: any) {
     }
 }
 
-export function getUserList (fields: any) {
+export function getUserList () {
     return (dispatch: any) => {
-        UserApi.getUserList(fields).then((res: any) => {
+        UserApi.getUserList().then((res: any) => {
             if (res.code === 1) {
                 dispatch({
                     type: userActions.GET_USER_LIST,

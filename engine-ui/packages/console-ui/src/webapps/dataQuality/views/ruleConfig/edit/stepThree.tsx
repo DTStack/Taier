@@ -45,10 +45,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class StepThree extends React.Component<any, any> {
     constructor (props: any) {
         super(props);

@@ -23,7 +23,7 @@ function typeCreate (status: any) {
     return status == taskStatus.FAILED ? 'error' : 'info';
 }
 
-function getDataOver (dispatch: any, currentTab: any, res: any, jobId: any) {
+function getDataOver (dispatch: any, currentTab: any, res: any, jobId?: any) {
     dispatch(output(currentTab, createLog('执行完成!', 'info')))
     if (res.data.result) {
         dispatch(outputRes(currentTab, res.data.result, jobId))
@@ -42,7 +42,7 @@ function getDataOver (dispatch: any, currentTab: any, res: any, jobId: any) {
  * @param {*} taskType 任务类型
  */
 function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any, taskType: any) {
-    function outputStatus (status: any, extText: any) {
+    function outputStatus (status: any, extText?: any) {
         // 当为数据同步日志时，运行日志就不显示了
         if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
             return;
@@ -111,7 +111,7 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any, tas
         )
 }
 
-function selectData (dispatch: any, jobId: any, currentTab: any, taskType: any) {
+function selectData (dispatch: any, jobId: any, currentTab: any, taskType?: any) {
     return new Promise(
         (resolve: any, reject: any) => {
             doSelect(resolve, dispatch, jobId, currentTab, taskType)
@@ -130,7 +130,7 @@ function selectData (dispatch: any, jobId: any, currentTab: any, taskType: any) 
  * @param {function} resolve promise resolve
  * @param {function} reject promise reject
  */
-function exec (dispatch, currentTab, task, params, sqls, index, resolve, reject) {
+function exec (dispatch: any, currentTab: any, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
     const key = getUniqueKey(task.id)
 
     params.sql = `${sqls[index]}`

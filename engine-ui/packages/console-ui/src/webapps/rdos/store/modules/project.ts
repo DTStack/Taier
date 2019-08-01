@@ -58,7 +58,7 @@ export function setProject (data: any) {
     }
 }
 
-export function getProjects (params: any) {
+export function getProjects (params?: any) {
     return function fn (dispatch: any) {
         Api.getProjects(params).then((res: any) => {
             return dispatch({
@@ -104,7 +104,7 @@ export function getProjectSupportEngine (params: any) {
 
 // Reducer
 // 获取系统下登录用户有权限的项目
-export function projects (state = [], action: any) {
+export function projects (state: any = [], action: any) {
     switch (action.type) {
         case projectAction.GET_PROJECTS:
             return action.data || state
@@ -114,7 +114,7 @@ export function projects (state = [], action: any) {
 }
 
 // 获取系统所以项目
-export function allProjects (state = [], action: any) {
+export function allProjects (state: any = [], action: any) {
     switch (action.type) {
         case projectAction.GET_ALL_PROJECTS:
             return action.data || state
@@ -135,7 +135,7 @@ export function project (state = defaultProject, action: any) {
     }
 }
 // 获取系统所以项目
-export function allTenantsProjects (state = [], action: any) {
+export function allTenantsProjects (state: any = [], action: any) {
     switch (action.type) {
         case projectAction.GET_TENANT_PROJECTS:
             return action.data || state
@@ -144,7 +144,7 @@ export function allTenantsProjects (state = [], action: any) {
     }
 }
 // 获取项目支持的引擎类型
-export function projectSuppoetEngines (state = [], action: any) {
+export function projectSuppoetEngines (state: any = [], action: any) {
     switch (action.type) {
         case projectAction.GET_SUPPORT_ENGINE:
             return action.data || state

@@ -48,10 +48,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class TaskQuery extends React.Component<any, any> {
     state: any = {
         params: {
@@ -81,7 +81,7 @@ class TaskQuery extends React.Component<any, any> {
 
     renderLogInfo = (status: any, record: any) => {
         const { visibleList } = this.state;
-        let title = '';
+        let title: React.ReactNode = '';
         let icon = 'close-circle-o';
         let preStyle: any = { whiteSpace: 'pre-wrap', wordBreak: 'break-all' };
         if (status === TASK_STATUS.FAIL) {
@@ -319,7 +319,7 @@ class TaskQuery extends React.Component<any, any> {
                 <Option
                     key={item.id}
                     value={item.id.toString()}
-                    name={item.userName}
+                    {...{name: item.userName}}
                 >
                     {item.userName}
                 </Option>

@@ -3,9 +3,10 @@ import { Tooltip, message } from 'antd';
 
 export default class ToolTipCopy extends React.Component<any, any> {
     state: any = {
-
     }
-
+    fakeHandlerCallback: EventListenerOrEventListenerObject
+    fakeHandler: Boolean
+    fakeElem: HTMLTextAreaElement
     componentWillUnmount () {
         this.removeFake();
     }
@@ -14,7 +15,8 @@ export default class ToolTipCopy extends React.Component<any, any> {
         this.removeFake();
 
         this.fakeHandlerCallback = () => this.removeFake();
-        this.fakeHandler = document.body.addEventListener('click', this.fakeHandlerCallback) || true;
+        document.body.addEventListener('click', this.fakeHandlerCallback)
+        this.fakeHandler = true;
 
         this.fakeElem = document.createElement('textarea');
         // Prevent zooming on iOS

@@ -29,7 +29,7 @@ export function getTenantList () {
     }
 }
 
-export function tenantList (state = [], action: any) {
+export function tenantList (state: any = [], action: any) {
     switch (action.type) {
         case actions.SET_TENANT_LIST:
             return action.payload;

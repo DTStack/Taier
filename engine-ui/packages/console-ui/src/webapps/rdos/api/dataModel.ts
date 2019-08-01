@@ -75,9 +75,6 @@ export default {
     getCheckList (params: any) {
         return http.post(dataModelReq.CHECK_LIST, params)
     },
-    getCheckPartitions (params: any) {
-        return http.post(dataModelReq.CHECK_PARTITIONS_LIST, params)
-    },
     ignoreCheck (params: any) {
         return http.post(dataModelReq.CHECK_IGNORE, params)
     },
