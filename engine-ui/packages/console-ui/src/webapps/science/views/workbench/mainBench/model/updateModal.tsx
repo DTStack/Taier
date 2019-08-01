@@ -89,12 +89,14 @@ class ModelUpdateModal extends React.Component<any, {
             >
                 <Table
                     className='m-table border-table'
-                    rowkey='time'
                     columns={this.initColumns()}
                     dataSource={updateList}
                     loading={loading}
                     scroll={{ y: 550 }}
                     pagination={false}
+                    {...{
+                        rowkey: 'time'
+                    }}
                 />
             </Modal>
         )
