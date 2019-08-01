@@ -16,12 +16,12 @@ import {
 } from './const';
 
 // 请求防抖动
-export function debounceEventHander (...args) {
-    const debounced = debounce(...args);
+export function debounceEventHander (func: any, wait?: number, options?: any) {
+    const debounced = debounce(func, wait, options)
     return function (e: any) {
-        e.persist();
-        return debounced(e);
-    };
+        e.persist()
+        return debounced(e)
+    }
 }
 
 /**
@@ -40,7 +40,7 @@ export function getDefaultSQLTemp (data: any) {
 /**
  * 获取任务类型指定图表className
  */
-export function taskTypeIcon (type, task = {}) {
+export function taskTypeIcon (type: any, task = {}) {
     const { pythonVersion, learningType, scriptType } = task;
     if (scriptType == null) {
         switch (type) {

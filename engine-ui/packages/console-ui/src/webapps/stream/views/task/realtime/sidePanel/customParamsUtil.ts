@@ -3,7 +3,7 @@ import utils from 'utils';
  * 生成form Mapfield方法的自定义属性对象
  * @param {*} customParams
  */
-export function generateMapValues (customParams = []) {
+export function generateMapValues (customParams:any = []) {
     const map: any = {};
     customParams.forEach((customParam: any) => {
         map[customParam.id + '-key'] = { value: customParam.key };
@@ -18,7 +18,7 @@ export function generateMapValues (customParams = []) {
  * @param {*} id
  * @param {*} type
  */
-export function changeCustomParams (panel, value, extParam = {}) {
+export function changeCustomParams (panel:any, value: any, extParam: any = {}) {
     /**
      * 这边取得传进来的customParams的引用，以便直接操作原对象
      */

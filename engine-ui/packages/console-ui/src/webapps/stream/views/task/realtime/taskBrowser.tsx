@@ -39,11 +39,13 @@ class TaskBrowser extends React.Component<any, any> {
             dispatch(BrowserAction.getDimensionData())
         }
     }
+    _syncEditor: boolean;
+    SideBench: any;
 
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
-        const { id } = nextProps.currentPage || {};
-        const { id: oldId } = this.props.currentPage || {};
+        const { id } : any = nextProps.currentPage || {};
+        const { id: oldId } : any = this.props.currentPage || {};
 
         if (nextProps.currentPage != this.props.currentPage) {
             this._syncEditor = true;
@@ -60,7 +62,7 @@ class TaskBrowser extends React.Component<any, any> {
     onEdit = (targetKey: any, action: any) => {
         const { pages, dispatch } = this.props
         const targetPage = pages.filter((v: any) => v.id == targetKey)[0] || {};
-        switch (action: any) {
+        switch (action) {
             case 'remove': {
                 if (targetPage.notSynced) {
                     confirm({
@@ -178,7 +180,7 @@ class TaskBrowser extends React.Component<any, any> {
         return isLocked ? (
             <div className="lock-layer">
                 <Alert
-                    style={{ position: 'absolute', top: '-2px', left: '35%', zIndex: '999', height: '35px' }}
+                    style={{ position: 'absolute', top: '-2px', left: '35%', zIndex: 999, height: '35px' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"
@@ -261,14 +263,14 @@ class TaskBrowser extends React.Component<any, any> {
         }
     }
 
-    editorParamsChange(value: any) { // 切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
-        if (!this._syncEditor) {
-            this.debounceChange(value);
-        } else {
-            this._syncEditor = false;
-            this.editorParamsChange(value);
-        }
-    }
+    // editorParamsChange(value: any) { // 切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
+    //     if (!this._syncEditor) {
+    //         this.debounceChange(value);
+    //     } else {
+    //         this._syncEditor = false;
+    //         this.editorParamsChange(value);
+    //     }
+    // }
 
     editorChange = (newVal: any) => {
         let { currentPage, dispatch } = this.props;

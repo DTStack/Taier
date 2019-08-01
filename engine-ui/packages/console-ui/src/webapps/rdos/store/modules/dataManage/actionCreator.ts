@@ -148,15 +148,15 @@ export default {
             payload: data
         }
     },
-    getdesRulesList (params: any) {
-        return (dispatch: any) => {
-            tableMaApi.getdesRulesList(params).then((res: any) => {
-                if (res.code === 1) {
-                    dispatch(this.getdesRulesListData(res.data))
-                }
-            })
-        }
-    },
+    // getdesRulesList (params: any) {
+    //     return (dispatch: any) => {
+    //         tableMaApi.getdesRulesList(params).then((res: any) => {
+    //             if (res.code === 1) {
+    //                 dispatch(this.getdesRulesListData(res.data))
+    //             }
+    //         })
+    //     }
+    // },
     getdesRulesListData (data: any) {
         return {
             type: desensitizationAction.GET_DESENSITIZATION_RULES,

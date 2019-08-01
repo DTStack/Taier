@@ -208,7 +208,7 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
             });
         },
 
-        removeKeyMap ({ source, target }) {
+        removeKeyMap ({ source, target }: any) {
             dispatch({
                 type: keyMapAction.REMOVE_KEYMAP,
                 payload: { source, target }
@@ -241,7 +241,7 @@ export const workbenchActions = (dispatch: any) => {
         })
     };
 
-    const reloadTaskTab = (taskId: any, isScript: any) => {
+    const reloadTaskTab = (taskId: any, isScript?: any) => {
         let method = isScript ? 'getScriptById' : 'getOfflineTaskDetail'
         // 更新tabs数据
         ajax[method]({
@@ -834,7 +834,7 @@ export const workbenchActions = (dispatch: any) => {
                 });
             }
         },
-        loadTableListNodeByName: (nodePid, option = {}) => {
+        loadTableListNodeByName: (nodePid: any, option = {}) => {
             ajax.getTableListByName({
                 ...option
             })
@@ -853,7 +853,7 @@ export const workbenchActions = (dispatch: any) => {
         /**
          * @param isFunc // 函数管理，默认请求第一层数据
          */
-        loadTreeNode: async (nodePid, type, option = {}, isFunc) => {
+        loadTreeNode: async (nodePid: any, type: any, option = {}, isFunc: any) => {
             const res = await ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,

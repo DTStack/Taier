@@ -24,7 +24,7 @@ import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const TreeNode = TreeSelect.TreeNode;
+const TreeNode = (TreeSelect as any).TreeNode;
 
 const mapStateToProps = (state: any) => {
     const { dataSource } = state;
@@ -49,10 +49,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class StepOne extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
@@ -62,7 +62,7 @@ class StepOne extends React.Component<any, any> {
             loading: false
         };
     }
-
+    modal: {destroy: () => void} = null;
     componentDidMount () {
         this.props.getDataSourcesList();
     }
@@ -77,7 +77,7 @@ class StepOne extends React.Component<any, any> {
                     key={source.id}
                     value={source.id.toString()}
                     title={title}
-                    sourceType={source.type}
+                    {...{sourceType: source.type}}
                 >
                     {title}
                 </Option>
@@ -287,7 +287,7 @@ class StepOne extends React.Component<any, any> {
     };
 
     // 分区变化回调
-    handlePartChange = (value: any, label: any, extra: any) => {
+    handlePartChange = (value: any, label: any, extra?: any) => {
         let partition = value
             ? extra.triggerNode.props.dataRef.partColumn
             : undefined;

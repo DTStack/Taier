@@ -13,7 +13,7 @@ class DiffEditor extends React.Component<any, any> {
         const { value, compareTo } = this.props
         this.initUI(value, compareTo)
     }
-
+    diffView = React.createRef();
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { value, compareTo, tableRefresh } = nextProps

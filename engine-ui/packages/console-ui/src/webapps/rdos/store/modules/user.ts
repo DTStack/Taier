@@ -73,7 +73,7 @@ export function user (state: any = {}, action: any) {
     }
 }
 
-export function notProjectUsers (state = [], action: any) { // 非项目用户
+export function notProjectUsers (state: any = [], action: any) { // 非项目用户
     switch (action.type) {
         case userAction.GET_NOT_PROJECT_USERS:
             return action.data
@@ -82,7 +82,7 @@ export function notProjectUsers (state = [], action: any) { // 非项目用户
     }
 }
 
-export function projectUsers (state = [], action: any) {
+export function projectUsers (state: any = [], action: any) {
     switch (action.type) {
         case userAction.GET_PROJECT_USERS:
             return action.data

@@ -12,7 +12,7 @@ import { TASK_TYPE } from '../../../comm/const';
 import Api from '../../../api';
 import manageApi from '../../../api/dataManage';
 
-const taskTypes = (state = [], action: any) => {
+const taskTypes = (state: any = [], action: any) => {
     switch (action.type) {
         case commAction.GET_TASK_TYPES: {
             return action.payload;
@@ -21,7 +21,7 @@ const taskTypes = (state = [], action: any) => {
     }
 }
 
-const taskTypeFilter = (state = [], action: any) => {
+const taskTypeFilter = (state: any = [], action: any) => {
     switch (action.type) {
         case commAction.GET_TASK_TYPE_FILTER: {
             return action.payload;
@@ -42,7 +42,7 @@ const tables = (state: any = {}, action: any) => {
         default: return newState;
     }
 }
-const scriptTypes = (state = [], action: any) => {
+const scriptTypes = (state: any = [], action: any) => {
     switch (action.type) {
         case commAction.GET_SCRIPT_TYPES: {
             return action.payload;

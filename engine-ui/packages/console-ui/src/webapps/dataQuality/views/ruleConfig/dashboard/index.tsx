@@ -42,10 +42,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class RuleConfig extends React.Component<any, any> {
     state: any = {
         params: {
@@ -268,7 +268,7 @@ class RuleConfig extends React.Component<any, any> {
                 <Option
                     key={item.id}
                     value={item.id.toString()}
-                    name={item.userName}
+                    {...{name: item.userName}}
                 >
                     {item.userName}
                 </Option>

@@ -35,10 +35,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class DashBoard extends React.Component<any, any> {
     state: any = {
         currentDate: '1'
@@ -74,7 +74,7 @@ class DashBoard extends React.Component<any, any> {
 
     jumpToTaskQuery (date: any) {
         // eslint-disable-next-line
-        const endTime = new moment();
+        const endTime = moment();
         const startTime = moment(
             moment(endTime)
                 .subtract(date - 1, 'days')

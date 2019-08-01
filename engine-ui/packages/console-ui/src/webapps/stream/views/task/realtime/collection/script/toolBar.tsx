@@ -57,22 +57,34 @@ class ImportTemplateForm extends React.Component<any, any> {
                 return src.type == sourceType;
             })
             .map((src: any) => {
-                return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
-                    {src.dataName}({DATA_SOURCE_TEXT[src.type]})
-                </Option>
+                const optionName = {
+                    name: src.dataName
+                }
+                return (
+                    <Option
+                        key={src.id}
+                        // name={src.dataName}
+                        value={`${src.id}`}
+                        {...optionName}
+                    >
+                        {src.dataName}({DATA_SOURCE_TEXT[src.type]})
+                    </Option>
+                )
             })
     }
 
     getTargetList () {
         const { targetType } = this.state;
         const { dataSourceList = [] } = this.props;
-
         return dataSourceList
             .filter((src: any) => {
                 return src.type == targetType;
             })
             .map((src: any) => {
-                return <Option key={src.id} name={src.dataName} value={`${src.id}`}>
+                const optionName = {
+                    name: src.dataName
+                }
+                return <Option key={src.id} value={`${src.id}`} {...optionName}>
                     {src.dataName}({DATA_SOURCE_TEXT[src.type]})
                 </Option>
             })
@@ -235,7 +247,7 @@ class ImportTemplateForm extends React.Component<any, any> {
 }
 const WrapTemplateForm = Form.create<any>()(ImportTemplateForm);
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { currentPage } = state.realtimeTask;
 
     return {
@@ -247,7 +259,7 @@ const WrapTemplateForm = Form.create<any>()(ImportTemplateForm);
             dispatch(collectionActions.getDataSource());
         }
     }
-})
+}) as any)
 class CollectionToolbar extends React.Component<any, any> {
     state: any = {
         execConfirmVisible: false,
@@ -270,7 +282,7 @@ class CollectionToolbar extends React.Component<any, any> {
             merged: true
         }
 
-        data.sqlText = utils.jsonFormat(template);
+        data.sqlText = utils.jsonFormat(template, 0);
 
         this.setState({
             execConfirmVisible: false
@@ -281,14 +293,17 @@ class CollectionToolbar extends React.Component<any, any> {
 
     render () {
         const { execConfirmVisible, key } = this.state
-
+        const titleFix = { title: '导入模版' };
         return (
             <span>
                 <Button
                     onClick={this.importTemplate.bind(this)}
-                    title="导入模版"
+                    // title="导入模版"
                     icon="plus-circle-o"
-                    style={{ marginLeft: '0px' }}>导入模版
+                    style={{ marginLeft: '0px' }}
+                    {...titleFix}
+                >
+                    导入模版
                 </Button>
                 <WrapTemplateForm
                     key={key}

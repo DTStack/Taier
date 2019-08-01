@@ -154,7 +154,7 @@ export default {
     searchRealtimeTask (params: any) {
         return http.post(req.GLOBAL_SEARCH_TASK, params)
     },
-    getRealtimeTaskTypes (params: any) {
+    getRealtimeTaskTypes (params?: any) {
         return http.post(req.GET_TASK_TYPES, params)
     },
     getCheckPointRange (params: any) {
@@ -175,7 +175,7 @@ export default {
     getTopicType (params: any) {
         return http.post(req.GET_TOPIC_TYPE, params)
     },
-    getTimeZoneList (params: any) {
+    getTimeZoneList (params?: any) {
         return http.post(req.GET_TIMEZONE_LIST, params)
     },
     getStremTableType (params: any) {
@@ -277,21 +277,21 @@ export default {
     getAlarmStatistics (params: any) {
         return http.post(req.ALARM_STATISTICS, params)
     },
-    getCreateTargetTable (params: any) {
-        return http.post(req.GET_CREATE_TARGET_TABLE, params)
-    },
-    getTableListByName (params: any) {
-        return http.post(req.GET_TABLE_LIST_BY_NAME, params)
-    },
-    getRecommentTask (params: any) {
-        return http.post(req.GET_RECOMMEND_TASK, params)
-    },
-    getColumnsOfTable (params: any) {
-        return http.post(req.GET_COLUMNS_OF_TABLE, params)
-    },
-    getAllFunction (params: any) {
-        return http.post(req.GET_ALL_FUNCTION_NAME, params)
-    },
+    // getCreateTargetTable (params: any) {
+    //     return http.post(req.GET_CREATE_TARGET_TABLE, params)
+    // },
+    // getTableListByName (params: any) {
+    //     return http.post(req.GET_TABLE_LIST_BY_NAME, params)
+    // },
+    // getRecommentTask (params: any) {
+    //     return http.post(req.GET_RECOMMEND_TASK, params)
+    // },
+    // getColumnsOfTable (params: any) {
+    //     return http.post(req.GET_COLUMNS_OF_TABLE, params)
+    // },
+    // getAllFunction (params: any) {
+    //     return http.post(req.GET_ALL_FUNCTION_NAME, params)
+    // },
 
     getTaskOfStreamSource (params: any) {
         return http.post(stremReq.GET_TASK_LIST_OF_STREAM_SOURCE, params)
@@ -336,9 +336,9 @@ export default {
     streamQueryDataSource (params: any) {
         return http.post(stremReq.STREAM_QUERY_DATA_SOURCE, params)
     },
-    getStreamDataSource (params: any) {
-        return http.post(stremReq.GET_STREAM_DATA_SOURCE, params)
-    },
+    // getStreamDataSource (params: any) {
+    //     return http.post(stremReq.GET_STREAM_DATA_SOURCE, params)
+    // },
     getStreamTableColumn (params: any) {
         return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
     },
@@ -349,25 +349,25 @@ export default {
         return http.post(stremReq.GET_HIVE_PARTITIONS, params)
     },
     //= =============== 实时离线合并接口 ===============/
-    linkSource (params, type = 'offline') {
-        if (type == 'offline') {
-            return http.post(req.LINK_SOURCE, params)
-        } else {
-            return http.post(req.LINK_SOURCE, params)
-        }
-    },
-    getLinkSourceList (params, type = 'offline') {
-        if (type == 'offline') {
-            return http.post(req.GET_OFFLINE_LINK_SOURCE, params)
-        } else {
-            return http.post(req.GET_REALTIME_LINK_SOURCE, params)
-        }
-    },
+    // linkSource (params: any, type = 'offline') {
+    //     if (type == 'offline') {
+    //         return http.post(req.LINK_SOURCE, params)
+    //     } else {
+    //         return http.post(req.LINK_SOURCE, params)
+    //     }
+    // },
+    // getLinkSourceList (params: any, type = 'offline') {
+    //     if (type == 'offline') {
+    //         return http.post(req.GET_OFFLINE_LINK_SOURCE, params)
+    //     } else {
+    //         return http.post(req.GET_REALTIME_LINK_SOURCE, params)
+    //     }
+    // },
     //= =======运维中心=======
     getContainerInfos (params: any) {
         return http.post(stremReq.GET_CONTAINER_INFOS, params)
     },
-    getResultTable (params: any) {
-        return http.post(stremReq.GET_RESULT_TABLE, params)
-    }
+    // getResultTable (params: any) {
+    //     return http.post(stremReq.GET_RESULT_TABLE, params)
+    // }
 }

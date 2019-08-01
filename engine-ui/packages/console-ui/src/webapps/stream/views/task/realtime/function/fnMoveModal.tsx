@@ -10,6 +10,7 @@ import FolderPicker from '../folderTree';
 const FormItem = Form.Item;
 
 class FnMoveForm extends React.Component<any, any> {
+    form: any;
     constructor (props: any) {
         super(props);
     }
@@ -63,6 +64,7 @@ class FnMoveForm extends React.Component<any, any> {
 const FnMoveFormWrapper = Form.create<any>()(FnMoveForm);
 
 class FnMoveModal extends React.Component<any, any> {
+    form: any;
     constructor (props: any) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);

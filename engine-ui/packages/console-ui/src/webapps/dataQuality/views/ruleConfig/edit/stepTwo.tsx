@@ -24,10 +24,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class StepTwo extends React.Component<any, any> {
     componentDidMount () {
         const { editParams } = this.props;

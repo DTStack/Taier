@@ -17,6 +17,7 @@ const Option = Select.Option;
 
 @pureRender
 class SearchTaskModal extends React.Component<any, any> {
+    _keyStack:any;
     constructor (props: any) {
         super(props);
         this.state = {
@@ -62,7 +63,7 @@ class SearchTaskModal extends React.Component<any, any> {
         return false;
     }
 
-    close = (cb: any) => {
+    close = (cb?: any) => {
         this.props.showSeach(false);
         this._keyStack = {};
         this.setState({ visible: false, windowsKey: {}, data: undefined })
@@ -107,12 +108,20 @@ class SearchTaskModal extends React.Component<any, any> {
     render () {
         const { data } = this.state;
         const { visibleSearchTask } = this.props;
-        const options = data && data.map((item: any) =>
-            <Option key={item.id} data={item} value={item.name}>
-                {item.name}
-            </Option>
+        const options = data && data.map((item: any) => {
+            const dataFix = {data: item}
+            return (
+                <Option key={item.id} value={item.name} {...dataFix}>
+                    {item.name}
+                </Option>
+            )
+        }
         )
-
+        const selectFix = {
+            id: 'My_Search_Select',
+            showArrow: false,
+            autoComplete: 'off'
+        }
         return <div id="JS_search_task">
             <Modal
                 title="搜索并打开任务"
@@ -122,19 +131,20 @@ class SearchTaskModal extends React.Component<any, any> {
                 getContainer={() => getContainer('JS_search_task')}
             >
                 <Select
-                    id="My_Search_Select"
+                    // id="My_Search_Select"
                     mode="combobox"
                     showSearch
                     style={{ width: '100%' }}
                     placeholder="按任务名称搜索"
                     notFoundContent="没有发现相关任务"
                     defaultActiveFirstOption={true}
-                    showArrow={false}
+                    // showArrow={false}
                     filterOption={false}
-                    autoComplete="off"
+                    // autoComplete="off"
                     onChange={this.debounceSearch}
                     onSelect={this.onSelect}
                     getPopupContainer={() => getContainer('JS_search_task')}
+                    {...selectFix}
                 >
                     {options}
                 </Select>
