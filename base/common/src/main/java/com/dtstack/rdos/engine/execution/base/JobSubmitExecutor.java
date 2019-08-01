@@ -150,9 +150,8 @@ public class JobSubmitExecutor implements Closeable{
             Iterator<JobClient> it = priorityQueue.iterator();
             while (it.hasNext()){
                 JobClient jobClient = it.next();
-                boolean isRestartJobCanSubmit = System.currentTimeMillis() > jobClient.getRestartTime();
                 //重试任务时间未满足条件
-                if (!isRestartJobCanSubmit){
+                if (jobClient.isJobRetryWaiting()){
                     continue;
                 }
                 if (!checkLocalPriorityIsMax(engineType,groupName,jobClient.getPriority())){
