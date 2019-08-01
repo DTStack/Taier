@@ -15,7 +15,7 @@ import { checkAndcloseTabs } from '../../../../../actions/base/helper';
 
 const TabPane = Tabs.TabPane;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         tabs: state.notebook.localTabs || [],
         currentTabIndex: state.notebook.currentTabIndex
@@ -25,7 +25,7 @@ const TabPane = Tabs.TabPane;
         ...bindActionCreators(commActions, dispatch),
         ...bindActionCreators(tabActions, dispatch)
     };
-})
+}) as any)
 class NoteBookGroup extends React.Component<any, any> {
     state: any = {
         loading: true

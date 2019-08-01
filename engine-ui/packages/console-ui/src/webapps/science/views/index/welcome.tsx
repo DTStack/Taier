@@ -10,7 +10,7 @@ import * as baseActions from '../../actions/base'
 
 import Api from '../../api'
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         projectTotal: state.project.projectList.length
     }
@@ -18,7 +18,7 @@ import Api from '../../api'
     return {
         ...bindActionCreators(baseActions, dispatch)
     }
-})
+}) as any)
 class Welcome extends React.Component<any, any> {
     state: any = {
         projects: [],

@@ -2,11 +2,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Tooltip, Icon } from 'antd';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         licenseApps: state.licenseApps
     }
-})
+}) as any)
 class Toolbar extends React.Component<any, any> {
     render () {
         const { toolbarItems = [] } = this.props;

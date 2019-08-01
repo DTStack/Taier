@@ -12,11 +12,11 @@ import UploaderProgressBar from '../../components/uploader-progress';
 
 const confirm = Modal.confirm;
 const Search = Input.Search;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         uploader: state.dataManage.uploader
     }
-})
+}) as any)
 class Source extends React.PureComponent<any, any> {
     state: any = {
         loading: false,

@@ -10,7 +10,7 @@ import * as fileTreeActions from '../../../actions/base/fileTree';
 
 const FormItem = Form.Item;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         [siderBarType.notebook]: state.notebook.files,
         [siderBarType.experiment]: state.experiment.files,
@@ -19,7 +19,7 @@ const FormItem = Form.Item;
 }, (dispatch: any) => {
     const actions = bindActionCreators(fileTreeActions, dispatch);
     return actions;
-})
+}) as any)
 class NewFolder extends React.Component<any, any> {
     state: any = {
         modalKey: null

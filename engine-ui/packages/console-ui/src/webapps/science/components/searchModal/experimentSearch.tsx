@@ -7,11 +7,11 @@ import SearchModal from './index';
 import API from '../../api/experiment'
 import * as experimentActions from '../../actions/experimentActions'
 
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     return {
         ...bindActionCreators(experimentActions, dispatch)
     }
-})
+}) as any)
 class ExperimentSearch extends React.Component<any, any> {
     state: any = {
         key: Math.random()

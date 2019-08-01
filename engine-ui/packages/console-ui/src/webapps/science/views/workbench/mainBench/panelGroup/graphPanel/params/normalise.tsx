@@ -10,6 +10,7 @@ const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
+    disabledType: string;
     constructor (props: any) {
         super(props);
         this.disabledType = 'string';

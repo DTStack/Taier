@@ -21,7 +21,7 @@ import { Modal, message } from 'antd';
 
 // const Search = Input.Search;
 
-@connect(
+@(connect(
     (state: any) => {
         return {
             routing: state.routing,
@@ -37,7 +37,7 @@ import { Modal, message } from 'antd';
             ...bindActionCreators(workbenchActions, dispatch),
             ...bindActionCreators(experimentActions, dispatch)
         };
-    })
+    }) as any)
 class ExperimentSidebar extends React.Component<any, any> {
     constructor (props: any) {
         super(props)
@@ -52,7 +52,7 @@ class ExperimentSidebar extends React.Component<any, any> {
         editParamsData: null,
         moveData: null
     }
-    newFolder (folder: any) {
+    newFolder (folder?: any) {
         this.setState({
             newFolderVisible: true,
             newFolderData: folder
@@ -64,7 +64,7 @@ class ExperimentSidebar extends React.Component<any, any> {
             newFolderData: null
         })
     }
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any[], { expanded }: { expanded: any }) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)

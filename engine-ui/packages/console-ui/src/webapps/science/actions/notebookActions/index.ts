@@ -9,7 +9,7 @@ import api from '../../api/notebook';
 import fileApi from '../../api/fileTree';
 import { removeMetadata } from '../helper';
 
-export function changeContent (newContent, tab, isDirty = true) {
+export function changeContent (newContent: any, tab: any, isDirty = true) {
     return changeTab(siderBarType.notebook, {
         ...tab,
         ...newContent,

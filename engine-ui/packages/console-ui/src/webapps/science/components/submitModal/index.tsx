@@ -7,11 +7,11 @@ import { formItemLayout } from '../../consts';
 
 const FormItem = Form.Item;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         user: state.user
     }
-})
+}) as any)
 class SubmitModal extends React.Component<any, any> {
     state: any = {
         key: null,

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { COMPONENT_TYPE } from '../../../../../consts'
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         selectedCell: state.component.selectedCell
     }
-})
+}) as any)
 class Description extends React.Component<any, any> {
     shouldComponentUpdate (nextProps: any, nextState: any) {
         const selectedCell = nextProps.selectedCell;

@@ -1,5 +1,7 @@
 export function removeMetadata (data = {}) {
-    const { scheduleConf } = data;
+    const { scheduleConf } = data as {
+        scheduleConf: any
+    };
     if (!scheduleConf) {
         return data;
     }

@@ -102,7 +102,7 @@ const utils = {
      * @param  {[type]} num       [description]
      * @param  {[type]} precision [description]
      */
-    percent (num: number, precision: number) {
+    percent (num: number, precision?: number) {
         if (!num || num === Infinity) { return 0 + '%'; }
         if (num > 1) { num = 1; }
         precision = precision || 2;

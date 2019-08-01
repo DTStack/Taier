@@ -19,7 +19,7 @@ const FormItem = Form.Item
 const Option = Select.Option
 
 // Table Data
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         tables: state.dataManage.tables
@@ -30,7 +30,7 @@ const Option = Select.Option
             dispatch(getTableList(projectId));
         }
     }
-})
+}) as any)
 class ImportTarget extends React.Component<any, any> {
     state: any = {
         visible: false,
@@ -348,13 +348,13 @@ class ImportTarget extends React.Component<any, any> {
         const { tableList, tableData, queryTable, asTitle, sync, sqlText } = formState
         const { pagination } = this.state;
 
-        const columns = this.generateCols(data, tableData)
+        const columns = this.generateCols(data)
 
         const paritions = this.generatePartitions(tableData.partition || [])
         const dataSource = tableData && tableData.column
 
         const tableOptions = tableList.map((item: any, index: any) =>
-            <Option key={`table-${index}`} data={item} value={item.tableName}>
+            <Option key={`table-${index}`} {...{data: item}} value={item.tableName}>
                 {item.tableName}
             </Option>
         )
@@ -377,7 +377,7 @@ class ImportTarget extends React.Component<any, any> {
                                     notFoundContent="没有发现相关表"
                                     value={queryTable}
                                     placeholder="请输入表名"
-                                    showArrow={false}
+                                    {...{showArrow: false}}
                                     filterOption={false}
                                     defaultActiveFirstOption={false}
                                 >

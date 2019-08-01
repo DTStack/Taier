@@ -11,7 +11,7 @@ import { initLoadTreeNode } from '../../../actions/base/fileTree';
 import utils from 'utils';
 
 const TabPane = Tabs.TabPane;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         siderBarKey: state.common.siderBarKey,
         files: {
@@ -30,11 +30,11 @@ const TabPane = Tabs.TabPane;
             })
             location.href = location.href.split('?')[0] + '?siderkey=' + key;
         },
-        initLoadTreeNode (...args) {
-            return dispatch(initLoadTreeNode(...args));
+        initLoadTreeNode () {
+            return dispatch(initLoadTreeNode());
         }
     }
-})
+}) as any)
 class SiderBarContainer extends React.Component<any, any> {
     componentDidMount () {
         const { files } = this.props;

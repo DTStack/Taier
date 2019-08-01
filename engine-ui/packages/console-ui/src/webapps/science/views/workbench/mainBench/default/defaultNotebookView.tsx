@@ -6,11 +6,11 @@ import DefaultImgView from './defaultImgView';
 
 import workbenchActions from '../../../../actions/workbenchActions';
 
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     return {
         ...bindActionCreators(workbenchActions, dispatch)
     }
-})
+}) as any)
 class DefaultNotebookView extends React.Component<any, any> {
     render () {
         return <DefaultImgView

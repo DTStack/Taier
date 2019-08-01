@@ -11,7 +11,7 @@ const Option = Select.Option;
 const RadioGroup = Radio.Group;
 
 class SchedulingConfig extends React.Component<any, any> {
-    generateHours (disabledInvokeTime: any) {
+    generateHours (disabledInvokeTime?: any) {
         let options: any = [];
         for (let i = 0; i <= 23; i++) {
             options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
@@ -22,7 +22,7 @@ class SchedulingConfig extends React.Component<any, any> {
             {options}
         </Select>;
     }
-    generateMins (disabledInvokeTime: any) {
+    generateMins (disabledInvokeTime?: any) {
         let options: any = [];
         for (let i = 0, l = 59; i <= l; i++) {
             options.push(<Option key={i} value={`${i}`}>{i < 10 ? `0${i}` : i}</Option>)
@@ -78,7 +78,7 @@ class SchedulingConfig extends React.Component<any, any> {
             <FormItem
                 label="具体时间"
             >
-                <Col span="6">
+                <Col span={6}>
 
                     {getFieldDecorator('hour', {
                         rules: [{
@@ -93,7 +93,7 @@ class SchedulingConfig extends React.Component<any, any> {
                 </Col>
 
                 <span className="split-text">时</span>
-                <Col span="6">
+                <Col span={6}>
 
                     {getFieldDecorator('min', {
                         rules: [{
@@ -117,7 +117,7 @@ class SchedulingConfig extends React.Component<any, any> {
                     <FormItem
                         label="开始时间"
                     >
-                        <Col span="6">
+                        <Col span={6}>
 
                             {getFieldDecorator('beginHour', {
                                 rules: [{
@@ -132,7 +132,7 @@ class SchedulingConfig extends React.Component<any, any> {
                         </Col>
 
                         <span className="split-text">时</span>
-                        <Col span="6">
+                        <Col span={6}>
 
                             {getFieldDecorator('beginMin', {
                                 rules: [{
@@ -150,7 +150,7 @@ class SchedulingConfig extends React.Component<any, any> {
                     <FormItem
                         label="间隔时间"
                     >
-                        <Col span="6">
+                        <Col span={6}>
                             {getFieldDecorator(isHour ? 'gapHour' : 'gapMin', {
                                 rules: [{
                                     required: true
@@ -165,7 +165,7 @@ class SchedulingConfig extends React.Component<any, any> {
                     <FormItem
                         label="结束时间"
                     >
-                        <Col span="6">
+                        <Col span={6}>
 
                             {getFieldDecorator('endHour', {
                                 rules: [{
@@ -180,7 +180,7 @@ class SchedulingConfig extends React.Component<any, any> {
                         </Col>
 
                         <span className="split-text">时</span>
-                        <Col span="6">
+                        <Col span={6}>
 
                             {getFieldDecorator('endMin', {
                                 rules: [{
@@ -266,7 +266,7 @@ class SchedulingConfig extends React.Component<any, any> {
                         <FormItem
                             label='重试次数'
                         >
-                            <Col span="6">
+                            <Col span={6}>
                                 {getFieldDecorator('maxRetryNum', {
                                     rules: [{
                                         required: true, message: '请选择重试次数'
@@ -393,8 +393,8 @@ export default Form.create({
         keys.forEach((key: any) => {
             let value = values[key].value;
             if (dateType.indexOf(key) > -1 && value instanceof moment) {
-                values[key].value = value.format('YYYY-MM-DD');
-                value = value.format('YYYY-MM-DD');
+                values[key].value = (value as moment.Moment).format('YYYY-MM-DD');
+                value = (value as moment.Moment).format('YYYY-MM-DD');
             }
             if (key == 'scheduleStatus') {
                 newFormData[key] = value ? 2 : 1

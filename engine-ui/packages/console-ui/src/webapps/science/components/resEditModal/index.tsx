@@ -8,7 +8,7 @@ import * as fileTreeActions from '../../actions/base/fileTree';
 import * as resourceActions from '../../actions/resourceActions';
 const FormItem = Form.Item;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         [siderBarType.notebook]: state.notebook.files,
         [siderBarType.experiment]: state.experiment.files,
@@ -19,9 +19,10 @@ const FormItem = Form.Item;
         ...bindActionCreators(fileTreeActions, dispatch),
         ...bindActionCreators(resourceActions, dispatch)
     }
-})
+}) as any)
 class ResEditModal extends React.Component<any, any> {
-    constructor(props: any) {
+    dtcount: number;
+    constructor (props: any) {
         super(props);
         this.dtcount = 0;
     }

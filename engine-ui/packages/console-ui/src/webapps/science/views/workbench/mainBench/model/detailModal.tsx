@@ -9,13 +9,13 @@ import * as experimentActions from '../../../../actions/experimentActions';
 import workbenchActions from '../../../../actions/workbenchActions';
 import { modelComponentType, siderBarType } from '../../../../consts';
 
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     return {
         ...bindActionCreators(notebookActions, dispatch),
         ...bindActionCreators(experimentActions, dispatch),
         ...bindActionCreators(workbenchActions, dispatch)
     }
-})
+}) as any)
 class ModelDetailModal extends React.Component<any, any> {
     async openNewTask (id: any, isNotebook: any) {
         if (isNotebook) {

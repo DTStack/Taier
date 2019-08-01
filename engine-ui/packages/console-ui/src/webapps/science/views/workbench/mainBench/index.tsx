@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import * as runTaskActions from '../../../actions/runTaskActions';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         running: state.editor.running
     }
@@ -13,7 +13,7 @@ import * as runTaskActions from '../../../actions/runTaskActions';
     return {
         ...bindActionCreators(runTaskActions, dispatch)
     }
-})
+}) as any)
 class MainBench extends React.Component<any, any> {
     componentWillUnmount () {
         const { running } = this.props;

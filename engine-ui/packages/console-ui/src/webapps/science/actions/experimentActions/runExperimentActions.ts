@@ -33,7 +33,9 @@ function getLogStatus (status: any) {
  * 当前正在执行的任务列表
  */
 class RunnningTask {
-    _runnningTask = {};
+    _runnningTask: {
+        [propName: string]: any
+    } = {};
     addRunningTaskList = (id: any) => {
         this._runnningTask[`_runnningTask_${id}`] = {};
     }
@@ -55,7 +57,7 @@ const runnningTask = new RunnningTask();
  * @param {*} isDirty
  * @param {*} slient 是否不触发reducer的修改
  */
-export function changeContent (newContent, tab, isDirty = true, slient = false) {
+export function changeContent (newContent: any, tab: any, isDirty = true, slient = false) {
     const change = slient ? changeTabSlient : changeTab;
     return change(siderBarType.experiment, {
         ...tab,

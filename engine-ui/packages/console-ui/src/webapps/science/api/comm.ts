@@ -9,10 +9,10 @@ export default {
     getSQLResultData (params: any) {
         return http.post(req.GET_SQL_RESULT, params);
     },
-    getSysParams (params: any) {
+    getSysParams (params?: any) {
         return http.post(req.GET_SYS_PARAMS, params);
     },
-    getAllProject (params: any) {
+    getAllProject (params?: any) {
         return http.post(req.GET_ALL_PROJECTS, params);
     },
     getProjectList (params: any) {
@@ -24,16 +24,16 @@ export default {
     updateProject (params: any) {
         return http.post(req.UPDATE_PROJECT, params);
     },
-    getTopProject (params: any) {
+    getTopProject (params?: any) {
         return http.post(req.GET_TOP_PROJECT, params);
     },
-    getAllJobStatus (params: any) {
+    getAllJobStatus (params?: any) {
         return http.post(req.GET_ALL_JOB_STATUS, params);
     },
     getProjectDetail (params: any) {
         return http.post(req.GET_PROJECT_DETAIL, params);
     },
-    getProjectJobStatus (params: any) {
+    getProjectJobStatus (params?: any) {
         return http.post(req.GET_JOB_STATUS, params);
     },
     getProjectJobGraph (params: any) {
@@ -48,16 +48,13 @@ export default {
     listDataSource (params: any) {
         return http.post(req.LIST_DATA_SOURCE, params);
     },
-    importData (params: any) {
-        return http.post(req.IMPORT_DATA, params);
-    },
     getDataSourceDetail (params: any) {
         return http.post(req.GET_DATA_SOURCE_DETAIL, params);
     },
     updateDataSource (params: any) {
         return http.post(req.UPDATE_DATA_SOURCE, params);
     },
-    getSupportTaskTypes (params: any) {
+    getSupportTaskTypes (params?: any) {
         return http.post(req.GET_SUPPORT_TASK_TYPES, params);
     }
 }

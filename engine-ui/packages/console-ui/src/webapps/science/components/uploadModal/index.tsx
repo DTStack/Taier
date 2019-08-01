@@ -194,7 +194,7 @@ class ResForm extends React.Component<any, any> {
                         }],
                         initialValue: ''
                     })(
-                        <Input type="textarea" rows={4} />
+                        <Input type="textarea" {...{ row: 4 }} />
                     )}
                 </FormItem>
             ];
@@ -286,7 +286,7 @@ class ResForm extends React.Component<any, any> {
                         }],
                         initialValue: resourceData.resourceDesc
                     })(
-                        <Input type="textarea" rows={4} />
+                        <Input type="textarea" {...{ row: 4 }} />
                     )}
                 </FormItem>
             ]
@@ -357,6 +357,8 @@ class ResForm extends React.Component<any, any> {
 
 const ResFormWrapper = Form.create<any>()(ResForm);
 class ResModal extends React.Component<any, any> {
+    dtcount: number;
+    form: any;
     constructor (props: any) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);

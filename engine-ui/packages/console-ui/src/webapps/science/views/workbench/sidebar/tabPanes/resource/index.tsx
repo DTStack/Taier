@@ -18,7 +18,7 @@ import * as notebookActions from '../../../../../actions/notebookActions'
 
 import { siderBarType } from '../../../../../consts';
 import { resourceTypeIcon } from '../../../../../comm';
-@connect(
+@(connect(
     (state: any) => {
         return {
             routing: state.routing,
@@ -34,7 +34,7 @@ import { resourceTypeIcon } from '../../../../../comm';
             ...bindActionCreators(resourceActions, dispatch),
             ...bindActionCreators(notebookActions, dispatch)
         };
-    })
+    }) as any)
 class ResourceManage extends React.Component<any, any> {
     state: any = {
         expandedKeys: [],
@@ -50,7 +50,7 @@ class ResourceManage extends React.Component<any, any> {
         resEditModal: false
     }
 
-    newFolder (folder: any) {
+    newFolder (folder?: any) {
         this.setState({
             newFolderVisible: true,
             newFolderData: folder
@@ -84,7 +84,7 @@ class ResourceManage extends React.Component<any, any> {
     asynLoadCatalogue = (treeNode: any) => {
         return this.props.loadTreeData(siderBarType.resource, treeNode.props.data.id)
     }
-    onExpand = (expandedKeys, { expanded, node }) => {
+    onExpand = (expandedKeys: any[], { expanded, node }: { expanded: any, node: any }) => {
         const resNode = node.props.data || {};
         const { level, catalogueType } = resNode;
         if (level == 13 && catalogueType == siderBarType.resource) { // 根目录资源管理
@@ -96,7 +96,7 @@ class ResourceManage extends React.Component<any, any> {
         }
         this.props.updateExpandedKeys(siderBarType.resource, keys);
     }
-    onMenuClick = ({ key }) => {
+    onMenuClick = ({ key }: { key: string }) => {
         switch (key) {
             case 'resource:upload': {
                 this.uploadRes({}, false);
