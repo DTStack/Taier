@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { select, selectAll, mouse } from 'd3-selection';
+import { select, selectAll, mouse, Selection } from 'd3-selection';
 import { isEmpty } from 'lodash';
 import { Table, Form, InputNumber, Button, message, Row, Col } from 'antd';
 
@@ -14,10 +14,10 @@ const mapState = (state: any) => {
     return { keymap };
 };
 
-@connect(
+@(connect(
     mapState,
     keyMapActions
-)
+) as any)
 class StepThree extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
@@ -34,7 +34,9 @@ class StepThree extends React.Component<any, any> {
             nameMap: false
         };
     }
-
+    $canvas: Selection<SVGAElement, unknown, null, undefined>;
+    canvas: SVGAElement;
+    $activeLine: any;
     componentDidMount () {
         this.initDiverseData();
         this.$canvas = select(this.canvas);
@@ -249,7 +251,7 @@ class StepThree extends React.Component<any, any> {
         // 将连线数据存入map数组
         source.forEach((sourceKey: any, sourceIndex: any) => {
             $dagL.each((dl: any, i: any) => {
-                let sx, sy, ex, ey;
+                let sx: number, sy: number, ex, ey;
 
                 if (dl.key === sourceKey) {
                     sx = 15;
@@ -336,7 +338,7 @@ class StepThree extends React.Component<any, any> {
         const $dagR = selectAll('.col-dag-r');
 
         let isMouseDown = false;
-        let sourceKeyObj, targetKeyObj;
+        let sourceKeyObj: any, targetKeyObj: any;
 
         $dagL.on('mousedown', (d: any, i: any, nodes: any) => {
             sourceKeyObj = d;
@@ -804,14 +806,14 @@ class StepThree extends React.Component<any, any> {
                         <Col span={3}>
                             <div className="keymap-action">
                                 <Button
-                                    type={rowMap ? 'primary' : 'default'}
+                                    type={rowMap ? 'primary' : null}
                                     onClick={this.setRowMap}
                                 >
                                     {rowMap ? '取消同行映射' : '同行映射'}
                                 </Button>
                                 <br />
                                 <Button
-                                    type={nameMap ? 'primary' : 'default'}
+                                    type={nameMap ? 'primary' : null}
                                     onClick={this.setNameMap}
                                 >
                                     {nameMap ? '取消同名映射' : '同名映射'}

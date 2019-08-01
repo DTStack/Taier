@@ -31,10 +31,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class DataSource extends React.Component<any, any> {
     state: any = {
         visible: false,

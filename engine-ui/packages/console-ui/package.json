@@ -6,6 +6,7 @@
   "license": "MIT",
   "dependencies": {
     "@handsontable/react": "^2.1.0",
+    "@types/d3-selection": "^1.4.1",
     "@types/lodash": "^4.14.118",
     "@types/react": "^16.8.10",
     "@types/react-dom": "16.8.4",
@@ -128,7 +129,7 @@
     "hotfix": "./scripts/hotfix.sh --b",
     "push-dev": "./scripts/push-dev.sh",
     "scp": "./scripts/scp.sh",
-    "check-types": "tsc",
+    "check-types": "tsc --skipLibCheck",
     "lint": "node ./node_modules/eslint/bin/eslint.js ./src/webapps/** --ext=.js,.ts,.tsx --cache --ignore-path .eslintignore",
     "lint-doc": "node ./node_modules/lint-md/bin ./*.md docs/*.md",
     "lint-fix": "eslint ./src/**/*.js ./src/**/*.ts ./src/**/*.tsx --fix && lint-md ./*.md docs/*.md --fix",

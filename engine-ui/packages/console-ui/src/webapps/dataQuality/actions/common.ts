@@ -3,9 +3,9 @@ import commonActionType from '../consts/commonActionType';
 import API from '../api/common';
 
 export const commonActions: any = {
-    getUserList (params: any) {
+    getUserList () {
         return (dispatch: any) => {
-            API.getUserList(params).then((res: any) => {
+            API.getUserList().then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_USER_LIST,
@@ -15,9 +15,9 @@ export const commonActions: any = {
             });
         }
     },
-    getAllDict (params: any) {
+    getAllDict () {
         return (dispatch: any) => {
-            API.getAllDict(params).then((res: any) => {
+            API.getAllDict().then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: commonActionType.GET_ALL_DICT,

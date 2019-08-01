@@ -4,16 +4,16 @@ import req from '../consts/reqUrls'
 
 export default {
 
-    getTopRecord (params: any) {
+    getTopRecord (params?: any) {
         return http.post(req.GET_TOP_RECORD, params);
     },
-    getAlarmSum (params: any) {
+    getAlarmSum (params?: any) {
         return http.post(req.GET_ALARM_SUM, params);
     },
-    getAlarmTrend (params: any) {
+    getAlarmTrend (params?: any) {
         return http.post(req.GET_ALARM_TREND, params);
     },
-    getUsage (params: any) {
+    getUsage (params?: any) {
         return http.post(req.GET_DASHBOARD_USAGE, params);
     }
 
