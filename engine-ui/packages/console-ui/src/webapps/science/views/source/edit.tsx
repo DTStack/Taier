@@ -94,7 +94,7 @@ class Edit extends React.Component<any, any> {
                                     message: '不超过64个字符'
                                 }]
                             })(
-                                <Input type="textarea" rows={4} placeholder="不超过64个字符" />
+                                <Input type="textarea" {...{ row: 4 }} placeholder="不超过64个字符" />
                             )}
                         </FormItem>
                     </Form>

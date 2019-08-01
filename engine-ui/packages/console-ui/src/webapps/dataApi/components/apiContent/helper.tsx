@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { inputColumnsKeys } from '../../model/inputColumnModel';
 import { PARAMS_POSITION, API_METHOD } from '../../consts';
-export function generateUrlQuery (params = []) {
+export function generateUrlQuery (params: any[] = []) {
     let query = params.map((param: any) => {
         if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.QUERY) {
             return null;
@@ -33,7 +33,7 @@ export function generateBody (params: any, method: any) {
         return '无'
     }
     let base: any = {};
-    params.map((param: any) => {
+    params.map((param: any): any => {
         if (param[inputColumnsKeys.POSITION] != PARAMS_POSITION.BODY) {
             return null;
         }

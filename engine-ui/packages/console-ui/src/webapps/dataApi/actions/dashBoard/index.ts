@@ -39,7 +39,7 @@ export const dashBoardActions: any = {
         }
 
         return (dispatch: any) => {
-            API[callFunc](params).then((res: any) => {
+            (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: actionType,
@@ -95,7 +95,7 @@ export const dashBoardActions: any = {
         }
 
         return (dispatch: any) => {
-            API[callFunc](params).then((res: any) => {
+            (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     dispatch({
                         type: actionType,

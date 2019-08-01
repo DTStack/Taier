@@ -14,7 +14,7 @@ export default {
     uploadClusterResource (params: any) {
         return http.postAsFormData(req.UPLOAD_CLUSTER_RESOURCE, params);
     },
-    getTenantList (params: any) {
+    getTenantList (params?: any) {
         return http.post(req.GET_TENANT_LIST, params);
     },
     testCluster (params: any) {
@@ -48,7 +48,7 @@ export default {
         return http.post(req.GET_CLUSTER_SELECT, params);
     },
     // 获取节点下拉
-    getNodeAddressSelect (params: any) {
+    getNodeAddressSelect (params?: any) {
         return http.post(req.GET_NODEADDRESS_SELECT, params);
     },
     // 根据节点搜索
@@ -71,7 +71,7 @@ export default {
     },
 
     // 引擎列表
-    getEngineList (params: any) {
+    getEngineList (params?: any) {
         return http.post(req.GET_ENGINE_LIST, params);
     },
     // group列表
@@ -115,7 +115,7 @@ export default {
         return http.post(req.GET_CLUSTER_INFO, params);
     },
     // 资源管理
-    getAllCluster (params: any) {
+    getAllCluster (params?: any) {
         return http.post(req.GET_ALL_CLUSTER, params); // 返回数据包含集群下的engine，以及队列
     },
     searchTenant (params: any) {

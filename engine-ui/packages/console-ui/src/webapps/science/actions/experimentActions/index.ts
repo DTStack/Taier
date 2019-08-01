@@ -52,7 +52,7 @@ export function deleteExperimentFolder (params: any) {
         })
     }
 }
-export function updateTaskData (oldData, newData, isSilent = true) {
+export function updateTaskData (oldData: any, newData: any, isSilent = true) {
     return (dispatch: any, getState: any) => {
         dispatch(changeContent(newData, oldData, true, isSilent))
     }
@@ -83,7 +83,7 @@ export function openExperiment (id: any) {
         })
     }
 }
-export function saveExperiment (tabData, isMessage = true) {
+export function saveExperiment (tabData: any, isMessage = true) {
     return (dispatch: any, getState: any) => {
         return new Promise(async (resolve: any) => {
             let tab = cloneDeep(tabData);

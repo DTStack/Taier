@@ -6,14 +6,14 @@ import { siderBarType } from '../../../consts'
 import NoteBookGroup from './panelGroup/notebookGroup';
 import GraphGroup from './panelGroup/graphGroup';
 import ModelView from './model'
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         siderBarKey: state.common.siderBarKey,
         experiment: state.experiment,
         component: state.component,
         notebook: state.notebook
     }
-})
+}) as any)
 class BenchContent extends React.Component<any, any> {
     renderContent () {
         const { siderBarKey } = this.props;

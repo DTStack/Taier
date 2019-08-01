@@ -320,7 +320,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                 this.setPassLoading(false)
                 return;
             }
-            let isPass = await this.columnsRef.current.getWrappedInstance().validateFields();
+            let isPass = await (this.columnsRef.current as any).getWrappedInstance().validateFields();
             this.setPassLoading(false)
             if (!isPass) {
                 return false;
@@ -602,7 +602,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                                 />
                                 : (
                                     <ColumnsConfig
-                                        ref={this.columnsRef}
+                                        ref={this.columnsRef as any}
                                         addColumns={this.addColumns.bind(this)}
                                         removeColumns={this.removeColumns.bind(this)}
                                         updateColumns={this.updateColumns.bind(this)}

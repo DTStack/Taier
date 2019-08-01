@@ -90,7 +90,7 @@ class ApiCallMethod extends React.Component<any, any> {
             }
         });
     }
-    updateData (apiId: any, status: any, mode: any, showRecord: any) {
+    updateData (apiId: any, status: any, mode: any, showRecord?: any) {
         this.setState({
             callUrl: '',
             beginTime: undefined,
@@ -139,7 +139,7 @@ class ApiCallMethod extends React.Component<any, any> {
             }
         })
     }
-    isRegister (showRecord = {}) {
+    isRegister (showRecord: any = {}) {
         let { apiType } = showRecord;
         return apiType == API_TYPE.REGISTER
     }

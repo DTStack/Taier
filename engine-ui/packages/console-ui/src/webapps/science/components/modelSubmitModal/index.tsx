@@ -20,11 +20,11 @@ const PUBLISH_TYPE: any = {
     NEW: '0',
     UPDATE: '1'
 };
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     return {
         ...bindActionCreators(baseActions, dispatch)
     }
-})
+}) as any)
 class ModelSubmitModalForm extends React.Component<any, any> {
     state: any = {
         isSuccess: false,

@@ -7,11 +7,11 @@ import SearchModal from './index';
 import API from '../../api/notebook'
 import * as notebookActions from '../../actions/notebookActions'
 
-@(connect(null, (dispatch: any) as any) => {
+@(connect(null, (dispatch: any) => {
     return {
         ...bindActionCreators(notebookActions, dispatch)
     }
-})
+}) as any)
 class NotebookSearch extends React.Component<any, any> {
     state: any = {
         key: Math.random()

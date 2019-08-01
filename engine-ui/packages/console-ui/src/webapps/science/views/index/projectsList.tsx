@@ -15,7 +15,7 @@ import Api from '../../api';
 
 const Search = Input.Search;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         currentProject: state.project.currentProject
     }
@@ -23,7 +23,7 @@ const Search = Input.Search;
     return {
         ...bindActionCreators(baseActions, dispatch)
     }
-})
+}) as any)
 class ProjectsList extends React.Component<any, any> {
     state: any = {
         loading: false,

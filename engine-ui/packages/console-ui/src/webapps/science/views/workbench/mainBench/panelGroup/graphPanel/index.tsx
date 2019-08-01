@@ -22,7 +22,7 @@ import Description from './description';
 import Params from './params/index';
 import SchedulingConfig from '../../../../../components/schedulingConfig';
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench, editor } = state;
         return {
@@ -41,11 +41,14 @@ import SchedulingConfig from '../../../../../components/schedulingConfig';
             ...bindActionCreators({ changeContent }, dispatch)
         }
     }
-)
+) as any)
 class GraphPanel extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
     }
+    SiderBarRef: any;
+    GraphInstance: any;
+    GraphContainer: any;
     removeConsoleTab = (targetKey: any) => {
         const { currentTab } = this.props;
         this.props.removeRes(currentTab, parseInt(targetKey, 10));
@@ -144,7 +147,7 @@ class GraphPanel extends React.Component<any, any> {
     handleRenderToolbarOptions = () => {
         return <Button
             icon="save"
-            title="保存"
+            {...{ title: '保存' }}
             onClick={this.saveTab}
         >
             保存
@@ -198,8 +201,7 @@ class GraphPanel extends React.Component<any, any> {
             onRemoveTab: this.removeConsoleTab,
             downloadUri: reqUrls.DOWNLOAD_SQL_RESULT,
             tabOptions: {
-                activeKey: consoleActivekey,
-                onChange: this.changeConsoleTab
+                activeKey: consoleActivekey
 
             }
         };

@@ -13,7 +13,7 @@ import workbenchActions from '../../actions/workbenchActions'
 const FormItem = Form.Item;
 const Option = Select.Option;
 const RadioGroup = Radio.Group;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         files: state.notebook.files,
         resourceFiles: state.resource.files,
@@ -26,7 +26,7 @@ const RadioGroup = Radio.Group;
         ...bindActionCreators(notebookActions, dispatch),
         ...bindActionCreators(workbenchActions, dispatch)
     };
-})
+}) as any)
 class NewNotebookModal extends React.Component<any, any> {
     constructor(props: any) {
         super(props)
@@ -35,9 +35,9 @@ class NewNotebookModal extends React.Component<any, any> {
         }
     }
     form = React.createRef();
-    _key = null;
+    _key: number = null;
     onSubmit = () => {
-        this.form.props.form.validateFields(async (err: any, values: any) => {
+        (this.form as any).props.form.validateFields(async (err: any, values: any) => {
             if (!err) {
                 if (values.resourceIdList) {
                     values.resourceIdList = [values.resourceIdList];

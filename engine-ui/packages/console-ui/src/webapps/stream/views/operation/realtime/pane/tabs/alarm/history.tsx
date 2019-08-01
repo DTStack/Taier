@@ -33,7 +33,7 @@ class AlarmHistory extends React.Component<any, any> {
             this.loadAlarms(data)
         }
     }
-    loadAlarms (data: any) {
+    loadAlarms (data?: any) {
         const { pagination, times } = this.state;
         data = data || this.props.data || {};
         const reqParams: any = {

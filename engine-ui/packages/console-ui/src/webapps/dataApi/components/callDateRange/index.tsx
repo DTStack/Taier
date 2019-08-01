@@ -23,7 +23,7 @@ export default class CallCountInput extends React.Component<any, any> {
         }
     }
     changeDateMode (e: any) {
-        let dateMode = e.target.checked ? [] : null;
+        let dateMode: any = e.target.checked ? [] : null;
         this.setState({
             dateMode: dateMode
         })

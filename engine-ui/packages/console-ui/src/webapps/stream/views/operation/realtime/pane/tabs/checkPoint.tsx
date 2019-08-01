@@ -35,7 +35,7 @@ class CheckPoint extends React.Component<any, any> {
             this.getList(nextData);
         }
     }
-    getList (data: any) {
+    getList (data?: any) {
         const { dates } = this.state;
         data = data || this.props.data;
 
@@ -134,6 +134,14 @@ class CheckPoint extends React.Component<any, any> {
     }
     getTableTitle = () => {
         const { overview, dates } = this.state;
+        const showTimeFix = {
+            showTime: {
+                disabledSeconds: true,
+                format: 'HH:mm',
+                defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment()],
+                hideDisabledOptions: true
+            }
+        }
         return (
             <div style={{ padding: '10px 10px 11px 0px' }}>
                 <RangePicker
@@ -143,7 +151,7 @@ class CheckPoint extends React.Component<any, any> {
                         format: 'HH:mm',
                         defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment()],
                         hideDisabledOptions: true
-                    }}
+                    } as any}
                     style={{ width: '250px' }}
                     format="YYYY-MM-DD HH:mm"
                     value={dates}
@@ -172,7 +180,7 @@ class CheckPoint extends React.Component<any, any> {
                     dataSource={list}
                     pagination={{
                         pageSize: 15
-                    }}
+                    } as any}
                 />
             </div>
         )

@@ -20,6 +20,7 @@ const RadioGroup = Radio.Group;
 const CheckboxGroup = Checkbox.Group;
 
 class CollectionSource extends React.Component<any, any> {
+    _form: any;
     constructor (props: any) {
         super(props);
         this.state = {
@@ -191,6 +192,7 @@ class CollectionSource extends React.Component<any, any> {
 }
 
 class CollectionSourceForm extends React.Component<any, any> {
+    _editMultipleTableModalKey: any;
     state: any = {
         sourceList: [], // TODO 此处 sourceList 跟 MySQL 的并未共用
         topicList: [],

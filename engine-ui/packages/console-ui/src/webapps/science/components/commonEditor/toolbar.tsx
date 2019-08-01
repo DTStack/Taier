@@ -27,7 +27,6 @@ export default class Toolbar extends React.Component<any, any> {
                 onClick={onRun}
                 loading={isRunning}
                 disabled={disableRun || isRunning}
-                title="立即运行"
                 icon="play-circle-o"
             >
                 {' '}
@@ -37,7 +36,6 @@ export default class Toolbar extends React.Component<any, any> {
                 key="btnStop"
                 onClick={onStop}
                 icon="pause-circle-o"
-                title="立即停止"
                 disabled={!isRunning}
             >
                 停止
@@ -63,21 +61,20 @@ export default class Toolbar extends React.Component<any, any> {
                     enableFormat &&
                     <Button
                         icon="appstore-o"
-                        title="格式化"
                         onClick={onFormat}
                     >
                         格式化
                     </Button>
                 }
                 {!disableEdit && <Dropdown overlay={this.editMenu()} trigger={['click']}>
-                    <Button icon="edit" title="编辑">
+                    <Button icon="edit">
                         编辑<Icon type="down" />
                     </Button>
                 </Dropdown>}
                 {
                     leftCustomButton
                 }
-                <span style={{ float: 'right', position: 'relative', marginLeft: 'auto', marginRight: '18px', lineHeight: '28px', zIndex: '901' }}>
+                <span style={{ float: 'right', position: 'relative', marginLeft: 'auto', marginRight: '18px', lineHeight: '28px', zIndex: 901 }}>
                     {rightCustomButton}
                 </span>
             </div>

@@ -8,10 +8,10 @@ import api from '../../api/apiManage';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { apiManage } = state;
     return { apiManage }
-})
+}) as any)
 class SecurityModal extends React.Component<any, any> {
     state: any = {
         loading: false
@@ -53,7 +53,7 @@ class SecurityModal extends React.Component<any, any> {
             }
         )
     }
-    exchangeDataToSelectData(data: any) {
+    exchangeDataToSelectData (data: any) {
         return data.map((item: any) => {
             return item.id
         })

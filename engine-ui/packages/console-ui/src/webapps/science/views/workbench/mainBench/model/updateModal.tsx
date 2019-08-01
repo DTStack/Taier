@@ -7,9 +7,12 @@ import api from '../../../../api/model'
 import utils from 'utils';
 import { MODEL_STATUS } from '../../../../consts';
 
-class ModelUpdateModal extends React.Component<any, any> {
-    state: any = {
-        updateList: [],
+class ModelUpdateModal extends React.Component<any, {
+    updateList: any[],
+    loading: Boolean
+}> {
+    state = {
+        updateList: [] as any[],
         loading: false
     }
     componentDidMount () {
@@ -86,13 +89,14 @@ class ModelUpdateModal extends React.Component<any, any> {
             >
                 <Table
                     className='m-table border-table'
-                    rowkey='time'
                     columns={this.initColumns()}
                     dataSource={updateList}
                     loading={loading}
-                    onChange={this.onTableChange}
                     scroll={{ y: 550 }}
                     pagination={false}
+                    {...{
+                        rowkey: 'time'
+                    }}
                 />
             </Modal>
         )

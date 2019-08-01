@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Modal, Button } from 'antd';
 import EditCell from './editCell';
 class ProjectDetail extends React.PureComponent<any, any> {
-    refsArr = {};
+    refsArr: { [propName: string]: EditCell; } = {};
     /* 重置组件状态 */
     resetStatus = () => {
         for (const key in this.refsArr) {

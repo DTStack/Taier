@@ -14,8 +14,8 @@ export default {
     loadModel (params: any) {
         return http.post(req.LOAD_MODEL, params);
     },
-    getTaskModels (params: any) {
-        return http.post(req.LIST_TASK_ALL_MODEL_AND_VERSION, params);
+    getTaskModels () {
+        return http.post(req.LIST_TASK_ALL_MODEL_AND_VERSION);
     },
     getModelListFromLab (params: any) {
         return http.post(req.LIST_MODEL_TASK_FROM_LAB, params);
@@ -23,7 +23,7 @@ export default {
     saveModel (params: any) {
         return http.post(req.SAVE_MODEL, params);
     },
-    getModelComopnentsList (params: any) {
+    getModelComopnentsList (params?: any) {
         return http.post(req.GET_MODEL_COMPONENTS_LIST, params);
     },
     switchVersion (params: any) {

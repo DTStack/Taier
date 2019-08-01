@@ -15,11 +15,13 @@ const propType: any = {
 }
 
 class CommonEditor extends React.Component<any, any> {
+    static propTypes = propType;
     state: any = {
         changeTab: true,
         size: undefined,
         editorSize: undefined
     };
+    SiderBar: any;
     componentDidMount () {
         if (this.props.SiderBarRef) {
             this.props.SiderBarRef(this.SiderBar);
@@ -138,7 +140,5 @@ class CommonEditor extends React.Component<any, any> {
         );
     }
 }
-
-CommonEditor.propTypes = propType
 
 export default CommonEditor;

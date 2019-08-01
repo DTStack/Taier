@@ -12,7 +12,7 @@ import workbenchActions from '../../actions/workbenchActions'
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         files: state.notebook.files,
         resourceFiles: state.resource.files,
@@ -25,7 +25,7 @@ const Option = Select.Option;
         ...bindActionCreators(notebookActions, dispatch),
         ...bindActionCreators(workbenchActions, dispatch)
     };
-})
+}) as any)
 class NormalTaskForm extends React.Component<any, any> {
     loadData = (siderType: any, node: any) => {
         return this.props.loadTreeData(siderType, node.props.data.id);

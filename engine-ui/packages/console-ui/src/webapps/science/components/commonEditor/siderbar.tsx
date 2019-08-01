@@ -8,7 +8,7 @@ class EditorSiderBar extends React.Component<any, any> {
         this.props.onRef(this);
     }
 
-    onTabClick (key, source = false) {
+    onTabClick (key: any, source = false) {
         if (source) {
             this.setState({
                 activeKey: this.state.activeKey ? this.state.activeKey : key

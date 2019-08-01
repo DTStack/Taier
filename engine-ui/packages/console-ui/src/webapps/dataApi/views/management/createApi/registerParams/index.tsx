@@ -29,8 +29,8 @@ class RegisterParams extends React.Component<any, any> {
     }
     async check () {
         let isPass = true;
-        if (this.contentRef.current.validate) {
-            isPass = await this.contentRef.current.validate();
+        if ((this.contentRef.current as any).validate) {
+            isPass = await (this.contentRef.current as any).validate();
         }
         return isPass;
     }

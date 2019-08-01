@@ -149,8 +149,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                             })(
                                 <InputNumber
                                     onChange={(value: any) => this.handleChange('randomSeed', value)}
-                                    parser={(value: any) => isNumber(value) ? parseInt(value) : value}
-                                    formatter={(value: any) => isNumber(value) ? parseInt(value) : value}
+                                    parser={(value: any) => isNumber(value) ? ~~value : value}
+                                    formatter={(value: any) => isNumber(value) ? ~~value : value}
                                     style={inputStyle} />
                             )}
                         </FormItem>

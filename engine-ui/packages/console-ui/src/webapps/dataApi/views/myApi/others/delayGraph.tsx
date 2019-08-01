@@ -6,13 +6,14 @@ import { lineAreaChartOptions } from '../../../consts';
 import api from '../../../api/mine';
 import utils from 'utils'
 
+// 引入 ECharts 主模块
+import echarts from 'echarts/lib/echarts';
+// const echarts = require('echarts/lib/echarts');
+
 const GRAPH_TYPE: any = {
     COUNT: 'count',
     DEALY: 'delay'
 }
-
-// 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
 // 引入柱状图
 require('echarts/lib/chart/line');
 // 引入提示框和标题组件
@@ -57,7 +58,7 @@ class MyApiDelayGraph extends React.Component<any, any> {
             )
     }
     resize = () => {
-        if (this._lineChart) this._lineChart.resize()
+        if ((this as any)._lineChart) (this as any)._lineChart.resize()
     }
     initLineChart () {
         const { infoList = [] } = this.state.data;
@@ -88,7 +89,7 @@ class MyApiDelayGraph extends React.Component<any, any> {
                 }
             }
         }
-        let myChart = echarts.init(document.getElementById('MyApiDetailDelayGraph'));
+        let myChart = echarts.init(document.getElementById('MyApiDetailDelayGraph') as HTMLDivElement);
         const option = cloneDeep(lineAreaChartOptions);
         option.title = null;
         option.grid.right = '40px';
@@ -125,7 +126,7 @@ class MyApiDelayGraph extends React.Component<any, any> {
         console.log(option)
         // 绘制图表
         myChart.setOption(option);
-        this._lineChart = myChart;
+        (this as any)._lineChart = myChart;
     }
     getDateText () {
         switch (this.props.dateType) {

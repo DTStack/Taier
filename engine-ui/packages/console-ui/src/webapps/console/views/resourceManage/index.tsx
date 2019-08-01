@@ -249,7 +249,7 @@ class ResourceManage extends React.Component<any, any> {
         return (
             <div className='resource-wrapper'>
                 <Row>
-                    <Col span='12'>
+                    <Col span= { 12 } >
                         <Form className="m-form-inline" layout="inline">
                             <FormItem
                                 label='集群'
@@ -266,7 +266,7 @@ class ResourceManage extends React.Component<any, any> {
                             </FormItem>
                         </Form>
                     </Col>
-                    <Col span='12'>
+                    <Col span={ 12 } >
                         <Button className='terent-button' type='primary' onClick={() => { this.setState({ editModalKey: Math.random(), tenantModal: true }) }}>绑定新租户</Button>
                     </Col>
                 </Row>
@@ -279,7 +279,7 @@ class ResourceManage extends React.Component<any, any> {
                             tabPosition='left'
                             defaultActiveKey={`${engineList[0] && engineList[0].engineType}`}
                             onChange={this.handleEngineTab}
-                            forceRender={true}
+                            {...{ forceRender: true }}
                         >
                             {
                                 engineList && engineList.map((item: any) => {

@@ -107,7 +107,9 @@ class ChooseTable extends React.PureComponent<any, any> {
                             mode="combobox"
                             showSearch
                             placeholder="请选择表名"
-                            showArrow={false}
+                            {...{
+                                showArrow: false
+                            }}
                             notFoundContent={fetching ? <Spin size="small" /> : null}
                             filterOption={false}
                             onSearch={this.fetchTables}
@@ -187,7 +189,7 @@ class TableInfo extends React.PureComponent<any, any> {
         const { columnsData, loading } = this.state;
         return (
             <Spin spinning={loading}>
-                <table border="1" className="params-table">
+                <table style={{ border: '1' }} className="params-table">
                     <thead>
                         <tr>
                             <th>字段</th>
@@ -204,6 +206,7 @@ class TableInfo extends React.PureComponent<any, any> {
 }
 
 class ReadDatabase extends React.PureComponent<any, any> {
+    tableName: any;
     constructor (props: any) {
         super(props)
         this.tableName = { value: props.data.table };

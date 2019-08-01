@@ -9,6 +9,8 @@ const TabPane = Tabs.TabPane;
 const FormItem = Form.Item;
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
+    warpClassName: any;
+    disabledType: any;
     constructor (props: any) {
         super(props);
         this.warpClassName = props.wrapContanier || '.chooseWrap';

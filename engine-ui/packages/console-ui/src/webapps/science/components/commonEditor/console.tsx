@@ -8,8 +8,9 @@ import { defaultEditorOptions } from 'widgets/code-editor/config';
 const TabPane = Tabs.TabPane;
 
 class Console extends React.Component<any, any> {
+    editor: any;
     onEdit = (targetKey: any, action: any) => {
-        this[action](targetKey);
+        (this as any)[action](targetKey);
     };
 
     focusEditor = () => {
@@ -42,7 +43,7 @@ class Console extends React.Component<any, any> {
                 const isShow = activeKey == tab.id;
                 switch (tabType) {
                     case 'log': {
-                        return <TabPane isShow={isShow} tab={extData.name} key={tab.id} closable={!extData.disableClose}>
+                        return <TabPane {...{ isShow: isShow }} tab={extData.name} key={tab.id} closable={!extData.disableClose}>
                             <div style={{ position: 'relative', height: '100%' }}>
                                 <CodeEditor
                                     style={{ minHeight: 'auto', height: '100%' }}

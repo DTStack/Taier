@@ -114,7 +114,7 @@ class NewProject extends React.Component<any, any> {
                                     message: '不超过64个字符'
                                 }]
                             })(
-                                <Input placeholder='请输入项目描述' type="textarea" rows={4} />
+                                <Input placeholder='请输入项目描述' type="textarea" {...{ row: 4 }} />
                             )}
                         </FormItem>
                     </Form>

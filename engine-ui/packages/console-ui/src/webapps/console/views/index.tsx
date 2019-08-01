@@ -17,11 +17,13 @@ const mapStateToProps = (state: any) => {
     const { common } = state;
     return { common }
 };
-@connect(
+@(connect(
     mapStateToProps
-)
+) as any)
 /* eslint-disable */
 class Main extends React.Component<any, any> {
+    static defaultProps = defaultPro;
+    static propTypes = propType;
     componentWillMount () {
         const { dispatch } = this.props;
     }
@@ -44,7 +46,7 @@ class Main extends React.Component<any, any> {
         )
     }
 }
-Main.propTypes = propType
-Main.defaultProps = defaultPro
+// Main.propTypes = propType
+// Main.defaultProps = defaultPro
 
 export default Main

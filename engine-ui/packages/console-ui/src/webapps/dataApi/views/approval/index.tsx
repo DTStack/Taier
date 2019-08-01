@@ -271,7 +271,7 @@ class APIApproval extends React.Component<any, any> {
             }
         }]
     }
-    renderSourceType () {
+    renderSourceType (): any {
         return null;
     }
     searchRequire (v: any) { // 搜索条件

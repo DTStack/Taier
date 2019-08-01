@@ -12,6 +12,7 @@ class ApiTypeTree extends React.Component<any, any> {
         addPid: '',
         autoExpandParent: true
     }
+    public editInput: any;
     constructor (props: any) {
         super(props);
         this.editInput = null;
@@ -90,7 +91,7 @@ class ApiTypeTree extends React.Component<any, any> {
         }
         return isValid;
     }
-    getTreeNodeTitle (id, text, isRoot, isLeaf, deepLength, isTmp) {
+    getTreeNodeTitle (id: any, text: any, isRoot: any, isLeaf: any, deepLength: any, isTmp?: any) {
         const maxDeepLength = this.state.maxDeepLength;
         let item: any;
         const disAble = isTmp && this.state.editNode != id;
@@ -192,10 +193,10 @@ class ApiTypeTree extends React.Component<any, any> {
         }
         const pos = q.value.length;
         q.setSelectionRange(pos, pos);
-        this.editInput = q;
+        (this as any).editInput = q;
     }
     editOver (id: any, oldText: any, e: any) {
-        const nodeName = this.editInput.value;
+        const nodeName = (this as any).editInput.value;
 
         if (!this.checkVal(nodeName)) {
             this.props.getCatalogue(0);
@@ -264,7 +265,7 @@ class ApiTypeTree extends React.Component<any, any> {
         })
         this.props.addCatalogueEdit(tree)
     }
-    onExpands = (onExpands: any, info: any) => {
+    onExpands = (onExpands: any, info?: any) => {
         this.setState({ expandedKeys: onExpands, autoExpandParent: false });
     }
     render () {

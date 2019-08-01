@@ -25,17 +25,8 @@ function wrappTitle (title: any) {
     return `====================${title}====================`
 }
 
-function getLogsInfo (title, data, type = 'info') {
-    let res = '';
-    if (data && data.length > 0) {
-        for (let i = 0; i < data.length; ++i) {
-            res = `${res} \n${wrappTitle(title)} \n${data[i].id} \n${data[i].value}`
-        }
-    }
-    return createLogMark(res, type)
-}
-
 class RunningLogModal extends React.Component<any, any> {
+    $editor: any;
     state: any = {
         indexData: null, // 指标数据
         logData: {}, // log数据

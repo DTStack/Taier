@@ -21,7 +21,7 @@ import * as runTaskActions from '../../../../../actions/runTaskActions';
 import * as notebookActions from '../../../../../actions/notebookActions';
 import * as commActions from '../../../../../actions/base';
 
-@connect(
+@(connect(
     (state: any) => {
         const { workbench, editor, common } = state;
         return {
@@ -38,10 +38,10 @@ import * as commActions from '../../../../../actions/base';
             ...bindActionCreators(notebookActions, dispatch)
         }
     }
-)
+) as any)
 class EditorPanel extends React.Component<any, any> {
     state: any = {};
-
+    _editor: any;
     handleEditorTxtChange = (newVal: any, editorInstance: any) => {
         /**
          * 处理一下自定义和系统参数
@@ -173,7 +173,6 @@ class EditorPanel extends React.Component<any, any> {
     renderSaveButton () {
         return <Button
             icon="save"
-            title="保存"
             onClick={this.saveTab}
         >
             保存
@@ -214,8 +213,7 @@ class EditorPanel extends React.Component<any, any> {
             language: 'python',
             theme: editor.options.theme,
             onChange: this.debounceChange,
-            sync: data.merged || undefined,
-            onCursorSelection: this.debounceSelectionChange
+            sync: data.merged || undefined
         };
 
         const toolbarOpts: any = {

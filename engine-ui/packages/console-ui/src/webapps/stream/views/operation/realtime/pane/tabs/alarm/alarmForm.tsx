@@ -92,7 +92,10 @@ class AlarmForm extends React.Component<any, any> {
             ? alarmInfo.receiveUsers.map((item: any) => item.userId) : []
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
-                return (<Option key={item.userId} value={item.userId} name={item.user.userName}>
+                const nameFix = {
+                    name: item.user.userName
+                }
+                return (<Option key={item.userId} value={item.userId} {...nameFix}>
                     {item.user.userName}
                 </Option>)
             }) : []

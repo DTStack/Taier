@@ -15,7 +15,7 @@ import { checkAndcloseTabs } from '../../../../../actions/base/helper';
 
 const TabPane = Tabs.TabPane;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         tabs: state.experiment.localTabs || [],
         currentTabIndex: state.experiment.currentTabIndex
@@ -27,7 +27,7 @@ const TabPane = Tabs.TabPane;
         saveSelectedCell: componentActions.saveSelectedCell
     }, dispatch);
     return actions;
-})
+}) as any)
 class GraphGroup extends React.Component<any, any> {
     state: any = {
         loading: true

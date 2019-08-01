@@ -49,6 +49,12 @@ const VertexSize: any = { // vertex大小
 }
 
 export default class Editor extends React.Component<any, any> {
+    Container: any;
+    graph: any;
+    btn1: any;
+    btn2: any;
+    undoMana: any;
+    currentState: any;
     componentDidMount () {
         const editor = this.Container
         this.initEditor()
@@ -309,7 +315,7 @@ export default class Editor extends React.Component<any, any> {
         this.graph.zoomOut()
     }
 
-    removeCell(cells: any) {
+    removeCell(cells?: any) {
         // 获取选中的Cell
         const cell = cells || this.graph.getSelectionCells() // getSelectionCell
         if (cell && cell.length > 0) {
@@ -444,7 +450,7 @@ export default class Editor extends React.Component<any, any> {
         return (
             <div style={{ height: '100%', width: '90%', marginLeft: '10%', position: 'relative' }}>
                 <div className="editor" ref={(e: any) => { this.Container = e }} />
-                <div style={{ position: 'absolute', zIndex: '2', right: '20px', top: '30px' }}>
+                <div style={{ position: 'absolute', zIndex: 2, right: '20px', top: '30px' }}>
                     <button onClick={() => this.zoomIn()}>放大</button>
                     <button onClick={() => this.zoomOut()}>缩小</button>
                     <button onClick={() => this.resetView()}>重置</button>
@@ -455,7 +461,7 @@ export default class Editor extends React.Component<any, any> {
                     <button onClick={() => this.graphEnable()}>禁止编辑</button>
                     <button onClick={() => this.undo()}>撤销</button>
                 </div>
-                <ul style={{ position: 'absolute', zIndex: '2', left: '-10%', top: '30px' }}>
+                <ul style={{ position: 'absolute', zIndex: 2, left: '-10%', top: '30px' }}>
 
                     <li>
                         <button ref={(ins: any) => this.btn1 = ins } style={{ padding: '10px' }}>

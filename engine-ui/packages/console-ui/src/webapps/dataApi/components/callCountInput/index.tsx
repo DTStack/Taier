@@ -38,7 +38,7 @@ export default class CallCountInput extends React.Component<any, any> {
                         callCount: value
                     })
                     this.emitChange(value);
-                }} value={unLimited ? null : callCount} min={1} disabled={disabled || unLimited} type="number" />
+                }} value={unLimited ? null : callCount} min={1} disabled={disabled || unLimited} {...{ type: 'number' }} />
                 <Checkbox disabled={disabled} checked={unLimited} onChange={this.changeCountMode.bind(this)}>不限制调用次数</Checkbox>
             </React.Fragment>
         )

@@ -13,7 +13,7 @@ class Http {
         })
     }
 
-    post(url: any, body: any) { // POST请求
+    post(url: any, body?: any) { // POST请求
         let options: any = { 
             method: 'POST'
         }
