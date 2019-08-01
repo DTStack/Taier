@@ -181,6 +181,7 @@ public class JobStopQueue {
                             } else {
                                 batchJobDAO.updateTaskStatusNotStopped(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus(), RdosTaskStatus.getStoppedStatus());
                             }
+                            zkLocalCache.updateLocalMemTaskStatus(jobStopRecord.getTaskId(), RdosTaskStatus.CANCELED.getStatus());
                             jobStopRecordDAO.delete(jobStopRecord.getId());
                         }
                     }
