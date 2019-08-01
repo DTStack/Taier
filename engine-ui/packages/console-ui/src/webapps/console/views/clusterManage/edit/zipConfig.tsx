@@ -15,7 +15,7 @@ class ZipConfig extends React.Component<any, any> {
             delete (copyVal['md5zip'])
             keyAndValue = Object.entries(copyVal || {})
             utils.sortByCompareFunctions(keyAndValue,
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     if (key == 'fs.defaultFS') {
                         return -1;
                     }
@@ -24,7 +24,7 @@ class ZipConfig extends React.Component<any, any> {
                     }
                     return 0;
                 },
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     if (key == 'dfs.nameservices') {
                         return -1;
                     }
@@ -33,7 +33,7 @@ class ZipConfig extends React.Component<any, any> {
                     }
                     return 0;
                 },
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     if (key.indexOf('dfs.ha.namenodes') > -1) {
                         return -1;
                     }
@@ -42,7 +42,7 @@ class ZipConfig extends React.Component<any, any> {
                     }
                     return 0;
                 },
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     const checkKey = key.indexOf('dfs.namenode.rpc-address') > -1
                     const checkCompareKey = compareKey.indexOf('dfs.namenode.rpc-address') > -1
                     if (checkKey && checkCompareKey) {
@@ -58,7 +58,7 @@ class ZipConfig extends React.Component<any, any> {
         } else {
             keyAndValue = Object.entries(zipConfig.yarnConf || {})
             utils.sortByCompareFunctions(keyAndValue,
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     if (key == 'yarn.resourcemanager.ha.rm-ids') {
                         return -1;
                     }
@@ -67,7 +67,7 @@ class ZipConfig extends React.Component<any, any> {
                     }
                     return 0;
                 },
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     const checkKey = key.indexOf('yarn.resourcemanager.address') > -1
                     const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.address') > -1
                     if (checkKey && checkCompareKey) {
@@ -80,7 +80,7 @@ class ZipConfig extends React.Component<any, any> {
                         return 0;
                     }
                 },
-                ([key, value], [compareKey, compareValue]) => {
+                ([key, value]: any[], [compareKey, compareValue]: any[]) => {
                     const checkKey = key.indexOf('yarn.resourcemanager.webapp.address') > -1
                     const checkCompareKey = compareKey.indexOf('yarn.resourcemanager.webapp.address') > -1
                     if (checkKey && checkCompareKey) {
@@ -96,7 +96,7 @@ class ZipConfig extends React.Component<any, any> {
         }
 
         return keyAndValue.map(
-            ([key, value]) => {
+            ([key, value]: any[]) => {
                 return (<Row key={key} className="zipConfig-item">
                     <Col className="formitem-textname" span={formItemLayout.labelCol.sm.span + 4}>
                         {key.length > 40

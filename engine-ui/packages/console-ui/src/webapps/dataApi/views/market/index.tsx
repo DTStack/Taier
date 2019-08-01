@@ -87,7 +87,7 @@ class APIMarket extends React.Component<any, any> {
             })
         })
     }
-    getCatagoryName (value: any, catagorys: any) {
+    getCatagoryName (value: any, catagorys?: any) {
         if (!value && value != 0) {
             return null;
         }
@@ -183,7 +183,7 @@ class APIMarket extends React.Component<any, any> {
         return dic[type || 'nothing']
     }
     deal (record: any) {
-        const method = this['deal' + record.deal]
+        const method = (this as any)['deal' + record.deal]
         if (method) {
             method.call(this, record);
         }

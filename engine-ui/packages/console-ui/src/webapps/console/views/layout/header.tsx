@@ -3,8 +3,8 @@ import { connect } from 'react-redux'
 
 import Navigator from 'main/components/nav';
 import { getHeaderLogo } from 'main/consts';
-
-@(connect((state: any) as any) => {
+declare var window: any;
+@(connect((state: any) => {
     return {
         user: state.user,
         apps: state.apps,
@@ -13,9 +13,9 @@ import { getHeaderLogo } from 'main/consts';
         app: state.app,
         licenseApps: state.licenseApps
     }
-})
+}) as any)
 class Header extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {}
     }

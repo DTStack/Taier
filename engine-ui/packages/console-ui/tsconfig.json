@@ -36,6 +36,7 @@
     "include": [
         // "./src/**/analyticsEngine/*",
         "./src/**/science/*",
-        "./src/typings/*"
+        "./src/typings/*",
+        "src/**/console/*"
     ]
 }

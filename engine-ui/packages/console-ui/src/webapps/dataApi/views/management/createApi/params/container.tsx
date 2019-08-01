@@ -134,7 +134,7 @@ class ColumnsConfigContainer extends React.Component<any, any> {
     }
     validateFields () {
         return new Promise((resolve: any, reject: any) => {
-            this.formRef.current.validateFieldsAndScroll({}, (err: any, values: any) => {
+            (this.formRef.current as any).validateFieldsAndScroll({}, (err: any, values: any) => {
                 if (!err) {
                     resolve(true)
                 } else {
@@ -168,13 +168,15 @@ class ColumnsConfigContainer extends React.Component<any, any> {
             <div>
                 {header}
                 <WrapColumnsConfigForm
-                    ref={this.formRef}
+                    ref={this.formRef as any}
                     {...this.props}
-                    rowSelection={this.rowSelection.bind(this)}
-                    filterSelectRow={this.filterSelectRow.bind(this)}
-                    updateValue={this.updateValue.bind(this)}
-                    InputSelectedRows={InputSelectedRows}
-                    OutSelectedRows={OutSelectedRows}
+                    {...{
+                        OutSelectedRows: OutSelectedRows,
+                        rowSelection: this.rowSelection.bind(this),
+                        filterSelectRow: this.filterSelectRow.bind(this),
+                        updateValue: this.updateValue.bind(this),
+                        InputSelectedRows: InputSelectedRows
+                    }}
                 />
             </div>
         )

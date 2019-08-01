@@ -78,7 +78,8 @@ export function ExtTableCell (props: any) {
     const arr = showMapArr[sourceData.type];
     if (arr) {
         return <div {...other}>
-            {arr.map(([key, text]) => {
+            {arr.map((item: any[]) => {
+                const [key, text] = item;
                 return <p key={key} style={{ display: 'flex', lineHeight: 1.5 }}>
                     <span style={{ color: '#999', flexShrink: 0 }}>{text}：</span>
                     <span style={{ display: 'inline-block' }}>{sourceData.dataJson[key] || ''}</span>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
 import { cloneDeep } from 'lodash';
 import { connect } from 'react-redux';
@@ -28,7 +29,8 @@ const confirm = Modal.confirm;
 function giveMeAKey () {
     return (new Date().getTime() + '' + ~~(Math.random() * 100000))
 }
-@(connect((state: any) as any) => {
+
+@(connect((state: any) => {
     return {
         testStatus: state.testStatus,
         showRequireStatus: state.showRequireStatus
@@ -42,7 +44,7 @@ function giveMeAKey () {
             dispatch(updateRequiredStatus(data))
         }
     }
-})
+}) as any)
 class EditCluster extends React.Component<any, any> {
     state: any = {
         clusterData: {},
@@ -133,7 +135,7 @@ class EditCluster extends React.Component<any, any> {
         }
     }
     // 填充表单数据
-    getDataList(engineType: any) {
+    getDataList (engineType?: any) {
         const { location } = this.props;
         const params = location.state || {};
         Api.getClusterInfo({
@@ -201,7 +203,7 @@ class EditCluster extends React.Component<any, any> {
      * hdfs、yarn、carbondata不可自定义参数
      * @param {Map} config 服务端接收到的配置
      */
-    exchangeServerParams(config: any) {
+    exchangeServerParams (config: any) {
         let result: any = {
             flinkKeys: [],
             sparkKeys: [],
@@ -253,8 +255,8 @@ class EditCluster extends React.Component<any, any> {
         }
         callback();
     }
-    fileChange(e: any) {
-        const { cluster } = this.props.location.state || {};
+    fileChange (e: any) {
+        const { cluster } = this.props.location.state || {} as any;
         const file = e.target;
         this.setState({ file: {}, uploadLoading: true, zipConfig: '', fileHaveChange: true });
         Api.uploadResource({
@@ -373,7 +375,7 @@ class EditCluster extends React.Component<any, any> {
     renderExtraParam(type: any) {
         const { flink_params, spark_params, sparkThrif_params, hiveServer_params, learning_params, dtyarnshell_params, libraSql_params, extDefaultValue } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const { mode } = this.props.location.state || {};
+        const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view'
         let tmpParams: any;
         if (type == 'flink') {
@@ -443,7 +445,7 @@ class EditCluster extends React.Component<any, any> {
             )
         )
     }
-    exchangeMemory(totalMemory: any) {
+    exchangeMemory (totalMemory: any) {
         if (!totalMemory) {
             return '--';
         }
@@ -451,7 +453,7 @@ class EditCluster extends React.Component<any, any> {
         const haveDot = Math.floor(memory) != memory
         return `${haveDot ? memory.toFixed(2) : memory}GB`
     }
-    saveComponent(component: any) {
+    saveComponent (component: any) {
         const { getFieldsValue } = this.props.form;
         const componentConf = this.getComponentConf(getFieldsValue());
         Api.saveComponent({
@@ -465,7 +467,7 @@ class EditCluster extends React.Component<any, any> {
             }
         })
     }
-    addComponent(params: any) {
+    addComponent (params: any) {
         const { canSubmit, reqParams } = params
         if (canSubmit) {
             Api.addComponent({
@@ -480,8 +482,8 @@ class EditCluster extends React.Component<any, any> {
             })
         }
     }
-    addEngine(params: any) {
-        const { cluster } = this.props.location.state || {};
+    addEngine (params: any) {
+        const { cluster } = this.props.location.state || {} as any;
         const { canSubmit, reqParams } = params;
         if (canSubmit) {
             Api.addEngine({
@@ -542,7 +544,7 @@ class EditCluster extends React.Component<any, any> {
         })
     }
     // 取消操作
-    handleCancel(component: any) {
+    handleCancel (component: any) {
         const { form } = this.props;
         const { allComponentConf } = this.state;
         switch (component.componentTypeCode) {
@@ -614,7 +616,7 @@ class EditCluster extends React.Component<any, any> {
             }
         }
     }
-    showDeleteConfirm(component: any) {
+    showDeleteConfirm (component: any) {
         const { componentName } = component
         confirm({
             title: `是否确定删除${componentName}组件？`,
@@ -630,7 +632,7 @@ class EditCluster extends React.Component<any, any> {
         })
     }
 
-    deleteComponent(component: any) {
+    deleteComponent (component: any) {
         const { componentTypeCode, componentName, componentId } = component;
         if (componentTypeCode == COMPONENT_TYPE_VALUE.FLINK ||
             componentTypeCode == COMPONENT_TYPE_VALUE.SPARK ||
@@ -684,7 +686,7 @@ class EditCluster extends React.Component<any, any> {
         )
     }
     // 转化数据
-    getComponentConf(formValues: any) {
+    getComponentConf (formValues: any) {
         let { zipConfig } = this.state;
         zipConfig = typeof zipConfig == 'string' ? JSON.parse(zipConfig) : zipConfig
         let componentConf: any = {};
@@ -746,7 +748,7 @@ class EditCluster extends React.Component<any, any> {
     getPrometheusValue = () => {
         const { flinkPrometheus, flinkData } = this.state;
         const { form } = this.props;
-        const { mode } = this.props.location.state || {};
+        const { mode } = this.props.location.state || {} as any;
         if (mode == 'edit' && flinkData.hasOwnProperty('gatewayHost')) {
             form.setFieldsValue({
                 'flinkConf.gatewayHost': flinkPrometheus.gatewayHost,
@@ -757,7 +759,7 @@ class EditCluster extends React.Component<any, any> {
             });
         }
     }
-    changeCheckbox(e: any) {
+    changeCheckbox (e: any) {
         this.setState({
             checked: e.target.checked
         }, () => {
@@ -777,27 +779,27 @@ class EditCluster extends React.Component<any, any> {
         })
     }
     // 获取每项Input的值
-    getGatewayHostValue(e: any) {
+    getGatewayHostValue (e: any) {
         this.setState({
             gatewayHostValue: e.target.value
         })
     }
-    getGatewayPortValue(e: any) {
+    getGatewayPortValue (e: any) {
         this.setState({
             gatewayPortValue: e.target.value
         })
     }
-    getGatewayJobNameValue(e: any) {
+    getGatewayJobNameValue (e: any) {
         this.setState({
             gatewayJobNameValue: e.target.value
         })
     }
-    changeDeleteOnShutdownOption(value: any) {
+    changeDeleteOnShutdownOption (value: any) {
         this.setState({
             deleteOnShutdownOption: value
         })
     }
-    changeRandomJobNameSuffixOption(value: any) {
+    changeRandomJobNameSuffixOption (value: any) {
         this.setState({
             randomJobNameSuffixOption: value
         })
@@ -808,7 +810,7 @@ class EditCluster extends React.Component<any, any> {
     displayResource = (engineType: any) => {
         const { getFieldDecorator } = this.props.form;
         const { clusterData, file, uploadLoading, core, nodeNumber, memory } = this.state;
-        const { mode } = this.props.location.state || {};
+        const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
         return engineType == ENGINE_TYPE.HADOOP ? <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
             <div style={{ marginTop: '20px', borderBottom: '1px dashed #DDDDDD' }}>
@@ -895,7 +897,7 @@ class EditCluster extends React.Component<any, any> {
     renderComponentConf = (component: any) => {
         const { checked, securityStatus, zipConfig } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const { mode } = this.props.location.state || {};
+        const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
         const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
         switch (component.componentTypeCode) {
@@ -1060,7 +1062,7 @@ class EditCluster extends React.Component<any, any> {
     render () {
         const { allTestLoading, hadoopComponentData, libraComponentData,
             engineList, defaultEngineType } = this.state;
-        const { mode } = this.props.location.state || {};
+        const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
         const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         return (

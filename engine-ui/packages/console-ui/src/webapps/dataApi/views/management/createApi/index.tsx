@@ -190,7 +190,7 @@ class NewApi extends React.Component<any, any> {
             loading: false,
             mode: data.paramCfgType,
             basicProperties: {
-                APIGroup: this.getInitCatagoryList(data.catalogueId),
+                APIGroup: (this as any).getInitCatagoryList(data.catalogueId),
                 APIName: data.name,
                 APIPath: data.apiPath,
                 APIdescription: data.apiDesc,
@@ -418,7 +418,7 @@ class NewApi extends React.Component<any, any> {
         params.apiType = isRegister ? API_TYPE.REGISTER : API_TYPE.NORMAL;
         return params;
     }
-    apiTest (values, extValues = {}) {
+    apiTest (values: any, extValues = {}) {
         let params = this.createApiServerParams();
         const { pageNo, pageSize, ...other } = values;
         params.pageNo = pageNo;
@@ -547,7 +547,7 @@ class NewApi extends React.Component<any, any> {
                                         saveData={this.saveData.bind(this, key)}
                                         cancelAndSave={this.cancelAndSave.bind(this, key)}
                                         apiTest={this.apiTest.bind(this)}
-                                        dataChange={this[key].bind(this)}
+                                        dataChange={(this as any)[key].bind(this)}
                                         saveResult={this.saveResult.bind(this)}
                                         changeRegisterParams={this.registerParams.bind(this)}
                                     ></Content>

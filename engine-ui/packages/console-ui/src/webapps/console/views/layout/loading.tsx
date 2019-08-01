@@ -1,5 +1,5 @@
 import * as React from 'react'
-
+declare var window: any;
 export default class GlobalLoading extends React.Component<any, any> {
     render () {
         return (

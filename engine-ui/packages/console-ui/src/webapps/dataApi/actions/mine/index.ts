@@ -44,7 +44,7 @@ export const mineActions: any = {
             callFunc = 'updateApplyStatusForManager'
         }
         return (dispatch: any) => {
-            return API[callFunc](params).then((res: any) => {
+            return (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     return res;
                 }
@@ -58,7 +58,7 @@ export const mineActions: any = {
             callFunc = 'getApiCallInfoForManager'
         }
         return (dispatch: any) => {
-            return API[callFunc](params).then((res: any) => {
+            return (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     return res;
                 }
@@ -92,7 +92,7 @@ export const mineActions: any = {
             callFunc = 'queryApiCallLogForManager'
         }
         return (dispatch: any) => {
-            return API[callFunc](params).then((res: any) => {
+            return (API as any)[callFunc](params).then((res: any) => {
                 if (res.code === 1) {
                     return res;
                 }

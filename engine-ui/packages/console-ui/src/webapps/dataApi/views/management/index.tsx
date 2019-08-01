@@ -77,7 +77,7 @@ class APIMana extends React.Component<any, any> {
                     }
                 }
             });
-        this.getDataSource(null);
+        this.getDataSource();
         this.props.getDataSourcesType();
     }
     exchangeSourceType () {

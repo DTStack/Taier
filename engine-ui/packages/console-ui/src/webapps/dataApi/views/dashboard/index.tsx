@@ -71,7 +71,7 @@ class Dashboard extends React.Component<any, any> {
         let newData = nextProps.dashBoard.alarmTrend;
 
         if (isEmpty(oldData) && !isEmpty(newData)) {
-            this.initLineChart(newData)
+            (this as any).initLineChart(newData)
         }
     }
     isAdmin () {
