@@ -31,7 +31,7 @@ showdown.extension('highlight', function () {
     }];
 });
 
-export default function MarkdownRender(props: any) {
+export default function MarkdownRender (props: any) {
     const { text, className, dark } = props;
 
     const cls = `markdown-render-body ${dark ? 'vs-dark' : 'vs'} ${className}`;

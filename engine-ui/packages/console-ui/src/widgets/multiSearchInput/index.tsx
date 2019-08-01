@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { Input, Tooltip } from 'antd'
 import * as React from 'react'
@@ -26,19 +25,19 @@ const searchTypeList: any = [
     }
 ]
 
-const propType: any = {
-    placeholder: PropTypes.string,
-    style: PropTypes.object,
-    value: PropTypes.any, // input框的值
-    onChange: PropTypes.func,
-    onSearch: PropTypes.func,
-    onTypeChange: PropTypes.func,
-    searchType: PropTypes.string, // input框中选中的筛选方式
-    filterOptions: PropTypes.array // 数组中一共最多四个字符串caseSensitive表示有区分大小写功能，precise表示有精确功能，front表示有匹配头部功能，tail表示有匹配尾部功能
+export interface MultiSearchInputProps {
+    placeholder: string;
+    style: object;
+    value: any; // input框的值
+    onChange: any;
+    onSearch: any;
+    onTypeChange: any;
+    searchType: string; // input框中选中的筛选方式
+    filterOptions: any[]; // 数组
 }
 
-class MultiSearchInput extends React.Component<any, any> {
-    constructor(props: any) {
+class MultiSearchInput extends React.Component<MultiSearchInputProps, any> {
+    constructor (props: any) {
         super(props);
         this.state = {
             placeholder: this.props.placeholder || '',
@@ -144,7 +143,5 @@ class MultiSearchInput extends React.Component<any, any> {
         )
     }
 }
-
-MultiSearchInput.propTypes = propType
 
 export default MultiSearchInput

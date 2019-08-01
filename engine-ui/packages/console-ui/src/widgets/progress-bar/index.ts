@@ -1,6 +1,11 @@
 import './style.scss'
 
 class ProcessBar {
+    _clock: any;
+    _count: number;
+    className: string;
+    img: HTMLDivElement;
+    hodor: HTMLDivElement;
     constructor () {
         this._clock = null;
         this._count = 0;

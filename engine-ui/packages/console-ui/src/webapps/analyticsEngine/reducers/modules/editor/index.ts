@@ -108,7 +108,7 @@ export const selection = (state = '', action: any) => {
 
 /** running**/
 // 运行中的任务
-export const running = (state = [], action: any) => {
+export const running = (state: any = [], action: any) => {
     let result = [];
     switch (action.type) {
         case editorAction.ADD_LOADING_TAB: {

@@ -9,7 +9,7 @@ const commonEvent: any = {
  * @param {IStandaloneCodeEditor} editor 编辑器实例
  * @param {Object} customKeys 事件对应的键值对，默认为{find: "find", replace: "replace", commandPane: "commandPane"}
  */
-export function commonFileEditDelegator (editor, customKeys = {}) {
+export function commonFileEditDelegator (editor: any, customKeys = {}) {
     const defaultKeys: any = { find: 'find', replace: 'replace', commandPane: 'commandPane' };
     const keys: any = { ...defaultKeys, ...customKeys };
 
@@ -45,7 +45,7 @@ export function jsonEqual (newJson: any, oldJson: any) {
 * 该函数delaytime时间内顶多执行一次func（最后一次），如果freshTime时间内没有执行，则强制执行一次。
 * @param {function} func
 */
-export function delayFunctionWrap(func: any) {
+export function delayFunctionWrap(func?: any) {
     /**
      * 最小执行间隔，每隔一段时间强制执行一次函数
      * 这里不能太小，因为太小会导致大的解析任务没执行完阻塞。
@@ -59,11 +59,11 @@ export function delayFunctionWrap(func: any) {
     let outTime: any;
     let _timeClock: any;
     return function () {
-        const arg = arguments;
+        const arg: any = arguments;
         _timeClock && clearTimeout(_timeClock);
         // 这边设置在一定时间内，必须执行一次函数
         if (outTime) {
-            let now = new Date();
+            let now: any = new Date();
             if (now - outTime > freshTime) {
                 func(...arg);
             }

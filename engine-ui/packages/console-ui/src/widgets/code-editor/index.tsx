@@ -10,6 +10,8 @@ import 'codemirror/addon/scroll/simplescrollbars.css'
 import './style.css'
 import { getLinkMark, getLogMark } from './utils'
 
+declare var window: any;
+
 const codemirror = require('codemirror')
 
 // require('codemirror/addon/fold/foldcode')
@@ -29,6 +31,8 @@ require('codemirror/addon/scroll/simplescrollbars')
 
 @pureRender
 class CodeEditor extends React.Component<any, any> {
+    Editor: any;
+    self: any;
     componentDidMount () {
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions

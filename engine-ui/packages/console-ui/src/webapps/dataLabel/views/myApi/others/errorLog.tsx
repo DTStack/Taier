@@ -10,7 +10,7 @@ const errorType: any = {
     6: '其他'
 }
 
-class errorLog extends React.Component<any, any> {
+class ErrorLog extends React.Component<any, any> {
     state: any = {
         error: {
 
@@ -25,7 +25,7 @@ class errorLog extends React.Component<any, any> {
     componentDidMount () {
         this.getErrorInfo();
     }
-    getErrorInfo (apiId: any) {
+    getErrorInfo (apiId?: any) {
         apiId = apiId || this.props.showRecord.apiId;
         if (!apiId) {
             return;
@@ -180,4 +180,4 @@ class errorLog extends React.Component<any, any> {
         )
     }
 }
-export default errorLog;
+export default ErrorLog;

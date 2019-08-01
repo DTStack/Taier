@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import * as React from 'react'
 
 export default class Resize extends React.Component<any, any> {
     componentDidMount () {

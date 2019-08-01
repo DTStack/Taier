@@ -176,7 +176,6 @@ export default class TagLog extends React.Component<any, any> {
                             loading={loading}
                             pagination={pagination}
                             dataSource={logList.data}
-                            onChange={this.onTableChange}
                         />
                     </Card>
                 </div>

@@ -5,7 +5,7 @@ const MENU_ITEM_HEIGHT = 25;
 const MENU_PADDING = 20;
 
 export default class CtxMenu extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
 
         this.showMenu = this.showMenu.bind(this);
@@ -16,6 +16,10 @@ export default class CtxMenu extends React.Component<any, any> {
             y: 0
         };
     }
+
+    box: any;
+    menu: any;
+    mask: any;
 
     componentDidMount () {
         this.box.addEventListener('contextmenu', this.showMenu, false);
@@ -28,14 +32,14 @@ export default class CtxMenu extends React.Component<any, any> {
         document.removeEventListener('click', this.hideMenu, false);
     }
 
-    hideMenu(e: any) {
+    hideMenu (e: any) {
         if (!this.state.show) return;
         this.setState({
             show: false
         });
     }
 
-    showMenu(e: any) {
+    showMenu (e: any) {
         e.preventDefault();
         this.setState({
             show: true,

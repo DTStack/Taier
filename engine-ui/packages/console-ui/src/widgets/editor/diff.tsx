@@ -9,7 +9,8 @@ import PropTypes from 'prop-types';
 
 // import 'monaco-editor/esm/vs/editor/editor.all.js';
 // import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+// import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+import * as monaco from 'monaco-editor';
 import 'monaco-editor/esm/vs/basic-languages/sql/sql.contribution.js';
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js';
 
@@ -20,12 +21,64 @@ import './languages/dtsql/dtsql.contribution.js'
 import './style.scss';
 import { defaultOptions } from './config';
 
-class DiffEditor extends React.Component<any, any> {
+export interface DiffEditorProps {
+    className: string;
+    style: object;
+    options: object;
+    theme: any;
+    language: any;
+    value: any;
+    /**
+     * 该方法的入参为源文件Editor的引用
+     */
+    editorInstanceRef: Function;
+    /**
+     * 源文件的属性对象
+     * value:文件内容
+     * cursorPosition:文件的指针位置
+     */
+    original: { value: string, cursorPosition: object }
+    /**
+     * 被对比文件的属性对象
+     * value:文件内容
+     */
+    modified: { value: string },
+    /**
+     * 源文件改变事件回调函数
+     */
+    onChange: Function,
+    /**
+     * 源文件失去焦点回调函数
+     */
+    onBlur: Function,
+    /**
+     * 源文件获得焦点回调函数
+     */
+    onFocus: Function,
+    /**
+     * 文件指针改变事件回调函数
+     */
+    onCursorSelection: Function,
+    /**
+     * 是否同步源文件内容
+     */
+    sync: boolean,
+    /**
+     * 是否打印编辑器日志
+     */
+    isLog: boolean
+}
+
+class DiffEditor extends React.Component<DiffEditorProps, any> {
     constructor(props: any) {
         super(props);
-        this.monacoDom = null;
-        this.monacoInstance = null;
     }
+    monacoDom: any = null;
+    monacoInstance: any = null;
+    _originalEditor: any = null;
+    _modifiedEditor: any = null;
+    _originalModel: any = null;
+    _modifiedModel: any = null;
 
     shouldComponentUpdate (nextProps: any, nextState: any) {
         // // 此处禁用render，直接用editor实例更新编辑器
@@ -68,9 +121,9 @@ class DiffEditor extends React.Component<any, any> {
         return false;
     }
 
-    log () {
+    log (args: any) {
         const { isLog } = this.props;
-        isLog && console.log(...arguments);
+        isLog && console.log(...args);
     }
 
     destroyMonaco () {
@@ -82,7 +135,7 @@ class DiffEditor extends React.Component<any, any> {
     }
 
     initMonaco () {
-        const { original = {}, modified = {}, language, options } = this.props;
+        const { original = {}, modified = {}, language, options }: any = this.props;
         if (!this.monacoDom) {
             console.error('初始化dom节点出错');
             return;
@@ -206,52 +259,5 @@ class DiffEditor extends React.Component<any, any> {
             ref={(domIns: any) => { this.monacoDom = domIns; }}
         />;
     }
-}
-
-DiffEditor.propTypes = {
-    /**
-     * 该方法的入参为源文件Editor的引用
-     */
-    editorInstanceRef: PropTypes.func,
-    /**
-     * 源文件的属性对象
-     * value:文件内容
-     * cursorPosition:文件的指针位置
-     */
-    original: PropTypes.shape({
-        value: PropTypes.string,
-        cursorPosition: PropTypes.Object
-    }),
-    /**
-     * 被对比文件的属性对象
-     * value:文件内容
-     */
-    modified: PropTypes.shape({
-        value: PropTypes.string
-    }),
-    /**
-     * 源文件改变事件回调函数
-     */
-    onChange: PropTypes.func,
-    /**
-     * 源文件失去焦点回调函数
-     */
-    onBlur: PropTypes.func,
-    /**
-     * 源文件获得焦点回调函数
-     */
-    onFocus: PropTypes.func,
-    /**
-     * 文件指针改变事件回调函数
-     */
-    onCursorSelection: PropTypes.func,
-    /**
-     * 是否同步源文件内容
-     */
-    sync: PropTypes.bool,
-    /**
-     * 是否打印编辑器日志
-     */
-    isLog: PropTypes.bool
 }
 export default DiffEditor;

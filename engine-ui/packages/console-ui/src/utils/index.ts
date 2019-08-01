@@ -184,7 +184,7 @@ const utils = {
         }
     },
 
-    setCookie (name: string, value: string | number | object, days: number) {
+    setCookie (name: string, value: string | number | object, days?: number) {
         let expires = '';
         if (days) {
             const date = new Date();

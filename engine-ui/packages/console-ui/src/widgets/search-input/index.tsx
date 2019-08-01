@@ -8,6 +8,7 @@ import './style.scss'
 const Search = Input.Search;
 
 class SearchInput extends React.PureComponent<any, any> {
+    _input: any;
     render () {
         const { placeholder, onSearch, onClose, display, className, style, id } = this.props;
 

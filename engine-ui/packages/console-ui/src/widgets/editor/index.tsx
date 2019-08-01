@@ -1,5 +1,6 @@
 import * as React from 'react';
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+// import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+import * as monaco from 'monaco-editor';
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
 import './languages/shell/shell.contribution.js';
@@ -37,22 +38,22 @@ const provideCompletionItemsMap: any = {
 class Editor extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
-        /**
-         * monaco需要的渲染节点
-         */
-        this.monacoDom = null;
-        /**
-         * monaco实例
-         */
-        this.monacoInstance = null;
-        /**
-         * monaco渲染外部链接对象的销毁用ID
-         */
-        this._linkId = null;
     }
+    /**
+     * monaco需要的渲染节点
+     */
+    monacoDom: any = null;
+    /**
+     * monaco实例
+     */
+    monacoInstance: any = null;
+    /**
+     * monaco渲染外部链接对象的销毁用ID
+     */
+    _linkId: any = null;
 
     shouldComponentUpdate (nextProps: any, nextState: any) {
-        // // 此处禁用render， 直接用editor实例更新编辑器
+        // 此处禁用render， 直接用editor实例更新编辑器
         return false;
     }
 
@@ -80,13 +81,13 @@ class Editor extends React.Component<any, any> {
             /**
              * 每个函数的补全函数都由该组件统一代理
              */
-            language.register(this.providerProxy, this.monacoInstance);
+            (language as any).register(this.providerProxy, this.monacoInstance);
         }
     }
     disposeProviderProxy () {
         const keyAndValues = Object.entries(provideCompletionItemsMap);
         for (let [, language] of keyAndValues) {
-            language.dispose(this.monacoInstance);
+            (language as any).dispose(this.monacoInstance);
         }
     }
     // eslint-disable-next-line
@@ -161,9 +162,9 @@ class Editor extends React.Component<any, any> {
         return false;
     }
 
-    log () {
+    log (args: any) {
         const { isLog } = this.props;
-        isLog && console.log(...arguments);
+        isLog && console.log(...args);
     }
 
     destroyMonaco () {
@@ -219,7 +220,7 @@ class Editor extends React.Component<any, any> {
         }
     }
 
-    delayLanguageValueOnChange = delayFunctionWrap(this.languageValueOnChange.bind(this))
+    delayLanguageValueOnChange: any = delayFunctionWrap(this.languageValueOnChange.bind(this))
 
     initEditorEvent () {
         this.languageValueOnChange(this.props.onSyntaxChange);

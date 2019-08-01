@@ -11,7 +11,7 @@ export function getLinkMark(value: any) {
     while (indexObj) {
         const node = document.createElement('a');
         const attrs = JSON.parse(indexObj[1]);
-        const keyAndValues = Object.entries(attrs);
+        const keyAndValues: any = Object.entries(attrs);
         for (let [_key, _value] of keyAndValues) {
             node.setAttribute(_key, _value)
         }
@@ -69,7 +69,7 @@ export function getLogMark(value: any) {
             for (let i = 0; i < textArr.length; i++) {
                 let textItem = textArr[i];
                 let contentItem = contentArr[i];
-                let cloneNode = node.cloneNode(false);// 浅拷贝
+                let cloneNode: any = node.cloneNode(false);// 浅拷贝
                 cloneNode.innerHTML = contentItem;
                 result.push({
                     start: indexObj.index + offset,
@@ -89,7 +89,7 @@ export function getLogMark(value: any) {
  * @param {string} log 日志内容
  * @param {string} type 日志类型
  */
-export function createLog (log, type = '') {
+export function createLog (log: string, type = '') {
     let now = moment().format('HH:mm:ss');
     if (process.env.NODE_ENV == 'test') {
         now = 'test'

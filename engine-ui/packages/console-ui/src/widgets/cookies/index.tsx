@@ -8,8 +8,8 @@ import * as React from 'react';
  */
 const defaultIntervalTime = 200;
 class Cookies extends React.Component<any, any> {
-    _currentCookies;
-    _timerId;
+    _currentCookies: any;
+    _timerId: any;
 
     componentDidMount () {
         this.initEvent();

@@ -7,7 +7,6 @@ src/app/.idea/
 .cache-loader/
 .idea/
 .env
-.vscode
 .history
 npm-error.log
 npm-debug.log

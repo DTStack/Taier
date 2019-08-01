@@ -7,7 +7,7 @@ import ErrorLog from './others/errorLog';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-class detailSlidePane extends React.Component<any, any> {
+class DetailSlidePane extends React.Component<any, any> {
     state: any = {
         approvedText: '同意',
         applyText: '申请调用此接口，请批准',
@@ -111,4 +111,4 @@ class detailSlidePane extends React.Component<any, any> {
         )
     }
 }
-export default detailSlidePane;
+export default DetailSlidePane;

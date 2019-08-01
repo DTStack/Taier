@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export default class KeyCombiner extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             currentKeys: {}

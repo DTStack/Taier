@@ -1,7 +1,7 @@
+import * as React from 'react';
 import {
     Modal, Select
 } from 'antd';
-import React, { PureComponent } from 'react';
 
 const Option = Select.Option;
 
@@ -34,7 +34,7 @@ class SearchModal extends React.PureComponent<any, any> {
         const { visible, id, style, searchResult, onCancel, placeholder } = this.props;
 
         const options = searchResult && searchResult.map((d: any) => {
-            return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
+            return <Option key={d.id} data={d.id} {...{ data: d.id }} value={d.name}>{d.name}</Option>
         })
 
         const styleValue = Object.assign({
@@ -69,6 +69,7 @@ class SearchModal extends React.PureComponent<any, any> {
                     value={selectValue}
                     onChange={this.handleChange}
                     onSelect={this.handleSelect}
+                    {...{ id: id, showArrow: false, filterOption: false, autoComplete: 'off' }}
                 >
                     {options}
                 </Select>

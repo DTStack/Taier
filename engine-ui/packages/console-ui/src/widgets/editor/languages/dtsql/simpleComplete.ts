@@ -1,9 +1,13 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+// import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+import * as monaco from 'monaco-editor';
 import DtWoker from './dtsql.worker.js';
 import { get } from 'lodash';
 
 let _DtParserInstance: any;
 class DtParser {
+    _DtParser: any;
+    _eventMap: any;
+
     constructor () {
         this._DtParser = new DtWoker();
         this._eventMap = {};
@@ -114,7 +118,7 @@ function customCompletionItemsCreater(_customCompletionItems: any) {
         return [];
     }
     return _customCompletionItems.map(
-        ([name, detail, sortIndex, type], index) => {
+        ([name, detail, sortIndex, type]: any, index: any) => {
             sortIndex = sortIndex || '3000';
             return {
                 label: name,
@@ -133,7 +137,7 @@ function customCompletionItemsCreater(_customCompletionItems: any) {
  */
 function createDependencyProposals () {
     if (!cacheKeyWords.length) {
-        const words = dtsqlWords();
+        const words: any = dtsqlWords();
         const functions: any = [].concat(words.builtinFunctions).concat(words.windowsFunctions).concat(words.innerFunctions).concat(words.otherFunctions).filter(Boolean);
         const keywords: any = [].concat(words.keywords);
         cacheKeyWords = keywordsCompleteItemCreater(keywords).concat(functionsCompleteItemCreater(functions))
@@ -145,7 +149,7 @@ monaco.languages.registerCompletionItemProvider('dtsql', {
     triggerCharacters: ['.'],
     provideCompletionItems: function (model: any, position: any, token: any, CompletionContext: any) {
         const completeItems = createDependencyProposals();
-        return new Promise(async (resolve: any, reject: any) => {
+        return new Promise<any>(async (resolve: any, reject: any) => {
             const completeProvideFunc = _completeProvideFunc[model.id]
             if (completeProvideFunc) {
                 const textValue = model.getValue();
@@ -204,7 +208,7 @@ export function disposeProvider(_editor: any) {
     const id = _editor.getModel().id;
     _completeProvideFunc[id] = undefined;
 }
-export async function onChange (value = '', _editor, callback) {
+export async function onChange (value = '', _editor: any, callback: any) {
     const dtParser = loadDtParser();
     const model = _editor.getModel();
     // const cursorIndex = model.getOffsetAt(_editor.getPosition());

@@ -1,5 +1,4 @@
 import * as React from 'react'
-import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { dlApp } from 'config/base'
 
@@ -10,13 +9,6 @@ import * as UserAction from '../actions/user'
 import { dataSourceActions } from '../actions/dataSource'
 import { commonActions } from '../actions/common'
 import { updateApp } from 'main/actions/app'
-
-const propType: any = {
-    children: PropTypes.node
-}
-const defaultPro: any = {
-    children: []
-}
 
 @(connect() as any)
 class Main extends React.Component<any, any> {
@@ -43,7 +35,5 @@ class Main extends React.Component<any, any> {
         )
     }
 }
-Main.propTypes = propType
-Main.defaultProps = defaultPro
 
 export default Main

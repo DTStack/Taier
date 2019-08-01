@@ -1,8 +1,9 @@
 import * as React from 'react'
 import utils from 'utils/index';
 import './style.scss'
+declare var window: any;
 export default class Index extends React.Component<any, any> {
-    renderDivide(name: any) {
+    renderDivide (name: any) {
         let divideLine = Array(25).fill('-');
         return <div>
             <span style={{ color: '#BFBFBF' }}>{divideLine.join(' ')}</span>

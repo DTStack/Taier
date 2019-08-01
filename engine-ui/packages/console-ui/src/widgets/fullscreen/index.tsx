@@ -4,6 +4,8 @@ import { Button } from 'antd'
 import MyIcon from 'rdos/components/icon';
 import KeyCombiner from 'widgets/keyCombiner';
 
+declare var document: any;
+
 export default class FullScreenButton extends React.Component<any, any> {
     state: any = {
         isFullScreen: false
@@ -18,7 +20,7 @@ export default class FullScreenButton extends React.Component<any, any> {
     componentDidMount () {
         const { target } = this.props;
         const propsDom = document.getElementById(target)
-        const domEle = propsDom || document.body;
+        const domEle: any = propsDom || document.body;
         let callBack = (event: any) => {
             let node: any;
             if (domEle.requestFullscreen) {
@@ -47,7 +49,7 @@ export default class FullScreenButton extends React.Component<any, any> {
     componentWillUnmount () {
         const { target } = this.props;
         const propsDom = document.getElementById(target)
-        const domEle = propsDom || document.body;
+        const domEle: any = propsDom || document.body;
         if (domEle.requestFullscreen) {
             document.onfullscreenchange = null;
         } else if (domEle.msRequestFullscreen) { // IE

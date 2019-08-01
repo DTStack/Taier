@@ -58,7 +58,7 @@ class ManageErrorLog extends React.Component<any, any> {
     componentDidMount () {
         this.getErrorInfo();
     }
-    getErrorInfo (apiId: any) {
+    getErrorInfo (apiId?: any) {
         apiId = apiId || this.props.apiId;
         if (!apiId) {
             return;

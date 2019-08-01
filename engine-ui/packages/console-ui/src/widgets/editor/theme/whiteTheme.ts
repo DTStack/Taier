@@ -1,4 +1,6 @@
-export default {
+import * as monaco from 'monaco-editor';
+
+const writeTheme: monaco.editor.IStandaloneThemeData = {
     base: 'vs',
     inherit: true,
     rules: [],
@@ -10,3 +12,5 @@ export default {
 
     }
 }
+
+export default writeTheme;

@@ -34,6 +34,14 @@
         "dist",
     ],
     "include": [
-        "./src/**/analyticsEngine/*",
+        "src/webapps/dataLabel/**/*",
+        "src/webapps/analyticsEngine/**/*",
+        "src/webapps/main/**/*",
+        "src/widgets/**/*",
+        "src/utils/**/*",
+        "src/utils",
+        "src/funcs",
+        "src/funcs/**/*",
+        "src/typings/**/*"
     ]
 }

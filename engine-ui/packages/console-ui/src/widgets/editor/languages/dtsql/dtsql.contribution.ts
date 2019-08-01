@@ -5,6 +5,10 @@
 'use strict';
 import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contribution';
 import { registeCompleteItemsProvider, disposeProvider, onChange } from './simpleComplete';
+
+declare var monaco: any;
+declare var self: any;
+
 // Allow for running under nodejs/requirejs in tests
 var _monaco = typeof monaco === 'undefined' ? self.monaco : monaco;
 registerLanguage({

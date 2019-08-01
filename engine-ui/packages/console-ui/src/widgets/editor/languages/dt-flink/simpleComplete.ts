@@ -1,4 +1,5 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+// import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
+import * as monaco from 'monaco-editor';
 
 let cacheKeyWords: any = [];
 
@@ -46,7 +47,7 @@ function customCompletionItemsCreater(_customCompletionItems: any) {
         return [];
     }
     return _customCompletionItems.map(
-        ([name, detail, sortIndex, type], index) => {
+        ([name, detail, sortIndex, type]: any, index: any) => {
             sortIndex = sortIndex || '3000';
             return {
                 label: name,
@@ -73,7 +74,7 @@ function createDependencyProposals () {
 monaco.languages.registerCompletionItemProvider('dtflink', {
     provideCompletionItems: function (model: any, position: any, token: any, CompletionContext: any) {
         const completeItems = createDependencyProposals();
-        return new Promise(async (resolve: any, reject: any) => {
+        return new Promise<any>(async (resolve: any, reject: any) => {
             resolve(completeItems)
         });
     }

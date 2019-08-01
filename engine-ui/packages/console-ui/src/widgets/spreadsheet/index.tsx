@@ -1,14 +1,20 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 
 import CopyUtils from 'utils/copy';
 import './style.scss';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/languages/zh-CN.js';
 
-class SpreadSheet extends React.PureComponent<any, any> {
-    tableRef = React.createRef()
+export interface SpreadSheetProps {
+    data: any[];
+    columns: any;
+}
+
+class SpreadSheet extends React.PureComponent<SpreadSheetProps, any> {
+    tableRef: any = React.createRef()
     copyUtils = new CopyUtils()
+    _renderColck: any;
+
     componentDidUpdate (prevProps: any, prevState: any) {
         if (prevProps != this.props) {
             if (this.tableRef) {
@@ -25,7 +31,7 @@ class SpreadSheet extends React.PureComponent<any, any> {
             clearTimeout(this._renderColck)
         }
     }
-    componentWillUnmount (prevProps: any, prevState: any) {
+    componentWillUnmount () {
         this.removeRenderClock();
     }
     getData () {
@@ -52,7 +58,7 @@ class SpreadSheet extends React.PureComponent<any, any> {
         }
         return null;
     }
-    beforeCopy (arr: any, arr2: any) {
+    beforeCopy (arr: any, arr2?: any) {
         /**
          * 去除格式化
          */
@@ -75,7 +81,7 @@ class SpreadSheet extends React.PureComponent<any, any> {
                     }
                 }
             }
-        }
+        } as any;
     }
     render () {
         const { columns = [] } = this.props;
@@ -103,9 +109,5 @@ class SpreadSheet extends React.PureComponent<any, any> {
             />
         )
     }
-}
-SpreadSheet.PropTypes = {
-    data: PropTypes.array,
-    columns: PropTypes.array
 }
 export default SpreadSheet;

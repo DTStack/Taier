@@ -1,7 +1,7 @@
 import * as React from 'react'
 import './style.scss'
 
-export function Circle(props: any) {
+export function Circle (props: any) {
     const defaultClass = 'circle_default';
     const { className, ...other } = props;
     return (

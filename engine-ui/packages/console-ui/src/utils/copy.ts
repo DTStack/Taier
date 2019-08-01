@@ -11,7 +11,7 @@ export default class CopyUtils {
     fakeHandler: any = null;
     fakeElem: any;
 
-    copy (value: any, callback: Function) {
+    copy (value: any, callback?: Function) {
         this.removeFake();
 
         this.fakeHandlerCallback = () => this.removeFake();

@@ -43,7 +43,6 @@ class ManageTopCall extends React.Component<any, any> {
                 }]}
 
                 dataSource={this.getSource()}
-                onChange={this.onTableChange}
             />
 
         )

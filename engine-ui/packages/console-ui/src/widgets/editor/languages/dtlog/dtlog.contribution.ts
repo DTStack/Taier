@@ -4,6 +4,10 @@
 *-------------------------------------------------------------------------------------------- */
 'use strict';
 import { registerLanguage } from 'monaco-editor/esm/vs/basic-languages/_.contribution';
+
+declare var monaco: any;
+declare var self: any;
+
 // Allow for running under nodejs/requirejs in tests
 var _monaco = typeof monaco === 'undefined' ? self.monaco : monaco;
 registerLanguage({

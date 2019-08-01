@@ -85,7 +85,7 @@ class IdentifyColumn extends React.Component<any, any> {
 
         form.validateFields((err: any, values: any) => {
             console.log(err, values)
-            let api, params, msg;
+            let api: any, params: any, msg: string;
 
             if (!err) {
                 if (currentData.id) {

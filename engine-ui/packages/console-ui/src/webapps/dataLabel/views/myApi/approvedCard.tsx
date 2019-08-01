@@ -105,7 +105,8 @@ class ApprovedCard extends React.Component<any, any> {
         })
     }
     apiClick (record: any) {
-        const method = this['state' + exchangeDic[record.status]]
+        const prop = 'state' + exchangeDic[record.status];
+        const method: any = this[prop as keyof this];
         if (method) {
             method.call(this, record);
         }
@@ -145,7 +146,8 @@ class ApprovedCard extends React.Component<any, any> {
         })
     }
     dealClick (record: any) {
-        const method = this['deal' + exchangeDic[record.status]];
+        const key = 'deal' + exchangeDic[record.status];
+        const method: any = this[key as keyof this];
         if (method) {
             method.call(this, record);
         }
