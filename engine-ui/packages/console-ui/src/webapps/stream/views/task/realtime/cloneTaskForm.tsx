@@ -44,6 +44,9 @@ class CloneTaskForm extends React.Component<any, any> {
 
         const { getFieldDecorator } = form
         const cloneName = taskInfo.name;
+        const rowFix = {
+            rows: 4
+        }
         return (
             <div id="JS_task_modal_realtime">
                 <Modal
@@ -109,7 +112,7 @@ class CloneTaskForm extends React.Component<any, any> {
                                 }],
                                 initialValue: taskInfo.taskDesc
                             })(
-                                <Input type="textarea" rows={4} />
+                                <Input type="textarea" {...rowFix}/>
                             )}
                         </FormItem>
 

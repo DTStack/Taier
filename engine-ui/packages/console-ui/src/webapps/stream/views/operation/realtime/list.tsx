@@ -21,6 +21,8 @@ import GoOnTask from './goOnTask'
 const Search = Input.Search
 
 class RealTimeTaskList extends React.Component<any, any> {
+    _timeClock: any
+    _isUnmounted: any
     state: any = {
         tasks: {
             data: []
@@ -42,8 +44,8 @@ class RealTimeTaskList extends React.Component<any, any> {
 
     componentDidMount () {
         if (this.props.project.id !== 0) {
-            const { location } = this.props.router || {};
-            const { state: any = {} } = location || {};
+            const { location }: any = this.props.router || {};
+            const { state = {} } = location || {};
 
             this.loadTaskTypes();
             this.loadCount();
@@ -119,7 +121,7 @@ class RealTimeTaskList extends React.Component<any, any> {
         if (this._isUnmounted) {
             return;
         }
-        const { data } = resData;
+        const { data } : any= resData;
         if (!data) {
             return;
         }
@@ -158,7 +160,7 @@ class RealTimeTaskList extends React.Component<any, any> {
         }
         return orderMap[key];
     }
-    loadTaskList (params: any, isSilent: any) { // currentPage, pageSize, isTimeSortDesc, status
+    loadTaskList (params?: any, isSilent?: any) { // currentPage, pageSize, isTimeSortDesc, status
         const ctx = this
         if (!isSilent || typeof isSilent != 'boolean') {
             this.setState({ loading: true })
@@ -184,7 +186,7 @@ class RealTimeTaskList extends React.Component<any, any> {
         })
     }
 
-    updateTaskStatus = (task: any, mode: any) => {
+    updateTaskStatus = (task: any, mode?: any) => {
         const ctx = this
         const current = this.state.current
         const status = task.status
@@ -383,12 +385,12 @@ class RealTimeTaskList extends React.Component<any, any> {
         }]
     }
 
-    getDealButton (record: any, isPane: any) {
+    getDealButton (record: any, isPane?: any) {
         if (!record) {
             return null;
         }
         let normal = ''
-        let recover = ''
+        let recover:any = ''
         let goOn = ''
         let popTxt = '确定执行当前操作吗?'
         switch (record.status) {

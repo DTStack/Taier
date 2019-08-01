@@ -68,7 +68,7 @@ class AlarmConfigList extends React.Component<any, any> {
             }
         }, this.loadAlarmRules)
     }
-    loadAlarmRules (data: any) {
+    loadAlarmRules (data?: any) {
         const { pagination, alarmStatus } = this.state;
         data = data || this.props.data || {};
         const reqForm: any = {

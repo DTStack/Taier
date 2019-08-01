@@ -9,7 +9,7 @@ import {
 
 import Api from '../../../api';
 
-const taskTypes = (state = [], action: any) => {
+const taskTypes = (state: any = [], action: any) => {
     switch (action.type) {
         case commAction.GET_TASK_TYPES: {
             return action.payload;
@@ -18,7 +18,7 @@ const taskTypes = (state = [], action: any) => {
     }
 }
 
-const taskTypeFilter = (state = [], action: any) => {
+const taskTypeFilter = (state:any = [], action: any) => {
     switch (action.type) {
         case commAction.GET_TASK_TYPE_FILTER: {
             return action.payload;

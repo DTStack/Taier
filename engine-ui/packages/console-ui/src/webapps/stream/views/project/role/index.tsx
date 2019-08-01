@@ -11,6 +11,7 @@ import utils from 'utils'
 import Api from '../../../api'
 
 class RoleManagement extends React.Component<any, any> {
+    initAddMember: any;
     state: any = {
         roles: [],
         visible: false,
@@ -30,7 +31,7 @@ class RoleManagement extends React.Component<any, any> {
         }
     }
 
-    loadRoles = (page: any) => {
+    loadRoles = (page?: any) => {
         const ctx = this
         this.setState({ loading: true })
         Api.getRoleList({

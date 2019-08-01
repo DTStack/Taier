@@ -25,6 +25,8 @@ function mapStateToProps (state: any) {
 
 @(connect(mapStateToProps) as any)
 class Container extends React.Component<any, any> {
+    static propTypes: any;
+    static defaultProps: any;
     constructor (props: any) {
         super(props);
         this.state = {

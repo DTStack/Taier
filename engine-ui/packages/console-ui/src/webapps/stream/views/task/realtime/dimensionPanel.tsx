@@ -32,6 +32,7 @@ const { Column } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends React.Component<any, any> {
+    _editorRef: any;
     componentDidMount () {
         this.props.onRef(this);
     }
@@ -266,7 +267,7 @@ class OutputOrigin extends React.Component<any, any> {
                     </div>
                     {haveTableColumn(panelColumn[index].type) ? (
                         <Col
-                            span="18"
+                            span={18}
                             className="bd"
                             style={{
                                 marginBottom: 20
@@ -356,7 +357,7 @@ class OutputOrigin extends React.Component<any, any> {
                             </div>
                         </Col>
                     ) : (<Col
-                        span="18"
+                        span={18}
                         style={{ marginBottom: 20, height: 200 }}
                     >
                         {isShow && (
@@ -792,7 +793,7 @@ export default class OutputPanel extends React.Component<any, any> {
         });
     };
 
-    getTableType = (index: any, sourceId: any, type: any) => {
+    getTableType = (index: any, sourceId: any, type?: any) => {
         const { tableOptionType } = this.state;
         if (sourceId) {
             Api.getStremTableType({ sourceId, isSys: false }).then((v: any) => {
@@ -857,7 +858,7 @@ export default class OutputPanel extends React.Component<any, any> {
         }
     }
 
-    changeInputTabs = (type: any, index: any) => {
+    changeInputTabs = (type: any, index?: any) => {
         const inputData: any = {
             type: DATA_SOURCE.MYSQL,
             columns: [],
@@ -1186,6 +1187,15 @@ export default class OutputPanel extends React.Component<any, any> {
                 </div>
             </div>
         );
+        const onClickFix = {
+            onClick: (e: any) => {
+                this.handlePopoverVisibleChange(
+                    e,
+                    index,
+                    !popoverVisible[index]
+                );
+            }
+        }
         return (
             <div className="input-panel-title">
                 <span>{` 维表 ${index + 1}`}</span>
@@ -1194,13 +1204,14 @@ export default class OutputPanel extends React.Component<any, any> {
                     placement="topLeft"
                     content={popoverContent}
                     visible={popoverVisible[index]}
-                    onClick={(e: any) => {
-                        this.handlePopoverVisibleChange(
-                            e,
-                            index,
-                            !popoverVisible[index]
-                        );
-                    }}
+                    // onClick={(e: any) => {
+                    //     this.handlePopoverVisibleChange(
+                    //         e,
+                    //         index,
+                    //         !popoverVisible[index]
+                    //     );
+                    // }}
+                    {...onClickFix}
                 >
                     <span className="title-icon input-panel-title">
                         <Icon type="delete" />

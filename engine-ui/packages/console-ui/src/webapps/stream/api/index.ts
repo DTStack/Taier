@@ -98,7 +98,7 @@ export default {
     deleteRole (params: any) {
         return http.post(req.DELETE_ROLE, params)
     },
-    getRoleTree (params: any) {
+    getRoleTree (params?: any) {
         return http.post(req.GET_ROLE_TREE, params)
     },
     getRoleInfo (params: any) {
@@ -184,10 +184,10 @@ export default {
     getBinlogListBySource (params: any) {
         return http.post(req.GET_BINLOG_LIST_BY_SOURCE, params)
     },
-    getDataSourceTypes (params: any) {
+    getDataSourceTypes (params?: any) {
         return http.post(stremReq.GET_DATASOURCE_TYPES, params)
     },
-    getSupportDaTypes (params: any) {
+    getSupportDaTypes (params?: any) {
         return http.post(stremReq.GET_SUPPORT_BINLOG_DATA_TYPES, params)
     },
     getRealtimeJobData (params: any) {
@@ -239,7 +239,7 @@ export default {
     uploadRes (res: any) {
         return http.postAsFormData(req.UPLOAD_RES, res)
     },
-    getResList (params: any) {
+    getResList (params?: any) {
         return http.post(req.GET_RES_LIST, params)
     },
     deleteRes (params: any) {
@@ -330,7 +330,7 @@ export default {
     checkSourceIsValid (params: any) {
         return http.post(stremReq.CHECK_SOURCE_IS_VALID, params)
     },
-    getStreamDataSourceList (params: any) {
+    getStreamDataSourceList (params?: any) {
         return http.post(stremReq.GET_STREAM_DATASOURCE_LIST, params)
     },
     streamQueryDataSource (params: any) {
@@ -342,7 +342,7 @@ export default {
     getStreamTableColumn (params: any) {
         return http.post(stremReq.GET_STREAM_TABLECOLUMN, params)
     },
-    checkDataSourcePermission (params: any) {
+    checkDataSourcePermission (params?: any) {
         return http.post(stremReq.CHECK_IS_PERMISSION, params)
     },
     getHivePartitions (params: any) {
@@ -367,7 +367,7 @@ export default {
     getContainerInfos (params: any) {
         return http.post(stremReq.GET_CONTAINER_INFOS, params)
     },
-    // getResultTable (params: any) {
-    //     return http.post(stremReq.GET_RESULT_TABLE, params)
-    // }
+    getResultTable (params: any) {
+        return http.post((stremReq as any).GET_RESULT_TABLE, params)
+    }
 }

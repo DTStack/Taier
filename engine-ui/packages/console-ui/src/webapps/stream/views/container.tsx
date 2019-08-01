@@ -20,6 +20,8 @@ const defaultPro: any = {
 }
 
 class Container extends React.Component<any, any> {
+    static propTypes: any;
+    static defaultProps: any;
     componentDidMount () {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())

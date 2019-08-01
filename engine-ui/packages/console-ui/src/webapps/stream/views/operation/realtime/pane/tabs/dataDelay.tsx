@@ -40,7 +40,7 @@ class DataDelay extends React.Component<any, any> {
             this.getDelayList(nextData);
         }
     }
-    getDelayList (data: any) {
+    getDelayList (data?: any) {
         const { pagination, sorter } = this.state;
         data = data || this.props.data;
 

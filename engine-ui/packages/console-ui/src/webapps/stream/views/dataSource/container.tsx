@@ -14,6 +14,8 @@ const defaultPro: any = {
 }
 
 class Container extends React.Component<any, any> {
+    static propTypes: any;
+    static defaultProps: any;
     render () {
         const { children } = this.props
         return (

@@ -41,7 +41,7 @@ export function removeRes(res: any, index: any) {
 }
 
 // Reducers
-export function resources(state = [], action: any) {
+export function resources(state:any = [], action: any) {
     switch (action.type) {
     case resAction.GET_RESOURCE:
         return action.data;
