@@ -81,7 +81,7 @@ class GraphEditor extends React.Component<any, any> {
         return true;
     }
 
-    componentDidUpdate(prevProps: any) {
+    componentDidUpdate (prevProps: any) {
         const data = this.props.data
         const { data: oldData } = prevProps;
         // TODO 目前 data 更新太容易触发 didUpdate
@@ -199,14 +199,14 @@ class GraphEditor extends React.Component<any, any> {
             }
         }
         // Implements the connect preview style by default edgeStyle
-        graph.connectionHandler.createEdgeState = function(me: any) {
+        graph.connectionHandler.createEdgeState = function (me: any) {
             var edge = graph.createEdge(null, null, null, null, null);
             return new mxCellState(this.graph.view, edge, this.graph.getCellStyle(edge));
         };
     }
     /* 重置一些添加事件的方法 */
     initEventListener = () => {
-        mxEventSource.prototype.addListener = function (name: any, funct: any, isUpdate: Boolean = false) {
+        mxEventSource.prototype.addListener = function (name: any, funct: any, isUpdate: boolean = false) {
             if (this.eventListeners == null) {
                 this.eventListeners = [];
             }
@@ -223,7 +223,7 @@ class GraphEditor extends React.Component<any, any> {
                 this.eventListeners.push(funct);
             }
         };
-        mxGraph.prototype.addMouseListener = function (listener: any, isUpdate: Boolean = false) {
+        mxGraph.prototype.addMouseListener = function (listener: any, isUpdate: boolean = false) {
             if (this.mouseListeners == null) {
                 this.mouseListeners = [];
             }
@@ -407,7 +407,7 @@ class GraphEditor extends React.Component<any, any> {
     /* 初始化各个组件类型的可连接数 */
     initConnector = () => {
         const graph = this.graph;
-        graph.getAllConnectionConstraints = function(terminal: any) {
+        graph.getAllConnectionConstraints = function (terminal: any) {
             if (terminal != null && this.model.isVertex(terminal.cell)) {
                 const type = terminal.cell.data.componentType;
                 const perimeter = true;
@@ -541,7 +541,7 @@ class GraphEditor extends React.Component<any, any> {
 
                     // Fixes lost event tracking for images in quirks / IE8 standards
                     if (mxClient.IS_QUIRKS || (document as any).documentMode == 8) {
-                        mxEvent.addListener(icon.node, 'dragstart', function(evt: any) {
+                        mxEvent.addListener(icon.node, 'dragstart', function (evt: any) {
                             mxEvent.consume(evt);
 
                             return false;

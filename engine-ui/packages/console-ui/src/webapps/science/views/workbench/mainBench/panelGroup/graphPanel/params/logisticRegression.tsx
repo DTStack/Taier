@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import * as React from 'react';
 import { Tabs, Form, Button, Select, InputNumber, message, Spin, Input } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
@@ -52,7 +52,7 @@ class ChooseModal extends BaseChooseModal {
     }
 }
 /* 参数设置 */
-class paramSetting extends React.PureComponent<any, any> {
+class ParamSetting extends React.PureComponent<any, any> {
     state: any = {
         regexDatas: [{
             value: 'l1',
@@ -309,12 +309,12 @@ class FieldSetting extends React.PureComponent<any, any> {
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
     }
 }
 class LogisticRegression extends React.PureComponent<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
@@ -366,31 +366,18 @@ class LogisticRegression extends React.PureComponent<any, any> {
             }
         })(FieldSetting);
         const WrapParamSetting = Form.create({
-            // onFieldsChange: (props: any, changedFields: any) => {
-            //     for (const key in changedFields) {
-            //         if (key === 'penalty') {
-            //             // penalty是下拉菜单，与上同理
-            //             continue;
-            //         }
-            //         if (changedFields.hasOwnProperty(key)) {
-            //             const element = changedFields[key];
-            //             if (!element.validating && !element.dirtys && !element.errors) {
-            //                 props.handleSaveComponent(key, element.value)
-            //             }
-            //         }
-            //     }
-            // },
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
                     penalty: { value: data.penalty },
+                    // eslint-disable-next-line @typescript-eslint/camelcase
                     max_iter: { value: data.max_iter },
                     c: { value: data.c },
                     tol: { value: data.tol }
                 }
                 return values;
             }
-        })(paramSetting);
+        })(ParamSetting);
         const WrapMemorySetting = Form.create({
             onFieldsChange: (props: any, changedFields: any) => {
                 for (const key in changedFields) {

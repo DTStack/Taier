@@ -21,13 +21,13 @@ const SubMenu = Menu.SubMenu;
     }
 }, (dispatch: any) => {
     return {
-        setProject(project: any) {
+        setProject (project: any) {
             return dispatch(setProject(project))
         }
     }
 }) as any)
 class Header extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {}
     }

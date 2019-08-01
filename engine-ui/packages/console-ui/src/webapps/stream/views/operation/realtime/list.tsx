@@ -121,7 +121,7 @@ class RealTimeTaskList extends React.Component<any, any> {
         if (this._isUnmounted) {
             return;
         }
-        const { data } : any= resData;
+        const { data }: any = resData;
         if (!data) {
             return;
         }
@@ -390,7 +390,7 @@ class RealTimeTaskList extends React.Component<any, any> {
             return null;
         }
         let normal = ''
-        let recover:any = ''
+        let recover: any = ''
         let goOn = ''
         let popTxt = '确定执行当前操作吗?'
         switch (record.status) {

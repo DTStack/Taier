@@ -12,7 +12,7 @@ const errorType: any = {
     5: '超出限制',
     6: '其他'
 }
-class errorLog extends React.Component<any, any> {
+class ErrorLog extends React.Component<any, any> {
     state: any = {
         error: {
 
@@ -207,4 +207,4 @@ class errorLog extends React.Component<any, any> {
         )
     }
 }
-export default errorLog;
+export default ErrorLog;

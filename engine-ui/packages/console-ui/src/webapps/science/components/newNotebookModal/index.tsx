@@ -28,7 +28,7 @@ const RadioGroup = Radio.Group;
     };
 }) as any)
 class NewNotebookModal extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {
             operateModel: DEAL_MODEL_TYPE.EDIT
@@ -57,7 +57,7 @@ class NewNotebookModal extends React.Component<any, any> {
             }
         })
     }
-    handleOperateModel(event: any) {
+    handleOperateModel (event: any) {
         this.setState({
             operateModel: event.target.value
         })

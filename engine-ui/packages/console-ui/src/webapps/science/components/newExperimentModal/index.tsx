@@ -24,7 +24,7 @@ const FormItem = Form.Item;
         ...bindActionCreators(experimentActions, dispatch),
         ...bindActionCreators(workbenchActions, dispatch)
     };
-}) as any )
+}) as any)
 class NewExperimentModal extends React.Component<any, any> {
     form = React.createRef();
     onSubmit = () => {
@@ -60,7 +60,7 @@ class NewExperimentModal extends React.Component<any, any> {
     }
 }
 class NewExperimentModalForm extends React.Component<any, any> {
-    loadData(node: any) {
+    loadData (node: any) {
         return this.props.loadTreeData(siderBarType.experiment, node.props.data.id);
     }
     getRootNode () {

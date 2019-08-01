@@ -34,7 +34,7 @@ function getLogStatus (status: any) {
  */
 class RunnningTask {
     _runnningTask: {
-        [propName: string]: any
+        [propName: string]: any;
     } = {};
     addRunningTaskList = (id: any) => {
         this._runnningTask[`_runnningTask_${id}`] = {};

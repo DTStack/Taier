@@ -42,7 +42,7 @@ class FnViewModal extends React.Component<any, any> {
     render () {
         const { visible, fnId, handCancel } = this.props;
         const { data, loading } = this.state;
-        const widthFix ={
+        const widthFix = {
             width: '15%'
         }
         return <div id="JS_func_detail">
@@ -62,7 +62,7 @@ class FnViewModal extends React.Component<any, any> {
                         : <table className="ant-table ant-table-bordered bd-top bd-left" style={{ width: '100%' }}>
                             <tbody className="ant-table-tbody">
                                 <tr>
-                                    <td 
+                                    <td
                                         // width="15%"
                                         {...widthFix}
                                     >函数名称</td>

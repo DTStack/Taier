@@ -32,7 +32,7 @@ class GraphGroup extends React.Component<any, any> {
     state: any = {
         loading: true
     }
-    switchTab(key: any) {
+    switchTab (key: any) {
         this.props.saveSelectedCell({});
         this.props.setCurrentTab(siderBarType.experiment, key);
     }
@@ -42,7 +42,7 @@ class GraphGroup extends React.Component<any, any> {
             loading: false
         })
     }
-    async closeTabs(type: any) {
+    async closeTabs (type: any) {
         const { tabs = [], currentTabIndex } = this.props;
         switch (type) {
             case 'ALL': {
@@ -60,7 +60,7 @@ class GraphGroup extends React.Component<any, any> {
             }
         }
     }
-    async closeTab(tabId: any) {
+    async closeTab (tabId: any) {
         const { tabs = [], currentTabIndex } = this.props;
         this.props.closeTab(siderBarType.experiment, parseInt(tabId), tabs, currentTabIndex);
     }

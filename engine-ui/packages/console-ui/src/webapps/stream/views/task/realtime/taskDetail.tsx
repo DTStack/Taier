@@ -105,7 +105,7 @@ export default class TaskDetail extends React.Component<any, any> {
         })
         const showResource = currentPage.taskType != TASK_TYPE.DATA_COLLECTION;
         const modeFix = {
-            modex: currentPage.taskType === 0 ? "multiple" : ""
+            modex: currentPage.taskType === 0 ? 'multiple' : ''
         }
         return (
             <div className="m-taksdetail">

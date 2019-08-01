@@ -22,7 +22,7 @@ class NotebookSearch extends React.Component<any, any> {
         })
         this.props.onCancel();
     }
-    onSelect(value: any) {
+    onSelect (value: any) {
         this.props.openNotebook(value);
         this.close();
     }

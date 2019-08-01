@@ -389,7 +389,7 @@ class DataCheck extends React.Component<any, any> {
                 <Option
                     key={item.id}
                     value={item.id.toString()}
-                    {...{name: item.userName}}
+                    {...{ name: item.userName }}
                 >
                     {item.userName}
                 </Option>

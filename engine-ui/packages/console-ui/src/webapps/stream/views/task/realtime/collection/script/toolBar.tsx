@@ -24,7 +24,7 @@ class ImportTemplateForm extends React.Component<any, any> {
         targetType: undefined
     }
 
-    sourceTypeChange(value: any) {
+    sourceTypeChange (value: any) {
         const { setFieldsValue } = this.props.form;
 
         this.setState({
@@ -36,7 +36,7 @@ class ImportTemplateForm extends React.Component<any, any> {
         })
     }
 
-    targetTypeChange(value: any) {
+    targetTypeChange (value: any) {
         const { setFieldsValue } = this.props.form;
 
         this.setState({

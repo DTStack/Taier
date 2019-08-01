@@ -36,10 +36,10 @@ class NoteBookGroup extends React.Component<any, any> {
             loading: false
         })
     }
-    switchTab(key: any) {
+    switchTab (key: any) {
         this.props.setCurrentTab(siderBarType.notebook, key)
     }
-    async closeTabs(type: any) {
+    async closeTabs (type: any) {
         const { tabs = [], currentTabIndex } = this.props;
         switch (type) {
             case 'ALL': {
@@ -64,11 +64,11 @@ class NoteBookGroup extends React.Component<any, any> {
             }
         }
     }
-    async closeTab(tabId: any) {
+    async closeTab (tabId: any) {
         const { tabs = [], currentTabIndex } = this.props;
         this.props.closeTab(siderBarType.notebook, parseInt(tabId), tabs, currentTabIndex);
     }
-    renderBench(tabData: any) {
+    renderBench (tabData: any) {
         if (tabData.operateModel != DEAL_MODEL_TYPE.RESOURCE) {
             return (
                 <EditorPanel currentTab={tabData.id} data={tabData} />

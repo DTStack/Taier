@@ -440,15 +440,15 @@ export const removeToolTips = () => {
  */
 export function generateValueDic (dic: any): {
     [propName: number]: {
-        symbol: any,
-        [propName: string]: any,
-        [propName: number]: any
-    },
+        symbol: any;
+        [propName: string]: any;
+        [propName: number]: any;
+    };
     [propName: string]: {
-        symbol: any,
-        [propName: string]: any,
-        [propName: number]: any
-    }
+        symbol: any;
+        [propName: string]: any;
+        [propName: number]: any;
+    };
 } {
     let newDic: any = {};
     Object.keys(dic).forEach((key: any) => {

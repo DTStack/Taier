@@ -162,7 +162,7 @@ export default class ImportSource extends React.Component<any, any> {
                             <Input
                                 onChange={this.changeStartLine}
                                 type="number"
-                                {...{min: 1, max: data.length}}
+                                {...{ min: 1, max: data.length }}
                                 value={formState.startLine}
                             />
                         </FormItem>

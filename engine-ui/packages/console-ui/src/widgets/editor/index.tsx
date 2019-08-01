@@ -36,7 +36,7 @@ const provideCompletionItemsMap: any = {
     }
 }
 class Editor extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
     /**
@@ -128,7 +128,7 @@ class Editor extends React.Component<any, any> {
      * 提供下载链接。ps:不是很好用，屏蔽了
      * @param {string} link
      */
-    initLink(link: any) {
+    initLink (link: any) {
         this.monacoInstance.changeViewZones(
             (changeAccessor: any) => {
                 if (this._linkId) {
@@ -154,7 +154,7 @@ class Editor extends React.Component<any, any> {
             if (config) { monaco.languages.setMonarchTokensProvider(language, config); }
         }
     }
-    isValueExist(props: any) {
+    isValueExist (props: any) {
         const keys = Object.keys(props);
         if (keys.includes('value')) {
             return true;
@@ -206,10 +206,10 @@ class Editor extends React.Component<any, any> {
         monaco.editor.defineTheme('white', whiteTheme);
         this.props.theme && monaco.editor.setTheme(this.props.theme);
     }
-    updateValueWithNoEvent(value: any) {
+    updateValueWithNoEvent (value: any) {
         this.monacoInstance.setValue(value);
     }
-    languageValueOnChange(callback: any) {
+    languageValueOnChange (callback: any) {
         if (this.props.disabledSyntaxCheck) {
             return;
         }

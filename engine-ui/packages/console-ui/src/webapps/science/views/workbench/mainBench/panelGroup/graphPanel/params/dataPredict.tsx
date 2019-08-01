@@ -1,4 +1,5 @@
-import React, { PureComponent } from 'react';
+/* eslint-disable @typescript-eslint/camelcase */
+import * as React from 'react';
 import { Form, Tabs, Button, Input, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';

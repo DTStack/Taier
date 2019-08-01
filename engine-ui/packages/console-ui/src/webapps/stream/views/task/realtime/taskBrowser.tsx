@@ -44,8 +44,8 @@ class TaskBrowser extends React.Component<any, any> {
 
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
-        const { id } : any = nextProps.currentPage || {};
-        const { id: oldId } : any = this.props.currentPage || {};
+        const { id }: any = nextProps.currentPage || {};
+        const { id: oldId }: any = this.props.currentPage || {};
 
         if (nextProps.currentPage != this.props.currentPage) {
             this._syncEditor = true;
@@ -175,7 +175,7 @@ class TaskBrowser extends React.Component<any, any> {
         });
     }
 
-    renderLock(tabData: any) {
+    renderLock (tabData: any) {
         const isLocked = tabData.readWriteLockVO && !tabData.readWriteLockVO.getLock
         return isLocked ? (
             <div className="lock-layer">
@@ -200,7 +200,7 @@ class TaskBrowser extends React.Component<any, any> {
     * @param {any} key
     * @memberof Workbench
     */
-    closeAllorOthers(key: any) {
+    closeAllorOthers (key: any) {
         const { pages, currentPage, dispatch } = this.props;
 
         console.log('key:', key);

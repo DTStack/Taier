@@ -4,13 +4,13 @@ import { get } from 'lodash';
 
 import RuleForm from './ruleForm';
 
-@(connect((state: any)=> {
+@(connect((state: any) => {
     return {
         monitorFunction: get(state, 'ruleConfig.monitorFunction')
     }
 }) as any)
 class Rule extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             copyData: props.data
@@ -22,7 +22,7 @@ class Rule extends React.Component<any, any> {
             (item: any) => item.level === 1
         );
     }
-    getColumnFunction(columnName: any) {
+    getColumnFunction (columnName: any) {
         const { monitorFunction, tableColumn } = this.props;
         let columnType = get(tableColumn.filter(
             (item: any) => item.key === columnName

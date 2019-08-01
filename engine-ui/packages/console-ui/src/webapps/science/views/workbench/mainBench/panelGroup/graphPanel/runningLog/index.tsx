@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Modal, Row, Spin } from 'antd';
 
 import Editor from 'widgets/code-editor';
-import { createLinkMark, createLogMark } from 'widgets/code-editor/utils'
+import { createLinkMark } from 'widgets/code-editor/utils'
 
 import API from '../../../../../../api/experiment';
 
@@ -20,10 +20,6 @@ const editorOptions: any = {
     smartIndent: true,
     autoRefresh: true
 };
-
-function wrappTitle (title: any) {
-    return `====================${title}====================`
-}
 
 class RunningLogModal extends React.Component<any, any> {
     $editor: any;

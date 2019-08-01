@@ -15,6 +15,7 @@ class TableTipButton extends React.Component<any, any> {
         const src: any = {
             open: '/public/rdos/img/tip-table-active.svg',
             close: '/public/rdos/img/tip-table.svg',
+            // eslint-disable-next-line @typescript-eslint/camelcase
             dark_close: '/public/rdos/img/theme-dark/tip-table.svg'
         }
         let url = src.close;
