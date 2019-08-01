@@ -17,6 +17,7 @@ export default class PaneIndex extends React.Component<any, any> {
         this.initData(this.props)
     }
 
+    // eslint-disable-next-line react/no-deprecated
     componentWillReceiveProps (nextProps: any) {
         this.initData(nextProps)
     }

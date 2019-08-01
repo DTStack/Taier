@@ -1,5 +1,10 @@
 {
     "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module",
+        "project": "./tsconfig.json"
+    },
     "extends":[
         "standard",
         "plugin:react/recommended",
@@ -28,10 +33,6 @@
         "beforeEach": "readable",
         "afterEach": "readable",
         "jest": "readable"
-    },
-    "parserOptions": {
-        "ecmaVersion": 8,
-        "sourceType": "module"
     },
     "rules": {
         "semi": 0,
