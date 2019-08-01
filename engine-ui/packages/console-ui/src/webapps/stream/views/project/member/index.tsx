@@ -15,6 +15,8 @@ import * as ProjectAction from '../../../store/modules/project'
 const Search = Input.Search
 
 class ProjectMember extends React.Component<any, any> {
+    memberForm: any;
+    eidtRoleForm: any;
     state: any = {
         users: {
             data: []
@@ -63,7 +65,7 @@ class ProjectMember extends React.Component<any, any> {
         })
     }
 
-    search = (projectId: any) => {
+    search = (projectId?: any) => {
         const { name, current } = this.state;
         const { project } = this.props;
         const params: any = {
@@ -86,7 +88,7 @@ class ProjectMember extends React.Component<any, any> {
         })
     }
 
-    loadRoles = (page: any) => {
+    loadRoles = (page?: any) => {
         const ctx = this
         Api.getRoleList({
             currentPage: page || 1

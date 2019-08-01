@@ -21,7 +21,9 @@ class MrEditor extends React.Component<any, any> {
     render () {
         const { form, currentPage, taskTypes } = this.props
         const { getFieldDecorator } = form
-
+        const rowFix = {
+            rows: 4
+        }
         return (
             <div style={{ padding: '60px' }}>
                 <Form>
@@ -97,7 +99,7 @@ class MrEditor extends React.Component<any, any> {
                             rules: [],
                             initialValue: currentPage ? currentPage.taskDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input type="textarea" {...rowFix}/>
                         )}
                     </FormItem>
                 </Form>

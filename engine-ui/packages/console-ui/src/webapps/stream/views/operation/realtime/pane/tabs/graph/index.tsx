@@ -73,7 +73,7 @@ class StreamDetailGraph extends React.Component<any, any> {
             sourceStatusList: []
         })
     }
-    checkSourceStatus (data: any) {
+    checkSourceStatus (data?: any) {
         data = data || this.props.data;
         if (!data.id) {
             return;
@@ -89,7 +89,7 @@ class StreamDetailGraph extends React.Component<any, any> {
             }
         })
     }
-    setLineData (data = []) {
+    setLineData (data:any = []) {
         const { lineDatas } = this.state;
         let stateLineData: any = { ...lineDatas };
         for (let i = 0; i < data.length; i++) {
@@ -172,7 +172,7 @@ class StreamDetailGraph extends React.Component<any, any> {
             lineDatas: stateLineData
         })
     }
-    initData (data: any) {
+    initData (data?: any) {
         data = data || this.props.data;
         if (!data.id) {
             return;
@@ -225,7 +225,7 @@ class StreamDetailGraph extends React.Component<any, any> {
     }
     renderAlertMsg () {
         const { sourceStatusList = [] } = this.state;
-        const msg = utils.textOverflowExchange(sourceStatusList.map(([sourceName, type]) => {
+        const msg = utils.textOverflowExchange(sourceStatusList.map(([sourceName, type]:any) => {
             return `${sourceName}(${DATA_SOURCE_TEXT[type]})`
         }).join('，'), 60);
         return msg ? <Alert

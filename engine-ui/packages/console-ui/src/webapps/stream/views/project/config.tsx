@@ -17,6 +17,9 @@ const FormItem = Form.Item
 
 function myFrom (props: any) {
     const { getFieldDecorator } = props.form;
+    const rowFix = {
+        rows: 4
+    }
     return (
         <Form>
             <FormItem
@@ -44,16 +47,17 @@ function myFrom (props: any) {
                     }],
                     initialValue: props.project ? props.project.projectDesc : ''
                 })(
-                    <Input type="textarea" rows={4} />
+                    <Input type="textarea" {...rowFix} />
                 )}
             </FormItem>
         </Form>
     )
 }
 
-const DescForm = Form.create<any>()(myFrom)
+const DescForm = Form.create<any>()(myFrom as any)
 
 class ProjectConfig extends React.Component<any, any> {
+    myForm: any;
     state: any = {
         visibleUpdateDesc: false,
         scheduleStatusLoading: false,

@@ -30,7 +30,7 @@ class TopicDetailTable extends React.Component<any, any> {
             this.getDetail(nextTaskId, nextPartitionId, nextTopicName);
         }
     }
-    getDetail (taskId: any, partitionId: any, topicName: any) {
+    getDetail (taskId?: any, partitionId?: any, topicName?: any) {
         taskId = typeof taskId == 'undefined' ? this.props.taskId : taskId;
         partitionId = typeof partitionId == 'undefined' ? this.props.partitionId : partitionId;
         topicName = typeof topicName == 'undefined' ? this.props.topicName : topicName;
