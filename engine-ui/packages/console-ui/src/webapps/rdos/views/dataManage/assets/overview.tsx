@@ -311,7 +311,7 @@ export default class ProjectList extends React.Component<any, any> {
         this.setState({ chart3: myChart })
     }
 
-    getPieData (data: any, type: any) {
+    getPieData (data?: any, type?: any) {
         const y: any = []; const x: any = []
         if (type == 'drawTable') {
             if (data && data.length > 0) {

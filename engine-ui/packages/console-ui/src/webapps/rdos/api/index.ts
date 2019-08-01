@@ -48,7 +48,7 @@ export default {
     searchUICUsers (params: any) {
         return http.post(req.SEARCH_UIC_USERS, params)
     },
-    getTenantList (params: any) {
+    getTenantList (params?: any) {
         return http.post(req.GET_TENANT_LIST, params)
     },
 
@@ -134,10 +134,10 @@ export default {
     getTableListFromDataBase (params: any) {
         return http.post(req.GET_TABLE_LIST_FROM_DATABASE, params)
     },
-    getRetainDBList (params: any) {
+    getRetainDBList (params?: any) {
         return http.post(req.GET_RETAINDB_LIST, params)
     },
-    getSupportEngineType (params: any) { // 项目支持的引擎类型
+    getSupportEngineType (params?: any) { // 项目支持的引擎类型
         return http.post(req.GET_SUPPORT_ENGINE_TYPE, params)
     },
     getProjectTableTypes (params: any) { // 项目支持的表类型
@@ -380,7 +380,7 @@ export default {
     searchOfflineTask (params: any) {
         return http.post(offlineReq.GLOBAL_SEARCH_TASK, params)
     },
-    getCustomParams (params: any) {
+    getCustomParams (params?: any) {
         return http.post(offlineReq.GET_CUSTOM_TASK_PARAMS, params)
     },
     getSyncTemplate (params: any) {
@@ -417,7 +417,7 @@ export default {
     deleteScript (params: any) {
         return http.post(offlineReq.DELETE_SCRIPT, params)
     },
-    getScriptTypes (params: any) {
+    getScriptTypes (params?: any) {
         return http.post(offlineReq.GET_SCRIPT_TYPES, params)
     },
 
@@ -428,7 +428,7 @@ export default {
     publishOfflineTask (params: any) {
         return http.post(offlineReq.PUBLISH_TASK, params)
     },
-    getTaskTypes (params: any) {
+    getTaskTypes (params?: any) {
         return http.post(offlineReq.GET_TASK_TYPES, params)
     },
     getAnalyDataSourceLists (params: any) {
@@ -487,9 +487,6 @@ export default {
     },
     batchRestartAndResume (params: any) { // 重启并恢复任务
         return http.post(offlineReq.BATCH_RESTART_AND_RESUME_JOB, params)
-    },
-    batchRestartJob (params: any) { // 批量重启Job
-        return http.post(offlineReq.BATCH_RESTART_JOB, params)
     },
     getJobChildren (params: any) { // 获取任务子Job
         return http.post(offlineReq.GET_JOB_CHILDREN, params)
@@ -703,7 +700,7 @@ export default {
     testDSConnection (params: any) {
         return http.post(offlineReq.TEST_DATA_SOURCE_CONNECTION, params)
     },
-    getDataSourceTypes (params: any) {
+    getDataSourceTypes (params?: any) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
     checkIsPermission (params: any) {
@@ -850,21 +847,21 @@ export default {
         return http.post(offlineReq.PROJECT_DATA_OVERVIEW, params)
     },
     //= =============== 实时离线合并接口 ===============/
-    linkSource (params, type = 'offline') {
+    linkSource (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(offlineReq.LINK_SOURCE, params)
         } else {
             return http.post(stremReq.LINK_SOURCE, params)
         }
     },
-    getLinkSourceList (params, type = 'offline') {
+    getLinkSourceList (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.GET_OFFLINE_LINK_SOURCE, params)
         } else {
             return http.post(req.GET_REALTIME_LINK_SOURCE, params)
         }
     },
-    getRePublishList (params, type = 'offline', listType = publishType.TASK) {
+    getRePublishList (params: any, type = 'offline', listType = publishType.TASK) {
         const urlMap: any = {
             offline: {
                 [publishType.TASK]: req.GET_OFFLINE_TASKS,
@@ -880,42 +877,42 @@ export default {
         }
         return http.post(urlMap[type][listType], params)
     },
-    getPackageName (params, type = 'offline') {
+    getPackageName (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.GET_OFFLINE_PACKAGE_NAME, params)
         } else {
             return http.post(req.GET_REALTIME_PACKAGE_NAME, params)
         }
     },
-    createPackage (params, type = 'offline') {
+    createPackage (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.OFFLINE_CREATE_PACKAGE, params)
         } else {
             return http.post(req.REALTIME_CREATE_PACKAGE, params)
         }
     },
-    publishPackage (params, type = 'offline') {
+    publishPackage (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.PUBLISH_OFFLINE_PACKAGE, params)
         } else {
             return http.post(req.PUBLISH_REALTIME_PACKAGE, params)
         }
     },
-    getPackageList (params, type = 'offline') {
+    getPackageList (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.GET_OFFLINE_PACKAGE_LIST, params)
         } else {
             return http.post(req.GET_REALTIME_PACKAGE_LIST, params)
         }
     },
-    deletePackage (params, type = 'offline') {
+    deletePackage (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.OFFLINE_DELETE_PACKAGE, params)
         } else {
             return http.post(req.REALTIME_DELETE_PACKAGE, params)
         }
     },
-    getTaskLinkItems (params, type = 'offline') {
+    getTaskLinkItems (params: any, type = 'offline') {
         if (type == 'offline') {
             return http.post(req.GET_OFFLINE_TASK_LINK_ITEMS, params)
         } else {

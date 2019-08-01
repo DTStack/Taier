@@ -4,11 +4,11 @@ import { TreeSelect } from 'antd';
 
 const TreeNode = TreeSelect.TreeNode;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         dataCatalogues: state.dataManage.dataCatalogues
     }
-})
+}) as any)
 class CatalogueSelect extends React.Component<any, any> {
     renderNode(data: any) {
         return (data && data.length) ? data.map((item: any) => {

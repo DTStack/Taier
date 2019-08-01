@@ -64,7 +64,7 @@ export default class PreviewMetaData extends React.Component<any, any> {
         const { dbName, engineType } = this.state;
         this.setState({
             currentPage: pagination.current,
-        }, this.getDBTableList(dbName, engineType))
+        }, this.getDBTableList.bind(this, dbName, engineType))
     }
     render () {
         const { tableData, loading, total, currentPage, dbName } = this.state;
