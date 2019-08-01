@@ -42,10 +42,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     }
 });
 
-@connect(
+@(connect(
     mapStateToProps,
     mapDispatchToProps
-)
+) as any)
 class RuleEditPane extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
@@ -286,7 +286,7 @@ class RuleEditPane extends React.Component<any, any> {
                 </Row>
 
                 <div className="monitor-info-table">
-                    <table width="100%" cellPadding="0" cellSpacing="0">
+                    <table style={{ width: '100%' }} cellPadding="0" cellSpacing="0">
                         <tbody>
                             <tr>
                                 <th>执行周期</th>

@@ -36,7 +36,7 @@ export default {
     getDataSourcesPreview (params: any) {
         return http.post(req.GET_DATA_SOURCES_PREVIEW, params);
     },
-    checkDataSourcePermission (params: any) {
+    checkDataSourcePermission (params?: any) {
         return http.post(req.CHECK_DATASOURCE_PERMISSION, params);
     }
 };
