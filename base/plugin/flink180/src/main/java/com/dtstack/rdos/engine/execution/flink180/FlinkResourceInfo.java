@@ -53,11 +53,22 @@ public class FlinkResourceInfo extends EngineResourceInfo {
             queue = flinkConfig.getQueue();
         }
 
-        if (FlinkYarnMode.isPerJob(taskRunMode)){
+        if (ComputeType.STREAM == jobClient.getComputeType() && FlinkYarnMode.isPerJob(taskRunMode)){
             return judgePerjobResource(jobClient, queue);
         }
 
-        return true;
+        int sqlEnvParallel = 1;
+        int mrParallel = 1;
+
+        if(jobClient.getConfProperties().containsKey(FLINK_SQL_ENV_PARALLELISM)){
+            sqlEnvParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_SQL_ENV_PARALLELISM));
+        }
+
+        if(jobClient.getConfProperties().containsKey(FLINK_MR_PARALLELISM)){
+            mrParallel = MathUtil.getIntegerVal(jobClient.getConfProperties().get(FLINK_MR_PARALLELISM));
+        }
+
+        return super.judgeFlinkResource(sqlEnvParallel,mrParallel);
     }
 
     private boolean judgePerjobResource(JobClient jobClient, String queue) {
@@ -111,7 +122,8 @@ public class FlinkResourceInfo extends EngineResourceInfo {
                 capacity = getQueueRemainCapacity(subCoefficient, queue, queueInfo.getChildQueues());
             }
             if (queue.equals(queueInfo.getQueueName())){
-                capacity = coefficient * queueInfo.getCapacity() * (1 - queueInfo.getCurrentCapacity());
+                queueCapacity = coefficient * queueInfo.getCapacity();
+                capacity = queueCapacity * (1 - queueInfo.getCurrentCapacity());
             }
             if (capacity>0){
                 return capacity;
