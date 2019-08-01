@@ -34,8 +34,7 @@
         "dist",
     ],
     "include": [
-        // "./src/**/analyticsEngine/*",
-        "./src/**/science/*",
+        "./src/**/*",
         "./src/typings/*"
     ]
 }
