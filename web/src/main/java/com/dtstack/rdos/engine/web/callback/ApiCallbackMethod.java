@@ -2,6 +2,7 @@ package com.dtstack.rdos.engine.web.callback;
 
 
 import com.dtstack.rdos.commom.exception.ErrorCode;
+import com.dtstack.rdos.commom.exception.ExceptionUtil;
 import com.dtstack.rdos.commom.exception.RdosException;
 import io.vertx.ext.web.RoutingContext;
 
@@ -9,11 +10,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.dtstack.rdos.engine.web.enums.Code;
 import com.dtstack.rdos.engine.web.util.ResponseUtil;
 
 /**
- * 
+ *
  * Reason: TODO ADD REASON(可选)
  * Date: 2016年12月30日 下午1:16:37
  * Company: www.dtstack.com
@@ -21,10 +21,10 @@ import com.dtstack.rdos.engine.web.util.ResponseUtil;
  *
  */
 public class ApiCallbackMethod {
-	
+
 	private final static Logger logger = LoggerFactory
 			.getLogger(ApiCallbackMethod.class);
-	
+
 	private static ObjectMapper objectMapper = new ObjectMapper();
 
 	public static void doCallback(ApiCallback ac, RoutingContext context) {
@@ -51,7 +51,7 @@ public class ApiCallbackMethod {
 				errorMsg = rdosDefineException.getErrorMsg();
 			}else{
 				errorCode = ErrorCode.SERVER_EXCEPTION;
-				errorMsg = ErrorCode.SERVER_EXCEPTION.getDescription();
+				errorMsg = ExceptionUtil.getErrorMessage(e);
 			}
 			apiResult.setCode(errorCode.getCode());
 			String errMsg = e.getCause() != null ? e.getCause().toString() : e.getMessage();
@@ -59,10 +59,11 @@ public class ApiCallbackMethod {
 			if(logger.isDebugEnabled()){
 				logger.debug("ApiCallbackMethod error:", e);
 			}
-			try {
-				ResponseUtil.res200(context, ApiResult.createErrorResultJsonStr(errorCode.getCode(), errorMsg));			} catch (Throwable e1) {
-				logger.error("ApiCallbackMethod error:", e1);
-			}
+            try {
+                ResponseUtil.res200(context, ApiResult.createErrorResultJsonStr(errorCode.getCode(), errorMsg));
+            } catch (Throwable e1) {
+                logger.error("ApiCallbackMethod error:", e1);
+            }
 		}
 	}
 }
