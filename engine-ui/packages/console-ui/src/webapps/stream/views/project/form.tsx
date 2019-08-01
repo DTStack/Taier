@@ -26,7 +26,10 @@ class ProjectForm extends React.Component<any, any> {
 
     render () {
         const { getFieldDecorator } = this.props.form;
-        const { title, visible } = this.props
+        const { title, visible } = this.props;
+        const rowFix = {
+            rows: 4
+        }
         return (
             <Modal
                 title={title}
@@ -80,7 +83,7 @@ class ProjectForm extends React.Component<any, any> {
                                 message: '项目描述请控制在200个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" rows={4} placeholder="项目描述请控制在200个字符以内" />
+                            <Input type="textarea" placeholder="项目描述请控制在200个字符以内" {...rowFix}/>
                         )}
                     </FormItem>
                 </Form>

@@ -15,8 +15,8 @@ const render = (Component: any) => {
 
 render(Root)
 
-if (module.hot) {
-    module.hot.accept(['./root'], () => {
+if ((module as any).hot) {
+    (module as any).hot.accept(['./root'], () => {
         const newRoot = require('./root').default;
         render(newRoot)
     })

@@ -16,6 +16,8 @@ class Container extends React.Component<any, any> {
         collapsed: false,
         mode: 'inline'
     };
+    static defaultProps: any;
+    static propTypes: any;
 
     componentDidMount () {
         this.initUsers(this.props.project);

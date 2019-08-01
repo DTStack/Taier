@@ -31,7 +31,7 @@ function getCurrentPage () {
     return currentPage;
 }
 
-function setCurrentPageValue (dispatch: any, key: any, value: any, isDirty: any) {
+function setCurrentPageValue (dispatch: any, key: any, value: any, isDirty?: any) {
     const page = cloneDeep(getCurrentPage());
     page[key] = value;
     if (typeof isDirty == 'boolean') {
@@ -120,7 +120,7 @@ export const actions: any = {
         }
     },
 
-    updateSourceMap (params = {}, clear, notDirty) {
+    updateSourceMap (params: any = {}, clear: any, notDirty: any) {
         return (dispatch: any) => {
             const page = getCurrentPage();
             let { sourceMap = {} } = page;
@@ -147,7 +147,7 @@ export const actions: any = {
         }
     },
 
-    updateTargetMap (params = {}, clear, notDirty) {
+    updateTargetMap (params = {}, clear:any, notDirty:any) {
         return (dispatch: any) => {
             const page = getCurrentPage();
             let { targetMap = {} } = page;
