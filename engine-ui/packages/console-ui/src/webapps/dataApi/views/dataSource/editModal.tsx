@@ -184,7 +184,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 rules: [],
                                 initialValue: config.hadoopConfig || ''
                             })(
-                                <Input type="textarea" rows={5} placeholder={hdfsConf} />
+                                <Input {...{ rows: 5 } } type="textarea" placeholder={hdfsConf} />
                             )
                         }
                         <HelpDoc doc="hdfsConfig" />
@@ -260,7 +260,7 @@ class DataSourceModal extends React.Component<any, any> {
                         }
                         <Tooltip overlayClassName="big-tooltip" title={
                             (
-                                <span style={{ wordBreak: ' break-all' }}>
+                                <span style={{ wordBreak: ' break-all' } as any}>
                                     SID示例：{jdbcUrlExample[sourceType][0]}
                                     <br />
                                     ServiceName示例：{jdbcUrlExample[sourceType][1]}
@@ -417,7 +417,7 @@ class DataSourceModal extends React.Component<any, any> {
                                 }],
                                 initialValue: sourceData.dataDesc || ''
                             })(
-                                <Input type="textarea" rows={4} />
+                                <Input {...{ type: 'textarea', rows: 4 }} />
                             )}
                     </FormItem>
 

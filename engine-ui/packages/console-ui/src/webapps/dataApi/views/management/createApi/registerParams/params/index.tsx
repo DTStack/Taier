@@ -108,9 +108,9 @@ class RegisterParams extends React.Component<any, any> {
     constRef = React.createRef()
     validate = () => {
         return new Promise((resolve: any, reject: any) => {
-            this.inputRef.current.validateFieldsAndScroll({}, (err: any, values: any) => {
+            (this.inputRef.current as any).validateFieldsAndScroll({}, (err: any, values: any) => {
                 if (!err) {
-                    this.constRef.current.validateFieldsAndScroll({}, (err: any, values: any) => {
+                    (this.constRef.current as any).validateFieldsAndScroll({}, (err: any, values: any) => {
                         if (!err) {
                             resolve(true)
                         } else {
@@ -137,7 +137,7 @@ class RegisterParams extends React.Component<any, any> {
                     )}
                 >
                     <InputTable
-                        ref={this.inputRef}
+                        ref={this.inputRef as any}
                         method={method}
                         updateColumnData={this.updateColumnData.bind(this, 'in')}
                         deleteColumn={this.deleteColumn.bind(this, 'in')}
@@ -157,7 +157,7 @@ class RegisterParams extends React.Component<any, any> {
                     )}
                 >
                     <ConstTable
-                        ref={this.constRef}
+                        ref={this.constRef as any}
                         deleteColumn={this.deleteColumn.bind(this, 'const')}
                         updateColumnData={this.updateColumnData.bind(this, 'const')}
                         data={constParam}

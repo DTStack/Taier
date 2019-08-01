@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Table, Modal, Select, message, Form } from 'antd';
 import { connect } from 'react-redux';
-import { cloneDeep, uniq } from 'lodash';
+import { cloneDeep, uniqBy } from 'lodash';
 
 import { formItemLayout } from '../../consts'
 import Api from '../../api/console';
 import { getUser } from '../../actions/console'
-import SwitchQueue from '../switchQueue';
+import SwitchQueue from '../switchQueue'
 const Option = Select.Option;
 
 function mapStateToProps (state: any) {
@@ -106,12 +106,14 @@ class ChangeResourceModal extends React.Component<any, any> {
         const { consoleUser, resource } = this.props;
         let userList = consoleUser.userList;
         let extUserList = resource.tenants || [];
-        userList = uniq(userList.concat(extUserList), 'tenantId')// 去重合并
+        // userList = uniq(userList.concat(extUserList), 'tenantId')// 去重合并
+        userList = uniqBy(userList.concat(extUserList), 'tenantId')
 
         for (let i = 0; i < userList.length; i++) {
             const user = userList[i];
             if (!selectUserMap[user.tenantId]) {
-                result.push(<Option key={user.tenantId} tenantid={user.tenantId} data-value={user}>{user.tenantName}</Option>)
+                const tenantid = { tenantid: user.tenantid }
+                result.push(<Option key={user.tenantId} {...tenantid} data-value={user}>{user.tenantName}</Option>)
             }
         }
         return result;

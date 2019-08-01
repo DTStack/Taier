@@ -3,12 +3,12 @@ import req from '../consts/reqUrls'
 
 export default {
 
-    getLoginedUser () {
-        return http.post(req.DA_GET_USER_BY_ID)
+    getLoginedUser (params?: any) {
+        return http.post(req.DA_GET_USER_BY_ID, params)
     },
 
-    getUserList () {
-        return http.post(req.DATA_API_GET_USER_LIST)
+    getUserList (params?: any) {
+        return http.post(req.DATA_API_GET_USER_LIST, params)
     }
 
 }

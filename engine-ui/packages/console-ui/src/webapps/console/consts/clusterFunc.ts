@@ -444,7 +444,7 @@ export function myLowerCase (obj: any) {
     let alphabet = 'QWERTYUIOPLKJHGFDSAZXCVBNM';
     for (let i in obj) {
         if (obj.hasOwnProperty(i)) {
-            let keySplit = '';
+            let keySplit: any[];
             keySplit = i.split('');
             for (let j = 0; j < keySplit.length; j++) {
                 if (keySplit[j] == '.') {
@@ -456,8 +456,9 @@ export function myLowerCase (obj: any) {
                     j++;
                 }
             }
-            keySplit = keySplit.join('');
-            after[keySplit] = obj[i];
+            const keySplitStr: string = keySplit.join('');
+            // keySplit = keySplit.join('');
+            after[keySplitStr] = obj[i];
         }
     }
     return after;

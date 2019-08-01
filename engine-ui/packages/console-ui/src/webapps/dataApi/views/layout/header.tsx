@@ -6,7 +6,8 @@ import { getHeaderLogo } from 'main/consts';
 
 import docPath from '../../consts/docPath';
 
-@(connect((state: any) as any) => {
+declare var window: any;
+@(connect((state: any) => {
     return {
         user: state.user,
         apps: state.apps,
@@ -15,9 +16,9 @@ import docPath from '../../consts/docPath';
         app: state.app,
         licenseApps: state.licenseApps
     }
-})
+}) as any)
 class Header extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
         this.state = {}
     }

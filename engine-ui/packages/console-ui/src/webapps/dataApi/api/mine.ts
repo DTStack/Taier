@@ -38,13 +38,13 @@ export default {
     getApiTimeInfo (params: any) {
         return http.post(req.GET_API_TIME_INFO, params)
     },
-    getUserKey (params: any) {
+    getUserKey (params?: any) {
         return http.post(req.GET_USER_SK_INFO, params)
     },
-    resetUserKey (params: any) {
+    resetUserKey (params?: any) {
         return http.post(req.RESET_APP_SECRET, params)
     },
-    generateSkInfo (params: any) {
+    generateSkInfo (params?: any) {
         return http.post(req.GENERATE_SECRET, params)
     }
 }

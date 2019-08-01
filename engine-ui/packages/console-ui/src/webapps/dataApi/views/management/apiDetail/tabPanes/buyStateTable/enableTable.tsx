@@ -148,9 +148,9 @@ class EnableTable extends React.Component<any, any> {
     render () {
         return (
             <Table
+                columns={this.initColumns() as any}
                 rowKey="applyId"
                 className="m-table monitor-table table-p-l20"
-                columns={this.initColumns()}
                 loading={this.props.loading}
                 pagination={this.getPagination()}
                 dataSource={this.props.data}

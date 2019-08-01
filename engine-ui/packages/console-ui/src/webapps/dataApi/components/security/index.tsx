@@ -9,13 +9,13 @@ import { apiMarketActions } from '../../actions/apiMarket';
 import { getApiMarketValue } from '../../utils';
 import api from '../../api/apiManage'
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         apiMarket: state.apiMarket
     }
 }, (dispatch: any) => {
     return {
-        getApiDetail(apiId: any) {
+        getApiDetail (apiId: any) {
             dispatch(
                 apiMarketActions.getApiDetail({
                     apiId: apiId
@@ -23,7 +23,7 @@ import api from '../../api/apiManage'
             )
         }
     }
-})
+}) as any)
 class ApiDetailSecurity extends React.Component<any, any> {
     state: any = {
         isLimitModalVisible: false,
@@ -48,7 +48,7 @@ class ApiDetailSecurity extends React.Component<any, any> {
             });
         }
     }
-    getValue(key: any) {
+    getValue (key: any) {
         const { apiMarket, apiId } = this.props;
         return getApiMarketValue(key, apiMarket, apiId)
     }
@@ -74,7 +74,7 @@ class ApiDetailSecurity extends React.Component<any, any> {
             isSecurityModalVisible: false
         })
     }
-    renderSecurityList (securityList = []) {
+    renderSecurityList (securityList: any[] = []) {
         return securityList.map((security: any) => {
             return <a onClick={this.showSecurityDetail.bind(this, security)} key={security.id}>{security.name}</a>
         }).reduce((arrs: any, currentArr: any) => {
@@ -85,7 +85,7 @@ class ApiDetailSecurity extends React.Component<any, any> {
             }
         }, [])
     }
-    showSecurityDetail(security: any) {
+    showSecurityDetail (security: any) {
         this.setState({
             securityDetailModalVisible: true,
             securityData: security

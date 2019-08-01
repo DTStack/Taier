@@ -6,7 +6,7 @@ class ErrorColumnModel extends BaseModel {
         MSG: 'errorMsg',
         SOLUTION: 'solution'
     }
-    constructor (initData: any) {
+    constructor (initData?: any) {
         super(initData);
     }
 }

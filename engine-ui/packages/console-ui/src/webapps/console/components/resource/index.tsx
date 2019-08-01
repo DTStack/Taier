@@ -56,7 +56,7 @@ class Resource extends React.Component<any, any> {
         })
     }
     // 资源不足提示信息
-    yarnMessage = (data = []) => {
+    yarnMessage = (data: any[] = []) => {
         // virtualCores总数
         const virtualCores = data.map((item: any) => {
             return item.virtualCores
@@ -114,7 +114,7 @@ class Resource extends React.Component<any, any> {
             return null
         }
     }
-    flinkMessage = (data = []) => {
+    flinkMessage = (data: any[] = []) => {
         // freeSlots
         const freeSlots = data.map((item: any) => {
             return item.freeSlots

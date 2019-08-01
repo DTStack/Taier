@@ -120,7 +120,7 @@ class ApprovedCard extends React.Component<any, any> {
         })
     }
     apiClick (record: any) {
-        const method = this['state' + exchangeDic[record.status]]
+        const method = (this as any)['state' + exchangeDic[record.status]]
         if (method) {
             method.call(this, record);
         }
@@ -168,7 +168,7 @@ class ApprovedCard extends React.Component<any, any> {
         })
     }
     dealClick (record: any) {
-        const method = this['deal' + exchangeDic[record.status]];
+        const method = (this as any)['deal' + exchangeDic[record.status]];
         if (method) {
             method.call(this, record);
         }
