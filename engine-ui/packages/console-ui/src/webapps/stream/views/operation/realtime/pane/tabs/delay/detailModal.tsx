@@ -41,7 +41,7 @@ class DelayDetailModal extends React.Component<any, any> {
             }
         })
     }
-    getDelayList (taskId: any, topicName: any) {
+    getDelayList (taskId?: any, topicName?: any) {
         taskId = typeof taskId == 'undefined' ? this.props.taskId : taskId;
         topicName = typeof topicName == 'undefined' ? this.props.topicName : topicName;
         if (!taskId || !topicName) {

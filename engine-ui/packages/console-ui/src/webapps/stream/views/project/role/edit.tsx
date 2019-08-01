@@ -12,6 +12,7 @@ import { formItemLayout } from '../../../comm/const'
 import RoleForm from './form'
 
 export default class RoleEdit extends React.Component<any, any> {
+    form: any;
     state: any = {
         roleInfo: {},
         loading: false

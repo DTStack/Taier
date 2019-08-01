@@ -10,7 +10,7 @@ class RunLog extends React.Component<any, any> {
         logInfo: '',
         offset: -1
     }
-    _clock = null
+    _clock:any = null
     isUnmount = false;
     componentDidMount () {
         this.getLog();
@@ -19,7 +19,7 @@ class RunLog extends React.Component<any, any> {
         this.isUnmount = true;
         window.clearTimeout(this._clock);
     }
-    prepareLogInfo (logInfo = {}) {
+    prepareLogInfo (logInfo:any = {}) {
         let { engineLog } = logInfo;
         const { engineLog: oldEngineLog } = this.state.logInfo;
         if (oldEngineLog) {

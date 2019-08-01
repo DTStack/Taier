@@ -98,7 +98,7 @@ export default {
     deleteRole (params: any) {
         return http.post(req.DELETE_ROLE, params)
     },
-    getRoleTree (params: any) {
+    getRoleTree (params?: any) {
         return http.post(req.GET_ROLE_TREE, params)
     },
     getRoleInfo (params: any) {
@@ -187,7 +187,7 @@ export default {
     getDataSourceTypes (params: any) {
         return http.post(stremReq.GET_DATASOURCE_TYPES, params)
     },
-    getSupportDaTypes (params: any) {
+    getSupportDaTypes (params?: any) {
         return http.post(stremReq.GET_SUPPORT_BINLOG_DATA_TYPES, params)
     },
     getRealtimeJobData (params: any) {

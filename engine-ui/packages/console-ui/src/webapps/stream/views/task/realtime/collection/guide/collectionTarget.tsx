@@ -46,6 +46,7 @@ function getSourceInitialField (sourceType: any, data: any) {
 }
 
 class CollectionTarget extends React.Component<any, any> {
+    _form: any;
     constructor (props: any) {
         super(props);
         this.state = {
@@ -214,6 +215,7 @@ class CollectionTarget extends React.Component<any, any> {
 }
 
 class CollectionTargetForm extends React.Component<any, any> {
+    getTableList: any;
     onSelectSource = (value: any, option: any) => {
         const sourceType = option.props.data.type;
         const initialFields = getSourceInitialField(sourceType, this.props.collectionData);
@@ -591,11 +593,15 @@ class CollectionTargetForm extends React.Component<any, any> {
                                     if (!isSupportedTargetSource(item.type)) {
                                         return null
                                     }
+                                    const dataFix = {
+                                        data: item
+                                    }
                                     return <Option
                                         key={item.id}
-                                        data={item}
+                                        // data={item}
                                         value={item.id}
                                         disabled={disableOption(item.type)}
+                                        {...dataFix}
                                     >
                                         {item.dataName}({DATA_SOURCE_TEXT[item.type]})
                                     </Option>

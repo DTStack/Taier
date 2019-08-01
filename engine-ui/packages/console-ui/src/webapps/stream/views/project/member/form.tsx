@@ -11,19 +11,28 @@ const Option = Select.Option
 const CheckboxGroup = Checkbox.Group;
 
 class MemberForm extends React.Component<any, any> {
+    roleChange: any;
     render () {
         const { roles, form, notProjectUsers } = this.props;
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
             .map((item: any) =>
-                <Option
-                    key={item.userId}
-                    name={item.userName}
-                    value={`${item.userId}`}
-                >
-                    {item.userName}
-                </Option>
+                {
+                    const nameFix = {
+                        name: item.userName
+                    }
+                    return (
+                        <Option
+                            key={item.userId}
+                            // name={item.userName}
+                            value={`${item.userId}`}
+                            {...nameFix}
+                        >
+                            {item.userName}
+                        </Option>
+                    )
+                }
             )
 
         let roleOptions: any = []; let defaultRoles: any = [];

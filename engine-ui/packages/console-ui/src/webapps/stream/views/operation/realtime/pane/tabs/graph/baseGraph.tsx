@@ -16,7 +16,7 @@ require('echarts/lib/component/legend');
 require('echarts/lib/component/legendScroll');
 require('echarts/lib/component/tooltip');
 
-function haveData (lineData = {}) {
+function haveData (lineData:any = {}) {
     const { y = [] } = lineData;
 
     let haveData = false;
@@ -80,6 +80,7 @@ class AlarmBaseGraphBox extends React.Component<any, any> {
 }
 
 class AlarmBaseGraph extends React.Component<any, any> {
+    _dom:any;
     state: any = {
         lineChart: null
     }
@@ -117,7 +118,7 @@ class AlarmBaseGraph extends React.Component<any, any> {
             }
         }
     }
-    initGraph (lineData: any, time: any) {
+    initGraph (lineData?: any, time?: any) {
         lineData = lineData || this.props.lineData;
         time = time || this.props.time;
         if (!lineData) {
