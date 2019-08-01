@@ -16,7 +16,7 @@ const FormItem = Form.Item;
 const RadioGroup = Radio.Group
 const TabPane = Tabs.TabPane;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         taskTypes: state.realtimeTask.comm.taskTypes
     }
@@ -24,7 +24,7 @@ const TabPane = Tabs.TabPane;
     return bindActionCreators({
         realtimeGetTaskTypes
     }, dispatch);
-})
+}) as any)
 class RunCode extends React.Component<any, any> {
     state: any = {
         tabKey: 'env'
@@ -121,7 +121,7 @@ class RunCode extends React.Component<any, any> {
         })
     }
     getJsonEditor(value: any) {
-        value = utils.jsonFormat(value) || '';
+        value = utils.jsonFormat(value, 0) || '';
         return <Editor
             sync={true}
             style={{ height: '100%' }}
@@ -146,6 +146,9 @@ class RunCode extends React.Component<any, any> {
             right: '0px',
             width: '100%'
         }
+        const tabsValue = {
+            value:tabKey
+        }
         return (
             <div className="m-tabs" style={{ height: '100%' }}>
                 <Tabs
@@ -153,7 +156,7 @@ class RunCode extends React.Component<any, any> {
                     animated={false}
                     tabBarStyle={{ background: 'transparent', borderWidth: '0px' }}
                     onChange={this.changeTab.bind(this)}
-                    value={tabKey}
+                    {...tabsValue}
                 >
                     <TabPane className="m-panel2" tab="运行代码" key="code">
                         <div style={editorBoxStyle}>

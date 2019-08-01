@@ -147,7 +147,7 @@ export function setInputData (value: any) {
     }
 }
 
-export function getInputData (id: any) {
+export function getInputData (id?: any) {
     return {
         type: browserAction.GET_INPUT_DATA,
         data: id
@@ -181,7 +181,7 @@ export function setOutputData (value: any) {
     }
 }
 
-export function getOutputData (id: any) {
+export function getOutputData (id?: any) {
     return {
         type: browserAction.GET_OUTPUT_DATA,
         data: id
@@ -215,7 +215,7 @@ export function setDimensionData (value: any) {
     }
 }
 
-export function getDimensionData (id: any) {
+export function getDimensionData (id?: any) {
     return {
         type: browserAction.GET_DIMESION_DATA,
         data: id
@@ -284,7 +284,7 @@ export function pages (state = defaultPages, action: any) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState: any = [...state];
-                const { panelColumn } = source || {};
+                const { panelColumn } : any= source || {};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { source: panelColumn })
                 localDb.set(pagesKey, newState)
                 return newState;
@@ -299,7 +299,7 @@ export function pages (state = defaultPages, action: any) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState: any = [...state];
-                const { panelColumn } = sink || {};
+                const { panelColumn } : any = sink || {};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { sink: panelColumn })
                 localDb.set(pagesKey, newState)
                 return newState;
@@ -314,7 +314,7 @@ export function pages (state = defaultPages, action: any) {
             })
             if (newPage && newPageIndex > -1) {
                 const newState: any = [...state];
-                const { panelColumn } = side || {};
+                const { panelColumn } : any = side || {};
                 newState[newPageIndex] = Object.assign({}, state[newPageIndex], { side: panelColumn })
                 localDb.set(pagesKey, newState)
                 return newState;
@@ -373,9 +373,9 @@ export function currentPage (state = defaultCurPage, action: any) {
             return current
         }
         case browserAction.SET_INPUT_DATA: {
-            const { source, taskId } = action.data || {};
+            const { source, taskId } : any = action.data || {};
             if (taskId == state.id) {
-                const { panelColumn } = source || {};
+                const { panelColumn } : any = source || {};
                 const newPage = Object.assign({}, state, { source: panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
@@ -384,9 +384,9 @@ export function currentPage (state = defaultCurPage, action: any) {
             }
         }
         case browserAction.SET_OUTPUT_DATA: {
-            const { sink, taskId } = action.data || {};
+            const { sink, taskId } : any = action.data || {};
             if (taskId == state.id) {
-                const { panelColumn } = sink || {};
+                const { panelColumn } : any = sink || {};
                 const newPage = Object.assign({}, state, { sink: panelColumn })
                 localDb.set(key, newPage)
                 return newPage;
@@ -395,9 +395,9 @@ export function currentPage (state = defaultCurPage, action: any) {
             }
         }
         case browserAction.SET_DIMESION_DATA: {
-            const { side, taskId } = action.data || {};
+            const { side, taskId } : any= action.data || {};
             if (taskId == state.id) {
-                const { panelColumn } = side || {};
+                const { panelColumn } : any= side || {};
                 const newPage = Object.assign({}, state, { side: panelColumn })
                 localDb.set(key, newPage)
                 return newPage;

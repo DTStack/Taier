@@ -65,7 +65,7 @@ class ResFormModal extends React.Component<any, any> {
     }
 
     resetInput = () => {
-        document.getElementById('myFile').value = ''
+        (document.getElementById('myFile') as any).value = ''
     }
 
     changeFileType = (value: any) => {
@@ -82,7 +82,9 @@ class ResFormModal extends React.Component<any, any> {
         } = this.props
         const { file, loading } = this.state
         const { getFieldDecorator } = form;
-
+        const rowFix = {
+            rows: 4
+        }
         return (
             <div id="JS_res_modal">
                 <Modal
@@ -191,7 +193,11 @@ class ResFormModal extends React.Component<any, any> {
                                 }],
                                 initialValue: ''
                             })(
-                                <Input type="textarea" rows={4} />
+                                <Input
+                                type="textarea"
+                                // rows={4}
+                                {...rowFix}
+                            />
                             )}
                         </FormItem>
                     </Form>

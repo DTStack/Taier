@@ -162,7 +162,9 @@ class TaskFormModal extends React.Component<any, any> {
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
         const isFlinkSql = taskType == TASK_TYPE.SQL;
         const isShowResource = !isDataCollection && !isFlinkSql;
-
+        const rowFix = {
+            rows: 4
+        }
         return (
             <div id="JS_task_modal_realtime">
                 <Modal
@@ -314,7 +316,11 @@ class TaskFormModal extends React.Component<any, any> {
                                 }],
                                 initialValue: taskInfo ? taskInfo.taskDesc : ''
                             })(
-                                <Input type="textarea" rows={4} />
+                                <Input
+                                    type="textarea"
+                                    // rows={4}
+                                    {...rowFix}
+                                />
                             )}
                         </FormItem>
                     </Form>

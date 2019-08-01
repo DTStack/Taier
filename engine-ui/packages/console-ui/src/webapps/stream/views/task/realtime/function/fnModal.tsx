@@ -22,7 +22,9 @@ class FnForm extends React.Component<any, any> {
             resTreeData, fnTreeData,
             activeNode, loadTreeData
         } = this.props;
-
+        const rowFix = {
+            rows: 4
+        }
         return (
             <Form>
                 <FormItem
@@ -120,7 +122,7 @@ class FnForm extends React.Component<any, any> {
                             message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
+                        <Input type="textarea" {...rowFix} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -134,7 +136,7 @@ class FnForm extends React.Component<any, any> {
                             message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的参数说明"/>
+                        <Input type="textarea" {...rowFix} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -215,6 +217,8 @@ class FnForm extends React.Component<any, any> {
 const FnFormWrapper = Form.create<any>()(FnForm);
 
 class FnModal extends React.Component<any, any> {
+    form: any;
+    dtcount: any;
     constructor (props: any) {
         super(props);
 

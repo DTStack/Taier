@@ -9,6 +9,8 @@ import Api from '../../api';
 import { PROJECT_TYPE } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
 
+declare var window: any;
+declare var APP_CONF: any;
 /* eslint-disable-next-line */
 const UIC_URL_TARGET = APP_CONF.UIC_URL || "";
 
@@ -16,14 +18,14 @@ const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
 const Search = Input.Search;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { pages } = state.realtimeTask;
 
     return {
         realTimeTabs: pages,
         licenseApps: state.licenseApps
     }
-})
+})as any) 
 class Header extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -58,7 +60,7 @@ class Header extends React.Component<any, any> {
                 if (this.state.current === 'overview') {
                     router.push('/realtime/task');
                 }
-                this.searchProject();
+                this.searchProject('');
             }
             this.checkUnSaveTask(switchProject);
         }

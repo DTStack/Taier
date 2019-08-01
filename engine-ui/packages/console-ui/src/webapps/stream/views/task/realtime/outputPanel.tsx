@@ -21,6 +21,7 @@ const { Column } = Table;
 const FormItem = Form.Item;
 
 class OutputOrigin extends React.Component<any, any> {
+    _editorRef: any;
     componentDidMount () {
         this.props.onRef(this);
     }
@@ -314,7 +315,7 @@ class OutputOrigin extends React.Component<any, any> {
                     </div>
                     {
                         haveTableColumn(panelColumn[index].type)
-                            ? <Col span="18" className="bd" style={{ marginBottom: 20 }}>
+                            ? <Col span={18} className="bd" style={{ marginBottom: 20 }}>
                                 <Table dataSource={panelColumn[index].columns} className="table-small" pagination={false} size="small" >
                                     <Column
                                         title="字段"
@@ -351,7 +352,7 @@ class OutputOrigin extends React.Component<any, any> {
                                     </Button>
                                 </div>
                             </Col>
-                            : <Col span="18" style={{ marginBottom: 20, height: 200 }}>
+                            : <Col span={18} style={{ marginBottom: 20, height: 200 }}>
                                 {isShow && (
                                     <Editor
                                         style={{ minHeight: 202, border: '1px solid #ddd', height: '100%' }}
@@ -697,7 +698,7 @@ export default class OutputPanel extends React.Component<any, any> {
         }
     }
 
-    changeInputTabs = (type: any, index: any) => {
+    changeInputTabs = (type: any, index?: any) => {
         const inputData: any = {
             type: DATA_SOURCE.MYSQL,
             columns: [],
@@ -978,6 +979,9 @@ export default class OutputPanel extends React.Component<any, any> {
                 <Button type="primary" size="small" onClick={() => { this.changeInputTabs('delete', index) }}>确定</Button>
             </div>
         </div>
+        const onClickFix={
+            onClick: (e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }
+        }
         return <div className="input-panel-title">
             <span>{` 结果表 ${index + 1} `}</span>
             <Popover
@@ -985,7 +989,8 @@ export default class OutputPanel extends React.Component<any, any> {
                 placement="topLeft"
                 content={popoverContent}
                 visible={popoverVisible[index]}
-                onClick={(e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }}
+                // onClick={(e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }}
+                {...onClickFix}
             >
                 <span className="title-icon input-panel-title" ><Icon type="delete" /></span>
             </Popover>

@@ -118,7 +118,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         }
     }
 
-    onExpand = (expandedKeys, { expanded }) => {
+    onExpand = (expandedKeys: any, { expanded }: any) => {
         let keys = expandedKeys;
         if (expanded) {
             keys = union(this.state.expandedKeys, keys)
@@ -144,7 +144,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         })
     }
 
-    clickFolderOpen = (info: any, type: any) => {
+    clickFolderOpen = (info: any, type?: any) => {
         const { expandedKeys, expandedKeys2 } = this.state;
         const { eventKey } = info.node.props
         let nowExpaned: any;
@@ -209,7 +209,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         }
     }
 
-    rightClick = ({ node }) => {
+    rightClick = ({ node }: any) => {
         const activeNode = node.props.data;
         this.setState({ activeNode: activeNode })
     }
@@ -364,7 +364,8 @@ class RealTimeTabPane extends React.Component<any, any> {
                 params.catalogueType = MENU_TYPE.COSTOMFUC
                 break;
             }
-            default: return []
+            const emptyArr: any = []
+            default: return emptyArr
         }
         if (isCreate(modal)) {
             Api.addCatalogue(cateInfo).then((res: any) => {
@@ -398,7 +399,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         })
     }
 
-    resRename = (resource: any) => {
+    resRename = (resource: { resourceId: any; }) => {
         const { dispatch } = this.props
         const resInfo = this.state.activeNode
         resource.resourceId = resInfo.id
@@ -467,7 +468,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         })
     }
 
-    locateFilePos = (id: any, type: any, name: any) => {
+    locateFilePos = (id: any, type: any, name?: any) => {
         if (!id) return;
         const { expandedKeys } = this.state;
         const { dispatch, realtimeTree } = this.props;
@@ -539,7 +540,7 @@ class RealTimeTabPane extends React.Component<any, any> {
     }
 
     doAction = (action: any) => {
-        this.props.dispatch(ModalAction.updateModal(action: any))
+        this.props.dispatch(ModalAction.updateModal(action))
     }
 
     closeModal = () => {
@@ -547,7 +548,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         this.doAction(modalAction.MODAL_HIDDEN)
     }
 
-    onMenuClick = ({ key }) => {
+    onMenuClick = ({ key }: any) => {
         switch (key) {
             case 'task:newFolder': {
                 this.setState({ activeNode: {} })
@@ -581,7 +582,7 @@ class RealTimeTabPane extends React.Component<any, any> {
     /**
      * 没有内容的就不要展开了
      */
-    safeExpandedKeys (expandedKeys = [], tree = []) {
+    safeExpandedKeys (expandedKeys : any = [], tree : any = []) {
         let treeKeys: any = [];
         function loopTree(tree: any) {
             for (let i = 0; i < tree.length; i++) {
@@ -605,7 +606,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         if (realtimeTree && realtimeTree.length > 0) {
             for (let i = 0; i < realtimeTree.length; i++) {
                 const menuItem = realtimeTree[i]
-                let menuContent = ''
+                let menuContent: any = ''
                 if (!menuItem.children || menuItem.children.length === 0) continue;
                 switch (menuItem.catalogueType) {
                     case MENU_TYPE.TASK: {

@@ -32,6 +32,7 @@ const confirm = Modal.confirm;
 const FormItem = Form.Item;
 
 class TaskIndex extends React.Component<any, any> {
+    timerID: any;
     state: any = {
         publishDesc: '',
         timeZoneData: [],
@@ -66,7 +67,7 @@ class TaskIndex extends React.Component<any, any> {
         }
 
         const preHandData = (data: any) => {
-            if (!data.length === 0) return [];
+            if (data.length !== 0) return [];
             const result: any = { children: [] };
             const map: any = {};
             for (let i = 0; i < data.length; i++) {
@@ -437,6 +438,9 @@ class TaskIndex extends React.Component<any, any> {
     renderPublish = () => {
         const { user } = this.props;
         const { publishDesc } = this.state
+        const rowFix ={
+            rows: 4
+        }
         return (
             <Modal
                 wrapClassName="vertical-center-modal"
@@ -465,8 +469,10 @@ class TaskIndex extends React.Component<any, any> {
                         <Input
                             type="textarea"
                             value={publishDesc}
-                            name="publishDesc" rows={4}
+                            name="publishDesc"
+                            // rows={4}
                             onChange={this.publishChange}
+                            {...rowFix}
                         />
                     </FormItem>
                 </Form>
@@ -480,7 +486,9 @@ class TaskIndex extends React.Component<any, any> {
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
         const isDisableSave = currentPage.invalid || isLocked || currentPage.invalidSubmit;
-
+        const title1 = {title: "创建任务"}
+        const title2 = {title: "保存任务"}
+        const title3 = {title: "打开任务"}
         return (
             <Row className="task-editor">
                 <header className="workbench-toolbar clear">
@@ -490,20 +498,23 @@ class TaskIndex extends React.Component<any, any> {
                                 onClick={() => {
                                     dispatch(ModalAction.updateModal(modalAction.ADD_TASK_VISIBLE))
                                 }}
-                                title="创建任务"
+                                // title="创建任务"
+                                {...title1}
                             >
                                 <MyIcon className="my-icon" type="focus" themeDark={themeDark} /> 新建任务
                             </Button>
                             <Button
                                 disabled={isDisableSave}
                                 onClick={this.saveTask.bind(this, false)}
-                                title="保存任务"
+                                // title="保存任务"
+                                {...title2}
                             >
                                 <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
                             </Button>
                             <Button
                                 onClick={this.searchTask}
-                                title="打开任务"
+                                // title="打开任务"
+                                {...title3}
                             >
                                 <MyIcon className="my-icon" type="search" themeDark={themeDark} />
                                 搜索

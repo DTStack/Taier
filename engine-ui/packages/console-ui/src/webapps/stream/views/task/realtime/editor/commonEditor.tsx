@@ -11,7 +11,7 @@ import API from '../../../../api';
 import * as editorActions from '../../../../store/modules/editor/editorAction';
 import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         editor: state.editor
     }
@@ -23,7 +23,7 @@ import { setCurrentPage } from '../../../../store/modules/realtimeTask/browser';
         }
     })
     return actions;
-})
+}) as any)
 class CommonCodeEditor extends React.Component<any, any> {
     onContentChange = (value: any, editorInstance: any) => {
         const { editorChange } = this.props;
@@ -108,6 +108,9 @@ class CommonCodeEditor extends React.Component<any, any> {
                 editorInstanceRef={(instance: any) => { this._editor = instance }}
             />
         )
+    }
+    _editor(_editor: any) {
+        throw new Error("Method not implemented.");
     }
 }
 

@@ -23,6 +23,7 @@ const RadioGroup = Radio.Group;
 const FormItem = Form.Item;
 
 class InputOrigin extends React.Component<any, any> {
+    _editorRef: any;
     constructor (props: any) {
         super(props)
         this.state = {
@@ -198,7 +199,7 @@ class InputOrigin extends React.Component<any, any> {
                     <Row>
                         <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
                         </div>
-                        <Col span="18" style={{ marginBottom: 12 }}>
+                        <Col span={18} style={{ marginBottom: 12 }}>
                             <a onClick={this.showPreviewModal}>数据预览</a>
                         </Col>
                     </Row>
@@ -225,7 +226,7 @@ class InputOrigin extends React.Component<any, any> {
                         <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
                             <label className='required-tip'>字段</label>
                         </div>
-                        <Col span="18" style={{ marginBottom: 20, height: 202 }}>
+                        <Col span={18} style={{ marginBottom: 20, height: 202 }}>
                             {isShow && (
                                 <Editor
                                     style={{ minHeight: 202, height: '100%' }}
@@ -266,7 +267,7 @@ class InputOrigin extends React.Component<any, any> {
                             <div className="ant-form-item-label ant-col-xs-24 ant-col-sm-6">
                                 <label>偏移量</label>
                             </div>
-                            <Col span="18" style={{ marginBottom: 20, height: 202 }}>
+                            <Col span={18} style={{ marginBottom: 20, height: 202 }}>
                                 {isShow && (
                                     <Editor
                                         style={{ minHeight: 202, height: '100%' }}
@@ -480,7 +481,7 @@ export default class InputPanel extends React.Component<any, any> {
         })
     }
 
-    parseColumnsText = (index, text = '') => {
+    parseColumnsText = (index: React.ReactText, text = '') => {
         const { timeColumoption, panelColumn } = this.state;
         const columns = text.split('\n').filter(Boolean).map((v: any) => {
             let column: any;
@@ -629,7 +630,7 @@ export default class InputPanel extends React.Component<any, any> {
         }
     }
 
-    changeInputTabs = (type: any, index: any) => {
+    changeInputTabs = (type: any, index?: any) => {
         const inputData: any = {
             type: DATA_SOURCE.KAFKA,
             sourceId: undefined,
@@ -731,7 +732,8 @@ export default class InputPanel extends React.Component<any, any> {
             'customParams'
         ]
         if (type === 'columnsText') {
-            this.parseColumnsText(index, value, 'changeText')
+            // this.parseColumnsText(index, value, 'changeText')
+            this.parseColumnsText(index, value)
         }
         panelColumn = cloneDeep(panelColumn);
         if (type == 'customParams') { // customParams暂时不会执行
@@ -867,6 +869,9 @@ export default class InputPanel extends React.Component<any, any> {
                 <Button type="primary" size="small" onClick={() => { this.changeInputTabs('delete', index) }}>确定</Button>
             </div>
         </div>
+        const onClickFix = {
+            onClick: (e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }
+        }
         return <div className="input-panel-title">
             <span>{` 源表 ${index + 1} `}</span>
             <Popover
@@ -874,7 +879,8 @@ export default class InputPanel extends React.Component<any, any> {
                 placement="topLeft"
                 content={popoverContent}
                 visible={popoverVisible[index]}
-                onClick={(e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }}
+                // onClick={(e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }}
+                {...onClickFix}
             >
                 <span className="title-icon input-panel-title" ><Icon type="delete" /></span>
             </Popover>
