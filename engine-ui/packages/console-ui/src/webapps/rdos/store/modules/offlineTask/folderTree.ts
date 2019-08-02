@@ -1,5 +1,4 @@
-import assign from 'object-assign';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, assign } from 'lodash';
 
 import {
     taskTreeAction,

@@ -32,8 +32,9 @@
     "exclude": [
         "node_modules",
         "dist",
+        "src/public/**/*"
     ],
     "include": [
-        "src/**/rdos/*"
+        "src/**/*"
     ]
 }
