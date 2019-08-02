@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Card, Table, Button, Input, Modal } from 'antd';
 import '../../styles/views/source/index.scss';
 
-import { dataSourceFilter } from '../../comm/const.js'
+import { dataSourceFilter } from '../../comm/const'
 import Api from '../../api'
 
 import Edit from './edit';

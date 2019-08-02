@@ -11,7 +11,7 @@ import API from '../../../../../../api/experiment';
 import utils from 'utils'
 
 // 引入 ECharts 主模块
-import echarts = require('echarts/lib/echarts');
+import echarts from 'echarts/lib/echarts';
 require('echarts/lib/chart/line');
 require('echarts/lib/chart/bar');
 
@@ -48,7 +48,7 @@ class CurveChart extends React.Component<any, any> {
     }
     _chart1: any;
     componentDidMount () {
-        this._chart1 = echarts.init(document.getElementById('JS_CurveChart'));
+        this._chart1 = echarts.init(document.getElementById('JS_CurveChart') as HTMLDivElement);
         this.renderChart('roc');
     }
     componentDidUpdate (prevProps: any, prevState: any) {

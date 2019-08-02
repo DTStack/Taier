@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd';
 import Api from '../../../api'
-import { offlineTaskPeriodFilter } from '../../../comm/const.js'
+import { offlineTaskPeriodFilter } from '../../../comm/const'
 import { taskType, TASK_TYPE_TEXT } from '../../../consts';
 import { toRdosGateway } from 'funcs';
 import { appUriDict } from 'main/consts';

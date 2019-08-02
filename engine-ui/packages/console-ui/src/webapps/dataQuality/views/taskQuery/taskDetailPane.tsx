@@ -10,7 +10,7 @@ import RuleDetailTableModal from './ruleDetailTable';
 import { lineAreaChartOptions } from '../../consts';
 import TQApi from '../../api/taskQuery';
 import { getRuleType } from '../../consts/helper';
-import echarts = require('echarts/lib/echarts');
+import echarts from 'echarts/lib/echarts';
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
