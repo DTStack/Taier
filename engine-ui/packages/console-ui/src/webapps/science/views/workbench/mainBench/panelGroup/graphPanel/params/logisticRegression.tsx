@@ -52,12 +52,7 @@ class ChooseModal extends BaseChooseModal {
     }
 }
 /* 参数设置 */
-<<<<<<< HEAD
-// eslint-disable-next-line
-class paramSetting extends React.PureComponent<any, any> {
-=======
 class ParamSetting extends React.PureComponent<any, any> {
->>>>>>> 0c898c4b650862f5dc7bcdd69765e1d6fa76d939
     state: any = {
         regexDatas: [{
             value: 'l1',
@@ -375,11 +370,7 @@ class LogisticRegression extends React.PureComponent<any, any> {
                 const { data } = props;
                 const values: any = {
                     penalty: { value: data.penalty },
-<<<<<<< HEAD
-                    // eslint-disable-next-line
-=======
                     // eslint-disable-next-line @typescript-eslint/camelcase
->>>>>>> 0c898c4b650862f5dc7bcdd69765e1d6fa76d939
                     max_iter: { value: data.max_iter },
                     c: { value: data.c },
                     tol: { value: data.tol }
