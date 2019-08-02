@@ -154,7 +154,7 @@ export default class MainBench extends React.Component<any, any> {
         return isLocked ? (
             <div className={lockClassName}>
                 <Alert
-                    style={{ position: 'absolute', top: '-2px', left: '35%', zIndex: '999', height: '35px' }}
+                    style={{ position: 'absolute', top: '-2px', left: '35%', zIndex: 999, height: '35px' }}
                     showIcon
                     message={<span>当前文件为只读状态！{<a onClick={this.unLock}>解锁</a>}</span>}
                     type="warning"

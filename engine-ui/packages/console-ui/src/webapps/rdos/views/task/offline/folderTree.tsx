@@ -472,7 +472,7 @@ class FolderTree extends React.Component<any, any> {
             (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT) &&
             file.type === 'file' && file.taskType !== TASK_TYPE.WORKFLOW
         ) {
-            let status = 'success'
+            let status: any = 'success'
             const lockStatus = file.readWriteLockVO && file.readWriteLockVO.getLock;
             if (!lockStatus) {
                 status = 'default'

@@ -86,6 +86,7 @@ class ExtraPaneTableDetailColumn extends React.Component<any, any> {
         })
     }
     render () {
+        const pagination: any = { size: 'small' }
         return (
             <div className="c-table__detail__columns">
                 <Search
@@ -97,7 +98,7 @@ class ExtraPaneTableDetailColumn extends React.Component<any, any> {
                     className="dt-ant-table dt-ant-table--border border-table"
                     columns={this.initColumns()}
                     dataSource={this.filterColumns()}
-                    pagination={{ size: 'small' }}
+                    pagination={pagination}
                 />
             </div>
         )

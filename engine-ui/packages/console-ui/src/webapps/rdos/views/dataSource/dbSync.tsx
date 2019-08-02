@@ -461,7 +461,7 @@ class DBSync extends React.Component<any, any> {
                                     getFieldDecorator('saveConfig', {
                                         rules: []
                                     })(
-                                        <Checkbox onChange={this.onSaveChange}>保存</Checkbox>
+                                        <Checkbox>保存</Checkbox>
                                     )
                                 }
                             </FormItem>

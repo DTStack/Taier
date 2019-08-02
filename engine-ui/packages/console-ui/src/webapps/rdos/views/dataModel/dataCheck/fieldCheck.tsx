@@ -177,7 +177,7 @@ export default class FieldCheck extends React.Component<any, any> {
             defaultPageSize: 10,
             current: table.currentPage
         };
-
+        const val: any = (params.startTime && params.endTime && [moment(Number(params.startTime)), moment(Number(params.endTime))]) || []
         return (
             <div className="m-card antd-input">
                 <Form
@@ -215,7 +215,7 @@ export default class FieldCheck extends React.Component<any, any> {
                     <FormItem label="最后修改时间">
                         <RangePicker
                             size="default"
-                            value={(params.startTime && params.endTime && [moment(Number(params.startTime)), moment(Number(params.endTime))]) || []}
+                            value={val}
                             showTime={{ format: 'HH:mm:ss' }}
                             format="YYYY-MM-DD HH:mm:ss"
                             placeholder={['开始时间', '结束时间']}

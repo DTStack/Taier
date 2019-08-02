@@ -51,8 +51,8 @@ function myFrom (props: any) {
         </Form>
     )
 }
-
-const DescForm = Form.create<any>()(myFrom)
+const myFormFunc: any = myFrom;
+const DescForm = Form.create<any>()(myFormFunc)
 
 class ProjectConfig extends React.Component<any, any> {
     state: any = {
