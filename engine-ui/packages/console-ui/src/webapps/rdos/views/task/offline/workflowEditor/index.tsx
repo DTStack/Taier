@@ -447,62 +447,6 @@ class WorkflowEditor extends React.Component<any, any> {
         });
     }
 
-    getDataSyncData(data: any) {
-        const { keymap, sourceMap, targetMap } = data;
-        let { source = [], target = [] } = keymap;
-        let serverSource: any = []; let serverTarget: any = [];
-
-        /**
-         * 获取source或者target的key,因为RDB和非RDB存储结构不一样，所以要区分
-         */
-        function getKey(item: any) {
-            if (typeof item == 'string') {
-                return item
-            } else {
-                return item.key;
-            }
-        }
-        /**
-         * 获取targetMap的顺序
-         */
-        const { column: targetColumn = [] } = targetMap;
-        let indexMap: any = {};// 顺序记录表
-        let tmpTarget: any = [];// 含有映射关系的target数组
-        for (let i = 0; i < target.length; i++) {
-            const targetItem = target[i];
-            const sourceItem = source[i];
-            tmpTarget[i] = {
-                target: targetItem,
-                source: sourceItem
-            }
-        }
-        targetColumn.map((item: any, index: any) => {
-            indexMap[getKey(item)] = index;
-        })
-
-        tmpTarget.sort(
-            (a: any, b: any) => {
-                const indexA = indexMap[getKey(a.target)];
-                const indexB = indexMap[getKey(b.target)];
-                return indexA - indexB;
-            }
-        )
-        serverSource = tmpTarget.map(
-            (item: any) => {
-                return item.source;
-            }
-        )
-        serverTarget = tmpTarget.map(
-            (item: any) => {
-                return item.target
-            }
-        )
-
-        clone.sourceMap.column = serverSource;
-        clone.targetMap.column = serverTarget;
-        clone.settingMap = clone.setting;
-    }
-
     saveTask = (cell: any) => {
         const targetTask = cell.data || {};
         const { saveTask, tabs, dataSync } = this.props;

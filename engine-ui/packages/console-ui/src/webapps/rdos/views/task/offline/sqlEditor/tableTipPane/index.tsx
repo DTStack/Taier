@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Input, Spin, Popover } from 'antd';
 
 import TextMark from 'widgets/textMark';
-import TableDetail from './tableDetail/index.js';
+import TableDetail from './tableDetail/index';
 
 const Search = Input.Search;
 

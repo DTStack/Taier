@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { isNumber, isObject, isNaN, get } from 'lodash'
 import {
-    Button as mButton, Row, Col,
+    Button, Row, Col,
     Input, Tooltip,
     message, Icon, Modal
 } from 'antd';
@@ -29,7 +29,6 @@ import { isHdfsType, isFtpType } from '../../../../../comm';
 import KeyMapModal, { isValidFormatType } from './keymapModal'
 import BatchModal from './batchModal'
 import ConstModal from './constModal'
-const Button: any = mButton;
 const DefaultRowKey: any = { // HBase默认行健
     cf: '-',
     key: 'rowkey',
@@ -977,6 +976,8 @@ class Keymap extends React.Component<any, any> {
             verticalAlign: isFocus ? 'text-top' : 'middle'
             // border: !isSuccess ? '1px solid #f04134' : '1px solid #dddddd'
         }
+        const rowBtnType: any = this.state.rowMap ? 'primary' : 'default';
+        const nameBtnType: any = this.state.nameMap ? 'primary' : 'default'
         return <Resize onResize={this.resize}>
             <div style={{ margin: '0 20px' }}>
                 <p style={{ fontSize: 12, color: '#ccc', marginTop: '-20px', textAlign: 'center' }}>
@@ -1055,13 +1056,13 @@ class Keymap extends React.Component<any, any> {
                     <Col span={3}>
                         {!this.props.readonly ? <div className="m-buttons">
                             <Button
-                                type={ this.state.rowMap ? 'primary' : 'default' }
+                                type={rowBtnType}
                                 onClick={ this.setRowMap.bind(this) }
                             >{ this.state.rowMap ? '取消同行映射' : '同行映射'}</Button>
                             <br/>
                             <Button
                                 disabled={ isHdfsType(sourceSrcType) || isFtpType(sourceSrcType)}
-                                type={ this.state.nameMap ? 'primary' : 'default' }
+                                type={nameBtnType}
                                 onClick={ this.setNameMap.bind(this) }
                             >{ this.state.nameMap ? '取消同名映射' : '同名映射' }
                             </Button>

@@ -8,7 +8,7 @@ import utils from 'utils';
 import { HELP_DOC_URL } from '../../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../../comm'
 import CommonEditor from '../../commonEditor'
-import Toolbar from './toolbar.js';
+import Toolbar from './toolbar';
 
 import {
     workbenchActions
