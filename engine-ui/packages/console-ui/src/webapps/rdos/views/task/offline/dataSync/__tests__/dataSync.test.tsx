@@ -2,7 +2,7 @@
 // import * as React from 'react';
 
 // eslint-disable-next-line
-import renderer from 'react-test-renderer';
+// import renderer from 'react-test-renderer';
 
 // import DataSync from '../dataSync';
 

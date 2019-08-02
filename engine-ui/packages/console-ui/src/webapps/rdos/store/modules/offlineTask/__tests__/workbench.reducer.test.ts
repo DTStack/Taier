@@ -5,12 +5,13 @@ import {
 import { workbenchReducer } from '../workbench';
 describe('workbench reducer', () => {
     const initial = () => {
-        return {
+        const obj: any = {
             tabs: [],
             currentTab: undefined,
             isCurrentTabNew: undefined,
             taskCustomParams: []
-        };
+        }
+        return obj
     }
     let initialState = initial();
     afterEach(() => {

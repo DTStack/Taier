@@ -1,11 +1,9 @@
 import * as React from 'react'
 import {
-    Tree as mTree, TreeSelect as mTreeSelect, Icon, message,
+    Tree, TreeSelect, Icon, message,
     Tooltip, Popconfirm
 } from 'antd'
-const Tree: any = mTree; 
-const TreeNode = Tree.TreeNode
-const TreeSelect: any = mTreeSelect
+const TreeNode = Tree.TreeNode;
 
 class CatalogueTree extends React.Component<any, any> {
     state: any = {
@@ -272,7 +270,6 @@ class CatalogueTree extends React.Component<any, any> {
                 <div ref={(ins: any) => this.selEle = ins } className='org-tree-select-wrap'>
                     <TreeSelect
                         allowClear
-                        defaultExpandAll
                         key={id || 'tableCatalogue'}
                         value={value}
                         showSearch={showSearch}
@@ -300,7 +297,7 @@ class CatalogueTree extends React.Component<any, any> {
                 <Tree
                     showIcon
                     onSelect={onSelect}
-                    onChange={onChange}
+                    {...{onChange: onChange}}
                     onExpand={this.onExpand}
                     // expandedKeys={ this.state.expendKeys }
                     autoExpandParent={ this.state.autoExpandParent }

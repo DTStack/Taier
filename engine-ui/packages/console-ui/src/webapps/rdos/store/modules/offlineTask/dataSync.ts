@@ -53,7 +53,7 @@ const tabId = (state: any = {}, action: any) => {
 };
 
 // 缓存数据源列表
-const dataSourceList = (state = [], action: any) => {
+const dataSourceList = (state: any = [], action: any) => {
     switch (action.type) {
         case dataSourceListAction.LOAD_DATASOURCE: {
             const dataSource = action.payload;
