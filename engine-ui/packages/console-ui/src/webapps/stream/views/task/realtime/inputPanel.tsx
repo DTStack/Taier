@@ -639,6 +639,7 @@ export default class InputPanel extends React.Component<any, any> {
             // model: 1,
             // columns: [],
             timeType: 1,
+            timeZone: 'Asia/Shanghai', // 默认时区值
             timeColumn: undefined,
             offset: 0,
             columnsText: undefined,
@@ -723,6 +724,7 @@ export default class InputPanel extends React.Component<any, any> {
             'table',
             'columns',
             'timeType',
+            'timeZone',
             'timeColumn',
             'offset',
             'offsetReset',
@@ -756,6 +758,8 @@ export default class InputPanel extends React.Component<any, any> {
                             panelColumn[index][v] = 1
                         } else if (v == 'offsetReset') {
                             panelColumn[index][v] = 'latest'
+                        } else if (v == 'timeZone') {
+                            panelColumn[index][v] = 'Asia/Shanghai'
                         } else {
                             panelColumn[index][v] = undefined
                         }
@@ -777,6 +781,8 @@ export default class InputPanel extends React.Component<any, any> {
                             panelColumn[index][v] = 1
                         } else if (v == 'offsetReset') {
                             panelColumn[index][v] = 'latest'
+                        } else if (v == 'timeZone') {
+                            panelColumn[index][v] = 'Asia/Shanghai'
                         } else {
                             panelColumn[index][v] = undefined
                         }
@@ -797,6 +803,8 @@ export default class InputPanel extends React.Component<any, any> {
                             panelColumn[index][v] = 1
                         } else if (v == 'offsetReset') {
                             panelColumn[index][v] = 'latest'
+                        } else if (v == 'timeZone') {
+                            panelColumn[index][v] = 'Asia/Shanghai'
                         } else {
                             panelColumn[index][v] = undefined
                         }
