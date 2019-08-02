@@ -33,7 +33,7 @@ const ROUTER_BASE = '/data-manage/table';
     }
 }) as any)
 class SearchTable extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         const { pId, pageIndex, permissionStatus, tableName, catalogueId, tableType } = this.props.location.query;
         this.state = {
@@ -213,7 +213,7 @@ class SearchTable extends React.Component<any, any> {
                 title: '表结构最后变更时间',
                 key: 'lastDdlTime',
                 dataIndex: 'lastDdlTime',
-                render(text: any) {
+                render (text: any) {
                     return utils.formatDateTime(text)
                 }
             },
@@ -221,7 +221,7 @@ class SearchTable extends React.Component<any, any> {
                 title: '数据最后变更时间',
                 key: 'lastDmlTime',
                 dataIndex: 'lastDmlTime',
-                render(text: any) {
+                render (text: any) {
                     return utils.formatDateTime(text)
                 }
             },

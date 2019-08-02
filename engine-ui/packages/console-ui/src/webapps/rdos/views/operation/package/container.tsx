@@ -31,7 +31,7 @@ class PackageContainer extends React.Component<any, any> {
         }
     }
     /* eslint-enable */
-    onChange(key: any) {
+    onChange (key: any) {
         const { location } = this.props;
         hashHistory.push({ pathname: `/package/${key}`, query: location.query })
     }

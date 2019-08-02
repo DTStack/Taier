@@ -18,11 +18,11 @@ class SyntaxHelpPane extends React.Component<any, any> {
     renderHeader () {
         const { mappingData, onSelect, selectedVal } = this.props;
         const options = mappingData && mappingData.map((group: any) =>
-            <OptGroup key={group.id} {...{title: group.name}} label={group.name}>
+            <OptGroup key={group.id} {...{ title: group.name }} label={group.name}>
                 {
                     group.children.map((child: any) => {
                         return (
-                            <Option {...{data: child.file}} key={child.id} title={child.name}>{child.name}</Option>
+                            <Option {...{ data: child.file }} key={child.id} title={child.name}>{child.name}</Option>
                         )
                     })
                 }

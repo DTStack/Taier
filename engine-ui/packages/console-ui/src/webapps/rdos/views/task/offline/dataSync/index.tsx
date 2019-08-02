@@ -130,7 +130,7 @@ class DataSyncWorkbench extends React.Component<any, any> {
 
         const data = consoleData && consoleData[currentTab]
             ? consoleData[currentTab] : { results: [] };
-        const titleFix = { title: "转换同步任务由向导模式为脚本模式" };
+        const titleFix = { title: '转换同步任务由向导模式为脚本模式' };
         const convertToScriptMode = (<Button
             disabled={isLocked}
             icon="swap"

@@ -677,7 +677,7 @@ class SourceForm extends React.Component<any, any> {
         const { sourceMap, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
-        const  showArrowFix = {  showArrow: true }
+        const showArrowFix = { showArrow: true }
         if (!sourceList) {
             return [];
         }
@@ -818,7 +818,7 @@ class SourceForm extends React.Component<any, any> {
                                                 {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                                 {/* disabled注意添加数据源之后无数据产生的bug问题 */}
                                                 <Checkbox name='isChecked' disabled={ source.sourceId == null } onChange={ () => this.handleCheckboxChange(`extTable.${source.key}`, event) } checked={ isChecked[`extTable.${source.key}`] } >
-                                                    <a {...{disabled: source.sourceId == null }}>
+                                                    <a {...{ disabled: source.sourceId == null }}>
                                                         批量选择
                                                     </a>
                                                 </Checkbox>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
 import assign from 'object-assign';
 import { connect } from 'react-redux';
@@ -26,7 +27,7 @@ const Step = Steps.Step;
 }) as any)
 
 class TableCreator extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
 
         this.state = {
@@ -123,7 +124,7 @@ class TableCreator extends React.Component<any, any> {
         const ctx = this;
         // 加载主题选项
         const callSucc = (field: any) => {
-            return function(res: any) {
+            return function (res: any) {
                 if (res.code === 1) {
                     ctx.setState({
                         [field]: res.data ? res.data.data : []
@@ -215,7 +216,7 @@ class TableCreator extends React.Component<any, any> {
      * @param {any} arr
      * @memberof TableCreator
      */
-    reduceRowData(arr: any) {
+    reduceRowData (arr: any) {
         return arr.filter((data: any) => {
             return data.name !== '';
         });

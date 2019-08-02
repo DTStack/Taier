@@ -240,7 +240,7 @@ class BloodRelation extends React.Component<any, any> {
         }
     }
 
-    handParent(parent: any) {
+    handParent (parent: any) {
         const cloneParent = Object.assign({}, parent);
         cloneParent.childResult = null;
         cloneParent.parentResult = null;

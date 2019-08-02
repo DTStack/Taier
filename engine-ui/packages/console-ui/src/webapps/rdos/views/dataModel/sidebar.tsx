@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react'
 import { Menu, Icon } from 'antd'
 import { Link, hashHistory } from 'react-router'

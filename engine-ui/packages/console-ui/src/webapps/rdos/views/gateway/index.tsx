@@ -16,7 +16,7 @@ class GateWay extends React.Component<any, any> {
     componentDidMount () {
         this.routerDispatch();
     }
-    resolveRedirectUri(uri: any) {
+    resolveRedirectUri (uri: any) {
         const { router } = this.props;
         switch (uri) {
             case appUriDict.RDOS.OPERATION: {

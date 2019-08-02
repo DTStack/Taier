@@ -78,7 +78,7 @@ class TableEditor extends React.Component<any, any> {
                     <h1 className="card-title"><GoBack type="textButton" /> { tableData && <span>编辑表：{ tableName }</span> }</h1>
                     <Row className="box-card m-tablebasic">
                         <h3>基本信息</h3>
-                        <table {...{ width: "100%"}} cellPadding="0" cellSpacing="0">
+                        <table {...{ width: '100%' }} cellPadding="0" cellSpacing="0">
                             <tbody>
                                 <tr>
                                     <th>所属项目</th>
@@ -301,6 +301,7 @@ class TableEditor extends React.Component<any, any> {
         // queryParams.storedType = tableData.id;
         queryParams.catalogueId = tableData.catalogueId;
         queryParams.columns = tableData.columns;
+        // eslint-disable-next-line @typescript-eslint/camelcase
         queryParams.partition_keys = tableData.partition_keys;
 
         if (this.checkColumnsIsNull(tableData.columns)) {

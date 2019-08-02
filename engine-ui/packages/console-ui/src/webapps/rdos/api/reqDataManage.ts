@@ -73,7 +73,7 @@ export default {
     APPLY_HANDLE: `${RDOS_BASE_URL}/batch/batchApply/getRelateTask`, // 申请处理
     ADD_MARK: `${RDOS_BASE_URL}/batch/batchTableCollect/collect`, // 取消收藏
     CANCEL_MARK: `${RDOS_BASE_URL}/batch/batchTableCollect/cancelCollect`, // 取消收藏
-    ApplY_REPLY: `${RDOS_BASE_URL}/batch/batchApply/reply`, // 申请处理
+    APPLY_REPLY: `${RDOS_BASE_URL}/batch/batchApply/reply`, // 申请处理
     GET_DDL_LIST: `${RDOS_BASE_URL}/batch/batchTableInfo/getDDLOperators`, // 获取DDL
     GET_DML_LIST: `${RDOS_BASE_URL}/batch/batchTableInfo/getDMLOperators`, // 获取DML
     GET_SIMPLE_COLUMNS: `${RDOS_BASE_URL}/batch/batchTableInfo/getSimpleColumns`, // 获取字段名

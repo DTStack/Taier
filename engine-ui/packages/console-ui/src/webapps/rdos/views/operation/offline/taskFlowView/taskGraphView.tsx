@@ -91,7 +91,7 @@ class TaskGraphView extends React.Component<any, any> {
     state: any = {
         loading: 'success'
     }
-    _view:any = null; // 存储view信息
+    _view: any = null; // 存储view信息
     Container: any;
     graph: any;
     _cacheLevel: any;

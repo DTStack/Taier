@@ -83,7 +83,7 @@ class TaskDependence extends React.Component<any, any> {
             recommentTaskModalVisible: false
         })
     }
-    goEdit(task: any) {
+    goEdit (task: any) {
         this.props.getTaskDetail(task.id)
     }
     initColumn () {
@@ -95,7 +95,7 @@ class TaskDependence extends React.Component<any, any> {
                 title: '租户',
                 dataIndex: 'tenantName',
                 key: 'tenantName',
-                render(tenantName: any) {
+                render (tenantName: any) {
                     if (tenantName) {
                         return tenantName;
                     } else {
@@ -107,7 +107,7 @@ class TaskDependence extends React.Component<any, any> {
                 title: '项目标识',
                 dataIndex: 'projectName',
                 key: 'projectName',
-                render(projectName: any) {
+                render (projectName: any) {
                     if (projectName) {
                         return projectName;
                     } else {
@@ -150,7 +150,7 @@ class TaskDependence extends React.Component<any, any> {
             }
         ];
     }
-    recommentTaskChoose(list: any) {
+    recommentTaskChoose (list: any) {
         for (let i = 0; i < list.length; i++) {
             this.props.handleAddVOS(list[i]);
         }
@@ -158,7 +158,7 @@ class TaskDependence extends React.Component<any, any> {
             recommentTaskModalVisible: false
         })
     }
-    onSelectTenant(value: any) {
+    onSelectTenant (value: any) {
         this.setState({
             tenantId: value,
             projectList: [],
@@ -183,7 +183,7 @@ class TaskDependence extends React.Component<any, any> {
             });
         }
     }
-    onSelectProject(value: any) {
+    onSelectProject (value: any) {
         this.setState({
             projectId: value
         });

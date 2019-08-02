@@ -18,7 +18,7 @@ const editorOptions: any = {
     scrollbarStyle: 'simple'
 };
 
-class dbSyncHistoryModal extends React.Component<any, any> {
+class DbSyncHistoryModal extends React.Component<any, any> {
     state: any = {
         listData: {},
         showDetail: false,
@@ -335,4 +335,4 @@ export default connect(
             }
         };
     }
-)(dbSyncHistoryModal);
+)(DbSyncHistoryModal);

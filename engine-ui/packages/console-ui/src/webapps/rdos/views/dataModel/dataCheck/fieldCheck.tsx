@@ -146,7 +146,7 @@ export default class FieldCheck extends React.Component<any, any> {
                     <div key={record.id}>
                         <Link disabled={!couldEdit} to={`/data-model/table/modify/${record.tableId}`}>修改</Link>
                         <span className="ant-divider" />
-                        <a {...{disabled: !couldEdit}} onClick={() => { this.ignore(record) }}>{showText}</a>
+                        <a {...{ disabled: !couldEdit }} onClick={() => { this.ignore(record) }}>{showText}</a>
                     </div>
                 )
             }

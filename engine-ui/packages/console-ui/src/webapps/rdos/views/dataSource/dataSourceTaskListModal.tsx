@@ -43,7 +43,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
         })
         this.getTaskList();
     }
-    getTaskList(reqParams?: any) {
+    getTaskList (reqParams?: any) {
         const { pagination } = this.state;
         const { type, dataSource } = this.props;
         this.setState({
@@ -107,7 +107,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
             }
         }]
     }
-    handleTableChange(pagination: any) {
+    handleTableChange (pagination: any) {
         this.setState({ pagination: pagination }, () => {
             this.getTaskList();
         })

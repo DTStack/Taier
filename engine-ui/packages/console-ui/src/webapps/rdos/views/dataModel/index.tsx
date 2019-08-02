@@ -49,6 +49,7 @@ class Container extends React.Component<any, any> {
 }
 export default connect((state: any) => ({
     project: state.project.id,
+    // eslint-disable-next-line @typescript-eslint/camelcase
     project_obj: state.project,
     user: state.user
 }), null)(Container);

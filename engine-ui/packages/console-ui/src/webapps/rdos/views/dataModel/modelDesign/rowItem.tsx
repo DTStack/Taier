@@ -105,7 +105,7 @@ export default class RowItem extends React.Component<any, any> {
                     value={data.columnName}
                     placeholder={this.props.placeholder}
                     notFoundContent=""
-                    {...{showArrow: true }}
+                    {...{ showArrow: true }}
                     style={{ width: '100%' }}
                     defaultActiveFirstOption={false}
                     disabled={ isSaved }
@@ -136,17 +136,17 @@ export default class RowItem extends React.Component<any, any> {
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
                 <a href="javascript:void(0)"
-                    {...{disabled: isSaved }}
+                    {...{ disabled: isSaved }}
                     onClick={ () => this.props.moveRow(data.uuid, true) }
                 >上移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    {...{disabled: isSaved }}
+                    {...{ disabled: isSaved }}
                     onClick={ () => this.props.moveRow(data.uuid, false) }
                 >下移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    {...{disabled: isSaved }}
+                    {...{ disabled: isSaved }}
                     onClick={ () => this.props.delRow(data.uuid) }
                 >删除</a>
             </Col>

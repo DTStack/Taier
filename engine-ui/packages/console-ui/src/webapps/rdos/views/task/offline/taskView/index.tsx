@@ -145,7 +145,7 @@ class TaskView extends React.Component<any, any> {
                 }
             });
 
-            graph.clearSelection = function(evt: any) {
+            graph.clearSelection = function (evt: any) {
                 if (selectedCell) {
                     for (let i = 0; i < highlightEdges.length; i++) {
                         highlightEdges[i].hide();
@@ -191,7 +191,7 @@ class TaskView extends React.Component<any, any> {
                 <Modal
                     zIndex={999}
                     width={800}
-                    {...{height:600}}
+                    {...{ height: 600 }}
                     footer={null}
                     maskClosable={true}
                     visible={this.state.visibleWorkflow}

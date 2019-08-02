@@ -160,7 +160,7 @@ class TableTipExtraPane extends React.Component<any, any> {
         if (!searchValue) {
             return tableAndColumns;
         }
-        return tableAndColumns.filter(([table, columns]: any) => {
+        return tableAndColumns.filter(([ table, columns ]: any) => {
             const column = columns.find((column: any) => {
                 return column.columnName.indexOf(searchValue) > -1;
             })

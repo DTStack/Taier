@@ -585,11 +585,11 @@ class FolderTree extends React.Component<any, any> {
                             multiple={multiple}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                             showSearch={!this.props.isFilepicker}
-                            {...{showIcon:true}}
+                            {...{ showIcon: true }}
                             loadData={this.onLoadData.bind(this, type)}
                             onChange={onChange}
                             defaultValue={this.props.defaultNode}
-                            {...{getContainer: () => this.selEle}}
+                            {...{ getContainer: () => this.selEle }}
                             placeholder={placeholder}
                             treeNodeFilterProp="name"
                             filterTreeNode={(inputValue: any, treeNode: any) => {
@@ -602,7 +602,7 @@ class FolderTree extends React.Component<any, any> {
                     : <Tree
                         onRightClick={this.onRightClick}
                         showIcon={true}
-                        {...{placeholder: placeholder}}
+                        {...{ placeholder: placeholder }}
                         selectedKeys={[`${type}-file-${currentTab}`]}
                         loadData={this.onLoadData.bind(this, type)}
                         expandedKeys={expandedKeys}

@@ -191,7 +191,7 @@ class ImportLocalData extends React.Component<any, any> {
         }
     }
 
-    parseFile(data: any) {
+    parseFile (data: any) {
         const { splitSymbol, startLine } = this.state
         const arr: any = []
         const splitVal = this.parseSplitSymbol(splitSymbol)
@@ -221,7 +221,7 @@ class ImportLocalData extends React.Component<any, any> {
         })
     }
 
-    parseSplitSymbol(value: any) {
+    parseSplitSymbol (value: any) {
         switch (value) {
             case 'blank':
                 value = ' '

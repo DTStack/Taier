@@ -20,6 +20,7 @@ function formatTableData (resData: any) {
 
         return result;
     });
+    // eslint-disable-next-line @typescript-eslint/camelcase
     tableData.partition_keys = resData.partition.map((o: any) => {
         let result = Object.assign(o, {
             uuid: o.name,

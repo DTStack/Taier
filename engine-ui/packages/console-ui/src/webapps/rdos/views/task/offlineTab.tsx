@@ -58,7 +58,7 @@ const Panel = Collapse.Panel;
     }
 }, workbenchActions) as any)
 class OfflineTabPane extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
 

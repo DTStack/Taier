@@ -17,7 +17,7 @@ import BasePane from './basePane';
     }
 }) as any)
 class SubjectDomain extends BasePane {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
 

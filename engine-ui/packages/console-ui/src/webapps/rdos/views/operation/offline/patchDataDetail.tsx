@@ -68,9 +68,7 @@ class PatchDataDetail extends React.Component<any, any> {
     componentDidMount () {
         this.setState({
             fillJobName: this.props.params.fillJobName
-        }, () => {
-            this.search
-        })
+        }, this.search)
     }
     componentWillUnmount () {
         this._isUnmounted = true;
@@ -780,7 +778,7 @@ class PatchDataDetail extends React.Component<any, any> {
                                 }
                             }
                             expandedRowKeys={this.state.expandedRowKeys}
-                            {...{defaultExpandAllRows: true}}
+                            {...{ defaultExpandAllRows: true }}
                             style={{ marginTop: '1px' }}
                             scroll={{ x: '2050px' }}
                             className="dt-ant-table dt-ant-table--border full-screen-table-120"

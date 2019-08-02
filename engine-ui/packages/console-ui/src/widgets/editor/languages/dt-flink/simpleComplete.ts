@@ -42,6 +42,7 @@ function functionsCompleteItemCreater (functions: any) {
         }
     )
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function customCompletionItemsCreater (_customCompletionItems: any) {
     if (!_customCompletionItems) {
         return [];

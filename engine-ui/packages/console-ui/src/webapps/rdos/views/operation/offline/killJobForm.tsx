@@ -16,7 +16,7 @@ const formItemLayout: any = {
         sm: { span: 14 }
     }
 };
-class killJobForm extends React.Component<any, any> {
+class KillJobForm extends React.Component<any, any> {
     state: any = {
         indeterminate: false,
         checkAll: false,
@@ -164,4 +164,4 @@ class killJobForm extends React.Component<any, any> {
     }
 }
 
-export default Form.create<any>()(killJobForm);
+export default Form.create<any>()(KillJobForm);

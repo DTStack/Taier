@@ -3,7 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
-import { get}  from 'lodash';
+import { get } from 'lodash';
 
 import {
     commAction

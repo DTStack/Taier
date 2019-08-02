@@ -69,7 +69,7 @@ const selectStatusList: any = [
     }
 }) as any)
 class AuthMana extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         const isAdminAbove = (this.props.user && this.props.user.isAdminAbove) || 0;
         const isPermission = isAdminAbove == 0 ? '1' : '0';
@@ -272,7 +272,7 @@ class AuthMana extends React.Component<any, any> {
         })
     }
 
-    batchApply(agreeApply: any) {
+    batchApply (agreeApply: any) {
         const { selectedRowKeys, table } = this.state;
         const editRecord: any = [];
         if (selectedRowKeys.length > 0) {
@@ -398,7 +398,7 @@ class AuthMana extends React.Component<any, any> {
                 title: '资源类型',
                 key: 'resourceType',
                 dataIndex: 'resourceType',
-                render(text: any) {
+                render (text: any) {
                     if (text === 0) {
                         return '表'
                     } else if (text === 1) {
@@ -483,7 +483,7 @@ class AuthMana extends React.Component<any, any> {
                             title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
-                            render(status: any) {
+                            render (status: any) {
                                 return applyStatus(status);
                             }
                         },
@@ -491,7 +491,7 @@ class AuthMana extends React.Component<any, any> {
                             title: '收回状态',
                             key: 'isRevoke',
                             dataIndex: 'isRevoke',
-                            render(status: any) {
+                            render (status: any) {
                                 return revokeStatus(status);
                             }
                         },
@@ -544,7 +544,7 @@ class AuthMana extends React.Component<any, any> {
                             title: '状态',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
-                            render(status: any) {
+                            render (status: any) {
                                 return applyStatus(status);
                             }
                         },
@@ -552,7 +552,7 @@ class AuthMana extends React.Component<any, any> {
                             title: '收回状态',
                             key: 'isRevoke',
                             dataIndex: 'isRevoke',
-                            render(status: any) {
+                            render (status: any) {
                                 return revokeStatus(status);
                             }
                         },
@@ -572,7 +572,7 @@ class AuthMana extends React.Component<any, any> {
                             title: '操作',
                             key: 'operation',
                             width: '100px',
-                            render(record: any) {
+                            render (record: any) {
                                 return <span>
                                     <a onClick={() => ctx.passClick(record)}>查看详情</a>
                                 </span>
@@ -588,7 +588,7 @@ class AuthMana extends React.Component<any, any> {
                             title: '审批结果',
                             key: 'applyStatus',
                             dataIndex: 'applyStatus',
-                            render(status: any) {
+                            render (status: any) {
                                 return applyStatus(status);
                             }
                         },

@@ -250,7 +250,7 @@ export default class TableViewer extends React.Component<any, any> {
                     <Row className="m-tablebasic">
                         <Col span={12} className="col-sep" style={{ paddingLeft: 0 }}>
                             <h3> 基本信息 </h3>
-                            {tableData && <table {...{width: "100%"}} cellPadding="0" cellSpacing="0">
+                            {tableData && <table {...{ width: '100%' }} cellPadding="0" cellSpacing="0">
                                 <tbody>
                                     <tr>
                                         <th>所属项目</th>
@@ -301,7 +301,7 @@ export default class TableViewer extends React.Component<any, any> {
                         </Col>
                         <Col span={12} className="col-sep" style={{ paddingRight: 0 }}>
                             <h3>存储信息</h3>
-                            {tableData && <table {...{width: "100%"}} cellPadding="0" cellSpacing="0">
+                            {tableData && <table {...{ width: '100%' }} cellPadding="0" cellSpacing="0">
                                 <tbody>
                                     <tr>
                                         <th>物理存储量</th>

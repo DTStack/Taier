@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
 import { connect } from 'react-redux';
 import {
@@ -13,7 +15,6 @@ import ajax from '../../api/dataManage';
 import { formItemLayout, TABLE_TYPE } from '../../comm/const';
 import CatalogueTree from './catalogTree';
 import LifeCycle from './lifeCycle';
-import { any } from 'prop-types';
 
 const Step = Steps.Step;
 const FormItem = Form.Item;
@@ -39,7 +40,7 @@ const RadioGroup = Radio.Group;
  * @extends {React.Component}
  */
 class BaseForm extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
 
         this.state = {
@@ -305,7 +306,7 @@ class BaseForm extends React.Component<any, any> {
             .then(callback) : callback();
     }
 
-    handleChange(e: any) {
+    handleChange (e: any) {
         const type = e.target.value;
 
         this.setState({ type });
@@ -319,7 +320,7 @@ class BaseForm extends React.Component<any, any> {
  * @extends {React.Component}
  */
 export class RowItem extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             editMode: false
@@ -364,7 +365,7 @@ export class RowItem extends React.Component<any, any> {
         }
     }
 
-    checkParams(params: any) {
+    checkParams (params: any) {
         const reg = /^[A-Za-z0-9_]+$/;
         if (params.columnName) {
             if (!reg.test(params.columnName)) {
@@ -426,24 +427,24 @@ export class RowItem extends React.Component<any, any> {
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
                 <a href="javascript:void(0)"
-                    {...{disabled:isSaved}}
+                    {...{ disabled: isSaved }}
                     onClick={() => this.props.moveRow(data.uuid, true)}
                 >上移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    {...{disabled:isSaved}}
+                    {...{ disabled: isSaved }}
                     onClick={() => this.props.moveRow(data.uuid, false)}
                 >下移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    {...{disabled:isSaved}}
+                    {...{ disabled: isSaved }}
                     onClick={() => this.props.delRow(data.uuid)}
                 >删除</a>
             </Col>
         </Row>
     }
 
-    renderExtra(columnType: any) {
+    renderExtra (columnType: any) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
         let result = null;
@@ -525,11 +526,11 @@ export class RowItem extends React.Component<any, any> {
  * @extends {React.Component}
  */
 export class ColumnsPartition extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
 
-    addRow(type: any) {
+    addRow (type: any) {
         const isHiveTable = this.props.tableType == TABLE_TYPE.HIVE;
         this.props.addRow({
             columnName: '',
@@ -579,7 +580,7 @@ export class ColumnsPartition extends React.Component<any, any> {
                     />)}
                 </div>
                 <div className="fn">
-                    <a href="javascript:void(0)" {...{disabled: isEdit}} onClick={this.addRow.bind(this, 1)}>
+                    <a href="javascript:void(0)" {...{ disabled: isEdit }} onClick={this.addRow.bind(this, 1)}>
                         <Icon type="plus-circle-o" /> 新增字段
                     </a>
                 </div>
@@ -605,7 +606,7 @@ export class ColumnsPartition extends React.Component<any, any> {
                         </div>
                         <div className="fn">
                             <a href="javascript:void(0)"
-                                {...{disabled: isEdit}}
+                                {...{ disabled: isEdit }}
                                 onClick={this.addRow.bind(this, 2)}>
                                 <Icon type="plus-circle-o" /> 新增分区字段
                             </a>
@@ -618,7 +619,7 @@ export class ColumnsPartition extends React.Component<any, any> {
 }
 
 class TableCreator extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
 
         this.state = {
@@ -638,12 +639,10 @@ class TableCreator extends React.Component<any, any> {
         };
 
         // move up/down
-        /* eslint-disable */
         (Array.prototype as any).__move = function (from: any, to: any) {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
-        /* eslint-enable */
     }
     baseForm: any;
     shouldComponentUpdate (nextProps: any, nextState: any) {
@@ -696,11 +695,11 @@ class TableCreator extends React.Component<any, any> {
         const { table, current } = this.state;
         let {
             columns,
-            partition_keys// eslint-disable-line
+            partition_keys
         } = table;
 
         columns = this.reduceRowData(columns);
-        partition_keys = this.reduceRowData(partition_keys);// eslint-disable-line
+        partition_keys = this.reduceRowData(partition_keys);
 
         if (partition_keys.length === 0 && columns.length === 0) {
             message.error('字段或分区信息不完整');
@@ -725,7 +724,7 @@ class TableCreator extends React.Component<any, any> {
      * @param {any} arr
      * @memberof TableCreator
      */
-    reduceRowData(arr: any) {
+    reduceRowData (arr: any) {
         return arr.filter((data: any) => {
             return data.name !== '';
         });
@@ -771,7 +770,7 @@ class TableCreator extends React.Component<any, any> {
         let { table } = this.state;
         let {
             columns,
-            partition_keys// eslint-disable-line
+            partition_keys
         } = table;
 
         if (type === 1) {
@@ -780,12 +779,10 @@ class TableCreator extends React.Component<any, any> {
             });
             table.columns = columns;
         } else if (type === 2) {
-            /* eslint-disable */
             partition_keys = partition_keys.filter((col: any) => {
                 return col.uuid !== uuid
             });
             table.partition_keys = partition_keys;
-            /* eslint-enable */
         }
 
         this.setState({

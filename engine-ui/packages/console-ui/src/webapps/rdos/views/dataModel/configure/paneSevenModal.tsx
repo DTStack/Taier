@@ -140,7 +140,7 @@ class DeriveIndexModal extends React.Component<any, any> {
 
         const options = automIndexs && automIndexs.map((atomIndex: any, index: any) => <Option
             key={atomIndex.id}
-            {...{index: index}}
+            {...{ index: index }}
             value={atomIndex.columnName}
         >
             {atomIndex.columnName}
@@ -161,13 +161,13 @@ class DeriveIndexModal extends React.Component<any, any> {
             {
                 (index == length - 1) && length > 1 ? <Button
                     icon="minus"
-                    {...{title: "移除规则"}}
+                    {...{ title: '移除规则' }}
                     style={{ marginRight: '5px' }}
                     onClick={() => this.removeIndexName(index)}
                 />
                     : <Button
                         icon="plus"
-                        {...{title: "添加规则"}}
+                        {...{ title: '添加规则' }}
                         style={{ marginRight: '5px' }}
                         onClick={() => this.insertIndexName(index)}
                     />

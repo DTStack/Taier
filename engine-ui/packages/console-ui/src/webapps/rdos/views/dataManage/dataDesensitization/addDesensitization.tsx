@@ -12,7 +12,7 @@ const Option: any = Select.Option;
     }
 }, null) as any)
 class AddDesensitization extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             tableList: [],
@@ -229,7 +229,7 @@ class AddDesensitization extends React.Component<any, any> {
             }
         }
     }
-    changeRule(value: any) {
+    changeRule (value: any) {
         const { rulesList } = this.state;
         const selectRule = rulesList.filter((item: any, index: any) => {
             return `${item.id}` === value
@@ -241,7 +241,7 @@ class AddDesensitization extends React.Component<any, any> {
     /**
      * 选择项目
      */
-    changeProject(value: any) {
+    changeProject (value: any) {
         this.props.form.resetFields(['tableId', 'columnName']);
         this.setState({
             tableList: [],
@@ -254,7 +254,7 @@ class AddDesensitization extends React.Component<any, any> {
     /**
      * 选择表
      */
-    changeTable(value: any) {
+    changeTable (value: any) {
         this.props.form.resetFields(['columnName']);
         const { tableList } = this.state;
         const selectTableName = tableList.filter((item: any, index: any) => {
@@ -265,7 +265,7 @@ class AddDesensitization extends React.Component<any, any> {
         })
         this.getColumnsList(value)
     }
-    changeColumnName(value: any) {
+    changeColumnName (value: any) {
         this.getUpColumnInfo(value)
     }
     cancel = () => {

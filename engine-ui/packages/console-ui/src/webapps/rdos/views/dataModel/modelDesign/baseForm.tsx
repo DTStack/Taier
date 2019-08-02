@@ -171,9 +171,9 @@ export default class BaseForm extends React.Component<any, any> {
                     {
                         data && data.map((item: any) =>
                             <Option
-                                {...{id: item.id}}
+                                {...{ id: item.id }}
                                 key={item.id}
-                                {...{data: item}}
+                                {...{ data: item }}
                                 title={item.prefix}
                                 value={item.prefix}
                             >

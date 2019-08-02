@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
 import {
     Table, Select,
@@ -198,7 +199,7 @@ class PackageCreate extends React.Component<any, any> {
             createModalVisible: true
         })
     }
-    hideCreateModal(doJump: any) {
+    hideCreateModal (doJump: any) {
         this.setState({
             createModalVisible: false
         })
@@ -211,7 +212,7 @@ class PackageCreate extends React.Component<any, any> {
             })
         }
     }
-    showAddLink(record: any) {
+    showAddLink (record: any) {
         this.setState({
             addLinkModalData: record,
             addLinkVisible: true
@@ -286,7 +287,7 @@ class PackageCreate extends React.Component<any, any> {
                     title: '修改时间',
                     dataIndex: 'modifyTime',
                     sorter: true,
-                    render(text: any) {
+                    render (text: any) {
                         return utils.formatDateTime(text)
                     },
                     width: '140px'
@@ -319,7 +320,7 @@ class PackageCreate extends React.Component<any, any> {
                 }, {
                     title: '创建人',
                     dataIndex: 'createUser',
-                    render(createUser: any) {
+                    render (createUser: any) {
                         return createUser.userName
                     },
                     width: '150px'
@@ -334,7 +335,7 @@ class PackageCreate extends React.Component<any, any> {
                     title: '修改时间',
                     dataIndex: 'gmtModified',
                     sorter: true,
-                    render(text: any) {
+                    render (text: any) {
                         return utils.formatDateTime(text)
                     },
                     width: '160px'
@@ -358,14 +359,14 @@ class PackageCreate extends React.Component<any, any> {
                 }, {
                     title: '创建人',
                     dataIndex: 'createUser',
-                    render(createUser: any) {
+                    render (createUser: any) {
                         return createUser.userName
                     },
                     width: '150px'
                 }, {
                     title: '修改人',
                     dataIndex: 'modifyUser',
-                    render(modifyUser: any) {
+                    render (modifyUser: any) {
                         return modifyUser.userName
                     },
                     width: '150px'
@@ -373,7 +374,7 @@ class PackageCreate extends React.Component<any, any> {
                     title: '修改时间',
                     dataIndex: 'gmtModified',
                     sorter: true,
-                    render(text: any) {
+                    render (text: any) {
                         return utils.formatDateTime(text)
                     },
                     width: '160px'
@@ -407,7 +408,7 @@ class PackageCreate extends React.Component<any, any> {
                     title: '修改时间',
                     dataIndex: 'modifyTime',
                     sorter: true,
-                    render(text: any) {
+                    render (text: any) {
                         return utils.formatDateTime(text)
                     },
                     width: '160px'
@@ -427,7 +428,7 @@ class PackageCreate extends React.Component<any, any> {
         }
     }
 
-    disabledDate(currentDate: any) {
+    disabledDate (currentDate: any) {
         const now = moment();
         if (currentDate > now) {
             return true
@@ -508,7 +509,7 @@ class PackageCreate extends React.Component<any, any> {
         }
         return baseItem;
     }
-    isSelect(record: any) {
+    isSelect (record: any) {
         const { selectedRows, listType } = this.state;
         const keys = selectedRows.filter(
             (item: any) => {

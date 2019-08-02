@@ -107,7 +107,7 @@ class Dashboard extends React.Component<any, any> {
                         <Alert
                             className='ant-alert_height'
                             message="请注意"
-                            description={<span>{this.state.alertMessage}, 点击<a target="_blank" href={`${window.COMMON_CONF.UIC_URL}/#/licensemanage`} >立即申请</a> </span>}
+                            description={<span>{this.state.alertMessage}, 点击<a target="_blank" rel="noopener noreferrer" href={`${window.COMMON_CONF.UIC_URL}/#/licensemanage`} >立即申请</a> </span>}
                             type="warning"
                             showIcon
                             closable

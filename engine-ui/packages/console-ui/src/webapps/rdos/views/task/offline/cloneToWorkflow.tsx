@@ -39,11 +39,11 @@ const Option = Select.Option;
             benchActions.toggleCloneToWorkflow();
         },
 
-        updateWorkflow: function(workflow: any) {
+        updateWorkflow: function (workflow: any) {
             benchActions.updateWorkflow(workflow)
         },
 
-        createWorkflowTask: function(data: any) {
+        createWorkflowTask: function (data: any) {
             return benchActions.createWorkflowTask(data)
         },
 
@@ -100,7 +100,7 @@ const Option = Select.Option;
     }
 }) as any)
 class CloneToWorkflowModal extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             loading: false
@@ -194,7 +194,7 @@ class CloneToWorkflowModal extends React.Component<any, any> {
         })
     }
 
-    handleSelectTreeChange(value: any) {
+    handleSelectTreeChange (value: any) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
     /**
@@ -202,7 +202,7 @@ class CloneToWorkflowModal extends React.Component<any, any> {
      * @param {any} id
      * @memberof FolderForm
      */
-    getFolderName(id: any) {
+    getFolderName (id: any) {
         const { taskTreeData } = this.props;
         let name: any;
 

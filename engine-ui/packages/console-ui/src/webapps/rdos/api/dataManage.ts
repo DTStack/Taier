@@ -160,7 +160,7 @@ export default {
         return http.post(dataManageReq.APPLY_CANCEL, params)
     },
     applyReply (params: any) {
-        return http.post(dataManageReq.ApplY_REPLY, params)
+        return http.post(dataManageReq.APPLY_REPLY, params)
     },
     getDdlList (params: any) {
         return http.post(dataManageReq.GET_DDL_LIST, params)

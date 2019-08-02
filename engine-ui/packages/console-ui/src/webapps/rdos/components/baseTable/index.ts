@@ -2,7 +2,7 @@ import * as React from 'react';
 
 export default class BaseTable extends React.Component<any, any> {
     state ={
-        table: {...{ data: [] }},
+        table: { ...{ data: [] } },
         loading: false,
 
         modalData: '',

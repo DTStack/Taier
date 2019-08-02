@@ -98,7 +98,7 @@ export const selection = (state = '', action: any) => {
 
 /** running**/
 // 运行中的任务
-export const running = (state:any = [], action: any) => {
+export const running = (state: any = [], action: any) => {
     switch (action.type) {
         case editorAction.ADD_LOADING_TAB: {
             const list = cloneDeep(state);

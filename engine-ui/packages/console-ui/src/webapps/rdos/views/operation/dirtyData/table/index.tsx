@@ -105,7 +105,7 @@ export default class TableDetail extends React.Component<any, any> {
 
         const tableInfo = tableData.table || {};
         const relTasks = tableInfo.tasks && tableInfo.tasks.map((i: any) => i.name);
-        const widthFix = { width: "100%" };
+        const widthFix = { width: '100%' };
         return (
             <div className="g-datamanage">
                 <div className="box-1">

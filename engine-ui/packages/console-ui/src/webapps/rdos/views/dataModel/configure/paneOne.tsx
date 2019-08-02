@@ -17,7 +17,7 @@ import BasePane from './basePane';
     }
 }) as any)
 class ModelLevel extends BasePane {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
 

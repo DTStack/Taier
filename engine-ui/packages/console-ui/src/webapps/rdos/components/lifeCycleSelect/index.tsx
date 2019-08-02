@@ -98,7 +98,7 @@ class LifeCycleSelect extends React.Component<any, any> {
                         size="large"
                         value={value}
                         style={{ width: inputWidth || 220, marginLeft: '5px' }}
-                        {...{min:0}}
+                        {...{ min: 0 }}
                         addonAfter={'天'}
                         placeholder="请输入生命周期"
                         onChange={this.customChange}

@@ -41,7 +41,7 @@ const ORDER_BY: any = {
 }) as any)
 class TableList extends React.Component<any, any> {
     isAdminAbove: any;
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         const { listType, pId, tableName, pageIndex, catalogueId, tableType } = props.location.query;
 
@@ -117,7 +117,7 @@ class TableList extends React.Component<any, any> {
             queryParams
         }, this.search)
     }
-    handleTabsChange(value: any) {
+    handleTabsChange (value: any) {
         let queryParams = Object.assign({}, this.state.queryParams, {
             listType: value,
             pageIndex: 1,
@@ -164,7 +164,7 @@ class TableList extends React.Component<any, any> {
         });
     }
 
-    showTableLog(table: any) {
+    showTableLog (table: any) {
         const { id, tableName } = table;
         const { tableLog } = this.state;
         tableLog.tableId = id;
@@ -229,7 +229,7 @@ class TableList extends React.Component<any, any> {
                 title: '表类型',
                 key: 'tableType',
                 dataIndex: 'tableType',
-                render(text: any) {
+                render (text: any) {
                     return TABLE_NAME_BY_TABLE_TYPE[text]
                 }
             },

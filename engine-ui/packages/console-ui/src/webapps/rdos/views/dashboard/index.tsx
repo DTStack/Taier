@@ -384,9 +384,9 @@ class Index extends React.Component<any, any> {
                                                                 v.status != 1 || (taskNav && !taskNav.isShow) ? '' : (
                                                                     <Col span={12}>
                                                                         <Card className="card-task"
-                                                                            {...{onClick: () => { this.setRouter('offline', v) }}}
-                                                                            {...{onMouseOver: (e: any) => { this.handleMouseOver(e) }}}
-                                                                            {...{onMouseOut: (e: any) => { this.handleMouseOut(e) }}}
+                                                                            {...{ onClick: () => { this.setRouter('offline', v) } }}
+                                                                            {...{ onMouseOver: (e: any) => { this.handleMouseOver(e) } }}
+                                                                            {...{ onMouseOut: (e: any) => { this.handleMouseOut(e) } }}
                                                                             noHovering
                                                                         >
                                                                             <span className="img-container">
@@ -401,7 +401,7 @@ class Index extends React.Component<any, any> {
                                                                 v.status != 1 || (operaNav && !operaNav.isShow) ? '' : (
                                                                     <Col span={12}>
                                                                         <Card className="card-task" style={{ padding: '1.5 0' }}
-                                                                            {...{onClick: () => { this.setRouter('operation', v) }}}
+                                                                            {...{ onClick: () => { this.setRouter('operation', v) } }}
                                                                             noHovering
                                                                         >
                                                                             运维中心

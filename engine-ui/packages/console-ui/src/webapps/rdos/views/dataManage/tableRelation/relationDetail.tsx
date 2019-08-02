@@ -11,7 +11,7 @@ import {
     workbenchActions
 } from '../../../store/modules/offlineTask/offlineAction'
 import { getProject } from '../../../store/modules/project';
-function renderLevel(level: any) {
+function renderLevel (level: any) {
     if (level === -1) {
         return <span style={{ color: 'rgb(236, 105, 65);' }}>环形血缘</span>
     }

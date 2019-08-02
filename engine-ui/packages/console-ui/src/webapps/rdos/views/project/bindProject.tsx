@@ -22,7 +22,7 @@ class BindProjectModal extends React.Component<any, any> {
         bindLoading: false,
         projectBindList: []
     }
-    getProjectList(value: any) {
+    getProjectList (value: any) {
         const { project, form } = this.props;
         const targetTenantId = value || form.getFieldValue('targetTenantId');
         Api.getBindingProjectList({

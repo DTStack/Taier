@@ -236,7 +236,7 @@ class ImportTarget extends React.Component<any, any> {
 
     debounceFormatChange = debounce(this.onFormatChange, 500, { 'maxWait': 2000 })
 
-    onTableChange(pagination: any) {
+    onTableChange (pagination: any) {
         this.setState({
             pagination: pagination
         })

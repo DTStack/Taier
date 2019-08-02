@@ -30,7 +30,7 @@ class ImportTemplateForm extends React.Component<any, any> {
         hashHistory.push('/database');
     }
 
-    sourceTypeChange(value: any) {
+    sourceTypeChange (value: any) {
         const { setFieldsValue } = this.props.form;
 
         this.setState({
@@ -43,7 +43,7 @@ class ImportTemplateForm extends React.Component<any, any> {
         })
     }
 
-    targetTypeChange(value: any) {
+    targetTypeChange (value: any) {
         const { setFieldsValue } = this.props.form;
 
         this.setState({
@@ -276,7 +276,7 @@ class SyncToolbar extends React.Component<any, any> {
 
     render () {
         const { execConfirmVisible } = this.state
-        const titleFix = { title: "导入模版" }
+        const titleFix = { title: '导入模版' }
         return (
             <span>
                 <Button

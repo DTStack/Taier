@@ -211,7 +211,7 @@ class CatalogueTree extends React.Component<any, any> {
                                             disabledAdd
                                                 ? <Icon type="edit" style={{ color: '#bfbfbf' }}/>
                                                 : <Icon type="edit"
-                                                    {...{onLoad:(e: any) => { this.onLoadEditable(e, data) }}}
+                                                    {...{ onLoad: (e: any) => { this.onLoadEditable(e, data) } }}
                                                     onClick={this.onEdit} />
                                         }
                                     </Tooltip>
@@ -297,7 +297,7 @@ class CatalogueTree extends React.Component<any, any> {
                 <Tree
                     showIcon
                     onSelect={onSelect}
-                    {...{onChange: onChange}}
+                    {...{ onChange: onChange }}
                     onExpand={this.onExpand}
                     // expandedKeys={ this.state.expendKeys }
                     autoExpandParent={ this.state.autoExpandParent }

@@ -15,6 +15,7 @@ class RightButton extends React.Component<any, any> {
         const src: any = {
             open: '/public/rdos/img/tip-syntax-active.svg',
             close: '/public/rdos/img/tip-syntax.svg',
+            // eslint-disable-next-line @typescript-eslint/camelcase
             dark_close: '/public/rdos/img/theme-dark/tip-syntax.svg'
         }
         let url = src.close;

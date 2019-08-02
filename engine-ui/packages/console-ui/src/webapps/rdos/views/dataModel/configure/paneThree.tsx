@@ -17,7 +17,7 @@ import FreshFrequencyModal from './paneThreeModal';
     }
 }) as any)
 class FreshFrequency extends BasePane {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
 

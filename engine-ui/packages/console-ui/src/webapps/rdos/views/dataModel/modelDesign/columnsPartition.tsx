@@ -79,6 +79,7 @@ export default class ColumnsPartition extends React.Component<any, any> {
                                 <Col span={7} className="cell">注释</Col>
                                 <Col span={5} className="cell">操作</Col>
                             </Row>
+                            {/* eslint-disable-next-line @typescript-eslint/camelcase */}
                             { partition_keys.map((partition: any, i: any) => <RowItem
                                 columnFileds={columnFileds}
                                 data={{ ...partition, isPartition: true }}

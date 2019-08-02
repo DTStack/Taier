@@ -243,14 +243,14 @@ class Workbench extends React.Component<any, any> {
                     {couldEdit && (
                         <span>
                             <Dropdown overlay={this.createMenu()} trigger={['click']}>
-                                <Button {...{title:"创建"}}>
+                                <Button {...{ title: '创建' }}>
                                     <MyIcon className="my-icon" type="focus" themeDark={themeDark} />
                                     新建<Icon type="down" />
                                 </Button>
                             </Dropdown>
                             <Button
                                 onClick={this.saveTab.bind(this, true, 'button')}
-                                {...{title:"保存任务"}}
+                                {...{ title: '保存任务' }}
                                 disabled={!isSaveAvaliable}
                             >
                                 <MyIcon className="my-icon" type="save" themeDark={themeDark} />保存
@@ -265,7 +265,7 @@ class Workbench extends React.Component<any, any> {
                     </Dropdown>
                     <Button
                         onClick={this.searchTask}
-                        {...{title:"打开任务"}}
+                        {...{ title: '打开任务' }}
                     >
                         <MyIcon className="my-icon" type="search" themeDark={themeDark} />
                         搜索

@@ -132,14 +132,14 @@ class SearchTaskModal extends React.Component<any, any> {
                 getContainer={() => getContainer('JS_search_task')}
             >
                 <Select
-                    {...{ id: "My_Search_Select" }}
+                    {...{ id: 'My_Search_Select' }}
                     mode="combobox"
                     showSearch
                     style={{ width: '100%' }}
                     placeholder="按任务名称搜索"
                     notFoundContent="没有发现相关任务"
                     defaultActiveFirstOption={true}
-                    {...{ showArrow: false} }
+                    {...{ showArrow: false } }
                     filterOption={false}
                     onChange={this.debounceSearch}
                     onSelect={this.onSelect}

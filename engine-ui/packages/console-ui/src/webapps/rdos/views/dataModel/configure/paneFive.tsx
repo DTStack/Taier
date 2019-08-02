@@ -188,7 +188,7 @@ class ModelDefineRule extends React.Component<any, any> {
                                 <div style={{ display: 'inline-block', marginBottom: '5px', lineHeight: 1.5 }}>
                                     <Button
                                         icon="plus"
-                                        {...{title: "添加规则"}}
+                                        {...{ title: '添加规则' }}
                                         size="default"
                                         style={{ marginRight: '5px' }}
                                         onClick={this.appendTbNameRule}
@@ -196,7 +196,7 @@ class ModelDefineRule extends React.Component<any, any> {
                                     {
                                         tbNameRules.length > 1 && <Button
                                             icon="minus"
-                                            {...{title: "移除规则"}}
+                                            {...{ title: '移除规则' }}
                                             size="default"
                                             style={{ marginRight: '5px' }}
                                             onClick={() => this.removeTbNameRule(tbNameRules.length - 1)}
