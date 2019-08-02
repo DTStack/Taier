@@ -200,7 +200,7 @@ describe('workbenchActions', () => {
         (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
-            .mockResolvedValueOnce({ ...response, code: 1 })
+            .mockResolvedValueOnce({ ...response, code: 1 });
 
         (api.saveOfflineJobData as any)
             .mockResolvedValue(response)
@@ -247,7 +247,7 @@ describe('workbenchActions', () => {
             taskVOS: ['taskVOS1', 'taskVOS2']
         };
         (api.saveOfflineJobData as any)
-            .mockResolvedValue(response)
+            .mockResolvedValue(response);
         (api.forceUpdateOfflineTask as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
