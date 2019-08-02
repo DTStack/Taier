@@ -260,8 +260,11 @@ public class ActionServiceImpl {
                     batchJobDAO.insert(rdosEngineBatchJob);
                     result =  true;
                 }else{
-
                     result = RdosTaskStatus.canStartAgain(rdosEngineBatchJob.getStatus());
+                    if (result) {
+                        batchJobRetryDAO.removeByJobId(jobId);
+                    }
+
                     if(result && rdosEngineBatchJob.getStatus().intValue() != RdosTaskStatus.ENGINEACCEPTED.getStatus() ){
                         int oldStatus = rdosEngineBatchJob.getStatus().intValue();
                         Integer update = batchJobDAO.updateTaskStatusCompareOld(rdosEngineBatchJob.getJobId(), RdosTaskStatus.ENGINEACCEPTED.getStatus(),oldStatus, paramAction.getName());
