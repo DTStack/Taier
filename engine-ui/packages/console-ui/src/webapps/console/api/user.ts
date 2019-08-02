@@ -8,7 +8,7 @@ export default {
     },
 
     getUserList (params?: any) {
-        return http.post(req.DATA_API_GET_USER_LIST, params)
+        return http.post((req as any).DATA_API_GET_USER_LIST, params)
     }
 
 }
