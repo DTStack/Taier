@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import './style.scss'
 
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 

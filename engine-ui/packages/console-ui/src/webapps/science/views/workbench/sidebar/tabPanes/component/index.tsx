@@ -7,7 +7,7 @@ import Loading from '../loading';
 import FolderTree from '../../../../../components/folderTree';
 import * as fileTreeActions from '../../../../../actions/base/fileTree';
 import * as experimentActions from '../../../../../actions/experimentActions';
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 import { siderBarType, VertexSize, TASK_ENUM, COMPONENT_TYPE } from '../../../../../consts';
 import api from '../../../../../api/experiment';
 

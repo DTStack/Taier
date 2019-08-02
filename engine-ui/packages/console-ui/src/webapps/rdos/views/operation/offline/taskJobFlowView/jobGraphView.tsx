@@ -15,7 +15,7 @@ import { taskTypeText, taskStatusText } from '../../../../components/display'
 import {
     getGeoByStartPoint
 } from 'utils/layout';
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 const {

@@ -8,7 +8,7 @@ import { cloneDeep } from 'lodash';
 import Api from '../../../api/dataManage'
 import MyIcon from '../../../components/icon'
 import RelationDetail from './relationDetail';
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 const {

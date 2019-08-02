@@ -22,7 +22,7 @@ import {
 } from '../../../../store/modules/offlineTask/offlineAction';
 import { TASK_TYPE, MENU_TYPE, PROJECT_TYPE } from '../../../../comm/const';
 import { isProjectCouldEdit } from '../../../../comm';
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 const {

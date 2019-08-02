@@ -17,4 +17,4 @@ const MxFactory: any = {
     }
 }
 
-module.exports = MxFactory;
+export default MxFactory;

@@ -15,7 +15,7 @@ import { taskStatusText } from '../../../../components/display'
 import JobGraphView, {
     mergeTreeNodes, replacTreeNodeField
 } from './jobGraphView';
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 const {

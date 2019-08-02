@@ -8,7 +8,7 @@ import {
     Tooltip, Icon
 } from 'antd';
 
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 import MyEdgeStyle from 'widgets/mxGraph/mxEdgeStyle';
 
 import MyIcon from '../../../../../components/icon';

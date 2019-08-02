@@ -5,7 +5,7 @@ import { debounce, cloneDeep, get } from 'lodash';
 import { message } from 'antd';
 import { bindActionCreators } from 'redux';
 import utils from 'utils';
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 import SearchModal from 'widgets/searchModal';
 
 import api from '../../../../../api/experiment';

@@ -12,7 +12,7 @@ import OperaRecordModal from './operaRecordModal';
 import { SCHEDULE_STATUS, TASK_TYPE } from '../../../../comm/const'
 
 import TaskGraphView, { mergeTreeNodes } from './taskGraphView'
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 const {

@@ -9,7 +9,7 @@ import {
 import Api from '../../../../api'
 import { TASK_TYPE } from '../../../../comm/const'
 import TaskGraphView, { mergeTreeNodes } from '../../../operation/offline/taskFlowView/taskGraphView'
-import * as MxFactory from 'widgets/mxGraph';
+import MxFactory from 'widgets/mxGraph';
 
 const Mx = MxFactory.create();
 const {

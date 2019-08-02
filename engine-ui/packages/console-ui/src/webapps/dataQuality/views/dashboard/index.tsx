@@ -13,7 +13,7 @@ import {
 import { dashBoardActions } from '../../actions/dashBoard';
 import DBApi from '../../api/dashBoard';
 
-const echarts = require('echarts/lib/echarts');
+import echarts from 'echarts/lib/echarts';
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
@@ -142,7 +142,7 @@ class DashBoard extends React.Component<any, any> {
     };
 
     initLineChart (chartData: any) {
-        let myChart = echarts.init(document.getElementById('alarm-trend'));
+        let myChart = echarts.init(document.getElementById('alarm-trend') as HTMLDivElement);
 
         let option: any = { ...lineAreaChartOptions };
 
