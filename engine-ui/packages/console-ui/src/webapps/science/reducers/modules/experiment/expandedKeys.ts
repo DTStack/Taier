@@ -1,6 +1,6 @@
 
 import { experimentFilesType } from '../../../consts/actionType/filesType';
-function expandedKeys (state = [], action: any) {
+function expandedKeys (state: any[] = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case experimentFilesType.UPDATE_EXPANDEDKEYS: {
