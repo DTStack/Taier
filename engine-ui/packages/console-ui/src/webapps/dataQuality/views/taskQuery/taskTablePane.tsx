@@ -7,7 +7,7 @@ import Resize from 'widgets/resize';
 
 import { lineAreaChartOptions, DATA_SOURCE } from '../../consts';
 import TQApi from '../../api/taskQuery';
-import echarts = require('echarts/lib/echarts');
+import echarts from 'echarts/lib/echarts';
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');

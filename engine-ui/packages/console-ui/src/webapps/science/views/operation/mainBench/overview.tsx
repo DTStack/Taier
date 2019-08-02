@@ -2,11 +2,11 @@ import * as React from 'react';
 import { Row, Col, Icon, Tabs } from 'antd';
 import { cloneDeep } from 'lodash';
 import Resize from 'widgets/resize';
-import { lineChartOptions } from '../../../comm/const.js';
+import { lineChartOptions } from '../../../comm/const';
 import { taskType } from '../../../consts';
 import Api from '../../../api/index';
 // 引入 ECharts 主模块
-import echarts = require('echarts/lib/echarts');
+import echarts from 'echarts/lib/echarts';
 // 引入柱状图
 require('echarts/lib/chart/line');
 // 引入提示框和标题组件
@@ -55,7 +55,7 @@ class Overview extends React.PureComponent<any, any> {
                 break;
             }
         }
-        let myChart = echarts.init(document.getElementById(id));
+        let myChart = echarts.init(document.getElementById(id) as HTMLDivElement);
         const option = cloneDeep(lineChartOptions);
         option.color = ['#2491F7', '#00A755', '#E64933', '#F5BD23'];
         option.title.text = '';
