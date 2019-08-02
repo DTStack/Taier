@@ -63,7 +63,15 @@ export default class TableRelation extends React.Component<any, any> {
         currentParent: {},
         visible: false
     }
-
+    Container: any;
+    layout: any;
+    graph: any;
+    executeLayout: any;
+    _parentPrev: any;
+    _parentNext: any;
+    _childPrev: any;
+    _childNext: any;
+    rootCell: any;
     componentDidMount () {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.layout = '';
@@ -174,7 +182,7 @@ export default class TableRelation extends React.Component<any, any> {
      */
     initRootTree = (rootData: any) => {
         rootData.isRoot = true;
-        const loop = (treeItem: any, parent: any) => {
+        const loop = (treeItem?: any, parent?: any) => {
             if (treeItem) {
                 treeItem.hide = false;
 
@@ -221,7 +229,7 @@ export default class TableRelation extends React.Component<any, any> {
         const props = treeType === 'parent' ? 'parentResult' : 'childResult';
         const nodeFlag = treeType === 'parent' ? 'isCurrentParent' : 'isCurrentChild';
 
-        const loop = (treeItem: any, parent: any) => {
+        const loop = (treeItem?: any, parent?: any) => {
             treeItem.parent = this.handParent(parent);
             if (isEqTable(treeItem, treeNode)) {
                 treeItem[nodeFlag] = true;
@@ -279,7 +287,7 @@ export default class TableRelation extends React.Component<any, any> {
         const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
         const childPage = currentChild.childResult ? currentChild.childResult : {};
 
-        const getGeo = (pos: any, po: any) => {
+        const getGeo = (pos?: any, po?: any) => {
             const x = pos && pos.geometry ? pos.geometry.x : 0;
             const y = pos && pos.geometry ? pos.geometry.y : 0;
 

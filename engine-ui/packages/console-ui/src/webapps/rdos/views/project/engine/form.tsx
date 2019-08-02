@@ -20,7 +20,6 @@ import {
 
 import HelpDoc from '../../helpDoc';
 import CopyIcon from 'main/components/copy-icon';
-
 const FormItem = Form.Item;
 
 const hdfsConf =
@@ -198,10 +197,9 @@ class EngineSourceForm extends React.Component<any, any> {
                             initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                 ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                         })(
-                            <Input
+                            <Input.TextArea
                                 className="no-scroll-bar"
-                                type="textarea" rows={5}
-
+                                rows={5}
                                 placeholder={hdfsConf}
                             />
                         )}
@@ -278,7 +276,7 @@ class EngineSourceForm extends React.Component<any, any> {
         const { sourceType } = this.state;
 
         return (
-            <Form autoComplete="off">
+            <Form>
                 <FormItem
                     {...formItemLayout}
                     label="引擎类型"

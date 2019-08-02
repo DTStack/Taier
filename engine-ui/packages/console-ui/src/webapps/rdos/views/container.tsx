@@ -24,6 +24,8 @@ const defaultPro: any = {
 }
 
 class Container extends React.Component<any, any> {
+    static propTypes = propType
+    static defaultProps = defaultPro
     componentDidMount () {
         const { dispatch } = this.props
         dispatch(UserAction.getUser())
@@ -85,8 +87,6 @@ class Container extends React.Component<any, any> {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
 
 function mapStateToProps (state: any) {
     return {

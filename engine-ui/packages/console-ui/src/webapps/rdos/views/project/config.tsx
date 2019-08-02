@@ -14,7 +14,6 @@ import utils from 'utils'
 import { formItemLayout, PROJECT_TYPE } from '../../comm/const'
 import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project'
-
 const FormItem = Form.Item
 
 function myFrom (props: any) {
@@ -46,14 +45,14 @@ function myFrom (props: any) {
                     }],
                     initialValue: props.project ? props.project.projectDesc : ''
                 })(
-                    <Input type="textarea" rows={4} />
+                    <Input.TextArea rows={4} />
                 )}
             </FormItem>
         </Form>
     )
 }
-
-const DescForm = Form.create<any>()(myFrom)
+const myFormFunc: any = myFrom;
+const DescForm = Form.create<any>()(myFormFunc)
 
 class ProjectConfig extends React.Component<any, any> {
     state: any = {
@@ -62,7 +61,7 @@ class ProjectConfig extends React.Component<any, any> {
         isAllowDownloadLoading: false,
         visibleChangeProduce: false
     }
-
+    myForm: any;
     updateProjectDesc = () => {
         const { params, project, dispatch } = this.props
         const ctx = this

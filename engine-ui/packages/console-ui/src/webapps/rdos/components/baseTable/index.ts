@@ -26,6 +26,6 @@ export default class BaseTable extends React.Component<any, any> {
         const params = Object.assign(this.state.params, {
             pageIndex: pagination.current
         })
-        this.setState(params, this.loadData)
+        this.setState(params)
     }
 }

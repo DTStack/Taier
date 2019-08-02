@@ -24,7 +24,7 @@ class CreateWorkSpace extends React.Component<any, any> {
             projectDesc: undefined
         }
     }
-    form = React.createRef()
+    form: any = React.createRef()
     componentDidMount () {
         this.getSupportEngineType()
         this.getProjectList();

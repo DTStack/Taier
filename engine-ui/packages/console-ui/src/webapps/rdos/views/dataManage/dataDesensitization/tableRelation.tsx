@@ -8,12 +8,12 @@ const Search = Input.Search;
 const InputGroup = Input.Group;
 const confirm = Modal.confirm;
 const Option = Select.Option;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class TableRelation extends React.Component<any, any> {
     state: any = {
         tableData: [], // 父级传递参数
@@ -457,7 +457,7 @@ class TableRelation extends React.Component<any, any> {
                         rowSelection={rowSelection}
                         onChange={this.handleTableChange}
                         pagination={pagination}
-                        footer={dataSource && dataSource.length > 0 ? this.tableFooter : ''}
+                        footer={dataSource && dataSource.length > 0 ? this.tableFooter : null}
                     />
                 </Card>
             </div>

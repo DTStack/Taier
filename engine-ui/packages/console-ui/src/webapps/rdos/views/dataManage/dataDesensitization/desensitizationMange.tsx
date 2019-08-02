@@ -10,13 +10,13 @@ import TableRelation from './tableRelation';
 import BloodRelation from './bloodRelation';
 const Search = Input.Search;
 const TabPane = Tabs.TabPane;
-const Option = Select.Option;
-@(connect((state: any) as any) => {
+const Option: any = Select.Option;
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 
 class DesensitizationMange extends React.Component<any, any> {
     state: any = {

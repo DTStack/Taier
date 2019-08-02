@@ -43,7 +43,7 @@ export default class BaseForm extends React.Component<any, any> {
         this.props.form.setFieldsValue({ 'lifeDay': value })
     }
 
-    changeTableName = (value: any, index: any, modelType: any, option: any) => {
+    changeTableName = (value?: any, index?: any, modelType?: any, option?: any) => {
         const newArrs: any = [...this.state.tableNameArr];
         newArrs[index] = value;
         this.setState({ tableNameArr: newArrs });
@@ -171,9 +171,9 @@ export default class BaseForm extends React.Component<any, any> {
                     {
                         data && data.map((item: any) =>
                             <Option
-                                id={item.id}
+                                {...{id: item.id}}
                                 key={item.id}
-                                data={item}
+                                {...{data: item}}
                                 title={item.prefix}
                                 value={item.prefix}
                             >

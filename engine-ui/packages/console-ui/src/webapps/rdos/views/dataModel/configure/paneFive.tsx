@@ -14,19 +14,18 @@ import {
 
 import Api from '../../../api/dataModel';
 
-const Option = Select.Option;
+const Option: any = Select.Option;
 const FormItem = Form.Item;
-
 const defaultRule: any = {
     value: TABLE_MODEL_RULE.CUSTOM,
     name: '自定义'
 };
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class ModelDefineRule extends React.Component<any, any> {
     state: any = {
         tbNameRules: []
@@ -189,16 +188,16 @@ class ModelDefineRule extends React.Component<any, any> {
                                 <div style={{ display: 'inline-block', marginBottom: '5px', lineHeight: 1.5 }}>
                                     <Button
                                         icon="plus"
-                                        title="添加规则"
-                                        size="normal"
+                                        {...{title: "添加规则"}}
+                                        size="default"
                                         style={{ marginRight: '5px' }}
                                         onClick={this.appendTbNameRule}
                                     />
                                     {
                                         tbNameRules.length > 1 && <Button
                                             icon="minus"
-                                            title="移除规则"
-                                            size="normal"
+                                            {...{title: "移除规则"}}
+                                            size="default"
                                             style={{ marginRight: '5px' }}
                                             onClick={() => this.removeTbNameRule(tbNameRules.length - 1)}
                                         />

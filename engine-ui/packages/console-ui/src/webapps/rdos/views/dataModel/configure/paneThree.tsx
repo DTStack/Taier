@@ -11,11 +11,11 @@ import utils from 'utils';
 import BasePane from './basePane';
 import FreshFrequencyModal from './paneThreeModal';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class FreshFrequency extends BasePane {
     constructor(props: any) {
         super(props);

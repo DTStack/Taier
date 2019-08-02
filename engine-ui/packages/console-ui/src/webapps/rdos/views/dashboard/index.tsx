@@ -10,7 +10,7 @@ import Api from '../../api'
 import * as ProjectAction from '../../store/modules/project';
 import NoData from '../../components/no-data';
 
-const Search = Input.Search;
+const Search: any = Input.Search;
 const Option = Select.Option;
 class Index extends React.Component<any, any> {
     state: any = {
@@ -26,7 +26,8 @@ class Index extends React.Component<any, any> {
             orderBy: undefined
         }
     }
-
+    _isUnmounted: any;
+    _timeClock: any;
     componentDidMount () {
         this.getProjectListInfo();
     }
@@ -166,7 +167,7 @@ class Index extends React.Component<any, any> {
         </div>
         const title = <div>
             <Row>
-                <Col span="16" >
+                <Col span={16} >
                     {data.status == 1 ? (
                         <Link to={`/offline/task?projectId=${data.id}`}>
                             <span className="company-name" onClick={() => { this.setRouter('operation', data) }}>
@@ -180,7 +181,7 @@ class Index extends React.Component<any, any> {
                     {(data.projectType == 1) ? developImg : ((data.projectType == 2) ? produceImg : null)}
                     {/* {produceImg} */}
                 </Col>
-                <Col span="8">
+                <Col span={8}>
                     {tooltipImg}
                 </Col>
             </Row>
@@ -314,7 +315,7 @@ class Index extends React.Component<any, any> {
             <Spin tip="Loading..." spinning={loading} delay={500} >
                 <div className="project-dashboard develop-kit" style={{ padding: '20px 35px' }}>
                     <Row gutter={10}>
-                        <Col span="16" >
+                        <Col span={16} >
                             <Select
                                 className="project-select"
                                 allowClear={true}
@@ -334,7 +335,7 @@ class Index extends React.Component<any, any> {
                                 创建项目
                             </Button>
                         </Col>
-                        <Col span="8" >
+                        <Col span={8} >
                             <div className="sortTitle">
                                 <span className="faileSort" style={sortTitleStatus == 2 ? { color: '#2491F7' } : {}} onClick={() => { this.changeSort('faileSort') }}>按任务失败数排序</span>
                                 <span className="faileSort">|</span>
@@ -343,23 +344,23 @@ class Index extends React.Component<any, any> {
                         </Col>
                     </Row>
                     <Row style={{ marginTop: '10px' }} gutter={10}>
-                        <Col span="24" >
+                        <Col span={24} >
                             <Row gutter={10} style={{ margin: 0 }}>
                                 {
                                     projectListInfo && projectListInfo.length === 0 && !loading ? <NoData/> : ''
                                 }
                                 {
                                     projectListInfo && projectListInfo.map((v: any) => {
-                                        return <Col span="8" className="card-width" key={v.id} style={{ padding: 0 }}>
+                                        return <Col span={8} className="card-width" key={v.id} style={{ padding: 0 }}>
                                             <Card className="general-card" title={this.generalTitle(v)} noHovering bordered={false}>
                                                 <Row className="card-content" >
-                                                    <Col span="16">
+                                                    <Col span={16}>
                                                         <div className="statistics" >已提交/总任务数： <span className="statistics-info">{`${v.taskCountMap.submitCount}/${v.taskCountMap.allCount}`}</span></div>
                                                         <div className="statistics" >表数量： <span className="statistics-info">{v.tableCount}</span></div>
                                                         <div className="statistics" >项目占用存储： <span className="statistics-info">{v.totalSize}</span></div>
                                                         <div className="statistics" >创建时间： <span className="statistics-info">{moment(v.gmtCreate).format('YYYY-MM-DD HH:mm:ss')}</span></div>
                                                     </Col>
-                                                    <Col span="8">
+                                                    <Col span={8}>
                                                         <div style={{ fontSize: 14 }}>今日任务失败数</div>
                                                         {v.status != 1 ? (
                                                             <div className="number no-hover">
@@ -377,15 +378,15 @@ class Index extends React.Component<any, any> {
                                                             </div>
                                                         )}
                                                     </Col>
-                                                    <Col span="24" className="card-task-padding">
+                                                    <Col span={24} className="card-task-padding">
                                                         <Row>
                                                             {
                                                                 v.status != 1 || (taskNav && !taskNav.isShow) ? '' : (
-                                                                    <Col span="12">
+                                                                    <Col span={12}>
                                                                         <Card className="card-task"
-                                                                            onClick={() => { this.setRouter('offline', v) }}
-                                                                            onMouseOver={(e: any) => { this.handleMouseOver(e) }}
-                                                                            onMouseOut={(e: any) => { this.handleMouseOut(e) }}
+                                                                            {...{onClick: () => { this.setRouter('offline', v) }}}
+                                                                            {...{onMouseOver: (e: any) => { this.handleMouseOver(e) }}}
+                                                                            {...{onMouseOut: (e: any) => { this.handleMouseOut(e) }}}
                                                                             noHovering
                                                                         >
                                                                             <span className="img-container">
@@ -398,9 +399,9 @@ class Index extends React.Component<any, any> {
                                                             }
                                                             {
                                                                 v.status != 1 || (operaNav && !operaNav.isShow) ? '' : (
-                                                                    <Col span="12">
+                                                                    <Col span={12}>
                                                                         <Card className="card-task" style={{ padding: '1.5 0' }}
-                                                                            onClick={() => { this.setRouter('operation', v) }}
+                                                                            {...{onClick: () => { this.setRouter('operation', v) }}}
                                                                             noHovering
                                                                         >
                                                                             运维中心

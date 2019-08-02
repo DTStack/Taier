@@ -27,7 +27,7 @@ class OperaRecordModal extends React.Component<any, any> {
             })
         }
     }
-    getOperaRecordData = (param: any) => {
+    getOperaRecordData = (param?: any) => {
         this.setState({
             loading: true
         })
@@ -50,7 +50,9 @@ class OperaRecordModal extends React.Component<any, any> {
             queryParams: Object.assign({}, this.state.queryParams, {
                 currentPage: pagination.current
             })
-        }, this.getOperaRecordData(this.state.queryParams))
+        }, () => {
+            this.getOperaRecordData(this.state.queryParams)
+        })
     }
     initColumns = () => {
         return [

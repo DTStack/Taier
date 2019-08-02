@@ -69,7 +69,7 @@ export function getProjects (params?: any) {
     }
 }
 
-export function getAllProjects (params: any) {
+export function getAllProjects (params?: any) {
     return function fn (dispatch: any) {
         Api.getAllProjects(params).then((res: any) => {
             return dispatch({
@@ -80,7 +80,7 @@ export function getAllProjects (params: any) {
     }
 }
 // 获取租户下所有项目
-export function getTenantProjects (params: any) {
+export function getTenantProjects (params?: any) {
     return function fn (dispatch: any) {
         Api.getTenantProjects(params).then((res: any) => {
             return dispatch({
@@ -91,7 +91,7 @@ export function getTenantProjects (params: any) {
     }
 }
 // 项目支持引擎
-export function getProjectSupportEngine (params: any) {
+export function getProjectSupportEngine (params?: any) {
     return function fn (dispatch: any) {
         Api.getProjectSupportEngines(params).then((res: any) => {
             return dispatch({

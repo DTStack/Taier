@@ -1,8 +1,8 @@
 import * as React from 'react'
 
 import {
-    Form, Table, Checkbox,
-    Input, Select, Row, Radio
+    Form, Table, Checkbox, Input,
+    InputNumber, Select, Row, Radio
 } from 'antd';
 
 import TableCell from 'widgets/tableCell'
@@ -150,9 +150,8 @@ export default class ImportSource extends React.Component<any, any> {
                             {...formItemLayout}
                             label="导入起始行"
                         >
-                            <Input
+                            <InputNumber
                                 onChange={this.changeStartLine}
-                                type="number"
                                 min={1}
                                 max={data.length}
                                 value={formState.startLine}

@@ -27,7 +27,7 @@ class SearchTaskModal extends React.Component<any, any> {
             data: undefined
         };
     }
-
+    _keyStack: any;
     componentDidMount () {
         this._keyStack = {};
         addEventListener('keydown', this.bindEvent, false)
@@ -65,7 +65,7 @@ class SearchTaskModal extends React.Component<any, any> {
         return false;
     }
 
-    close = (cb: any) => {
+    close = (cb?: any) => {
         this.props.showSeach(false);
         this._keyStack = {};
         this.setState({ visible: false, windowsKey: {}, data: undefined })
@@ -118,7 +118,7 @@ class SearchTaskModal extends React.Component<any, any> {
         const { data } = this.state;
         const { visibleSearchTask } = this.props;
         const options = data && data.map((item: any) =>
-            <Option key={item.id} data={item} value={item.name}>
+            <Option key={item.id} {...{ data: item }} value={item.name}>
                 {item.name}
             </Option>
         )
@@ -132,16 +132,15 @@ class SearchTaskModal extends React.Component<any, any> {
                 getContainer={() => getContainer('JS_search_task')}
             >
                 <Select
-                    id="My_Search_Select"
+                    {...{ id: "My_Search_Select" }}
                     mode="combobox"
                     showSearch
                     style={{ width: '100%' }}
                     placeholder="按任务名称搜索"
                     notFoundContent="没有发现相关任务"
                     defaultActiveFirstOption={true}
-                    showArrow={false}
+                    {...{ showArrow: false} }
                     filterOption={false}
-                    autoComplete="off"
                     onChange={this.debounceSearch}
                     onSelect={this.onSelect}
                     getPopupContainer={() => getContainer('JS_search_task')}

@@ -86,7 +86,7 @@ const getTaskBaseData = (task: any) => {
 }
 
 /* eslint-disable */
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { offlineTask, project, user, editor } = state;
     const { workbench, workflow, dataSync } = offlineTask;
     const { currentTab, tabs } = workbench;
@@ -101,13 +101,19 @@ const getTaskBaseData = (task: any) => {
         taskTypes: offlineTask.comm.taskTypes,
         project: project
     }
-}, workbenchActions)
+}, workbenchActions) as any)
 class WorkflowEditor extends React.Component<any, any> {
     state: any = {
         showSearch: false,
         showGuidePic: false
     }
-
+    Container: any;
+    graph: any;
+    _cacheCells: any;
+    _currentNewVertex: any;
+    _currentSourceType: any;
+    undoMana: any;
+    executeLayout: any;
     componentDidMount () {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.graph = null;
@@ -306,9 +312,9 @@ class WorkflowEditor extends React.Component<any, any> {
 
         const editSucc = (evt: any) => {
             const originName = task.name;
-            if ((evt.type === 'keypress' && event.keyCode === 13) || evt.type === 'blur') {
+            if ((evt.type === 'keypress' && (event as any).keyCode === 13) || evt.type === 'blur') {
                 editTarget.style.display = 'none';
-                const value = utils.trim(editTarget.value);
+                const value = utils.trim((editTarget as any).value);
                 if (checkNodeName(value) && value !== originName) {
                     const taskData = Object.assign({}, task, {
                         name: value
@@ -751,7 +757,7 @@ class WorkflowEditor extends React.Component<any, any> {
 
     initGraphEvent = () => {
         const graph = this.graph;
-        let selectedCell = null;
+        let selectedCell: any = null;
         const { openTaskInDev } = this.props;
         let highlightEdges: any = [];
 
@@ -776,7 +782,7 @@ class WorkflowEditor extends React.Component<any, any> {
             const cell = evt.getProperty('cell');
             const event = evt.getProperty('event');
 
-            const activeElement = document.activeElement;
+            const activeElement: any = document.activeElement;
             // 当从编辑对象触发点击事件时，清除activeElement的焦点
             if (
                 activeElement && activeElement.className.indexOf('vertex-input') > -1) {
@@ -847,7 +853,7 @@ class WorkflowEditor extends React.Component<any, any> {
         }
         for (let i = 0; i < cells.length; i++) {
             const cell = cells[i];
-            const cellItem = getCellData(cell);
+            const cellItem: any = getCellData(cell);
             if (cell.edge) {
                 cellItem.source = getCellData(cell.source);
                 cellItem.target = getCellData(cell.target);
@@ -966,9 +972,9 @@ class WorkflowEditor extends React.Component<any, any> {
                     title={showTitle(item.key, item.value)}
                 >
                     <Button
-                        id={`${WIDGETS_PREFIX}${item.key}`}
+                        {...{id:`${WIDGETS_PREFIX}${item.key}`}}
                         className="widgets-items"
-                        value={item.key}>
+                        {...{value:item.key}}>
                         {item.value}
                     </Button>
                 </Tooltip>
@@ -990,7 +996,7 @@ class WorkflowEditor extends React.Component<any, any> {
     render () {
         const { searchResult, showGuidePic } = this.state;
         const options = searchResult && searchResult.map((d: any) => {
-            return <Option key={d.id} data={d.id} value={d.name}>{d.name}</Option>
+            return <Option key={d.id} {...{data:d.id}} value={d.name}>{d.name}</Option>
         })
 
         const { editor } = this.props;
@@ -1060,16 +1066,15 @@ class WorkflowEditor extends React.Component<any, any> {
                         footer={null}
                     >
                         <Select
-                            id="JS_Search_Node"
+                            {...{id:"JS_Search_Node"}}
                             mode="combobox"
                             showSearch
                             style={{ width: '100%' }}
                             placeholder="按子节点名称搜索"
                             notFoundContent="没有发现相关节点"
                             defaultActiveFirstOption={false}
-                            showArrow={false}
+                            {...{showArrow:false}}
                             filterOption={false}
-                            autoComplete="off"
                             onChange={this.debounceSearch}
                             onSelect={this.onSelectResult}
                         >

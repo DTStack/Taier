@@ -55,12 +55,12 @@ export const isEqTable = (from: any, compareTo: any) => {
         from.belongProjectId === compareTo.belongProjectId &&
         from.column === compareTo.column
 }
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class BloodRelation extends React.Component<any, any> {
     state: any = {
         selectedData: '', // 选中的数据
@@ -72,7 +72,15 @@ class BloodRelation extends React.Component<any, any> {
         visible: false,
         allHideparams: {} // 根节点参数，用于展开上下游收起对应上下游
     }
-
+    Container: any;
+    layout: any;
+    graph: any;
+    executeLayout: any;
+    _parentPrev: any;
+    _parentNext: any;
+    _childPrev: any;
+    _childNext: any;
+    rootCell: any;
     componentDidMount () {
         this.Container.innerHTML = ''; // 清理容器内的Dom元素
         this.layout = '';
@@ -244,7 +252,7 @@ class BloodRelation extends React.Component<any, any> {
      */
     initRootTree = (rootData: any) => {
         rootData.isRoot = true;
-        const loop = (treeItem: any, parent: any) => {
+        const loop = (treeItem?: any, parent?: any) => {
             if (treeItem) {
                 treeItem.hide = false;
 
@@ -291,7 +299,7 @@ class BloodRelation extends React.Component<any, any> {
         const props = treeType === 'parent' ? 'parentResult' : 'childResult';
         const nodeFlag = treeType === 'parent' ? 'isCurrentParent' : 'isCurrentChild';
 
-        const loop = (treeItem: any, parent: any) => {
+        const loop = (treeItem?: any, parent?: any) => {
             treeItem.parent = this.handParent(parent);
             if (isEqTable(treeItem, treeNode)) {
                 treeItem[nodeFlag] = true;
@@ -349,7 +357,7 @@ class BloodRelation extends React.Component<any, any> {
         const parentPage = currentParent.parentResult ? currentParent.parentResult : {};
         const childPage = currentChild.childResult ? currentChild.childResult : {};
 
-        const getGeo = (pos: any, po: any) => {
+        const getGeo = (pos?: any, po?: any) => {
             const x = pos && pos.geometry ? pos.geometry.x : 0;
             const y = pos && pos.geometry ? pos.geometry.y : 0;
 

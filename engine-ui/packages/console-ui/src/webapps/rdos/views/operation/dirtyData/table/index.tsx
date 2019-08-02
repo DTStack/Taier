@@ -31,7 +31,7 @@ export default class TableDetail extends React.Component<any, any> {
             showType: 0 // 0/1 (非)字段
         };
     }
-
+    tableId: any;
     componentDidMount () {
         this.getTable();
     }
@@ -105,7 +105,7 @@ export default class TableDetail extends React.Component<any, any> {
 
         const tableInfo = tableData.table || {};
         const relTasks = tableInfo.tasks && tableInfo.tasks.map((i: any) => i.name);
-
+        const widthFix = { width: "100%" };
         return (
             <div className="g-datamanage">
                 <div className="box-1">
@@ -120,7 +120,7 @@ export default class TableDetail extends React.Component<any, any> {
                                     <h3>基本信息</h3>
                                     {tableInfo && (
                                         <table
-                                            width="100%"
+                                            {...widthFix}
                                             cellPadding="0"
                                             cellSpacing="0"
                                         >
@@ -163,7 +163,7 @@ export default class TableDetail extends React.Component<any, any> {
                                     <h3>存储信息</h3>
                                     {tableInfo && (
                                         <table
-                                            width="100%"
+                                            {...widthFix}
                                             cellPadding="0"
                                             cellSpacing="0"
                                         >

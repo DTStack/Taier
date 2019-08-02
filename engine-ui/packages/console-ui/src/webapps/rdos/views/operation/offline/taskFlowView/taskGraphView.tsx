@@ -91,8 +91,10 @@ class TaskGraphView extends React.Component<any, any> {
     state: any = {
         loading: 'success'
     }
-    _view = null; // 存储view信息
-
+    _view:any = null; // 存储view信息
+    Container: any;
+    graph: any;
+    _cacheLevel: any;
     static getDerivedStateFromProps (props: any, state: any) {
         return {
             loading: props.loading
@@ -220,7 +222,7 @@ class TaskGraphView extends React.Component<any, any> {
 
         // 计算节点的 Level
         const caculateNodeLevel = (source: any, target: any, parent: any, level: any) => {
-            let node = null;
+            let node: any = null;
             if (source && !source._geometry) {
                 node = source;
             } else if (target && !target._geometry) {

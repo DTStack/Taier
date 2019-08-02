@@ -16,7 +16,7 @@ import CatalogueTree from './catalogTree';
 import ajax from '../../api/dataManage';
 
 const FormItem = Form.Item
-const Option = Select.Option
+const Option: any = Select.Option
 const TabPane = Tabs.TabPane
 
 const ROUTER_BASE = '/data-manage/table';
@@ -24,7 +24,7 @@ const ORDER_BY: any = {
     'ascend': 1,
     'descend': 2
 }
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         allProjects: state.allProjects,
         allTenantsProjects: state.allTenantsProjects,
@@ -38,8 +38,9 @@ const ORDER_BY: any = {
             dispatch(getTenantTableTypes(params))
         }
     }
-})
+}) as any)
 class TableList extends React.Component<any, any> {
+    isAdminAbove: any;
     constructor(props: any) {
         super(props);
         const { listType, pId, tableName, pageIndex, catalogueId, tableType } = props.location.query;

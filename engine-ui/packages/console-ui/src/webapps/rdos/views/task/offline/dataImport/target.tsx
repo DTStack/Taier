@@ -21,10 +21,10 @@ import HelpDoc, { relativeStyle } from '../../../helpDoc';
 
 const RadioGroup = Radio.Group
 const FormItem = Form.Item
-const Option = Select.Option
+const Option: any = Select.Option
 
 // Table Data
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         tables: state.offlineTask.comm.tables,
@@ -39,7 +39,7 @@ const Option = Select.Option
             dispatch(getProjectTableTypes(projectId));
         }
     }
-})
+}) as any)
 class ImportTarget extends React.Component<any, any> {
     state: any = {
         visible: false,
@@ -277,7 +277,7 @@ class ImportTarget extends React.Component<any, any> {
         })
     }
 
-    generateCols = (data: any) => {
+    generateCols = (data?: any) => {
         const { formState, warning } = this.props;
         const { pagination } = this.state;
         const { columnMap } = formState;
@@ -386,7 +386,7 @@ class ImportTarget extends React.Component<any, any> {
         const { tableList, tableData, queryTable, asTitle, sync, sqlText, tableType } = formState
         const { pagination } = this.state;
         const { getFieldDecorator } = this.props.form;
-        const columns = this.generateCols(data, tableData)
+        const columns = this.generateCols(data)
 
         const paritions = this.generatePartitions(tableData.partition || [])
         const dataSource = tableData && tableData.column
@@ -398,7 +398,7 @@ class ImportTarget extends React.Component<any, any> {
         )
 
         const DDL_TEMPLATE = isLibraTable(tableType) ? LIBRA_DDL_IDE_PLACEHOLDER : DDL_IDE_PLACEHOLDER;
-
+        const showArrowFix = { showArrow: false }
         return (
             <div style={{ display: display === 'target' ? 'block' : 'none' }}>
                 <Row>
@@ -432,7 +432,7 @@ class ImportTarget extends React.Component<any, any> {
                                     notFoundContent="没有发现相关表"
                                     value={queryTable}
                                     placeholder="请输入表名"
-                                    showArrow={false}
+                                    {...showArrowFix}
                                     filterOption={false}
                                     defaultActiveFirstOption={false}
                                 >

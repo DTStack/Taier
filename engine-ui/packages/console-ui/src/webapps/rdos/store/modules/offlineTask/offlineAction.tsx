@@ -218,7 +218,7 @@ export const keyMapActions = (dispatch: any, ownProps: any) => {
 };
 
 // workbenchActions
-export const workbenchActions = (dispatch: any) => {
+export const workbenchActions = (dispatch?: any) => {
     const closeAll = (tabs: any) => {
         for (let i in tabs) {
             dispatch(stopSql(tabs[i].id, null, true))
@@ -242,9 +242,9 @@ export const workbenchActions = (dispatch: any) => {
     };
 
     const reloadTaskTab = (taskId: any, isScript?: any) => {
-        let method = isScript ? 'getScriptById' : 'getOfflineTaskDetail'
+        let method: any = isScript ? 'getScriptById' : 'getOfflineTaskDetail';
         // 更新tabs数据
-        ajax[method]({
+        (ajax as any)[method]({
             id: taskId
         }).then((res: any) => {
             if (res.code === 1) {
@@ -511,7 +511,7 @@ export const workbenchActions = (dispatch: any) => {
                 })
         },
 
-        saveTask (task: any, noMsg: any) {
+        saveTask (task?: any, noMsg?: any) {
             // 删除不必要的字段
             delete task.taskVersions;
 
@@ -853,7 +853,7 @@ export const workbenchActions = (dispatch: any) => {
         /**
          * @param isFunc // 函数管理，默认请求第一层数据
          */
-        loadTreeNode: async (nodePid: any, type: any, option = {}, isFunc: any) => {
+        loadTreeNode: async (nodePid?: any, type?: any, option = {}, isFunc?: any) => {
             const res = await ajax.getOfflineCatalogue({
                 isGetFile: !!1,
                 nodePid,
@@ -921,7 +921,7 @@ export const workbenchActions = (dispatch: any) => {
                 }
             }
         },
-        delOfflineTask (params: any, nodePid: any, type: any) {
+        delOfflineTask (params?: any, nodePid?: any, type?: any) {
             return ajax.delOfflineTask(params)
                 .then((res: any) => {
                     if (res.code == 1) {
@@ -942,7 +942,7 @@ export const workbenchActions = (dispatch: any) => {
                 });
         },
 
-        delOfflineScript (params: any, nodePid: any, type: any) {
+        delOfflineScript (params?: any, nodePid?: any, type?: any) {
             ajax.deleteScript(params)
                 .then((res: any) => {
                     if (res.code == 1) {
@@ -1035,21 +1035,21 @@ export const workbenchActions = (dispatch: any) => {
             });
         },
 
-        toggleCreateTask: function (data: any) {
+        toggleCreateTask: function (data?: any) {
             dispatch({
                 type: modalAction.TOGGLE_CREATE_TASK,
                 payload: data
             });
         },
         // 克隆任务
-        toggleCloneTask: function (data: any) {
+        toggleCloneTask: function (data?: any) {
             dispatch({
                 type: modalAction.TOGGLE_CLONE_TASK,
                 payload: data
             });
         },
         // 克隆至工作流
-        toggleCloneToWorkflow: function (data: any) {
+        toggleCloneToWorkflow: function (data?: any) {
             dispatch({
                 type: modalAction.TOGGLE_CLONE_TO_WORKFLOW,
                 payload: data

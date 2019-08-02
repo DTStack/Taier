@@ -45,10 +45,10 @@ describe('editor action', () => {
         };
         if (isScript) {
             task.type = TASK_TYPE.SQL
-            api.execScript.mockResolvedValue(respWithoutPoll);
+            (api.execScript as any).mockResolvedValue(respWithoutPoll);
         } else {
             task.taskType = TASK_TYPE.SQL
-            api.execSQLImmediately.mockResolvedValue(respWithoutPoll);
+            (api.execSQLImmediately as any).mockResolvedValue(respWithoutPoll);
         }
         let params: any = {
             isCheckDDL: 0,
@@ -95,10 +95,10 @@ describe('editor action', () => {
             store.clearActions();
             if (isScript) {
                 task.type = TASK_TYPE.SQL
-                api.execScript.mockResolvedValue(errorResp);
+                (api.execScript as any).mockResolvedValue(errorResp);
             } else {
                 task.taskType = TASK_TYPE.SQL
-                api.execSQLImmediately.mockResolvedValue(errorResp);
+                (api.execSQLImmediately as any).mockResolvedValue(errorResp);
             }
             return execSql(currentTab, task, params, sqls)(store.dispatch)
         }).then((isComplete: any) => {
@@ -129,17 +129,17 @@ describe('editor action', () => {
             }]);
         })
     }
-    function mockMultipleTaskWithPoll (isScript: any, testStop: any) {
+    function mockMultipleTaskWithPoll (isScript?: any, testStop?: any) {
         let currentTab = 666;
         let task: any = {
             id: 666
         };
         if (isScript) {
             task.type = TASK_TYPE.SQL
-            api.execScript.mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
+            (api.execScript as any).mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
         } else {
             task.taskType = TASK_TYPE.SQL
-            api.execSQLImmediately.mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
+            (api.execSQLImmediately as any).mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
         }
         let params: any = {
             isCheckDDL: 0,

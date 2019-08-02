@@ -8,22 +8,22 @@ import { getHeaderLogo } from 'main/consts';
 import Api from '../../api';
 import { PROJECT_TYPE, HELP_DOC_URL } from '../../comm/const';
 import * as ProjectAction from '../../store/modules/project';
-
+declare var window: any;
 // eslint-disable-next-line
-const UIC_URL_TARGET = APP_CONF.UIC_URL || '';
+const UIC_URL_TARGET = window.APP_CONF.UIC_URL || '';
 
 const SubMenu = Menu.SubMenu;
 const confirm = Modal.confirm;
 const Search = Input.Search;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { workbench } = state.offlineTask;
 
     return {
         offlineTabs: workbench.tabs,
         licenseApps: state.licenseApps
     }
-})
+}) as any)
 class Header extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -71,7 +71,7 @@ class Header extends React.Component<any, any> {
             this.checkUnSaveTask(switchProject);
         }
     }
-    searchProject = (value: any) => {
+    searchProject = (value?: any) => {
         this.setState({
             filter: value || ''
         })

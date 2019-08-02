@@ -28,11 +28,11 @@ function replaceTreeNode (treeNode: any, replace: any, replaceKey: any) {
     }
 }
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class PatchData extends React.Component<any, any> {
     state: any = {
         treeData: [],
@@ -141,7 +141,7 @@ class PatchData extends React.Component<any, any> {
         })
     }
 
-    wrapTableTree = (data: any, key: any, parent: any) => {
+    wrapTableTree = (data?: any, key?: any, parent?: any) => {
         for (let i = 0; i < data.length; i++) {
             const newKey = key ? `${key}-${i}` : '0'
             data[i].key = newKey
@@ -188,7 +188,7 @@ class PatchData extends React.Component<any, any> {
 
     onCheck = (checkedKeys: any, checkedNodes: any) => {
         const checked = checkedKeys.checked;
-        let checkedSet = new Set(checked);
+        let checkedSet: any = new Set(checked);
         const node = checkedNodes.node;
         const treeData = this.state.treeData;
 
@@ -267,11 +267,12 @@ class PatchData extends React.Component<any, any> {
             const nodes = data.map((item: any) => {
                 const { project = {} } = this.props;
                 const isCurrentProject = project.id == item.projectId;
-                const name = isCurrentProject ? item.name : `${item.name}（跨项目）`
+                const name = isCurrentProject ? item.name : `${item.name}（跨项目）`;
+                const titleFix = { title: name }
                 const content = <Row>
-                    <Col span="12" className="ellipsis" title={name}>{name}</Col>
-                    <Col span="6"><TaskType value={item.taskType} /></Col>
-                    <Col style={{ textAlign: 'right', paddingRight: '8px' }} span="6">{item.projectName}</Col>
+                    <Col span={12} className="ellipsis" {...titleFix}>{name}</Col>
+                    <Col span={6}><TaskType value={item.taskType} /></Col>
+                    <Col style={{ textAlign: 'right', paddingRight: '8px' }} span={6}>{item.projectName}</Col>
                 </Row>
                 if (item.subTaskVOS) {
                     return (<TreeNode
@@ -431,7 +432,7 @@ class PatchData extends React.Component<any, any> {
                     checked ? (
                         <Row style={{ lineHeight: '30px' }}>
                             <FormItem {...formItemLayout} label="具体时间">
-                                <Col span='11'>
+                                <Col span={11}>
                                     {getFieldDecorator('concreteStartTime', {
                                         initialValue: moment('00:00', format),
                                         rules: [{
@@ -453,12 +454,12 @@ class PatchData extends React.Component<any, any> {
                                         />
                                     )}
                                 </Col>
-                                <Col span='2'>
+                                <Col span={2}>
                                     <span style={{ display: 'inline-block', width: '100%', textAlign: 'center' }}>
                                         -
                                     </span>
                                 </Col>
-                                <Col span='11'>
+                                <Col span={11}>
                                     {getFieldDecorator('concreteEndTime', {
                                         initialValue: moment('23:59', format),
                                         rules: [{
@@ -486,9 +487,9 @@ class PatchData extends React.Component<any, any> {
                 }
                 <Row className="section patch-data">
                     <Row className="patch-header">
-                        <Col span="12">任务名称</Col>
-                        <Col span="6">任务类型</Col>
-                        <Col style={{ textAlign: 'right', paddingRight: '8px' }} span="6">项目</Col>
+                        <Col span={12}>任务名称</Col>
+                        <Col span={6}>任务类型</Col>
+                        <Col style={{ textAlign: 'right', paddingRight: '8px' }} span={6}>项目</Col>
                     </Row>
                     <Tree
                         autoExpandParent={false}

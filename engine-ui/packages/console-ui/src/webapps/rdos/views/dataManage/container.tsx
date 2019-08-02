@@ -17,6 +17,8 @@ const defaultPro: any = {
 }
 
 class Container extends React.Component<any, any> {
+    static propTypes = propType
+    static defaultProps = defaultPro
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps(nextProps: any) {
         if (this.props.project && nextProps.project !== this.props.project) {
@@ -60,8 +62,6 @@ class Container extends React.Component<any, any> {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
 export default connect((state: any) => ({
     project: state.project.id
 }), (dispatch: any) => ({

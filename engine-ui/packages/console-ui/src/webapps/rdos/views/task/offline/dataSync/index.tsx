@@ -24,7 +24,7 @@ const propType: any = {
     console: PropTypes.object
 }
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { workbench, dataSync } = state.offlineTask;
     const { currentTab, tabs } = workbench;
     const currentTabData = tabs.filter((tab: any) => {
@@ -44,13 +44,13 @@ const propType: any = {
     const editorAc = bindActionCreators(editorActions, dispatch);
     const actions = Object.assign(editorAc, taskAc)
     return actions;
-})
+}) as any)
 class DataSyncWorkbench extends React.Component<any, any> {
     state: any = {
         changeTab: true,
         size: undefined
     };
-
+    static propTypes = propType;
     componentDidMount () {
         const currentNode = this.props.currentTabData;
         if (currentNode) {
@@ -130,11 +130,11 @@ class DataSyncWorkbench extends React.Component<any, any> {
 
         const data = consoleData && consoleData[currentTab]
             ? consoleData[currentTab] : { results: [] };
-
+        const titleFix = { title: "转换同步任务由向导模式为脚本模式" };
         const convertToScriptMode = (<Button
             disabled={isLocked}
             icon="swap"
-            title="转换同步任务由向导模式为脚本模式"
+            {...titleFix}
             onClick={this.onConvertDataSyncToScriptMode}>
                 转换为脚本
         </Button>);
@@ -219,7 +219,5 @@ class DataSyncWorkbench extends React.Component<any, any> {
         );
     }
 }
-
-DataSyncWorkbench.propTypes = propType
 
 export default DataSyncWorkbench;

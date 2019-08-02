@@ -29,7 +29,7 @@ class FolderTree extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
     }
-
+    selEle: any;
     onLoadData (type: any, treeNode: any) {
         const { loadTreeNode, ispicker } = this.props;
         const { data } = treeNode.props;
@@ -472,7 +472,7 @@ class FolderTree extends React.Component<any, any> {
             (menuType === MENU_TYPE.TASK_DEV || menuType === MENU_TYPE.SCRIPT) &&
             file.type === 'file' && file.taskType !== TASK_TYPE.WORKFLOW
         ) {
-            let status = 'success'
+            let status: any = 'success'
             const lockStatus = file.readWriteLockVO && file.readWriteLockVO.getLock;
             if (!lockStatus) {
                 status = 'default'
@@ -585,11 +585,11 @@ class FolderTree extends React.Component<any, any> {
                             multiple={multiple}
                             dropdownStyle={{ maxHeight: 400, overflow: 'auto', top: '32px', left: 0 }}
                             showSearch={!this.props.isFilepicker}
-                            showIcon={true}
+                            {...{showIcon:true}}
                             loadData={this.onLoadData.bind(this, type)}
                             onChange={onChange}
                             defaultValue={this.props.defaultNode}
-                            getContainer={() => this.selEle}
+                            {...{getContainer: () => this.selEle}}
                             placeholder={placeholder}
                             treeNodeFilterProp="name"
                             filterTreeNode={(inputValue: any, treeNode: any) => {
@@ -602,7 +602,7 @@ class FolderTree extends React.Component<any, any> {
                     : <Tree
                         onRightClick={this.onRightClick}
                         showIcon={true}
-                        placeholder={placeholder}
+                        {...{placeholder: placeholder}}
                         selectedKeys={[`${type}-file-${currentTab}`]}
                         loadData={this.onLoadData.bind(this, type)}
                         expandedKeys={expandedKeys}

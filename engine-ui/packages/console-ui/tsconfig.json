@@ -34,7 +34,6 @@
         "dist",
     ],
     "include": [
-        "./src/**/*",
-        "./src/typings/*"
+        "src/**/rdos/*"
     ]
 }

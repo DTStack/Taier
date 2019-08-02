@@ -20,6 +20,8 @@ class Container extends React.Component<any, any> {
         collapsed: false,
         mode: 'inline'
     };
+    static propTypes = propType;
+    static defaultProps = defaultPro;
     toggleCollapsed = () => {
         this.setState({
             collapsed: !this.state.collapsed,
@@ -45,8 +47,6 @@ class Container extends React.Component<any, any> {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
 export default connect((state: any) => ({
     project: state.project.id,
     project_obj: state.project,

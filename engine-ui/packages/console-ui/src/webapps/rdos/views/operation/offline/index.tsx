@@ -64,7 +64,7 @@ class OfflineStatistics extends React.Component<any, any> {
         })
     }
 
-    getTopTaskTime = (dateTime: any) => {
+    getTopTaskTime = (dateTime?: any) => {
         const ctx = this
         const { handleTiming } = this.state
         const params: any = {
@@ -217,7 +217,7 @@ class OfflineStatistics extends React.Component<any, any> {
                     </Resize>
                 </Card>
                 <Row className="m-card" style={{ marginTop: '20px' }}>
-                    <Col span="14" style={{ paddingRight: '10px' }}>
+                    <Col span={14} style={{ paddingRight: '10px' }}>
                         <Card
                             noHovering
                             bordered={false}
@@ -241,7 +241,7 @@ class OfflineStatistics extends React.Component<any, any> {
                             />
                         </Card>
                     </Col>
-                    <Col span="10" style={{ paddingLeft: '10px' }}>
+                    <Col span={10} style={{ paddingLeft: '10px' }}>
                         <Card
                             noHovering
                             bordered={false}

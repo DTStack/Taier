@@ -47,7 +47,9 @@ class TableList extends React.Component<any, any> {
             editRecord: {}
         }
     }
-
+    searchInput: any;
+    _DDL: any;
+    DDLEditor: any;
     componentDidMount () {
         const { getProjectTableTypes, project } = this.props;
         const projectId = project && project.id;
@@ -107,7 +109,7 @@ class TableList extends React.Component<any, any> {
     }
 
     cleanSearch () {
-        const $input = findDOMNode(this.searchInput).querySelector('input');// eslint-disable-line
+        const $input = (findDOMNode(this.searchInput) as any).querySelector('input');// eslint-disable-line
 
         if ($input.value.trim() === '') return;
 

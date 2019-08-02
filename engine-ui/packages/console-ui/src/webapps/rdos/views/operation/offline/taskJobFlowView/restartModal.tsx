@@ -132,7 +132,7 @@ class RestartModal extends React.Component<any, any> {
                 const name = item.taskName || (item.batchTask && item.batchTask.name);
                 const status = item.jobStatus || item.status; // jobStatus 为从接口获取，status表默认节点
                 const taskType = item.taskType || (item.batchTask && item.batchTask.taskType);
-
+                const titleFix = { title: name };
                 // 禁止重跑并恢复调度
                 const canRestart = status === TASK_STATUS.WAIT_SUBMIT || // 未运行
                 status === TASK_STATUS.FINISHED || // 已完成
@@ -144,10 +144,10 @@ class RestartModal extends React.Component<any, any> {
                 status === TASK_STATUS.STOPED; // 已取消
 
                 const content = <Row>
-                    <Col span="6" className="ellipsis" title={name}>{name}</Col>
-                    <Col span="8">{item.cycTime}</Col>
-                    <Col span="4"><TaskStatus value={status} /></Col>
-                    <Col span="6"><TaskType value={taskType} /></Col>
+                    <Col span={6} className="ellipsis" {...titleFix}>{name}</Col>
+                    <Col span={8}>{item.cycTime}</Col>
+                    <Col span={4}><TaskStatus value={status} /></Col>
+                    <Col span={6}><TaskType value={taskType} /></Col>
                 </Row>
 
                 if (item.childs) {
@@ -188,15 +188,15 @@ class RestartModal extends React.Component<any, any> {
                 maskClosable={true}
             >
                 <Row>
-                    <Col span="12">请选择要重跑的任务:</Col>
-                    <Col span="12" className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>
+                    <Col span={12}>请选择要重跑的任务:</Col>
+                    <Col span={12} className="txt-right">业务日期：{restartNode ? restartNode.businessDate : ''}</Col>
                 </Row>
                 <Row className="section patch-data">
                     <Row className="patch-header">
-                        <Col span="8">任务名称</Col>
-                        <Col span="6">执行时间</Col>
-                        <Col span="4">任务状态</Col>
-                        <Col span="6">任务类型</Col>
+                        <Col span={8}>任务名称</Col>
+                        <Col span={6}>执行时间</Col>
+                        <Col span={4}>任务状态</Col>
+                        <Col span={6}>任务类型</Col>
                     </Row>
                     <Tree
                         checkable

@@ -22,7 +22,8 @@ export default class TableInfoPane extends React.Component<any, any> {
             column: []
         };
     }
-
+    previewCols: any;
+    searchInput: any;
     componentDidMount () {
         const tbId = this.props.tableId
         if (tbId) {
@@ -164,9 +165,10 @@ export default class TableInfoPane extends React.Component<any, any> {
     render () {
         const { tableData, previewData } = this.state;
         const isHiveTable = tableData && tableData.table.tableType == TABLE_TYPE.HIVE;
+        const pagination: any = { simple: true, size: 'small' }
         return <div className="g-tableviewer">
             <Tabs
-                type="inline"
+                type="line"
                 size="small"
                 animated={false}
                 onChange={this.getPreview.bind(this)}
@@ -178,7 +180,7 @@ export default class TableInfoPane extends React.Component<any, any> {
                             rowKey="id"
                             columns={this.initColums()}
                             dataSource={this.state.column}
-                            pagination={{ simple: true, size: 'small' }}
+                            pagination={pagination}
                         />
                     </div>
                 </TabPane>
@@ -186,7 +188,7 @@ export default class TableInfoPane extends React.Component<any, any> {
                     isHiveTable && (
                         <TabPane tab="分区信息" key="2">
                             <TablePartition
-                                pagination={{ simple: true, size: 'small' }}
+                                pagination={pagination}
                                 table={tableData && tableData.table}
                             />
                         </TabPane>
@@ -206,7 +208,7 @@ export default class TableInfoPane extends React.Component<any, any> {
                                 }
                             }))}
                             rowKey="key"
-                            pagination={{ simple: true, size: 'small' }}
+                            pagination={pagination}
                             dataSource={previewData}
                             scroll={{ x: this.getScrollX(this.previewCols) }}
                         />

@@ -27,7 +27,7 @@ class ScriptForm extends React.Component<any, any> {
             value: 0
         };
     }
-
+    isEditExist: boolean;
     handleSelectTreeChange (value: any) {
         this.props.form.setFieldsValue({ 'nodePid': value });
     }
@@ -135,7 +135,7 @@ class ScriptForm extends React.Component<any, any> {
                         }],
                         initialValue: isCreateNormal ? undefined : isCreateFromMenu ? undefined : defaultData.scriptDesc
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入脚本描述"/>
+                        <Input.TextArea rows={4} placeholder="请输入脚本描述"/>
                     )}
                 </FormItem>
             </Form>
@@ -209,7 +209,9 @@ class ScriptModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
-
+    dtcount: number;
+    form: any;
+    isCreate: boolean;
     handleSubmit () {
         const { defaultData } = this.props;
         const form = this.form;

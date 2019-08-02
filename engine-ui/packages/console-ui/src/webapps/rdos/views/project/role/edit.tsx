@@ -15,7 +15,7 @@ export default class RoleEdit extends React.Component<any, any> {
         roleInfo: {},
         loading: false
     }
-
+    form: any;
     componentDidMount () {
         this.loadRolePermission()
     }

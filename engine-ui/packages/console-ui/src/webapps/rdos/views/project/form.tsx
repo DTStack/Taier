@@ -2,7 +2,6 @@ import * as React from 'react'
 import { Form, Input, Modal, Switch } from 'antd'
 
 import { formItemLayout } from '../../comm/const'
-
 const FormItem = Form.Item
 
 class ProjectForm extends React.Component<any, any> {
@@ -95,7 +94,7 @@ class ProjectForm extends React.Component<any, any> {
                                 message: '项目描述请控制在200个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" rows={4} placeholder="项目描述请控制在200个字符以内" />
+                            <Input.TextArea rows={4} placeholder="项目描述请控制在200个字符以内" />
                         )}
                     </FormItem>
                     <FormItem

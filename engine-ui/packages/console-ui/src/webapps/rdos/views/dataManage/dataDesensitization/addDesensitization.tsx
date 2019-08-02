@@ -4,14 +4,13 @@ import { Modal, Form, Input, Select, message, Icon } from 'antd';
 import ajax from '../../../api/dataManage';
 import { formItemLayout, TABLE_TYPE } from '../../../comm/const';
 const FormItem = Form.Item;
-const Option = Select.Option;
-
-@(connect((state: any) as any) => {
+const Option: any = Select.Option;
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class AddDesensitization extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -401,7 +400,7 @@ class AddDesensitization extends React.Component<any, any> {
                                 message: '样例数据请控制在200个字符以内！'
                             }]
                         })(
-                            <Input type="textarea" rows={4} placeholder='请输入样例数据，不超过200字符'/>
+                            <Input.TextArea rows={4} placeholder='请输入样例数据，不超过200字符'/>
                         )}
                     </FormItem>
                     <FormItem

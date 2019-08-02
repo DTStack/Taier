@@ -35,7 +35,7 @@ import {
 } from '../../../store/modules/offlineTask/offlineAction'
 
 const FormItem = Form.Item
-const Option = Select.Option
+const Option: any = Select.Option
 const TabPane = Tabs.TabPane
 
 class OfflineTaskMana extends React.Component<any, any> {

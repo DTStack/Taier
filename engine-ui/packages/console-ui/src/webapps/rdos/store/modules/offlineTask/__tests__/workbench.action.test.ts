@@ -33,7 +33,7 @@ describe('workbenchActions', () => {
 
     test('reloadTaskTab action', async () => {
         const response: any = { code: 1, data: task };
-        api.getOfflineTaskDetail
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })
@@ -159,7 +159,7 @@ describe('workbenchActions', () => {
     test('openTaskInDev', async () => {
         const response: any = { code: 1, data: task };
         const id = 1;
-        api.getOfflineTaskDetail
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })
@@ -196,13 +196,13 @@ describe('workbenchActions', () => {
             preSave: true,
             submitStatus: 0,
             taskVOS: ['taskVOS1', 'taskVOS2']
-        }
-        api.getOfflineTaskDetail
+        };
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })
 
-        api.saveOfflineJobData
+        (api.saveOfflineJobData as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -245,10 +245,10 @@ describe('workbenchActions', () => {
             preSave: true,
             submitStatus: 0,
             taskVOS: ['taskVOS1', 'taskVOS2']
-        }
-        api.saveOfflineJobData
+        };
+        (api.saveOfflineJobData as any)
             .mockResolvedValue(response)
-        api.forceUpdateOfflineTask
+        (api.forceUpdateOfflineTask as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -290,13 +290,13 @@ describe('workbenchActions', () => {
             preSave: true,
             submitStatus: 0,
             taskVOS: ['taskVOS1', 'taskVOS2']
-        }
-        api.getOfflineTaskDetail
+        };
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
 
-        api.saveOfflineJobData
+        (api.saveOfflineJobData as any)
             .mockResolvedValue(response);
 
         const expectedActions: any = [{
@@ -348,10 +348,10 @@ describe('workbenchActions', () => {
             payload: task
         }];
         const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
-        api.getOfflineTaskDetail
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response);
 
-        api.saveOfflineJobData
+        (api.saveOfflineJobData as any)
             .mockResolvedValue(response);
 
         // 测试请求成功
@@ -440,11 +440,11 @@ describe('workbenchActions', () => {
             }
         }, {
             type: workbenchAction.MAKE_TAB_CLEAN
-        }]
-        api.saveOfflineJobData
+        }];
+        (api.saveOfflineJobData as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 1 });
-        api.getOfflineTaskDetail
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -492,9 +492,9 @@ describe('workbenchActions', () => {
         }]
 
         const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
-        api.getScriptById
+        (api.getScriptById as any)
             .mockResolvedValue(response);
-        api.saveScript
+        (api.saveScript as any)
             .mockResolvedValue(response);
 
         // 测试请求成功
@@ -534,15 +534,15 @@ describe('workbenchActions', () => {
             type: workbenchAction.MAKE_TAB_CLEAN
         }]
         const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
-        api.getScriptById
+        (api.getScriptById as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
 
-        api.saveScript
+        (api.saveScript as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 1 });
-        api.forceUpdateOfflineScript
+        (api.forceUpdateOfflineScript as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -590,15 +590,15 @@ describe('workbenchActions', () => {
             type: workbenchAction.MAKE_TAB_CLEAN
         }];
 
-        api.getScriptById
+        (api.getScriptById as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
 
-        api.saveScript
+        (api.saveScript as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 1 });
-        api.getScriptById
+        (api.getScriptById as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -659,7 +659,7 @@ describe('workbenchActions', () => {
         }]
         // res.code !== 1
         const response: any = { code: 1, data: task };
-        api.getOfflineTaskDetail
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -681,7 +681,7 @@ describe('workbenchActions', () => {
             treeType: MENU_TYPE.SYSFUC
         }
         const response: any = { code: 1, data: task };
-        api.getOfflineTaskDetail
+        (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response);
         const expectedActions: any = [{
             type: workbenchAction.LOAD_TASK_DETAIL,
@@ -702,7 +702,7 @@ describe('workbenchActions', () => {
             treeType: MENU_TYPE.SCRIPT
         }
         const response: any = { code: 1, data: task };
-        api.getScriptById
+        (api.getScriptById as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -873,7 +873,7 @@ describe('workbenchActions', () => {
             nodePid: 1
         }
         const response: any = { code: 1, data: task };
-        api.delOfflineTask
+        (api.delOfflineTask as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })
@@ -899,7 +899,7 @@ describe('workbenchActions', () => {
             nodePid: 1
         }
         const response: any = { code: 1, data: task };
-        api.deleteScript
+        (api.deleteScript as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })
@@ -919,7 +919,7 @@ describe('workbenchActions', () => {
 
     test('loadTaskParams', async () => {
         const response: any = { code: 1, data: task };
-        api.getCustomParams
+        (api.getCustomParams as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })

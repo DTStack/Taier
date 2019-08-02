@@ -12,7 +12,7 @@ import BaseForm from './baseForm';
 import ColumnsPartition from './columnsPartition';
 const Step = Steps.Step;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         projectTableTypes: state.tableTypes.projectTableTypes
@@ -23,7 +23,7 @@ const Step = Steps.Step;
             dispatch(getProjectTableTypes(projectId))
         }
     }
-})
+}) as any)
 
 class TableCreator extends React.Component<any, any> {
     constructor(props: any) {
@@ -59,13 +59,13 @@ class TableCreator extends React.Component<any, any> {
 
         // move up/down
         /* eslint-disable */
-        Array.prototype.__move = function (from: any, to: any) {
+        (Array.prototype as any).__move = function (from: any, to: any) {
             this.splice(to, 0, this.splice(from, 1)[0]);
             return this;
         };
         /* eslint-enable */
     }
-
+    baseForm: any = React.createRef();
     componentDidMount () {
         const { getProjectTableTypes, project } = this.props;
         const projectId = project && project.id;

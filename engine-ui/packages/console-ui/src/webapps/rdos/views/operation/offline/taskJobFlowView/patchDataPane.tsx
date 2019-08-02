@@ -17,7 +17,7 @@ import { TaskBadgeStatus } from '../../../../components/status'
 import * as FlowAction from '../../../../store/modules/operation/taskflow'
 
 const Search = Input.Search
-const TreeNode = Tree.TreeNode
+const TreeNode = Tree.TreeNode;
 const Option = Select.Option
 const FormItem = Form.Item
 
@@ -83,7 +83,7 @@ class PatchData extends React.Component<any, any> {
         this.loadPatchData(params)
     }
 
-    loadPatchData (params: any) {
+    loadPatchData (params?: any) {
         const ctx = this
         this.setState({ loading: true, expandedKeys: [] })
         if (this.valideParams()) {
@@ -279,7 +279,7 @@ class PatchData extends React.Component<any, any> {
         this.setState({ expandedKeys })
     }
 
-    getTreeNodes = (data: any, parent: any) => {
+    getTreeNodes = (data?: any, parent?: any) => {
         if (data && data.length > 0) {
             const pid = parent ? parent.data : 0
             return data.map((item: any, index: any) => {
@@ -318,20 +318,19 @@ class PatchData extends React.Component<any, any> {
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
                 return (
-                    <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                    <Option key={item.userId} value={`${item.userId}`}>
                         {item.user.userName}
                     </Option>)
             }) : []
         const statusFilter = offlineTaskStatusFilter && offlineTaskStatusFilter.length > 0
             ? offlineTaskStatusFilter.map((item: any) => {
-                return (<Option key={item.id} value={item.value} name={item.text}>
+                return (<Option key={item.id} value={item.value}>
                     {item.text}
                 </Option>)
             }) : []
         const showTime = bussinessDate ? 'block' : 'none'
 
         const treeNodes = this.getTreeNodes(tasks.data)
-
         return (
             <div className="flow-operation">
                 <div className="filter-bar bd-bottom">
@@ -389,7 +388,7 @@ class PatchData extends React.Component<any, any> {
                             <Select
                                 allowClear
                                 showSearch
-                                size='Default'
+                                size='default'
                                 style={{ width: '126px' }}
                                 placeholder="责任人"
                                 optionFilterProp="name"

@@ -37,7 +37,7 @@ class DataSync extends React.Component<any, any> {
         currentStep: 0,
         loading: true
     }
-
+    _datasyncDom: any;
     componentDidMount () {
         const { currentTabData } = this.props;
 
@@ -296,7 +296,7 @@ const mapState = (state: any) => {
 };
 
 const mapDispatch = (dispatch: any, ownProps: any) => {
-    const wbActions = new WBenchActions(dispatch, ownProps);
+    const wbActions = WBenchActions(dispatch);
 
     return {
         getDataSource: () => {

@@ -75,7 +75,7 @@ class TableLog extends React.Component<any, any> {
             isDeleted: 1
         };
     }
-
+    searchForm: any = React.createRef();
     componentDidMount () {
         this.search();
     }
@@ -210,7 +210,7 @@ class Log extends React.Component<any, any> {
         this.props.getUsers()
     }
 
-    searchTable (args: any) {
+    searchTable (args?: any) {
         let { isDeleted, tableName, tableList } = this.state
         tableList = [];
         this.setState({ loading: true, tableList })
@@ -243,7 +243,7 @@ class Log extends React.Component<any, any> {
             const isDeleted = filters.tableName[0]
             this.setState({
                 isDeleted
-            }, this.searchTable)
+            }, () => { this.searchTable() })
         }
     }
 

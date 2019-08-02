@@ -22,7 +22,7 @@ class BatchSelect extends React.Component<any, any> {
         this.getData(tabData, targetData);
     }
 
-    getData (newData = [], table = []) {
+    getData (newData: any = [], table: any = []) {
         const mockData: any = [];
         const targetData: any = [];
         newData.map((item: any) => {

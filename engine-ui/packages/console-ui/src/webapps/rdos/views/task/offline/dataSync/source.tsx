@@ -40,7 +40,7 @@ import {
 import BatchSelect from './batchSelect';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const Option: any = Select.Option;
 const RadioGroup = Radio.Group;
 const TextArea = Input.TextArea;
 
@@ -60,7 +60,7 @@ class SourceForm extends React.Component<any, any> {
             isChecked: {} // checkbox默认是否选中
         };
     }
-
+    timerID: any;
     componentDidMount () {
         this._isMounted = true;
         const { sourceMap } = this.props;
@@ -250,7 +250,7 @@ class SourceForm extends React.Component<any, any> {
         this.props.deleteDataSource(key);
     }
 
-    resetTable (key: any) {
+    resetTable (key?: any) {
         const { form } = this.props;
         this.changeTable('');
         // 这边先隐藏结点，然后再reset，再显示。不然会有一个组件自带bug。
@@ -272,7 +272,7 @@ class SourceForm extends React.Component<any, any> {
         );
     }
 
-    changeTable (type: any, value: any, sourceKey: any) {
+    changeTable (type?: any, value?: any, sourceKey?: any) {
         if (value) {
             this.setState({
                 loading: true
@@ -412,7 +412,7 @@ class SourceForm extends React.Component<any, any> {
         handleSourceMapChange(srcmap);
     }
 
-    submitForm (event: any, sourceKey: any, value: any, key: any) {
+    submitForm (event?: any, sourceKey?: any, value?: any, key?: any) {
         const { form, handleSourceMapChange, sourceMap } = this.props;
         let tempObj: any = {};
         if (key) {
@@ -495,6 +495,7 @@ class SourceForm extends React.Component<any, any> {
 
         const getPopupContainer = this.props.getPopupContainer;
         const dataSourceListFltKylin = dataSourceList && dataSourceList.filter((src: any) => src.type !== DATA_SOURCE.KYLIN);
+        const disableFix = { disabled: disablePreview }
         return (
             <div className="g-step1">
                 <Form>
@@ -573,7 +574,7 @@ class SourceForm extends React.Component<any, any> {
                 >
                     <p style={{ cursor: 'pointer', marginBottom: 10 }}>
                         <a
-                            disabled={disablePreview}
+                            {...disableFix}
                             href="javascript:void(0)"
                             onClick={this.loadPreview.bind(this)}
                         >
@@ -676,6 +677,7 @@ class SourceForm extends React.Component<any, any> {
         const { sourceMap, dataSourceList } = this.props;
         const { getFieldDecorator } = this.props.form;
         const sourceList = sourceMap.sourceList;
+        const  showArrowFix = {  showArrow: true }
         if (!sourceList) {
             return [];
         }
@@ -767,7 +769,7 @@ class SourceForm extends React.Component<any, any> {
                                         <Select style={{ 'display': isChecked[`extTable.${source.key}`] ? 'none' : 'block' }}
                                             mode="tags"
                                             showSearch
-                                            showArrow={true}
+                                            {...showArrowFix}
                                             onChange={this.debounceExtTableSearch.bind(
                                                 this,
                                                 source.key
@@ -816,7 +818,7 @@ class SourceForm extends React.Component<any, any> {
                                                 {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                                 {/* disabled注意添加数据源之后无数据产生的bug问题 */}
                                                 <Checkbox name='isChecked' disabled={ source.sourceId == null } onChange={ () => this.handleCheckboxChange(`extTable.${source.key}`, event) } checked={ isChecked[`extTable.${source.key}`] } >
-                                                    <a disabled={ source.sourceId == null }>
+                                                    <a {...{disabled: source.sourceId == null }}>
                                                         批量选择
                                                     </a>
                                                 </Checkbox>
@@ -931,7 +933,7 @@ class SourceForm extends React.Component<any, any> {
                                             supportSubLibrary ? 'tags' : 'combobox'
                                         }
                                         showSearch
-                                        showArrow={true}
+                                        {...{ showArrow: true }}
                                         onBlur={this.debounceTableSearch.bind(
                                             this,
                                             sourceMap.type.type
@@ -985,7 +987,7 @@ class SourceForm extends React.Component<any, any> {
                                         >
                                             {/* 选择一张或多张表，选择多张表时，请保持它们的表结构一致，大批量选择，可以 */}
                                             <Checkbox name='isChecked' onChange={ () => { this.handleCheckboxChange(sourceMap.sourceId, event) } } checked={ isChecked[sourceMap.sourceId] } >
-                                                <a disabled={ sourceMap.sourceId == null }>
+                                                <a {...{ disabled: sourceMap.sourceId == null }}>
                                                     批量选择
                                                 </a>
                                             </Checkbox>
@@ -1053,7 +1055,7 @@ class SourceForm extends React.Component<any, any> {
                             <Select
                                 getPopupContainer={getPopupContainer}
                                 showSearch
-                                showArrow={true}
+                                {...{ showArrow: true }}
                                 allowClear={true}
                                 onChange={this.submitForm.bind(this)}
                             >
@@ -1102,7 +1104,7 @@ class SourceForm extends React.Component<any, any> {
                                     getPopupContainer={getPopupContainer}
                                     mode={'combobox'}
                                     showSearch
-                                    showArrow={true}
+                                    {...{ showArrow: true }}
                                     onBlur={this.debounceTableSearch.bind(
                                         this,
                                         sourceMap.type.type
@@ -1217,7 +1219,7 @@ class SourceForm extends React.Component<any, any> {
                             <Select
                                 mode="combobox"
                                 showSearch
-                                showArrow={true}
+                                {...{ showArrow: true }}
                                 optionFilterProp="value"
                                 placeholder="请填写分区信息"
                                 onChange={this.submitForm.bind(this)}
@@ -1493,7 +1495,7 @@ class SourceForm extends React.Component<any, any> {
                                 onChange={this.submitForm.bind(this)}
                                 placeholder="请输入大小, 默认为256"
                                 type="number"
-                                min={0}
+                                {...{ min: 0 }}
                                 suffix="行"
                             />
                         )}
@@ -1513,8 +1515,7 @@ class SourceForm extends React.Component<any, any> {
                             <Input
                                 onChange={this.submitForm.bind(this)}
                                 placeholder="请输入大小, 默认为100"
-                                type="number"
-                                min={0}
+                                {...{ min: 0 }}
                                 suffix="列"
                             />
                         )}
@@ -1536,7 +1537,7 @@ class SourceForm extends React.Component<any, any> {
                             />
                             {index > 0 ? <Button
                                 onClick={this.onRemoveFtpPath.bind(this, index)}
-                                title="删除当前路径"
+                                {...{ title: "删除当前路径" }}
                                 shape="circle"
                                 style={removeBtnStyle}
                                 icon="minus"
@@ -1553,7 +1554,7 @@ class SourceForm extends React.Component<any, any> {
                     width: '20px',
                     height: '20px'
                 }
-                let pathItems = getItem(paths, 0);
+                let pathItems: any = getItem(paths, 0);
                 if (isArray(paths)) {
                     pathItems = paths.map && paths.map((path: any, index: any) => getItem(path, index));
                 }

@@ -42,7 +42,7 @@ class PatchDataList extends React.Component<any, any> {
         }
     }
 
-    loadPatchData = (params: any) => {
+    loadPatchData = (params?: any) => {
         const ctx = this
         this.setState({ loading: true })
         let defaultParams = this.getReqParams()
@@ -235,7 +235,7 @@ class PatchDataList extends React.Component<any, any> {
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
                 return (
-                    <Option key={item.userId} value={`${item.userId}`} name={item.user.userName}>
+                    <Option key={item.userId} value={`${item.userId}`}>
                         {item.user.userName}
                     </Option>)
             }) : []
@@ -286,7 +286,6 @@ class PatchDataList extends React.Component<any, any> {
                     <Select
                         allowClear
                         showSearch
-                        size='Default'
                         style={{ width: '126px' }}
                         placeholder="操作人"
                         optionFilterProp="name"

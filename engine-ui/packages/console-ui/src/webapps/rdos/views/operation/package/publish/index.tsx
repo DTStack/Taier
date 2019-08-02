@@ -13,11 +13,11 @@ const FormItem = Form.Item;
 const Option = Select.Option;
 const Search = Input.Search;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 /* eslint-disable */
 class PackagePublish extends React.Component<any, any> {
     state: any = {

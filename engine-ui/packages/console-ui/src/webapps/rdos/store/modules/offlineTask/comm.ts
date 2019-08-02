@@ -52,7 +52,7 @@ const scriptTypes = (state: any = [], action: any) => {
 }
 const projectTables = (state: any = {}, action: any) => {
     const { type, payload } = action;
-    const { projectIdentifier, tableList } = payload || {};
+    const { projectIdentifier, tableList }: any = payload || {};
     const newState = assign({}, state);
     switch (type) {
         case commAction.SET_PROJECT_TABLE_LIST: {
@@ -77,7 +77,7 @@ export const commReducer = combineReducers({
 /**
  * @param type 任务类型/脚本任务，获取spark,libra任务/脚本不同表
  */
-export const getTableList = (projectId: any, type: any) => {
+export const getTableList = (projectId?: any, type?: any) => {
     return (dispatch: any, getState: any) => {
         Api.getTableListByName({
             appointProjectId: projectId,
@@ -94,7 +94,7 @@ export const getTableList = (projectId: any, type: any) => {
         })
     }
 }
-export const getTableListByProject = (projectIdentifier: any, type: any) => {
+export const getTableListByProject = (projectIdentifier?: any, type?: any) => {
     return (dispatch: any, getState: any) => {
         return manageApi.getTableListByProjectList({
             projectIdentifier

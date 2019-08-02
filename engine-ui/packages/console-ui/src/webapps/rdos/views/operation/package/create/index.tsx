@@ -22,7 +22,7 @@ const RadioGroup = Radio.Group;
 const Option = Select.Option;
 const Search = Input.Search;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         taskTypes: {
@@ -35,7 +35,7 @@ const Search = Input.Search;
     return bindActionCreators({
         getTaskTypes
     }, dispatch);
-})
+}) as any)
 class PackageCreate extends React.Component<any, any> {
     state: any = {
         addLinkVisible: false,
@@ -235,15 +235,16 @@ class PackageCreate extends React.Component<any, any> {
                 break;
             }
         }
+        const disableFix = { disabled: !havePermission }
         const addButtonCreate = (record: any) => {
             return (this.isSelect(record)
-                ? <a disabled={!havePermission} onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: '#888' }}>取消</a>
-                : <a disabled={!havePermission} onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
+                ? <a {...disableFix} onClick={this.removeItem.bind(this, listType, record.id)} style={{ color: '#888' }}>取消</a>
+                : <a {...disableFix} onClick={this.addNewItem.bind(this, listType, [record], [])}>添加</a>);
         }
         const publishButtonCreate = (record: any) => {
             return (
                 <a
-                    disabled={!havePermission}
+                    {...disableFix}
                     onClick={
                         () => {
                             this.clearSelect();
@@ -301,7 +302,7 @@ class PackageCreate extends React.Component<any, any> {
                         return <span>
                             {addButtonCreate(record)}
                             <span className="ant-divider"></span>
-                            <a disabled={!havePermission} onClick={this.showAddLink.bind(this, record)}>添加关联</a>
+                            <a {...disableFix} onClick={this.showAddLink.bind(this, record)}>添加关联</a>
                             <span className="ant-divider"></span>
                             {publishButtonCreate(record)}
                         </span>

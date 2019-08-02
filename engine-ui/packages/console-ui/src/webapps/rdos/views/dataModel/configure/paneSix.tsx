@@ -25,7 +25,7 @@ class AtomIndexDefine extends BasePane {
             })
         }, this.loadData)
     }
-
+    searchInput = React.createRef();
     // eslint-disable-next-line
 	UNSAFE_componentWillReceiveProps(nextProps: any) {
         const project = nextProps.project

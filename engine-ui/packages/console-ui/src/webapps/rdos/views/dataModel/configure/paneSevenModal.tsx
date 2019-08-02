@@ -12,7 +12,6 @@ import {
 
 const FormItem = Form.Item
 const Option = Select.Option;
-
 class DeriveIndexModal extends React.Component<any, any> {
     state: any = {
         indexNames: [],
@@ -50,7 +49,7 @@ class DeriveIndexModal extends React.Component<any, any> {
         })
     }
 
-    loadAtomIndex = (isEdit: any) => {
+    loadAtomIndex = (isEdit?: any) => {
         Api.getModelIndexs({
             type: 1,
             pageSize: 1000,
@@ -141,7 +140,7 @@ class DeriveIndexModal extends React.Component<any, any> {
 
         const options = automIndexs && automIndexs.map((atomIndex: any, index: any) => <Option
             key={atomIndex.id}
-            index={index}
+            {...{index: index}}
             value={atomIndex.columnName}
         >
             {atomIndex.columnName}
@@ -162,13 +161,13 @@ class DeriveIndexModal extends React.Component<any, any> {
             {
                 (index == length - 1) && length > 1 ? <Button
                     icon="minus"
-                    title="移除规则"
+                    {...{title: "移除规则"}}
                     style={{ marginRight: '5px' }}
                     onClick={() => this.removeIndexName(index)}
                 />
                     : <Button
                         icon="plus"
-                        title="添加规则"
+                        {...{title: "添加规则"}}
                         style={{ marginRight: '5px' }}
                         onClick={() => this.insertIndexName(index)}
                     />
@@ -232,7 +231,7 @@ class DeriveIndexModal extends React.Component<any, any> {
                             }],
                             initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input.TextArea rows={4} />
                         )}
                     </FormItem>
                     <FormItem

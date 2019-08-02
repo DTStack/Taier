@@ -24,7 +24,7 @@ class SiderBench extends React.Component<any, any> {
         expanded: false
     }
     _updateKey = 0;
-
+    SideBench: any;
     componentDidUpdate (prevProps: any) {
         const tabData = this.props.tabData
         const { tabData: oldData } = prevProps

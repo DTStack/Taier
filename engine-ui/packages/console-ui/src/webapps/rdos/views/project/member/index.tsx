@@ -27,7 +27,8 @@ class ProjectMember extends React.Component<any, any> {
         current: 1,
         visibleEditRole: false
     }
-
+    memberForm: any;
+    eidtRoleForm: any;
     componentDidMount () {
         this.search()
         this.loadRoles()
@@ -63,7 +64,7 @@ class ProjectMember extends React.Component<any, any> {
         })
     }
 
-    search = (projectId: any) => {
+    search = (projectId?: any) => {
         const { name, current } = this.state;
         const { project } = this.props;
         const params: any = {
@@ -86,7 +87,7 @@ class ProjectMember extends React.Component<any, any> {
         })
     }
 
-    loadRoles = (page: any) => {
+    loadRoles = (page?: any) => {
         const ctx = this
         Api.getRoleList({
             currentPage: page || 1
@@ -134,7 +135,7 @@ class ProjectMember extends React.Component<any, any> {
     }
 
     updateMemberRole = (item: any) => {
-        const ctx = this
+        const ctx: any = this
         const { editTarget } = this.state
         const { project } = this.props
 

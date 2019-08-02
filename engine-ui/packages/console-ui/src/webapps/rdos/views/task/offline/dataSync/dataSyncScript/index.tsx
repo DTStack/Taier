@@ -16,7 +16,7 @@ import {
 import { workbenchAction } from '../../../../../store/modules/offlineTask/actionType';
 import * as editorActions from '../../../../../store/modules/editor/editorAction';
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         user: state.user
@@ -34,7 +34,7 @@ import * as editorActions from '../../../../../store/modules/editor/editorAction
         }
     }, editorAc, taskAc)
     return actions;
-})
+}) as any)
 class DataSyncScript extends React.Component<any, any> {
     componentDidMount () {
         const currentTab = this.props.id;

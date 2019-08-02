@@ -20,7 +20,8 @@ class Container extends React.Component<any, any> {
         collapsed: false,
         mode: 'inline'
     };
-
+    static propTypes = propType
+    static defaultProps = defaultPro
     componentDidMount () {
         this.initUsers(this.props.project);
         this.props.dispatch(getTaskTypes());
@@ -67,8 +68,7 @@ class Container extends React.Component<any, any> {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
+
 export default connect((state: any) => {
     return {
         project: state.project

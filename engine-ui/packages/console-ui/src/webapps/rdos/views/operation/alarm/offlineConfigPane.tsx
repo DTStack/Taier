@@ -16,7 +16,6 @@ import {
 } from '../../../components/status'
 
 import AlarmForm from './offLineAlarmForm'
-
 const Option = Select.Option
 const FormItem = Form.Item
 
@@ -48,7 +47,7 @@ class OfflineConfig extends React.Component<any, any> {
         }
     }
 
-    loadAlarmRules (params: any) {
+    loadAlarmRules (params?: any) {
         const ctx = this
         const reqForm = params || { pageIndex: 1 }
         this.setState({ loading: true })
@@ -267,7 +266,6 @@ class OfflineConfig extends React.Component<any, any> {
                     <Option
                         key={item.id}
                         value={`${item.user.id}`}
-                        name={item.user.userName}
                     >
                         {item.user.userName}
                     </Option>
@@ -302,7 +300,7 @@ class OfflineConfig extends React.Component<any, any> {
                                 <Select
                                     allowClear
                                     showSearch
-                                    size='Default'
+                                    size='default'
                                     style={{ width: 126 }}
                                     placeholder="选择创建人"
                                     optionFilterProp="name"

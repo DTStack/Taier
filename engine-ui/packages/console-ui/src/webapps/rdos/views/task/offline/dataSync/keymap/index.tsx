@@ -2,11 +2,10 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { isNumber, isObject, isNaN, get } from 'lodash'
 import {
-    Button, Row, Col,
+    Button as mButton, Row, Col,
     Input, Tooltip,
     message, Icon, Modal
 } from 'antd';
-
 import { select, selectAll, mouse } from 'd3-selection';
 import scrollText from 'widgets/scrollText';
 import Resize from 'widgets/resize';
@@ -30,7 +29,7 @@ import { isHdfsType, isFtpType } from '../../../../../comm';
 import KeyMapModal, { isValidFormatType } from './keymapModal'
 import BatchModal from './batchModal'
 import ConstModal from './constModal'
-
+const Button: any = mButton;
 const DefaultRowKey: any = { // HBase默认行健
     cf: '-',
     key: 'rowkey',
@@ -46,14 +45,14 @@ function isFieldMatch (source: any, target: any) {
     /**
      * TODO 目前从接口返回的keymap字段与sourceMap, targetMap中不一致
      */
-    if (isObject(source) && isObject(target)) {
+    if (isObject(source as any) && isObject(target as any)) {
         const sourceVal = source.key || source.index;
         const tagetVal = target.key || target.index;
         return sourceVal === tagetVal;
-    } else if (isObject(source) && !isObject(target)) {
+    } else if (isObject(source as any) && !isObject(target as any)) {
         const sourceVal = source.key || source.index
         return sourceVal === target
-    } else if (!isObject(source) && isObject(target)) {
+    } else if (!isObject(source as any) && isObject(target as any)) {
         const targetVal = target.key || target.index
         return source === targetVal
     } else {
@@ -101,7 +100,10 @@ class Keymap extends React.Component<any, any> {
             // isSuccess: true // 用于判定rowkey是否符合期望格式
         };
     }
-
+    $canvas: any;
+    canvas: any;
+    $activeLine: any;
+    container: any;
     /**
      * 获取step容器的大小，最小为450，其他情况为panel大小的5/6;
      */
@@ -233,7 +235,7 @@ class Keymap extends React.Component<any, any> {
          */
         source.forEach((keyObj: any, ii: any) => {
             $dagL.each((dl: any, i: any) => {
-                let sx, sy, ex, ey;
+                let sx: any, sy: any, ex: any, ey: any;
 
                 if (matchKeymapToSourceColumn(dl, keyObj)) {
                     sx = padding;
@@ -467,7 +469,7 @@ class Keymap extends React.Component<any, any> {
 
         const colStyle: any = { left: padding, top: padding, width: w, height: h }
 
-        const renderTableRow = (sourceType: any, col: any, i: any) => {
+        const renderTableRow = (sourceType?: any, col?: any, i?: any) => {
             const removeOption = <div className="remove-cell"
                 onClick={() => removeSourceKeyRow(col, i)}>
                 <Tooltip title="删除当前列">
@@ -492,7 +494,7 @@ class Keymap extends React.Component<any, any> {
 
             switch (sourceType) {
                 case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
+                    const name: any = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '索引位';
 
                     return <div>
                         <div className="cell" title={name}>{name}</div>
@@ -505,7 +507,7 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.HBASE: {
-                    const name = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
+                    const name: any = col ? scrollText(col.value ? `'${col.key}'` : col.key) : '列名/行健';
                     const cf = col ? col.cf : '列族';
 
                     // 仅允许常量删除操作
@@ -536,7 +538,7 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.FTP: {
-                    const name = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
+                    const name: any = col ? scrollText(col.index !== undefined ? col.index : col.value ? `'${col.key}'` : col.key) : '字段序号';
                     return <div>
                         <div className="cell" title={name}>{name}</div>
                         <div className="cell" title={typeValue}>{ type }</div>
@@ -565,7 +567,7 @@ class Keymap extends React.Component<any, any> {
 
         const renderTableFooter = (sourceType: any) => {
             if (!readonly) {
-                let footerContent = '';
+                let footerContent = null;
                 const btnAddConst = (<span className="col-plugin" onClick={
                     () => {
                         this.setState({ visibleConst: true })
@@ -669,7 +671,7 @@ class Keymap extends React.Component<any, any> {
             height: h
         }
 
-        const renderTableRow = (targetType: any, col: any, i: any) => {
+        const renderTableRow = (targetType?: any, col?: any, i?: any) => {
             const operations = <div>
                 <div className="remove-cell" onClick={() => removeTargetKeyRow(col, i)}>
                     <Tooltip title="删除当前列">
@@ -686,7 +688,7 @@ class Keymap extends React.Component<any, any> {
             </div>
             switch (targetType) {
                 case DATA_SOURCE.HDFS: {
-                    const name = col ? scrollText(col.key) : '字段名称';
+                    const name: any = col ? scrollText(col.key) : '字段名称';
                     const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
                         <div className="cell" title={name}>{name}</div>
@@ -698,8 +700,8 @@ class Keymap extends React.Component<any, any> {
                 }
                 case DATA_SOURCE.HBASE: {
                     const name = col ? col.cf : '列族';
-                    const column = col ? scrollText(col.key) : '列名';
-                    const type = col ? scrollText(col.type.toUpperCase()) : '类型';
+                    const column: any = col ? scrollText(col.key) : '列名';
+                    const type: any = col ? scrollText(col.type.toUpperCase()) : '类型';
                     return <div className="four-cells">
                         <div className="cell" title={name}>{name}</div>
                         <div className="cell" title={column}>{column}</div>
@@ -708,7 +710,7 @@ class Keymap extends React.Component<any, any> {
                     </div>
                 }
                 case DATA_SOURCE.FTP: {
-                    const column = col ? scrollText(col.key) : '字段名称';
+                    const column: any = col ? scrollText(col.key) : '字段名称';
                     const type = col ? col.type.toUpperCase() : '类型';
                     return <div>
                         <div className="cell" title={column}>{column}</div>
@@ -720,7 +722,7 @@ class Keymap extends React.Component<any, any> {
                 }
                 default: {
                     const typeText = col ? `${col.type.toUpperCase()}${col.isPart ? `(分区字段)` : ''}` : '类型';
-                    const fieldName = col ? scrollText(col.key) : '字段名称';
+                    const fieldName: any = col ? scrollText(col.key) : '字段名称';
                     return <div>
                         <div className="cell" title={fieldName}>{fieldName}</div>
                         <div className="cell" title={typeText}>{ typeText }</div>
@@ -731,7 +733,7 @@ class Keymap extends React.Component<any, any> {
 
         const renderTableFooter = (targetType: any) => {
             if (!readonly) {
-                let footerContent = ''
+                let footerContent = null;
                 switch (targetType) {
                     case DATA_SOURCE.HBASE:
                         footerContent = <div>
@@ -984,7 +986,7 @@ class Keymap extends React.Component<any, any> {
                 { targetSrcType === DATA_SOURCE.HBASE ? (
 
                     <Row>
-                        <Col span="21" style={{ textAlign: 'center' }}>
+                        <Col span={21} style={{ textAlign: 'center' }}>
                             <div className="m-keymapbox"
                                 style={{
                                     width: W + 200,
@@ -1016,7 +1018,7 @@ class Keymap extends React.Component<any, any> {
                     </Row>
                 ) : null}
                 <Row>
-                    <Col span="21" style={{ textAlign: 'center' }}>
+                    <Col span={21} style={{ textAlign: 'center' }}>
                         <div className="m-keymapbox"
                             ref={ (el: any) => this.container = el }
                             style={{
@@ -1050,7 +1052,7 @@ class Keymap extends React.Component<any, any> {
                             </svg>
                         </div>
                     </Col>
-                    <Col span="3">
+                    <Col span={3}>
                         {!this.props.readonly ? <div className="m-buttons">
                             <Button
                                 type={ this.state.rowMap ? 'primary' : 'default' }
@@ -1146,7 +1148,7 @@ class Keymap extends React.Component<any, any> {
         cb.call(null, 3);
     }
 
-    checkHBaseRowKey = (e: any) => {
+    checkHBaseRowKey = (e?: any) => {
         const { keymap, targetMap, sourceSrcType } = this.props
         const { type } = targetMap
         const source = keymap.source

@@ -14,11 +14,11 @@ import DeriveIndexModal from './paneSevenModal';
 
 const FormItem = Form.Item;
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class DeriveIndexDefine extends AtomIndexDefine {
     componentDidMount () {
         this.setState({
@@ -27,7 +27,7 @@ class DeriveIndexDefine extends AtomIndexDefine {
             })
         }, this.loadData)
     }
-
+    searchInput = React.createRef();
     // eslint-disable-next-line
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const project = nextProps.project

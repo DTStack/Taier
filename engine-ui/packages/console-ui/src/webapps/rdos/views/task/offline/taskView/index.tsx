@@ -17,11 +17,11 @@ const {
     mxCellHighlight
 } = Mx
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project
     }
-})
+}) as any)
 class TaskView extends React.Component<any, any> {
     state: any = {
         loading: 'success',
@@ -33,7 +33,7 @@ class TaskView extends React.Component<any, any> {
         visibleWorkflowVisible: false, // 是否打开工作流
         currentNodeData: {} // 缓存节点数据
     }
-
+    _originData: any;
     componentDidMount () {
         this.refresh();
     }
@@ -101,7 +101,7 @@ class TaskView extends React.Component<any, any> {
     initGraphEvent = (graph: any) => {
         const ctx = this;
         let highlightEdges: any = [];
-        let selectedCell = null;
+        let selectedCell: any = null;
 
         if (graph) {
             graph.addListener(mxEvent.CELLS_FOLDED, function (sender: any, evt: any) {
@@ -186,12 +186,12 @@ class TaskView extends React.Component<any, any> {
                     refresh={this.refresh}
                     registerEvent={this.initGraphEvent}
                     key={`task-graph-view-${graphData && graphData.id}`}
-                    registerContextMenu={this.initContextMenu}
+                    // registerContextMenu={this.initContextMenu}
                 />
                 <Modal
                     zIndex={999}
                     width={800}
-                    height={600}
+                    {...{height:600}}
                     footer={null}
                     maskClosable={true}
                     visible={this.state.visibleWorkflow}
@@ -205,7 +205,7 @@ class TaskView extends React.Component<any, any> {
                         data={selectedWorkflowNode}
                         hideFooter={true}
                         registerEvent={this.initGraphEvent}
-                        registerContextMenu={this.initContextMenu}
+                        // registerContextMenu={this.initContextMenu}
                         graphData={workflowData && workflowData.subTaskVOS[0]}
                         key={`task-graph-workflow-${workflowData && workflowData.id}`}
                         refresh={this.loadWorkflowNodes.bind(this, workflowData)}

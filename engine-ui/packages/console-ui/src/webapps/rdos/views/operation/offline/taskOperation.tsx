@@ -36,7 +36,7 @@ import TaskJobFlowView from './taskJobFlowView'
 import KillJobForm from './killJobForm';
 import MultiSearchInput from 'widgets/multiSearchInput';
 
-const Option = Select.Option
+const Option: any = Select.Option
 const confirm = Modal.confirm
 const warning = Modal.warning
 const FormItem = Form.Item
@@ -619,7 +619,7 @@ class OfflineTaskList extends React.Component<any, any> {
                 disabled: record.batchTask && record.batchTask.isDeleted === 1
             })
         };
-
+        const columns: any = this.initTaskColumns()
         return (
             <div>
                 <h1 className="box-title" style={{ lineHeight: 2.5, height: 'auto', padding: '7px 20px' }}>
@@ -774,7 +774,7 @@ class OfflineTaskList extends React.Component<any, any> {
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}
-                            columns={this.initTaskColumns()}
+                            columns={columns}
                             dataSource={tasks.data || []}
                             onChange={this.handleTableChange}
                             footer={this.tableFooter}

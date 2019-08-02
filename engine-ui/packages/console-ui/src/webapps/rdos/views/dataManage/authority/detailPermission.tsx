@@ -6,7 +6,6 @@ import ajax from '../../../api/dataManage';
 import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item;
-
 const CheckboxGroup = Checkbox.Group;
 const pageSize = 20;
 const formItemLayout1: any = { // ddl,dml表单布局
@@ -315,7 +314,7 @@ class DetailPermission extends React.Component<any, any> {
                             label={'申请理由'}
                             hasFeedback
                         >
-                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }} />,
+                            <Input.TextArea rows={4} placeholder="" disabled={true} value={applyReason} style={{ width: '80%' }} />,
                         </FormItem>
                     }
                     {/* 已处理  权限回收 */}
@@ -325,7 +324,7 @@ class DetailPermission extends React.Component<any, any> {
                             label={'审批意见'}
                             hasFeedback
                         >
-                            <Input type="textarea" rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }} />,
+                            <Input.TextArea rows={4} placeholder="" disabled={true} value={reply} style={{ width: '80%' }} />,
                         </FormItem> : ''
                     }
 
@@ -343,7 +342,7 @@ class DetailPermission extends React.Component<any, any> {
                             }]
                             // initialValue: this.props.listType == 1 ? 123 : null
                         })(
-                            <Input type="textarea" rows={4} placeholder="回复内容" style={{ width: '80%' }} />
+                            <Input.TextArea rows={4} placeholder="回复内容" style={{ width: '80%' }} />
                         )}
                     </FormItem> : ''
                     }

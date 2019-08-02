@@ -7,7 +7,6 @@ import {
     Row, Col, Icon, Select,
     Tooltip, InputNumber
 } from 'antd';
-
 const Option = Select.Option;
 
 /**
@@ -33,7 +32,7 @@ export default class RowItem extends React.Component<any, any> {
         const { data, replaceRow } = this.props;
         let iptName, value;
 
-        if (isObject(evt)) {
+        if (isObject(evt as any)) {
             iptName = evt.target.name;
             value = evt.target.value;
         } else {
@@ -106,8 +105,7 @@ export default class RowItem extends React.Component<any, any> {
                     value={data.columnName}
                     placeholder={this.props.placeholder}
                     notFoundContent=""
-                    name="columnName"
-                    showArrow={true}
+                    {...{showArrow: true }}
                     style={{ width: '100%' }}
                     defaultActiveFirstOption={false}
                     disabled={ isSaved }
@@ -118,7 +116,7 @@ export default class RowItem extends React.Component<any, any> {
                 </Select>
             </Col>
             <Col span={8} className="cell">
-                <Select name="columnType" defaultValue={ data.columnType }
+                <Select defaultValue={ data.columnType }
                     onChange={ this.handleChange.bind(this, 'columnType') }
                     style={{ width: needExtra ? '40%' : '80%' }}
                     disabled={ isSaved }
@@ -138,17 +136,17 @@ export default class RowItem extends React.Component<any, any> {
             </Col>
             <Col span={5} className="cell" style={{ paddingTop: 13 }}>
                 <a href="javascript:void(0)"
-                    disabled={ isSaved }
+                    {...{disabled: isSaved }}
                     onClick={ () => this.props.moveRow(data.uuid, true) }
                 >上移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    disabled={ isSaved }
+                    {...{disabled: isSaved }}
                     onClick={ () => this.props.moveRow(data.uuid, false) }
                 >下移</a>
                 <span> | </span>
                 <a href="javascript:void(0)"
-                    disabled={ isSaved }
+                    {...{disabled: isSaved }}
                     onClick={ () => this.props.delRow(data.uuid) }
                 >删除</a>
             </Col>
@@ -158,14 +156,14 @@ export default class RowItem extends React.Component<any, any> {
     renderExtra (columnType: any) {
         const { data } = this.props;
         const { precision, scale, charLen, varcharLen, isSaved } = data;
-        let result = '';
+        let result = null;
 
         columnType = columnType.toUpperCase();
         switch (columnType) {
             case 'DECIMAL':
             case 'NUMERIC':
                 result = <span className="extra-ipt">
-                    <Select name="precision"
+                    <Select
                         style={{ marginLeft: '2%', width: '18%' }}
                         value={ `${precision}` || '10'}
                         onChange={ this.handleChange.bind(this, 'precision') }
@@ -176,7 +174,7 @@ export default class RowItem extends React.Component<any, any> {
                             key={n}
                         >{n}</Option>)}
                     </Select>
-                    <Select name="scale"
+                    <Select
                         style={{ marginLeft: '2%', width: '18%' }}
                         value={ `${scale}` || '0'}
                         onChange={ this.handleChange.bind(this, 'scale') }

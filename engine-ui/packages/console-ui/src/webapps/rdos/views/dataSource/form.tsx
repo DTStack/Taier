@@ -26,7 +26,6 @@ import CopyIcon from 'main/components/copy-icon';
 const FormItem = Form.Item
 const Option = Select.Option
 const RadioGroup = Radio.Group
-
 const hdfsConf =
     `{
 "dfs.nameservices": "defaultDfs", 
@@ -48,7 +47,6 @@ class BaseForm extends React.Component<any, any> {
         hasCarbonDataConfig: false,
         ftpProtocal: 'ftp'
     }
-
     componentDidMount () {
         const sourceData = this.props.sourceData;
         if (!isEmpty(sourceData)) {
@@ -258,9 +256,9 @@ class BaseForm extends React.Component<any, any> {
                             initialValue: config.config ? typeof config.config == 'string'
                                 ? JSON.stringify(JSON.parse(config.config), null, 4) : JSON.stringify(config.config, null, 4) : ''
                         })(
-                            <Input
+                            <Input.TextArea
                                 className="no-scroll-bar"
-                                type="textarea" rows={5}
+                                rows={5}
                                 placeholder={kylinConf}
                             />
                         )}
@@ -301,10 +299,9 @@ class BaseForm extends React.Component<any, any> {
                             initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                 ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                         })(
-                            <Input
+                            <Input.TextArea
                                 rows={5}
                                 className="no-scroll-bar"
-                                type="textarea"
                                 placeholder={hdfsConf}
                             />
                         )}
@@ -414,10 +411,9 @@ class BaseForm extends React.Component<any, any> {
                                 initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                     ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                             })(
-                                <Input
+                                <Input.TextArea
                                     className="no-scroll-bar"
-                                    type="textarea" rows={5}
-
+                                    rows={5}
                                     placeholder={hdfsConf}
                                 />
                             )}
@@ -508,10 +504,8 @@ class BaseForm extends React.Component<any, any> {
                             initialValue: config.hadoopConfig ? typeof config.hadoopConfig == 'string'
                                 ? JSON.stringify(JSON.parse(config.hadoopConfig), null, 4) : JSON.stringify(config.hadoopConfig, null, 4) : ''
                         })(
-                            <Input
+                            <Input.TextArea
                                 className="no-scroll-bar"
-                                type="textarea" rows={5}
-
                                 placeholder={hdfsConf}
                             />
                         )}
@@ -538,8 +532,7 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: config.hbase_quorum || ''
                         })(
-                            <Input
-                                type="textarea"
+                            <Input.TextArea
                                 rows={5}
                                 placeholder="集群地址，例如：IP1:Port,IP2:Port,IP3:Port/子目录"
                             />
@@ -571,7 +564,7 @@ class BaseForm extends React.Component<any, any> {
                             initialValue: config.hbase_other ? typeof config.hbase_other == 'string'
                                 ? JSON.stringify(JSON.parse(config.hbase_other), null, 4) : JSON.stringify(config.hbase_other, null, 4) : ''
                         })(
-                            <Input type="textarea" rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`} />
+                            <Input.TextArea rows={5} placeholder={`hbase.rootdir": "hdfs: //ip:9000/hbase`} />
                         )}
                     </FormItem>
                 ]
@@ -747,8 +740,8 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: config.address || ''
                         })(
-                            <Input
-                                type="textarea" rows={4}
+                            <Input.TextArea
+                                rows={4}
                                 placeholder="集群地址，单个节点地址采用host:port形式，多个节点的地址用逗号连接"
                             />
                         )}
@@ -837,8 +830,8 @@ class BaseForm extends React.Component<any, any> {
                             }],
                             initialValue: config.hostPorts || ''
                         })(
-                            <Input
-                                type="textarea" rows={4}
+                            <Input.TextArea
+                                rows={4}
                                 placeholder="MongoDB集群地址，例如：IP1:Port,IP2:Port,IP3:Port"
                             />
                         )}
@@ -909,7 +902,7 @@ class BaseForm extends React.Component<any, any> {
                         )}
                         <Tooltip overlayClassName="big-tooltip" title={
                             (
-                                <span style={{ wordBreak: ' break-all' }}>
+                                <span style={{ wordBreak: 'break-all' }}>
                                     SID示例：{jdbcUrlExample[sourceType][0]}
                                     <br />
                                     ServiceName示例：{jdbcUrlExample[sourceType][1]}
@@ -1039,7 +1032,7 @@ class BaseForm extends React.Component<any, any> {
         const { active } = sourceData;
 
         return (
-            <Form autoComplete="off">
+            <Form>
                 <FormItem
                     {...formItemLayout}
                     label="数据源类型"
@@ -1089,7 +1082,7 @@ class BaseForm extends React.Component<any, any> {
                         }],
                         initialValue: sourceData.dataDesc || ''
                     })(
-                        <Input type="textarea" rows={4} />
+                        <Input.TextArea rows={4} />
                     )}
                 </FormItem>
                 {this.renderDynamic()}
@@ -1130,6 +1123,7 @@ class BaseForm extends React.Component<any, any> {
 }
 
 class DataSourceForm extends React.Component<any, any> {
+    myFrom: any;
     cancle = () => {
         const { handCancel } = this.props
         this.myFrom.resetFields()

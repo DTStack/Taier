@@ -39,6 +39,9 @@ export default class ColumnsPartition extends React.Component<any, any> {
     render () {
         const { columns, partition_keys, isEdit, columnFileds, tableType } = this.props;// eslint-disable-line
         const isHiveTable = tableType == TABLE_TYPE.HIVE;
+        const isDisable = {
+            disabled: isEdit
+        }
         return <div className="m-columnspartition">
             <div className="columns box">
                 <h3>字段信息</h3>
@@ -60,7 +63,7 @@ export default class ColumnsPartition extends React.Component<any, any> {
                     />)}
                 </div>
                 <div className="fn">
-                    <a href="javascript:void(0)" disabled={ isEdit } onClick={ this.addRow.bind(this, 1) }>
+                    <a href="javascript:void(0)" {...isDisable} onClick={ this.addRow.bind(this, 1) }>
                         <Icon type="plus-circle-o" /> 新增字段
                     </a>
                 </div>
@@ -87,7 +90,7 @@ export default class ColumnsPartition extends React.Component<any, any> {
                         </div>
                         <div className="fn">
                             <a href="javascript:void(0)"
-                                disabled={ isEdit }
+                                {...isDisable}
                                 onClick={ this.addRow.bind(this, 2) }>
                                 <Icon type="plus-circle-o" /> 新增分区
                             </a>

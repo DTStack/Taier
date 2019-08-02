@@ -13,7 +13,6 @@ import {
     TaskType,
     AlarmTypes
 } from '../../../components/status'
-
 const RangePicker = DatePicker.RangePicker
 const Option = Select.Option
 const FormItem = Form.Item
@@ -188,7 +187,6 @@ class OfflinePanel extends React.Component<any, any> {
                     <Option
                         key={item.id}
                         value={`${item.user.id}`}
-                        name={item.user.userName}
                     >
                         {item.user.userName}
                     </Option>
@@ -243,7 +241,6 @@ class OfflinePanel extends React.Component<any, any> {
                                 <Input
                                     size="default"
                                     placeholder="任务名称"
-                                    allowClear
                                     style={{ width: 126 }}
                                     onChange={this.changeTaskName}
                                     onPressEnter={this.search}
@@ -255,7 +252,7 @@ class OfflinePanel extends React.Component<any, any> {
                                 <Select
                                     allowClear
                                     showSearch
-                                    size='Default'
+                                    size='default'
                                     style={{ width: 126 }}
                                     placeholder="请选择接收人"
                                     optionFilterProp="name"

@@ -135,7 +135,7 @@ class AtomIndexDefineModal extends React.Component<any, any> {
                             }],
                             initialValue: data ? data.modelDesc : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input.TextArea rows={4} />
                         )}
                     </FormItem>
                     <FormItem

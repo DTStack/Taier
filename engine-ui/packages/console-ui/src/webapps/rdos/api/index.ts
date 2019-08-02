@@ -146,10 +146,10 @@ export default {
     getTenantTableTypes (params: any) { // 租户支持的表类型
         return http.post(req.GET_TENANT_TABLE_TYPE, params)
     },
-    getProjectUsedEngineInfo (params: any) { // 获取项目在用引擎信息
+    getProjectUsedEngineInfo (params?: any) { // 获取项目在用引擎信息
         return http.post(req.GET_PRO_USE_ENGINE, params)
     },
-    getProjectUnUsedEngine (params: any) { // 获取项目未接入的引擎信息
+    getProjectUnUsedEngine (params?: any) { // 获取项目未接入的引擎信息
         return http.post(req.GET_PRO_UNUSE_ENGINE, params)
     },
     addNewEngine (params: any) {
@@ -171,7 +171,7 @@ export default {
     deleteRole (params: any) {
         return http.post(req.DELETE_ROLE, params)
     },
-    getRoleTree (params: any) {
+    getRoleTree (params?: any) {
         return http.post(req.GET_ROLE_TREE, params)
     },
     getRoleInfo (params: any) {
@@ -431,22 +431,22 @@ export default {
     getTaskTypes (params?: any) {
         return http.post(offlineReq.GET_TASK_TYPES, params)
     },
-    getAnalyDataSourceLists (params: any) {
+    getAnalyDataSourceLists (params?: any) {
         return http.post(offlineReq.GET_ANALY_DTATSOURCE_LISTS, params)
     },
     getJobById (params: any) {
         return http.post(offlineReq.GET_JOB_BY_ID, params)
     },
-    getJobGraph (params: any) {
+    getJobGraph (params?: any) {
         return http.post(offlineReq.GET_JOB_GRAPH, params)
     },
-    getJobStatistics (params: any) {
+    getJobStatistics (params?: any) {
         return http.post(offlineReq.GET_JOB_STATISTICS, params)
     },
     getJobTopTime (params: any) {
         return http.post(offlineReq.GET_JOB_TOP_TIME, params)
     },
-    getJobTopError (params: any) {
+    getJobTopError (params?: any) {
         return http.post(offlineReq.GET_JOB_TOP_ERROR, params)
     },
     patchTaskData (params: any) { // 补数据
@@ -589,7 +589,7 @@ export default {
     getOfflineTaskByName (params: any) {
         return http.post(offlineReq.GET_OFFLINE_TASK_BY_NAME, params)
     },
-    getOfflineDataSource (params: any) {
+    getOfflineDataSource (params?: any) {
         return http.post(offlineReq.GET_OFFLINE_DATASOURCE, params)
     },
     getOfflineTableList (params: any) {
@@ -680,7 +680,7 @@ export default {
     getOfflineAlarmRecords (params: any) {
         return http.post(offlineReq.GET_ALARM_RECORDS, params)
     },
-    getOfflineAlarmStatistics (params: any) {
+    getOfflineAlarmStatistics (params?: any) {
         return http.post(offlineReq.ALARM_STATISTICS, params)
     },
 
@@ -703,7 +703,7 @@ export default {
     getDataSourceTypes (params?: any) {
         return http.post(offlineReq.GET_DATA_SOURCE_TYPES, params)
     },
-    checkIsPermission (params: any) {
+    checkIsPermission (params?: any) {
         return http.post(offlineReq.CHECK_IS_PERMISSION, params)
     },
 
@@ -726,7 +726,7 @@ export default {
     getTaskOfOfflineSource (params: any) {
         return http.post(offlineReq.GET_TASK_LIST_OF_OFFLINE_SOURCE, params)
     },
-    checkSyncPermission (params: any) {
+    checkSyncPermission (params?: any) {
         return http.post(offlineReq.CHECK_SYNC_PERMISSION, params)
     },
 

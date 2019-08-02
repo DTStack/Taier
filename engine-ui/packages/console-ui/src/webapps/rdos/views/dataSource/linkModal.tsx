@@ -136,6 +136,6 @@ class LinkModal extends React.Component<any, any> {
     }
 }
 
-const WrapLinkModal = Form.create({})(LinkModal);
+const WrapLinkModal = Form.create<any>({})(LinkModal);
 
 export default WrapLinkModal;

@@ -11,6 +11,8 @@ const defaultPro: any = {
 }
 
 class Container extends React.Component<any, any> {
+    static propTypes = propType;
+    static defaultProps = defaultPro;
     render () {
         const { children } = this.props
         return (
@@ -20,6 +22,4 @@ class Container extends React.Component<any, any> {
         )
     }
 }
-Container.propTypes = propType
-Container.defaultProps = defaultPro
 export default Container

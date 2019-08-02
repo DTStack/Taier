@@ -19,7 +19,7 @@ import { getRandomInt } from '../../../../../funcs';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         isModalShow: state.offlineTask.modalShow.cloneToWorkflow,
         workflow: state.offlineTask.workflow,
@@ -98,7 +98,7 @@ const Option = Select.Option;
             });
         }
     }
-})
+}) as any)
 class CloneToWorkflowModal extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
@@ -110,6 +110,7 @@ class CloneToWorkflowModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
+    dtcount: number;
     workFlowListsOption () {
         const { workFlowLists } = this.props;
         return workFlowLists && workFlowLists.map((item: any) => {

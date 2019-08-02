@@ -124,7 +124,7 @@ class FnForm extends React.Component<any, any> {
                             message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
+                        <Input.TextArea rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -138,7 +138,7 @@ class FnForm extends React.Component<any, any> {
                             message: '描述请控制在200个字符以内！'
                         }]
                     })(
-                        <Input type="textarea" rows={4} placeholder="请输入函数的参数说明"/>
+                        <Input.TextArea rows={4} placeholder="请输入函数的参数说明"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -236,7 +236,8 @@ class FnModal extends React.Component<any, any> {
 
         this.dtcount = 0;
     }
-
+    form: any;
+    dtcount: number;
     shouldComponentUpdate (nextProps: any, nextState: any) {
         return this.props !== nextProps;
     }

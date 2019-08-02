@@ -7,7 +7,6 @@ import '../../../styles/pages/dataManage.scss';
 
 const FormItem = Form.Item
 const CheckboxGroup = Checkbox.Group;
-
 const warning = Modal.warning
 
 const pageSize = 20;
@@ -332,7 +331,7 @@ class TableApply extends React.Component<any, any> {
                                 required: true, message: '必须填写申请理由'
                             }]
                         })(
-                            <Input type="textarea" rows={4} placeholder="请输入申请理由" style={{ width: '80%' }}/>
+                            <Input.TextArea rows={4} placeholder="请输入申请理由" style={{ width: '80%' }}/>
                         )}
                     </FormItem>
                 </Form>

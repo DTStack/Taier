@@ -37,7 +37,7 @@ const defaultState: any = {
     originLineCount: 0, // 原数据总条数
     targetExchangeWarning: false// target界面是否提示未选择源字段
 }
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     return {
         project: state.project,
         projectTableTypes: state.tableTypes.projectTableTypes
@@ -51,10 +51,10 @@ const defaultState: any = {
             dispatch(getUploadStatus(params))
         }
     }
-})
+}) as any)
 class ImportLocalData extends React.Component<any, any> {
     state = Object.assign({}, defaultState)
-    form = React.createRef()
+    form: any = React.createRef()
     componentDidMount () {
         // const { getProjectTableTypes, project } = this.props;
         // const projectId = project.id;

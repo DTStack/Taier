@@ -111,14 +111,14 @@ class AlarmForm extends React.Component<any, any> {
 
         const taskItems = taskList && taskList.length > 0
             ? taskList.map((item: any) => {
-                return (<Option key={item.id} value={item.id} name={item.name}>
+                return (<Option key={item.id} value={item.id}>
                     {item.name}
                 </Option>)
             }) : []
 
         const userItems = projectUsers && projectUsers.length > 0
             ? projectUsers.map((item: any) => {
-                return (<Option key={item.id} value={item.userId} name={item.user.userName}>
+                return (<Option key={item.id} value={item.userId}>
                     {item.user.userName}
                 </Option>)
             }) : []
@@ -294,7 +294,7 @@ class AlarmForm extends React.Component<any, any> {
                             <Select
                                 showSearch
                                 mode="multiple"
-                                size='Default'
+                                size='default'
                                 style={{ width: '100%' }}
                                 placeholder="请选择接收人"
                                 optionFilterProp="name"

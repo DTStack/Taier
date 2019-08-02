@@ -29,7 +29,7 @@ class SchedulingConfig extends React.Component<any, any> {
             selfReliance: undefined
         }
     }
-
+    form: any;
     componentDidMount () {
         this.loadWorkflowConfig();
         const { tabData, isIncrementMode } = this.props;
@@ -99,7 +99,7 @@ class SchedulingConfig extends React.Component<any, any> {
                 this.props.changeScheduleStatus(status);
                 message.info(succInfo)
             } else {
-                message.err(errInfo)
+                message.error(errInfo)
             }
         })
     }
@@ -278,7 +278,7 @@ class SchedulingConfig extends React.Component<any, any> {
                     !isWorkflowNode &&
                     <Panel key="3" header="跨周期依赖">
                         <Row style={{ marginBottom: '16px' }}>
-                            <Col span="1" />
+                            <Col span={1} />
                             <Col>
                                 <RadioGroup disabled={isScienceTask} onChange={this.setSelfReliance.bind(this)}
                                     value={selfReliance}

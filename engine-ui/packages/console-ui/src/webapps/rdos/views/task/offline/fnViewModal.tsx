@@ -66,7 +66,7 @@ class FnViewModal extends React.Component<any, any> {
                         : <table className="ant-table ant-table-bordered bd-top bd-left" style={{ width: '100%' }}>
                             <tbody className="ant-table-tbody">
                                 <tr>
-                                    <td width="15%">函数名称</td>
+                                    <td {...{width: "15%"}}>函数名称</td>
                                     <td>{ data.name }</td>
                                 </tr>
                                 <tr>

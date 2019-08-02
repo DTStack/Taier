@@ -77,7 +77,7 @@ class TableLog extends React.Component<any, any> {
             total: 0
         };
     }
-
+    searchForm: any;
     componentDidMount () {
         const { belongProjectId } = this.props.editRecord
         this.search();

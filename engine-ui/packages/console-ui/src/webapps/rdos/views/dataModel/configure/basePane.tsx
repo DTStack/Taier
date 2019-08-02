@@ -3,7 +3,7 @@ import { message } from 'antd';
 import Api from '../../../api/dataModel';
 
 class BasePane extends React.Component<any, any> {
-    state ={
+    state: any ={
         table: { data: [] },
 
         loading: false,

@@ -21,7 +21,7 @@ class EngineConfig extends React.Component<any, any> {
         createEngineVisible: false,
         formStatus: 'add' // 表单状态， add, edit
     }
-
+    timer: any;
     componentDidMount () {
         this.getProUseEngine();
         this.getProjectUnUsedEngine();
@@ -43,7 +43,7 @@ class EngineConfig extends React.Component<any, any> {
     exChangeData = (data = {}) => {
         let useEngineList: any = []
         for (let key in data) {
-            useEngineList.push(Object.assign({}, data[key], {}))
+            useEngineList.push(Object.assign({}, (data as any)[key], {}))
         }
         return useEngineList
     }
@@ -51,7 +51,7 @@ class EngineConfig extends React.Component<any, any> {
         let unUseEngineList: any = [];
         for (let key in data) {
             unUseEngineList.push({
-                name: data[key].engineType,
+                name: (data as any)[key].engineType,
                 value: key
             })
         }
@@ -112,7 +112,7 @@ class EngineConfig extends React.Component<any, any> {
             message.error('添加引擎失败！')
         }
     }
-    async addEngineSource (sourceFormData: any, form: any) {
+    async addEngineSource (sourceFormData?: any, form?: any) {
         const res = await Api.addNewEngine(sourceFormData);
         if (res.code === 1) {
             this.timer = setInterval(() => {

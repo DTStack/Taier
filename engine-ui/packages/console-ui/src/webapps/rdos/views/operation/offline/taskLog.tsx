@@ -22,7 +22,7 @@ function wrappTitle (title: any) {
     return `====================${title}====================`
 }
 
-function getLogsInfo (title, data, type = 'info') {
+function getLogsInfo (title: any, data: any, type = 'info') {
     let res = '';
     if (data && data.length > 0) {
         for (let i = 0; i < data.length; ++i) {

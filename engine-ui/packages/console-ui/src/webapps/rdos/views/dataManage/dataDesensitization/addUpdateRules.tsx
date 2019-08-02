@@ -5,13 +5,13 @@ import { formItemLayout } from '../../../comm/const';
 
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
-const Option = Select.Option;
-@(connect((state: any) as any) => {
+const Option: any = Select.Option;
+@(connect((state: any) => {
     return {
         projects: state.projects,
         user: state.user
     }
-}, null)
+}, null) as any)
 class AddUpdateRules extends React.Component<any, any> {
     state: any = {
         // 部分脱敏参数
@@ -277,7 +277,7 @@ class AddUpdateRules extends React.Component<any, any> {
                             }],
                             initialValue: dataSource.example ? dataSource.example : ''
                         })(
-                            <Input type="textarea" rows={4} />
+                            <Input.TextArea rows={4} />
                         )}
                     </FormItem>
                     <FormItem

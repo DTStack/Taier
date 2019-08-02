@@ -15,7 +15,6 @@ class UpdateTaskOwnerModal extends React.Component<any, any> {
             (item: any) => <Option
                 key={`${item.userId}`}
                 value={`${item.userId}`}
-                name={item.user.userName}
             >
                 {item.user.userName}
             </Option>

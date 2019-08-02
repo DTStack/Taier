@@ -17,14 +17,14 @@ import {
 import { RDB_TYPE_ARRAY } from '../../../comm/const';
 
 function isFieldMatch (source: any, target: any) {
-    if (isObject(source) && isObject(target)) {
+    if (isObject(source as any) && isObject(target as any)) {
         const sourceField = source.key || source.index;
         const tagetField = target.key || target.index;
         return sourceField === tagetField;
-    } else if (isObject(source) && !isObject(target)) {
+    } else if (isObject(source as any) && !isObject(target as any)) {
         const sourceVal = source.key || source.index
         return sourceVal === target
-    } else if (!isObject(source) && isObject(target)) {
+    } else if (!isObject(source as any) && isObject(target as any)) {
         const targetVal = target.key || target.index
         return source === targetVal
     } else {

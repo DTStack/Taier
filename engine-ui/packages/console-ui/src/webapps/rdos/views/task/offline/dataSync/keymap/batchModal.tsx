@@ -23,7 +23,7 @@ export default function BatchModal (props: any) {
         onCancel, onChange,
         columnFamily
     } = props;
-
+    const rowsFix = { rows: 6 }
     const isNotHBase = sourceType !== DATA_SOURCE.HBASE;
     return (
         <Modal
@@ -57,7 +57,7 @@ export default function BatchModal (props: any) {
             <br/>
             <Input
                 type="textarea"
-                rows={6}
+                {...rowsFix}
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}

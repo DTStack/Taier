@@ -18,7 +18,7 @@ import {
 } from '../../../../../store/modules/offlineTask/actionType';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
+const Option: any = Select.Option;
 
 class ImportTemplateForm extends React.Component<any, any> {
     state: any = {
@@ -217,7 +217,7 @@ class ImportTemplateForm extends React.Component<any, any> {
 }
 const WrapTemplateForm = Form.create<any>()(ImportTemplateForm);
 
-@(connect((state: any) as any) => {
+@(connect((state: any) => {
     const { dataSync } = state.offlineTask;
 
     return {
@@ -239,7 +239,7 @@ const WrapTemplateForm = Form.create<any>()(ImportTemplateForm);
                 });
         }
     }
-})
+}) as any)
 class SyncToolbar extends React.Component<any, any> {
     state: any = {
         execConfirmVisible: false
@@ -276,12 +276,12 @@ class SyncToolbar extends React.Component<any, any> {
 
     render () {
         const { execConfirmVisible } = this.state
-
+        const titleFix = { title: "导入模版" }
         return (
             <span>
                 <Button
                     onClick={this.importTemplate.bind(this)}
-                    title="导入模版"
+                    {...titleFix}
                     icon="plus-circle-o"
                     style={{ marginLeft: '0px' }}>导入模版
                 </Button>

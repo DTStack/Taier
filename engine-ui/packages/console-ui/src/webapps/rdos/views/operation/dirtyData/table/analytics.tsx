@@ -7,7 +7,7 @@ import moment from 'moment';
 import ajax from '../../../../api/dataManage';
 
 const TabPane = Tabs.TabPane;
-const Option = Select.Option
+const Option: any = Select.Option
 
 export default class TableAnalytics extends React.Component<any, any> {
     state: any = {
