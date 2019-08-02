@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'object-assign';
+import { get}  from 'lodash';
 
 import {
     commAction
@@ -101,14 +102,15 @@ export const getTableListByProject = (projectIdentifier?: any, type?: any) => {
         }).then((res: any) => {
             if (res.code == 1) {
                 let { data } = res;
+                const children = get(data, 'children', [])
                 dispatch({
                     type: commAction.SET_PROJECT_TABLE_LIST,
                     payload: {
                         projectIdentifier,
-                        tableList: data.children
+                        tableList: children
                     }
                 });
-                return [projectIdentifier, data.children];
+                return [projectIdentifier, children];
             }
         })
     }
