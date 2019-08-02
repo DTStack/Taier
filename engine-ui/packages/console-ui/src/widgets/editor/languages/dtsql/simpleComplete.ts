@@ -1,6 +1,6 @@
 // import * as monaco from 'monaco-editor/esm/vs/editor/edcore.main.js';
 import * as monaco from 'monaco-editor';
-import DtWoker from './dtsql.worker.js';
+import DtWoker from './dtsql.worker';
 import { get } from 'lodash';
 
 let _DtParserInstance: any;

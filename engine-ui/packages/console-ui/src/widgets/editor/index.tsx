@@ -3,10 +3,10 @@ import * as React from 'react';
 import * as monaco from 'monaco-editor';
 
 // monaco 当前版本并未集成最新basic-languages， 暂时shell单独引入
-import './languages/shell/shell.contribution.js';
-import * as dtsql from './languages/dtsql/dtsql.contribution.js'
-import './languages/dt-flink/dtflink.contribution.js'
-import './languages/dtlog/dtlog.contribution.js'
+import './languages/shell/shell.contribution';
+import * as dtsql from './languages/dtsql/dtsql.contribution'
+import './languages/dt-flink/dtflink.contribution'
+import './languages/dtlog/dtlog.contribution'
 
 import './style.scss';
 import whiteTheme from './theme/whiteTheme';

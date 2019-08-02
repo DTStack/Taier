@@ -26,7 +26,7 @@ import * as editorActions from '../../../../../store/modules/editor/editorAction
     const editorAc = bindActionCreators(editorActions, dispatch);
     const actions = Object.assign({
         dispatch: dispatch,
-        updateTaskFields(params: any) {
+        updateTaskFields (params: any) {
             dispatch({
                 type: workbenchAction.SET_TASK_FIELDS_VALUE,
                 payload: params

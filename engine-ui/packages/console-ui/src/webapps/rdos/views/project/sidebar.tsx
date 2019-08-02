@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Menu, Icon } from 'antd'
 import { Link } from 'react-router'
-require('../iconfont/iconfont');
+require('public/iconfont/iconfont.js');
 export default class Sidebar extends React.Component<any, any> {
     constructor (props: any) {
         super(props)

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Row, Col, Icon, Tabs } from 'antd';
 import { cloneDeep } from 'lodash';
 import Resize from 'widgets/resize';
-import { lineChartOptions } from '../../../comm/const.js';
+import { lineChartOptions } from '../../../comm/const';
 import { taskType } from '../../../consts';
 import Api from '../../../api/index';
 // 引入 ECharts 主模块
