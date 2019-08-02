@@ -75,7 +75,7 @@ class ModelView extends React.Component<any, any> {
             componentTypeList: filters.componentName
         }
         if (columnKey) {
-            let dic:{ [propName: string]: string } = {
+            let dic: { [propName: string]: string } = {
                 fileSize: 'memorySort',
                 modelName: 'nameSort',
                 gmtModified: 'gmtModifySort'

@@ -1,5 +1,5 @@
-import commonActionType from '../consts/commonActionType';
-import API from '../api';
+// import commonActionType from '../consts/commonActionType';
+// import API from '../api';
 
 const commonActions: any = {
     getUserList (params: any) {

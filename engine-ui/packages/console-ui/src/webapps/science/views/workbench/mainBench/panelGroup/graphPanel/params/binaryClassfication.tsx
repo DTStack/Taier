@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Form, Select, Input, InputNumber, message, Spin } from 'antd';
 import { debounce, isNumber } from 'lodash';
 import api from '../../../../../../api/experiment';

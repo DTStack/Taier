@@ -1,8 +1,8 @@
 import sourceAction from '../../consts/sourceActionType';
-import API from '../../api';
+// import API from '../../api';
 import { UPLOAD_STATUS } from '../../comm/const'
-import { message } from 'antd';
-const TIME_INTERVAL = 3600; // 1秒
+// import { message } from 'antd';
+// const TIME_INTERVAL = 3600; // 1秒
 /**
  *  Actions
  */
@@ -24,7 +24,7 @@ export const getTableList = (projectId: any) => {
 }
 
 export const getUploadStatus = (params: any, dispatch: any) => {
-    let timeId: any;
+    // let timeId: any;
     let status = UPLOAD_STATUS.PROGRESSING;
     dispatch({
         type: sourceAction.UPDATE,

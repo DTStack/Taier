@@ -1,5 +1,5 @@
-import http from './http'
-import req from '../consts/reqUrls'
+// import http from './http'
+// import req from '../consts/reqUrls'
 
 export default {
 }

@@ -77,7 +77,7 @@ class StepOne extends React.Component<any, any> {
                     key={source.id}
                     value={source.id.toString()}
                     title={title}
-                    {...{sourceType: source.type}}
+                    {...{ sourceType: source.type }}
                 >
                     {title}
                 </Option>

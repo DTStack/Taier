@@ -17,9 +17,9 @@ const Option = Select.Option;
     return {
         verifyTypeList: get(state, 'common.allDict.verifyType', [])
     }
-}) as any )
+}) as any)
 class RuleForm extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.state = {
             loading: false
@@ -91,7 +91,7 @@ class RuleForm extends React.Component<any, any> {
             )}
         </FormItem>
     }
-    renderOperator(isTypeCheck?: any) {
+    renderOperator (isTypeCheck?: any) {
         const { isEdit, data } = this.props;
         const { getFieldDecorator } = this.props.form;
         const isStringLength = (functionId: any) => {
@@ -184,7 +184,7 @@ class RuleForm extends React.Component<any, any> {
             </FormItem>
         </React.Fragment>
     }
-    isPercentage(data: any) {
+    isPercentage (data: any) {
         const { type } = this.props;
         if (!data) {
             return false;
@@ -400,7 +400,7 @@ export default Form.create({
     onValuesChange (props: any, values: any) {
         return props.onValuesChange(values);
     },
-    mapPropsToFields(props: any) {
+    mapPropsToFields (props: any) {
         let v: any = {};
         Object.entries(props.data).forEach(([key, value]) => {
             v[key] = {

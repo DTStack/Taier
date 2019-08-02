@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Tabs, Form, Button, Select, InputNumber, message, Spin, Input } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
@@ -52,6 +52,7 @@ class ChooseModal extends BaseChooseModal {
     }
 }
 /* 参数设置 */
+// eslint-disable-next-line
 class paramSetting extends React.PureComponent<any, any> {
     state: any = {
         regexDatas: [{
@@ -309,12 +310,12 @@ class FieldSetting extends React.PureComponent<any, any> {
 }
 /* 内存设置 */
 class MemorySetting extends BaseMemorySetting {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
     }
 }
 class LogisticRegression extends React.PureComponent<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
         this.handleSaveComponent = debounce(this.handleSaveComponent, 800);
     }
@@ -384,6 +385,7 @@ class LogisticRegression extends React.PureComponent<any, any> {
                 const { data } = props;
                 const values: any = {
                     penalty: { value: data.penalty },
+                    // eslint-disable-next-line
                     max_iter: { value: data.max_iter },
                     c: { value: data.c },
                     tol: { value: data.tol }

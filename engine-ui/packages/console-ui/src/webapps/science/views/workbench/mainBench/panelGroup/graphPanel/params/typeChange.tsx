@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Tabs, Form, Input, Radio, Checkbox, Button, Tooltip, Icon, InputNumber, Modal, Transfer, message, Spin } from 'antd';
 import { formItemLayout } from './index';
 import { cloneDeep, debounce, isNumber } from 'lodash';

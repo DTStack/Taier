@@ -7,7 +7,7 @@ import Resize from 'widgets/resize';
 
 import { lineAreaChartOptions, DATA_SOURCE } from '../../consts';
 import TQApi from '../../api/taskQuery';
-const echarts = require('echarts/lib/echarts');
+import echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
@@ -64,7 +64,7 @@ export default class TaskTablePane extends React.Component<any, any> {
     }
 
     initLineChart (chartData: any) {
-        let myChart = echarts.init(document.getElementById('TableReportTrend'));
+        let myChart = echarts.init(document.getElementById('TableReportTrend') as HTMLDivElement);
 
         let option = cloneDeep(lineAreaChartOptions);
 

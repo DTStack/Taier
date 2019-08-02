@@ -5,7 +5,7 @@ export default class ToolTipCopy extends React.Component<any, any> {
     state: any = {
     }
     fakeHandlerCallback: EventListenerOrEventListenerObject
-    fakeHandler: Boolean
+    fakeHandler: boolean
     fakeElem: HTMLTextAreaElement
     componentWillUnmount () {
         this.removeFake();

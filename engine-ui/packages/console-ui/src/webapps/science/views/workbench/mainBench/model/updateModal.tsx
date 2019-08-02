@@ -8,8 +8,8 @@ import utils from 'utils';
 import { MODEL_STATUS } from '../../../../consts';
 
 class ModelUpdateModal extends React.Component<any, {
-    updateList: any[],
-    loading: Boolean
+    updateList: any[];
+    loading: boolean;
 }> {
     state = {
         updateList: [] as any[],

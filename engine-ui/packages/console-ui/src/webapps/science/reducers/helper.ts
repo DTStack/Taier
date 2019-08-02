@@ -70,7 +70,7 @@ export function replaceTreeNode (origin: any, replaceNode: any) {
 
 export function saveReducer (key: any, reducer: any) {
     return function (state = localDb.get(key), action: any) {
-        const newState = reducer(state, action: any);
+        const newState = reducer(state, action as any);
         localDb.set(key, newState);
         return newState;
     }

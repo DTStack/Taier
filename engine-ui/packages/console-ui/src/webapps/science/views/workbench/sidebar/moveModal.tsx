@@ -26,10 +26,10 @@ class NewFolder extends React.Component<any, any> {
     state: any = {
         modalKey: null
     }
-    loadData(node: any) {
+    loadData (node: any) {
         return this.props.loadTreeData(this.props.type, node.props.data.id);
     }
-    async moveFile(values: any) {
+    async moveFile (values: any) {
         const { type, data } = this.props;
         let res: any;
         res = await api.fileTree.updateFolder({

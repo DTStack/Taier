@@ -4,7 +4,7 @@ import { pieOption } from '../../consts';
 import { cloneDeep } from 'lodash'
 import Resize from 'widgets/resize';
 // 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
+import echarts = require('echarts/lib/echarts');
 // 引入柱状图
 require('echarts/lib/chart/pie');
 // 引入提示框和标题组件

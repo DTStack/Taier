@@ -1,5 +1,5 @@
 /* eslint-disable no-template-curly-in-string */
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { Tabs, Form, Select, Checkbox, Input, Tooltip, Icon, Spin, message } from 'antd';
 import { formItemLayout } from './index';
 import { debounce } from 'lodash';

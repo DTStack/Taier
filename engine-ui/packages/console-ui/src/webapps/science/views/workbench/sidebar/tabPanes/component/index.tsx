@@ -39,7 +39,7 @@ const {
         return actions;
     }) as any)
 class ComponentSidebar extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props)
     }
     _dragElements: any[] = [];

@@ -135,7 +135,7 @@ class ProjectsList extends React.Component<any, any> {
             title: '项目占用存储',
             dataIndex: 'totalSize',
             key: 'totalSize',
-            render(t: any) {
+            render (t: any) {
                 return utils.convertBytes(t)
             },
             sorter: true
@@ -148,7 +148,7 @@ class ProjectsList extends React.Component<any, any> {
             dataIndex: 'gmtCreate',
             key: 'gmtCreate',
             sorter: true,
-            render(t: any) {
+            render (t: any) {
                 return utils.formatDateTime(t)
             }
         }, {

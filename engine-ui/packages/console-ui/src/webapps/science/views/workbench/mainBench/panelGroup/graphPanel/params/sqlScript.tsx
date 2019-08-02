@@ -113,7 +113,7 @@ class SqlScript extends React.Component<any, any> {
                                     {this.renderTooltips()}
                                 </div>
                             }
-                            {...{ id: 'sql-editor'}}
+                            {...{ id: 'sql-editor' }}
                             key="2"
                             style={{ height: 400, background: '#f5f5f5', paddingTop: 10 }}
                         >
