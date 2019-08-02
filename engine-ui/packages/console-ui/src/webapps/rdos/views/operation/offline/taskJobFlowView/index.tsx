@@ -353,7 +353,7 @@ class TaskJobFlowView extends React.Component<any, any> {
                 }
             })
 
-            graph.clearSelection = function(evt: any) {
+            graph.clearSelection = function (evt: any) {
                 if (selectedCell) {
                     for (let i = 0; i < highlightEdges.length; i++) {
                         highlightEdges[i].hide();
