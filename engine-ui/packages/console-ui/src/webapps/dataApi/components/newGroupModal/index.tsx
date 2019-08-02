@@ -7,7 +7,7 @@ import { apiMarketActions } from '../../actions/apiMarket'
 import { apiManageActions } from '../../actions/apiManage';
 
 const FormItem = Form.Item;
-const TreeNode = (TreeSelect as any).TreeNode;
+const { TreeNode }: any = TreeSelect;
 
 class NewGroupForm extends React.Component<any, any> {
     onChange: (value: any, label: any) => void;
