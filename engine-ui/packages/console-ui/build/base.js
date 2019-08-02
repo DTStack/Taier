@@ -61,6 +61,26 @@ module.exports = function () {
         module: {
             rules: [
                 {
+                    test: /\.worker.[jt]s$/,
+                    exclude: [
+                        path.resolve(MY_PATH.ROOT_PATH, "node_modules")
+                    ],
+                    loader: [
+                        'worker-loader',
+                    ]
+                },
+                {
+                    test: /\.[jt]sx?$/,
+                    include: MY_PATH.APP_PATH,
+                    exclude: [
+                        path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
+                        path.resolve(MY_PATH.WEB_PUBLIC)
+                    ],
+                    loader: [
+                        "happypack/loader?id=happy-babel-js",
+                    ]
+                },
+                {
                     test: /\.(jpg|png|gif)$/,
                     loader: ["file-loader", "url-loader?limit=100000"]
                 },
@@ -70,13 +90,6 @@ module.exports = function () {
                         "file-loader?name=[name].[ext]",
                         "url-loader?limit=100000"
                     ]
-                },
-                {
-                    test: /\.worker.js$/,
-                    exclude: /node_modules/,
-                    use: {
-                        loader: 'worker-loader'
-                    }
                 }
             ]
         },

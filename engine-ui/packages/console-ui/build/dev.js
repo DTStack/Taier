@@ -25,22 +25,9 @@ baseConf.output = {
     publicPath: "/"
 };
 
-// JS loader
-baseConf.module.rules.unshift(
-    {
-        test: /\.[jt]sx?$/,
-        include: MY_PATH.APP_PATH,
-        exclude: [
-            path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
-            path.resolve(MY_PATH.WEB_PUBLIC)
-        ],
-        loader: [
-            "react-hot-loader/webpack",
-            "happypack/loader?id=happy-babel-js",
-            // "eslint-loader",
-        ]
-    }
-)
+// Add react-hot-loader
+baseConf.module.rules[1].loader.unshift("react-hot-loader/webpack");
+
 
 baseConf.plugins.push(
     new FriendlyErrorsWebpackPlugin({
