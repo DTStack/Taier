@@ -13,7 +13,7 @@ export function getSourceTypes () {
     }
 }
 
-export function sourceTypes (state = [], action: any) {
+export function sourceTypes (state:any = [], action: any) {
     switch (action.type) {
         case dataSourceAction.GET_DATA_SOURCE_TYPES: {
             return action.data

@@ -14,11 +14,11 @@ export default function configureStore(initialState: any) {
         initialState,
         compose(
             applyMiddleware(thunkMiddleware, createLogger()),
-            window.devToolsExtension ? window.devToolsExtension() : (fn: any) => fn
+            (window as any).devToolsExtension ? (window as any).devToolsExtension() : (fn: any) => fn
         ),
     )
-    if (module.hot) {
-        module.hot.accept('./reducers', () => {
+    if ((module as any).hot) {
+        (module as any).hot.accept('./reducers', () => {
             store.replaceReducer(nextRootReducer);
         })
     }
