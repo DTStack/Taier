@@ -142,7 +142,7 @@ export default {
     cloneTask (params: any) {
         return http.post(req.CLONE_TASK, params)
     },
-    taskStatistics (params: any) {
+    taskStatistics (params?: any) {
         return http.post(req.TASK_STATISTICS, params)
     },
     getTaskLogs (params: any) {

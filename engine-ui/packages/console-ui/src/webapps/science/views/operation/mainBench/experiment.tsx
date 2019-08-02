@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Card, Input, Table, Row, Col, Button, Pagination, message } from 'antd';
 
 import Api from '../../../api'

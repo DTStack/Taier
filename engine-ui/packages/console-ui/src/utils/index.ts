@@ -1,7 +1,7 @@
 /* eslint-disable no-useless-escape */
 /* eslint-disable no-cond-assign */
 /* eslint-disable no-unused-expressions */
-import * as moment from 'moment';
+import moment from 'moment';
 
 import {
     BrowserInter

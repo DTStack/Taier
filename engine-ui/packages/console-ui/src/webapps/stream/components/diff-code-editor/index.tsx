@@ -9,6 +9,8 @@ require('codemirror/mode/sql/sql')
 require('public/stream/js/merge')
 
 class DiffEditor extends React.Component<any, any> {
+    diffView: any;
+    _self: any;
     componentDidMount () {
         const { value, compareTo } = this.props
         this.initUI(value, compareTo)

@@ -39,7 +39,7 @@ class CommonCodeEditor extends React.Component<any, any> {
         const params: any = {
             sql: currentPage.sqlText || ''
         };
-        function updatePage(text: any) {
+        function updatePage (text: any) {
             const data: any = {
                 merged: true,
                 sqlText: text,
@@ -109,8 +109,8 @@ class CommonCodeEditor extends React.Component<any, any> {
             />
         )
     }
-    _editor(_editor: any) {
-        throw new Error("Method not implemented.");
+    _editor (_editor: any) {
+        throw new Error('Method not implemented.');
     }
 }
 

@@ -26,16 +26,16 @@ class FolderTree extends React.Component<any, any> {
             (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT) &&
             file.type === 'file'
         ) {
-            let status = "success"
+            let status = 'success'
             const lockStatus = file.readWriteLockVO && file.readWriteLockVO.getLock;
             if (!lockStatus) {
-                status = "default"
+                status = 'default'
             } else {
-                status = "success"
+                status = 'success'
             }
             return <Badge
-                    status={status as any}
-                />
+                status={status as any}
+            />
         }
         return null;
     }
@@ -119,7 +119,7 @@ class FolderTree extends React.Component<any, any> {
     }
 
     render () {
-        let treeContent:any = ''
+        let treeContent: any = ''
         const {
             onRightClick, onSelect, onChange, multiple, id,
             loadData, isPicker, placeholder, disabled, value,

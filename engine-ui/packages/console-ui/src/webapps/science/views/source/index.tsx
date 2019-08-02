@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { connect } from 'react-redux';
 import { Card, Table, Button, Input, Modal } from 'antd';
 import '../../styles/views/source/index.scss';

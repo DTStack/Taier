@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Input, Icon } from 'antd';
 
 class EditCell extends React.PureComponent<any, any> {

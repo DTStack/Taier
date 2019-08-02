@@ -2,7 +2,9 @@ import * as React from 'react'
 
 import { defaultEditorOptions } from './config'
 import pureRender from 'utils/pureRender'
+
 // Codemirror
+import codemirror from 'codemirror';
 import './languages/log';
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/addon/lint/lint.css'
@@ -11,8 +13,6 @@ import './style.css'
 import { getLinkMark, getLogMark } from './utils'
 
 declare var window: any;
-
-const codemirror = require('codemirror')
 
 // require('codemirror/addon/fold/foldcode')
 // require('codemirror/addon/fold/foldgutter')

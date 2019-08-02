@@ -895,7 +895,7 @@ class BaseForm extends React.Component<any, any> {
         const sourceType = this.state.sourceType || (types[0] && types[0].value)
         const isEdit = status == 'edit';
         const autoCompleteFix = {
-            autoComplete: "off"
+            autoComplete: 'off'
         }
 
         return (

@@ -39,11 +39,11 @@ import { MENU_TYPE, TASK_TYPE, DATA_SYNC_TYPE } from '../../comm/const';
 
 const TabPane = Tabs.TabPane
 
-function isCreate(operation: any) {
+function isCreate (operation: any) {
     return operation.indexOf('ADD') > -1
 }
 
-function isUpdate(operation: any) {
+function isUpdate (operation: any) {
     return operation.indexOf('EDIT') > -1
 }
 
@@ -64,7 +64,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         expandedKeys: [],
         expandedKeys2: []
     }
-    initRealtimeTree(props: any) {
+    initRealtimeTree (props: any) {
         const { dispatch, currentPage } = props;
         dispatch(TreeAction.getRealtimeTree(rootNode)).then((data: any) => {
             /**
@@ -346,7 +346,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         })
     }
 
-    updateFolder = (cateInfo: any) => {
+    updateFolder = (cateInfo: any): any => {
         const { dispatch, modal } = this.props
         const { activeNode } = this.state
         const params: any = { id: cateInfo.nodePid }
@@ -364,8 +364,7 @@ class RealTimeTabPane extends React.Component<any, any> {
                 params.catalogueType = MENU_TYPE.COSTOMFUC
                 break;
             }
-            const emptyArr: any = []
-            default: return emptyArr
+            default: return []
         }
         if (isCreate(modal)) {
             Api.addCatalogue(cateInfo).then((res: any) => {
@@ -399,7 +398,7 @@ class RealTimeTabPane extends React.Component<any, any> {
         })
     }
 
-    resRename = (resource: { resourceId: any; }) => {
+    resRename = (resource: { resourceId: any }) => {
         const { dispatch } = this.props
         const resInfo = this.state.activeNode
         resource.resourceId = resInfo.id
@@ -582,9 +581,9 @@ class RealTimeTabPane extends React.Component<any, any> {
     /**
      * 没有内容的就不要展开了
      */
-    safeExpandedKeys (expandedKeys : any = [], tree : any = []) {
+    safeExpandedKeys (expandedKeys: any = [], tree: any = []) {
         let treeKeys: any = [];
-        function loopTree(tree: any) {
+        function loopTree (tree: any) {
             for (let i = 0; i < tree.length; i++) {
                 const item = tree[i];
                 treeKeys.push(item.id + ':' + item.type);

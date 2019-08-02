@@ -127,7 +127,7 @@ class GoOnTask extends React.Component<any, any> {
 
         const options = checkPoints && checkPoints.map((item: any) => {
             const time = utils.formatDateTime(item.time)
-            const nameFix ={
+            const nameFix = {
                 name: item
             }
             return <Option key={item.id} value={item.externalPath} {...nameFix}>

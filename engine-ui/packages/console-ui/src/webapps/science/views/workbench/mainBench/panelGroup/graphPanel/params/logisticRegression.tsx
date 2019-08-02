@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Tabs, Form, Button, Select, InputNumber, message, Spin, Input } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
@@ -52,8 +52,12 @@ class ChooseModal extends BaseChooseModal {
     }
 }
 /* 参数设置 */
+<<<<<<< HEAD
 // eslint-disable-next-line
 class paramSetting extends React.PureComponent<any, any> {
+=======
+class ParamSetting extends React.PureComponent<any, any> {
+>>>>>>> 0c898c4b650862f5dc7bcdd69765e1d6fa76d939
     state: any = {
         regexDatas: [{
             value: 'l1',
@@ -367,32 +371,22 @@ class LogisticRegression extends React.PureComponent<any, any> {
             }
         })(FieldSetting);
         const WrapParamSetting = Form.create({
-            // onFieldsChange: (props: any, changedFields: any) => {
-            //     for (const key in changedFields) {
-            //         if (key === 'penalty') {
-            //             // penalty是下拉菜单，与上同理
-            //             continue;
-            //         }
-            //         if (changedFields.hasOwnProperty(key)) {
-            //             const element = changedFields[key];
-            //             if (!element.validating && !element.dirtys && !element.errors) {
-            //                 props.handleSaveComponent(key, element.value)
-            //             }
-            //         }
-            //     }
-            // },
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
                     penalty: { value: data.penalty },
+<<<<<<< HEAD
                     // eslint-disable-next-line
+=======
+                    // eslint-disable-next-line @typescript-eslint/camelcase
+>>>>>>> 0c898c4b650862f5dc7bcdd69765e1d6fa76d939
                     max_iter: { value: data.max_iter },
                     c: { value: data.c },
                     tol: { value: data.tol }
                 }
                 return values;
             }
-        })(paramSetting);
+        })(ParamSetting);
         const WrapMemorySetting = Form.create({
             onFieldsChange: (props: any, changedFields: any) => {
                 for (const key in changedFields) {

@@ -30,28 +30,6 @@ export const getUploadStatus = (params: any, dispatch: any) => {
         type: sourceAction.UPDATE,
         payload: { ...params, status: status }
     })
-    // const getStatus = async () => {
-    //     const res = await API.getUploadStatus(params.queryParams);
-    //     if (res.data === 'done') {
-    //         message.success(`文件${params.fileName}上传成功!`);
-    //         clearInterval(timeId);
-    //         status = UPLOAD_STATUS.SUCCES;
-    //         return dispatch(resetUploader());
-    //     } else if (res.code > 1) {
-    //         status = UPLOAD_STATUS.FAIL;
-    //         clearInterval(timeId);
-    //         setTimeout(() => {
-    //             dispatch(resetUploader());
-    //         }, TIME_INTERVAL)
-    //     } else if (res.data === 'exist') {
-    //         status = UPLOAD_STATUS.PROGRESSING;
-    //     }
-    //     dispatch({
-    //         type: sourceAction.UPDATE,
-    //         payload: { ...params, status: status }
-    //     })
-    // }
-    // timeId = setInterval(getStatus, TIME_INTERVAL);
 }
 
 export const resetUploader = () => {

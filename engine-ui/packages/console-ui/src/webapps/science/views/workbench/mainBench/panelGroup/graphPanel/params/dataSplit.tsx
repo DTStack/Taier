@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Form, Tabs, Select, InputNumber, Input, message, Spin } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';

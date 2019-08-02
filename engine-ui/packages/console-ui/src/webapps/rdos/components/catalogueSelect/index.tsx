@@ -10,7 +10,7 @@ const TreeNode = (TreeSelect as any).TreeNode;
     }
 }) as any)
 class CatalogueSelect extends React.Component<any, any> {
-    renderNode(data: any) {
+    renderNode (data: any) {
         return (data && data.length) ? data.map((item: any) => {
             return (<TreeNode
                 value={item.bindData.id}

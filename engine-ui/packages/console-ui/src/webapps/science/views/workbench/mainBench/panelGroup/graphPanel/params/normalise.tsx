@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import React from 'react';
+import * as React from 'react';
 import { Form, Tabs, Button, Checkbox, message } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
@@ -189,7 +188,11 @@ class Normalise extends React.PureComponent<any, any> {
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
+<<<<<<< HEAD
                     // eslint-disable-next-line
+=======
+                    // eslint-disable-next-line @typescript-eslint/camelcase
+>>>>>>> 0c898c4b650862f5dc7bcdd69765e1d6fa76d939
                     is_save_old: { value: data.is_save_old === 1 }
                 }
                 return values;

@@ -147,7 +147,7 @@ export const actions: any = {
         }
     },
 
-    updateTargetMap (params = {}, clear:any, notDirty:any) {
+    updateTargetMap (params = {}, clear: any, notDirty: any) {
         return (dispatch: any) => {
             const page = getCurrentPage();
             let { targetMap = {} } = page;

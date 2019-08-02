@@ -6,7 +6,7 @@ export const defaultEditorOptions: any = {
     lineNumbers: true,
     autofocus: false,
     lineWrapping: true,
-    readOnly: undefined,
+    readOnly: undefined
 };
 
 export const propEditorOptions: any = { // 编辑器选项

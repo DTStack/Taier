@@ -102,7 +102,7 @@ class RunCode extends React.Component<any, any> {
             }
         }
     }
-    getEditorLanguage(taskType: any) {
+    getEditorLanguage (taskType: any) {
         switch (taskType) {
             case TASK_TYPE.SQL: {
                 return 'sql'
@@ -115,12 +115,12 @@ class RunCode extends React.Component<any, any> {
             }
         }
     }
-    changeTab(activeKey: any) {
+    changeTab (activeKey: any) {
         this.setState({
             tabKey: activeKey
         })
     }
-    getJsonEditor(value: any) {
+    getJsonEditor (value: any) {
         value = utils.jsonFormat(value, 0) || '';
         return <Editor
             sync={true}
@@ -147,7 +147,7 @@ class RunCode extends React.Component<any, any> {
             width: '100%'
         }
         const tabsValue = {
-            value:tabKey
+            value: tabKey
         }
         return (
             <div className="m-tabs" style={{ height: '100%' }}>
