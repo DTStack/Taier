@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -109,8 +110,17 @@ public class WorkNode {
                 int queueSize = engineJobCacheDao.countGroupQueueJob(engineType, group, EJobCacheStage.IN_PRIORITY_QUEUE.getStage(),localAddress);
                 GroupInfo groupInfo = new GroupInfo();
                 groupInfo.setSize(queueSize);
-                JobClient topJob = groupQueue.getTop();
-                groupInfo.setPriority(topJob==null ? 0 : topJob.getPriority());
+
+                Iterator<JobClient> it = groupQueue.iterator();
+                JobClient topJob = null;
+                while (it.hasNext()){
+                    topJob = it.next();
+                    if (topJob.isJobRetryWaiting()){
+                        continue;
+                    }
+                    break;
+                }
+                groupInfo.setPriority(topJob == null ? 0 : topJob.getPriority());
                 return groupInfo;
             }));
             return groupInfos;
