@@ -121,7 +121,7 @@ class TableTipExtraPane extends React.Component<any, any> {
                     placeholder="输入表名/字段名搜索"
                     onChange={this.search.bind(this)}
                 />
-                {this.filterTable(tableAndColumns).map(([table, columns]: any) => {
+                {this.filterTable(tableAndColumns).map(([ table, columns ]: any) => {
                     return this.renderTableItem(table, columns)
                 })}
             </div> : this.renderNone()}
