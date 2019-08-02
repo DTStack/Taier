@@ -2,7 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { TreeSelect } from 'antd';
 
-const TreeNode = TreeSelect.TreeNode;
+// const TreeNode = TreeSelect.TreeNode;
+const { TreeNode }: any = TreeSelect;
 
 @(connect((state: any) => {
     return {
