@@ -139,7 +139,7 @@
     "push-dev": "./scripts/push-dev.sh",
     "scp": "./scripts/scp.sh",
     "check-types": "tsc --skipLibCheck",
-    "lint": "npx eslint --cache './src/**/*.ts' './src/**/*.tsx' './src/**/*.js'",
+    "lint": "npx eslint './src/**/*.ts' './src/**/*.tsx' './src/**/*.js'",
     "lint-doc": "node ./node_modules/lint-md/bin ./*.md docs/*.md",
     "lint-fix": "npx eslint './src/**/*.ts' './src/**/*.tsx' './src/**/*.js' --fix && lint-md ./*.md docs/*.md --fix",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md && npm run changeissueurl",
