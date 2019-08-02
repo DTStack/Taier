@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { dataModelActions } from './actionTypes';
 
-const subjectFields = function (state = [], action: any) {
+const subjectFields = function (state: any = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case dataModelActions.GET_SUBJECT_FIELDS: {
@@ -13,7 +13,7 @@ const subjectFields = function (state = [], action: any) {
     }
 }
 
-const modelLevels = function (state = [], action: any) {
+const modelLevels = function (state: any = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case dataModelActions.GET_MODEL_LEVELS: {
@@ -25,7 +25,7 @@ const modelLevels = function (state = [], action: any) {
     }
 }
 
-const incrementCounts = function (state = [], action: any) {
+const incrementCounts = function (state: any = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case dataModelActions.GET_INCREMENT_COUNTS: {
@@ -37,7 +37,7 @@ const incrementCounts = function (state = [], action: any) {
     }
 }
 
-const freshFrequencies = function (state = [], action: any) {
+const freshFrequencies = function (state: any = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case dataModelActions.GET_FRESH_FREQUENCIES: {

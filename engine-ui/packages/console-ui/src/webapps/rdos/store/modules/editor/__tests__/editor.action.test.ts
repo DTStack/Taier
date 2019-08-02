@@ -44,10 +44,10 @@ describe('editor action', () => {
             id: 666
         };
         if (isScript) {
-            task.type = TASK_TYPE.SQL
+            task.type = TASK_TYPE.SQL;
             (api.execScript as any).mockResolvedValue(respWithoutPoll);
         } else {
-            task.taskType = TASK_TYPE.SQL
+            task.taskType = TASK_TYPE.SQL;
             (api.execSQLImmediately as any).mockResolvedValue(respWithoutPoll);
         }
         let params: any = {
@@ -94,10 +94,10 @@ describe('editor action', () => {
         }).then(() => {
             store.clearActions();
             if (isScript) {
-                task.type = TASK_TYPE.SQL
+                task.type = TASK_TYPE.SQL;
                 (api.execScript as any).mockResolvedValue(errorResp);
             } else {
-                task.taskType = TASK_TYPE.SQL
+                task.taskType = TASK_TYPE.SQL;
                 (api.execSQLImmediately as any).mockResolvedValue(errorResp);
             }
             return execSql(currentTab, task, params, sqls)(store.dispatch)
@@ -135,10 +135,10 @@ describe('editor action', () => {
             id: 666
         };
         if (isScript) {
-            task.type = TASK_TYPE.SQL
+            task.type = TASK_TYPE.SQL;
             (api.execScript as any).mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
         } else {
-            task.taskType = TASK_TYPE.SQL
+            task.taskType = TASK_TYPE.SQL;
             (api.execSQLImmediately as any).mockResolvedValueOnce(respWithPoll).mockResolvedValueOnce(respWithoutPoll);
         }
         let params: any = {

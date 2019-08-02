@@ -220,7 +220,7 @@ describe('workbenchActions', () => {
         let nextActions = store.getActions();
         expect(nextActions).toEqual([]);
         // 测试成功并且locakstatsu为0
-        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation();
         await actions.saveTask(argument);
         nextActions = store.getActions();
         expect(nextActions).toEqual(expectedActions);
@@ -347,7 +347,7 @@ describe('workbenchActions', () => {
             type: workbenchAction.UPDATE_TASK_TAB,
             payload: task
         }];
-        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation();
         (api.getOfflineTaskDetail as any)
             .mockResolvedValue(response);
 
@@ -390,11 +390,11 @@ describe('workbenchActions', () => {
         }, {
             type: workbenchAction.MAKE_TAB_CLEAN
         }]
-        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
-        api.saveOfflineJobData
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation();
+        (api.saveOfflineJobData as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 1 });
-        api.forceUpdateOfflineTask
+        (api.forceUpdateOfflineTask as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 });
@@ -491,7 +491,7 @@ describe('workbenchActions', () => {
             payload: task
         }]
 
-        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation();
         (api.getScriptById as any)
             .mockResolvedValue(response);
         (api.saveScript as any)
@@ -533,7 +533,7 @@ describe('workbenchActions', () => {
         }, {
             type: workbenchAction.MAKE_TAB_CLEAN
         }]
-        const messageSuccess = jest.spyOn(message, 'success').mockImplementation(() => { });
+        const messageSuccess = jest.spyOn(message, 'success').mockImplementation();
         (api.getScriptById as any)
             .mockResolvedValue(response)
             .mockResolvedValueOnce({ ...response, code: 0 })
