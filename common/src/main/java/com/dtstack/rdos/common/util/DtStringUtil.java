@@ -25,15 +25,15 @@ public class DtStringUtil {
         for (String c : strs) {
             if (c.contains("\'")) {
                 inSingleQuotes = !inSingleQuotes;
-                b.append(c);
+                b.append(c).append(' ');
                 if (!inSingleQuotes){
-                    tokensList.add(b.toString().replace('\'',' ').trim());
+                    tokensList.add(b.toString().replace('\'',' '));
                     b = new StringBuilder();
                 }
             } else if (inSingleQuotes){
-                b.append(c);
+                b.append(c).append(' ');
             } else {
-                tokensList.add(c.trim());
+                tokensList.add(c);
             }
         }
 
