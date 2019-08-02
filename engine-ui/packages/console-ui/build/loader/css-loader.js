@@ -66,8 +66,7 @@ module.exports = {
         {
           loader: "css-loader",
           options: {
-            sourceMap: false,
-            minimize: true
+            sourceMap: false
           }
         }
       ]
@@ -79,8 +78,7 @@ module.exports = {
         {
           loader: "css-loader",
           options: {
-            sourceMap: false,
-            minimize: true
+            sourceMap: false
           }
         },
         {
@@ -100,8 +98,7 @@ module.exports = {
         {
           loader: "css-loader",
           options: {
-            sourceMap: false,
-            minimize: true
+            sourceMap: false
           }
         },
         {
