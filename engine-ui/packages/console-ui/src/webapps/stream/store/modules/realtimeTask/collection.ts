@@ -99,6 +99,7 @@ export const actions: any = {
             }).then((res: any) => {
                 if (res.data) {
                     const { sourceMap } = res.data;
+                    sourceMap.pavingData = !!sourceMap.pavingData;
                     if (sourceMap.journalName) {
                         sourceMap.collectType = collectType.FILE;
                     } else if (sourceMap.timestamp) {

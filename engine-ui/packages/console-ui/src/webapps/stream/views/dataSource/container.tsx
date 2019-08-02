@@ -20,7 +20,7 @@ class Container extends React.Component<any, any> {
         const { children } = this.props
         return (
             <Layout >
-                <Content className="inner-container">
+                <Content className="inner-container" style={{ overflow: 'auto' }}>
                     { children || "i'm container." }
                 </Content>
             </Layout>
