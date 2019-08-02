@@ -532,7 +532,7 @@ class CollectionSourceForm extends React.Component<any, any> {
                         {getFieldDecorator('pavingData', {
                             valuePropName: 'checked'
                         })(
-                            <Checkbox disabled>嵌套JSON平铺</Checkbox>
+                            <Checkbox disabled={isEdit}>嵌套JSON平铺</Checkbox>
                         )}
                         <HelpDoc style={{ right: 'auto' }} doc="sourceFormat" />
                     </FormItem>
