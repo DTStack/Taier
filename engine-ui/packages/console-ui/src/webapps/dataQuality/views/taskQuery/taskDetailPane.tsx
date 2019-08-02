@@ -10,7 +10,7 @@ import RuleDetailTableModal from './ruleDetailTable';
 import { lineAreaChartOptions } from '../../consts';
 import TQApi from '../../api/taskQuery';
 import { getRuleType } from '../../consts/helper';
-const echarts = require('echarts/lib/echarts');
+import echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
 require('echarts/lib/component/title');
@@ -81,7 +81,7 @@ export default class TaskDetailPane extends React.Component<any, any> {
     initLineChart (chartData: any) {
         const { currentRecord } = this.state;
 
-        let myChart = echarts.init(document.getElementById('TaskTrend'));
+        let myChart = echarts.init(document.getElementById('TaskTrend') as HTMLDivElement);
 
         let option = cloneDeep(lineAreaChartOptions);
 

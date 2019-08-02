@@ -130,7 +130,7 @@ class Abstract extends React.Component<any, any> {
         }]
     }
 
-    loadTaskList (currentPage: any, pageSize: any, isTimeSortDesc: any, status: any) {
+    loadTaskList (currentPage?: any, pageSize?: any, isTimeSortDesc?: any, status?: any) {
         const ctx = this
         this.setState({ loading: true })
         const params: any = {

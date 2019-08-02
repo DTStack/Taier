@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { defaultEditorOptions } from '../../comm/const'
+import { defaultEditorOptions } from '../../../../widgets/code-editor/config'
 import pureRender from 'utils/pureRender'
 
 const codemirror = require('codemirror')
@@ -22,6 +22,8 @@ require('codemirror/addon/edit/matchbrackets')
 
 @pureRender
 class CodeEditor extends React.Component<any, any> {
+    Editor: any;
+    self: any;
     componentDidMount () {
         const ele = this.Editor
         const options = this.props.options || defaultEditorOptions

@@ -1,7 +1,7 @@
 
 import { notebookTabType } from '../../../consts/actionType/tabType';
 import { saveReducer } from '../../helper'
-function localTabs (state = [], action: any) {
+function localTabs (state: any[] = [], action: any) {
     state = state || [];
     const { type, payload } = action;
     switch (type) {

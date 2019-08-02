@@ -7,7 +7,7 @@ import expandedKeys from './expandedKeys';
 import files from './files';
 import localTabs from './localTabs';
 
-function currentTabIndex (state = null, action: any) {
+function currentTabIndex (state: any = null, action: any) {
     const { type, payload } = action;
     switch (type) {
         case experimentTabType.SET_CURRENT_TAB: {

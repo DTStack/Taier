@@ -26,7 +26,7 @@ describe('browser actions', () => {
     })
     test('openPage action', async () => {
         const response: any = { code: 1, data: testTask };
-        api.getTasks.mockResolvedValue(response).mockResolvedValueOnce({ ...response, code: 0 })
+        (api.getTasks as any).mockResolvedValue(response).mockResolvedValueOnce({ ...response, code: 0 })
             .mockResolvedValueOnce({ ...response, code: 1 })
         const expectedActions: any = [{
             type: browserAction.UPDATE_PAGE,
@@ -60,7 +60,7 @@ describe('browser actions', () => {
             type: browserAction.SET_CURRENT_PAGE,
             data: testTask
         }];
-        store.dispatch(browserActions.newPage(testTask))
+        store.dispatch((browserActions as any).newPage(testTask))
         const nextActions = store.getActions();
         expect(nextActions).toEqual(expectedActions)
     })
@@ -72,7 +72,7 @@ describe('browser actions', () => {
             type: browserAction.SET_CURRENT_PAGE,
             data: testTask
         }];
-        store.dispatch(browserActions.setCurrentPage(testTask))
+        store.dispatch((browserActions as any).setCurrentPage(testTask))
         const nextActions = store.getActions();
         expect(nextActions).toEqual(expectedActions)
     })
@@ -93,13 +93,13 @@ describe('browser actions', () => {
             data: index
         }];
         // currentID = id
-        store.dispatch(browserActions.closePage(id, pages, currentPage))
+        store.dispatch((browserActions as any).closePage(id, pages, currentPage))
         let nextActions = store.getActions();
         expect(nextActions).toEqual(expectedActions)
         // currentId != id
         currentPage = { id: 4, name: 'test_task' }
         store.clearActions(); // 清空上次actions
-        store.dispatch(browserActions.closePage(id, pages, currentPage))
+        store.dispatch((browserActions as any).closePage(id, pages, currentPage))
         nextActions = store.getActions();
         expect(nextActions).toEqual([{
             type: browserAction.CLOSE_PAGE,

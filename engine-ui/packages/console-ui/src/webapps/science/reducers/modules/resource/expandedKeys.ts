@@ -1,6 +1,6 @@
 
 import { resourceFilesType } from '../../../consts/actionType/filesType';
-function expandedKeys (state = [], action: any) {
+function expandedKeys (state: any[] = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case resourceFilesType.UPDATE_EXPANDEDKEYS: {

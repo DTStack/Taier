@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import actionType from '../../../consts/actionType/taskType';
 
-function taskType (state = [], action: any) {
+function taskType (state: any[] = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case actionType.GET_SUPPORT_TASK_TYPES: {

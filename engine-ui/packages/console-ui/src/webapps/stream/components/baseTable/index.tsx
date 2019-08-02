@@ -1,8 +1,9 @@
 import * as React from 'react';
 
 export default class BaseTable extends React.Component<any, any> {
+    loadData: any;
     state ={
-        table: { data: [] },
+        table: { data: [] } as any,
 
         loading: false,
 

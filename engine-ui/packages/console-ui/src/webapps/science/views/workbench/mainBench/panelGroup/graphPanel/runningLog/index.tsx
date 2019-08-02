@@ -21,6 +21,10 @@ const editorOptions: any = {
     autoRefresh: true
 };
 
+// function wrappTitle (title: any) {
+//     return `====================${title}====================`
+// }
+
 class RunningLogModal extends React.Component<any, any> {
     $editor: any;
     state: any = {
