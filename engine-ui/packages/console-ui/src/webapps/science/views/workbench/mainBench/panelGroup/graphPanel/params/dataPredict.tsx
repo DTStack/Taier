@@ -248,11 +248,13 @@ class DataPredict extends React.PureComponent<any, any> {
         const WrapFieldSetting = Form.create({
             mapPropsToFields: (props: any) => {
                 const { data } = props;
+                /* eslint-disable */
                 const values: any = {
                     result_col: { value: data.result_col },
                     score_col: { value: data.score_col },
                     detail_col: { value: data.detail_col }
                 }
+                /* eslint-enable */
                 return values;
             },
             onFieldsChange: (props: any, changedFields: any) => {

@@ -11,7 +11,7 @@ import API from '../../../../../../api/experiment';
 import utils from 'utils'
 
 // 引入 ECharts 主模块
-const echarts = require('echarts/lib/echarts');
+import echarts = require('echarts/lib/echarts');
 require('echarts/lib/chart/line');
 require('echarts/lib/chart/bar');
 

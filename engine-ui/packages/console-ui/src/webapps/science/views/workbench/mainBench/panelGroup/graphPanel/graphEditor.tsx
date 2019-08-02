@@ -643,13 +643,13 @@ class GraphEditor extends React.Component<any, any> {
                         ? null
                         : <div className="graph-toolbar">
                             <Tooltip placement="bottom" title="布局">
-                                <MyIcon type="flowchart" onClick={this.layout}/>
+                                <MyIcon type="flowchart" onClick={this.layout} />
                             </Tooltip>
                             <Tooltip placement="bottom" title="放大">
-                                <MyIcon onClick={this.zoomIn} type="zoom-in"/>
+                                <MyIcon onClick={this.zoomIn} type="zoom-in" />
                             </Tooltip>
                             <Tooltip placement="bottom" title="缩小">
-                                <MyIcon onClick={this.zoomOut} type="zoom-out"/>
+                                <MyIcon onClick={this.zoomOut} type="zoom-out" />
                             </Tooltip>
                             <Tooltip placement="bottom" title="搜索节点">
                                 <Icon

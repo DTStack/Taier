@@ -3,5 +3,11 @@
     "standard.enable": false,
     "eslint.enable": true,
     "typescript.tsdk": "node_modules/typescript/lib",
-    "javascript.implicitProjectConfig.experimentalDecorators": true
+    "javascript.implicitProjectConfig.experimentalDecorators": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact"
+    ]
 }

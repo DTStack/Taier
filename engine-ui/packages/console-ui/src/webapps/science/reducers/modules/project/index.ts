@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import actionType from '../../../consts/actionType/projectType'
 import { saveReducer } from '../../helper';
-function projectList (state = [], action: any) {
+function projectList (state: any[] = [], action: any) {
     const { type, payload } = action;
     switch (type) {
         case actionType.UPDATE_PROJECT_LIST: {
@@ -13,7 +13,7 @@ function projectList (state = [], action: any) {
     }
 }
 
-function currentProject (state = null, action: any) {
+function currentProject (state: any = null, action: any) {
     const { type, payload } = action;
     switch (type) {
         case actionType.SET_CURRENT_PROJECT: {
