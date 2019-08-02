@@ -38,7 +38,7 @@ class ModelSubmitModalForm extends React.Component<any, any> {
             this.initData();
         }
     }
-    componentDidUpdate(prevProps: any) {
+    componentDidUpdate (prevProps: any) {
         if (!prevProps.visible && this.props.visible) {
             this.initData();
         }
@@ -241,7 +241,7 @@ class ModelSubmitModalForm extends React.Component<any, any> {
     }
 }
 const WrapModelSubmitModalForm = Form.create({
-    mapPropsToFields(props: any) {
+    mapPropsToFields (props: any) {
         return props._formData;
     },
     onFieldsChange (props: any, fields: any) {

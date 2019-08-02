@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "启动程序",
-            "program": "${workspaceRoot}/src/funcs/index.js",
+            "program": "${workspaceRoot}/src/webapps/main/app.tsx",
             "sourceMaps": true
         },
         {

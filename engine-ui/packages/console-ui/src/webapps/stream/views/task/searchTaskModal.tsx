@@ -17,7 +17,7 @@ const Option = Select.Option;
 
 @pureRender
 class SearchTaskModal extends React.Component<any, any> {
-    _keyStack:any;
+    _keyStack: any;
     constructor (props: any) {
         super(props);
         this.state = {
@@ -109,7 +109,7 @@ class SearchTaskModal extends React.Component<any, any> {
         const { data } = this.state;
         const { visibleSearchTask } = this.props;
         const options = data && data.map((item: any) => {
-            const dataFix = {data: item}
+            const dataFix = { data: item }
             return (
                 <Option key={item.id} value={item.name} {...dataFix}>
                     {item.name}

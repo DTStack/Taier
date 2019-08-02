@@ -8,7 +8,6 @@ import { debounce, cloneDeep } from 'lodash';
 
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser'
-// import { DATA_SOURCE_TEXT, DATA_SOURCE, TOPIC_TYPE } from '../../../comm/const'
 import { DATA_SOURCE_TEXT, DATA_SOURCE } from '../../../comm/const'
 import { CustomParams, generateMapValues, changeCustomParams, initCustomParam } from './sidePanel/customParams';
 
@@ -416,6 +415,7 @@ const InputForm = Form.create({
             type: { value: parseInt(type) },
             sourceId: { value: sourceId },
             topic: { value: topic },
+            // eslint-disable-next-line @typescript-eslint/camelcase
             topic_input: { value: topic },
             table: { value: table },
             columns: { value: columns },

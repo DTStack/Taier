@@ -1,8 +1,8 @@
 import moment from 'moment';
-export function createLinkMark(attrs: any) {
+export function createLinkMark (attrs: any) {
     return `#link#${JSON.stringify(attrs)}#link#`
 }
-export function getLinkMark(value: any) {
+export function getLinkMark (value: any) {
     const linkRegexp = /#link#(.+)#link#/g;
     let result: any = [];
     let indexObj: any;
@@ -34,7 +34,7 @@ export function getLinkMark(value: any) {
 export function createLogMark (text = '', type = 'info') {
     return `#log<${type}>log#${text}#log<${type}>log#`
 }
-export function getLogMark(value: any) {
+export function getLogMark (value: any) {
     let result: any = [];
     function match () {
         const logRegexp = new RegExp(`#log<(\\w*)>log#((.|\r\n|\n)*?)#log<(\\w*)>log#`, 'g');

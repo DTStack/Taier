@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export default function scrollText(value: any) {
+export default function scrollText (value: any) {
     const style: any = {
         height: '28px',
         margin: '5px 5px 5px 0px',

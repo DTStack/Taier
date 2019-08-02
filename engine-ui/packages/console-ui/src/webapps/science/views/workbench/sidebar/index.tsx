@@ -23,7 +23,7 @@ const TabPane = Tabs.TabPane;
     }
 }, (dispatch: any) => {
     return {
-        changeSiderBar(key: any) {
+        changeSiderBar (key: any) {
             dispatch({
                 type: commonActionType.CHANGE_SIDERBAR_KEY,
                 payload: key

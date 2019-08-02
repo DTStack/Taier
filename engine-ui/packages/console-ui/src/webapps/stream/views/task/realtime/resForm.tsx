@@ -194,10 +194,10 @@ class ResFormModal extends React.Component<any, any> {
                                 initialValue: ''
                             })(
                                 <Input
-                                type="textarea"
-                                // rows={4}
-                                {...rowFix}
-                            />
+                                    type="textarea"
+                                    // rows={4}
+                                    {...rowFix}
+                                />
                             )}
                         </FormItem>
                     </Form>

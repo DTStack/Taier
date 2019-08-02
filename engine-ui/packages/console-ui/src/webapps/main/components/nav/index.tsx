@@ -23,14 +23,6 @@ export const MyIcon = styled.span`
     font-size: 18px;
 `
 
-function renderMenuItems (menuItems: any) {
-    return menuItems && menuItems.length > 0 ? menuItems.map((menu: any) =>
-        menu.enable ? <Menu.Item key={menu.id}>
-            <Link to={menu.link} target={menu.target} className="dropdown-content">{menu.name}</Link>
-        </Menu.Item> : ''
-    ) : []
-}
-
 // 比较apps和licenseApps,控制显示主页菜单以及右下拉菜单
 export function compareEnable (apps: any, licenseApps: any) {
     if (licenseApps && licenseApps.length) {
@@ -70,7 +62,7 @@ export function Logo (props: any) {
 }
 
 export function MenuLeft (props: any) {
-    const { activeKey, onClick, menuItems, user, licenseApps, customItems = [] } = props;
+    const { activeKey, onClick, menuItems, user, customItems = [] } = props;
     return (
         <div className="menu left">
             <Menu

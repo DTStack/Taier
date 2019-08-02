@@ -1,7 +1,7 @@
 /**
  * 用户
  */
-export interface User {
+export default interface User {
     id?: number;
     userName?: string;
     email?: string;
@@ -23,5 +23,3 @@ export interface User {
     gmtModified?: Date | number;
     defaultProjectId?: number;
 }
-
-export default User;

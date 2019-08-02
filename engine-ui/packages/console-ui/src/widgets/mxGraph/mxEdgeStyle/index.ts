@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 /* eslint-disable no-redeclare */
 
-const MyEdgeStyle = function(Mx: any) {
+const MyEdgeStyle = function (Mx: any) {
     const {
         mxConstants,
         mxEdgeStyle,

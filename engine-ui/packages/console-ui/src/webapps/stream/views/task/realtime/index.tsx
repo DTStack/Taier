@@ -438,7 +438,7 @@ class TaskIndex extends React.Component<any, any> {
     renderPublish = () => {
         const { user } = this.props;
         const { publishDesc } = this.state
-        const rowFix ={
+        const rowFix = {
             rows: 4
         }
         return (
@@ -486,9 +486,9 @@ class TaskIndex extends React.Component<any, any> {
         const themeDark = editor.options.theme !== 'vs' ? true : undefined;
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
         const isDisableSave = currentPage.invalid || isLocked || currentPage.invalidSubmit;
-        const title1 = {title: "创建任务"}
-        const title2 = {title: "保存任务"}
-        const title3 = {title: "打开任务"}
+        const title1 = { title: '创建任务' }
+        const title2 = { title: '保存任务' }
+        const title3 = { title: '打开任务' }
         return (
             <Row className="task-editor">
                 <header className="workbench-toolbar clear">

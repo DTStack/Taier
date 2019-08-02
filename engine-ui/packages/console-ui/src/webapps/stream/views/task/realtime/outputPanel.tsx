@@ -979,7 +979,7 @@ export default class OutputPanel extends React.Component<any, any> {
                 <Button type="primary" size="small" onClick={() => { this.changeInputTabs('delete', index) }}>确定</Button>
             </div>
         </div>
-        const onClickFix={
+        const onClickFix = {
             onClick: (e: any) => { this.handlePopoverVisibleChange(e, index, !popoverVisible[index]) }
         }
         return <div className="input-panel-title">

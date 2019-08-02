@@ -18,7 +18,7 @@ const taskTypes = (state: any = [], action: any) => {
     }
 }
 
-const taskTypeFilter = (state:any = [], action: any) => {
+const taskTypeFilter = (state: any = [], action: any) => {
     switch (action.type) {
         case commAction.GET_TASK_TYPE_FILTER: {
             return action.payload;

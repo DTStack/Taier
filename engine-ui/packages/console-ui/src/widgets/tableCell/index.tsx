@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-export default function TableCell(props: any) {
+export default function TableCell (props: any) {
     const originStyle: any = {
         textIndent: '5px',
         backgroundColor: 'transparent',

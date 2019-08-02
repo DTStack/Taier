@@ -54,7 +54,7 @@ const applyCellStyle = (cellState: any, style: any) => {
     return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
 }) as any)
 class GraphContainer extends React.Component<any, any> {
-    constructor(props: any) {
+    constructor (props: any) {
         super(props);
     }
 
@@ -73,7 +73,7 @@ class GraphContainer extends React.Component<any, any> {
 
     _graph: any = null;
     _activeNode: any;
-    _copyLock: Boolean;
+    _copyLock: boolean;
     _removeLock: number;
     componentDidMount () {
         if (this.props.onRef) {
@@ -81,7 +81,7 @@ class GraphContainer extends React.Component<any, any> {
         }
     }
 
-    shouldComponentUpdate(nextProps: any) {
+    shouldComponentUpdate (nextProps: any) {
         console.log('graph should update:', nextProps);
         return true;
     }
@@ -224,14 +224,14 @@ class GraphContainer extends React.Component<any, any> {
         const { saveSelectedCell, changeSiderbar, getTaskDetailData } = this.props;
         this._graph = graph;
 
-        const attachMouseOverStyle = function(cell: any) {
+        const attachMouseOverStyle = function (cell: any) {
             const cellState = graph.view.getState(cell);
             const style: any = {}
             style[mxConstants.STYLE_FILLCOLOR] = '#DEEFFF';
             style[mxConstants.STYLE_STROKECOLOR] = '#2491F7';
             applyCellStyle(cellState, style);
         }
-        const removeMouseOverStyle = function(cell: any) {
+        const removeMouseOverStyle = function (cell: any) {
             const cellState = graph.view.getState(cell);
             const style: any = {}
             style[mxConstants.STYLE_FILLCOLOR] = '#FFFFFF';
@@ -329,7 +329,7 @@ class GraphContainer extends React.Component<any, any> {
             if (ctx._activeNode) ctx._activeNode.focus();
         }, true);
 
-        graph.clearSelection = function(evt: any) {
+        graph.clearSelection = function (evt: any) {
             if (selectedCell) {
                 removeMouseOverStyle(selectedCell);
                 selectedCell = null;
@@ -368,7 +368,7 @@ class GraphContainer extends React.Component<any, any> {
         let restoreCell: any;
         const ctx = this;
         const mockInput = document.getElementById('mockInput') as HTMLInputElement;
-        mxEvent.addListener(graph.container, 'click', mxUtils.bind(this, function(evt: any) {
+        mxEvent.addListener(graph.container, 'click', mxUtils.bind(this, function (evt: any) {
             if (evt.target.nodeName === 'INPUT' && evt.target.className.indexOf('vertex-input') > -1) {
                 // 排除重命名的情况
                 return;
@@ -376,18 +376,18 @@ class GraphContainer extends React.Component<any, any> {
             mockInput.value = '';
             mockInput.focus()
         }), true)
-        mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function(evt: any) {
+        mxEvent.addListener(mockInput, 'copy', mxUtils.bind(this, function (evt: any) {
             if (graph.isEnabled() && !graph.isSelectionEmpty()) {
                 const cell = graph.getSelectionCells()[0];
                 restoreCell = cell;
             }
         }), true)
-        mxEvent.addListener(mockInput, 'paste', mxUtils.bind(this, function(evt: any) {
+        mxEvent.addListener(mockInput, 'paste', mxUtils.bind(this, function (evt: any) {
             if (graph.isEnabled() && !graph.isSelectionEmpty() && mockInput.focus) {
                 ctx.copyCell(restoreCell)
             }
         }), true)
-        mxEvent.addListener(mockInput, 'keyup', mxUtils.bind(this, function(evt: any) {
+        mxEvent.addListener(mockInput, 'keyup', mxUtils.bind(this, function (evt: any) {
             const keyCode = evt.keyCode;
             if (graph.isEnabled() && !graph.isSelectionEmpty() && mockInput.focus && (keyCode == 8 || keyCode == 46)) {
                 const cell = graph.getSelectionCells()[0];
@@ -656,7 +656,7 @@ class GraphContainer extends React.Component<any, any> {
         const editTarget = document.getElementById(`JS_cell_${task.id}`) as HTMLInputElement;
         this.setCursorPosition(editTarget, editTarget.value.length);
         const { data } = this.props;
-        const checkNodeName = function(name: any) {
+        const checkNodeName = function (name: any) {
             if (name === '') {
                 message.error('子节点名称不可为空！')
                 return false;
@@ -745,7 +745,7 @@ class GraphContainer extends React.Component<any, any> {
         for (let i = 0; i < cells.length; i++) {
             const cell = cells[i];
             const cellItem: {
-                [propName: string]: any
+                [propName: string]: any;
             } = this.getCellData(cell);
             if (cell.edge) {
                 cellItem.source = this.getCellData(cell.source);

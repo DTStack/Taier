@@ -134,14 +134,6 @@ class CheckPoint extends React.Component<any, any> {
     }
     getTableTitle = () => {
         const { overview, dates } = this.state;
-        const showTimeFix = {
-            showTime: {
-                disabledSeconds: true,
-                format: 'HH:mm',
-                defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment()],
-                hideDisabledOptions: true
-            }
-        }
         return (
             <div style={{ padding: '10px 10px 11px 0px' }}>
                 <RangePicker

@@ -84,7 +84,7 @@ class ResourceManage extends React.Component<any, any> {
     asynLoadCatalogue = (treeNode: any) => {
         return this.props.loadTreeData(siderBarType.resource, treeNode.props.data.id)
     }
-    onExpand = (expandedKeys: any[], { expanded, node }: { expanded: any, node: any }) => {
+    onExpand = (expandedKeys: any[], { expanded, node }: { expanded: any; node: any }) => {
         const resNode = node.props.data || {};
         const { level, catalogueType } = resNode;
         if (level == 13 && catalogueType == siderBarType.resource) { // 根目录资源管理

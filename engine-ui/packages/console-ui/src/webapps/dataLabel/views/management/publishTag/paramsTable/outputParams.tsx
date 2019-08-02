@@ -35,10 +35,10 @@ class OutputParams extends React.Component<any, any> {
     initDataSource (initValue: any) {
         let data = initValue;
         if (!initValue) {
-            data: [];
+            data = [];
         }
         if (initValue && initValue.some((item: any) => !item.fieldName)) {
-            data: [];
+            data = [];
         }
         this.backMsg(data);
         this.setState({

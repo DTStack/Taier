@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Modal, message } from 'antd';
 import Api from '../../api/console';
 
-class killAllTask extends React.Component<any, any> {
+class KillAllTask extends React.Component<any, any> {
     state: any = {
         confirmLoading: false
     }
@@ -93,4 +93,4 @@ class killAllTask extends React.Component<any, any> {
         )
     }
 }
-export default killAllTask;
+export default KillAllTask;

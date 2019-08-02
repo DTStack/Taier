@@ -1,5 +1,10 @@
 {
     "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module",
+        "project": "./tsconfig.json"
+    },
     "extends":[
         "standard",
         "plugin:react/recommended",
@@ -29,10 +34,6 @@
         "afterEach": "readable",
         "jest": "readable"
     },
-    "parserOptions": {
-        "ecmaVersion": 8,
-        "sourceType": "module"
-    },
     "rules": {
         "semi": 0,
         "strict": 0,
@@ -57,6 +58,7 @@
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/explicit-member-accessibility": 0,
         "@typescript-eslint/explicit-function-return-type": 0,
-        "@typescript-eslint/no-use-before-define": 0
+        "@typescript-eslint/no-use-before-define": 0,
+        "@typescript-eslint/no-var-requires": 0
     }
 }

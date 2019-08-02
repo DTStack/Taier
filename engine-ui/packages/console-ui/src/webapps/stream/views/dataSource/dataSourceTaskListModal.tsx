@@ -8,7 +8,7 @@ import Api from '../../api'
     return {
         project: state.project
     }
-})as any) 
+})as any)
 class DataSourceTaskListModal extends React.Component<any, any> {
     state: any = {
         visible: false,
@@ -75,7 +75,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
             }
         }]
     }
-    handleTableChange(pagination: any) {
+    handleTableChange (pagination: any) {
         this.setState({ pagination: pagination }, () => {
             this.getTaskList();
         })

@@ -24,7 +24,7 @@ class NewFolder extends React.Component<any, any> {
     state: any = {
         modalKey: null
     }
-    loadData(node: any) {
+    loadData (node: any) {
         return this.props.loadTreeData(this.props.type, node.props.data.id);
     }
     onOk = () => {

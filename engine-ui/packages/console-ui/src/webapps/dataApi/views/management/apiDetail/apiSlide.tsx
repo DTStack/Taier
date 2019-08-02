@@ -12,7 +12,7 @@ import Security from '../../../components/security';
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
-class apiSlidePane extends React.Component<any, any> {
+class ApiSlidePane extends React.Component<any, any> {
     state: any = {
         approvedText: '同意',
         applyText: '申请调用此接口，请批准',
@@ -103,4 +103,4 @@ class apiSlidePane extends React.Component<any, any> {
         )
     }
 }
-export default apiSlidePane;
+export default ApiSlidePane;

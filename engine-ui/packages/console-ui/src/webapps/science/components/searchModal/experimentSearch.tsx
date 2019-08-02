@@ -16,7 +16,7 @@ class ExperimentSearch extends React.Component<any, any> {
     state: any = {
         key: Math.random()
     }
-    onSelect(value: any) {
+    onSelect (value: any) {
         this.props.openExperiment(value);
         this.close();
     }

@@ -17,22 +17,21 @@ class MemberForm extends React.Component<any, any> {
         const getFieldDecorator = form.getFieldDecorator;
 
         const userOptions = notProjectUsers && notProjectUsers
-            .map((item: any) =>
-                {
-                    const nameFix = {
-                        name: item.userName
-                    }
-                    return (
-                        <Option
-                            key={item.userId}
-                            // name={item.userName}
-                            value={`${item.userId}`}
-                            {...nameFix}
-                        >
-                            {item.userName}
-                        </Option>
-                    )
+            .map((item: any) => {
+                const nameFix = {
+                    name: item.userName
                 }
+                return (
+                    <Option
+                        key={item.userId}
+                            // name={item.userName}
+                        value={`${item.userId}`}
+                        {...nameFix}
+                    >
+                        {item.userName}
+                    </Option>
+                )
+            }
             )
 
         let roleOptions: any = []; let defaultRoles: any = [];

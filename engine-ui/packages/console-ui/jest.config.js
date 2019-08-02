@@ -10,8 +10,8 @@ module.exports = {
     ],
     testPathIgnorePatterns: ['/node_modules/'],
     testMatch: [
-        '**/__tests__/**/(*.)+(spec|test).[jt]sx?',
-        '**/test/**/(*.)+(spec|test).[jt]sx?'
+        '**/__tests__/**/(*.)+(spec|test).[jt]s?(x)',
+        '**/test/**/(*.)+(spec|test).[jt]s?(x)'
     ],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
     moduleNameMapper: {
