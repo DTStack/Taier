@@ -6,7 +6,7 @@ import { Form, Input, Radio, Tabs } from 'antd';
 import Editor from 'widgets/editor'
 import Address from './runcode/address';
 
-import { formItemLayout, DATA_SOURCE, TASK_TYPE } from '../../../../../comm/const';
+import { formItemLayout, DATA_SOURCE, TASK_TYPE, DATA_SYNC_TYPE } from '../../../../../comm/const';
 import { getTaskTypes as realtimeGetTaskTypes } from '../../../../../store/modules/realtimeTask/comm';
 import utils from 'utils';
 import ResultTable from './runcode/resultTable';
@@ -133,9 +133,10 @@ class RunCode extends React.Component<any, any> {
     render () {
         const { tabKey } = this.state;
         const { data = {} } = this.props;
-        const { taskType, originSourceType, targetSourceType } = data;
+        const { taskType, originSourceType, targetSourceType, createModel } = data;
         const isShowAddress = taskType == TASK_TYPE.DATA_COLLECTION && originSourceType == DATA_SOURCE.BEATS;
         const isflinkSql = taskType == TASK_TYPE.SQL;
+        const isScriptMode = createModel == DATA_SYNC_TYPE.SCRIPT;
         const isShowResultTable = taskType == TASK_TYPE.DATA_COLLECTION && targetSourceType == DATA_SOURCE.HIVE;
 
         const editorBoxStyle: any = {
@@ -163,7 +164,7 @@ class RunCode extends React.Component<any, any> {
                             {this.getRunCode()}
                         </div>
                     </TabPane>
-                    {isflinkSql && [
+                    {(isflinkSql && !isScriptMode) && [
                         <TabPane className="m-panel2" tab="源表" key="source">
                             <div style={editorBoxStyle}>
                                 {this.getJsonEditor(data.sourceParams)}

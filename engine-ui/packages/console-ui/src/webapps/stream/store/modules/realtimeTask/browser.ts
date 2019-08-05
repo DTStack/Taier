@@ -1,6 +1,6 @@
 import { hashHistory } from 'react-router'
 import { cloneDeep } from 'lodash';
-
+import { message } from 'antd';
 import localDb from 'utils/localDb'
 import Api from '../../../api'
 import { browserAction } from './actionTypes'
@@ -15,6 +15,24 @@ export function publishTask (params: any) {
         .then(succCallback);
 }
 
+export function convertToScriptMode (task: any) {
+    return (dispatch: any) => {
+        const reqParams: any = {
+            id: task.id,
+            createModel: task.createModel,
+            lockVersion: task.lockVersion,
+            version: task.version,
+            // preSave: task.preSave,
+            readWriteLockVO: task.readWriteLockVO
+        }
+        Api.convertToScriptMode(reqParams).then((res: any) => {
+            if (res.code === 1) {
+                message.success('转换成功！');
+                openPage({ id: task.id });
+            }
+        });
+    }
+}
 // Action
 /* eslint-disable */
 export function closePage (id: any, pages: any, currentPage: any) {
