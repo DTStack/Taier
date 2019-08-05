@@ -993,7 +993,7 @@ class Keymap extends React.Component<any, any> {
                                     width: W + 200,
                                     height: h - 18,
                                     marginTop: 18,
-                                    zIndex: 1000,
+                                    zIndex: 2,
                                     display: 'inline-block'
                                 }}
                             >
