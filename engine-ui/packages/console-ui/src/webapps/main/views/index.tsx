@@ -34,8 +34,8 @@ initNotification();
     }
 }) as any)
 class Main extends React.Component<any, any> {
-    propTypes = propType
-    defaultProps = defaultPro
+    static propTypes = propType
+    static defaultProps = defaultPro
 
     componentDidMount () {
         const { user } = this.props;
