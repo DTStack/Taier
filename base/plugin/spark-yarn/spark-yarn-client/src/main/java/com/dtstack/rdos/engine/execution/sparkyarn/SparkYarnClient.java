@@ -362,6 +362,8 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
         sparkConf.set("security", "false");
+        sparkConf.set("SPARK_JAVA_OPTS", sparkYarnConfig.getJvmOptions());
+
         if (sparkYarnConfig.isSecurity()){
             sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
             sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());

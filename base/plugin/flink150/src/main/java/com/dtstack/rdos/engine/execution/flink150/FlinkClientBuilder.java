@@ -73,7 +73,7 @@ public class FlinkClientBuilder {
 
     private static String akka_tcp_timeout = "60 s";
 
-    private static String jvm_options = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled";
+    private static String jvm_options = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
 
     private YarnClient yarnClient;
 
