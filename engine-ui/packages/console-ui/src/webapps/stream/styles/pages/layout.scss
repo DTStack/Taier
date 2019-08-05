@@ -18,6 +18,9 @@ $activeColor: #262e36; // 主色
     
     .container {
         min-width: $minWidth;
+        .ant-layout {
+            height: auto;
+        }
     }
 
     .header {
