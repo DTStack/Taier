@@ -24,7 +24,8 @@ import RCApi from '../../../api/ruleConfig';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const TreeNode = (TreeSelect as any).TreeNode;
+// const TreeNode = (TreeSelect as any).TreeNode;
+const { TreeNode }: any = TreeSelect
 
 const mapStateToProps = (state: any) => {
     const { dataSource } = state;
