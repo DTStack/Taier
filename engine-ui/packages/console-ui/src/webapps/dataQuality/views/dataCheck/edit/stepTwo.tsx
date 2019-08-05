@@ -11,7 +11,8 @@ import DSApi from '../../../api/dataSource';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-const TreeNode = (TreeSelect as any).TreeNode;
+// const TreeNode = (TreeSelect as any).TreeNode;
+const { TreeNode }: any = TreeSelect
 
 const mapStateToProps = (state: any) => {
     const { dataCheck, dataSource } = state;
