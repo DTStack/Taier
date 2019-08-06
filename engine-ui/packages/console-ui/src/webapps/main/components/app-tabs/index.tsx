@@ -1,12 +1,20 @@
 import * as React from 'react'
 import { Tabs } from 'antd'
-
+import { cloneDeep } from 'lodash';
 const TabPane: any = Tabs.TabPane
 
 export default function AppTabs (props: any) {
-    const { apps, content, onPaneChange, activeKey } = props
-    const enableApps = apps.filter((app: any) => app.enable && app.id !== 'main')
-
+    const { apps, content, onPaneChange, activeKey, licenseApps = [] } = props;
+    const newApps = cloneDeep(apps);
+    let enableApps: any = [];
+    for (let i: any = 0; i < newApps.length; i++) {
+        for (let j: any = 0; j < licenseApps.length; j++) {
+            if (newApps[i].id == licenseApps[j].id && licenseApps[j].isShow) {
+                newApps[i].enable = licenseApps[j].isShow;
+                enableApps.push(newApps[i]);
+            }
+        }
+    }
     const tabPanes = enableApps.length > 0 && enableApps.map((app: any) => {
         const isShow = !app.disableExt && !app.disableSetting;
 

@@ -79,13 +79,15 @@ export function MenuLeft (props: any) {
 
 export function MenuRight (props: any) {
     const {
-        onClick, settingMenus, user, licenseApps,
+        onClick, settingMenus, user, licenseApps = [],
         apps, app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage;
     const isLogin = user && user.userName;
     const extraParms = app ? `?app=${app && app.id}` : '';
+    const hasShowApp = licenseApps.some((licapp: any) => licapp.isShow == true)
+    const isLeastOneLicAppShow = licenseApps && licenseApps.length > 0 && hasShowApp; // 至少有一个licenseApp，isShow为true才显示用户管理和角色管理
     const userMenu = (
         <Menu onClick={onClick}>
             {!window.APP_CONF.hideUserCenter && (
@@ -152,7 +154,7 @@ export function MenuRight (props: any) {
                         <Icon type="message" />
                     </span>
                 </a>}
-                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
+                {(isShowExt || !isShowAla) && isLeastOneLicAppShow && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>

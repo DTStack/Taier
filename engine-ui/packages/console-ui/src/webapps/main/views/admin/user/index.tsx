@@ -22,7 +22,8 @@ const Search = Input.Search;
 
 @(connect((state: any) => {
     return {
-        user: state.user
+        user: state.user,
+        licenseApps: state.licenseApps
     }
 }) as any)
 class AdminUser extends React.Component<any, any> {
@@ -56,18 +57,17 @@ class AdminUser extends React.Component<any, any> {
         searchName: undefined
     }
 
-    componentDidMount () {
-        const { apps } = this.props
-
-        if (apps && apps.length > 0) {
-            const initialApp = utils.getParameterByName('app');
-
-            const defaultApp = apps.find((app: any) => app.default);
-            const appKey = initialApp || defaultApp.id;
-
-            this.setState({ active: appKey }, () => {
-                this.loadData();
-            })
+    componentDidUpdate (prevProps: any, prevState: any) {
+        if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
+            const { apps, licenseApps = [] } = this.props
+            if (apps && apps.length > 0) {
+                const initialApp = utils.getParameterByName('app');
+                const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
+                const appKey = initialApp || defaultApp.id;
+                this.setState({ active: appKey }, () => {
+                    this.loadData();
+                })
+            }
         }
     }
     hasDatabase (app: any) {
@@ -454,7 +454,10 @@ class AdminUser extends React.Component<any, any> {
             streamProjects: [],
             scienceProjects: [],
             searchName: undefined
-        }, this.loadData)
+        }, () => {
+            this.props.router.replace('/admin/user?app=' + key)
+            this.loadData()
+        })
     }
 
     // 数据库改变
@@ -711,7 +714,7 @@ class AdminUser extends React.Component<any, any> {
     }
 
     render () {
-        const { apps, user } = this.props
+        const { apps, user, licenseApps } = this.props
 
         const {
             visible, roles, notProjectUsers,
@@ -719,13 +722,13 @@ class AdminUser extends React.Component<any, any> {
         } = this.state
 
         const content = this.renderPane();
-
         return (
             <div className="user-admin">
                 <h1 className="box-title">用户管理</h1>
                 <div className="box-2 m-card" style={{ height: '785px' }}>
                     <AppTabs
                         apps={apps}
+                        licenseApps={licenseApps}
                         activeKey={active}
                         content={content}
                         onPaneChange={this.onPaneChange}

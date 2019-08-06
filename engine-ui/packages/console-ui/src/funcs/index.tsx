@@ -487,3 +487,16 @@ export function isCurrentProjectChanged (key: any) {
     }
     return false;
 }
+
+export function loopIsIntercept (pathAddress: any, arr: any) {
+    for (let i = 0; i < arr.length; i++) {
+        if (pathAddress.indexOf(arr[i].url) > -1 && arr[i].isShow) {
+            window.location.href = '/';
+            return;
+        }
+    }
+}
+
+export function getCurrentPath () {
+    return document.location.pathname + document.location.hash + document.location.search;
+}
