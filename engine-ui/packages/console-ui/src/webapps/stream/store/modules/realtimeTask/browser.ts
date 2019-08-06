@@ -25,10 +25,17 @@ export function convertToScriptMode (task: any) {
             // preSave: task.preSave,
             readWriteLockVO: task.readWriteLockVO
         }
+        const reloadCurrentPage = (id: any) => {
+            Api.getTask({ id }).then((res: any) => {
+                if (res.code === 1 && res.data) {
+                    dispatch(setCurrentPage(res.data))
+                }
+            })
+        }
         Api.convertToScriptMode(reqParams).then((res: any) => {
             if (res.code === 1) {
                 message.success('转换成功！');
-                openPage({ id: task.id });
+                reloadCurrentPage(task.id);
             }
         });
     }

@@ -136,7 +136,7 @@ class RunCode extends React.Component<any, any> {
         const { taskType, originSourceType, targetSourceType, createModel } = data;
         const isShowAddress = taskType == TASK_TYPE.DATA_COLLECTION && originSourceType == DATA_SOURCE.BEATS;
         const isflinkSql = taskType == TASK_TYPE.SQL;
-        const isScriptMode = createModel == DATA_SYNC_TYPE.SCRIPT;
+        const isGuideMode = createModel != DATA_SYNC_TYPE.SCRIPT;
         const isShowResultTable = taskType == TASK_TYPE.DATA_COLLECTION && targetSourceType == DATA_SOURCE.HIVE;
 
         const editorBoxStyle: any = {
@@ -164,7 +164,7 @@ class RunCode extends React.Component<any, any> {
                             {this.getRunCode()}
                         </div>
                     </TabPane>
-                    {(isflinkSql && !isScriptMode) && [
+                    {(isflinkSql && isGuideMode) && [
                         <TabPane className="m-panel2" tab="源表" key="source">
                             <div style={editorBoxStyle}>
                                 {this.getJsonEditor(data.sourceParams)}

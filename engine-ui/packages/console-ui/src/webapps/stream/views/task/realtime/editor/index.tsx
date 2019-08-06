@@ -23,7 +23,7 @@ export default class RealtimeEditor extends React.Component<any, any> {
         let showContent: any;
         switch (currentPage.taskType) {
             case TASK_TYPE.SQL: {
-                if (currentPage.createModel == DATA_SYNC_TYPE.GUIDE) {
+                if (currentPage.createModel == DATA_SYNC_TYPE.GUIDE || currentPage.createModel == null) {
                     showContent = <CodeEditor {...this.props} toolBarOptions={{
                         leftCustomButton: <ConvertToScript isLocked={isLocked} />
                     }} />
