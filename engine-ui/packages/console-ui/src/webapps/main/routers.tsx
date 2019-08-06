@@ -5,6 +5,7 @@ import NotFund from 'widgets/notFund'
 
 import Container from './views'
 import Dashboard from './views/dashboard'
+import DashboardNew from './views/dashboard/indexNew'
 
 import MsgCenter from './views/message'
 import MsgList from './views/message/list'
@@ -16,15 +17,16 @@ import AdminRole from './views/admin/role'
 import RoleAdd from './views/admin/role/add'
 import RoleEdit from './views/admin/role/edit'
 import Audit from './views/admin/audit'
-
+declare var window: any;
 // ======= 测试 =======
 // const Test = asyncComponent(() => import('./views/test')
 // .then(module => module.default), { name: 'testPage' })
+console.log(window.COMMON_CONF, window.COMMON_CONF.theme === 'default')
 
 export default (
     <Route path="/" component={ Container }>
-        <IndexRoute component={ Dashboard } />
-        <Route path="/index.html" component={ Dashboard }></Route>
+        <IndexRoute component={ window.COMMON_CONF.theme === 'default' ? DashboardNew : Dashboard } />
+        <Route path="/index.html" component={ window.COMMON_CONF.theme === 'default' ? DashboardNew : Dashboard }></Route>
         <Route path="message" component={ MsgCenter }>
             <IndexRoute component={ MsgList } />
             <Route path="list" component={ MsgList } />

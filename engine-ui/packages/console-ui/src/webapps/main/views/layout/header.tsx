@@ -21,17 +21,34 @@ class Header extends React.Component<any, any> {
     }
 
     render () {
-        const { apps, licenseApps } = this.props;
-        const logo = <React.Fragment>
-            <img
-                className='c-header__logo'
-                alt="logo"
-                src={getHeaderLogo()}
-            />
-            <span className='c-header__title c-header__title--main'>
-                {window.APP_CONF.prefix}
-            </span>
-        </React.Fragment>;
+        const { apps, licenseApps, isNewHeader } = this.props;
+        const logo =
+
+            <React.Fragment>
+                {
+                    isNewHeader
+                        ? (
+                            <img
+                                style={{
+                                    height: '34px',
+                                    width: '30px'
+                                }}
+                                alt="logo"
+                                src={getHeaderLogo()}
+                            />
+                        )
+                        : (
+                            <img
+                                className='c-header__logo'
+                                alt="logo"
+                                src={getHeaderLogo()}
+                            />
+                        )
+                }
+                <span className='c-header__title c-header__title--main'>
+                    {window.APP_CONF.prefix}
+                </span>
+            </React.Fragment>
 
         return <Navigator
             logo={logo}

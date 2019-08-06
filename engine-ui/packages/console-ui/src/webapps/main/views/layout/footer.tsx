@@ -11,7 +11,7 @@ class Footer extends React.Component<any, any> {
             height: 40px;
             line-height: 40px;
             background: #fff;
-            color: #999999;
+            color: #333;
             letter-spacing: 0.65px;
         `
         /* eslint-disable */

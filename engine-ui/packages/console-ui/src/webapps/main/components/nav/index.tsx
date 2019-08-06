@@ -80,7 +80,7 @@ export function MenuLeft (props: any) {
 export function MenuRight (props: any) {
     const {
         onClick, settingMenus, user, licenseApps,
-        apps, app, showHelpSite, helpUrl
+        apps, app, showHelpSite, helpUrl, isNewHeader
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage;
@@ -129,8 +129,8 @@ export function MenuRight (props: any) {
     )
 
     return (
-        <div className="menu right">
-            <menu className="menu-right">
+        <div className="menu right" style={{ height: '50px' }}>
+            <menu className="menu-right" style={{ paddingRight: isNewHeader ? '40px' : '20px' }}>
                 {showHelpSite && !window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
@@ -141,23 +141,53 @@ export function MenuRight (props: any) {
                 ) : null
 
                 }
-                <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
-                    <span className="menu-item">
-                        <Icon type="home" />
-                    </span>
-                </Dropdown>
-                <span className="divide"></span>
+                {
+                    isNewHeader
+                        ? null
+                        : (
+                            <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
+                                <span className="menu-item">
+                                    <Icon type="home" />
+                                </span>
+                            </Dropdown>
+                        )
+                }
+                {
+                    isNewHeader
+                        ? null
+                        : (
+                            <span className="divide"></span>
+                        )
+                }
                 {isShowExt && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
-                        <Icon type="message" />
+                        {
+                            isNewHeader
+                                ? (
+                                    <img src="/public/main/img/icon_message.svg" alt="消息图标"/>
+                                )
+                                : (
+                                    <Icon type="message" />
+                                )
+                        }
                     </span>
                 </a>}
                 {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
-                    <span className="menu-item"><Icon type="setting" /> </span>
+                    <span className="menu-item">
+                        {
+                            isNewHeader
+                                ? (
+                                    <img src="/public/main/img/icon_set.svg" alt="设置图标"/>
+                                )
+                                : (
+                                    <Icon type="setting" />
+                                )
+                        }
+                    </span>
                 </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <div className="user-info">
-                        <div className="user-name" title={user && user.userName}>
+                        <div className="user-name" title={user && user.userName} style={{ maxWidth: isNewHeader ? '200px' : null }}>
                             {(user && user.userName) || '未登录'}
                         </div>
                     </div>
@@ -224,24 +254,28 @@ class Navigator extends React.Component<any, any> {
         const {
             user, logo, menuItems,
             settingMenus, apps, app, licenseApps,
-            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl, customItems
+            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl, customItems, isNewHeader
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
         return (
-            <header className={`header ${theme || 'default'}`}>
+            <header className={`header ${theme || 'default'}`} style={{ background: isNewHeader ? 'none' : null }}>
                 <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>
                 {
-                    menuLeft || <MenuLeft
-                        user={user}
-                        activeKey={current}
-                        customItems={customItems}
-                        menuItems={menuItems}
-                        licenseApps={licenseApps}
-                        onClick={this.handleClick}
-                    />
+                    isNewHeader
+                        ? null
+                        : (
+                            menuLeft || <MenuLeft
+                                user={user}
+                                activeKey={current}
+                                customItems={customItems}
+                                menuItems={menuItems}
+                                licenseApps={licenseApps}
+                                onClick={this.handleClick}
+                            />
+                        )
                 }
                 {
                     menuRight || <MenuRight
@@ -254,6 +288,7 @@ class Navigator extends React.Component<any, any> {
                         settingMenus={settingMenus}
                         showHelpSite={showHelpSite}
                         helpUrl={helpUrl}
+                        isNewHeader={isNewHeader}
                     />
                 }
             </header>
