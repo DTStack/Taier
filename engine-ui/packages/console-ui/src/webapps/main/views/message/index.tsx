@@ -36,7 +36,8 @@ class MessageCenter extends React.Component<any, any> {
         const content = children ? React.cloneElement(children as any, {
             msgList,
             updateMsg,
-            apps
+            apps,
+            licenseApps
         }) : <NotFund />
 
         return (

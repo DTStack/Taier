@@ -347,6 +347,10 @@ class Main extends React.Component<any, any> {
                     url: 'admin/role?app=rdos',
                     isShow: !isRdosShow
                 },
+                {
+                    url: 'message?app=rdos',
+                    isShow: !isRdosShow
+                },
                 // stream
                 {
                     url: 'stream.html',
@@ -374,6 +378,10 @@ class Main extends React.Component<any, any> {
                 },
                 {
                     url: 'admin/role?app=stream',
+                    isShow: !isStream
+                },
+                {
+                    url: 'message?app=stream',
                     isShow: !isStream
                 },
                 // analyticsEngine
@@ -422,6 +430,10 @@ class Main extends React.Component<any, any> {
                     url: 'admin/role?app=dataQuality',
                     isShow: !isQuali
                 },
+                {
+                    url: 'message?app=dataQuality',
+                    isShow: !isQuali
+                },
                 // dataApi
                 {
                     url: 'dataApi.html',
@@ -459,6 +471,10 @@ class Main extends React.Component<any, any> {
                     url: '/admin/role?app=dataApi',
                     isShow: !isDataApi
                 },
+                {
+                    url: 'message?app=dataApi',
+                    isShow: !isDataApi
+                },
                 // 数据科学
                 {
                     url: 'science.html',
@@ -482,6 +498,10 @@ class Main extends React.Component<any, any> {
                 },
                 {
                     url: '/admin/role?app=science',
+                    isShow: !isScience
+                },
+                {
+                    url: 'message?app=science',
                     isShow: !isScience
                 }
             ];

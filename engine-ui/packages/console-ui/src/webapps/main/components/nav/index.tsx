@@ -149,7 +149,7 @@ export function MenuRight (props: any) {
                     </span>
                 </Dropdown>
                 <span className="divide"></span>
-                {isShowExt && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                {isShowExt && isLeastOneLicAppShow && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
                         <Icon type="message" />
                     </span>
