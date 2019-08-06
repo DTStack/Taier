@@ -1074,7 +1074,8 @@ class SourceForm extends React.Component<any, any> {
                                             key={`copate-${index}`}
                                             value={copateValue}
                                         >
-                                            {copateValue}
+                                            {/* ORACLE数据库单独考虑ROW_NUMBER() 这个函数， 展示去除括号 */}
+                                            { (sourceMap.type.type === DATA_SOURCE.ORACLE && copateValue === 'ROW_NUMBER()') ? 'ROW_NUMBER' : copateValue}
                                         </Option>
                                     );
                                 })}
