@@ -209,9 +209,12 @@ class NewApi extends React.Component<any, any> {
                 tableName: data.tableName,
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
+                containHeader: data.containHeader,
                 sql: data.sql
             },
-            registerParams: {},
+            registerParams: {
+                containHeader: data.containHeader
+            },
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
                 respJson: data.respJson
@@ -330,6 +333,7 @@ class NewApi extends React.Component<any, any> {
             dataSrcId: paramsConfig.dataSrcId,
             tableName: paramsConfig.tableName,
             dataSourceType: paramsConfig.dataSourceType,
+            containHeader: paramsConfig.containHeader,
             respPageSize: paramsConfig.respPageSize,
             allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
             sql: paramsConfig.sql,
@@ -383,6 +387,7 @@ class NewApi extends React.Component<any, any> {
         result.successRespJson = registerParams.successValue;
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
+        result.containHeader = registerParams.containHeader;
         result.bodyDesc = registerParams.bodyDesc;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item: any) => {
             return {
