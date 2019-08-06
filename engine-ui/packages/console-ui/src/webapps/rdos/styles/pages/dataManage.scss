@@ -319,6 +319,9 @@
             line-height: 35px;
             color: #595959;
             letter-spacing: 0;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
         }
         .tname {
             background: #2491F7;
