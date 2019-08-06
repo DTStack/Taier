@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { Tabs } from 'antd'
-
+import { getEnableLicenseApp } from 'funcs';
 const TabPane: any = Tabs.TabPane
 
 export default function AppTabs (props: any) {
-    const { apps, content, onPaneChange, activeKey } = props
-    const enableApps = apps.filter((app: any) => app.enable && app.id !== 'main')
-
+    const { apps, content, onPaneChange, activeKey, licenseApps = [] } = props;
+    const enableApps = getEnableLicenseApp(apps, licenseApps) || [];
     const tabPanes = enableApps.length > 0 && enableApps.map((app: any) => {
         const isShow = !app.disableExt && !app.disableSetting;
 
