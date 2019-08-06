@@ -81,8 +81,8 @@ class ComponentSidebar extends React.Component<any, any> {
     initDragElement = () => {
         var dragElt = document.createElement('div');
         dragElt.style.border = 'solid #90d5ff 1px';
-        dragElt.style.width = VertexSize.width;
-        dragElt.style.height = VertexSize.height;
+        dragElt.style.width = VertexSize.width + 'px';
+        dragElt.style.height = VertexSize.height + 'px';
         return dragElt;
     }
     initDragger = () => {
