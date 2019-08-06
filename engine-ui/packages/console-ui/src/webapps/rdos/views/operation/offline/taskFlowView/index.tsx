@@ -286,7 +286,7 @@ class TaskFlowView extends React.Component<any, any> {
             workflowData, graphData, selectedWorkflowNode
         } = this.state;
         const heightFix = {
-            height: 600
+            height: '600px'
         }
         return (
             <div
@@ -314,10 +314,11 @@ class TaskFlowView extends React.Component<any, any> {
                     maskClosable={true}
                     visible={this.state.visibleWorkflow}
                     title={`工作流-${get(workflowData, 'name', '')}`}
-                    wrapClassName="vertical-center-modal modal-body-nopadding"
+                    wrapClassName="vertical-center-modal modal-body-nopadding modal-body--height100"
                     onCancel={this.onCloseWorkflow}
                 >
                     <TaskGraphView
+                        style={{ height: '100%' }}
                         loading={loading}
                         data={selectedWorkflowNode}
                         isCurrentProjectTask={this.isCurrentProjectTask}
