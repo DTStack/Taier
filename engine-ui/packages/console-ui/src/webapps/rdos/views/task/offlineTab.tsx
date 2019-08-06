@@ -519,9 +519,6 @@ class OfflineTabPane extends React.Component<any, any> {
                                             <Menu.Item key="resource:upload">
                                                 上传资源
                                             </Menu.Item>
-                                            <Menu.Item key="resource:replace">
-                                                替换资源
-                                            </Menu.Item>
                                             <Menu.Item key="resource:newFolder">
                                                 新建文件夹
                                             </Menu.Item>

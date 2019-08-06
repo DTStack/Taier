@@ -18,7 +18,7 @@ class FolderTree extends React.Component<any, any> {
             const lockInfo = file.readWriteLockVO || {};
             return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formatDateTime(lockInfo.gmtModified)}`;
         }
-        return file.createUser;
+        return ` ${file.createUser}`;
     }
 
     renderStatusBadge = (menuType: any, file: any) => {

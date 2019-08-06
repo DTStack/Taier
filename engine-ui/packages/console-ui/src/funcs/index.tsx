@@ -1,4 +1,4 @@
-import { debounce, endsWith } from 'lodash';
+import { debounce, endsWith, cloneDeep } from 'lodash';
 import { notification, Modal } from 'antd';
 import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
@@ -486,4 +486,35 @@ export function isCurrentProjectChanged (key: any) {
         return true;
     }
     return false;
+}
+
+export function loopIsIntercept (pathAddress: any, arr: any) {
+    for (let i = 0; i < arr.length; i++) {
+        if (pathAddress.indexOf(arr[i].url) > -1 && arr[i].isShow) {
+            window.location.href = '/';
+            return;
+        }
+    }
+}
+
+export function getCurrentPath () {
+    return document.location.pathname + document.location.hash + document.location.search;
+}
+
+export function getEnableLicenseApp (apps: any, licenseApps: any = []) {
+    const newApps = cloneDeep(apps);
+    let enableApps: any = [];
+    if (licenseApps && licenseApps.length > 0) {
+        if (apps && apps.length > 0) {
+            for (let i: any = 0; i < newApps.length; i++) {
+                for (let j: any = 0; j < licenseApps.length; j++) {
+                    if (newApps[i].id == licenseApps[j].id && licenseApps[j].isShow) {
+                        newApps[i].enable = licenseApps[j].isShow;
+                        enableApps.push(newApps[i]);
+                    }
+                }
+            }
+        }
+    }
+    return enableApps
 }

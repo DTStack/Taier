@@ -281,7 +281,7 @@ class PackagePublish extends React.Component<any, any> {
         const bussinessDate: any = [moment().subtract(30, 'days'), moment()]
         return (
             <Form
-                style={{ marginTop: '10px' }}
+                // style={{ marginTop: '10px' }}
                 layout="inline"
             >
                 <FormItem

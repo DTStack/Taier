@@ -15,10 +15,10 @@ module.exports = {
             },
             '/api/rdos': {
                 // target: 'http://172.16.10.86:9020', // test
-                target: "http://172.16.8.107:9020", // dev server
+                // target: "http://172.16.8.107:9020", // dev server
                 // target: "http://172.16.0.14:9020", // dev server
                 // target: "http://172.16.1.173:9020", // dev server
-                // target: "http://test.dtstack.insight.com",
+                target: "http://test.dtstack.insight.com",
                 // target: "http://dev.insight.dtstack.net",
                 // target: "http://172.16.0.34:9020",
                 // target: "http://172.16.10.51:9020", // test

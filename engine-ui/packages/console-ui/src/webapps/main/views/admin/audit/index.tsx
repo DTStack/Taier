@@ -158,14 +158,14 @@ class AdminAudit extends React.Component<any, any> {
                     size="default"
                     format="YYYY-MM-DD"
                     placeholder={['开始时间', '结束时间']}
-                    style={{ float: 'left', width: 200, margin: '10 10 0 0' }}
+                    style={{ float: 'left', width: '200px', margin: '10px 10px 0 0' }}
                     onChange={this.onRangePickerChange} />
 
                 <Search
                     placeholder="按操作人搜索"
                     value={reqParams.operator}
                     onChange={this.onSearchNameChange}
-                    style={{ width: 220, marginTop: 10 }}
+                    style={{ width: '220px' }}
                     onSearch={this.onSearch}
                 />
             </span>

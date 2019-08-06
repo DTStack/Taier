@@ -5,7 +5,8 @@ import { cloneDeep, get } from 'lodash';
 
 import utils from 'utils/index';
 import NotFund from 'widgets/notFund';
-import { initNotification, isCurrentProjectChanged, isCookieBeProjectType } from 'funcs';
+import { initNotification, isCurrentProjectChanged, isCookieBeProjectType,
+    loopIsIntercept, getCurrentPath } from 'funcs';
 import ChromeDownload from 'widgets/chromeDownload';
 import Cookies from 'widgets/cookies';
 import * as apps from 'config/base';
@@ -34,8 +35,8 @@ initNotification();
     }
 }) as any)
 class Main extends React.Component<any, any> {
-    propTypes = propType
-    defaultProps = defaultPro
+    static propTypes = propType
+    static defaultProps = defaultPro
 
     componentDidMount () {
         const { user } = this.props;
@@ -53,7 +54,9 @@ class Main extends React.Component<any, any> {
             this.checkRoot(user);
         }
         if (this.props.routing) {
-            if (this.props.routing.locationBeforeTransitions.pathname != nextProps.routing.locationBeforeTransitions.pathname) {
+            const currentUrl = this.props.routing.locationBeforeTransitions.pathname + this.props.routing.locationBeforeTransitions.search;
+            const prevUrl = nextProps.routing.locationBeforeTransitions.pathname + nextProps.routing.locationBeforeTransitions.search
+            if (currentUrl != prevUrl) {
                 this.isEnableLicenseApp();
             }
         }
@@ -62,17 +65,6 @@ class Main extends React.Component<any, any> {
         if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
             console.log('componentDidUpdate:', this.props.licenseApps, prevProps.licenseApps)
             this.isEnableLicenseApp();
-        }
-    }
-    getCurrentPath () {
-        return document.location.pathname + document.location.hash;
-    }
-    loopIsIntercept (pathAddress: any, arr: any) {
-        for (let i = 0; i < arr.length; i++) {
-            if (pathAddress.indexOf(arr[i].url) > -1 && arr[i].isShow) {
-                window.location.href = '/';
-                return;
-            }
         }
     }
     // rdos
@@ -234,7 +226,7 @@ class Main extends React.Component<any, any> {
     // license禁用app url 跳转到首页
     isEnableLicenseApp () {
         let { licenseApps, isLicenseLoaded } = this.props;
-        const pathAddress = this.getCurrentPath();
+        const pathAddress = getCurrentPath();
         // 成功返回数据
         if (licenseApps && licenseApps.length) {
             let fixLicenseApps = cloneDeep(licenseApps);
@@ -347,6 +339,18 @@ class Main extends React.Component<any, any> {
                     url: 'batch.html#/data-model',
                     isShow: !isRdosModal
                 },
+                {
+                    url: 'admin/user?app=rdos',
+                    isShow: !isRdosShow
+                },
+                {
+                    url: 'admin/role?app=rdos',
+                    isShow: !isRdosShow
+                },
+                {
+                    url: 'message?app=rdos',
+                    isShow: !isRdosShow
+                },
                 // stream
                 {
                     url: 'stream.html',
@@ -368,9 +372,29 @@ class Main extends React.Component<any, any> {
                     url: 'stream.html#/operation',
                     isShow: !isStreamOpera
                 },
+                {
+                    url: 'admin/user?app=stream',
+                    isShow: !isStream
+                },
+                {
+                    url: 'admin/role?app=stream',
+                    isShow: !isStream
+                },
+                {
+                    url: 'message?app=stream',
+                    isShow: !isStream
+                },
                 // analyticsEngine
                 {
                     url: 'analytics.html',
+                    isShow: !isAna
+                },
+                {
+                    url: 'admin/user?app=analyticsEngine',
+                    isShow: !isAna
+                },
+                {
+                    url: 'admin/role?app=analyticsEngine',
                     isShow: !isAna
                 },
                 // dataQuality
@@ -397,6 +421,18 @@ class Main extends React.Component<any, any> {
                 {
                     url: 'dataQuality.html#/dq/dataSource',
                     isShow: !isQualiDataSource
+                },
+                {
+                    url: 'admin/user?app=dataQuality',
+                    isShow: !isQuali
+                },
+                {
+                    url: 'admin/role?app=dataQuality',
+                    isShow: !isQuali
+                },
+                {
+                    url: 'message?app=dataQuality',
+                    isShow: !isQuali
                 },
                 // dataApi
                 {
@@ -428,6 +464,19 @@ class Main extends React.Component<any, any> {
                     isShow: !isApiDataSource
                 },
                 {
+                    url: '/admin/user?app=dataApi',
+                    isShow: !isDataApi
+                },
+                {
+                    url: '/admin/role?app=dataApi',
+                    isShow: !isDataApi
+                },
+                {
+                    url: 'message?app=dataApi',
+                    isShow: !isDataApi
+                },
+                // 数据科学
+                {
                     url: 'science.html',
                     isShow: !isScience
                 },
@@ -442,9 +491,21 @@ class Main extends React.Component<any, any> {
                 {
                     url: 'science.html#/science/source',
                     isShow: !isScienceSource
+                },
+                {
+                    url: '/admin/user?app=science',
+                    isShow: !isScience
+                },
+                {
+                    url: '/admin/role?app=science',
+                    isShow: !isScience
+                },
+                {
+                    url: 'message?app=science',
+                    isShow: !isScience
                 }
             ];
-            this.loopIsIntercept(pathAddress, arr);
+            loopIsIntercept(pathAddress, arr);
         }
         // 用户未上传license,返回空数组情况
         if (isLicenseLoaded && licenseApps && licenseApps.length == 0) {

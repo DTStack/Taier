@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { get } from 'lodash';
+import { connect } from 'react-redux';
 import {
     Select, Table, Card, message
 } from 'antd'
@@ -14,6 +15,12 @@ import { MY_APPS } from '../../../consts'
 
 const Option = Select.Option
 
+@(connect((state: any) => {
+    return {
+        user: state.user,
+        licenseApps: state.licenseApps
+    }
+}) as any)
 class AdminRole extends React.Component<any, any> {
     state: any = {
         active: '',
@@ -30,19 +37,17 @@ class AdminRole extends React.Component<any, any> {
         loading: 'success'
     }
 
-    componentDidMount () {
-        const { apps } = this.props
-
-        if (apps && apps.length > 0) {
-            const initialApp = utils.getParameterByName('app');
-
-            const defaultApp = apps.find((app: any) => app.default);
-            const appKey = initialApp || defaultApp.id;
-
-            this.setState({ active: appKey }, this.loadData)
+    componentDidUpdate (prevProps: any, prevState: any) {
+        if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
+            const { apps, licenseApps = [] } = this.props
+            if (apps && apps.length > 0) {
+                const initialApp = utils.getParameterByName('app');
+                const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
+                const appKey = initialApp || defaultApp.id;
+                this.setState({ active: appKey }, this.loadData)
+            }
         }
     }
-
     hasDatabase (app: any) {
         return app === 'analyticsEngine';
     }
@@ -366,7 +371,7 @@ class AdminRole extends React.Component<any, any> {
 
     render () {
         // 融合API管理后
-        const { apps } = this.props
+        const { apps, licenseApps } = this.props
         const content = this.renderPane();
 
         return (
@@ -375,6 +380,7 @@ class AdminRole extends React.Component<any, any> {
                 <div className="box-2 m-card" style={{ height: '785px' }}>
                     <AppTabs
                         apps={apps}
+                        licenseApps={licenseApps}
                         activeKey={this.state.active}
                         content={content}
                         onPaneChange={this.onPaneChange}

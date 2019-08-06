@@ -372,7 +372,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                             unit: 'rps 条/秒'
                                         }}
                                         desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
-                                        title="各Sink的数据输出" />
+                                        title="各Sink的RPS数据输出" />
                                 </section>
                             </div>
                             <div className="alarm-graph-row">
