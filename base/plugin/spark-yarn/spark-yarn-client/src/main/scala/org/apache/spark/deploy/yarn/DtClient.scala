@@ -860,26 +860,26 @@ private[spark] class DtClient(
     // SparkConf#validateSettings() is duplicated here (to avoid triggering the condition
     // described above).
     if (isClusterMode) {
-//      sys.env.get("SPARK_JAVA_OPTS").foreach { value =>
-//        val warning =
-//          s"""
-//             |SPARK_JAVA_OPTS was detected (set to '$value').
-//             |This is deprecated in Spark 1.0+.
-//             |
-//            |Please instead use:
-//             | - ./spark-submit with conf/spark-defaults.conf to set defaults for an application
-//             | - ./spark-submit with --driver-java-options to set -X options for a driver
-//             | - spark.executor.extraJavaOptions to set -X options for executors
-//          """.stripMargin
-//        logWarning(warning)
-//        for (proc <- Seq("driver", "executor")) {
-//          val key = s"spark.$proc.extraJavaOptions"
-//          if (sparkConf.contains(key)) {
-//            throw new SparkException(s"Found both $key and SPARK_JAVA_OPTS. Use only the former.")
-//          }
-//        }
-//        env("SPARK_JAVA_OPTS") = value
-//      }
+      sys.env.get("SPARK_JAVA_OPTS").foreach { value =>
+        val warning =
+          s"""
+             |SPARK_JAVA_OPTS was detected (set to '$value').
+             |This is deprecated in Spark 1.0+.
+             |
+            |Please instead use:
+             | - ./spark-submit with conf/spark-defaults.conf to set defaults for an application
+             | - ./spark-submit with --driver-java-options to set -X options for a driver
+             | - spark.executor.extraJavaOptions to set -X options for executors
+          """.stripMargin
+        logWarning(warning)
+        for (proc <- Seq("driver", "executor")) {
+          val key = s"spark.$proc.extraJavaOptions"
+          if (sparkConf.contains(key)) {
+            throw new SparkException(s"Found both $key and SPARK_JAVA_OPTS. Use only the former.")
+          }
+        }
+        env("SPARK_JAVA_OPTS") = value
+      }
 
       if (!sparkConf.get("SPARK_JAVA_OPTS").isEmpty) {
         env("SPARK_JAVA_OPTS") = sparkConf.get("SPARK_JAVA_OPTS")
