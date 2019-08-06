@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, Form, Input } from 'antd';
+import { Modal, Button, Form, Input, notification } from 'antd';
 
 import { getContainer } from 'funcs';
 
@@ -113,22 +113,6 @@ class FnForm extends React.Component<any, any> {
                 </FormItem>
                 <FormItem
                     {...formItemLayout}
-                    label="命令格式"
-                    hasFeedback
-                >
-                    {getFieldDecorator('commandFormate', {
-                        rules: [{
-                            required: true, message: '命令格式不能为空'
-                        }, {
-                            max: 200,
-                            message: '描述请控制在200个字符以内！'
-                        }]
-                    })(
-                        <Input.TextArea rows={4} placeholder="请输入函数的命令格式，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
-                    )}
-                </FormItem>
-                <FormItem
-                    {...formItemLayout}
                     label="参数说明"
                     hasFeedback
                 >
@@ -139,6 +123,22 @@ class FnForm extends React.Component<any, any> {
                         }]
                     })(
                         <Input.TextArea rows={4} placeholder="请输入函数的参数说明"/>
+                    )}
+                </FormItem>
+                <FormItem
+                    {...formItemLayout}
+                    label="调用测试"
+                    hasFeedback
+                >
+                    {getFieldDecorator('commandFormate', {
+                        rules: [{
+                            required: true, message: '调用测试不能为空'
+                        }, {
+                            max: 200,
+                            message: '描述请控制在200个字符以内！'
+                        }]
+                    })(
+                        <Input.TextArea rows={4} placeholder="请输入函数的调用测试，例如：datetime dateadd(datetime date, bigint delta, string datepart)"/>
                     )}
                 </FormItem>
                 <FormItem
@@ -252,8 +252,18 @@ class FnModal extends React.Component<any, any> {
                     .then(
                         (success: any) => {
                             if (success) {
+                                notification.success({
+                                    message: '创建成功',
+                                    description: '创建成功'
+                                  });
                                 this.closeModal();
                                 form.resetFields();
+                            } else {
+                                notification.error({
+                                    message: '创建失败',
+                                    description: '创建失败',
+                                    duration: 0
+                                  });
                             }
                         }
                     );
