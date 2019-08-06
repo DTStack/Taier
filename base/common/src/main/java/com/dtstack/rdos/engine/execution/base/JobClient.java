@@ -391,6 +391,11 @@ public class JobClient extends OrderObject{
         this.maxRetryNum = maxRetryNum;
     }
 
+
+    public boolean isJobRetryWaiting(){
+        return restartTime != 0 && System.currentTimeMillis() <= restartTime;
+    }
+
     @Override
     public String toString() {
         return "JobClient{" +

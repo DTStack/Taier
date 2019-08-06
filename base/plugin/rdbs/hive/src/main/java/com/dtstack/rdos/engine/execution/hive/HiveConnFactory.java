@@ -4,7 +4,7 @@ package com.dtstack.rdos.engine.execution.hive;
 import com.dtstack.rdos.common.util.MathUtil;
 import com.dtstack.rdos.engine.execution.rdbs.constant.ConfigConstant;
 import com.dtstack.rdos.engine.execution.rdbs.executor.ConnFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
