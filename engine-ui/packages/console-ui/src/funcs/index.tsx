@@ -518,3 +518,22 @@ export function getEnableLicenseApp (apps: any, licenseApps: any = []) {
     }
     return enableApps
 }
+/**
+ * 去除python注释
+ * @param codeText 需要去除的文本
+ */
+export function filterPythonComment (codeText: string): string {
+    if (!codeText) {
+        return codeText;
+    }
+    const reg = /^(([^'"#]*|('.*'|".*"))*)#.*/;
+    codeText = codeText.replace(/\r\n/g, '\n');
+    let codeArr: string[] = codeText.split('\n');
+    return codeArr.map((line) => {
+        let regResult = reg.exec(line);
+        if (regResult) {
+            return regResult[1];
+        }
+        return line;
+    }).join('\n');
+}
