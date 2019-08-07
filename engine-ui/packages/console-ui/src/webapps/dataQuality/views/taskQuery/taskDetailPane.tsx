@@ -10,6 +10,8 @@ import RuleDetailTableModal from './ruleDetailTable';
 import { lineAreaChartOptions } from '../../consts';
 import TQApi from '../../api/taskQuery';
 import { getRuleType } from '../../consts/helper';
+import InvalidDataTable from './invalidDataTable';
+
 import echarts from 'echarts/lib/echarts';
 require('echarts/lib/chart/line');
 require('echarts/lib/component/tooltip');
@@ -54,12 +56,6 @@ export default class TaskDetailPane extends React.Component<any, any> {
             this.resize();
         }
     }
-
-    // isSnapshotChange(e: any) {
-    //     this.setState({
-    //         showSnapshot: e.target.checked
-    //     });
-    // }
 
     resize = () => {
         if (this.state.lineChart) this.state.lineChart.resize()
@@ -139,15 +135,6 @@ export default class TaskDetailPane extends React.Component<any, any> {
     render () {
         const { visible, currentRecord, taskDetail, ruleDetailTableModalVisible, ruleRecord } = this.state;
         const { data } = this.props;
-        // const filterTaskDetail = taskDetail ? taskDetail.filter( // 原本由前端控制查看历史规则的显示和隐藏
-        //     (item: any) => {
-        //         if (showSnapshot) {
-        //             return true;
-        //         }
-        //         return item.isSnapshot == 0;
-        //     }
-        // ) : []
-        // console.log(filterTaskDetail)
 
         let cardTitle = (
             !isEmpty(currentRecord) ? `指标最近波动图（${currentRecord.columnName} -- ${currentRecord.functionName}）` : ''
@@ -159,7 +146,6 @@ export default class TaskDetailPane extends React.Component<any, any> {
 
         return (
             <div style={{ padding: '15px 20px' }}>
-                {/* <Checkbox value={showSnapshot} style={{ marginBottom: '10px', display: 'none' }} onChange={this.isSnapshotChange.bind(this)}>查看历史规则</Checkbox> */}
                 {taskDetail.map((rule: any) => {
                     return <RuleView
                         key={rule.id}
@@ -191,17 +177,20 @@ export default class TaskDetailPane extends React.Component<any, any> {
 
                 {
                     visible &&
-                    <Card
-                        noHovering
-                        bordered={false}
-                        loading={false}
-                        className="shadow"
-                        title={cardTitle}
-                    >
-                        <Resize onResize={this.resize}>
-                            <article id="TaskTrend" style={{ width: '100%', height: '300px' }} />
-                        </Resize>
-                    </Card>
+                    <React.Fragment>
+                        <Card
+                            noHovering
+                            bordered={false}
+                            loading={false}
+                            className="shadow"
+                            title={cardTitle}
+                        >
+                            <Resize onResize={this.resize}>
+                                <article id="TaskTrend" style={{ width: '100%', height: '300px' }} />
+                            </Resize>
+                        </Card>
+                        <InvalidDataTable record={currentRecord} key={currentRecord.id}/>
+                    </React.Fragment>
                 }
                 <RuleDetailTableModal
                     visible={ruleDetailTableModalVisible}

@@ -1,6 +1,13 @@
-// import utils from 'utils'
+import { numOrStr, Response } from 'typing';
 import http from './http'
 import req from '../consts/reqUrls'
+
+export interface InvalidData {
+    table?: string;
+    totalCount?: number;
+    result?: any[];
+    lifeCycle?: string;
+}
 
 export default {
 
@@ -18,6 +25,15 @@ export default {
     },
     getFormatTableResult (params: any) {
         return http.post(req.GET_FORMAT_TABLE_RESULT, params);
+    },
+    getInvalidData (params: {
+        recordId: numOrStr;
+        current?: number;
+        pageSize?: number;
+    }) {
+        return http.post<Response<InvalidData>>(req.GET_INVALID_TABLE_RESULT, params);
+    },
+    getDownInvalidDataURL (recordId: numOrStr) {
+        return `${req.DOWNLOAD_INVALID_TABLE_RESULT}?recordId=${recordId}`;
     }
-
 }
