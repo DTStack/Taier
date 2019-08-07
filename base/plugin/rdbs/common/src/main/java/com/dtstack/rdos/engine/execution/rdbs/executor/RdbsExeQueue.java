@@ -297,11 +297,11 @@ public class RdbsExeQueue {
                             stmt.close();
                         }
 
-                        conn.close();
-                    }
+                        if(procCreateStmt != null && !procCreateStmt.isClosed()){
+                            procCreateStmt.close();
+                        }
 
-                    if(procCreateStmt != null){
-                        procCreateStmt.close();
+                        conn.close();
                     }
 
                 } catch (SQLException e) {
