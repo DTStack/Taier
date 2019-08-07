@@ -23,10 +23,23 @@ export const MyIcon = styled.span`
     font-size: 18px;
 `
 
-// 比较apps和licenseApps,控制显示主页菜单以及右下拉菜单
-export function compareEnable (apps: any, licenseApps: any) {
+// 比较apps和licenseApps,控制显示主页导航栏菜单、右下拉菜单以及首页应用模块
+export function compareEnableApp (apps: any, licenseApps: any, isShowHome?: any) {
+    let validateAppIds = [MY_APPS.RDOS, MY_APPS.STREAM, MY_APPS.DATA_QUALITY,
+        MY_APPS.API, MY_APPS.ANALYTICS_ENGINE, MY_APPS.SCIENCE]; // license控制的appID
     if (licenseApps && licenseApps.length) {
         const newApps = cloneDeep(apps);
+        const licenseAppIds = licenseApps.map((item: any) => item.id) || [];
+        const notConigAppIds = validateAppIds.filter(id => licenseAppIds.indexOf(id) === -1) || []; // 未返回的license Id
+        // 将license控制的app中，将接口未返回的配置app, enable置为false
+        for (let i = 0; i < newApps.length; i++) {
+            for (let j = 0; j < notConigAppIds.length; j++) {
+                if (newApps[i].id == notConigAppIds[j]) {
+                    newApps[i].enable = false
+                }
+            }
+        }
+        // 将license控制的app中，将接口返回的已配置app, enable置为isShow
         for (let i = 0; i < newApps.length; i++) {
             for (let j = 0; j < licenseApps.length; j++) {
                 if (newApps[i].id == licenseApps[j].id) {
@@ -35,11 +48,15 @@ export function compareEnable (apps: any, licenseApps: any) {
             }
         }
         return newApps
-    } else { // 空数组只显示首页菜单栏
-        const mainApp = apps.find((item: any) => {
-            return item.id == MY_APPS.MAIN
-        })
-        return [mainApp]
+    } else {
+        if (isShowHome) { // 主页导航栏以及右拉菜单显示首页
+            const mainApp = apps.find((item: any) => {
+                return item.id == MY_APPS.MAIN
+            })
+            return [mainApp]
+        } else { // 不显示首页应用模块
+            return []
+        }
     }
 }
 
@@ -79,13 +96,15 @@ export function MenuLeft (props: any) {
 
 export function MenuRight (props: any) {
     const {
-        onClick, settingMenus, user, licenseApps,
+        onClick, settingMenus, user, licenseApps = [],
         apps, app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage;
     const isLogin = user && user.userName;
     const extraParms = app ? `?app=${app && app.id}` : '';
+    const hasShowApp = licenseApps.some((licapp: any) => licapp.isShow == true)
+    const isLeastOneLicAppShow = licenseApps && licenseApps.length > 0 && hasShowApp; // 至少有一个licenseApp，isShow为true才显示用户管理和角色管理
     const userMenu = (
         <Menu onClick={onClick}>
             {!window.APP_CONF.hideUserCenter && (
@@ -124,7 +143,7 @@ export function MenuRight (props: any) {
     // 右下拉菜单
     const appMenus = (
         <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(compareEnable(apps, licenseApps) || apps, user.isRoot, true)}
+            {renderATagMenuItems(compareEnableApp(apps, licenseApps, true) || apps, user.isRoot, true)}
         </Menu>
     )
 
@@ -147,12 +166,12 @@ export function MenuRight (props: any) {
                     </span>
                 </Dropdown>
                 <span className="divide"></span>
-                {isShowExt && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
+                {isShowExt && isLeastOneLicAppShow && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
                         <Icon type="message" />
                     </span>
                 </a>}
-                {(isShowExt || !isShowAla) && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
+                {(isShowExt || !isShowAla) && isLeastOneLicAppShow && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <span className="menu-item"><Icon type="setting" /> </span>
                 </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>

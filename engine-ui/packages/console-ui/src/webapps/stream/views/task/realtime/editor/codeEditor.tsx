@@ -59,7 +59,8 @@ class CodeEditor extends React.Component<any, any> {
     render () {
         const {
             currentPage,
-            editor
+            editor,
+            toolBarOptions
         } = this.props;
 
         const cursorPosition = currentPage.cursorPosition || undefined;
@@ -85,7 +86,8 @@ class CodeEditor extends React.Component<any, any> {
             onFormat: this.sqlFormat,
             onThemeChange: (key: any) => {
                 this.props.updateEditorOptions({ theme: key })
-            }
+            },
+            ...toolBarOptions
         }
 
         return (

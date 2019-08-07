@@ -27,7 +27,7 @@ class RegisterParamsConst extends React.Component<any, any> {
         switch (type) {
             case columnsKeys.NAME: {
                 return (
-                    <FormItem>
+                    <FormItem style={{ marginRight: 0 }}>
                         {getFieldDecorator(formKey, formItemParamOption)(
                             <Input />
                         )}
@@ -54,7 +54,7 @@ class RegisterParamsConst extends React.Component<any, any> {
             }
             case columnsKeys.VALUE: {
                 return (
-                    <FormItem>
+                    <FormItem style={{ marginBottom: 0 }}>
                         {getFieldDecorator(formKey, {
                             rules: [
                                 {
