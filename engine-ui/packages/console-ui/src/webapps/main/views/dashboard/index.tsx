@@ -8,7 +8,7 @@ import Api from '../../api';
 import Header from '../layout/header'
 import Footer from '../layout/footer';
 import { getInitUser } from '../../actions/user'
-
+import { compareEnableApp } from '../../components/nav';
 import { MY_APPS, getThemeBanner } from '../../consts';
 import '../../styles/views/portal.scss';
 
@@ -45,22 +45,6 @@ class Dashboard extends React.Component<any, any> {
             }
         }, 1000);
     }
-    // 控制apps与licenseApps应用是否显示
-    compareEnable = (apps: any, licenseApps: any) => {
-        if (licenseApps && licenseApps.length) {
-            const newApps = cloneDeep(apps);
-            for (let i = 0; i < newApps.length; i++) {
-                for (let j = 0; j < licenseApps.length; j++) {
-                    if (newApps[i].id == licenseApps[j].id) {
-                        newApps[i].enable = licenseApps[j].isShow
-                    }
-                }
-            }
-            return newApps
-        } else {
-            return []
-        }
-    }
     // 检查是否过期
     checkIsOverdue = () => {
         Api.checkisOverdue().then((res: any) => {
@@ -74,7 +58,7 @@ class Dashboard extends React.Component<any, any> {
     }
     renderApps = () => {
         const { apps, licenseApps, user } = this.props;
-        const sections = this.compareEnable(apps, licenseApps).map((app: any) => {
+        const sections = compareEnableApp(apps, licenseApps, false).map((app: any) => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
             return isShow && app.id !== MY_APPS.MAIN && (
