@@ -259,6 +259,7 @@ public class RdbsExeQueue {
         private boolean runProc() {
             Connection conn = null;
             boolean exeResult = false;
+            Statement procCreateStmt = null;
 
             try{
                 conn = connFactory.getConn();
@@ -268,8 +269,9 @@ public class RdbsExeQueue {
                 }
 
                 //创建存储过程
-                stmt = conn.prepareCall(jobSqlProc);
-                stmt.execute();
+                procCreateStmt = conn.createStatement();
+                procCreateStmt.execute(jobSqlProc);
+
                 //调用存储过程
                 String procCall = connFactory.getCallProc(procedureName);
                 stmt = conn.prepareCall(procCall);
@@ -296,6 +298,10 @@ public class RdbsExeQueue {
                         }
 
                         conn.close();
+                    }
+
+                    if(procCreateStmt != null){
+                        procCreateStmt.close();
                     }
 
                 } catch (SQLException e) {
