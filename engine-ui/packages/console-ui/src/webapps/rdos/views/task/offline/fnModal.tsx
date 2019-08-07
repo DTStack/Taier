@@ -250,20 +250,15 @@ class FnModal extends React.Component<any, any> {
             if (!err) {
                 addFn(Object.assign(values, { engineType: engineType }))
                     .then(
-                        (success: any) => {
-                            if (success) {
+                        (res: any) => {
+                            if (res && res.code == 1) {
+                                const msg = res.data && res.data.list && res.data.list[1];
                                 notification.success({
                                     message: '创建成功',
-                                    description: '创建成功'
+                                    description: `测试样例返回结果: ${msg}`
                                   });
                                 this.closeModal();
                                 form.resetFields();
-                            } else {
-                                notification.error({
-                                    message: '创建失败',
-                                    description: '创建失败',
-                                    duration: 0
-                                  });
                             }
                         }
                     );
@@ -343,7 +338,7 @@ export default connect((state: any) => {
                             type: fnTreeAction.ADD_FOLDER_CHILD,
                             payload: data
                         });
-                        return true;
+                        return res;
                     }
                 })
         },
