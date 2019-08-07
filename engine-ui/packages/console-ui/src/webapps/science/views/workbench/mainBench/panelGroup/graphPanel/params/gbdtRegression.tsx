@@ -139,7 +139,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('a', {
+                    {getFieldDecorator('loss', {
                         initialValue: 'ls',
                         rules: [{ required: false }]
                     })(
@@ -151,15 +151,15 @@ class ParamSetting extends React.PureComponent<any, any> {
                     )}
                 </FormItem>
                 {this.renderNumberFormItem({
-                    label: 'alpa',
-                    key: 'alpa',
+                    label: 'alpha',
+                    key: 'alpha',
                     max: 1,
                     step: 0.1,
                     initialValue: 0.9
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '树数量',
-                    key: 'treeNumber',
+                    key: 'nEstimators',
                     max: 10000,
                     step: 5,
                     initialValue: 500,
@@ -167,7 +167,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '学习速率',
-                    key: 'learnSpeed',
+                    key: 'learningRate',
                     max: 1,
                     excludeMin: true,
                     excludeMax: true,
@@ -176,16 +176,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     isInt: false
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
-                    label: '最大叶子数',
-                    key: 'maxTreeNode',
-                    max: 1000,
-                    step: 1,
-                    initialValue: 32,
-                    isInt: true
-                }, getFieldDecorator)}
-                {this.renderNumberFormItem({
                     label: '一棵树的最大深度',
-                    key: 'maxDeep',
+                    key: 'maxDepth',
                     max: 100,
                     step: 1,
                     initialValue: 10,
@@ -193,7 +185,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '叶子节点容纳的最少样本数',
-                    key: 'minSample',
+                    key: 'minSamplesLeaf',
                     max: 1000,
                     step: 1,
                     initialValue: 500,
@@ -201,7 +193,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '样本采样比例',
-                    key: 'sampleColletionRatio',
+                    key: 'subsample',
                     max: 1,
                     excludeMin: true,
                     excludeMax: true,
@@ -211,7 +203,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '训练中采集的特征比例',
-                    key: 'collectionRatio',
+                    key: 'maxFeatures',
                     max: 1,
                     excludeMin: true,
                     excludeMax: true,
@@ -221,7 +213,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '测试样本数比例',
-                    key: 'sampleRatio',
+                    key: 'validationFraction',
                     max: 1,
                     excludeMax: true,
                     step: 0.1,
@@ -230,7 +222,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '随机数产生器种子',
-                    key: 'random',
+                    key: 'randomState',
                     max: 10,
                     step: 1,
                     initialValue: 0,
@@ -331,6 +323,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                         rules: [{ required: true, message: '请选择标签列！' }]
                     })(
                         <Select
+                            showSearch
                             notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
                             placeholder="请选择标签列"
                             onFocus={this.getColumns} // 获取焦点的时候再去请求，防止日志弹窗的弹出导致不停的触发didmount函数
@@ -420,16 +413,15 @@ class GbdtRegression extends React.PureComponent<any, any> {
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
-                    alpa: { value: data.alpa },
-                    treeNumber: { value: data.treeNumber },
-                    learnSpeed: { value: data.learnSpeed },
-                    maxTreeNode: { value: data.maxTreeNode },
-                    maxDeep: { value: data.maxDeep },
-                    minSample: { value: data.minSample },
-                    sampleColletionRatio: { value: data.sampleColletionRatio },
-                    collectionRatio: { value: data.collectionRatio },
-                    sampleRatio: { value: data.sampleRatio },
-                    random: { value: data.random }
+                    alpha: { value: data.alpha },
+                    nEstimators: { value: data.nEstimators },
+                    learningRate: { value: data.learningRate },
+                    maxDepth: { value: data.maxDepth },
+                    minSamplesLeaf: { value: data.minSamplesLeaf },
+                    subsample: { value: data.subsample },
+                    maxFeatures: { value: data.maxFeatures },
+                    validationFraction: { value: data.validationFraction },
+                    randomState: { value: data.randomState }
                 }
                 return values;
             }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Tabs, Form, Button, message } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce, get } from 'lodash';
+import { isEmpty, cloneDeep, debounce } from 'lodash';
 import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/experiment';
 const TabPane = Tabs.TabPane;
@@ -52,59 +52,12 @@ class ChooseModal extends BaseChooseModal {
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
         chooseModalVisible: false,
-        columns: [],
         fetching: false
     }
-    getColumns = () => {
-        if (this.state.columns.length > 0) {
-            /**
-             * 此处是为了减少请求次数
-             */
-            return;
-        }
-        const { currentTab, componentId, data } = this.props;
-        const targetEdge = currentTab.graphData.find((o: any) => {
-            return o.edge && o.target.data.id == componentId
-        })
-        if (targetEdge) {
-            this.setState({
-                fetching: true
-            })
-            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res: any) => {
-                if (res.code === 1) {
-                    let columns: any = [];
-                    for (const key in res.data) {
-                        if (res.data.hasOwnProperty(key)) {
-                            const element = res.data[key];
-                            columns.push({
-                                key,
-                                type: element,
-                                disabled: key === get(data, 'label.key', '')
-                            })
-                        }
-                    }
-                    this.setState({
-                        columns
-                    })
-                }
-                this.setState({
-                    fetching: false
-                })
-            })
-        }
-    }
     handleChoose = () => {
-        this.getColumns();
         this.setState({
             chooseModalVisible: true
         });
-    }
-    handleChange = (value: any) => {
-        const { columns } = this.state;
-        const object = columns.find((o: any) => o.key === value);
-        if (object) {
-            this.props.handleSaveComponent('label', object);
-        }
     }
     handelOk = (targetObjects: any) => {
         this.props.handleSaveComponent('col', targetObjects);
@@ -115,7 +68,7 @@ class FieldSetting extends React.PureComponent<any, any> {
         });
     }
     render () {
-        const { chooseModalVisible, columns, fetching } = this.state;
+        const { chooseModalVisible, fetching } = this.state;
         const { data, currentTab, componentId } = this.props;
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
         const btnContent = (!data || isEmpty(data.col) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
@@ -132,7 +85,6 @@ class FieldSetting extends React.PureComponent<any, any> {
                 <div className="chooseWrap">
                     <ChooseModal
                         loading={fetching}
-                        sourceData={columns}
                         currentTab={currentTab}
                         componentId={componentId}
                         data={data}

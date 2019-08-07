@@ -26,7 +26,7 @@ class FieldSetting extends React.PureComponent<any, any> {
         step?: number;
         isInt?: boolean;
         isRequired?: boolean;
-    }, getFieldDecorator: any) {
+    }, getFieldDecorator: any): JSX.Element {
         return <FormItem
             colon={false}
             label={<div style={{ display: 'inline-block' }}>{options.label}{options.max != null && (<span className="supplementary">{options.excludeMin ? '(' : '['}{options.min || 0},{options.max}{options.excludeMax ? ')' : ']'}, {options.isInt ? '正整数' : 'float型'}</span>)}</div>}

@@ -37,7 +37,7 @@ class ChooseModal extends BaseChooseModal {
         // 继承重写该方法
         const { data, transferField } = this.props;
         const { backupSource } = this.state;
-        const chooseData = data.col || [];
+        const chooseData = data || [];
         const targetKeys = chooseData.map((item: any) => {
             return item.key;
         });
@@ -119,7 +119,7 @@ class ParamSetting extends React.PureComponent<any, any> {
             <Form className="params-form">
                 {this.renderNumberFormItem({
                     label: '聚类数',
-                    key: 'unionNumber',
+                    key: 'nClusters',
                     max: 1000,
                     step: 1,
                     initialValue: 10,
@@ -130,14 +130,14 @@ class ParamSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('distanceMeasure', {
+                    {getFieldDecorator('distance', {
                         initialValue: 'Euclidean',
                         rules: [{ required: false }]
                     })(
-                        <Select placeholder="请选择距离度量方式" onSelect={this.handleChange.bind(this, 'distanceMeasure')}>
-                            <Option key={'Euclidean'} value={'Euclidean'}>Euclidean</Option>
-                            <Option key={'Cosine'} value={'Cosine'}>Cosine</Option>
-                            <Option key={'Cityblock'} value={'Cityblock'}>Cityblock</Option>
+                        <Select placeholder="请选择距离度量方式" onSelect={this.handleChange.bind(this, 'distance')}>
+                            <Option key={'euclidean'} value={'euclidean'}>Euclidean</Option>
+                            <Option key={'cosine'} value={'cosine'}>Cosine</Option>
+                            <Option key={'cityblock'} value={'cityblock'}>Cityblock</Option>
                         </Select>
                     )}
                 </FormItem>
@@ -146,22 +146,22 @@ class ParamSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('initMethod', {
+                    {getFieldDecorator('init', {
                         initialValue: 'Random',
                         rules: [{ required: false }]
                     })(
-                        <Select placeholder="请选择质心初始化方法" onSelect={this.handleChange.bind(this, 'initMethod')}>
-                            <Option key={'Random'} value={'Random'}>Random</Option>
-                            <Option key={'First K'} value={'First K'}>First K</Option>
-                            <Option key={'Uniform'} value={'Uniform'}>Uniform</Option>
-                            <Option key={'K-means++'} value={'K-means++'}>K-means++</Option>
+                        <Select placeholder="请选择质心初始化方法" onSelect={this.handleChange.bind(this, 'init')}>
+                            <Option key={'random'} value={'random'}>Random</Option>
+                            <Option key={'firstk'} value={'firstk'}>First K</Option>
+                            <Option key={'uniform'} value={'uniform'}>Uniform</Option>
+                            <Option key={'k-means++'} value={'k-means++'}>K-means++</Option>
                             <Option key={'使用初始质心表'} value={'使用初始质心表'}>使用初始质心表</Option>
                         </Select>
                     )}
                 </FormItem>
                 {this.renderNumberFormItem({
                     label: '最大迭代次数',
-                    key: 'maxCount',
+                    key: 'maxIter',
                     max: 1000,
                     step: 1,
                     initialValue: 100,
@@ -169,14 +169,14 @@ class ParamSetting extends React.PureComponent<any, any> {
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '收敛标准',
-                    key: 'convergence',
+                    key: 'tol',
                     max: null,
                     step: 0.1,
                     initialValue: 0.1
                 }, getFieldDecorator)}
                 {this.renderNumberFormItem({
                     label: '初始随机种子',
-                    key: 'randomSeed',
+                    key: 'randomState',
                     max: 10000,
                     step: 1,
                     initialValue: 1,
@@ -190,6 +190,7 @@ class ParamSetting extends React.PureComponent<any, any> {
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
         chooseModalVisible: false,
+        chooseLabelModalVisible: false,
         columns: [],
         fetching: false
     }
@@ -231,32 +232,39 @@ class FieldSetting extends React.PureComponent<any, any> {
             })
         }
     }
-    handleChoose = () => {
+    handleChoose = (type: string) => {
         this.getColumns();
-        this.setState({
-            chooseModalVisible: true
-        });
-    }
-    handleChange = (value: any) => {
-        const { columns } = this.state;
-        const object = columns.find((o: any) => o.key === value);
-        if (object) {
-            this.props.handleSaveComponent('label', object);
+        if (type == 'col') {
+            this.setState({
+                chooseModalVisible: true
+            });
+        } else {
+            this.setState({
+                chooseLabelModalVisible: true
+            });
         }
     }
-    handelOk = (targetObjects: any) => {
-        this.props.handleSaveComponent('col', targetObjects);
+    handelOk = (key: string, targetObjects: any) => {
+        this.props.handleSaveComponent(key, targetObjects);
     }
-    handleCancel = () => {
-        this.setState({
-            chooseModalVisible: false
-        });
+    handleCancel = (type: string) => {
+        if (type == 'col') {
+            this.setState({
+                chooseModalVisible: false
+            });
+        } else {
+            this.setState({
+                chooseLabelModalVisible: false
+            });
+        }
+    }
+    getBtnContent (data: any) {
+        return (isEmpty(data) || data.length === 0) ? '选择字段' : `已选择${data.length}个字段`;
     }
     render () {
-        const { chooseModalVisible, columns, fetching } = this.state;
+        const { chooseModalVisible, chooseLabelModalVisible, columns, fetching } = this.state;
         const { data, currentTab, componentId } = this.props;
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
-        const btnContent = (!data || isEmpty(data.col) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
         return (
             <Form className="params-form">
                 <FormItem
@@ -265,14 +273,14 @@ class FieldSetting extends React.PureComponent<any, any> {
                     required
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, 'col')}>{this.getBtnContent(data.col)}</Button>
                 </FormItem>
                 <FormItem
                     label={<div style={{ display: 'inline-block' }}>附加列<HelpDoc style={{ top: 2 }} doc='additionalColumn' /></div>}
                     colon={false}
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose}>{btnContent}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, 'label')}>{this.getBtnContent(data.label)}</Button>
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
@@ -280,21 +288,22 @@ class FieldSetting extends React.PureComponent<any, any> {
                         sourceData={columns}
                         currentTab={currentTab}
                         componentId={componentId}
-                        data={data}
+                        data={data.col}
                         transferField="double"
-                        onOK={this.handelOk}
+                        onOK={this.handelOk.bind(this, 'col')}
                         visible={chooseModalVisible}
-                        onCancel={this.handleCancel} />
+                        onCancel={this.handleCancel.bind(this, 'col')} />
                     <ChooseModal
                         loading={fetching}
+                        wrapContanier='.labelWrap'
                         sourceData={columns}
                         currentTab={currentTab}
                         componentId={componentId}
-                        data={data}
+                        data={data.label}
                         transferField="double"
-                        onOK={this.handelOk}
-                        visible={chooseModalVisible}
-                        onCancel={this.handleCancel} />
+                        onOK={this.handelOk.bind(this, 'label')}
+                        visible={chooseLabelModalVisible}
+                        onCancel={this.handleCancel.bind(this, 'label')} />
                 </div>
             </Form>
         )
@@ -342,32 +351,18 @@ class GbdtRegression extends React.PureComponent<any, any> {
                     label: { value: (!data.label || isEmpty(data.label)) ? '' : data.label.key }
                 }
                 return values;
-            },
-            onFieldsChange: (props: any, changedFields: any) => {
-                for (const key in changedFields) {
-                    if (key === 'label') {
-                        // label是下拉菜单，在组件里自己触发onChange函数,对数据封装过后再请求
-                        continue;
-                    }
-                    if (changedFields.hasOwnProperty(key)) {
-                        const element = changedFields[key];
-                        if (!element.validating && !element.dirty && element.name !== 'transferField') {
-                            props.handleSaveComponent(key, element.value)
-                        }
-                    }
-                }
             }
         })(FieldSetting);
         const WrapParamSetting = Form.create({
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
-                    unionNumber: { value: data.unionNumber },
-                    distanceMeasure: { value: data.distanceMeasure },
-                    initMethod: { value: data.initMethod },
-                    maxCount: { value: data.maxCount },
-                    convergence: { value: data.convergence },
-                    randomSeed: { value: data.randomSeed }
+                    nClusters: { value: data.nClusters },
+                    distance: { value: data.distance },
+                    init: { value: data.init },
+                    maxIter: { value: data.maxIter },
+                    tol: { value: data.tol },
+                    randomState: { value: data.randomState }
                 }
                 return values;
             }
