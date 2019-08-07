@@ -31,7 +31,7 @@ export function compareEnableApp (apps: any, licenseApps: any, isShowHome?: any)
         const newApps = cloneDeep(apps);
         const licenseAppIds = licenseApps.map((item: any) => item.id) || [];
         const notConigAppIds = validateAppIds.filter(id => licenseAppIds.indexOf(id) === -1) || []; // 未返回的license Id
-        // 将license控制的app中，将接口未返回的配置app, enable置为false 
+        // 将license控制的app中，将接口未返回的配置app, enable置为false
         for (let i = 0; i < newApps.length; i++) {
             for (let j = 0; j < notConigAppIds.length; j++) {
                 if (newApps[i].id == notConigAppIds[j]) {
