@@ -81,14 +81,23 @@ public class CheckpointListener implements Runnable {
     }
 
     public void putTaskEngineIdAndRetainedNum(String taskEngineID, String pluginInfo) {
+        int retainedNum = parseRetainedNum(pluginInfo);
+        taskEngineIdAndRetainedNum.put(taskEngineID, retainedNum);
+
+    }
+
+    public int parseRetainedNum(String pluginInfo) {
+        Map<String, Object> pluginInfoMap = null;
         try {
-            Map<String, Object> pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
-            int retainedNum = Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
-            taskEngineIdAndRetainedNum.put(taskEngineID, retainedNum);
+            pluginInfoMap = PublicUtil.jsonStrToObject(pluginInfo, Map.class);
         } catch (IOException e) {
-            logger.error("taskEngineID Id :{}", taskEngineID);
-            logger.error("", e);
+            logger.error("plugin info parse error ..", e);
         }
+        return Integer.valueOf(pluginInfoMap.getOrDefault(CHECKPOINT_RETAINED_KEY, 1).toString());
+    }
+
+    public boolean existTaskEngineIdAndRetainedNum(String taskEngineID) {
+        return taskEngineIdAndRetainedNum.containsKey(taskEngineID);
     }
 
     public void removeByTaskEngineId(String taskEngineId) {
