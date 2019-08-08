@@ -68,6 +68,15 @@ export default {
         }
     },
     // ========== Project ========== //
+    compareIntrinsicTable (params: any) { // hive同步页面中获取新增或删除的表名称
+        return http.post(req.COMPAREINTRINSICTABLE, params)
+    },
+    dealIntrinsicTable (params: any) { // hive同步页面中同步新增或删除的表
+        return http.post(req.DEALINTRINSICTABLE, params)
+    },
+    checkDealStatus (params?: any) { // hive同步页面中获取同步状态的接口
+        return http.post(req.CHECKDEALSTATUS, params)
+    },
     queryProjects (params: any) {
         return http.post(req.QUERY_PROJECT_LIST, params)
     },
