@@ -28,7 +28,7 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
             },
             pagination: {
                 current: 1,
-                total: 0,
+                total: null,
                 pageSize: 10
             }
         };
@@ -41,19 +41,22 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     fetchData = async () => {
         const { record } = this.props;
         const { pagination } = this.state;
-        const res = await TQApi.getInvalidData({ recordId: record.id, ...pagination });
+        const res = await TQApi.getInvalidData({
+            recordId: record.id,
+            current: pagination.current,
+            pageSize: pagination.pageSize
+        });
         if (res.code === 1) {
-            const data: any = res.data;
+            const data = res.data;
             this.setState({
                 data: {
                     table: data.table,
                     lifeCycle: data.lifeCycle,
-                    result: data.result
+                    result: data.result || []
                 },
                 pagination: {
                     current: data.current,
-                    total: data.total,
-                    pageSize: data.pageSize
+                    total: data.total
                 }
             })
         }
@@ -65,19 +68,17 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
         } }, this.fetchData)
     }
 
-    initInvalidDataTableColumns = (fields: any[]) => {
+    initInvalidDataTableColumns = (fields: {}) => {
         const columns: any = [];
         if (fields) {
-            for (let i = 0; i < fields.length; i++) {
-                const field = fields[i];
+            const keys = Object.keys(fields);
+            for (let i = 0; i < keys.length; i++) {
+                const key = keys[i];
                 columns.push({
                     width: 200,
-                    title: field,
-                    dataIndex: field,
-                    key: field,
-                    render: (text: any, record: any) => {
-                        return record[i];
-                    }
+                    title: key,
+                    dataIndex: key,
+                    key: key
                 })
             }
         }
@@ -93,7 +94,8 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
         )
         const downloadUrl = TQApi.getDownInvalidDataURL(record.id);
         const columns = this.initInvalidDataTableColumns(data.result[0]);
-        const dataSource = data.result.length > 1 ? data.result.slice(1, data.result.length) : [];
+        const scroll: any = { x: columns.length < 6 ? true : 2000, y: 250 };
+
         return (
             <Card
                 noHovering
@@ -117,8 +119,9 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
                     className="m-table txt-center-table"
                     columns={columns}
                     pagination={{ total: 0, ...pagination }}
-                    dataSource={dataSource}
+                    dataSource={data.result}
                     onChange={this.onChange}
+                    scroll={scroll}
                 />
             </Card>
         );

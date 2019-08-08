@@ -89,7 +89,7 @@ export default {
     GET_TASK_ALARM_NUM: `${DQ_BASE_URL}/monitorRecord/ruleMonth`, // 任务报警统计值
     GET_FORMAT_TABLE_RESULT: `${DQ_BASE_URL}/monitorRecord/getFormatTableResult`, // 获取格式化临时表数据
     GET_INVALID_TABLE_RESULT: `${DQ_BASE_URL}/monitorRecord/getDirtyTableResult`, // 获取无效的检测结果
-    DOWNLOAD_INVALID_TABLE_RESULT: `${DQ_BASE_URL}/monitorRecord/downloadDirtyTableResult`, // 获取无效的检测结果
+    DOWNLOAD_INVALID_TABLE_RESULT: `/api/dq/export/monitorRecord/downloadDirtyTableResult`, // 获取无效的检测结果
 
     // ===== common ===== //
     DQ_GET_ALL_DICT: `${DQ_BASE_URL}/dict/allDicts`

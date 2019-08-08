@@ -4,7 +4,8 @@ import req from '../consts/reqUrls'
 
 export interface InvalidData {
     table?: string;
-    totalCount?: number;
+    total?: number;
+    current?: number;
     result?: any[];
     lifeCycle?: string;
 }

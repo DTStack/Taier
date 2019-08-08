@@ -160,16 +160,13 @@ export default class TaskDetailPane extends React.Component<any, any> {
                                         </a>
                                     </Tooltip>
                                 )}
-                                {currentRecord.id == rule.id ? (
-                                    <Icon type='line-chart' />
-                                )
-                                    : (
-                                        <Tooltip title='查看趋势'>
-                                            <a onClick={this.onCheckReport.bind(this, rule)}>
-                                                <Icon type='line-chart' />
-                                            </a>
-                                        </Tooltip>
-                                    )}
+                                {
+                                    <Tooltip title='查看趋势'>
+                                        <a onClick={this.onCheckReport.bind(this, rule)}>
+                                            <Icon type='line-chart' />
+                                        </a>
+                                    </Tooltip>
+                                }
                             </React.Fragment>
                         )}
                     />
