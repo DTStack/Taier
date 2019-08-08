@@ -239,7 +239,7 @@ class KylinEditor extends React.Component<any, any> {
                             {
                                 this.filterDataSourceList().map(
                                     (src: any) => {
-                                        let title = `${src.dataName}(${DATA_SOURCE_TEXT[src.type]})`;
+                                        let title = `${src.dataName}(${(DATA_SOURCE_TEXT as any)[src.type]})`;
                                         return (
                                             <Option
                                                 key={src.id}
