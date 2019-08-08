@@ -186,7 +186,7 @@ export default class TaskDetailPane extends React.Component<any, any> {
                                 <article id="TaskTrend" style={{ width: '100%', height: '300px' }} />
                             </Resize>
                         </Card>
-                        <InvalidDataTable record={currentRecord} key={currentRecord.id}/>
+                        <InvalidDataTable record={data} rule={currentRecord} key={currentRecord.id}/>
                     </React.Fragment>
                 }
                 <RuleDetailTableModal

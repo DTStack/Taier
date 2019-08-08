@@ -29,12 +29,13 @@ export default {
     },
     getInvalidData (params: {
         recordId: numOrStr;
+        ruleId: numOrStr;
         current?: number;
         pageSize?: number;
     }) {
         return http.post<Response<InvalidData>>(req.GET_INVALID_TABLE_RESULT, params);
     },
-    getDownInvalidDataURL (recordId: numOrStr) {
+    getDownInvalidDataURL (recordId: numOrStr, ruleId: numOrStr) {
         return `${req.DOWNLOAD_INVALID_TABLE_RESULT}?recordId=${recordId}`;
     }
 }

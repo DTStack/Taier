@@ -9,6 +9,7 @@ import TQApi, { InvalidData } from '../../api/taskQuery';
 
 export interface InvalidDataProps {
     record: any;
+    rule: any;
 }
 
 export interface InvalidDataState {
@@ -39,10 +40,11 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     }
 
     fetchData = async () => {
-        const { record } = this.props;
+        const { record, rule } = this.props;
         const { pagination } = this.state;
         const res = await TQApi.getInvalidData({
             recordId: record.id,
+            ruleId: rule.id,
             current: pagination.current,
             pageSize: pagination.pageSize
         });
@@ -87,12 +89,12 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
 
     render () {
         const { data, pagination } = this.state;
-        const { record } = this.props;
+        const { record, rule } = this.props;
 
         let invalidDataTitle = (
             !isEmpty(record) ? `不规范数据（${record.columnName} -- ${record.functionName}）` : ''
         )
-        const downloadUrl = TQApi.getDownInvalidDataURL(record.id);
+        const downloadUrl = TQApi.getDownInvalidDataURL(record.id, rule.id);
         const columns = this.initInvalidDataTableColumns(data.result[0]);
         const scroll: any = { x: columns.length < 6 ? true : 2000, y: 250 };
 
