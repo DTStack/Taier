@@ -267,6 +267,7 @@ export default class MainBench extends React.Component<any, any> {
         } else if (utils.checkExist(tabData && tabData.type)) {
             switch (tabData.type) {
                 case SCRIPT_TYPE.SQL:
+                case SCRIPT_TYPE.IMPALA_SQL:
                 case SCRIPT_TYPE.LIBRASQL: {
                     return <EditorContainer
                         taskCustomParams={taskCustomParams}

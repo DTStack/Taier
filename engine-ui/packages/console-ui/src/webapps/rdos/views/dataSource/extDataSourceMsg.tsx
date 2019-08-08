@@ -71,9 +71,6 @@ const showMapArr: any = {
     [DATA_SOURCE.MONGODB]: [
         ['hostPorts', '集群地址'],
         ['database', '数据库']
-    ],
-    [DATA_SOURCE.KAFKA]: [
-        ['address', '集群地址']
     ]
 }
 
