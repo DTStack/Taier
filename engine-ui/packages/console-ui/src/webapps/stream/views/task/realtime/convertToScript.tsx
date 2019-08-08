@@ -28,7 +28,7 @@ class ConvertToScript extends React.Component<any, any> {
         const convertToScriptModeBtn = (<Button
             disabled={this.props.isLocked}
             icon="swap"
-            {... { title: '转换同步任务由向导模式为脚本模式' }}
+            {... { title: '向导模式转换为脚本模式' }}
             onClick={this.onConvertDataSyncToScriptMode}>
                 转换为脚本
         </Button>);
