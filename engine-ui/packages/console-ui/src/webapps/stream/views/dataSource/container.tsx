@@ -19,7 +19,7 @@ class Container extends React.Component<any, any> {
     render () {
         const { children } = this.props
         return (
-            <Layout >
+            <Layout style={{ height: 'auto' }}>
                 <Content className="inner-container" style={{ overflow: 'auto' }}>
                     { children || "i'm container." }
                 </Content>
