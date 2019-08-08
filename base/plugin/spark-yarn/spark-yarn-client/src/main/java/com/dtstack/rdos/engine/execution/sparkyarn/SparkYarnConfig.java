@@ -55,6 +55,8 @@ public class SparkYarnConfig {
     //在yarn队列中允许等待执行的任务数量
     private String yarnAccepterTaskNumber;
 
+    private String jvmOptions = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
+
     private boolean isSecurity;
 
     private String sparkPrincipal;
@@ -285,5 +287,13 @@ public class SparkYarnConfig {
 
     public void setCarbonStorePath(String carbonStorePath) {
         this.carbonStorePath = carbonStorePath;
+    }
+
+    public String getJvmOptions() {
+        return jvmOptions;
+    }
+
+    public void setJvmOptions(String jvmOptions) {
+        this.jvmOptions = jvmOptions;
     }
 }

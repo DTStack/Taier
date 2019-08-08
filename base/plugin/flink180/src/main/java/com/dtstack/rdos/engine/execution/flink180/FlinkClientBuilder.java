@@ -15,6 +15,7 @@ import org.apache.flink.client.program.ClusterClient;
 import org.apache.flink.client.program.MiniClusterClient;
 import org.apache.flink.client.program.rest.RestClusterClient;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.CoreOptions;
 import org.apache.flink.configuration.HighAvailabilityOptions;
 import org.apache.flink.configuration.JobManagerOptions;
 import org.apache.flink.core.fs.FileSystem;
@@ -71,6 +72,8 @@ public class FlinkClientBuilder {
 
     private static String akka_tcp_timeout = "60 s";
 
+    private static String jvm_options = "-XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing";
+
     private YarnClient yarnClient;
 
     private FlinkClientBuilder() {
@@ -106,6 +109,9 @@ public class FlinkClientBuilder {
         config.setString("akka.client.timeout", akka_client_timeout);
         config.setString("akka.ask.timeout", akka_ask_timeout);
         config.setString("akka.tcp.timeout", akka_tcp_timeout);
+
+        // JVM Param
+        config.setString(CoreOptions.FLINK_JVM_OPTIONS, jvm_options);
 
         if(StringUtils.isNotBlank(flinkConfig.getFlinkZkAddress())) {
             config.setString(HighAvailabilityOptions.HA_MODE, HighAvailabilityMode.ZOOKEEPER.toString());
