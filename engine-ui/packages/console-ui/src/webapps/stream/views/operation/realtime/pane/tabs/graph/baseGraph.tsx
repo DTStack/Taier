@@ -30,6 +30,25 @@ function haveData (lineData: any = {}) {
     }
     return true;
 }
+function isExchangeUnit (data: any = []) {
+    const isKb = data.some((item: any) => item > 1024 && item < Math.pow(1024, 2));
+    const isMb = data.some((item: any) => item > Math.pow(1024, 2) && item < Math.pow(1024, 3));
+    const isGb = data.some((item: any) => item > Math.pow(1024, 3) && item < Math.pow(1024, 4));
+    const isTb = data.some((item: any) => item > Math.pow(1024, 4));
+    let exChangeArr: any = [];
+    if (isKb) {
+        exChangeArr = data.map((item: any) => Number((item / 1024).toFixed(6)));
+    } else if (isMb) {
+        exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 2)).toFixed(6)));
+    } else if (isGb) {
+        exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 3)).toFixed(6)));
+    } else if (isTb) {
+        exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 4)).toFixed(6)));
+    } else {
+        exChangeArr = data
+    }
+    return exChangeArr
+}
 class AlarmBaseGraphBox extends React.Component<any, any> {
     state: any = {
         key: '' + Math.random()
@@ -206,12 +225,16 @@ class AlarmBaseGraph extends React.Component<any, any> {
          * 设置具体的数据
          */
         options.series = y.map((item: any, index: any) => {
+            let arrData = item;
+            if (unit == 'bps') {
+                arrData = isExchangeUnit(item)
+            }
             let line: any = {
                 name: legend[index],
-                data: item,
+                data: arrData,
                 type: 'line',
                 smooth: true,
-                showSymbol: !(item.length > 2)
+                showSymbol: !(arrData.length > 2)
             }
             if (color[index]) {
                 line.lineStyle = {
