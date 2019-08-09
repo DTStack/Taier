@@ -1,6 +1,9 @@
 package com.dtstack.rdos.engine.execution.spark210;
 
+import com.dtstack.rdos.engine.execution.base.IClient;
 import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
+import com.dtstack.rdos.engine.execution.base.restart.IJobRestartStrategy;
+import com.dtstack.rdos.engine.execution.spark210.restart.SparkUndoRestart;
 
 /**
  * Reason:
@@ -9,7 +12,7 @@ import com.dtstack.rdos.engine.execution.base.restart.ARestartService;
  * @author xuchao
  */
 
-public class SparkRestartStrategy extends ARestartService {
+public class SparkRestartService extends ARestartService {
 
     private final static String SPARK_ENGINE_DOWN = "Current state is not alive: STANDBY";
 
@@ -27,4 +30,9 @@ public class SparkRestartStrategy extends ARestartService {
         return false;
     }
 
+    @Override
+    public IJobRestartStrategy getAndParseErrorLog(String jobId, String engineJobId, String appId, IClient client) {
+        // default undo  restart strategy
+        return  new SparkUndoRestart();
+    }
 }
