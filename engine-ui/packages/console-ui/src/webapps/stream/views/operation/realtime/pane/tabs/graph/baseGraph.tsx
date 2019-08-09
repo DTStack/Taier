@@ -32,9 +32,9 @@ function haveData (lineData: any = {}) {
 }
 function isExchangeUnit (data: any = []) {
     const isKb = data.some((item: any) => item > 1024 && item < Math.pow(1024, 2));
-    const isMb = data.some((item: any) => item > Math.pow(1024, 2) && item < Math.pow(1024, 3));
-    const isGb = data.some((item: any) => item > Math.pow(1024, 3) && item < Math.pow(1024, 4));
-    const isTb = data.some((item: any) => item > Math.pow(1024, 4));
+    const isMb = data.some((item: any) => item >= Math.pow(1024, 2) && item < Math.pow(1024, 3));
+    const isGb = data.some((item: any) => item >= Math.pow(1024, 3) && item < Math.pow(1024, 4));
+    const isTb = data.some((item: any) => item >= Math.pow(1024, 4));
     let exChangeArr: any = [];
     if (isKb) {
         exChangeArr = data.map((item: any) => Number((item / 1024).toFixed(6)));
