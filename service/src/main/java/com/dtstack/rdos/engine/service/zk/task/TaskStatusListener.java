@@ -508,6 +508,8 @@ public class TaskStatusListener implements Runnable{
                 return;
             }
 
+            checkpointIntervalClean(engineTaskId, cpList.get(0), pluginInfo);
+
             checkpointListener.putTaskEngineIdAndRetainedNum(engineTaskId, pluginInfo);
 
             for (Map<String, Object> entity : cpList) {
@@ -533,6 +535,17 @@ public class TaskStatusListener implements Runnable{
         }
 
 
+    }
+
+    private void checkpointIntervalClean(String engineTaskId, Map<String, Object> entity, String pluginInfo) {
+        if (!checkpointListener.existTaskEngineIdAndRetainedNum(engineTaskId)) {
+            Integer checkpointID = MathUtil.getIntegerVal(entity.get(CHECKPOINT_ID_KEY));
+
+            if (null != checkpointID) {
+                int retainedNum = checkpointListener.parseRetainedNum(pluginInfo);
+                rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointID(engineTaskId, MathUtil.getString(checkpointID - retainedNum + 1));
+            }
+        }
     }
 
     private Object getValueFromStringInfoKey(String info, String key) throws IOException {
