@@ -4,7 +4,6 @@ import com.dtstack.rdos.engine.execution.base.CustomThreadFactory;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.plugin.log.LogStoreFactory;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
 import org.apache.commons.lang3.StringUtils;
@@ -12,12 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.dtstack.rdos.engine.execution.base.plugin.log.LogStore;
 
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -116,6 +113,7 @@ public class RdbsExeQueue {
         }
 
         rdbsExe.cancelJob();
+        threadCache.remove(jobId);
         return true;
     }
 
@@ -183,6 +181,7 @@ public class RdbsExeQueue {
 
                 simpleStmt = conn.createStatement();
                 for(String sql : sqlList) {
+                    LOG.info("now execte sql... {} ", sql);
                     simpleStmt.execute(sql);
                     if(isCancel.get()) {
                         LOG.info("job:{} is canceled", jobName);
@@ -215,6 +214,7 @@ public class RdbsExeQueue {
                 //TODO 处理cancel job 情况
                 logStore.updateStatus(engineJobId, exeResult ? RdosTaskStatus.FINISHED.getStatus() : RdosTaskStatus.FAILED.getStatus());
                 jobCache.remove(engineJobId);
+                threadCache.remove(engineJobId);
             }
             return exeResult;
 
