@@ -99,7 +99,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 initialValue: options.initialValue,
                 rules: [
                     { required: false },
-                    options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
+                    options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
                 ].filter(Boolean)
             })(
                 <InputNumber
@@ -289,7 +289,6 @@ class FieldSetting extends React.PureComponent<any, any> {
                         currentTab={currentTab}
                         componentId={componentId}
                         data={data.col}
-                        transferField="double"
                         onOK={this.handelOk.bind(this, 'col')}
                         visible={chooseModalVisible}
                         onCancel={this.handleCancel.bind(this, 'col')} />
@@ -300,7 +299,6 @@ class FieldSetting extends React.PureComponent<any, any> {
                         currentTab={currentTab}
                         componentId={componentId}
                         data={data.label}
-                        transferField="double"
                         onOK={this.handelOk.bind(this, 'label')}
                         visible={chooseLabelModalVisible}
                         onCancel={this.handleCancel.bind(this, 'label')} />

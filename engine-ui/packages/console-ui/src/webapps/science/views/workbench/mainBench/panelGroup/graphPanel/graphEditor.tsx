@@ -480,13 +480,14 @@ class GraphEditor extends React.Component<any, any> {
                     }
                     case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: {
                         const outputs: any = [
-                            new mxConnectionConstraint(new mxPoint(0.2, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
-                            new mxConnectionConstraint(new mxPoint(0.4, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value),
-                            new mxConnectionConstraint(new mxPoint(0.6, 0), perimeter, CONSTRAINT_TEXT[type].input[2].value),
-                            new mxConnectionConstraint(new mxPoint(0.8, 0), perimeter, CONSTRAINT_TEXT[type].input[3].value)
+                            new mxConnectionConstraint(new mxPoint(0.2, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.4, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value),
+                            new mxConnectionConstraint(new mxPoint(0.6, 1), perimeter, CONSTRAINT_TEXT[type].output[2].value),
+                            new mxConnectionConstraint(new mxPoint(0.8, 1), perimeter, CONSTRAINT_TEXT[type].output[3].value)
                         ].map((item: any) => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
                         ].concat(outputs);
                     }
                     case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {

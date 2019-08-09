@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
-import { Form, Tabs, Input, message, Select, InputNumber } from 'antd';
+import { Form, Tabs, Input, message, Select, Spin, InputNumber } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
-import { debounce, isNumber } from 'lodash';
+import { debounce, isNumber, isEmpty } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 const TabPane = Tabs.TabPane;
+const Option = Select.Option;
 const FormItem = Form.Item;
 const inputStyle: any = {
     width: '100%'
@@ -14,6 +15,45 @@ const inputStyle: any = {
 /* 字段设置 */
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
+        columns: [],
+        fetching: false
+    }
+    getColumns = () => {
+        if (this.state.columns.length > 0) {
+            /**
+             * 此处是为了减少请求次数
+             */
+            return;
+        }
+        const { currentTab, componentId } = this.props;
+        const targetEdge = currentTab.graphData.find((o: any) => {
+            return o.edge && o.target.data.id == componentId
+        })
+        if (targetEdge) {
+            this.setState({
+                fetching: true
+            })
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res: any) => {
+                if (res.code === 1) {
+                    let columns: any = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            columns.push({
+                                key,
+                                type: element
+                            })
+                        }
+                    }
+                    this.setState({
+                        columns
+                    })
+                }
+                this.setState({
+                    fetching: false
+                })
+            })
+        }
     }
     renderNumberFormItem (options: {
         label: string;
@@ -36,7 +76,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                 initialValue: options.initialValue,
                 rules: [
                     { required: !!options.isRequired },
-                    options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
+                    options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
                 ].filter(Boolean)
             })(
                 <InputNumber
@@ -50,6 +90,13 @@ class FieldSetting extends React.PureComponent<any, any> {
             )}
         </FormItem>
     }
+    handleChange = (value: any) => {
+        const { columns } = this.state;
+        const object = columns.find((o: any) => o.key === value);
+        if (object) {
+            this.props.handleSaveComponent('label', object);
+        }
+    }
     handleSubmit (name: any, value: any) {
         this.props.form.validateFieldsAndScroll([name], (err: any, values: any) => {
             if (!err) {
@@ -59,6 +106,7 @@ class FieldSetting extends React.PureComponent<any, any> {
     }
     render () {
         const { getFieldDecorator } = this.props.form;
+        const { columns, fetching } = this.state;
         return (
             <Form className="params-form">
                 <FormItem
@@ -66,17 +114,21 @@ class FieldSetting extends React.PureComponent<any, any> {
                     label='原回归值'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('old_value', {
+                    {getFieldDecorator('label', {
                         rules: [
                             { required: true, message: '请输入原回归值' }
                         ]
                     })(
                         <Select
-                            onSelect={(value: any) => this.handleSubmit('old_value', value)}
+                            onSelect={this.handleChange}
+                            notFoundContent={fetching ? <Spin size="small" /> : '未找到数据表'}
+                            onFocus={this.getColumns}
                             showSearch
                             placeholder="请选择原回归值"
                         >
-
+                            {columns.map((item: any, index: any) => {
+                                return <Option key={item.key} value={item.key}>{item.key}</Option>
+                            })}
                         </Select>
                     )}
                 </FormItem>
@@ -85,7 +137,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     label='预测回归值'
                     {...formItemLayout}
                 >
-                    {getFieldDecorator('new_value', {
+                    {getFieldDecorator('pre', {
                         rules: [
                             { required: true, message: '请输入预测回归值' },
                             {
@@ -95,13 +147,13 @@ class FieldSetting extends React.PureComponent<any, any> {
                         ]
                     })(
                         <Input {...{
-                            onBlur: (e: any) => this.handleSubmit('new_value', e.target.value)
+                            onBlur: (e: any) => this.handleSubmit('pre', e.target.value)
                         }} placeholder="请输入预测回归值" />
                     )}
                 </FormItem>
                 {this.renderNumberFormItem({
                     label: '计算Residual时按等频分成多少个桶',
-                    key: 'bin',
+                    key: 'bucket',
                     max: 100,
                     step: 1,
                     initialValue: 100,
@@ -156,9 +208,9 @@ class RegressionClassification extends React.PureComponent<any, any> {
                 const { data } = props;
                 /* eslint-disable */
                 const values: any = {
-                    result_col: { value: data.result_col },
-                    score_col: { value: data.score_col },
-                    detail_col: { value: data.detail_col }
+                    label: { value: (!data.label || isEmpty(data.label)) ? '' : data.label.key },
+                    pre: { value: data.pre },
+                    bucket: { value: data.bucket }
                 }
                 /* eslint-enable */
                 return values;

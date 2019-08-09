@@ -231,7 +231,7 @@ export const TASK_ENUM = {
     [COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION]: 'kmeansComponent',
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: 'predictComponent',
     [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent',
-    [COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION]: 'regressionComponent',
+    [COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION]: 'regressionEvaluateComponent',
     [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: 'clusterEvaluateComponent'
 }
 /* 输入输出的类型 */
@@ -268,14 +268,15 @@ export const INPUT_TYPE = {
     SQL_OUT: 18,
     SOURCE_WRITE: 19, // 写数据表的输出，但是读数据表暂时没有输出
     // GBDT
-    GBDT_IMPORTANT: 23,
+    GBDT_IMPORTANT: 24,
     // kmeans
-    UNION_TABLE: 20,
-    UNION_SUM: 22,
-    UNION_CENTER_TABLE: 21,
+    KMEANS_CENTER_DATA: 20,
+    KMEANS_RESULT_CLUSTER: 21,
+    KMEANS_CENTER_CLUSTER: 22,
+    KMEANS_STATISTIC_CLUSTER: 23,
     // 回归模型评估
-    REGRESSION_OUTPUT_1: 24,
-    REGRESSION_OUTPUT_2: 25
+    REGRESSION_OUTPUT_1: 25,
+    REGRESSION_OUTPUT_2: 26
 }
 export const CONSTRAINT_TEXT: any = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
@@ -343,13 +344,14 @@ export const CONSTRAINT_TEXT: any = {
     },
     [COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION]: {
         input: [
-            { key: INPUT_TYPE.NORMAL, value: '输入' }
+            { key: INPUT_TYPE.NORMAL, value: '输入' },
+            { key: INPUT_TYPE.KMEANS_CENTER_DATA, value: '初始化质心表' }
         ],
         output: [
-            { key: INPUT_TYPE.UNION_TABLE, value: '输出聚类表' },
+            { key: INPUT_TYPE.KMEANS_RESULT_CLUSTER, value: '输出聚类表' },
             { key: INPUT_TYPE.MODEL, value: '输出聚类中心点模型' },
-            { key: INPUT_TYPE.UNION_SUM, value: '输出聚类统计表' },
-            { key: INPUT_TYPE.UNION_CENTER_TABLE, value: '输出聚类中心表' }
+            { key: INPUT_TYPE.KMEANS_STATISTIC_CLUSTER, value: '输出聚类统计表' },
+            { key: INPUT_TYPE.KMEANS_CENTER_CLUSTER, value: '输出聚类中心表' }
         ]
     },
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: {
@@ -377,7 +379,7 @@ export const CONSTRAINT_TEXT: any = {
         ],
         output: [
             { key: INPUT_TYPE.REGRESSION_OUTPUT_1, value: '输出1' },
-            { key: INPUT_TYPE.REGRESSION_OUTPUT_1, value: '输出2' }
+            { key: INPUT_TYPE.REGRESSION_OUTPUT_2, value: '输出2' }
         ]
     },
     [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: {

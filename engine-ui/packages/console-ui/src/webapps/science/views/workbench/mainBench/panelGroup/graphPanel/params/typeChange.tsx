@@ -109,10 +109,14 @@ export class ChooseModal extends React.PureComponent<any, any> {
         this.props.onCancel();
     }
     handleOk = () => {
-        const { targetKeys } = this.state;
+        const { targetKeys, sourceData } = this.state;
         const { transferField } = this.props;
+        const sourceDataMap: any = {};
+        (sourceData || []).forEach((item: any) => {
+            sourceDataMap[item.key] = item;
+        });
         const keyTypes = targetKeys.map((item: any) => {
-            return { key: item, type: transferField }
+            return { key: item, type: transferField || sourceDataMap[item].type }
         })
         this.props.onOK(keyTypes)
         this.handleCancel();

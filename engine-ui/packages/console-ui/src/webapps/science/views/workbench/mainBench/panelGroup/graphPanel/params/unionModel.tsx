@@ -14,7 +14,7 @@ class ChooseModal extends BaseChooseModal {
     }
     // 重写钩子函数，实现由父级更新soureceData
     static getDerivedStateFromProps (nextProps: any, prevState: any) {
-        if (nextProps.sourceData.length != 0) {
+        if (nextProps.sourceData && nextProps.sourceData.length != 0) {
             return {
                 sourceData: nextProps.sourceData,
                 loading: nextProps.loading
@@ -52,9 +52,11 @@ class ChooseModal extends BaseChooseModal {
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
         chooseModalVisible: false,
-        fetching: false
+        fetching: false,
+        columns: []
     }
     handleChoose = () => {
+        this.getColumns();
         this.setState({
             chooseModalVisible: true
         });
@@ -67,8 +69,45 @@ class FieldSetting extends React.PureComponent<any, any> {
             chooseModalVisible: false
         });
     }
+    getColumns = () => {
+        if (this.state.columns.length > 0) {
+            /**
+             * 此处是为了减少请求次数
+             */
+            return;
+        }
+        const { currentTab, componentId } = this.props;
+        const targetEdge = currentTab.graphData.find((o: any) => {
+            return o.edge && o.target.data.id == componentId
+        })
+        if (targetEdge) {
+            this.setState({
+                fetching: true
+            })
+            api.getInputTableColumns({ taskId: componentId, inputType: targetEdge.inputType }).then((res: any) => {
+                if (res.code === 1) {
+                    let columns: any = [];
+                    for (const key in res.data) {
+                        if (res.data.hasOwnProperty(key)) {
+                            const element = res.data[key];
+                            columns.push({
+                                key,
+                                type: element
+                            })
+                        }
+                    }
+                    this.setState({
+                        columns
+                    })
+                }
+                this.setState({
+                    fetching: false
+                })
+            })
+        }
+    }
     render () {
-        const { chooseModalVisible, fetching } = this.state;
+        const { chooseModalVisible, fetching, columns } = this.state;
         const { data, currentTab, componentId } = this.props;
         const btnStyle: any = { display: 'block', width: '100%', fontSize: 13, color: '#2491F7', fontWeight: 'normal', marginTop: 4 };
         const btnContent = (!data || isEmpty(data.col) || data.col.length == 0) ? '选择字段' : `已选择${data.col.length}个字段`
@@ -84,11 +123,11 @@ class FieldSetting extends React.PureComponent<any, any> {
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
+                        sourceData={columns}
                         loading={fetching}
                         currentTab={currentTab}
                         componentId={componentId}
                         data={data}
-                        transferField="double"
                         onOK={this.handelOk}
                         visible={chooseModalVisible}
                         onCancel={this.handleCancel} />

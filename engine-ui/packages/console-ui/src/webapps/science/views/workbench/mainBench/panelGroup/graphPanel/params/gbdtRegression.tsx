@@ -69,17 +69,6 @@ class ParamSetting extends React.PureComponent<any, any> {
             name: 'quantile'
         }]
     }
-    handleChange = (value: any) => {
-        const { regexDatas } = this.state;
-        const object = regexDatas.find((o: any) => o.value === value);
-        if (object) {
-            this.props.form.validateFieldsAndScroll(['penalty'], (err: any, values: any) => {
-                if (!err) {
-                    this.props.handleSaveComponent('penalty', value);
-                }
-            });
-        }
-    }
     handleSubmit (name: any, value: any) {
         this.props.form.validateFieldsAndScroll([name], (err: any, values: any) => {
             if (!err) {
@@ -115,7 +104,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                 initialValue: options.initialValue,
                 rules: [
                     { required: false },
-                    { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
+                    { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
                 ]
             })(
                 <InputNumber
@@ -143,7 +132,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                         initialValue: 'ls',
                         rules: [{ required: false }]
                     })(
-                        <Select placeholder="请选择损失函数类型" onChange={this.handleChange}>
+                        <Select placeholder="请选择损失函数类型" onChange={this.handleSubmit.bind(this, 'loss')}>
                             {regexDatas.map((item: any, index: any) => {
                                 return <Option key={index} value={item.value}>{item.name}</Option>
                             })}
@@ -329,7 +318,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                             onFocus={this.getColumns} // 获取焦点的时候再去请求，防止日志弹窗的弹出导致不停的触发didmount函数
                             onChange={this.handleChange}>
                             {columns.map((item: any, index: any) => {
-                                const disabled = !!data.col.find((o: any) => o.key === item.key);
+                                const disabled = !!(data.col || []).find((o: any) => o.key === item.key);
                                 return <Option key={item.key} value={item.key} disabled={disabled}>{item.key}</Option>
                             })}
                         </Select>
@@ -342,7 +331,6 @@ class FieldSetting extends React.PureComponent<any, any> {
                         currentTab={currentTab}
                         componentId={componentId}
                         data={data}
-                        transferField="double"
                         onOK={this.handelOk}
                         visible={chooseModalVisible}
                         onCancel={this.handleCancel} />
@@ -413,6 +401,7 @@ class GbdtRegression extends React.PureComponent<any, any> {
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
+                    loss: { value: data.loss },
                     alpha: { value: data.alpha },
                     nEstimators: { value: data.nEstimators },
                     learningRate: { value: data.learningRate },
