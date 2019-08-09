@@ -5,7 +5,7 @@ import { get } from 'lodash';
 
 import DTModal from 'widgets/dt-modal';
 
-import { EVALUATION_INDEX_TYPE, COMPONENT_TYPE } from '../../../../../../consts';
+import { EVALUATION_INDEX_TYPE, COMPONENT_TYPE, INPUT_TYPE } from '../../../../../../consts';
 import api from '../../../../../../api/component';
 import { regressionClassificationOptions, unionClassificationOptions } from './helper';
 
@@ -69,6 +69,20 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
             }
         }
     }
+    getIndexType (type: number) {
+        switch (type) {
+            case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: {
+                return INPUT_TYPE.REGRESSION_OUTPUT_1;
+            }
+            case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: {
+                return INPUT_TYPE.NORMAL;
+            }
+            case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
+            default: {
+                return EVALUATION_INDEX_TYPE.OVERALL;
+            }
+        }
+    }
     render () {
         const { onOk, onCancel, visible, data } = this.props;
         const componentType: number = get(data, 'componentType');
@@ -91,7 +105,7 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
                     <Tabs>
                         <TabPane tab="综合指标数据" key="pane-1">
                             <div style={{ padding: 16 }}>
-                                <TableDetail indexType={EVALUATION_INDEX_TYPE.OVERALL} data={data} visible={visible} />
+                                <TableDetail indexType={this.getIndexType(componentType)} data={data} visible={visible} />
                             </div>
                         </TabPane>
                         {this.renderPane(componentType)}

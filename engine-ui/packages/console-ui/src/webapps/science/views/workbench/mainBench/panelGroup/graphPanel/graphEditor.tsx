@@ -523,7 +523,8 @@ class GraphEditor extends React.Component<any, any> {
                             new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
                         ].map((item: any) => { item.id = 'outputs'; return item; });
                         return [
-                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
                         ].concat(outputs);
                     }
                     default:

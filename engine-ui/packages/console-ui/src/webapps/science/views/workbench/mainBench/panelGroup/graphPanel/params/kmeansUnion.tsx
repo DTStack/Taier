@@ -44,7 +44,7 @@ class ChooseModal extends BaseChooseModal {
         const sourceData = cloneDeep(backupSource);
         sourceData.forEach((item: any) => {
             if (targetKeys.findIndex((o: any) => o === item.key) > -1) {
-                item.type = transferField;
+                item.type = transferField || item.type;
             }
         });
         this.setState({
@@ -218,7 +218,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                             columns.push({
                                 key,
                                 type: element,
-                                disabled: key === get(data, 'label.key', '')
+                                disabled: key === get(data, 'append.key', '')
                             })
                         }
                     }
@@ -280,7 +280,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, 'label')}>{this.getBtnContent(data.label)}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, 'append')}>{this.getBtnContent(data.label)}</Button>
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
@@ -298,10 +298,10 @@ class FieldSetting extends React.PureComponent<any, any> {
                         sourceData={columns}
                         currentTab={currentTab}
                         componentId={componentId}
-                        data={data.label}
-                        onOK={this.handelOk.bind(this, 'label')}
+                        data={data.append}
+                        onOK={this.handelOk.bind(this, 'append')}
                         visible={chooseLabelModalVisible}
-                        onCancel={this.handleCancel.bind(this, 'label')} />
+                        onCancel={this.handleCancel.bind(this, 'append')} />
                 </div>
             </Form>
         )
@@ -346,7 +346,7 @@ class GbdtRegression extends React.PureComponent<any, any> {
             mapPropsToFields: (props: any) => {
                 const { data } = props;
                 const values: any = {
-                    label: { value: (!data.label || isEmpty(data.label)) ? '' : data.label.key }
+                    append: { value: (!data.append || isEmpty(data.append)) ? '' : data.append.key }
                 }
                 return values;
             }

@@ -43,7 +43,7 @@ class ChooseModal extends BaseChooseModal {
         const sourceData = cloneDeep(backupSource);
         sourceData.forEach((item: any) => {
             if (targetKeys.findIndex((o: any) => o === item.key) > -1) {
-                item.type = transferField;
+                item.type = transferField || item.type;
             }
         });
         this.setState({

@@ -276,7 +276,10 @@ export const INPUT_TYPE = {
     KMEANS_STATISTIC_CLUSTER: 23,
     // 回归模型评估
     REGRESSION_OUTPUT_1: 25,
-    REGRESSION_OUTPUT_2: 26
+    REGRESSION_OUTPUT_2: 26,
+    // 聚类
+    UNION_INPUT_MODEL: 27,
+    UNION_INPUT_DATA: 28
 }
 export const CONSTRAINT_TEXT: any = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
@@ -384,7 +387,8 @@ export const CONSTRAINT_TEXT: any = {
     },
     [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: {
         input: [
-            { key: INPUT_TYPE.NORMAL, value: '输入' }
+            { key: INPUT_TYPE.UNION_INPUT_MODEL, value: '模型输入' },
+            { key: INPUT_TYPE.UNION_INPUT_DATA, value: '数据输入' }
         ],
         output: [
             { key: INPUT_TYPE.NORMAL, value: '输出' }

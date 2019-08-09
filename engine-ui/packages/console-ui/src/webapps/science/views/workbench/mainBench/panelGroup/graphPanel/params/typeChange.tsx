@@ -54,7 +54,7 @@ export class ChooseModal extends React.PureComponent<any, any> {
         const sourceData = cloneDeep(backupSource);
         sourceData.forEach((item: any) => {
             if (targetKeys.findIndex((o: any) => o === item.key) > -1) {
-                item.type = transferField;
+                item.type = transferField || item.type;
             }
         });
         this.setState({
@@ -116,8 +116,12 @@ export class ChooseModal extends React.PureComponent<any, any> {
             sourceDataMap[item.key] = item;
         });
         const keyTypes = targetKeys.map((item: any) => {
+            const data = sourceDataMap[item];
+            if (!data) {
+                return null;
+            }
             return { key: item, type: transferField || sourceDataMap[item].type }
-        })
+        }).filter(Boolean);
         this.props.onOK(keyTypes)
         this.handleCancel();
     }
@@ -131,7 +135,7 @@ export class ChooseModal extends React.PureComponent<any, any> {
             moveKeys.forEach((item: any) => {
                 let object = sourceData.find((o: any) => o.key === item);
                 if (object) {
-                    object.type = transferField
+                    object.type = transferField || object.type
                 }
             })
         } else {
