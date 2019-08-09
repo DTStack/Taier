@@ -155,7 +155,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                             <Option key={'firstk'} value={'firstk'}>First K</Option>
                             <Option key={'uniform'} value={'uniform'}>Uniform</Option>
                             <Option key={'k-means++'} value={'k-means++'}>K-means++</Option>
-                            <Option key={'使用初始质心表'} value={'使用初始质心表'}>使用初始质心表</Option>
+                            <Option key={'specify'} value={'specify'}>使用初始质心表</Option>
                         </Select>
                     )}
                 </FormItem>
