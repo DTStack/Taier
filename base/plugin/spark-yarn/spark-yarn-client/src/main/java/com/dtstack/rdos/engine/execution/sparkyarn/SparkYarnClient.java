@@ -78,6 +78,8 @@ public class SparkYarnClient extends AbsClient {
 
     private static final String KEY_PRE_STR = "spark.";
 
+    private static final String SPARK_JAVA_OPTS_KEY = "SPARK_JAVA_OPTS";
+
     private static final String PYTHON_RUNNER_CLASS = "org.apache.spark.deploy.PythonRunner";
 
     private static final String PYTHON_RUNNER_DEPENDENCY_RES_KEY = "extRefResource";
@@ -361,7 +363,9 @@ public class SparkYarnClient extends AbsClient {
         sparkConf.remove("spark.files");
         sparkConf.set("spark.yarn.archive", sparkYarnConfig.getSparkYarnArchive());
         sparkConf.set("spark.yarn.queue", sparkYarnConfig.getQueue());
+        sparkConf.set(SPARK_JAVA_OPTS_KEY, sparkYarnConfig.getJvmOptions());
         sparkConf.set("security", "false");
+
         if (sparkYarnConfig.isSecurity()){
             sparkConf.set("spark.yarn.keytab", sparkYarnConfig.getSparkKeytabPath());
             sparkConf.set("spark.yarn.principal", sparkYarnConfig.getSparkPrincipal());
