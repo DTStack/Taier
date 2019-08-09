@@ -47,6 +47,9 @@ export default {
     ADD_NEW_ENGINE: `${RDOS_BASE_URL}/common/project/addNewEngine`, // 添加引擎
     GET_DB_TABLE_LIST: `${RDOS_BASE_URL}/common/project/getDBTableList`, // 预览元数据
     CHECK_ADD_ENGINE_STATUS: `${RDOS_BASE_URL}/common/project/hasSuccessInitEngine`, // 检查新增引擎状态
+    COMPAREINTRINSICTABLE: `${RDOS_BASE_URL}/common/project/compareIntrinsicTable`, // hive同步页面中获取新增或删除的表名称
+    DEALINTRINSICTABLE: `${RDOS_BASE_URL}/common/project/dealIntrinsicTable`, // hive同步页面中同步新增或删除的表
+    CHECKDEALSTATUS: `${RDOS_BASE_URL}/common/project/checkDealStatus`, // hive同步页面中获取同步状态的接口
     // ===== 角色管理 ===== //
     GET_ROLE_LIST: `${RDOS_BASE_URL}/common/role/pageQuery`, // 获取角色列表
     UPDATE_ROLE: `${RDOS_BASE_URL}/common/role/addOrUpdateRole`, // 新建/更新角色
