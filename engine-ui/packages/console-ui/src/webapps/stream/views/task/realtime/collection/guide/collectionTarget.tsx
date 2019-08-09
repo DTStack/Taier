@@ -354,7 +354,7 @@ class CollectionTargetForm extends React.Component<any, any> {
                             }]
                         })(
                             <RadioGroup>
-                                <Radio value="NONCONFLICT" style={{ float: 'left' }}>
+                                <Radio value="NONCONFLICT" disabled style={{ float: 'left' }}>
                                     覆盖（Insert Overwrite）
                                 </Radio>
                                 <Radio value="APPEND" style={{ float: 'left' }}>
