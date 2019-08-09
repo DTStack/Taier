@@ -169,7 +169,7 @@ public class LearningClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         throw new RdosException("learning client not support method 'getJobMaster'");
     }
 

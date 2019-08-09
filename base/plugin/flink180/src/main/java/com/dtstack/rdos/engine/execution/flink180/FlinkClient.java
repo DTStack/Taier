@@ -656,8 +656,14 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster(){
-        String url = getReqUrl(flinkClient);
+    public String getJobMaster(JobIdentifier jobIdentifier){
+        ClusterClient targetClusterClient;
+        if(!Strings.isNullOrEmpty(jobIdentifier.getApplicationId())){
+            targetClusterClient = clusterClientCache.getClusterClient(jobIdentifier);
+        }else{
+            targetClusterClient = flinkClient;
+        }
+        String url = getReqUrl(targetClusterClient);
         return url.split("//")[1];
     }
 

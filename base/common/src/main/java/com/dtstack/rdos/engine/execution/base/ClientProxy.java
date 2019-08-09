@@ -88,13 +88,13 @@ public class ClientProxy implements IClient{
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         try {
             return ClassLoaderCallBackMethod.callbackAndReset(new ClassLoaderCallBack<String>(){
 
                 @Override
                 public String execute() throws Exception {
-                    return targetClient.getJobMaster();
+                    return targetClient.getJobMaster(jobIdentifier);
                 }
             }, targetClient.getClass().getClassLoader(),true);
         } catch (Exception e) {

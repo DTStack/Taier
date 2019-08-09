@@ -496,7 +496,7 @@ public class SparkYarnClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         //解析config,获取web-address
         String aliveWebAddr = null;
         for(String addr : webAppAddrList){
@@ -556,7 +556,7 @@ public class SparkYarnClient extends AbsClient {
     public String getMessageByHttp(String path) {
         String reqUrl = path;
         if(!path.startsWith(HTTP_PREFIX)){
-            reqUrl = String.format("%s%s", getJobMaster(), path);
+            reqUrl = String.format("%s%s", getJobMaster(null), path);
         }
 
         try {

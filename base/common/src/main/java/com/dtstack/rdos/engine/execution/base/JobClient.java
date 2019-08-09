@@ -102,8 +102,8 @@ public class JobClient extends OrderObject{
         return ClientOperator.getInstance().getEngineMessageByHttp(engineType, path, pluginInfo);
     }
 
-    public static String getJobMaster(String engineType, String pluginInfo){
-        return ClientOperator.getInstance().getJobMaster(engineType, pluginInfo);
+    public static String getJobMaster(String engineType, String pluginInfo, JobIdentifier jobIdentifier){
+        return ClientOperator.getInstance().getJobMaster(engineType, pluginInfo, jobIdentifier);
     }
 
     public static String getCheckpoints(String engineType, String pluginInfo, JobIdentifier jobIdentifier){

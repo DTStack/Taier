@@ -8,6 +8,7 @@ import com.dtstack.rdos.common.util.ApplicationWSParser;
 import com.dtstack.rdos.common.util.PublicUtil;
 import com.dtstack.rdos.common.util.UrlUtil;
 import com.dtstack.rdos.engine.execution.base.JobClient;
+import com.dtstack.rdos.engine.execution.base.JobIdentifier;
 import com.dtstack.rdos.engine.execution.base.enums.RdosTaskStatus;
 import com.dtstack.rdos.engine.execution.base.pojo.ParamAction;
 import com.dtstack.rdos.engine.service.db.dao.RdosEngineJobCacheDAO;
@@ -108,8 +109,10 @@ public class StreamTaskServiceImpl {
             String jobInfo = rdosEngineJobCache.getJobInfo();
             ParamAction paramAction = PublicUtil.jsonStrToObject(jobInfo, ParamAction.class);
 
+            JobIdentifier jobIdentifier = JobIdentifier.createInstance(streamJob.getEngineTaskId(), applicationId, taskId);
+
             JobClient jobClient = new JobClient(paramAction);
-            String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo());
+            String jobMaster = JobClient.getJobMaster(jobClient.getEngineType(), jobClient.getPluginInfo(), jobIdentifier);
             String rootURL = UrlUtil.getHttpRootURL(jobMaster);
             String requestURl = String.format(APPLICATION_REST_API_TMP, rootURL, applicationId);
 
