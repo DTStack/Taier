@@ -150,6 +150,7 @@ class OutputOrigin extends React.Component<any, any> {
                 sm: { span: 18 }
             }
         };
+        const targetColText = '别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
         return (
             <Row className="title-content">
                 <FormItem {...formItemLayout} label="存储类型">
@@ -283,7 +284,7 @@ class OutputOrigin extends React.Component<any, any> {
                                     title="字段"
                                     dataIndex="column"
                                     key="字段"
-                                    width="50%"
+                                    width="40%"
                                     render={(text: any, record: any, subIndex: any) => {
                                         return (
                                             <Select
@@ -315,9 +316,36 @@ class OutputOrigin extends React.Component<any, any> {
                                     title="类型"
                                     dataIndex="type"
                                     key="类型"
-                                    width="40%"
+                                    width="30%"
                                     render={(text: any, record: any, subIndex: any) => {
                                         return <Input value={text} disabled />;
+                                    }}
+                                />
+                                <Column
+                                    title={
+                                        <div>
+                                            <Tooltip placement="top" title={targetColText} arrowPointAtCenter>
+                                                <span>别名 &nbsp;
+                                                    <Icon type="question-circle-o" />
+                                                </span>
+                                            </Tooltip>
+                                        </div>
+                                    }
+                                    dataIndex="targetCol"
+                                    key="别名"
+                                    width="30%"
+                                    render={(text: any, record: any, subIndex: any) => {
+                                        return <Input
+                                            value={text}
+                                            onChange={(e: any) =>
+                                                handleInputChange(
+                                                    'targetCol',
+                                                    index,
+                                                    subIndex,
+                                                    e.target.value
+                                                )
+                                            }
+                                        />;
                                     }}
                                 />
                                 <Column
@@ -1003,6 +1031,8 @@ export default class OutputPanel extends React.Component<any, any> {
             panelColumn[index]['columns'][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]['columns'][value].type = subType;
+        } else if (type === 'targetCol') {
+            panelColumn[index]['columns'][value].targetCol = subValue;
         } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {

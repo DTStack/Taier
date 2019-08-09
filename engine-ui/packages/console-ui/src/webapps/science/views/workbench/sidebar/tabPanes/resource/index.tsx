@@ -131,9 +131,6 @@ class ResourceManage extends React.Component<any, any> {
                                             <Menu.Item key="resource:upload">
                                                 上传资源
                                             </Menu.Item>
-                                            <Menu.Item key="resource:replace">
-                                                替换资源
-                                            </Menu.Item>
                                             <Menu.Item key="resource:newFolder">
                                                 新建文件夹
                                             </Menu.Item>
@@ -216,11 +213,6 @@ class ResourceManage extends React.Component<any, any> {
                                         resDetailModal: true,
                                         resourceData: activeNode
                                     })
-                                }
-                            }, {
-                                text: '替换资源',
-                                onClick: (activeNode: any) => {
-                                    this.uploadRes(activeNode, true);
                                 }
                             }, {
                                 text: '重命名',

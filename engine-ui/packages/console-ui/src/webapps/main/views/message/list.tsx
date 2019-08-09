@@ -4,9 +4,8 @@ import {
     Tabs, Menu, Table,
     Checkbox, Button, message
 } from 'antd'
-
 import { Link } from 'react-router'
-
+import { getEnableLicenseApp } from 'funcs';
 import utils from 'utils'
 import Api from '../../api'
 import MsgStatus from './msgStatus'
@@ -28,15 +27,16 @@ class MessageList extends React.Component<any, any> {
         selectedAll: false
     }
 
-    componentDidMount () {
-        const { apps } = this.props;
-        const initialApp = utils.getParameterByName('app');
-        const defaultApp = apps.find((app: any) => app.default)
-
-        if (defaultApp) {
-            this.setState({
-                selectedApp: initialApp || defaultApp.id
-            }, this.loadMsg)
+    componentDidUpdate (prevProps: any, prevState: any) {
+        if (this.props.licenseApps.length > 0 && prevProps.licenseApps !== this.props.licenseApps) {
+            const { apps, licenseApps = [] } = this.props;
+            const initialApp = utils.getParameterByName('app');
+            const defaultApp = licenseApps.find((licapp: any) => licapp.isShow) || [];
+            if (apps && apps.length > 0) {
+                this.setState({
+                    selectedApp: initialApp || defaultApp.id
+                }, this.loadMsg)
+            }
         }
     }
 
@@ -167,7 +167,10 @@ class MessageList extends React.Component<any, any> {
         this.setState({
             selectedApp: key,
             selectedRowKeys: []
-        }, this.loadMsg)
+        }, () => {
+            this.props.router.replace('/message?app=' + key)
+            this.loadMsg()
+        })
     }
 
     onCheckAllChange = (e: any) => {
@@ -239,19 +242,17 @@ class MessageList extends React.Component<any, any> {
     }
 
     renderPane = () => {
-        const { apps, msgList } = this.props;
+        const { apps, msgList, licenseApps } = this.props;
         const { table, selectedApp, selectedRowKeys } = this.state;
-        const menuItem = []
+        const enableApps = getEnableLicenseApp(apps, licenseApps) || [];
+        let menuItem = [];
+        for (let i = 0; i < enableApps.length; i++) {
+            const app = enableApps[i] || [];
 
-        if (apps && apps.length > 0) {
-            for (let i = 0; i < apps.length; i++) {
-                const app = apps[i];
-
-                if (app.enable && app.id !== 'main' && !app.disableExt && !app.disableMessage) {
-                    menuItem.push(
-                        <MenuItem app={app} key={app.id}>{app.name}</MenuItem>
-                    )
-                }
+            if (app.enable && app.id !== 'main' && !app.disableExt && !app.disableMessage) {
+                menuItem.push(
+                    <MenuItem app={app} key={app.id}>{app.name}</MenuItem>
+                )
             }
         }
 

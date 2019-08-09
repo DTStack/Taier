@@ -34,7 +34,7 @@ class RegisterParamsInput extends React.Component<any, any> {
                     return value;
                 } else {
                     return (
-                        <FormItem>
+                        <FormItem style={{ marginRight: 0 }}>
                             {getFieldDecorator(formKey, formItemParamOption)(
                                 <Input />
                             )}

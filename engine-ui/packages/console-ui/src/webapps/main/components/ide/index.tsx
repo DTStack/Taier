@@ -17,7 +17,7 @@ const propType = {
 }
 
 class IDEEditor extends React.Component<any, any> {
-    propTypes = propType;
+    static propTypes = propType;
 
     state: any = {
         changeTab: true,

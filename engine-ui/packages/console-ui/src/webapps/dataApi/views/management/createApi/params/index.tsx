@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Button, Select, Form, Table, message } from 'antd';
+import { Button, Select, Form, Table, message, Checkbox } from 'antd';
 
 import utils from 'utils';
 
@@ -283,9 +283,11 @@ class ManageParamsConfig extends React.Component<any, any> {
     }
     getSaveData () {
         const { InputColumns, OutputColums, resultPageChecked, resultPage, editor } = this.state;
-        const dataSource = this.props.form.getFieldValue('dataSource');
-        const tableSource = this.props.form.getFieldValue('tableSource');
-        const dataSourceType = this.props.form.getFieldValue('dataSourceType');
+        const form = this.props.form;
+        const dataSource = form.getFieldValue('dataSource');
+        const tableSource = form.getFieldValue('tableSource');
+        const dataSourceType = form.getFieldValue('dataSourceType');
+        const containHeader = form.getFieldValue('containHeader');
         const params: any = {
             dataSrcId: dataSource,
             dataSourceType: dataSourceType,
@@ -294,7 +296,8 @@ class ManageParamsConfig extends React.Component<any, any> {
             outputParam: OutputColums,
             resultPageChecked: resultPageChecked,
             resultPage: resultPage,
-            sql: editor.sql
+            sql: editor.sql,
+            containHeader: containHeader ? '1' : '0' // 1 表示包含，0 表示不包含
         };
         return params;
     }
@@ -587,37 +590,48 @@ class ManageParamsConfig extends React.Component<any, any> {
                         </div>
                         <div className={paramsConfigClass}></div>
                         <div className="paramsConfig_param">
-                            {mode == API_MODE.SQL && sqlModeShow
-                                ? <ApiSqlEditor
-                                    updateColumns={this.updateColumns.bind(this)}
-                                    sqlModeShowChange={this.sqlModeShowChange.bind(this)}
-                                    sqlOnChange={this.sqlOnChange.bind(this)}
-                                    sqlFormat={this.sqlFormat.bind(this)}
-                                    editor={editor}
-                                    loading={loading}
-                                    apiEdit={apiEdit}
-                                    disAbleTipChange={disAbleTipChange}
-                                    disAbleTip={apiManage.disAbleTip}
-
-                                />
-                                : (
-                                    <ColumnsConfig
-                                        ref={this.columnsRef as any}
-                                        addColumns={this.addColumns.bind(this)}
-                                        removeColumns={this.removeColumns.bind(this)}
+                            {
+                                mode == API_MODE.SQL && sqlModeShow
+                                    ? <ApiSqlEditor
                                         updateColumns={this.updateColumns.bind(this)}
-                                        checkRepeat={this.checkRepeat.bind(this)}
-                                        resultPageChange={this.resultPageChange.bind(this)}
-                                        resultPageCheckedChange={this.resultPageCheckedChange.bind(this)}
                                         sqlModeShowChange={this.sqlModeShowChange.bind(this)}
-                                        InputColumns={InputColumns}
-                                        OutputColums={OutputColums}
-                                        selectedRows={selectedRows}
-                                        resultPageChecked={resultPageChecked}
-                                        resultPage={resultPage}
-                                        mode={mode}
+                                        sqlOnChange={this.sqlOnChange.bind(this)}
+                                        sqlFormat={this.sqlFormat.bind(this)}
+                                        editor={editor}
+                                        loading={loading}
+                                        apiEdit={apiEdit}
+                                        disAbleTipChange={disAbleTipChange}
+                                        disAbleTip={apiManage.disAbleTip}
+
                                     />
-                                )}
+                                    : (
+                                        <ColumnsConfig
+                                            ref={this.columnsRef as any}
+                                            addColumns={this.addColumns.bind(this)}
+                                            removeColumns={this.removeColumns.bind(this)}
+                                            updateColumns={this.updateColumns.bind(this)}
+                                            checkRepeat={this.checkRepeat.bind(this)}
+                                            resultPageChange={this.resultPageChange.bind(this)}
+                                            resultPageCheckedChange={this.resultPageCheckedChange.bind(this)}
+                                            sqlModeShowChange={this.sqlModeShowChange.bind(this)}
+                                            InputColumns={InputColumns}
+                                            OutputColums={OutputColums}
+                                            selectedRows={selectedRows}
+                                            resultPageChecked={resultPageChecked}
+                                            resultPage={resultPage}
+                                            mode={mode}
+                                        />
+                                    )}
+                            <div style={{ marginTop: 10 }}>
+                                <p className="middle-title">高级配置</p>
+                                <FormItem>
+                                    {getFieldDecorator('containHeader', {
+                                        initialValue: this.props.containHeader
+                                    })(
+                                        <Checkbox defaultChecked={this.props.containHeader === '1'}>返回结果中携带 Request Header 参数</Checkbox>
+                                    )}
+                                </FormItem>
+                            </div>
                         </div>
                     </div>
                 </div>

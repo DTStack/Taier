@@ -32,7 +32,8 @@ class EnvModal extends React.Component<any, any> {
                 onCancel={onCancel}
                 bodyStyle={{
                     height: 400,
-                    padding: 0
+                    padding: 0,
+                    overflowY: 'auto'
                 }}
             >
                 <Editor

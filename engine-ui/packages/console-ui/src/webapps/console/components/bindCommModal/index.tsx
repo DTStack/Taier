@@ -22,6 +22,7 @@ class BindCommModal extends React.Component<any, any> {
     // 切换集群
     handleChangeCluster = (value: any) => {
         const { clusterList } = this.props;
+        this.props.form.resetFields(['queueId']);
         let currentCluster: any;
         currentCluster = clusterList.filter((clusItem: any) => clusItem.clusterId == value); // 选中当前集群
         const currentEngineList = (currentCluster[0] && currentCluster[0].engines) || [];
