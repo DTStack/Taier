@@ -527,7 +527,7 @@ export function filterPythonComment (codeText: string): string {
         return codeText;
     }
     // (Qouta_code_Qouta|codeWithoutQoutaAndHashTag)*_#_text
-    const reg = /^(([^'"#]*|('.*'|".*"))*)#.*/;
+    const reg = /^(([^'"#]|('.*'|".*"))*)#.*/;
     codeText = codeText.replace(/\r\n/g, '\n');
     let codeArr: string[] = codeText.split('\n');
     return codeArr.map((line) => {
