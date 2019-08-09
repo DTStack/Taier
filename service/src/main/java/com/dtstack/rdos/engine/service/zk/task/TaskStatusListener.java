@@ -541,7 +541,7 @@ public class TaskStatusListener implements Runnable{
         if (!checkpointListener.existTaskEngineIdAndRetainedNum(engineTaskId)) {
             Integer checkpointID = MathUtil.getIntegerVal(entity.get(CHECKPOINT_ID_KEY));
             int retainedNum = checkpointListener.parseRetainedNum(pluginfo);
-            rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskEngineID(engineTaskId, MathUtil.getString(checkpointID - retainedNum + 1));
+            rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointID(engineTaskId, MathUtil.getString(checkpointID - retainedNum + 1));
         }
     }
 

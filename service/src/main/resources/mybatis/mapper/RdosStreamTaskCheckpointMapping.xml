@@ -24,7 +24,7 @@
         values(#{taskId}, #{engineTaskId}, #{checkpointId}, #{checkpointTrigger}, #{checkpointSavepath});
     </insert>
 
-    <update id="deleteByEngineTaskIdAndCheckpointID">
+    <update id="batchDeleteByEngineTaskIdAndCheckpointID">
         update rdos_stream_task_checkpoint
         set is_deleted = 1
         where task_engine_id = #{taskEngineId} and #{checkpointId}+0 >checkpoint_id and is_deleted = 0;

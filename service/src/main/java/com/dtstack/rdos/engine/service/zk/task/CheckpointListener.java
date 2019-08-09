@@ -68,7 +68,7 @@ public class CheckpointListener implements Runnable {
                 return;
             }
             RdosStreamTaskCheckpoint thresholdCheckpoint = threshold.get(0);
-            rdosStreamTaskCheckpointDAO.deleteRecordByCheckpointIDAndTaskEngineID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
+            rdosStreamTaskCheckpointDAO.batchDeleteByEngineTaskIdAndCheckpointID(thresholdCheckpoint.getTaskEngineId(), thresholdCheckpoint.getCheckpointID());
         } catch (Exception e){
             logger.error("taskEngineID Id :{}", taskEngineID);
             logger.error("", e);
