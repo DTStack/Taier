@@ -337,7 +337,7 @@ public class FlinkClient extends AbsClient {
     private Pair<String, String> runJobByPerJob(ClusterSpecification clusterSpecification) throws Exception{
         JobClient jobClient = jobClientThreadLocal.get();
 
-        AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(null, flinkConfig, prometheusGatewayConfig, jobClient, true);
+        AbstractYarnClusterDescriptor descriptor = flinkClientBuilder.createClusterDescriptorByMode(flinkConfig, prometheusGatewayConfig, jobClient, true);
         descriptor.setName(jobClient.getJobName());
         ClusterClient<ApplicationId> clusterClient = descriptor.deployJobCluster(clusterSpecification, new JobGraph(),true);
 
