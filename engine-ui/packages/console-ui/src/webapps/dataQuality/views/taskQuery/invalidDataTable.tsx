@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { isEmpty } from 'lodash';
+import { isEmpty, assign } from 'lodash';
 import { Card, Icon, Table } from 'antd';
 import { PaginationProps } from 'antd/lib/pagination';
 
@@ -42,6 +42,7 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     fetchData = async () => {
         const { record, rule } = this.props;
         const { pagination } = this.state;
+        if (!record || !rule) return;
         const res = await TQApi.getInvalidData({
             recordId: record.id,
             ruleId: rule.id,
@@ -65,9 +66,10 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     }
 
     onChange = (pagination: PaginationProps) => {
-        this.setState({ pagination: {
+        const newPagination = assign({}, this.state.pagination, {
             current: pagination.current
-        } }, this.fetchData)
+        })
+        this.setState({ pagination: newPagination }, this.fetchData)
     }
 
     initInvalidDataTableColumns = (fields: {}) => {
@@ -92,12 +94,11 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
         const { record, rule } = this.props;
 
         let invalidDataTitle = (
-            !isEmpty(record) ? `不规范数据（${record.columnName} -- ${record.functionName}）` : ''
+            !isEmpty(rule) ? `不规范数据（${rule.columnName} -- ${rule.functionName}）` : ''
         )
         const downloadUrl = TQApi.getDownInvalidDataURL(record.id, rule.id);
         const columns = this.initInvalidDataTableColumns(data.result[0]);
         const scroll: any = { x: columns.length < 6 ? true : 2000, y: 250 };
-
         return (
             <Card
                 noHovering
@@ -105,12 +106,13 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
                 loading={false}
                 className="shadow"
                 style={{ marginTop: '10px' }}
-                title={<span>{invalidDataTitle} <small>数据表名：{data.table}，生命周期：{data.lifeCycle}天</small></span>}
+                title={<span>{invalidDataTitle} <small>数据表名：{data.table || '无'}，生命周期：{data.lifeCycle || 0}天</small></span>}
                 extra={
-                    <a href={downloadUrl} download><Icon
-                        type="download"
-                        style={{ fontSize: 16, cursor: 'pointer' }}
-                    /></a>
+                    data.result && data.result.length > 0
+                        ? <a href={downloadUrl} download><Icon
+                            type="download"
+                            style={{ fontSize: 16, cursor: 'pointer' }}
+                        /></a> : null
                 }
             >
                 <Table
