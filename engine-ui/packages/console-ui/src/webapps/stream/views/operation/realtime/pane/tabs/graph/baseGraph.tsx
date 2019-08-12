@@ -30,7 +30,7 @@ function haveData (lineData: any = {}) {
     }
     return true;
 }
-function isExchangeData (data: any, unitType: any) {
+function isExchangeData (data: any = [], unitType: any) {
     let exChangeArr: any = [];
     switch (unitType) {
         case SOURCE_INPUT_BPS_UNIT_TYPE.BPS: {
