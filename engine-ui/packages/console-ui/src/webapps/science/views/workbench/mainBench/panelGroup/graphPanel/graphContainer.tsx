@@ -12,7 +12,7 @@ import api from '../../../../../api/experiment';
 import GraphEditor from './graphEditor';
 import * as experimentActions from '../../../../../actions/experimentActions';
 import * as componentActions from '../../../../../actions/componentActions';
-import { COMPONENT_TYPE, VertexSize, CONSTRAINT_TEXT } from '../../../../../consts';
+import { COMPONENT_TYPE, VertexSize, CONSTRAINT_TEXT, INPUT_TYPE } from '../../../../../consts';
 import ReqUrls from '../../../../../consts/reqUrls';
 import ModelDetailModal from './detailModal';
 import RunningLogModal from './runningLog';
@@ -38,7 +38,14 @@ const applyCellStyle = (cellState: any, style: any) => {
         cellState.shape.redraw();
     }
 }
-
+export interface GraphContainerState {
+    selectedData: {
+        componentType?: number;
+        id?: number;
+        [propName: string]: any;
+    };
+    [propName: string]: any;
+}
 /* eslint new-cap: ["error", { "newIsCap": false }] */
 @(connect((state: any) => {
     const { project, user, editor } = state;
@@ -53,22 +60,21 @@ const applyCellStyle = (cellState: any, style: any) => {
 }, (dispatch: any) => {
     return bindActionCreators({ ...experimentActions, ...componentActions }, dispatch);
 }) as any)
-class GraphContainer extends React.Component<any, any> {
+class GraphContainer extends React.Component<any, GraphContainerState> {
     constructor (props: any) {
         super(props);
-    }
-
-    state: any = {
-        showSearch: false,
-        searchResult: null,
-        searchText: null,
-        detailModalVisible: false,
-        detailData: null,
-        selectedData: null,
-        selectedOutputData: null,
-        evaluateReportVisible: false,
-        runningLogVisible: false,
-        outputDataVisible: false
+        this.state = {
+            showSearch: false,
+            searchResult: null,
+            searchText: null,
+            detailModalVisible: false,
+            detailData: null,
+            selectedData: null,
+            selectedOutputData: null,
+            evaluateReportVisible: false,
+            runningLogVisible: false,
+            outputDataVisible: false
+        }
     }
 
     _graph: any = null;
@@ -103,6 +109,10 @@ class GraphContainer extends React.Component<any, any> {
             let i = 0;
             while (i < menuItemArr.length) {
                 const item = menuItemArr[i];
+                if (item == INPUT_TYPE.MODEL) {
+                    i++;
+                    continue;
+                }
                 const text = CONSTRAINT_TEXT[data.componentType].output.find((o: any) => o.key == item);
                 menu.addItem(`${text ? text.value : ('查看数据输出' + i)}`, null, function () {
                     const selectedTarget: any = { inputType: item, ...data };
@@ -161,7 +171,12 @@ class GraphContainer extends React.Component<any, any> {
                 // 初始化输出数据菜单项
                 ctx.initOutputMenuItems(menu, currentNode);
                 // 查看评估报告
-                if (currentNode.componentType === COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION) {
+                const reportList = [
+                    COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION,
+                    COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION,
+                    COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION
+                ]
+                if (reportList.includes(currentNode.componentType)) {
                     menu.addItem('查看评估报告', null, function () {
                         ctx.showHideEvaluateReport(true, currentNode);
                     }, null, null, true);
@@ -213,6 +228,10 @@ class GraphContainer extends React.Component<any, any> {
             case 7: return '逻辑二分类';
             case 8: return '数据预测';
             case 9: return '二分类评估';
+            case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: return 'kmeans聚类';
+            case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: return 'GBDT回归';
+            case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: return '聚类模型评估';
+            case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: return '回归模型评估';
             default: return '未知';
         }
     }

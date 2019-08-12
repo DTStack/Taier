@@ -59,6 +59,8 @@ export default {
     GET_TASK_STATUS_BY_JOB_ID: `${SCIENCE_BASE_URL}/service/scienceJob/checkAlgorithmRunState`, // 获取执行的任务的状态
     GET_EVALUATE_REPORT_CHART_DATA: `${SCIENCE_BASE_URL}/service/dataManager/graph`, // 评估报告图表数据
     COMPONENT_FORMAT_SQL: `${SCIENCE_BASE_URL}/service/dataManager/sqlFormat`, // 评估报告图表数据
+    GET_REGRESSION_EVALUATION_GRAPH: `${SCIENCE_BASE_URL}/service/dataManager/regressionEvaluationGraph`, // 回归模型评估 直方图
+    GET_CLUSTER_REGRESSTION_GRAPH: `${SCIENCE_BASE_URL}/service/dataManager/clusterRegressionGraph`, // 聚类评估 饼图
 
     // === 模型 === //
     SAVE_MODEL: `${SCIENCE_BASE_URL}/service/scienceModel/saveModel`, // 新增保存模型

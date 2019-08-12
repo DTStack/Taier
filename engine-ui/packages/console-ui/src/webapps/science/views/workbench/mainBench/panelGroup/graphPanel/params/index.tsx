@@ -11,6 +11,10 @@ import DataSplit from './dataSplit';
 import LogisticRegression from './logisticRegression';
 import DataPredict from './dataPredict';
 import BinaryClassfication from './binaryClassfication';
+import GbdtRegression from './gbdtRegression';
+import RegressionClassification from './regressionClassification';
+import UnionModel from './unionModel';
+import KmeansUnion from './kmeansUnion';
 import { isEmpty } from 'lodash';
 import { bindActionCreators } from 'redux';
 import * as experimentActions from '../../../../../../actions/experimentActions';
@@ -83,10 +87,18 @@ class Params extends React.Component<any, any> {
                 return <DataSplit key={componentId} {...componentProps} />
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
                 return <LogisticRegression key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION:
+                return <GbdtRegression key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION:
+                return <KmeansUnion key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
                 return <DataPredict key={componentId} {...componentProps} />
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
                 return <BinaryClassfication key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION:
+                return <RegressionClassification key={componentId} {...componentProps} />
+            case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION:
+                return <UnionModel key={componentId} {...componentProps} />
             default:
                 return ''
         }

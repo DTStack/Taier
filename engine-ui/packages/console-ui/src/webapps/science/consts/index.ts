@@ -188,7 +188,7 @@ export const taskStatus: any = {
 /**
  * 组件类型
  */
-export const COMPONENT_TYPE: any = {
+export const COMPONENT_TYPE = {
     DATA_SOURCE: {
         READ_DATABASE: 1, // 读数据库
         WRITE_DATABASE: 2 // 写数据库
@@ -204,18 +204,22 @@ export const COMPONENT_TYPE: any = {
         DATA_SPLIT: 6 // 拆分
     },
     MACHINE_LEARNING: {
-        LOGISTIC_REGRESSION: 7 // 逻辑二分类
+        LOGISTIC_REGRESSION: 7, // 逻辑二分类
+        GBDT_REGRESSION: 11, // GBDT回归
+        KMEANS_UNION: 12 // kmeans聚类
     },
     DATA_PREDICT: {
         DATA_PREDICT: 8 // 数据预测
     },
     DATA_EVALUATE: {
-        BINARY_CLASSIFICATION: 9 // 二分类评估
+        BINARY_CLASSIFICATION: 9, // 二分类评估
+        REGRESSION_CLASSIFICATION: 13, // 回归模型评估
+        UNION_CLASSIFICATION: 14 // 聚类模型评估
     }
 }
 
 // 组件对应的key值
-export const TASK_ENUM: any = {
+export const TASK_ENUM = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: 'readTableComponent',
     [COMPONENT_TYPE.DATA_SOURCE.WRITE_DATABASE]: 'writeTableComponent',
     [COMPONENT_TYPE.DATA_TOOLS.SQL_SCRIPT]: 'sqlComponent',
@@ -223,15 +227,19 @@ export const TASK_ENUM: any = {
     [COMPONENT_TYPE.DATA_MERGE.NORMALIZE]: 'normalizationComponent',
     [COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT]: 'dataSplitComponent',
     [COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION]: 'logisticComponent',
+    [COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION]: 'gbdtRegressionComponent',
+    [COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION]: 'kmeansComponent',
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: 'predictComponent',
-    [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent'
+    [COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION]: 'eveluationComponent',
+    [COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION]: 'regressionEvaluateComponent',
+    [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: 'clusterEvaluateComponent'
 }
 /* 输入输出的类型 */
 
 /**
  * 输出类型
  */
-export const INPUT_TYPE: any = {
+export const INPUT_TYPE = {
     NORMAL: 0,
     // 拆分表
     DATA_SPLIT_LEFT: 1,
@@ -258,7 +266,20 @@ export const INPUT_TYPE: any = {
     SQL_3: 16,
     SQL_4: 17,
     SQL_OUT: 18,
-    SOURCE_WRITE: 19 // 写数据表的输出，但是读数据表暂时没有输出
+    SOURCE_WRITE: 19, // 写数据表的输出，但是读数据表暂时没有输出
+    // GBDT
+    GBDT_IMPORTANT: 24,
+    // kmeans
+    KMEANS_CENTER_DATA: 20,
+    KMEANS_RESULT_CLUSTER: 21,
+    KMEANS_CENTER_CLUSTER: 22,
+    KMEANS_STATISTIC_CLUSTER: 23,
+    // 回归模型评估
+    REGRESSION_OUTPUT_1: 25,
+    REGRESSION_OUTPUT_2: 26,
+    // 聚类
+    UNION_INPUT_MODEL: 27,
+    UNION_INPUT_DATA: 28
 }
 export const CONSTRAINT_TEXT: any = {
     [COMPONENT_TYPE.DATA_SOURCE.READ_DATABASE]: {
@@ -315,6 +336,27 @@ export const CONSTRAINT_TEXT: any = {
             { key: INPUT_TYPE.MODEL, value: '模型输出' }
         ]
     },
+    [COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.MODEL, value: '模型输出' },
+            { key: INPUT_TYPE.GBDT_IMPORTANT, value: '输出重要性' }
+        ]
+    },
+    [COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' },
+            { key: INPUT_TYPE.KMEANS_CENTER_DATA, value: '初始化质心表' }
+        ],
+        output: [
+            { key: INPUT_TYPE.KMEANS_RESULT_CLUSTER, value: '输出聚类表' },
+            { key: INPUT_TYPE.MODEL, value: '输出聚类中心点模型' },
+            { key: INPUT_TYPE.KMEANS_STATISTIC_CLUSTER, value: '输出聚类统计表' },
+            { key: INPUT_TYPE.KMEANS_CENTER_CLUSTER, value: '输出聚类中心表' }
+        ]
+    },
     [COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT]: {
         input: [
             { key: INPUT_TYPE.PREDICT_INPUT_MODAL, value: '模型数据输入' },
@@ -332,6 +374,24 @@ export const CONSTRAINT_TEXT: any = {
             { key: INPUT_TYPE.EVALUATION_OVERALL_DATA, value: '输出综合指标表' },
             { key: INPUT_TYPE.EVALUATION_FREQUENCY_DATA, value: '输出等频详细数据表' },
             { key: INPUT_TYPE.EVALUATION_WIDTH_DATA, value: '输出等宽详细数据表' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION]: {
+        input: [
+            { key: INPUT_TYPE.NORMAL, value: '输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.REGRESSION_OUTPUT_1, value: '输出1' },
+            { key: INPUT_TYPE.REGRESSION_OUTPUT_2, value: '输出2' }
+        ]
+    },
+    [COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION]: {
+        input: [
+            { key: INPUT_TYPE.UNION_INPUT_MODEL, value: '模型输入' },
+            { key: INPUT_TYPE.UNION_INPUT_DATA, value: '数据输入' }
+        ],
+        output: [
+            { key: INPUT_TYPE.NORMAL, value: '输出' }
         ]
     }
 }
