@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { Tabs, Form, Button, Select, InputNumber, message } from 'antd';
+import { Tabs, Form, Button, Select, message } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce, isNumber, get } from 'lodash';
+import { isEmpty, cloneDeep, debounce, get } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
 import HelpDoc from '../../../../../../components/helpDoc';
+import { renderNumberFormItem } from './helper';
+
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const FormItem = Form.Item;
-const inputStyle: any = {
-    width: '100%'
-}
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
     constructor (props: any) {
@@ -71,53 +70,12 @@ class ParamSetting extends React.PureComponent<any, any> {
             }
         });
     }
-    /* 最小收敛误差 */
-    validatorTol = (rule: any, value: any, callback: any) => {
-        if (isNumber(value) && value > 0 && value <= 100000) {
-            callback()
-        } else {
-            callback(new Error('最小收敛误差的区间在(0, 100000]'))
-        }
-    }
-    renderNumberFormItem (options: {
-        label: string;
-        key: string;
-        initialValue?: number;
-        min?: number;
-        excludeMin?: boolean;
-        max: number;
-        excludeMax?: boolean;
-        step?: number;
-        isInt?: boolean;
-    }, getFieldDecorator: any) {
-        return <FormItem
-            colon={false}
-            label={<div style={{ display: 'inline-block' }}>{options.label}{options.max != null && (<span className="supplementary">{options.excludeMin ? '(' : '['}{options.min || 0},{options.max}{options.excludeMax ? ')' : ']'}, {options.isInt ? '正整数' : 'float型'}</span>)}</div>}
-            {...formItemLayout}
-        >
-            {getFieldDecorator(options.key, {
-                initialValue: options.initialValue,
-                rules: [
-                    { required: false },
-                    options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
-                ].filter(Boolean)
-            })(
-                <InputNumber
-                    {...{
-                        onBlur: (e: any) => this.handleSubmit(options.key, e.target.value)
-                    }}
-                    step={options.step}
-                    formatter={options.isInt ? (value: any) => { return isNumber(value) ? ~~value : value; } : undefined}
-                    style={inputStyle}
-                />
-            )}
-        </FormItem>
-    }
     render () {
         const { getFieldDecorator } = this.props.form;
         return (
             <Form className="params-form">
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '聚类数',
                     key: 'nClusters',
                     max: 1000,
@@ -159,7 +117,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                         </Select>
                     )}
                 </FormItem>
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '最大迭代次数',
                     key: 'maxIter',
                     max: 1000,
@@ -167,14 +126,16 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 100,
                     isInt: true
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '收敛标准',
                     key: 'tol',
                     max: null,
                     step: 0.1,
                     initialValue: 0.1
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '初始随机种子',
                     key: 'randomState',
                     max: 10000,

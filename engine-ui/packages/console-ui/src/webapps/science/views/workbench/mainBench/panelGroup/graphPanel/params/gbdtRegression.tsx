@@ -1,16 +1,16 @@
 import * as React from 'react';
-import { Tabs, Form, Button, Select, InputNumber, message, Spin } from 'antd';
+import { Tabs, Form, Button, Select, message, Spin } from 'antd';
 import { MemorySetting as BaseMemorySetting, ChooseModal as BaseChooseModal } from './typeChange';
 import { formItemLayout } from './index';
-import { isEmpty, cloneDeep, debounce, isNumber, get } from 'lodash';
+import { isEmpty, cloneDeep, debounce, get } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
+import { renderNumberFormItem } from './helper';
+
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const FormItem = Form.Item;
-const inputStyle: any = {
-    width: '100%'
-}
+
 /* 选择字段弹出框 */
 class ChooseModal extends BaseChooseModal {
     constructor (props: any) {
@@ -76,48 +76,6 @@ class ParamSetting extends React.PureComponent<any, any> {
             }
         });
     }
-    /* 最小收敛误差 */
-    validatorTol = (rule: any, value: any, callback: any) => {
-        if (isNumber(value) && value > 0 && value <= 100000) {
-            callback()
-        } else {
-            callback(new Error('最小收敛误差的区间在(0, 100000]'))
-        }
-    }
-    renderNumberFormItem (options: {
-        label: string;
-        key: string;
-        initialValue?: number;
-        min?: number;
-        excludeMin?: boolean;
-        max: number;
-        excludeMax?: boolean;
-        step?: number;
-        isInt?: boolean;
-    }, getFieldDecorator: any) {
-        return <FormItem
-            colon={false}
-            label={<div style={{ display: 'inline-block' }}>{options.label}<span className="supplementary">{options.excludeMin ? '(' : '['}{options.min || 0},{options.max}{options.excludeMax ? ')' : ']'}, {options.isInt ? '正整数' : 'float型'}</span></div>}
-            {...formItemLayout}
-        >
-            {getFieldDecorator(options.key, {
-                initialValue: options.initialValue,
-                rules: [
-                    { required: false },
-                    { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
-                ]
-            })(
-                <InputNumber
-                    {...{
-                        onBlur: (e: any) => this.handleSubmit(options.key, e.target.value)
-                    }}
-                    step={options.step}
-                    formatter={options.isInt ? (value: any) => { return isNumber(value) ? ~~value : value; } : undefined}
-                    style={inputStyle}
-                />
-            )}
-        </FormItem>
-    }
     render () {
         const { regexDatas } = this.state;
         const { getFieldDecorator } = this.props.form;
@@ -139,14 +97,16 @@ class ParamSetting extends React.PureComponent<any, any> {
                         </Select>
                     )}
                 </FormItem>
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: 'alpha',
                     key: 'alpha',
                     max: 1,
                     step: 0.1,
                     initialValue: 0.9
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '树数量',
                     key: 'nEstimators',
                     max: 10000,
@@ -154,7 +114,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 500,
                     isInt: true
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '学习速率',
                     key: 'learningRate',
                     max: 1,
@@ -164,7 +125,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 0.05,
                     isInt: false
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '一棵树的最大深度',
                     key: 'maxDepth',
                     max: 100,
@@ -172,7 +134,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 10,
                     isInt: true
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '叶子节点容纳的最少样本数',
                     key: 'minSamplesLeaf',
                     max: 1000,
@@ -180,7 +143,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 500,
                     isInt: true
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '样本采样比例',
                     key: 'subsample',
                     max: 1,
@@ -190,7 +154,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 0.6,
                     isInt: false
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '训练中采集的特征比例',
                     key: 'maxFeatures',
                     max: 1,
@@ -200,7 +165,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 0.6,
                     isInt: false
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '测试样本数比例',
                     key: 'validationFraction',
                     max: 1,
@@ -209,7 +175,8 @@ class ParamSetting extends React.PureComponent<any, any> {
                     initialValue: 0,
                     isInt: false
                 }, getFieldDecorator)}
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '随机数产生器种子',
                     key: 'randomState',
                     max: 10,

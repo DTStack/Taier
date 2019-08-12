@@ -1,17 +1,16 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import * as React from 'react';
-import { Form, Tabs, Input, message, Select, Spin, InputNumber } from 'antd';
+import { Form, Tabs, Input, message, Select, Spin } from 'antd';
 import { formItemLayout } from './index';
 import { MemorySetting as BaseMemorySetting } from './typeChange';
-import { debounce, isNumber, isEmpty } from 'lodash';
+import { debounce, isEmpty } from 'lodash';
 import api from '../../../../../../api/experiment';
 import { TASK_ENUM, COMPONENT_TYPE } from '../../../../../../consts';
+import { renderNumberFormItem } from './helper';
+
 const TabPane = Tabs.TabPane;
 const Option = Select.Option;
 const FormItem = Form.Item;
-const inputStyle: any = {
-    width: '100%'
-}
 /* 字段设置 */
 class FieldSetting extends React.PureComponent<any, any> {
     state: any = {
@@ -54,41 +53,6 @@ class FieldSetting extends React.PureComponent<any, any> {
                 })
             })
         }
-    }
-    renderNumberFormItem (options: {
-        label: string;
-        key: string;
-        initialValue?: number;
-        min?: number;
-        excludeMin?: boolean;
-        max: number;
-        excludeMax?: boolean;
-        step?: number;
-        isInt?: boolean;
-        isRequired?: boolean;
-    }, getFieldDecorator: any): JSX.Element {
-        return <FormItem
-            colon={false}
-            label={<div style={{ display: 'inline-block' }}>{options.label}{options.max != null && (<span className="supplementary">{options.excludeMin ? '(' : '['}{options.min || 0},{options.max}{options.excludeMax ? ')' : ']'}, {options.isInt ? '正整数' : 'float型'}</span>)}</div>}
-            {...formItemLayout}
-        >
-            {getFieldDecorator(options.key, {
-                initialValue: options.initialValue,
-                rules: [
-                    { required: !!options.isRequired },
-                    options.max != null && { min: options.min || 0, max: options.max, message: `${options.label}的取值范围为${options.excludeMin ? '(' : '['}${options.min || 0},${options.max}${options.excludeMax ? ')' : ']'}`, type: 'number' }
-                ].filter(Boolean)
-            })(
-                <InputNumber
-                    {...{
-                        onBlur: (e: any) => this.handleSubmit(options.key, e.target.value)
-                    }}
-                    step={options.step}
-                    formatter={options.isInt ? (value: any) => { return isNumber(value) ? ~~value : value; } : undefined}
-                    style={inputStyle}
-                />
-            )}
-        </FormItem>
     }
     handleChange = (value: any) => {
         const { columns } = this.state;
@@ -151,7 +115,8 @@ class FieldSetting extends React.PureComponent<any, any> {
                         }} placeholder="请输入预测回归值" />
                     )}
                 </FormItem>
-                {this.renderNumberFormItem({
+                {renderNumberFormItem({
+                    handleSubmit: this.handleSubmit.bind(this),
                     label: '计算Residual时按等频分成多少个桶',
                     key: 'bucket',
                     max: 100,
