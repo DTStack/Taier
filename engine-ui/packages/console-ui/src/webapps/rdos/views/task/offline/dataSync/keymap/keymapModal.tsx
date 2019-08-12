@@ -6,7 +6,8 @@ import {
 import {
     formItemLayout,
     DATA_SOURCE,
-    hdfsFieldTypes
+    hdfsFieldTypes,
+    hbaseFieldTypes
 } from '../../../../../comm/const';
 import HelpDoc from '../../../../helpDoc';
 
@@ -25,6 +26,10 @@ const renderHDFSOptions = () => {
     return hdfsFieldTypes.map((type: any) => <Option key={type} value={type}>{type}</Option>)
 }
 
+const renderHbaseOptions = () => {
+    return hbaseFieldTypes.map(type => <Option key={type} value={type}>{type}</Option>)
+}
+
 const getHBaseTypeItem = (getFieldDecorator: any, editField: any) => {
     return (
         <FormItem
@@ -39,7 +44,7 @@ const getHBaseTypeItem = (getFieldDecorator: any, editField: any) => {
                 initialValue: (editField && editField.type) || 'STRING'
             })(
                 <Select placeholder="请选择类型">
-                    { renderHDFSOptions() }
+                    { renderHbaseOptions() }
                 </Select>
             )}
         </FormItem>
