@@ -52,7 +52,7 @@
         from rdos_stream_task_checkpoint
         where is_deleted=0 and task_id=#{taskId}
         and task_engine_id = #{taskEngineId}
-        order by gmt_modified asc limit 1
+        order by CONVERT(checkpoint_id,SIGNED) desc asc limit 1
     </select>
 
     <select id="getByTaskEngineIDAndCheckpointIndexAndCount"  resultMap="rdosStreamCheckpointResult">
