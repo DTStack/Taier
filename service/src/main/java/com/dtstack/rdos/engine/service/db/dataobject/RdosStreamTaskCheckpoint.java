@@ -21,6 +21,8 @@ public class RdosStreamTaskCheckpoint extends DataObject {
 
     private String checkpointSavepath;
 
+    private String checkpointCounts;
+
     private Timestamp triggerStart;
 
     private Timestamp triggerEnd;
@@ -79,5 +81,13 @@ public class RdosStreamTaskCheckpoint extends DataObject {
 
     public void setCheckpointSavepath(String checkpointSavepath) {
         this.checkpointSavepath = checkpointSavepath;
+    }
+
+    public String getCheckpointCounts() {
+        return checkpointCounts;
+    }
+
+    public void setCheckpointCounts(String checkpointCounts) {
+        this.checkpointCounts = checkpointCounts;
     }
 }

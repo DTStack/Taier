@@ -63,6 +63,8 @@ public class TaskStatusListener implements Runnable{
 
     public final static String FLINK_CP_HISTORY_KEY = "history";
 
+    public final static String FLINK_CP_COUNTS_KEY = "counts";
+
     public final static String TRIGGER_TIMESTAMP_KEY = "trigger_timestamp";
 
     public final static String CHECKPOINT_ID_KEY = "id";
@@ -508,6 +510,9 @@ public class TaskStatusListener implements Runnable{
                 return;
             }
 
+            Map<String, Object> counts = (Map<String, Object>)cpJson.get(FLINK_CP_COUNTS_KEY);
+            String checkpointCounts = PublicUtil.objToString(counts);
+
             checkpointIntervalClean(engineTaskId, cpList.get(0), pluginInfo);
 
             checkpointListener.putTaskEngineIdAndRetainedNum(engineTaskId, pluginInfo);
@@ -525,7 +530,7 @@ public class TaskStatusListener implements Runnable{
                         StringUtils.isEmpty(checkpointInsertedCache.getIfPresent(checkpointCacheKey))) {
                     Timestamp checkpointTriggerTimestamp = new Timestamp(checkpointTrigger);
 
-                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath);
+                    rdosStreamTaskCheckpointDAO.insert(taskId, engineTaskId, checkpointID, checkpointTriggerTimestamp, checkpointSavepath, checkpointCounts);
                     checkpointInsertedCache.put(checkpointCacheKey, "1");  //存在标识
 
                 }
@@ -621,7 +626,7 @@ public class TaskStatusListener implements Runnable{
         RdosStreamTaskCheckpoint taskCheckpoint = rdosStreamTaskCheckpointDAO.getByTaskId(jobIdentifier.getTaskId());
         if(taskCheckpoint == null){
             Timestamp now = new Timestamp(System.currentTimeMillis());
-            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath);
+            rdosStreamTaskCheckpointDAO.insert(jobIdentifier.getTaskId(), jobIdentifier.getEngineJobId(),"", now, lastExternalPath, "");
         } else {
             rdosStreamTaskCheckpointDAO.update(jobIdentifier.getTaskId(), lastExternalPath);
         }

@@ -18,14 +18,14 @@ import java.util.List;
 
 public class RdosStreamTaskCheckpointDAO {
 
-    public void insert(String taskId, String engineTaskId, String checkpointId, Timestamp checkpointTrigger, String checkpointSavepath){
+    public void insert(String taskId, String engineTaskId, String checkpointId, Timestamp checkpointTrigger, String checkpointSavepath, String checkpointCounts){
 
         MybatisSessionCallbackMethod.doCallback(new MybatisSessionCallback<Object>(){
 
             @Override
             public Object execute(SqlSession sqlSession) throws Exception {
                 RdosStreamTaskCheckpointMapper taskCheckpointMapper = sqlSession.getMapper(RdosStreamTaskCheckpointMapper.class);
-                taskCheckpointMapper.insert(taskId, engineTaskId, checkpointId, checkpointTrigger, checkpointSavepath);
+                taskCheckpointMapper.insert(taskId, engineTaskId, checkpointId, checkpointTrigger, checkpointSavepath, checkpointCounts);
                 return null;
             }
         });

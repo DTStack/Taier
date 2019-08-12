@@ -18,7 +18,8 @@ public interface RdosStreamTaskCheckpointMapper {
     int insert(@Param("taskId")String taskId, @Param("engineTaskId")String engineTaskId,
                @Param("checkpointId") String checkpointId,
                @Param("checkpointTrigger") Timestamp checkpointTrigger,
-               @Param("checkpointSavepath") String checkpointSavepath);
+               @Param("checkpointSavepath") String checkpointSavepath,
+               @Param("checkpointCounts") String checkpointCounts);
 
     List<RdosStreamTaskCheckpoint> listByTaskIdAndRangeTime(@Param("taskId") String taskEngineId,
                                                                               @Param("triggerStart") Long triggerStart,
