@@ -240,12 +240,17 @@ export function showTestResult (testResults: any, engineType: any) {
  * 校验组件必填项未填标识
  * @param tabCompData 不同engine的组件数据
  */
-export function validateAllRequired (validateFields: any, tabCompData: any) {
+export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: any) {
     // const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
     // const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
     let obj: any = {}
     tabCompData && tabCompData.map((item: any) => {
-        validateFields(validateCompParams(item.componentTypeCode), {}, (err: any, values: any) => {
+        validateFieldsAndScroll(validateCompParams(item.componentTypeCode), {
+            force: true,
+            scroll: {
+                offsetBottom: 150
+            }
+        }, (err: any, values: any) => {
             if (item.componentTypeCode == COMPONENT_TYPE_VALUE.FLINK) {
                 if (!err) {
                     obj = Object.assign(obj, {
