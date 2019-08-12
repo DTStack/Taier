@@ -280,7 +280,7 @@ class FieldSetting extends React.PureComponent<any, any> {
                     colon={false}
                     {...formItemLayout}
                 >
-                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, 'append')}>{this.getBtnContent(data.label)}</Button>
+                    <Button style={btnStyle} onClick={this.handleChoose.bind(this, 'append')}>{this.getBtnContent(data.append)}</Button>
                 </FormItem>
                 <div className="chooseWrap">
                     <ChooseModal
