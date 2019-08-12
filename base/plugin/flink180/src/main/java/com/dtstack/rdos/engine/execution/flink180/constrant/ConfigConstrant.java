@@ -7,7 +7,9 @@ package com.dtstack.rdos.engine.execution.flink180.constrant;
  *
  */
 public class ConfigConstrant {
-	
+
+    public static final String SPLIT = "_";
+
     public static final String FLINK_CHECKPOINT_INTERVAL_KEY = "sql.checkpoint.interval";
 
     public static final String FLINK_CHECKPOINT_MODE_KEY = "sql.checkpoint.mode";

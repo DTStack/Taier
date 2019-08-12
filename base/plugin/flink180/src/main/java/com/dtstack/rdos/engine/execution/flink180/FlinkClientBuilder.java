@@ -4,6 +4,7 @@ import com.dtstack.rdos.commom.exception.RdosException;
 import com.dtstack.rdos.engine.execution.base.JarFileInfo;
 import com.dtstack.rdos.engine.execution.base.JobClient;
 import com.dtstack.rdos.engine.execution.base.util.HadoopConfTool;
+import com.dtstack.rdos.engine.execution.flink180.constrant.ConfigConstrant;
 import com.dtstack.rdos.engine.execution.flink180.enums.Deploy;
 import com.google.common.base.Strings;
 import org.apache.commons.collections.CollectionUtils;
@@ -235,17 +236,13 @@ public class FlinkClientBuilder {
      * 根据yarn方式获取ClusterClient
      */
     @Deprecated
-    public ClusterClient<ApplicationId> initYarnClusterClient(Configuration configuration, FlinkConfig flinkConfig) {
+    public ClusterClient<ApplicationId> initYarnClusterClient(FlinkConfig flinkConfig) {
 
-        Configuration newConf = new Configuration(configuration);
+        Configuration newConf = new Configuration(flinkConfiguration);
 
-        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig, newConf);
+        ApplicationId applicationId = acquireAppIdAndSetClusterId(yarnClient, flinkConfig, newConf);
 
         ClusterClient<ApplicationId> clusterClient = null;
-
-        if(!newConf.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
-        }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
 
@@ -262,16 +259,16 @@ public class FlinkClientBuilder {
         return clusterClient;
     }
 
-    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(Configuration configuration, FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient,
+    public AbstractYarnClusterDescriptor createClusterDescriptorByMode(FlinkConfig flinkConfig, FlinkPrometheusGatewayConfig metricConfig, JobClient jobClient,
                                                                        boolean isPerjob) throws MalformedURLException {
-        if (configuration == null){
-            configuration = flinkConfiguration;
-        }
-        Configuration newConf = new Configuration(configuration);
+        Configuration newConf = new Configuration(flinkConfiguration);
         if (isPerjob){
             newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, jobClient.getTaskId());
             newConf.setInteger(YarnConfigOptions.APPLICATION_ATTEMPTS.key(), 0);
             perJobMetricConfigConfig(newConf, metricConfig);
+        } else {
+            String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
+            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
         }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".");
@@ -329,7 +326,7 @@ public class FlinkClientBuilder {
                     false);
     }
 
-    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
+    private ApplicationId acquireAppIdAndSetClusterId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
@@ -361,6 +358,15 @@ public class FlinkClientBuilder {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
+                    String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
+                    if (!report.getName().endsWith(clusterId)) {
+                        if (StringUtils.isBlank(flinkConfig.getFlinkClusterId())) {
+                            clusterId = applicationId.toString();
+                        } else {
+                            clusterId = flinkConfig.getFlinkClusterId();
+                        }
+                    }
+                    configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
                 }
 
             }
