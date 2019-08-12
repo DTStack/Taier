@@ -43,11 +43,23 @@ class Description extends React.Component<any, any> {
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
                 title = '逻辑回归二分类';
                 break;
+            case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION:
+                title = 'GBDT回归';
+                break;
+            case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION:
+                title = 'kmeans聚类';
+                break;
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
                 title = '预测';
                 break;
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
                 title = '二分类评估';
+                break;
+            case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION:
+                title = '回归模型评估';
+                break;
+            case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION:
+                title = '聚类模型评估';
                 break;
             default:
                 return ''
@@ -80,11 +92,23 @@ class Description extends React.Component<any, any> {
             case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION:
                 description = '逻辑回归二分类组件，用于预测当前被观察的对象属于哪个组，最终提供离散的二进制（0或1）输出结果。';
                 break;
+            case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION:
+                description = 'GBDT回归组件，是一种迭代的决策树算法，将多颗决策树的结果累加起来作为最终的预测输出。进行回归预测。';
+                break;
+            case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION:
+                description = 'Kmeans聚类组件，以样本间距离为基础，将n个对象分为k个簇，使群体与群体之间的距离尽量大，而簇内具有较高的相似度。';
+                break;
             case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT:
                 description = '预测组件，用于模型预测。拥有2个输入，训练模型和预测数据，输出为预测结果。';
                 break;
             case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION:
                 description = '一个综合评估组件，里面包含综合指数、KS/PR/LIFT/ROC曲线及详细信息。';
+                break;
+            case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION:
+                description = '回归指标：基于预测结果和原始结果，评价回归算法模型的优劣，指标包括MSE、MAE、MAPE、R平方值等。';
+                break;
+            case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION:
+                description = '聚类模型评估组件，是评估原始数据进行聚类的可行性和聚类方法产生的结果的质量，主要包括：估计聚类趋势、确定数据集中的簇数、测定聚类质量。';
                 break;
             default:
                 return ''

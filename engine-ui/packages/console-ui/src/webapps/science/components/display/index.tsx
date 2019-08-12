@@ -25,11 +25,23 @@ export function nodeTypeIcon (type: any) {
         case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION: {
             imageName = 'machine_learning'; break;
         }
+        case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: {
+            imageName = 'gbdt'; break;
+        }
+        case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: {
+            imageName = 'kmeans'; break;
+        }
         case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
             imageName = 'data_predict'; break;
         }
         case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
             imageName = 'data_evaluate'; break;
+        }
+        case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: {
+            imageName = 'unionModel'; break;
+        }
+        case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: {
+            imageName = 'regressionClassificcation'; break;
         }
         default: return '';
     }
