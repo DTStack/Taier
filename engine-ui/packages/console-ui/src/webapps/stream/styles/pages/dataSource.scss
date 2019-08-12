@@ -107,4 +107,9 @@
 	.m-table tr>td:last-child, .m-table tr>th:last-child{
 		padding-right: 15px;
 	}
+	.noBorderBottom {
+		.ant-card-head {
+			border-bottom: none
+		}
+	}
 }

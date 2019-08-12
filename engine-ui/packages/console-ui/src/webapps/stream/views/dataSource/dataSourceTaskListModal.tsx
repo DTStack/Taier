@@ -95,7 +95,7 @@ class DataSourceTaskListModal extends React.Component<any, any> {
                     )}
                 >
                     <Table
-                        className="m-table"
+                        className="dt-ant-table dt-ant-table--border"
                         rowKey="id"
                         pagination={pagination}
                         onChange={this.handleTableChange.bind(this)}

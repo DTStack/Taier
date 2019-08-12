@@ -125,7 +125,7 @@ class AlarmHistory extends React.Component<any, any> {
                     rowKey={(record: any, index: any) => {
                         return index;
                     }}
-                    className="m-table border-table"
+                    className="dt-ant-table dt-ant-table--border dt-ant-table--border-lr border-table"
                     columns={this.initHistoryColumns()}
                     dataSource={alarmRecords || []}
                     loading={loading}

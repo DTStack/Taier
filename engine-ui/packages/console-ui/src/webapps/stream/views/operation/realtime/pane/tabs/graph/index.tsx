@@ -325,7 +325,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                 </section>
                             </div>
                         </div>
-                    ) : (<Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
+                    ) : (<Collapse className="middle-collapse middle-collapse--noBorderTop" defaultActiveKey={['OverView']}>
                         <Panel header="OverView" key="OverView">
                             <div className="alarm-graph-row">
                                 <section>

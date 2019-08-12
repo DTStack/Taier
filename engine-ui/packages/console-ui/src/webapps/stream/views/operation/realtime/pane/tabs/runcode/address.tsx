@@ -64,7 +64,7 @@ class RunCodeAddess extends React.Component<any, any> {
             }}
             >
                 <Table
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     rowKey={(record: any, index: any) => { return index; }}
                     columns={this.initColumns()}
                     dataSource={data}

@@ -512,7 +512,8 @@ class TaskGraphView extends React.Component<any, any> {
                             position: 'relative',
                             overflow: 'auto',
                             width: '100%',
-                            height: editorHeight
+                            height: editorHeight,
+                            backgroundColor: '#fff'
                         }}
                         ref={(e: any) => { this.Container = e }}
                     >
