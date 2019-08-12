@@ -199,9 +199,9 @@ class AdminUser extends React.Component<any, any> {
             }
         })
         const queryParams = { ...params }// 复制一份
-        // 搜索时重置当前页为第一页， 解决在非首页后端返回为[]的情况，但页面之前数据存在的情况
+        // 搜索时重置当前页为第一页， 解决在非首页后端返回为[]，但页面之前数据存在的情况
         // eslint-disable-next-line no-extra-boolean-cast
-        if (!!this.state.searchName) {
+        if (!!searchName) {
             queryParams.currentPage = 1;
         }
         queryParams.name = searchName;
