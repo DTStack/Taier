@@ -39,7 +39,7 @@ class Main extends React.Component<any, any> {
             <div className="main">
 
                 {header}
-                <div className="container overflow-x-hidden">
+                <div className="container overflow-x-hidden" id='JS_console_container'>
                     { children || '加载中....' }
                 </div>
             </div>

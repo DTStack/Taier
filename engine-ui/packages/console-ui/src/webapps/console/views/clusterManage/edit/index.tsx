@@ -88,12 +88,13 @@ class EditCluster extends React.Component<any, any> {
         modalKey: null, // 初始化key不要一样
         allTestLoading: false // 测试连通性loading
     }
-
+    container: any;
     componentDidMount () {
         this.getDataList();
         this.props.updateTestStatus(DEFAULT_COMP_TEST)
         this.props.updateRequiredStatus(DEFAULT_COMP_REQUIRED)
     }
+
     /**
      * set formData
      * @param engineType 引擎类型
@@ -505,6 +506,16 @@ class EditCluster extends React.Component<any, any> {
      */
     test () {
         const { updateRequiredStatus, updateTestStatus } = this.props;
+        // 页面滚动至底部
+        const scroll = () => {
+            const ele = document.querySelector('#JS_console_container');
+            ele.scrollTop = 0;
+            ele.scrollTo({
+                top: ele.scrollHeight,
+                behavior: 'smooth'
+            })
+        }
+        scroll();
         this.props.form.validateFieldsAndScroll(null, {}, (err: any, values: any) => {
             if (!err) {
                 updateRequiredStatus(DEFAULT_COMP_REQUIRED)
@@ -1066,7 +1077,7 @@ class EditCluster extends React.Component<any, any> {
         const isView = mode == 'view';
         const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
         return (
-            <div className='console-wrapper'>
+            <div className='console-wrapper' ref={(el) => { this.container = el; }}>
                 <div>
                     <p className='back-icon'><GoBack size="default" type="textButton" style={{ fontSize: '14px', color: '#333333' }}></GoBack></p>
                     <div className='config-title'>集群信息</div>
