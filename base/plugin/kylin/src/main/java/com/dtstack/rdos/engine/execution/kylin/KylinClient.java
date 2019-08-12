@@ -254,7 +254,7 @@ public class KylinClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         return null;
     }
 

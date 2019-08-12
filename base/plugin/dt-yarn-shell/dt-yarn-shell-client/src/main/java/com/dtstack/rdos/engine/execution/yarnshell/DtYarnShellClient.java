@@ -180,7 +180,7 @@ public class DtYarnShellClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         YarnClient  yarnClient = client.getYarnClient();
         String url = "";
         try{

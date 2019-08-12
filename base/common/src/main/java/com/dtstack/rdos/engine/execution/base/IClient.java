@@ -26,7 +26,7 @@ public interface IClient {
 
     RdosTaskStatus getJobStatus(JobIdentifier jobIdentifier) throws IOException;
 
-	String getJobMaster();
+	String getJobMaster(JobIdentifier jobIdentifier);
 	
 	String getMessageByHttp(String path);
 

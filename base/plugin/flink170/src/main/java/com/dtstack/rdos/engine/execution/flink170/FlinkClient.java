@@ -677,7 +677,7 @@ public class FlinkClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster(){
+    public String getJobMaster(JobIdentifier jobIdentifier){
         String url = getReqUrl(flinkClient);
         return url.split("//")[1];
     }

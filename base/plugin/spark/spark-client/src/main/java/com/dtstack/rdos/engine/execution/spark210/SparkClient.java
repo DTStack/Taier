@@ -290,7 +290,7 @@ public class SparkClient extends AbsClient {
     }
 
 	@Override
-	public String getJobMaster() {
+	public String getJobMaster(JobIdentifier jobIdentifier) {
 		String webMaster = sparkConfig.getSparkWebMaster();
 		String[] webs = webMaster.split(",");
 		for(String web:webs){
@@ -319,7 +319,7 @@ public class SparkClient extends AbsClient {
 
 	@Override
 	public String getMessageByHttp(String path) {
-		String url = getJobMaster();
+		String url = getJobMaster(null);
 		if(url == null){
 		    logger.error("-----spark client maybe down. please check it.------");
 		    return null;

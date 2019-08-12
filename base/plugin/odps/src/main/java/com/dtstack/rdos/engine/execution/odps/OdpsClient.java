@@ -165,7 +165,7 @@ public class OdpsClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         throw new RdosException("odps client not support method 'getJobMaster'");
     }
 

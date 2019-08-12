@@ -154,7 +154,7 @@ public class HadoopClient extends AbsClient {
     }
 
     @Override
-    public String getJobMaster() {
+    public String getJobMaster(JobIdentifier jobIdentifier) {
         throw new RdosException("hadoop client not support method 'getJobMaster'");
     }
 
