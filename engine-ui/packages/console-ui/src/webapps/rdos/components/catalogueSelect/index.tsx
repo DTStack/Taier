@@ -13,17 +13,18 @@ const { TreeNode }: any = TreeSelect;
 class CatalogueSelect extends React.Component<any, any> {
     renderNode (data: any) {
         return (data && data.length) ? data.map((item: any) => {
+            const { bindData = {}, nodeId, children } = item;
             return (<TreeNode
-                value={item.bindData.id}
-                title={item.bindData.name}
-                key={item.nodeId}
+                value={bindData.id}
+                title={bindData.name}
+                key={nodeId}
             >
-                {this.renderNode(item.children)}
+                {this.renderNode(children)}
             </TreeNode>)
         }) : undefined
     }
     render () {
-        const { dataCatalogues, ...others } = this.props;
+        const { dataCatalogues = [], ...others } = this.props;
         return (
             <TreeSelect
                 dropdownStyle={{ maxHeight: 300, overflow: 'auto' }}
@@ -31,7 +32,7 @@ class CatalogueSelect extends React.Component<any, any> {
                 placeholder={'请选择数据类目'}
                 {...others}
             >
-                {this.renderNode(dataCatalogues.children)}
+                {this.renderNode(dataCatalogues && dataCatalogues.children)}
             </TreeSelect>
         )
     }
