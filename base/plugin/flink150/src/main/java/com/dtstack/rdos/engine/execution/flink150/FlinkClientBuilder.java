@@ -238,13 +238,9 @@ public class FlinkClientBuilder {
 
         Configuration newConf = new Configuration(flinkConfiguration);
 
-        ApplicationId applicationId = acquireApplicationId(yarnClient, flinkConfig, newConf);
+        ApplicationId applicationId = acquireAppIdAndSetClusterId(yarnClient, flinkConfig, newConf);
 
         ClusterClient<ApplicationId> clusterClient = null;
-
-        if(!newConf.containsKey(HighAvailabilityOptions.HA_CLUSTER_ID.key())){
-            newConf.setString(HighAvailabilityOptions.HA_CLUSTER_ID, applicationId.toString());
-        }
 
         AbstractYarnClusterDescriptor clusterDescriptor = getClusterDescriptor(newConf, yarnConf, ".", false);
 
@@ -338,7 +334,7 @@ public class FlinkClientBuilder {
         }
     }
 
-    private ApplicationId acquireApplicationId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
+    private ApplicationId acquireAppIdAndSetClusterId(YarnClient yarnClient, FlinkConfig flinkConfig, Configuration configuration) {
         try {
             Set<String> set = new HashSet<>();
             set.add("Apache Flink");
@@ -371,9 +367,15 @@ public class FlinkClientBuilder {
                     maxMemory = thisMemory;
                     maxCores = thisCores;
                     applicationId = report.getApplicationId();
-                    if (!report.getName().endsWith(flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue())){
-                        configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, flinkConfig.getFlinkClusterId());
+                    String clusterId = flinkConfig.getCluster() + ConfigConstrant.SPLIT + flinkConfig.getQueue();
+                    if (!report.getName().endsWith(clusterId)){
+                        if (StringUtils.isBlank(flinkConfig.getFlinkClusterId())) {
+                            clusterId = applicationId.toString();
+                        } else {
+                            clusterId = flinkConfig.getFlinkClusterId();
+                        }
                     }
+                    configuration.setString(HighAvailabilityOptions.HA_CLUSTER_ID, clusterId);
                 }
 
             }
