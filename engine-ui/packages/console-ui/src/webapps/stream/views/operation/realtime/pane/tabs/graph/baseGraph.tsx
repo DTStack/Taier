@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import Resize from 'widgets/resize';
 import FullScreen from 'widgets/fullscreen'
 
-import { lineAreaChartOptions, TIME_TYPE } from '../../../../../../comm/const'
+import { lineAreaChartOptions, TIME_TYPE, SOURCE_INPUT_BPS_UNIT_TYPE } from '../../../../../../comm/const'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -30,22 +30,32 @@ function haveData (lineData: any = {}) {
     }
     return true;
 }
-function isExchangeUnit (data: any = []) {
-    const isKb = data.some((item: any) => item > 1024 && item < Math.pow(1024, 2));
-    const isMb = data.some((item: any) => item >= Math.pow(1024, 2) && item < Math.pow(1024, 3));
-    const isGb = data.some((item: any) => item >= Math.pow(1024, 3) && item < Math.pow(1024, 4));
-    const isTb = data.some((item: any) => item >= Math.pow(1024, 4));
+function isExchangeData (data: any, unitType: any) {
     let exChangeArr: any = [];
-    if (isKb) {
-        exChangeArr = data.map((item: any) => Number((item / 1024).toFixed(6)));
-    } else if (isMb) {
-        exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 2)).toFixed(6)));
-    } else if (isGb) {
-        exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 3)).toFixed(6)));
-    } else if (isTb) {
-        exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 4)).toFixed(6)));
-    } else {
-        exChangeArr = data
+    switch (unitType) {
+        case SOURCE_INPUT_BPS_UNIT_TYPE.BPS: {
+            exChangeArr = data;
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.KBPS: {
+            exChangeArr = data.map((item: any) => Number((item / 1024).toFixed(6)));
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.MBPS: {
+            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 2)).toFixed(6)));
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.GBPS: {
+            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 3)).toFixed(6)));
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.TBPS: {
+            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 4)).toFixed(6)));
+            break;
+        }
+        default: {
+            return exChangeArr
+        }
     }
     return exChangeArr
 }
@@ -147,7 +157,7 @@ class AlarmBaseGraph extends React.Component<any, any> {
         if (loading) {
             return;
         }
-        const { x, y = [], legend, color, unit } = lineData;
+        const { x, y = [], legend, color, unit, metricsType } = lineData;
         /**
          * 先检验是不是有数据，没数据就不渲染了
          */
@@ -226,8 +236,8 @@ class AlarmBaseGraph extends React.Component<any, any> {
          */
         options.series = y.map((item: any, index: any) => {
             let arrData = item;
-            if (unit == 'bps') {
-                arrData = isExchangeUnit(item)
+            if (metricsType == 'source_input_bps') {
+                arrData = isExchangeData(item, unit)
             }
             let line: any = {
                 name: legend[index],
