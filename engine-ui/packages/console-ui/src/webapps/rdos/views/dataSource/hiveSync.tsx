@@ -8,6 +8,7 @@ import Api from '../../api';
 import _ from 'lodash';
 import CatalogueSelect from '../../components/catalogueSelect';
 import LifeCycleSelect from '../../components/lifeCycleSelect';
+import { hashHistory } from 'react-router'
 
 const FormItem = Form.Item;
 const formItemLayout = {
@@ -37,7 +38,6 @@ class HiveSync extends React.Component<any, any> {
 
     getSyncStutas = () => {
         timer = setInterval(async () => {
-            console.log(111111)
             finishSync && clearInterval(timer)
             const res = await Api.checkDealStatus();
             console.log(res, finishSync);
@@ -45,6 +45,7 @@ class HiveSync extends React.Component<any, any> {
                 this.setState({
                     syncLoading: !(res.data === 1)
                 });
+                this.getTableList();
             }
             if (res.data === 1) {
                 finishSync = true
@@ -85,14 +86,15 @@ class HiveSync extends React.Component<any, any> {
                     this.setState({
                         syncLoading: true
                     });
-                    console.log(values, routeParams);
+                    // console.log(values, routeParams);
                     const res = await Api.dealIntrinsicTable({
                         projectId: routeParams.projectId,
                         lifecycle: values.lifecycle,
                         catalogueId: values.catalogueId
                     });
                     console.log(res)
-                    this.getTableList();
+                    // this.getTableList();
+                    hashHistory.go(-1);
                 } finally {
                     this.setState({
                         syncLoading: false
