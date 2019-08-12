@@ -114,15 +114,16 @@ public class WorkNode {
                 groupInfo.setSize(queueSize);
 
                 Iterator<JobClient> it = groupQueue.iterator();
-                JobClient topJob = null;
+                JobClient topPriorityJob = null;
                 while (it.hasNext()){
-                    topJob = it.next();
+                    JobClient topJob = it.next();
                     if (topJob.isJobRetryWaiting()){
                         continue;
                     }
+                    topPriorityJob = topJob;
                     break;
                 }
-                groupInfo.setPriority(topJob == null ? 0 : topJob.getPriority());
+                groupInfo.setPriority(topPriorityJob == null ? 0 : topPriorityJob.getPriority());
                 return groupInfo;
             }));
             return groupInfos;
