@@ -50,12 +50,13 @@ const defaultData: any = {
 function matchSourceInputUnit (metricsData: any = {}) {
     const { y = [[]] } = metricsData;
     let unit = '';
-    const minVal = Math.min.apply(null, y.flat());
-    const isBps = minVal < 1024;
-    const isKbps = minVal >= 1024 && minVal < Math.pow(1024, 2)
-    const isMbps = minVal >= Math.pow(1024, 2) && minVal < Math.pow(1024, 3)
-    const isGbps = minVal >= Math.pow(1024, 3) && minVal < Math.pow(1024, 4)
-    const isTbps = minVal >= Math.pow(1024, 4)
+    const dataFlat = y.flat() || [];
+    const maxVal = Math.max.apply(null, dataFlat);
+    const isBps = maxVal < 1024;
+    const isKbps = dataFlat.some((item: any) => item >= 1024 && item < Math.pow(1024, 2));
+    const isMbps = dataFlat.some((item: any) => item >= Math.pow(1024, 2) && item < Math.pow(1024, 3));
+    const isGbps = dataFlat.some((item: any) => item >= Math.pow(1024, 3) && item < Math.pow(1024, 4));
+    const isTbps = dataFlat.some((item: any) => item >= Math.pow(1024, 4));
     if (isBps) {
         unit = SOURCE_INPUT_BPS_UNIT_TYPE.BPS;
     } else if (isKbps) {
