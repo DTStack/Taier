@@ -252,7 +252,7 @@ class AlarmConfigList extends React.Component<any, any> {
                 </header>
                 <Table
                     rowKey="alarmId"
-                    className="m-table border-table"
+                    className="dt-ant-table dt-ant-table--border dt-ant-table--border-lr border-table"
                     loading={loading}
                     columns={this.initConfigListColumns()}
                     dataSource={configs || []}

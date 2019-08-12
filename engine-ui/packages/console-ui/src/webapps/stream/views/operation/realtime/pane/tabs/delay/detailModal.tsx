@@ -96,7 +96,7 @@ class DelayDetailModal extends React.Component<any, any> {
         }, {
             title: '延迟消息数（条）',
             dataIndex: 'delayCount',
-            width: 130,
+            width: 150,
             sorter: (a: any, b: any) => {
                 return a - b
             }
@@ -170,14 +170,14 @@ class DelayDetailModal extends React.Component<any, any> {
                 title="数据延迟（最近24小时）"
                 visible={this.props.visible}
                 onCancel={this.props.closeDetail}
-                width={700}
+                width={'700px'}
                 footer={(
                     <Button onClick={this.props.closeDetail}>关闭</Button>
                 )}
             >
                 <Table
                     rowKey="partitionId"
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border"
                     columns={this.initDelayListColumns()}
                     dataSource={delayList}
                     pagination={pagination}

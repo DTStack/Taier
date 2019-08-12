@@ -36,14 +36,15 @@ export default class Sidebar extends React.Component<any, any> {
     render () {
         const props = this.props
         const base = `/project/${props.params.pid}`
+        console.log(this.props.mode);
         return (
             <div className="sidebar m-ant-menu">
                 <Menu
                     onClick={this.handleClick}
-                    style={{ width: 200, height: '100%' }}
+                    style={{ height: '100%' }}
                     selectedKeys={[this.state.current]}
                     defaultSelectedKeys={[this.state.current]}
-                    mode="inline"
+                    mode={this.props.mode}
                 >
 
                     <Menu.Item key="config">
@@ -51,7 +52,7 @@ export default class Sidebar extends React.Component<any, any> {
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-project_set"></use>
                             </svg>
-                            <span>项目配置</span>
+                            <span className="hide-text">项目配置</span>
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="member">
@@ -59,7 +60,7 @@ export default class Sidebar extends React.Component<any, any> {
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-chengyuan"></use>
                             </svg>
-                            <span>项目成员管理</span>
+                            <span className="hide-text">项目成员管理</span>
                         </Link>
                     </Menu.Item>
                     <Menu.Item key="role">
@@ -67,7 +68,7 @@ export default class Sidebar extends React.Component<any, any> {
                             <svg className="icon-svg" aria-hidden="true">
                                 <use xlinkHref="#icon-jiaoseguanli"></use>
                             </svg>
-                            <span>角色管理</span>
+                            <span className="hide-text">角色管理</span>
                         </Link>
                     </Menu.Item>
                 </Menu>

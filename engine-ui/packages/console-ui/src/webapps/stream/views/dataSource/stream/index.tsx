@@ -326,6 +326,7 @@ class DataSourceManaStream extends React.Component<any, any> {
                         extra={extra}
                         noHovering
                         bordered={false}
+                        className="noBorderBottom"
                     >
                         <Table
                             rowKey="id"
