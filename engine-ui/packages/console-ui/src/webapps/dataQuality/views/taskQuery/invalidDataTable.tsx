@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { isEmpty } from 'lodash';
+import { isEmpty, assign } from 'lodash';
 import { Card, Icon, Table } from 'antd';
 import { PaginationProps } from 'antd/lib/pagination';
 
@@ -66,9 +66,10 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     }
 
     onChange = (pagination: PaginationProps) => {
-        this.setState({ pagination: {
+        const newPagination = assign({}, this.state.pagination, {
             current: pagination.current
-        } }, this.fetchData)
+        })
+        this.setState({ pagination: newPagination }, this.fetchData)
     }
 
     initInvalidDataTableColumns = (fields: {}) => {
