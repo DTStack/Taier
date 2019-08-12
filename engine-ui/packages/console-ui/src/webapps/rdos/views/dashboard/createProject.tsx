@@ -7,7 +7,8 @@ import {
     ENGINE_SOURCE_TYPE, ENGINE_TYPE
 } from '../../comm/const';
 import api from '../../api';
-import GoBack from 'main/components/go-back'
+import GoBack from 'main/components/go-back';
+import Cancel from 'widgets/go-back'
 import CreateForm from './createForm';
 
 class CreateWorkSpace extends React.Component<any, any> {
@@ -144,7 +145,7 @@ class CreateWorkSpace extends React.Component<any, any> {
                         onChange={this.formChange}
                     />
                     <Row style={{ marginTop: 30, textAlign: 'right' }}>
-                        <Button onClick={this.create} style={{ width: 90, marginRight: 10 }}>取消</Button>
+                        <Cancel style={{ width: 90, marginRight: 10 }}  title='取消' />
                         <Button loading={loading} style={{ width: 90 }} onClick={this.create} type='primary'>确定</Button>
                     </Row>
                 </Card>

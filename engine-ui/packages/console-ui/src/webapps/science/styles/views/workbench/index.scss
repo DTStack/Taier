@@ -205,6 +205,30 @@
         width: 14px;
         height: 14px;
     }
+    // gbdt
+    &.o-tree-icon--machine-gbdt .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/gbdt.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // kmeans
+    &.o-tree-icon--machine-kmeans .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/kmeans.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // 回归模型
+    &.o-tree-icon--data-rc .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/regressionClassificcation.svg);
+        width: 14px;
+        height: 14px;
+    }
+    // 聚类模型
+    &.o-tree-icon--data-um .ant-tree-iconEle {
+        background-image: url(/public/science/img/icon/unionModel.svg);
+        width: 14px;
+        height: 14px;
+    }
 }
 .s-tree-folder {
     &>.ant-tree-iconEle {

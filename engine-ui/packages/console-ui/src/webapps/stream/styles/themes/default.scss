@@ -18,4 +18,18 @@
         }
     }
 
+    .task-tab-menu {
+        &>.ant-tabs-bar {
+            .ant-tabs-tab {
+                &.ant-tabs-tab-active {
+                    background: #2491F7;
+                    color: #FFFFFF;
+                }
+            }
+            .ant-tabs-ink-bar {
+                left: 0;
+                width: 0px;
+            }
+        }
+    }
 }

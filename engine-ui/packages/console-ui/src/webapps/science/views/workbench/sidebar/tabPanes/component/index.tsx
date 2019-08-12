@@ -81,8 +81,8 @@ class ComponentSidebar extends React.Component<any, any> {
     initDragElement = () => {
         var dragElt = document.createElement('div');
         dragElt.style.border = 'solid #90d5ff 1px';
-        dragElt.style.width = VertexSize.width;
-        dragElt.style.height = VertexSize.height;
+        dragElt.style.width = VertexSize.width + 'px';
+        dragElt.style.height = VertexSize.height + 'px';
         return dragElt;
     }
     initDragger = () => {
@@ -235,11 +235,23 @@ class ComponentSidebar extends React.Component<any, any> {
                                 case COMPONENT_TYPE.MACHINE_LEARNING.LOGISTIC_REGRESSION: {
                                     return 'anchor-component-file o-tree-icon--machine-learning'
                                 }
+                                case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: {
+                                    return 'anchor-component-file o-tree-icon--machine-gbdt'
+                                }
+                                case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: {
+                                    return 'anchor-component-file o-tree-icon--machine-kmeans'
+                                }
                                 case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
                                     return 'anchor-component-file o-tree-icon--data-predict'
                                 }
                                 case COMPONENT_TYPE.DATA_EVALUATE.BINARY_CLASSIFICATION: {
                                     return 'anchor-component-file o-tree-icon--data-evaluate'
+                                }
+                                case COMPONENT_TYPE.DATA_EVALUATE.REGRESSION_CLASSIFICATION: {
+                                    return 'anchor-component-file o-tree-icon--data-rc'
+                                }
+                                case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: {
+                                    return 'anchor-component-file o-tree-icon--data-um'
                                 }
                                 default: return 'anchor-folder';
                             }

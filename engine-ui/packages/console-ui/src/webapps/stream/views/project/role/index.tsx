@@ -133,7 +133,7 @@ class RoleManagement extends React.Component<any, any> {
                     >
                         <Table
                             rowKey="id"
-                            className="m-table"
+                            className="dt-ant-table dt-ant-table--border"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={loading}

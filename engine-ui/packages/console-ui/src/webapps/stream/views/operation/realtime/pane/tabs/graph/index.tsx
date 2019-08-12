@@ -325,7 +325,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                 </section>
                             </div>
                         </div>
-                    ) : (<Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
+                    ) : (<Collapse className="middle-collapse middle-collapse--noBorderTop" defaultActiveKey={['OverView']}>
                         <Panel header="OverView" key="OverView">
                             <div className="alarm-graph-row">
                                 <section>
@@ -358,7 +358,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             color: CHARTS_COLOR,
                                             ...lineDatas[metricsType.SOURCE_TPS],
-                                            unit: 'tps 条/秒'
+                                            unit: 'tps'
                                         }}
                                         desc="对流式数据输入（Kafka）进行统计，单位是TPS(Transaction Per Second)。"
                                         title="各Source的TPS数据输入" />
@@ -369,7 +369,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             ...lineDatas[metricsType.SINK_OUTPUT_RPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'rps 条/秒'
+                                            unit: 'rps'
                                         }}
                                         desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
                                         title="各Sink的RPS数据输出" />
@@ -382,7 +382,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             ...lineDatas[metricsType.SOURCE_RPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'rps 条/秒'
+                                            unit: 'rps'
                                         }}
                                         desc="对流式数据输入（Kafka）进行统计，单位是RPS(Record Per Second)。"
                                         title="各Source的RPS数据输入" />
@@ -393,7 +393,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             ...lineDatas[metricsType.SOURCE_INPUT_BPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'bps 条/秒'
+                                            unit: 'bps'
                                         }}
                                         desc="对流式数据输入（Kafka）进行统计，单位是BPS(Byte Per Second)。"
                                         title="各Source的BPS数据输入" />

@@ -505,7 +505,7 @@ class EditCluster extends React.Component<any, any> {
      */
     test () {
         const { updateRequiredStatus, updateTestStatus } = this.props;
-        this.props.form.validateFields(null, {}, (err: any, values: any) => {
+        this.props.form.validateFieldsAndScroll(null, {}, (err: any, values: any) => {
             if (!err) {
                 updateRequiredStatus(DEFAULT_COMP_REQUIRED)
                 this.setState({
@@ -537,7 +537,7 @@ class EditCluster extends React.Component<any, any> {
             } else {
                 const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
                 const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData;
-                const requiredStatus = validateAllRequired(this.props.form.validateFields, tabCompData);
+                const requiredStatus = validateAllRequired(this.props.form.validateFieldsAndScroll, tabCompData);
                 updateRequiredStatus(requiredStatus);
                 message.error('你有必填配置项未填写！')
             }

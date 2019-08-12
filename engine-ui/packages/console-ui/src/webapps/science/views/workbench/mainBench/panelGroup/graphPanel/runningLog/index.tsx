@@ -94,7 +94,7 @@ class RunningLogModal extends React.Component<any, any> {
                         : ''
                 }
                 <Row style={logContainerStyle}>
-                    <Editor editorRef={ this.editorRef } key={data && data.id} sync value={logText} options={editorOptions} />
+                    <Editor style={{ height: '100%' }} editorRef={ this.editorRef } key={data && data.id} sync value={logText} options={editorOptions} />
                 </Row>
             </div>
         )

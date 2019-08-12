@@ -5,11 +5,12 @@ import { connect } from 'react-redux';
 
 import { actions as collectionActions } from '../../../../../store/modules/realtimeTask/collection';
 import { updateCurrentPage } from '../../../../../store/modules/realtimeTask/browser';
-
+import SplitPane from 'react-split-pane';
+import ToolBar from 'main/components/ide/toolbar';
 import Source from './collectionSource';
 import Target from './collectionTarget';
 import Complete from './complete';
-
+import ConvertToScript from '../../convertToScript';
 const Step = Steps.Step;
 
 class CollectionGuide extends React.Component<any, any> {
@@ -63,16 +64,50 @@ class CollectionGuide extends React.Component<any, any> {
                 />
             }
         ];
+        const toolbar: any = {
+            enable: true,
+            enableRun: false,
+            disableEdit: true,
+            leftCustomButton: <ConvertToScript isLocked={isLocked} />
+        }
         return (
-            (currentStep || currentStep == 0) ? <div className="m-datasync">
-                <Steps current={currentStep}>
-                    {steps.map((item: any) => <Step key={item.title} title={item.title} />)}
-                </Steps>
-                <div className="steps-content" style={{ position: 'relative' }}>
-                    {isLocked ? <div className="steps-mask"></div> : null}
-                    {steps[currentStep].content}
+            <div className="ide-editor">
+                <div className="ide-header bd-bottom">
+                    <ToolBar
+                        {...toolbar}
+                    />
                 </div>
-            </div> : null
+                <div style={{ zIndex: 901 }} className="ide-content">
+                    <SplitPane
+                        split="horizontal"
+                        minSize={100}
+                        maxSize={-77}
+                        defaultSize='100%'
+                        primary="first"
+                        key={`ide-split-pane`}
+                        size='100%'
+                    >
+                        <div style={{
+                            width: '100%',
+                            height: '100%',
+                            minHeight: '400px',
+                            position: 'relative'
+                        }}>
+                            {
+                                (currentStep || currentStep == 0) ? <div className="m-datasync">
+                                    <Steps current={currentStep}>
+                                        {steps.map((item: any) => <Step key={item.title} title={item.title} />)}
+                                    </Steps>
+                                    <div className="steps-content" style={{ position: 'relative' }}>
+                                        {isLocked ? <div className="steps-mask"></div> : null}
+                                        {steps[currentStep].content}
+                                    </div>
+                                </div> : null
+                            }
+                        </div>
+                    </SplitPane>
+                </div>
+            </div>
         )
     }
 }

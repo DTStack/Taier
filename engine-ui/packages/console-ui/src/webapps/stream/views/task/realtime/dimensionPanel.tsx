@@ -150,7 +150,7 @@ class OutputOrigin extends React.Component<any, any> {
                 sm: { span: 18 }
             }
         };
-        const aliasText = '别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
+        const targetColText = '别名指字段的别名，如select  order_sales as order_amont from  shop_order，order_sales字段的别名即为order_amont';
         return (
             <Row className="title-content">
                 <FormItem {...formItemLayout} label="存储类型">
@@ -324,14 +324,14 @@ class OutputOrigin extends React.Component<any, any> {
                                 <Column
                                     title={
                                         <div>
-                                            <Tooltip placement="top" title={aliasText} arrowPointAtCenter>
+                                            <Tooltip placement="top" title={targetColText} arrowPointAtCenter>
                                                 <span>别名 &nbsp;
                                                     <Icon type="question-circle-o" />
                                                 </span>
                                             </Tooltip>
                                         </div>
                                     }
-                                    dataIndex="alias"
+                                    dataIndex="targetCol"
                                     key="别名"
                                     width="30%"
                                     render={(text: any, record: any, subIndex: any) => {
@@ -339,7 +339,7 @@ class OutputOrigin extends React.Component<any, any> {
                                             value={text}
                                             onChange={(e: any) =>
                                                 handleInputChange(
-                                                    'alias',
+                                                    'targetCol',
                                                     index,
                                                     subIndex,
                                                     e.target.value
@@ -1031,8 +1031,8 @@ export default class OutputPanel extends React.Component<any, any> {
             panelColumn[index]['columns'][value].column = subValue;
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]['columns'][value].type = subType;
-        } else if (type === 'alias') {
-            panelColumn[index]['columns'][value].alias = subValue;
+        } else if (type === 'targetCol') {
+            panelColumn[index]['columns'][value].targetCol = subValue;
         } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {

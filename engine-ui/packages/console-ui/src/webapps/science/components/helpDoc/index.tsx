@@ -10,7 +10,10 @@ export const relativeStyle: any = {
     top: 0
 }
 
-export default class HelpDoc extends React.Component<any, any> {
+export default class HelpDoc extends React.Component<{
+    doc: string;
+    [propName: string]: any;
+}, any> {
     render () {
         const { doc, ...others } = this.props
         return (

@@ -15,11 +15,9 @@ module.exports = {
             },
             '/api/rdos': {
                 // target: 'http://172.16.10.86:9020', // test
-                // target: "http://172.16.8.107:9020", // dev server
+                target: "http://172.16.8.107:9020", // dev server
                 // target: "http://172.16.0.14:9020", // dev server
                 // target: "http://172.16.1.173:9020", // dev server
-                target: "http://test.dtstack.insight.com",
-                // target: "http://dev.insight.dtstack.net",
                 // target: "http://172.16.0.34:9020",
                 // target: "http://172.16.10.51:9020", // test
                 // target: "http://172.16.10.97:9020",
@@ -42,9 +40,8 @@ module.exports = {
                 secure: false
             },
             '/uic': { // UIC地址
-                // target: 'http://dtuic.dtstack.net',
+                target: 'http://dtuic.dtstack.net',
                 // target: 'http://uic.insight.cn',
-                target: "http://uic.insight.com",
                 // target: 'http://172.16.1.92:8668',
                 changeOrigin: true,
                 // pathRewrite:{"^/uic":"/"},
