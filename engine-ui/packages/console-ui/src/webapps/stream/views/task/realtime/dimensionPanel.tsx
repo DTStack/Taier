@@ -342,7 +342,7 @@ class OutputOrigin extends React.Component<any, any> {
                                                     'targetCol',
                                                     index,
                                                     subIndex,
-                                                    e.target.value
+                                                    e.target.value.trim()
                                                 )
                                             }
                                         />;
@@ -1032,7 +1032,13 @@ export default class OutputPanel extends React.Component<any, any> {
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]['columns'][value].type = subType;
         } else if (type === 'targetCol') {
-            panelColumn[index]['columns'][value].targetCol = subValue;
+            let val = subValue;
+            if (subValue) {
+                val = subValue
+            } else {
+                val = undefined
+            }
+            panelColumn[index]['columns'][value].targetCol = val;
         } else if (type == 'customParams') {
             changeCustomParams(panelColumn[index], value, subValue);
         } else {
