@@ -166,7 +166,7 @@ export function exChangeComponentConf (hadoopComp: any, libraComp: any) {
  */
 export function showTestResult (testResults: any, engineType: any) {
     let testStatus: any = {}
-    const isHadoop = engineType == ENGINE_TYPE.HADOOP;
+    const isHadoop = isHadoopEngine(engineType);
     testResults && testResults.map((comp: any) => {
         switch (comp.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
@@ -241,8 +241,6 @@ export function showTestResult (testResults: any, engineType: any) {
  * @param tabCompData 不同engine的组件数据
  */
 export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: any) {
-    // const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
-    // const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
     let obj: any = {}
     tabCompData && tabCompData.map((item: any) => {
         validateFieldsAndScroll(validateCompParams(item.componentTypeCode), {
@@ -480,4 +478,9 @@ export function toChsKeys (obj: any, keyMap: any) {
         newObj[newKey] = obj[key];
         return newObj
     }, {})
+}
+
+// 是否是hadoop引擎
+export function isHadoopEngine (engineType: any) {
+    return engineType == ENGINE_TYPE.HADOOP
 }

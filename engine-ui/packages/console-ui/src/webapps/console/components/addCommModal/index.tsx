@@ -1,23 +1,26 @@
 import * as React from 'react';
 import { Modal, Form, Input, Checkbox, message } from 'antd';
+import { cloneDeep } from 'lodash';
 import EngineSelect from '../../../../webapps/rdos/components/engineSelect';
 import { formItemLayout, ENGINE_TYPE_ARRAY, ENGINE_TYPE_NAME,
-    COMPONENT_TYPE_VALUE, hadoopEngineOptionsValue, noDisablehadoopEngineOptionsValue } from '../../consts';
+    COMPONENT_TYPE_VALUE, HADOOP_GROUP_VALUE } from '../../consts';
 const FormItem = Form.Item;
 const CheckboxGroup = Checkbox.Group;
 const defaultCheckedValue: any = [COMPONENT_TYPE_VALUE.HDFS, COMPONENT_TYPE_VALUE.YARN, COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER]; // 必选引擎值
 const defaultEngine = ENGINE_TYPE_NAME.HADOOP // hadoop
+
+// 新增集群、增加组件、增加引擎共用组件
 class AddCommModal extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
         this.state = {
             checkedList: props.isAddComp ? [] : defaultCheckedValue,
             checkAll: false,
-            isAdd: false // 添加引擎
+            isAddMultiple: false // 新增集群时是否添加多个引擎
         }
     }
     // 转化成checkedList可用数据
-    tranEngineData = (data: any) => {
+    exChangeCheckedListData = (data: any) => {
         let recoginzeValue: any = [];
         data.map((item: any) => {
             recoginzeValue.push(item.value)
@@ -27,18 +30,21 @@ class AddCommModal extends React.Component<any, any> {
     onChange = (checkedList: any) => {
         this.setState({
             checkedList,
-            checkAll: checkedList.length === hadoopEngineOptionsValue.length
+            checkAll: checkedList.length === HADOOP_GROUP_VALUE.length
         })
     }
     onCheckAllChange = (e: any) => {
         const { isAddComp } = this.props;
-        const canSelectOption = this.compOptions();
+        const notAddComponetVal = this.filterExistData();
         this.setState({
-            checkedList: e.target.checked ? (isAddComp ? this.tranEngineData(canSelectOption) : this.tranEngineData(hadoopEngineOptionsValue))
+            checkedList: e.target.checked ? (isAddComp ? this.exChangeCheckedListData(notAddComponetVal) : this.exChangeCheckedListData(HADOOP_GROUP_VALUE))
                 : (isAddComp ? [] : defaultCheckedValue),
             checkAll: e.target.checked
         })
     }
+    /**
+     * 添加集群数据转换
+     */
     getServerParams = (value: any) => {
         const { getFieldValue } = this.props.form;
         const hadoopOption = getFieldValue('engineName')
@@ -62,8 +68,10 @@ class AddCommModal extends React.Component<any, any> {
         }
         return params
     }
-    // 添加集群
-    isSelectSameEngine = () => {
+    /**
+     * 校验是否选择同类引擎
+     */
+    validateEngineType = () => {
         const { getFieldValue } = this.props.form;
         const hadoopOption = getFieldValue('engineName')
         const libraOption = getFieldValue('libraEngineName')
@@ -75,29 +83,40 @@ class AddCommModal extends React.Component<any, any> {
         return flag
     }
     /**
-     * 添加引擎时校验
+     *  校验是否选择组件
      */
-    isSelectComp = () => {
+    validateComponent = () => {
+        const { checkedList } = this.state;
+        const notAddComponetVal = this.filterExistData() || [];
         let validate = false;
-        const addCompOptionLength = this.compOptions().length;
-        if (this.state.checkedList.length > 0) {
+        const notAddCompontLength = notAddComponetVal.length;
+        if (checkedList.length > 0) {
             validate = true
-        } else if (this.state.checkedList.length === 0 && addCompOptionLength != 0) {
+        } else if (checkedList.length === 0 && notAddCompontLength != 0) {
             message.error('请选择增加的组件！')
         } else {
             return;
         }
         return validate
     }
+    /**
+     * 获取新增集群参数
+     */
     getAddClusterParams () {
         const { validateFields } = this.props.form;
+        const { isAddMultiple } = this.state;
+        let validateParams = ['clusterName', 'engineName'];
+        if (isAddMultiple) {
+            validateParams.push('libraEngineName')
+        }
         let params: any = {
             reqParams: {},
             canSubmit: false
         }
-        validateFields(this.state.isAdd ? ['clusterName', 'engineName', 'libraEngineName'] : ['clusterName', 'engineName'], {}, (err: any, value: any) => {
+        validateFields(validateParams, {}, (err: any, value: any) => {
             if (!err) {
-                if (this.isSelectSameEngine()) {
+                const isDiffentEngine = this.validateEngineType();
+                if (isDiffentEngine) {
                     params.canSubmit = true
                     params.reqParams = this.getServerParams(value);
                 }
@@ -105,7 +124,10 @@ class AddCommModal extends React.Component<any, any> {
         })
         return params
     }
-    isSameEngine = () => {
+    /**
+     * 校验新增引擎是否已存在
+     */
+    validateIsExistEngine = () => {
         const { getFieldValue } = this.props.form;
         const { engineList } = this.props;
         const engineSelected = getFieldValue('engineName');
@@ -117,6 +139,9 @@ class AddCommModal extends React.Component<any, any> {
             return true
         }
     }
+    /**
+     * 获取增加引擎和增加组件参数
+     */
     getEngineAndCompParams () {
         const { getFieldValue } = this.props.form;
         const engineName = getFieldValue('engineName');
@@ -126,8 +151,8 @@ class AddCommModal extends React.Component<any, any> {
             reqParams: {},
             canSubmit: false
         }
-        const validate = isAddComp ? this.isSelectComp() : this.isSameEngine();
-        if (validate) { // 添加校验
+        const validate = isAddComp ? this.validateComponent() : this.validateIsExistEngine();
+        if (validate) { // 校验通过
             params.reqParams = {
                 engineName,
                 componentTypeCodeList: isHadoop || isAddComp ? this.state.checkedList : [COMPONENT_TYPE_VALUE.LIBRASQL]
@@ -139,31 +164,37 @@ class AddCommModal extends React.Component<any, any> {
     addEngine = () => {
         const { setFieldsValue } = this.props.form;
         this.setState({
-            isAdd: true
+            isAddMultiple: true
         }, () => { setFieldsValue({ libraEngineName: defaultEngine }) })
     }
     delEngine = () => {
         const { setFieldsValue } = this.props.form;
         this.setState({
-            isAdd: false
+            isAddMultiple: false
         })
         setFieldsValue({ libraEngineName: '' })
     }
     /**
-     * 添加组件option需要与已存在的组件筛选
+     * 增加组件时，筛选出未添加的组件数据
      */
-    compOptions = () => {
+    filterExistData = () => {
         const { hadoopComponentData = [] } = this.props;
-        return noDisablehadoopEngineOptionsValue
+        let copyOptVal = cloneDeep(HADOOP_GROUP_VALUE);
+        for (let i = 0; i < copyOptVal.length; i++) {
+            if (copyOptVal[i].hasOwnProperty('disabled')) {
+                delete copyOptVal[i]['disabled']
+            }
+        }
+        return copyOptVal
             .filter((obj: any) => !hadoopComponentData.some((item: any) => item.componentTypeCode == obj.value))
     }
     renderDiffentEngine = (flag: any) => {
         const { getFieldDecorator } = this.props.form;
         const { isAddComp } = this.props;
         const { checkAll, checkedList } = this.state;
-        const addCompOptions = this.compOptions();
+        const notAddComponetVal = this.filterExistData();
         // 新增组件筛选已添加组件
-        const options = isAddComp ? addCompOptions : hadoopEngineOptionsValue;
+        const options = isAddComp ? notAddComponetVal : HADOOP_GROUP_VALUE;
         return (
             flag ? <React.Fragment>
                 {
@@ -182,7 +213,7 @@ class AddCommModal extends React.Component<any, any> {
                     </FormItem>
                 }
                 {
-                    addCompOptions.length == 0 ? (
+                    notAddComponetVal.length == 0 ? (
                         <div style={{ textAlign: 'center' }}>暂无组件可添加</div>
                     ) : (
                         <FormItem
@@ -230,7 +261,7 @@ class AddCommModal extends React.Component<any, any> {
     render () {
         const { getFieldDecorator, getFieldValue } = this.props.form;
         const { title, visible, onCancel, onOk, isAddCluster, isAddComp } = this.props;
-        const { isAdd } = this.state;
+        const { isAddMultiple } = this.state;
         const hadoopOption = getFieldValue('engineName')
         const libraOption = getFieldValue('libraEngineName')
         const hadoopFlag = hadoopOption === ENGINE_TYPE_NAME.HADOOP || hadoopOption == undefined;
@@ -280,7 +311,7 @@ class AddCommModal extends React.Component<any, any> {
                                 />
                             )}
                             {
-                                isAddCluster && !isAdd && <a className='engine-opera' onClick={this.addEngine}>添加引擎</a>
+                                isAddCluster && !isAddMultiple && <a className='engine-opera' onClick={this.addEngine}>添加引擎</a>
                             }
                         </FormItem>
                     }
@@ -288,7 +319,7 @@ class AddCommModal extends React.Component<any, any> {
 
                     {/* 新增集群modal中添加多个引擎 */}
                     {
-                        isAdd ? <React.Fragment>
+                        isAddMultiple ? <React.Fragment>
                             <div className='dashed-line'></div>
                             <FormItem
                                 label="引擎类型"
@@ -306,7 +337,7 @@ class AddCommModal extends React.Component<any, any> {
                                     />
                                 )}
                                 {
-                                    isAddCluster && isAdd && <a className='engine-opera' onClick={this.delEngine}>删除引擎</a>
+                                    isAddCluster && isAddMultiple && <a className='engine-opera' onClick={this.delEngine}>删除引擎</a>
                                 }
                             </FormItem>
                             {this.renderDiffentEngine(libraFlag)}

@@ -45,10 +45,10 @@ export const ENGINE_TYPE_NAME: any = {
 }
 export const ENGINE_TYPE_ARRAY: any = [{ // 引擎类型下拉框数据
     name: 'Hadoop',
-    value: 'Hadoop'
+    value: ENGINE_TYPE_NAME.HADOOP
 }, {
     name: 'LibrA',
-    value: 'LibrA'
+    value: ENGINE_TYPE_NAME.LIBRA
 }]
 export const COMPONENT_TYPE_VALUE: any = {
     FLINK: 0,
@@ -86,39 +86,16 @@ export const DEFAULT_COMP_REQUIRED: any = { // 必填默认数据
     hiveServerShowRequired: false,
     libraShowRequired: false
 }
-export const hadoopEngineOptionsValue: any = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
-    { label: 'Flink', value: 0 },
-    { label: 'Spark', value: 1 },
-    { label: 'Learning', value: 2 },
-    { label: 'DTYarnShell', value: 3 },
-    { label: 'HDFS', value: 4, disabled: true },
-    { label: 'YARN', value: 5, disabled: true },
-    { label: 'SparkThrift', value: 6, disabled: true },
-    { label: 'CarbonData', value: 7 },
-    { label: 'Hive Server', value: 9 }
-];
-export const noDisablehadoopEngineOptionsValue: any = [ // 非华为集群支持的引擎类型options, checkbox支持数据格式
-    { label: 'Flink', value: 0 },
-    { label: 'Spark', value: 1 },
-    { label: 'Learning', value: 2 },
-    { label: 'DTYarnShell', value: 3 },
-    { label: 'HDFS', value: 4 },
-    { label: 'YARN', value: 5 },
-    { label: 'SparkThrift', value: 6 },
-    { label: 'CarbonData', value: 7 },
-    { label: 'Hive Server', value: 9 }
-];
-export const hadoopEngineOptions: any = [ // 华为集群支持的引擎 options
-    'Flink',
-    'Spark',
-    'DTYarnShell',
-    'Learning',
-    'HDFS',
-    'YARN',
-    'SparkThrift',
-    'CarbonData',
-    'Hive Server',
-    'LibrA'
+export const HADOOP_GROUP_VALUE: any = [ // hadoop 引擎支持的组件类型(复选框)
+    { label: 'Flink', value: COMPONENT_TYPE_VALUE.FLINK },
+    { label: 'Spark', value: COMPONENT_TYPE_VALUE.SPARK },
+    { label: 'Learning', value: COMPONENT_TYPE_VALUE.LEARNING },
+    { label: 'DTYarnShell', value: COMPONENT_TYPE_VALUE.DTYARNSHELL },
+    { label: 'HDFS', value: COMPONENT_TYPE_VALUE.HDFS, disabled: true },
+    { label: 'YARN', value: COMPONENT_TYPE_VALUE.YARN, disabled: true },
+    { label: 'SparkThrift', value: COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER, disabled: true },
+    { label: 'CarbonData', value: COMPONENT_TYPE_VALUE.CARBONDATA },
+    { label: 'Hive Server', value: COMPONENT_TYPE_VALUE.HIVESERVER }
 ];
 export const API_MODE: any = {
     GUIDE: 0,
@@ -198,8 +175,7 @@ export const dataSourceTypes: any = [ // 数据源类型
     'FTP',
     'MaxCompute'
 ]
-// hdfs、yarn、learning、libra暂无必填数据,
-// 为了能获取到一组域数据，validateFields第一个参数不可为空，取每组数据任一参数
+// 检验各组件数据
 export const validateFlinkParams: any = [ // flink
     'flinkConf.flinkZkAddress',
     'flinkConf.flinkHighAvailabilityStorageDir',
@@ -258,7 +234,7 @@ export const validateLibraParams: any = [
     'libraConf.jdbcUrl',
     'libraConf.driverClassName'
 ]
-// key_map
+// 服务器传参与界面渲染 key_map
 export const SPARK_KEY_MAP: any = {
     'spark.yarn.appMasterEnv.PYSPARK_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_PYTHON',
     'spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON': 'sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON'
