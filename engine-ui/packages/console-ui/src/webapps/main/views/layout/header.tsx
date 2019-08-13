@@ -25,26 +25,18 @@ class Header extends React.Component<any, any> {
         const logo =
 
             <React.Fragment>
-                {
-                    isNewHeader
-                        ? (
-                            <img
-                                style={{
-                                    height: '34px',
-                                    width: '30px'
-                                }}
-                                alt="logo"
-                                src={getHeaderLogo()}
-                            />
-                        )
-                        : (
-                            <img
-                                className='c-header__logo'
-                                alt="logo"
-                                src={getHeaderLogo()}
-                            />
-                        )
-                }
+                <img
+                    style={
+                        isNewHeader
+                            ? {
+                                height: '34px',
+                                width: '30px'
+                            }
+                            : null
+                    }
+                    alt="logo"
+                    src={getHeaderLogo()}
+                />
                 <span className='c-header__title c-header__title--main'>
                     {window.APP_CONF.prefix}
                 </span>

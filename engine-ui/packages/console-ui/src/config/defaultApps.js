@@ -24,7 +24,6 @@ module.exports = [
         icon: '/public/main/img/icon_1.png',
         newIcon: '/public/main/img/icon_new1.png', // 新版的图标，因为旧版本的阿里云还要用所以不能删除
         description: '一站式大数据开发平台，帮助企业快速完成数据中台搭建',
-        newDescription: '一站式大数据开发平台，帮助企业快速完成数据中台搭建', // 新版本的描述，因为旧版本阿里云还要用所以旧的描述不能删除
         className: 'icon_dropdown_offlin'
     }, {
         id: 'stream',
@@ -38,8 +37,7 @@ module.exports = [
         apiBase: '/streamapp',
         icon: '/public/main/img/icon_2.png',
         newIcon: '/public/main/img/icon_new2.png',
-        description: '基于FlinkSQL的流计算开发平台，快速对接数据源，帮助企业向实时化、智能化大数据计算升级转型',
-        newDescription: '基于SQL的流计算开发平台，帮助企业向实时化、智能化升级转型',
+        description: '基于SQL的流计算开发平台，帮助企业向实时化、智能化升级转型',
         className: 'icon_dropdown_flow'
     }, {
         id: 'analyticsEngine',
@@ -53,7 +51,6 @@ module.exports = [
         icon: '/public/main/img/icon_3.png',
         newIcon: '/public/main/img/icon_new3.png',
         description: '海量数据秒级查询，极速响应能力，帮助企业自由的数据探索',
-        newDescription: '海量数据秒级查询，极速响应能力，帮助企业自由的数据探索',
         className: 'icon_dropdown_engine'
     }, {
         id: 'dataQuality',
@@ -65,8 +62,7 @@ module.exports = [
         apiBase: '/dq',
         icon: '/public/main/img/icon_4.png',
         newIcon: '/public/main/img/icon_new4.png',
-        description: '对过程数据和结果数据进行质量校验，帮助企业及时发现数据质量问题',
-        newDescription: '对过程和结果数据进行校验，帮助企业及时发现数据质量问题',
+        description: '对过程和结果数据进行校验，帮助企业及时发现数据质量问题',
         className: 'icon_dropdown_qualit'
     }, {
         id: 'dataApi',
@@ -78,8 +74,7 @@ module.exports = [
         apiBase: '/dataApi',
         icon: '/public/main/img/icon_5.png',
         newIcon: '/public/main/img/icon_new5.png',
-        description: '快速生成数据API、统一管理API服务，帮助企业提高数据开放效率',
-        newDescription: '数据API快速生成与注册，帮助企业提高数据开放与共享效率',
+        description: '数据API快速生成与注册，帮助企业提高数据开放与共享效率',
         className: 'icon_dropdown_api'
     }, {
         id: 'dataLabel',
@@ -103,8 +98,7 @@ module.exports = [
         apiBase: '/science',
         icon: '/public/main/img/icon_suanfa.png',
         newIcon: '/public/main/img/icon_newsuanfa.png',
-        description: '集可视化实验与交互式Notebook开发于一体的机器学习作业探索平台，帮助企业构建算法服务能力',
-        newDescription: '可视化机器学习作业平台，帮助企业构建与提升算法服务能力',
+        description: '可视化机器学习作业平台，帮助企业构建与提升算法服务能力',
         className: 'science'
     }, {
         id: 'console',
@@ -117,8 +111,7 @@ module.exports = [
         disableSetting: true, // 禁用设置菜单的内容
         icon: '/public/main/img/icon_6.png',
         newIcon: '/public/main/img/icon_new6.jpg',
-        description: '计算资源分配、多集群管理',
-        newDescription: '多集群管理与计算资源分配，帮助企业构建安全稳定的集群环境',
+        description: '多集群管理与计算资源分配，帮助企业构建安全稳定的集群环境',
         needRoot: true,
         disableExt: true, // 是否禁用消息，橘色管理模块
         className: 'icon_dropdown_contro'

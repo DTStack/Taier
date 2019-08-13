@@ -85,7 +85,7 @@ class DashboardNew extends React.Component<any, any> {
                     }}
                 >
                     <a href={app.link} className="app-new-tag" key={app.id}>
-                        <img className="app-logo" src={app.newIcon} />
+                        <img className="app-logo" src={app.newIcon}/>
                         <h1>{app.name}</h1>
                         <p style={{ wordBreak: 'break-all' }}>{app.description}</p>
                     </a>

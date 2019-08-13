@@ -264,18 +264,14 @@ class Navigator extends React.Component<any, any> {
                     {logo}
                 </div>
                 {
-                    isNewHeader
-                        ? null
-                        : (
-                            menuLeft || <MenuLeft
-                                user={user}
-                                activeKey={current}
-                                customItems={customItems}
-                                menuItems={menuItems}
-                                licenseApps={licenseApps}
-                                onClick={this.handleClick}
-                            />
-                        )
+                    menuLeft || <MenuLeft
+                        user={user}
+                        activeKey={current}
+                        customItems={customItems}
+                        menuItems={menuItems}
+                        licenseApps={licenseApps}
+                        onClick={this.handleClick}
+                    />
                 }
                 {
                     menuRight || <MenuRight
