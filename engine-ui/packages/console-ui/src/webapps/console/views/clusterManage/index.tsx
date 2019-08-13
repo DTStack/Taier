@@ -64,20 +64,6 @@ class ClusterManage extends React.Component<any, any> {
                 dataIndex: 'clusterName',
                 width: '400px'
             },
-            // {
-            //     title: '节点数量',
-            //     dataIndex: 'totalNode'
-            // },
-            // {
-            //     title: '总资源数',
-            //     dataIndex: 'totalCore',
-            //     width: '200px',
-            //     render (text: any, record: any) {
-            //         const memory = record.totalMemory / 1024;
-            //         const haveDot = Math.floor(memory) != memory
-            //         return `${record.totalCore}VCore ${haveDot ? memory.toFixed(2) : memory}GB`
-            //     }
-            // },
             {
                 title: '修改时间',
                 dataIndex: 'gmtModified',
@@ -135,7 +121,6 @@ class ClusterManage extends React.Component<any, any> {
             Api.addCluster({ ...reqParams }).then((res: any) => {
                 if (res.code === 1) {
                     this.onCancel()
-                    // 采用接口返回数据
                     hashHistory.push({
                         pathname: '/console/clusterManage/editCluster',
                         state: {
@@ -185,7 +170,6 @@ class ClusterManage extends React.Component<any, any> {
                     title='新增集群'
                     visible={newClusterModal}
                     isAddCluster={true}
-                    isRequired={false}
                     onCancel={this.onCancel.bind(this)}
                     onOk={this.onSubmit.bind(this)}
                 />
