@@ -92,7 +92,8 @@ class TaskBrowser extends React.Component<any, any> {
     mapPanels = (panes: any) => {
         if (panes && panes.length > 0) {
             return panes.map((pane: any) => {
-                const title = (<div style={{ lineHeight: '19px' }}>
+                // line-height: 0 处理空白幽灵节点造成副作用
+                const title = (<div style={{ lineHeight: '0px' }}>
                     <TabIcon tabData={pane} />
                     <SyncBadge notSynced={pane.notSynced} />
                     <span title={pane.name} className="tab-ellipsis">{pane.name}</span>
