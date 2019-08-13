@@ -65,9 +65,7 @@ export default class FetchTable<T> extends React.Component<InvalidDataProps<T>, 
     }
 
     onChange = (pagination: PaginationProps) => {
-        this.setState({ pagination: {
-            current: pagination.current
-        } }, this.fetchData)
+        this.setState({ pagination: pagination }, this.fetchData)
     }
 
     render () {
