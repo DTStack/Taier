@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-function mergeDeep (object1: any, object2: any) {
+export function mergeDeep (object1: any, object2: any) {
     if (object1 == null || object2 == null) {
         return object2;
     } else if (!_.isPlainObject(object1) || !_.isPlainObject(object2)) {

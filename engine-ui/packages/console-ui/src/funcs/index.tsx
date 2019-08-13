@@ -4,12 +4,23 @@ import { NotificationApi } from 'antd/lib/notification';
 import React from 'react';
 import { MY_APPS } from 'main/consts';
 import { rdosApp, streamApp, scienceApp } from 'config/base';
+import { mergeDeep } from 'utils/merge';
 
 declare var window: any;
 
 /**
  * 存放一些零碎的公共方法
 */
+
+/**
+ * 更新组件状态
+ * @param thisRef 组件this引用
+ * @param newState 待更新状态
+ */
+export function updateComponentState (thisRef: { state: object; setState: Function }, newState: object): void {
+    const { state, setState } = thisRef;
+    setState(mergeDeep(state, newState));
+}
 
 // 请求防抖动
 export function debounceEventHander (func: any, wait?: number, options?: any) {
