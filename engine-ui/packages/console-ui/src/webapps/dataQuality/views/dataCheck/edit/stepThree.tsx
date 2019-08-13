@@ -744,7 +744,9 @@ class StepThree extends React.Component<any, any> {
                 });
 
                 sourceCheck.forEach((s: any, index: any) => {
-                    mapPk[s] = targetCheck[index];
+                    if (source.includes(s) && target.includes(s)) {
+                        mapPk[s] = targetCheck[index];
+                    }
                 });
                 this.props.changeParams({ mappedPK: mapPk });
             }
@@ -779,7 +781,9 @@ class StepThree extends React.Component<any, any> {
                 });
 
                 sourceCheck.forEach((s: any, index: any) => {
-                    mapPk[s] = targetCheck[index];
+                    if (source.includes(s) && target.includes(s)) {
+                        mapPk[s] = targetCheck[index];
+                    }
                 });
                 this.props.changeParams({ mappedPK: mapPk });
             }
@@ -799,9 +803,8 @@ class StepThree extends React.Component<any, any> {
             <div>
                 <div className="steps-content">
                     <p className="keymap-title">
-                        提示：您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射,同时，您需要添加主键
+                        提示：您要配置来源表与目标表的字段映射关系，通过连线将待同步的字段左右相连，也可以通过同行映射、同名映射批量完成映射，同时您需要添加主键
                     </p>
-
                     <Row className="keymap-content">
                         <Col span={3}>
                             <div className="keymap-action">

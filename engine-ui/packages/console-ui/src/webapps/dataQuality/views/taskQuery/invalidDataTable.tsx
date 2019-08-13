@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { isEmpty, assign } from 'lodash';
+import { isEmpty } from 'lodash';
 import { Card, Icon, Table } from 'antd';
 import { PaginationProps } from 'antd/lib/pagination';
+import { updateComponentState } from 'funcs';
 
 import { Pagination } from 'typing';
 
@@ -29,7 +30,7 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
             },
             pagination: {
                 current: 1,
-                total: null,
+                total: 0,
                 pageSize: 10
             }
         };
@@ -51,14 +52,13 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
         });
         if (res.code === 1) {
             const data = res.data;
-            this.setState({
+            updateComponentState(this, {
                 data: {
                     table: data.table,
                     lifeCycle: data.lifeCycle,
                     result: data.result || []
                 },
                 pagination: {
-                    current: data.current,
                     total: data.total
                 }
             })
@@ -66,10 +66,7 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     }
 
     onChange = (pagination: PaginationProps) => {
-        const newPagination = assign({}, this.state.pagination, {
-            current: pagination.current
-        })
-        this.setState({ pagination: newPagination }, this.fetchData)
+        this.setState({ pagination }, this.fetchData)
     }
 
     initInvalidDataTableColumns = (fields: {}) => {

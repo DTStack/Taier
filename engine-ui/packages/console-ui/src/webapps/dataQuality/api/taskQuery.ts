@@ -36,6 +36,6 @@ export default {
         return http.post<Response<InvalidData>>(req.GET_INVALID_TABLE_RESULT, params);
     },
     getDownInvalidDataURL (recordId: numOrStr, ruleId: numOrStr) {
-        return `${req.DOWNLOAD_INVALID_TABLE_RESULT}?recordId=${recordId}`;
+        return `${req.DOWNLOAD_INVALID_TABLE_RESULT}?recordId=${recordId}&ruleId=${ruleId}`;
     }
 }
