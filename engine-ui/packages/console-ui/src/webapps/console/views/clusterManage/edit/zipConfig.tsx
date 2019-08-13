@@ -11,7 +11,7 @@ class ZipConfig extends React.Component<any, any> {
         let keyAndValue: any;
         if (type == 'hdfs') {
             // md5zip 界面不显示
-            let copyVal = cloneDeep(zipConfig.hadoopConf);
+            let copyVal = cloneDeep(zipConfig.hadoopConf || {});
             delete (copyVal['md5zip'])
             keyAndValue = Object.entries(copyVal || {})
             utils.sortByCompareFunctions(keyAndValue,

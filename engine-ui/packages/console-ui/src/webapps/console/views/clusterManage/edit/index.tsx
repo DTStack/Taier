@@ -60,7 +60,7 @@ class EditCluster extends React.Component<any, any> {
         selectUserMap: {},
         selectUser: '', // select输入value
         file: '', // 上传的文件
-        zipConfig: '', // 解析的配置文件信息
+        zipConfig: '{}', // 解析的配置文件信息
         securityStatus: false, // 根据配置文件是否显示spark， flink等其他参数
         uploadLoading: false, // 上传loading
         flink_params: [],
@@ -264,7 +264,6 @@ class EditCluster extends React.Component<any, any> {
     }
     validateFileType (rule: any, value: any, callback: any) {
         const reg = /\.(zip)$/
-
         if (value && !reg.test(value.toLocaleLowerCase())) {
             const message = '配置文件只能是zip文件!';
             callback(message);
@@ -274,7 +273,10 @@ class EditCluster extends React.Component<any, any> {
     fileChange (e: any) {
         const { cluster } = this.props.location.state || {} as any;
         const file = e.target;
-        this.setState({ file: {}, uploadLoading: true, zipConfig: '', fileHaveChange: true });
+        this.props.form.setFieldsValue({
+            file: ''
+        })
+        this.setState({ uploadLoading: true, zipConfig: '{}', fileHaveChange: true });
         Api.uploadResource({
             resources: file.files[0],
             clusterId: cluster.id || cluster.clusterId,
@@ -297,10 +299,11 @@ class EditCluster extends React.Component<any, any> {
                         })
                     } else {
                         this.props.form.setFieldsValue({
-                            file: {}
+                            file: ''
                         })
                         this.setState({
-                            uploadLoading: false
+                            uploadLoading: false,
+                            zipConfig: '{}'
                         })
                     }
                 }
