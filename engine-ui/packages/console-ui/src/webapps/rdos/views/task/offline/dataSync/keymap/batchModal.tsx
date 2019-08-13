@@ -5,13 +5,15 @@ import {
 
 import {
     DATA_SOURCE,
-    hdfsFieldTypes
+    hdfsFieldTypes,
+    hbaseFieldTypes
 } from '../../../../../comm/const';
 
-const renderHDFSTypes = () => {
-    const types = hdfsFieldTypes.map((type: any) => <b key={type}>{type}, </b>)
+const renderTypes = (sourceType: number) => {
+    const types = sourceType === DATA_SOURCE.HBASE ? hbaseFieldTypes : hdfsFieldTypes;
+    const typeItems = types.map((type: any) => <b key={type}>{type}, </b>)
     return <span style={{ wordBreak: 'break-all' }}>
-        {types}
+        {typeItems}
     </span>
 }
 
@@ -45,7 +47,7 @@ export default function BatchModal (props: any) {
                 </b>
                 <p>常用数据类型（type)：
                     <span style={{ color: 'rgb(255, 102, 0)' }}>
-                        {renderHDFSTypes()}
+                        {renderTypes(sourceType)}
                     </span>
                 </p>
                 {columnFamily ? <p>已有列族：

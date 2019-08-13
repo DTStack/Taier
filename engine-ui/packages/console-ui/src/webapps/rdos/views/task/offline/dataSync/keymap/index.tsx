@@ -21,6 +21,7 @@ import Api from '../../../../../api';
 
 import {
     hdfsFieldTypes,
+    hbaseFieldTypes,
     DATA_SOURCE
 } from '../../../../../comm/const';
 
@@ -1316,7 +1317,7 @@ class Keymap extends React.Component<any, any> {
                     const cf = utils.trim(map[0])
                     const name = utils.trim(map[1])
                     const type = utils.trim(map[2])
-                    if (!hdfsFieldTypes.includes(type)) {
+                    if (!hbaseFieldTypes.includes(type)) {
                         message.error(`字段${name}的数据类型错误！`)
                         return;
                     }
@@ -1424,7 +1425,7 @@ class Keymap extends React.Component<any, any> {
                     const cf = utils.trim(map[0]);
                     const name = utils.trim(map[1]);
                     const type = utils.trim(map[2]);
-                    if (!hdfsFieldTypes.includes(type)) {
+                    if (!hbaseFieldTypes.includes(type)) {
                         message.error(`字段${name}的数据类型错误！`)
                         return;
                     }

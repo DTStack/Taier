@@ -138,7 +138,7 @@ export default {
         return (dispatch: any) => {
             tableMaApi.getDataCatalogues(params).then((res: any) => {
                 if (res.code === 1) {
-                    dispatch(this.getDataCatalogues(res.data))
+                    dispatch(this.getDataCatalogues(res.data || []))
                 }
             })
         }
