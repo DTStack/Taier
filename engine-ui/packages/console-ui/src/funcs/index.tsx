@@ -18,8 +18,9 @@ declare var window: any;
  * @param newState 待更新状态
  */
 export function updateComponentState (thisRef: { state: object; setState: Function }, newState: object): void {
-    const { state, setState } = thisRef;
-    setState(mergeDeep(state, newState));
+    if (thisRef && thisRef.setState) {
+        thisRef.setState(mergeDeep(thisRef.state, newState));
+    }
 }
 
 // 请求防抖动
