@@ -24,7 +24,7 @@ declare module 'typing' {
      */
     export interface Pagination {
         current?: number;
-        total?: number;
+        total: number;
         pageSize?: number;
     }
 
