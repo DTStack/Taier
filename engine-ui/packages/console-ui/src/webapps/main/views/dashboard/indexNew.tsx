@@ -6,7 +6,7 @@ import utils from 'utils';
 import { Alert, Row, Col } from 'antd';
 import Api from '../../api';
 import Header from '../layout/newHeader'
-import Footer from '../layout/footer';
+import Footer from '../layout/newFooter';
 import { getInitUser } from '../../actions/user'
 
 import { MY_APPS, getThemeBanner } from '../../consts';
@@ -159,18 +159,19 @@ class DashboardNew extends React.Component<any, any> {
                     </div>
                     <div
                         style={{
-                            padding: '0 150px',
-                            background: 'F2F7FA',
-                            position: 'relative',
-                            zIndex: 999
+                            width: '100%',
+                            background: '#F2F7FA',
+                            marginTop: '-100px'
                         }}
                     >
                         <div
                             style={{
                                 background: '#fff',
-                                // boxShadow: '0px 0px 10px #696c7f',
                                 boxShadow: '0px 0px 15px rgba(24, 39, 140, 0.3)',
-                                marginTop: '-100px'
+                                width: '1200px',
+                                margin: '0 auto',
+                                position: 'relative',
+                                zIndex: 9999
                             }}
                         >
                             <div
@@ -193,8 +194,9 @@ class DashboardNew extends React.Component<any, any> {
                                     {this.renderApps()}
                                 </Row>
                             </div>
-                            <Footer></Footer>
+                            
                         </div>
+                        <Footer></Footer>
                     </div>
                 </div>
             </div>
