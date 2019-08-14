@@ -23,7 +23,6 @@ class Header extends React.Component<any, any> {
     render () {
         const { apps, licenseApps } = this.props;
         const logo =
-
             <React.Fragment>
                 <img
                     alt="logo"
@@ -32,7 +31,7 @@ class Header extends React.Component<any, any> {
                 <span className='c-header__title c-header__title--main'>
                     {window.APP_CONF.prefix}
                 </span>
-            </React.Fragment>
+            </React.Fragment>;
 
         return <Navigator
             logo={logo}

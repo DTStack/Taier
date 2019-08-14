@@ -57,7 +57,7 @@ export function MenuLeft (props: any) {
 
 export function MenuRight (props: any) {
     const {
-        onClick, settingMenus, user, licenseApps,
+        onClick, settingMenus, user, licenseApps = [],
         app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
