@@ -93,7 +93,7 @@ export function exChangeComponentConf (hadoopComp: any, libraComp: any) {
     const comp = hadoopComp.concat(libraComp);
     let componentConf: any = {};
     comp.map((item: any) => {
-        const componentTypeCode = item.componentTypeCode;
+        const componentTypeCode = item && item.componentTypeCode;
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 componentConf = Object.assign(componentConf, {

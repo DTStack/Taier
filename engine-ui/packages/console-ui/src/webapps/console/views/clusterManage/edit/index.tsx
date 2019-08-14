@@ -941,11 +941,12 @@ class EditCluster extends React.Component<any, any> {
      * 渲染 Component Config
      */
     renderComponentConf = (component: any) => {
-        const { checked, securityStatus, zipConfig } = this.state;
+        const { checked, securityStatus, zipConfig,
+            gatewayHostValue, gatewayPortValue, gatewayJobNameValue,
+            deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
         const { getFieldDecorator } = this.props.form;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
-        const { gatewayHostValue, gatewayPortValue, gatewayJobNameValue, deleteOnShutdownOption, randomJobNameSuffixOption } = this.state;
         switch (component.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.SPARKTHRIFTSERVER: {
                 return (
@@ -1127,7 +1128,7 @@ class EditCluster extends React.Component<any, any> {
                     onChange={this.onTabChange}
                 >
                     {
-                        engineList && engineList.map((item: any = [], index: any) => {
+                        engineList && engineList.map((item: any, index: any) => {
                             const { engineType } = item;
                             const isHadoop = isHadoopEngine(engineType);
                             return (
@@ -1165,7 +1166,7 @@ class EditCluster extends React.Component<any, any> {
                                                 tabPosition='left'
                                             >
                                                 {
-                                                    tabCompData && tabCompData.map((item: any = [], index: any) => {
+                                                    tabCompData && tabCompData.map((item: any, index: any) => {
                                                         const { componentTypeCode } = item;
                                                         return (
                                                             <TabPane
