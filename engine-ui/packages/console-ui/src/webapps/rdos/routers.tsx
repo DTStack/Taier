@@ -51,6 +51,7 @@ import DirtyDataTbOverview from './views/operation/dirtyData/table';
 // ======= 运维 =======
 import DataSourceOffline from './views/dataSource';
 import DataSourceMigrationOffline from './views/dataSource/dbSync';
+import HiveSync from './views/dataSource/hiveSync';
 
 // ======= 数据管理 =======
 import TableManage from './views/dataManage/tableManage';
@@ -168,6 +169,7 @@ export default (
                 <IndexRoute component={DataSourceOffline} />
                 <Route path="offLineData" component={DataSourceOffline} />
                 <Route path="offLineData/db-sync/:sourceId/:sourceName" component={DataSourceMigrationOffline} />
+                <Route path="offLineData/hive-sync/:projectId/:projectName" component={HiveSync} />
             </Route>
             <Route path="/data-manage" component={DataManageContainer}>
                 <Route path="table" component={TableManage}>

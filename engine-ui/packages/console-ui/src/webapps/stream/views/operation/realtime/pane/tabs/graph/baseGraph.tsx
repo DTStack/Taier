@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 import Resize from 'widgets/resize';
 import FullScreen from 'widgets/fullscreen'
 
-import { lineAreaChartOptions, TIME_TYPE } from '../../../../../../comm/const'
+import { lineAreaChartOptions, TIME_TYPE, SOURCE_INPUT_BPS_UNIT_TYPE } from '../../../../../../comm/const'
 
 // 引入 ECharts 主模块
 const echarts = require('echarts/lib/echarts');
@@ -29,6 +29,35 @@ function haveData (lineData: any = {}) {
         return false;
     }
     return true;
+}
+function isExchangeData (data: any = [], unitType: any) {
+    let exChangeArr: any = [];
+    switch (unitType) {
+        case SOURCE_INPUT_BPS_UNIT_TYPE.BPS: {
+            exChangeArr = data;
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.KBPS: {
+            exChangeArr = data.map((item: any) => Number((item / 1024).toFixed(6)));
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.MBPS: {
+            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 2)).toFixed(6)));
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.GBPS: {
+            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 3)).toFixed(6)));
+            break;
+        }
+        case SOURCE_INPUT_BPS_UNIT_TYPE.TBPS: {
+            exChangeArr = data.map((item: any) => Number((item / Math.pow(1024, 4)).toFixed(6)));
+            break;
+        }
+        default: {
+            return exChangeArr
+        }
+    }
+    return exChangeArr
 }
 class AlarmBaseGraphBox extends React.Component<any, any> {
     state: any = {
@@ -128,7 +157,7 @@ class AlarmBaseGraph extends React.Component<any, any> {
         if (loading) {
             return;
         }
-        const { x, y = [], legend, color, unit } = lineData;
+        const { x, y = [], legend, color, unit, metricsType } = lineData;
         /**
          * 先检验是不是有数据，没数据就不渲染了
          */
@@ -206,12 +235,16 @@ class AlarmBaseGraph extends React.Component<any, any> {
          * 设置具体的数据
          */
         options.series = y.map((item: any, index: any) => {
+            let arrData = item;
+            if (metricsType == 'source_input_bps') {
+                arrData = isExchangeData(item, unit)
+            }
             let line: any = {
                 name: legend[index],
-                data: item,
+                data: arrData,
                 type: 'line',
                 smooth: true,
-                showSymbol: !(item.length > 2)
+                showSymbol: !(arrData.length > 2)
             }
             if (color[index]) {
                 line.lineStyle = {

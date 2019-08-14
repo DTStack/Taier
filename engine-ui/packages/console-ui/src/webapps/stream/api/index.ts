@@ -178,6 +178,9 @@ export default {
     getTimeZoneList (params?: any) {
         return http.post(req.GET_TIMEZONE_LIST, params)
     },
+    convertToScriptMode (params: any) {
+        return http.post(req.CONVERT_TO_SCRIPT_MODE, params)
+    },
     getStremTableType (params: any) {
         return http.post(req.GET_STREM_TABLE_TYPE, params)
     },

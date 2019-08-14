@@ -291,6 +291,9 @@
     }
 }
 .middle-collapse{
+    &.middle-collapse--noBorderTop {
+        border-top-width: 0;
+    }
     &.ant-collapse {
         & > .ant-collapse-item{
             

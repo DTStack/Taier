@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import Navigator, { compareEnable } from '../../components/nav';
+import Navigator, { compareEnableApp } from '../../components/nav';
 import { getHeaderLogo } from '../../consts'
 
 declare var window: any;
@@ -44,7 +44,7 @@ class Header extends React.Component<any, any> {
 
         return <Navigator
             logo={logo}
-            menuItems={isNewHeader ? [] : compareEnable(apps, licenseApps)}
+            menuItems={isNewHeader ? [] : compareEnableApp(apps, licenseApps, true)}
             licenseApps={licenseApps}
             {...this.props}
         />

@@ -21,11 +21,12 @@ class MsgDetail extends React.Component<any, any> {
 
     loadMsg = (msgId: any) => {
         Api.getMsgById(this.state.app, { notifyRecordId: msgId }).then((res: any) => {
+            const data = res.data || []
             this.setState({
-                msgInfo: res.data
+                msgInfo: data
             })
 
-            if (res.data.readStatus !== 1) { // 如果未读，则标记为已读
+            if (data.readStatus !== 1) { // 如果未读，则标记为已读
                 this.markAsRead(msgId);
             }
         })

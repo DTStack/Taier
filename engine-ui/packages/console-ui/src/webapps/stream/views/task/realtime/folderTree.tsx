@@ -11,14 +11,16 @@ const TreeNode = Tree.TreeNode
 class FolderTree extends React.Component<any, any> {
     selEle: any;
     renderFileInfo = (menuType: any, file: any) => {
-        if (
-            (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT) &&
-            file.type === 'file'
-        ) {
-            const lockInfo = file.readWriteLockVO || {};
-            return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formatDateTime(lockInfo.gmtModified)}`;
+        if (file.type === 'file') {
+            if (menuType === MENU_TYPE.TASK || menuType === MENU_TYPE.SCRIPT) {
+                const lockInfo = file.readWriteLockVO || {};
+                return ` ${lockInfo.lastKeepLockUserName} 锁定于 ${utils.formatDateTime(lockInfo.gmtModified)}`;
+            } else {
+                return ` ${file.createUser}`;
+            }
+        } else {
+            return null
         }
-        return file.createUser;
     }
 
     renderStatusBadge = (menuType: any, file: any) => {

@@ -186,6 +186,7 @@ class NewApi extends React.Component<any, any> {
     }
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
+        const containHeader = `${data ? data.containHeader : ''}`; // 转换数值类型为字符串
         let newState: any = {
             loading: false,
             mode: data.paramCfgType,
@@ -209,9 +210,12 @@ class NewApi extends React.Component<any, any> {
                 tableName: data.tableName,
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
+                containHeader: containHeader,
                 sql: data.sql
             },
-            registerParams: {},
+            registerParams: {
+                containHeader: containHeader
+            },
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
                 respJson: data.respJson
@@ -247,6 +251,7 @@ class NewApi extends React.Component<any, any> {
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
                 sql: data.sql,
+                containHeader: containHeader,
                 inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
                 outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
             }
@@ -330,6 +335,7 @@ class NewApi extends React.Component<any, any> {
             dataSrcId: paramsConfig.dataSrcId,
             tableName: paramsConfig.tableName,
             dataSourceType: paramsConfig.dataSourceType,
+            containHeader: paramsConfig.containHeader,
             respPageSize: paramsConfig.respPageSize,
             allowPaging: paramsConfig.resultPageChecked ? 1 : 0,
             sql: paramsConfig.sql,
@@ -383,6 +389,7 @@ class NewApi extends React.Component<any, any> {
         result.successRespJson = registerParams.successValue;
         result.errorRespJson = registerParams.errorValue;
         result.errorCodeList = registerParams.errorCodeList;
+        result.containHeader = registerParams.containHeader;
         result.bodyDesc = registerParams.bodyDesc;
         result.inputParam = (registerParams.inputParam || []).concat((registerParams.constParam || []).map((item: any) => {
             return {

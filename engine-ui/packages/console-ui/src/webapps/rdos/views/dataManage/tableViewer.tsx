@@ -385,7 +385,7 @@ export default class TableViewer extends React.Component<any, any> {
                                                 key: str + i,
                                                 width: '200px'
                                             }))}
-                                            className="dt-ant-table dt-ant-table--border"
+                                            className="dt-ant-table"
                                             dataSource={previewData}
                                             scroll={{ x: 200 * this.previewCols.length }}
                                         ></Table>

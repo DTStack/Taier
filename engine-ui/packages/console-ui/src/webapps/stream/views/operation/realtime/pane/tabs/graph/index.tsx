@@ -4,7 +4,7 @@ import { Radio, Collapse, Icon, Tooltip, Alert } from 'antd'
 import AlarmBaseGraph from './baseGraph';
 
 import utils from 'utils';
-import { TIME_TYPE, CHARTS_COLOR, TASK_TYPE, DATA_SOURCE_TEXT } from '../../../../../../comm/const';
+import { TIME_TYPE, CHARTS_COLOR, TASK_TYPE, DATA_SOURCE_TEXT, SOURCE_INPUT_BPS_UNIT_TYPE } from '../../../../../../comm/const';
 import Api from '../../../../../../api'
 
 const RadioButton = Radio.Button;
@@ -47,6 +47,32 @@ const defaultData: any = {
     [metricsType.DATA_COLLECTION_TOTAL_RPS]: defaultLineData,
     [metricsType.DATA_COLLECTION_TOTAL_BPS]: defaultLineData
 }
+function matchSourceInputUnit (metricsData: any = {}) {
+    const { y = [[]] } = metricsData;
+    let unit = '';
+    const dataFlat = y.flat() || [];
+    const maxVal = Math.max.apply(null, dataFlat);
+    const isBps = maxVal < 1024;
+    const isKbps = dataFlat.some((item: any) => item >= 1024 && item < Math.pow(1024, 2));
+    const isMbps = dataFlat.some((item: any) => item >= Math.pow(1024, 2) && item < Math.pow(1024, 3));
+    const isGbps = dataFlat.some((item: any) => item >= Math.pow(1024, 3) && item < Math.pow(1024, 4));
+    const isTbps = dataFlat.some((item: any) => item >= Math.pow(1024, 4));
+    if (isBps) {
+        unit = SOURCE_INPUT_BPS_UNIT_TYPE.BPS;
+    } else if (isKbps) {
+        unit = SOURCE_INPUT_BPS_UNIT_TYPE.KBPS;
+    } else if (isMbps) {
+        unit = SOURCE_INPUT_BPS_UNIT_TYPE.MBPS;
+    } else if (isGbps) {
+        unit = SOURCE_INPUT_BPS_UNIT_TYPE.GBPS;
+    } else if (isTbps) {
+        unit = SOURCE_INPUT_BPS_UNIT_TYPE.TBPS;
+    } else {
+        unit = SOURCE_INPUT_BPS_UNIT_TYPE.BPS;
+    }
+    return unit
+}
+
 class StreamDetailGraph extends React.Component<any, any> {
     state: any = {
         time: defaultTimeValue,
@@ -239,7 +265,7 @@ class StreamDetailGraph extends React.Component<any, any> {
         const { data = {} } = this.props;
         const { taskType } = data;
         const isDataCollection = taskType == TASK_TYPE.DATA_COLLECTION;
-
+        const sourceIptUnit = matchSourceInputUnit({ ...lineDatas[metricsType.SOURCE_INPUT_BPS] })
         return (
             <div className="pane-graph-box">
                 <header className="graph-header">
@@ -325,7 +351,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                 </section>
                             </div>
                         </div>
-                    ) : (<Collapse className="middle-collapse" defaultActiveKey={['OverView']}>
+                    ) : (<Collapse className="middle-collapse middle-collapse--noBorderTop" defaultActiveKey={['OverView']}>
                         <Panel header="OverView" key="OverView">
                             <div className="alarm-graph-row">
                                 <section>
@@ -358,7 +384,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             color: CHARTS_COLOR,
                                             ...lineDatas[metricsType.SOURCE_TPS],
-                                            unit: 'tps 条/秒'
+                                            unit: 'tps'
                                         }}
                                         desc="对流式数据输入（Kafka）进行统计，单位是TPS(Transaction Per Second)。"
                                         title="各Source的TPS数据输入" />
@@ -369,10 +395,10 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             ...lineDatas[metricsType.SINK_OUTPUT_RPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'rps 条/秒'
+                                            unit: 'rps'
                                         }}
                                         desc="对流式数据输出至MySQL、HBase、ElasticSearch等第三方存储系统的数据输出量，单位是RPS（Record Per Second）。"
-                                        title="各Sink的数据输出" />
+                                        title="各Sink的RPS数据输出" />
                                 </section>
                             </div>
                             <div className="alarm-graph-row">
@@ -382,7 +408,7 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             ...lineDatas[metricsType.SOURCE_RPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'rps 条/秒'
+                                            unit: 'rps'
                                         }}
                                         desc="对流式数据输入（Kafka）进行统计，单位是RPS(Record Per Second)。"
                                         title="各Source的RPS数据输入" />
@@ -393,9 +419,10 @@ class StreamDetailGraph extends React.Component<any, any> {
                                         lineData={{
                                             ...lineDatas[metricsType.SOURCE_INPUT_BPS],
                                             color: CHARTS_COLOR,
-                                            unit: 'bps 条/秒'
+                                            unit: sourceIptUnit,
+                                            metricsType: metricsType.SOURCE_INPUT_BPS
                                         }}
-                                        desc="对流式数据输入（Kafka）进行统计，单位是BPS(Byte Per Second)。"
+                                        desc="对流式数据输入（Kafka）进行统计，单位是BPS(Byte Per Second)，系统会根据实际数据量自动转化单位，如Mbps、Gbps。"
                                         title="各Source的BPS数据输入" />
                                 </section>
                             </div>

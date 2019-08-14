@@ -326,10 +326,11 @@ class DataSourceManaStream extends React.Component<any, any> {
                         extra={extra}
                         noHovering
                         bordered={false}
+                        className="noBorderBottom"
                     >
                         <Table
                             rowKey="id"
-                            className="m-table full-screen-table-47"
+                            className="dt-ant-table dt-ant-table--border full-screen-table-47"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}

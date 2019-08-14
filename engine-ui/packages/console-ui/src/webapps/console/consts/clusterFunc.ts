@@ -93,7 +93,7 @@ export function exChangeComponentConf (hadoopComp: any, libraComp: any) {
     const comp = hadoopComp.concat(libraComp);
     let componentConf: any = {};
     comp.map((item: any) => {
-        const componentTypeCode = item.componentTypeCode;
+        const componentTypeCode = item && item.componentTypeCode;
         switch (componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
                 componentConf = Object.assign(componentConf, {
@@ -166,7 +166,7 @@ export function exChangeComponentConf (hadoopComp: any, libraComp: any) {
  */
 export function showTestResult (testResults: any, engineType: any) {
     let testStatus: any = {}
-    const isHadoop = engineType == ENGINE_TYPE.HADOOP;
+    const isHadoop = isHadoopEngine(engineType);
     testResults && testResults.map((comp: any) => {
         switch (comp.componentTypeCode) {
             case COMPONENT_TYPE_VALUE.FLINK: {
@@ -240,12 +240,15 @@ export function showTestResult (testResults: any, engineType: any) {
  * 校验组件必填项未填标识
  * @param tabCompData 不同engine的组件数据
  */
-export function validateAllRequired (validateFields: any, tabCompData: any) {
-    // const { hadoopComponentData, libraComponentData, defaultEngineType } = this.state;
-    // const tabCompData = defaultEngineType == ENGINE_TYPE.HADOOP ? hadoopComponentData : libraComponentData; // 不同engine的组件数据
+export function validateAllRequired (validateFieldsAndScroll: any, tabCompData: any) {
     let obj: any = {}
     tabCompData && tabCompData.map((item: any) => {
-        validateFields(validateCompParams(item.componentTypeCode), {}, (err: any, values: any) => {
+        validateFieldsAndScroll(validateCompParams(item.componentTypeCode), {
+            force: true,
+            scroll: {
+                offsetBottom: 150
+            }
+        }, (err: any, values: any) => {
             if (item.componentTypeCode == COMPONENT_TYPE_VALUE.FLINK) {
                 if (!err) {
                     obj = Object.assign(obj, {
@@ -475,4 +478,9 @@ export function toChsKeys (obj: any, keyMap: any) {
         newObj[newKey] = obj[key];
         return newObj
     }, {})
+}
+
+// 是否是hadoop引擎
+export function isHadoopEngine (engineType: any) {
+    return engineType == ENGINE_TYPE.HADOOP
 }

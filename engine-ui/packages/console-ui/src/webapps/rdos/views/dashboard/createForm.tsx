@@ -167,7 +167,7 @@ class WorkspaceForm extends React.Component<any, any> {
                         hasLibra ? (
                             <React.Fragment>
                                 <FormItem
-                                    style={{ marginBottom: 0, marginTop: 20 }}
+                                    style={{ marginBottom: 0, marginTop: '20px' }}
                                 >
                                     {getFieldDecorator('enableLibrA', {
                                         rules: [],

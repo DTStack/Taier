@@ -532,7 +532,7 @@ class RealTimeTaskList extends React.Component<any, any> {
                 >
                     <Table
                         rowKey="id"
-                        className="m-table full-screen-table-90"
+                        className="dt-ant-table full-screen-table-90"
                         rowClassName={
                             (record: any, index: any) => {
                                 if (selectTask == record.id) {

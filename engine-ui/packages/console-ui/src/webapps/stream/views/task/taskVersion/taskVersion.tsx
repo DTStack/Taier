@@ -41,7 +41,7 @@ class TaskVersion extends React.Component<any, any> {
         return (
             <div>
                 <Table
-                    className="m-table"
+                    className="dt-ant-table dt-ant-table--border dt-ant-table--border-lr dt-ant-table--bg-white"
                     rowKey="version"
                     dataSource={taskInfo.taskVersions || []}
                     columns={this.taskVersionCols()}

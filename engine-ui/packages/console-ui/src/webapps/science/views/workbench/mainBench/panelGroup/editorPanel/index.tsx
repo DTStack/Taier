@@ -4,6 +4,7 @@ import { Tabs, Button, Icon } from 'antd';
 import { debounce, get } from 'lodash';
 import { bindActionCreators } from 'redux';
 import { commonFileEditDelegator } from 'widgets/editor/utils';
+import { filterPythonComment } from 'funcs';
 
 import CommonEditor from '../../../../../components/commonEditor';
 import Editor from 'widgets/editor/index'
@@ -47,7 +48,7 @@ class EditorPanel extends React.Component<any, any> {
          * 处理一下自定义和系统参数
          */
         let { taskVariables = [] } = this.props.data;
-        let variables = matchTaskParams(this.props.common.sysParams, newVal);
+        let variables = matchTaskParams(this.props.common.sysParams, filterPythonComment(newVal));
         const newKeys = variables.map((v: any) => {
             return v.paramName;
         });

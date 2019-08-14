@@ -56,7 +56,7 @@ class Workbench extends React.Component<any, any> {
                 >
                     <div
                         className="ant-layout-sider bd-right"
-                        style={{ width: 'inherit', height: '100%' }}
+                        style={{ width: 'inherit', height: '100%', transition: 'none' }}
                     >
                         <Sidebar />
                     </div>

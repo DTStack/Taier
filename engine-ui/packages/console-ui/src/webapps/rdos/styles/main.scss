@@ -136,6 +136,14 @@ body:-webkit-full-screen {
         padding: 0;
     }
 }
+.modal-body--height100 {
+    .ant-modal-content {
+        height: 100%;
+        .ant-modal-body {
+            height: 100%;
+        }
+    }
+}
 
 .ant-calendar-picker {
     display: inline-block;

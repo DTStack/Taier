@@ -552,6 +552,13 @@ export const TIME_TYPE: any = {
     D7: '7d',
     W1: '1w'
 }
+export const SOURCE_INPUT_BPS_UNIT_TYPE: any = {
+    BPS: 'Bps',
+    KBPS: 'Kbps',
+    MBPS: 'Mbps',
+    GBPS: 'Gbps',
+    TBPS: 'Tbps'
+}
 
 export const formItemLayout: any = { // 表单正常布局
     labelCol: {

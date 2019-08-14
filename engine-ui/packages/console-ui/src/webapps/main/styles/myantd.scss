@@ -327,11 +327,11 @@
         .ant-itempad_small {
             padding-left: 18px !important;
         }
-        &.ele-padd_small {
-            > .ant-menu-item, .ant-menu-submenu {
-                padding-top: 10px !important;
-            }
-        }
+        // &.ele-padd_small {
+        //     > .ant-menu-item, .ant-menu-submenu {
+        //         padding-top: 10px !important;
+        //     }
+        // }
         .ant-menu-submenu-selected {
             height: 42px;
             background: #2491F7;
@@ -426,22 +426,22 @@
 }
 
 .full-screen-table-30{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 30px);
 }
 
 .full-screen-table-40{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 40px);
 }
 
 .full-screen-table-47{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 47px);
 }
 
 .full-screen-table-50{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 50px);
 }
 .dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll {
@@ -464,27 +464,27 @@
 }
 
 .full-screen-table-60{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 60px);
 }
 
 .full-screen-table-70{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 70px);
 }
 
 .full-screen-table-80{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 80px);
 }
 
 .full-screen-table-90{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 90px);
 }
 
 .full-screen-table-120{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 120px);
 }
 .no-card-border{

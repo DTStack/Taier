@@ -332,6 +332,16 @@ export const hdfsFieldTypes: any = [ // hdfs 类型
     'DATE'
 ]
 
+export const hbaseFieldTypes = [ // HBase 类型
+    'BOOLEAN',
+    'INT',
+    'STRING',
+    'LONG',
+    'DOUBLE',
+    'SHORT',
+    'FLOAT'
+]
+
 export const mysqlFieldTypes: any = [// mysql类型
     'BIT',
     'BOOL',

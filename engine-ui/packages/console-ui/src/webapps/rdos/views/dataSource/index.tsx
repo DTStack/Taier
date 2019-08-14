@@ -11,7 +11,7 @@ import {
 import { Circle } from 'widgets/circle';
 
 import Api from '../../api';
-import { PROJECT_TYPE } from '../../comm/const';
+import { PROJECT_TYPE, DATA_SOURCE } from '../../comm/const';
 import { isRDB } from '../../comm';
 import { getSourceTypes } from '../../store/modules/dataSource/sourceTypes';
 
@@ -264,6 +264,7 @@ class DataSourceMana extends React.Component<any, any> {
                  */
                 const isCommon = project.projectType == PROJECT_TYPE.COMMON;
                 const isRDBType = isRDB(record.type);
+                const isHive = record.type === DATA_SOURCE.HIVE && record.isDefault === 1;
 
                 const isActive = record.active === 1;
                 let menuItem: any = [];
@@ -311,6 +312,25 @@ class DataSourceMana extends React.Component<any, any> {
                     menuItem.push(
                         <MenuItem key="editView">
                             {editView}
+                        </MenuItem>
+                    )
+                    menuItem.push(
+                        <MenuItem key="delView">
+                            {deleteView}
+                        </MenuItem>
+                    )
+                } else if (isHive) {
+                    extAction = (
+                        <span>
+                            {editView}
+                            {splitView}
+                        </span>
+                    )
+                    menuItem.push(
+                        <MenuItem key="sync">
+                            <Link to={`database/offLineData/hive-sync/${record.projectId}/${record.dataName}`}>
+                                同步元数据
+                            </Link>
                         </MenuItem>
                     )
                     menuItem.push(

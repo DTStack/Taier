@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, Tooltip, Icon } from 'antd';
+import { Button, Tooltip, Icon, Checkbox } from 'antd';
 import ConstColumnModel from '../../../../../model/constColumnModel';
 import InputColumnModel from '../../../../../model/inputColumnModel';
 import { resolveFormItemKey } from '../helper';
@@ -26,6 +26,11 @@ class RegisterParams extends React.Component<any, any> {
         })
         this.props.updateData({
             bodyDesc: value
+        });
+    }
+    onReqHeaderChange = (checkedValue: any) => {
+        this.props.updateData({
+            containHeader: checkedValue ? '1' : '0' // containHeader 0或空表示不包含、1 表示包含
         });
     }
     newColumn (type: any) {
@@ -187,6 +192,20 @@ class RegisterParams extends React.Component<any, any> {
                         />
                     </Card>
                 )}
+                <div className="c-register-params__content__card " style={{ marginTop: '40px' }}>
+                    <div className="c-register-params__content__card__head">
+                        <span className="c-register-params__content__card__title">高级配置</span>
+                    </div>
+                    <div>
+                        <Checkbox
+                            checked={data.containHeader === '1'}
+                            value={data.containHeader}
+                            onChange={this.onReqHeaderChange}
+                        >
+                            返回结果中携带 Request Header 参数
+                        </Checkbox>
+                    </div>
+                </div>
             </React.Fragment>
         )
     }

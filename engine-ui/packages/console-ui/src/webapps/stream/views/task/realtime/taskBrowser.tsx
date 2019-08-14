@@ -6,7 +6,7 @@ import utils from 'utils'
 import { debounce, cloneDeep } from 'lodash';
 
 import Api from '../../../api'
-import { LOCK_TYPE } from '../../../comm/const'
+import { LOCK_TYPE, DATA_SYNC_TYPE } from '../../../comm/const'
 import SyncBadge from '../../../components/sync-badge'
 import Editor from 'widgets/editor'
 import TabIcon from '../../../components/tab-icon'
@@ -92,7 +92,8 @@ class TaskBrowser extends React.Component<any, any> {
     mapPanels = (panes: any) => {
         if (panes && panes.length > 0) {
             return panes.map((pane: any) => {
-                const title = (<div style={{ lineHeight: '19px' }}>
+                // line-height: 0 处理空白幽灵节点造成副作用
+                const title = (<div style={{ lineHeight: '0px' }}>
                     <TabIcon tabData={pane} />
                     <SyncBadge notSynced={pane.notSynced} />
                     <span title={pane.name} className="tab-ellipsis">{pane.name}</span>
@@ -299,7 +300,7 @@ class TaskBrowser extends React.Component<any, any> {
 
         const panels = this.mapPanels(pages);
         const isLocked = currentPage.readWriteLockVO && !currentPage.readWriteLockVO.getLock;
-
+        const isGuideMode = currentPage.createModel != DATA_SYNC_TYPE.SCRIPT;
         return (
             <Row className="task-browser">
                 <div className="browser-content">
@@ -355,17 +356,17 @@ class TaskBrowser extends React.Component<any, any> {
                                 <TaskDetail {...this.props} />
                             </TabPane>
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>源表</span>} key="params3">
+                                currentPage.taskType === 0 && isGuideMode ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>源表</span>} key="params3">
                                     <InputPanel isLocked={isLocked} isShow={this.state.selected == 'params3'} {...this.props} tableParamsChange={this.tableParamsChange} />
                                 </TabPane> : ''
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 5, paddingBottom: 3 }}>结果表</span>} key="params4">
+                                currentPage.taskType === 0 && isGuideMode ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 5, paddingBottom: 3 }}>结果表</span>} key="params4">
                                     <OutputPanel isLocked={isLocked} isShow={this.state.selected == 'params4'} {...this.props} tableParamsChange={this.tableParamsChange} />
                                 </TabPane> : ''
                             }
                             {
-                                currentPage.taskType === 0 ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>维表</span>} key="params5">
+                                currentPage.taskType === 0 && isGuideMode ? <TabPane tab={<span className="title-vertical tabpanel-content" style={{ marginTop: 10, paddingBottom: 10 }}>维表</span>} key="params5">
                                     <DimensionPanel isLocked={isLocked} isShow={this.state.selected == 'params5'} {...this.props} tableParamsChange={this.tableParamsChange} />
                                 </TabPane> : ''
                             }

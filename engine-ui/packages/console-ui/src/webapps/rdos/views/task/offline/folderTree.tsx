@@ -217,10 +217,6 @@ class FolderTree extends React.Component<any, any> {
                 if (type === 'file') {
                     operations = arr.concat([
                         {
-                            txt: '替换',
-                            cb: this.coverResFile.bind(this, data)
-                        },
-                        {
                             txt: '删除',
                             cb: this.deleteResource.bind(this, data)
                         }])
