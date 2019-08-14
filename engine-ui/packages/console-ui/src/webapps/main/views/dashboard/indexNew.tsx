@@ -87,8 +87,8 @@ class DashboardNew extends React.Component<any, any> {
                 >
                     <a href={app.link} className="app-new-tag" key={app.id}>
                         <img className="app-logo" src={app.newIcon}/>
-                        <h1>{app.name}</h1>
-                        <p style={{ wordBreak: 'break-all', marginTop: '7px' }}>{app.description}</p>
+                        <h1 style={{ marginTop: '10px' }}>{app.name}</h1>
+                        <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
                     </a>
                 </Col>
             )
@@ -141,12 +141,23 @@ class DashboardNew extends React.Component<any, any> {
                                 marginLeft: '-600px'
                             }}
                         >
-                            <h1 style={{ color: '#fff', fontSize: '36px', fontWeight: 'initial' }}>{window.APP_CONF.indexTitle}</h1>
+                            <div
+                                style={{
+                                    fontFamily: 'PingFangSC-Medium',
+                                    fontSize: '42px',
+                                    color: '#FFFFFF',
+                                    letterSpacing: '2.33px'
+                                }}
+                            >
+                                {window.APP_CONF.indexTitle}
+                            </div>
                             <span
                                 style={{
-                                    color: '#fff',
-                                    marginTop: '20px',
-                                    fontSize: '22px'
+                                    fontFamily: 'PingFangSC-Regular',
+                                    fontSize: '24px',
+                                    color: '#FFFFFF',
+                                    letterSpacing: '1.33px',
+                                    marginTop: '10px'
                                 }}
                             >{window.APP_CONF.indexDesc}</span>
                         </div>
@@ -184,11 +195,11 @@ class DashboardNew extends React.Component<any, any> {
                                 }}
                             >
                                 {showSummary && (
-                                    <section className='c-summary'>
-                                        <h1 className='c-summary__title'>
+                                    <section className='c-summary' style={{ marginBottom: 0 }}>
+                                        <div className='c-newsummary__title'>
                                             {window.APP_CONF.summary.title}
-                                        </h1>
-                                        <div className='c-summary__content' style={{ color: '#333' }}>
+                                        </div>
+                                        <div className='c-newsummary__content'>
                                             {window.APP_CONF.summary.content}
                                         </div>
                                     </section>
