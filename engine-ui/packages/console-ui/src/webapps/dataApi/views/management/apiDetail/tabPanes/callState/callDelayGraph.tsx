@@ -132,7 +132,7 @@ class ManageCallDelayGraph extends React.Component<any, any> {
                     <Col span={6}>
                         <section className="m-count-section margin-t20" style={{ width: 150 }}>
                             <span className="m-count-title text-left">{this.getDateText()}平均耗时</span>
-                            <span className="m-count-content font-black text-left">{avgDelay || 0}<span style={{ fontSize: 12 }}>s</span></span>
+                            <span className="m-count-content font-black text-left">{avgDelay || 0}<span style={{ fontSize: 12 }}>ms</span></span>
                         </section>
                     </Col>
                 </Row>
