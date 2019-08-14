@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import * as React from 'react'
 
 declare var window: any;
 declare var APP: any;
@@ -24,4 +25,3 @@ class Footer extends React.Component<any, any> {
 }
 
 export default Footer
-import * as React from 'react'
