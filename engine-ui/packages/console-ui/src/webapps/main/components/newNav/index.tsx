@@ -1,11 +1,9 @@
 import * as React from 'react'
-import { Menu, Dropdown, Icon } from 'antd'
+import { Menu, Dropdown } from 'antd'
 import { Link } from 'react-router'
 import styled from 'styled-components'
-import { cloneDeep } from 'lodash';
 import pureRender from 'utils/pureRender'
 import UserApi from '../../api/user'
-import { MY_APPS } from '../../consts';
 import 'public/dtinsightFont/iconfont.css'
 import './style.scss'
 
@@ -22,43 +20,6 @@ export const Title = styled.span`
 export const MyIcon = styled.span`
     font-size: 18px;
 `
-
-// 比较apps和licenseApps,控制显示主页导航栏菜单、右下拉菜单以及首页应用模块
-export function compareEnableApp (apps: any, licenseApps: any, isShowHome?: any) {
-    let validateAppIds = [MY_APPS.RDOS, MY_APPS.STREAM, MY_APPS.DATA_QUALITY,
-        MY_APPS.API, MY_APPS.ANALYTICS_ENGINE, MY_APPS.SCIENCE]; // license控制的appID
-    if (licenseApps && licenseApps.length) {
-        const newApps = cloneDeep(apps);
-        const licenseAppIds = licenseApps.map((item: any) => item.id) || [];
-        const notConigAppIds = validateAppIds.filter(id => licenseAppIds.indexOf(id) === -1) || []; // 未返回的license Id
-        // 将license控制的app中，将接口未返回的配置app, enable置为false
-        for (let i = 0; i < newApps.length; i++) {
-            for (let j = 0; j < notConigAppIds.length; j++) {
-                if (newApps[i].id == notConigAppIds[j]) {
-                    newApps[i].enable = false
-                }
-            }
-        }
-        // 将license控制的app中，将接口返回的已配置app, enable置为isShow
-        for (let i = 0; i < newApps.length; i++) {
-            for (let j = 0; j < licenseApps.length; j++) {
-                if (newApps[i].id == licenseApps[j].id) {
-                    newApps[i].enable = licenseApps[j].isShow
-                }
-            }
-        }
-        return newApps
-    } else {
-        if (isShowHome) { // 主页导航栏以及右拉菜单显示首页
-            const mainApp = apps.find((item: any) => {
-                return item.id == MY_APPS.MAIN
-            })
-            return [mainApp]
-        } else { // 不显示首页应用模块
-            return []
-        }
-    }
-}
 
 function renderATagMenuItems (menuItems: any, isRoot?: boolean, isRenderIcon = false) {
     return menuItems && menuItems.length > 0 ? menuItems.map((menu: any) => {
@@ -97,7 +58,7 @@ export function MenuLeft (props: any) {
 export function MenuRight (props: any) {
     const {
         onClick, settingMenus, user, licenseApps,
-        apps, app, showHelpSite, helpUrl
+        app, showHelpSite, helpUrl
     } = props;
     const isShowExt = !app || (!app.disableExt && !app.disableMessage);
     const isShowAla = !app || !app.disableMessage;
@@ -140,45 +101,31 @@ export function MenuRight (props: any) {
             {renderATagMenuItems(settingMenus)}
         </Menu>
     )
-    // 右下拉菜单
-    const appMenus = (
-        <Menu selectedKeys={[`${app && app.id}`]}>
-            {renderATagMenuItems(compareEnableApp(apps, licenseApps, true) || apps, user.isRoot, true)}
-        </Menu>
-    )
 
     return (
         <div className="menu right" style={{ height: '50px' }}>
-            <menu className="menu-right">
+            <menu className="menu-right" style={{ paddingRight: '40px' }}>
                 {showHelpSite && !window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
-                            <Icon type="question-circle-o" />
+                            <img src="/public/main/img/icon_help.svg" alt="帮助图标" style={{ height: '16px' }}/>
                         </a>
 
                     </span>
-                ) : null
-
-                }
-                <Dropdown overlay={appMenus} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
-                    <span className="menu-item">
-                        <Icon type="home" />
-                    </span>
-                </Dropdown>
-                <span className="divide"></span>
+                ) : null}
                 {isShowExt && isLeastOneLicAppShow && <a href={`/message${extraParms}`} target="blank" style={{ color: '#ffffff' }}>
                     <span className="menu-item">
-                        <Icon type="message" />
+                        <img src="/public/main/img/icon_message.svg" alt="消息图标"/>
                     </span>
                 </a>}
                 {(isShowExt || !isShowAla) && isLeastOneLicAppShow && <Dropdown overlay={settingMenuItems} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <span className="menu-item">
-                        <Icon type="setting" />
+                        <img src="/public/main/img/icon_set.svg" alt="设置图标"/>
                     </span>
                 </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <div className="user-info">
-                        <div className="user-name" title={user && user.userName}>
+                        <div className="user-name" title={user && user.userName} style={{ maxWidth: '200px' }}>
                             {(user && user.userName) || '未登录'}
                         </div>
                     </div>
@@ -250,7 +197,7 @@ class Navigator extends React.Component<any, any> {
         const { current } = this.state
         const theme = window.APP_CONF.theme;
         return (
-            <header className={`header ${theme || 'default'}`}>
+            <header className={`header ${theme || 'default'}`} style={{ background: 'none' }}>
                 <div style={{ width: logoWidth }} className="logo left txt-left">
                     {logo}
                 </div>

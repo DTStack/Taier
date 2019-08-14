@@ -5,11 +5,12 @@ import utils from 'utils';
 // import { Link } from 'react-router';
 import { Alert, Row, Col } from 'antd';
 import Api from '../../api';
-import Header from '../layout/header'
+import Header from '../layout/newHeader'
 import Footer from '../layout/footer';
 import { getInitUser } from '../../actions/user'
 
 import { MY_APPS, getThemeBanner } from '../../consts';
+import { compareEnableApp } from '../../components/nav';
 import '../../styles/views/portal.scss';
 
 declare var window: any;
@@ -74,7 +75,7 @@ class DashboardNew extends React.Component<any, any> {
     }
     renderApps = () => {
         const { apps, licenseApps, user } = this.props;
-        const sections = this.compareEnable(apps, licenseApps).map((app: any) => {
+        const sections = compareEnableApp(apps, licenseApps, false).map((app: any) => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
             return isShow && app.id !== MY_APPS.MAIN && (
@@ -114,7 +115,7 @@ class DashboardNew extends React.Component<any, any> {
                         top: '0px'
                     }}
                 >
-                    <Header isNewHeader={true} />
+                    <Header />
                     {this.state.alertShow ? (
                         <Alert
                             className='ant-alert_height'
