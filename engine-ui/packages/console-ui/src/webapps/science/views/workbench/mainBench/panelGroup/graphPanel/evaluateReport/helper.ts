@@ -79,6 +79,13 @@ export function regressionClassificationOptions (lineData: any) {
 
 export function unionClassificationOptions (lineData: any) {
     const data = get(lineData, 'series[0].data', []);
+    data.forEach((obj: any) => {
+        for (let key in obj) {
+            if (key == 'name') {
+                obj[key] = obj[key] + '%';
+            }
+        }
+    })
     return {
         toolbox: {
             show: true,

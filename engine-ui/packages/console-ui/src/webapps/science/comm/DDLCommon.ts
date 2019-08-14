@@ -12,6 +12,7 @@ export const DdlIdePlaceholder =
     name String,
     salary String, 
     destination String)
+    row format delimited fields terminated by ',' 
     STORED AS TEXTFILE
     lifecycle 10`;
 
