@@ -250,6 +250,7 @@ class NewApi extends React.Component<any, any> {
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
                 sql: data.sql,
+                containHeader: data.containHeader,
                 inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
                 outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
             }

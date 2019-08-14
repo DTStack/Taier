@@ -192,20 +192,20 @@ class RegisterParams extends React.Component<any, any> {
                         />
                     </Card>
                 )}
-                <Card
-                    title="高级配置"
-                    style={{ marginTop: '40px' }}
-                >
+                <div className="c-register-params__content__card " style={{ marginTop: '40px' }}>
+                    <div className="c-register-params__content__card__head">
+                        <span className="c-register-params__content__card__title">高级配置</span>
+                    </div>
                     <div>
                         <Checkbox
-                            checked={data.containHeader === '1'}
-                            value={data.containHeader}
+                            checked={'' + data.containHeader === '1'}
+                            value={'' + data.containHeader}
                             onChange={this.onReqHeaderChange}
                         >
-                                返回结果中携带 Request Header 参数
+                            返回结果中携带 Request Header 参数
                         </Checkbox>
                     </div>
-                </Card>
+                </div>
             </React.Fragment>
         )
     }
