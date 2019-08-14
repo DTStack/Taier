@@ -186,6 +186,7 @@ class NewApi extends React.Component<any, any> {
     }
     setDefault (data: any) {
         const isRegister = utils.getParameterByName('isRegister');
+        const containHeader = `${data ? data.containHeader : ''}`; // 转换数值类型为字符串
         let newState: any = {
             loading: false,
             mode: data.paramCfgType,
@@ -209,11 +210,11 @@ class NewApi extends React.Component<any, any> {
                 tableName: data.tableName,
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
-                containHeader: data.containHeader,
+                containHeader: containHeader,
                 sql: data.sql
             },
             registerParams: {
-                containHeader: data.containHeader
+                containHeader: containHeader
             },
             testApi: {
                 inFields: data.inFields && data.inFields.inFields,
@@ -250,6 +251,7 @@ class NewApi extends React.Component<any, any> {
                 resultPage: data.respPageSize,
                 resultPageChecked: data.allowPaging,
                 sql: data.sql,
+                containHeader: containHeader,
                 inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
                 outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
             }
