@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import Navigator, { compareEnableApp } from '../../components/newNav';
+import Navigator from '../../components/newNav';
 import { getHeaderLogo } from '../../consts'
 
 declare var window: any;
