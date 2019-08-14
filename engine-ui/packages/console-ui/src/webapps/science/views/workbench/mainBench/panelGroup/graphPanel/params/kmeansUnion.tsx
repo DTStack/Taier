@@ -94,8 +94,9 @@ class ParamSetting extends React.PureComponent<any, any> {
                     })(
                         <Select placeholder="请选择距离度量方式" onSelect={this.handleChange.bind(this, 'distance')}>
                             <Option key={'euclidean'} value={'euclidean'}>Euclidean</Option>
-                            <Option key={'cosine'} value={'cosine'}>Cosine</Option>
-                            <Option key={'cityblock'} value={'cityblock'}>Cityblock</Option>
+                            {/* 后端以及算法同学暂不支持, 暂先屏蔽 */}
+                            {/* <Option key={'cosine'} value={'cosine'}>Cosine</Option>
+                            <Option key={'cityblock'} value={'cityblock'}>Cityblock</Option> */}
                         </Select>
                     )}
                 </FormItem>

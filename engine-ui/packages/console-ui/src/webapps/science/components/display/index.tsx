@@ -26,10 +26,10 @@ export function nodeTypeIcon (type: any) {
             imageName = 'machine_learning'; break;
         }
         case COMPONENT_TYPE.MACHINE_LEARNING.KMEANS_UNION: {
-            imageName = 'gbdt'; break;
+            imageName = 'kmeans'; break;
         }
         case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_REGRESSION: {
-            imageName = 'kmeans'; break;
+            imageName = 'gbdt'; break;
         }
         case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
             imageName = 'data_predict'; break;
