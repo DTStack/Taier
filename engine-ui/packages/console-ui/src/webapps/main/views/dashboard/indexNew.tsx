@@ -136,7 +136,9 @@ class DashboardNew extends React.Component<any, any> {
                             style={{
                                 position: 'absolute',
                                 top: '30%',
-                                left: '150px'
+                                // left: '150px'
+                                left: '50%',
+                                marginLeft: '-600px'
                             }}
                         >
                             <h1 style={{ color: '#fff', fontSize: '36px', fontWeight: 'initial' }}>{window.APP_CONF.indexTitle}</h1>
@@ -153,7 +155,8 @@ class DashboardNew extends React.Component<any, any> {
                             style={{
                                 height: (document.body.offsetWidth * 0.3125),
                                 width: '100%',
-                                minHeight: '393.75px'
+                                minHeight: '393.75px',
+                                maxHeight: '600px'
                             }}
                         />
                     </div>
