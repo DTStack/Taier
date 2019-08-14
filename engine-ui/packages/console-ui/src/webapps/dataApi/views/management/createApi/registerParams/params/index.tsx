@@ -198,8 +198,8 @@ class RegisterParams extends React.Component<any, any> {
                     </div>
                     <div>
                         <Checkbox
-                            checked={'' + data.containHeader === '1'}
-                            value={'' + data.containHeader}
+                            checked={data.containHeader === '1'}
+                            value={data.containHeader}
                             onChange={this.onReqHeaderChange}
                         >
                             返回结果中携带 Request Header 参数

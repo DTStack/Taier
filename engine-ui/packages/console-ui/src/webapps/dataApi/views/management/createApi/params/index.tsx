@@ -627,9 +627,9 @@ class ManageParamsConfig extends React.Component<any, any> {
                                 <p className="middle-title">高级配置</p>
                                 <FormItem>
                                     {getFieldDecorator('containHeader', {
-                                        initialValue: '' + containHeader
+                                        initialValue: containHeader
                                     })(
-                                        <Checkbox defaultChecked={containHeader + '' === '1'}>返回结果中携带 Request Header 参数</Checkbox>
+                                        <Checkbox defaultChecked={containHeader === '1'}>返回结果中携带 Request Header 参数</Checkbox>
                                     )}
                                 </FormItem>
                             </div>
