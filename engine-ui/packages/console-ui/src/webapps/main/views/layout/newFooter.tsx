@@ -9,11 +9,9 @@ class Footer extends React.Component<any, any> {
         const Footer = styled.footer`
             width: 100%;
             text-align: center;
-            height: 40px;
-            line-height: 40px;
-            background: #fff;
             color: #333;
             letter-spacing: 0.65px;
+            padding: 20px 0;
         `
         /* eslint-disable */
         return (

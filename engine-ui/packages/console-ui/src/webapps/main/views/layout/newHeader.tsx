@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { connect } from 'react-redux'
 
-import Navigator, { compareEnableApp } from '../../components/nav';
+import Navigator from '../../components/newNav';
 import { getHeaderLogo } from '../../consts'
 
 declare var window: any;
@@ -21,21 +21,26 @@ class Header extends React.Component<any, any> {
     }
 
     render () {
-        const { apps, licenseApps } = this.props;
+        const { licenseApps } = this.props;
         const logo =
+
             <React.Fragment>
                 <img
+                    style={{
+                        height: '34px',
+                        width: '30px'
+                    }}
                     alt="logo"
                     src={getHeaderLogo()}
                 />
                 <span className='c-header__title c-header__title--main'>
                     {window.APP_CONF.prefix}
                 </span>
-            </React.Fragment>;
+            </React.Fragment>
 
         return <Navigator
             logo={logo}
-            menuItems={compareEnableApp(apps, licenseApps, true)}
+            menuItems={[]}
             licenseApps={licenseApps}
             {...this.props}
         />

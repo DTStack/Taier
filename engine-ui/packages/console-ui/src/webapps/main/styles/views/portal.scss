@@ -192,6 +192,41 @@
                 font-family: PingFangSC-Regular;
             }
         }
+        .app-new-tag {
+            width: 252px;
+            height: 245px;
+            background: #ffffff;
+            text-align: center;
+            display: block;
+            margin: 0 auto;
+            padding: 20px;
+            &:hover, &:active, &:visited, &:focus {
+                text-decoration: none;
+                -webkit-appearance: none;
+            }
+            &:hover {
+                box-shadow:  0 10px 20px 0 rgba(124,159,255,0.20);
+                border-radius: 2px;
+            }
+            .app-logo {
+                width: 96px;
+                height: 96px;
+            }
+            h1 {
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #333333;
+                letter-spacing: 0;
+                text-align: center;
+            }
+            p {
+                font-family: PingFangSC-Regular;
+                font-size: 14px;
+                color: #333333;
+                letter-spacing: 0;
+                text-align: center;
+            }
+        }
     }
 
 }
