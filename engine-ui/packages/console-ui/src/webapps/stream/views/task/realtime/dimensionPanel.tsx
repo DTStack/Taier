@@ -15,7 +15,7 @@ import {
     InputNumber
 } from 'antd';
 import { debounce, isEmpty } from 'lodash';
-
+import utils from 'utils';
 import Api from '../../../api';
 import * as BrowserAction from '../../../store/modules/realtimeTask/browser';
 import { DATA_SOURCE } from '../../../comm/const';
@@ -1036,9 +1036,9 @@ export default class OutputPanel extends React.Component<any, any> {
             const reg = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
             let val = subValue;
             if (subValue) {
-                val = subValue.replace(/\s*/g, '');
+                val = utils.removeAllSpaces(subValue);
                 if (reg.test(val)) {
-                    val = subValue.replace(/[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi, '');
+                    val = subValue.replace(reg, '');
                 }
             } else {
                 val = undefined
