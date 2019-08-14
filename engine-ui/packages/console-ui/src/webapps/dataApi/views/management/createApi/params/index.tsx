@@ -186,7 +186,7 @@ class ManageParamsConfig extends React.Component<any, any> {
             {
                 title: '字段类型',
                 dataIndex: 'type',
-                width: '100px'
+                width: '120px'
             }
         ]
     }
@@ -579,7 +579,7 @@ class ManageParamsConfig extends React.Component<any, any> {
                             <section style={{ padding: '15px 0px 10px' }}>
                                 <Table
                                     style={{ background: '#fff' }}
-                                    className="shadow m-table m-table-showselect"
+                                    className="shadow m-table m-table--border m-table-showselect"
                                     columns={columns}
                                     dataSource={tableData}
                                     pagination={false}

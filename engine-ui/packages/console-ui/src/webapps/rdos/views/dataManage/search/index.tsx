@@ -336,7 +336,7 @@ class SearchTable extends React.Component<any, any> {
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="id"
-                                className="dt-ant-table dt-ant-table--border full-screen-table-90"
+                                className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder full-screen-table-90"
                                 columns={this.initialColumns()}
                                 dataSource={table.data}
                                 pagination={pagination}

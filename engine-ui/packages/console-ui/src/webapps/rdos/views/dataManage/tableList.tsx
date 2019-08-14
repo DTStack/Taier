@@ -399,7 +399,7 @@ class TableList extends React.Component<any, any> {
                         <div style={{ marginTop: '1px' }}>
                             <Table
                                 rowKey="id"
-                                className="dt-ant-table dt-ant-table--border"
+                                className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                                 rowClassName={
                                     (record: any, index: any) => {
                                         if (this.state.tableLog && this.state.tableLog.tableId == record.id) {

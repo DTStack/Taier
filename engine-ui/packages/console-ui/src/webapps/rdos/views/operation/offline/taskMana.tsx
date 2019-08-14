@@ -525,7 +525,7 @@ class OfflineTaskMana extends React.Component<any, any> {
                                 }
                             }
                             style={{ marginTop: '1px' }}
-                            className={`dt-ant-table dt-ant-table--border border-table ${isPro ? 'full-screen-table-90' : 'full-screen-table-120'}`}
+                            className={`dt-ant-table dt-ant-table--border rdos-ant-table-placeholder border-table ${isPro ? 'full-screen-table-90' : 'full-screen-table-120'}`}
                             expandedRowKeys={this.state.expandedRowKeys}
                             pagination={pagination}
                             rowSelection={rowSelection}
