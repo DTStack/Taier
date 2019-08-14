@@ -8,7 +8,7 @@ window.COMMON_CONF = {
     name: '数栈', // 应用名字
     titleName: '数栈', // 网页title
     loadingTitle: '数栈', // loading的应用名字
-    theme: 'aliyun', // 主题
+    theme: 'default', // 主题
     hideUserCenter: false, // 隐藏用户中心按钮
     disableHelp: false, // 禁用帮助文档
     macChrome: 'https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg', // mac版本Chrome下载地址

@@ -44,7 +44,7 @@ class Header extends React.Component<any, any> {
 
         return <Navigator
             logo={logo}
-            menuItems={compareEnable(apps, licenseApps)}
+            menuItems={isNewHeader ? [] : compareEnable(apps, licenseApps)}
             licenseApps={licenseApps}
             {...this.props}
         />

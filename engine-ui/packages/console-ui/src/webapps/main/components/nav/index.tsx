@@ -134,7 +134,15 @@ export function MenuRight (props: any) {
                 {showHelpSite && !window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
-                            <Icon type="question-circle-o" />
+                            {
+                                isNewHeader
+                                    ? (
+                                        <img src="/public/main/img/icon_help.svg" alt="帮助图标" style={{ height: '16px' }}/>
+                                    )
+                                    : (
+                                        <Icon type="question-circle-o" />
+                                    )
+                            }
                         </a>
 
                     </span>
