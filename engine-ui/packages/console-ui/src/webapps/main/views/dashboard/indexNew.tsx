@@ -194,7 +194,6 @@ class DashboardNew extends React.Component<any, any> {
                                     {this.renderApps()}
                                 </Row>
                             </div>
-                            
                         </div>
                         <Footer></Footer>
                     </div>
