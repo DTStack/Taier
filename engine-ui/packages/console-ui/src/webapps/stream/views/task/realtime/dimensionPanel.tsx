@@ -342,7 +342,7 @@ class OutputOrigin extends React.Component<any, any> {
                                                     'targetCol',
                                                     index,
                                                     subIndex,
-                                                    e.target.value.trim()
+                                                    e.target.value
                                                 )
                                             }
                                         />;
@@ -1032,9 +1032,14 @@ export default class OutputPanel extends React.Component<any, any> {
             const subType = this.tableColumnType(index, subValue);
             panelColumn[index]['columns'][value].type = subType;
         } else if (type === 'targetCol') {
+            // 去除空格汉字
+            const reg = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
             let val = subValue;
             if (subValue) {
-                val = subValue
+                val = subValue.replace(/\s*/g, '');
+                if (reg.test(val)) {
+                    val = subValue.replace(/[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi, '');
+                }
             } else {
                 val = undefined
             }
