@@ -103,7 +103,7 @@ export default class TableInfoPane extends React.Component<any, any> {
                     columnName: (
                         <span>
                             {record.columnName.split(reg).map((text: any, i: any) => (
-                                i > 0 ? [<span style={{ color: '#f50' }}>{match[0]}</span>, text] : text
+                                i > 0 ? [<span key={`${i}`} style={{ color: '#f50' }}>{match[0]}</span>, text] : text
                             ))}
                         </span>
                     ),
@@ -138,9 +138,6 @@ export default class TableInfoPane extends React.Component<any, any> {
                 this.setState({
                     filterDropdownVisible: visible
                 }, () => this.searchInput && this.searchInput.focus());
-                // if (!visible) {
-                //     this.reset();
-                // }
             }
         }, {
             title: '类型',
@@ -148,8 +145,8 @@ export default class TableInfoPane extends React.Component<any, any> {
             key: 'columnType'
         }, {
             title: '注释',
-            dataIndex: 'columnDesc',
-            key: 'columnDesc',
+            dataIndex: 'comment',
+            key: 'comment',
             render(text: any) {
                 return text
             }

@@ -99,8 +99,9 @@ class TableTree extends React.Component<any, any> {
     }
 
     refresh = () => {
-        this.doReq('')
-        this.setState({ tableId: '' })
+        this.setState({ tableId: '', searchName: '' }, () => {
+            this.doReq('')
+        })
     }
 
     doReq = (queryName?: any, id?: any) => {
