@@ -183,7 +183,7 @@ class TestApi extends React.Component<any, any> {
                 return null;
             }
             case apiTestStatus.SUCCESS: {
-                return <Checkbox onChange={this.props.saveResult} checked={this.props.isSaveResult} style={{ marginTop: '8px' }}>将测试结果作为 JSON 样例保存</Checkbox>;
+                return <Checkbox onChange={this.props.saveResult} checked={this.props.isSaveResult} style={{ marginTop: '8px' }}>将测试结果作为JSON样例保存</Checkbox>;
             }
             case apiTestStatus.ERROR: {
                 return '测试失败!请查看返回结果错误信息'
