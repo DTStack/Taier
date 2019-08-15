@@ -244,6 +244,12 @@
         text-align: center;
         line-height: 30px;
     }
+    .c-newsummary__title{
+        font-family: PingFangSC-Medium;
+        font-size: 24px;
+        color: #333333;
+        letter-spacing: 1.33px;
+    }
     .c-summary__content{
         font-size: 14px;
         color: #999999;
@@ -251,6 +257,15 @@
         text-align: center;
         line-height: 20px;
         margin-top: 8px;
+        width: 430px;
+    }
+    .c-newsummary__content{
+        font-family: PingFangSC-Regular;
+        font-size: 14px;
+        color: #333333;
+        letter-spacing: 0.78px;
+        text-align: center;
+        margin-top: 10px;
         width: 430px;
     }
 }

@@ -33,7 +33,7 @@ class Header extends React.Component<any, any> {
                     alt="logo"
                     src={getHeaderLogo()}
                 />
-                <span className='c-header__title c-header__title--main'>
+                <span className='c-newheader__title c-header__title--main'>
                     {window.APP_CONF.prefix}
                 </span>
             </React.Fragment>

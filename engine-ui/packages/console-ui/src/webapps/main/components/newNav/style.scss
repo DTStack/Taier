@@ -3,9 +3,8 @@
 $activeColor: #262e36; // 主色
 
 .header {
-    background: $bgColor2;
-    padding-left: 44px;
-    height: 50px;
+    padding-left: 31px;
+    height: 60px;
     position: absolute;
     top: 0;
     left: 0;
@@ -17,9 +16,8 @@ $activeColor: #262e36; // 主色
         padding-left: 8px;
     }
     .logo {
-        padding-left: 8px;
         margin-right: 70px;
-        height: 50px;
+        height: 60px;
     }
 
     .my-menu {
@@ -34,6 +32,13 @@ $activeColor: #262e36; // 主色
                 color: inherit;
             }
         }
+    }
+    .c-newheader__title {
+        font-family: PingFangSC-Medium;
+        font-size: 18px;
+        color: #FFFFFF;
+        letter-spacing: 0;
+        margin-left: 13px;
     }
 
     .menu {
@@ -76,7 +81,7 @@ $activeColor: #262e36; // 主色
 
     .divide {
         border-right: 1px dashed #475766;
-        height: 50px;
+        height: 60px;
         width: 1px;
         padding: 0 !important;
         display: inline-block;
@@ -122,16 +127,20 @@ $activeColor: #262e36; // 主色
         }
 
         .user-name {
-            max-width: 100px;
+            max-width: 200px;
             text-overflow: ellipsis;
             display: block;
             overflow: hidden;
             white-space: nowrap;
+            font-family: PingFangSC-Regular;
+            font-size: 13px;
+            color: #FFFFFF;
+            letter-spacing: 0.72px;
         }
 
         .ant-menu-submenu {
-            line-height: 50px;
-            height: 50px;
+            line-height: 60px;
+            height: 60px;
             color: #ffffff;
             text-align: center;
 
