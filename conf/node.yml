@@ -1,14 +1,14 @@
 #engine
 slots: 10
-#localAddress: 172.16.10.45:8090
+#localAddress: 172.16.1.164:8090
 
-nodeZkAddress: node001:2181,node002:2181,node003:2181/engine
+nodeZkAddress: kudu1:2181,kudu2:2181,kudu3:2181/engine_maqi
 isDebug: true
 isSecurity: false
 queueSize: 20
 
 db:
-   url: jdbc:mysql://172.16.10.45:3306/ide?charset=utf8&autoReconnect=true
+   url: jdbc:mysql://172.16.8.109:3306/ide?charset=utf8&autoReconnect=true
    userName: dtstack
    pwd: abc123
 
