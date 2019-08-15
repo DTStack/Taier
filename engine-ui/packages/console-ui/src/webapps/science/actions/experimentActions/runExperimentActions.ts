@@ -3,6 +3,7 @@ import { changeTab, changeTabSlient } from '../base/tab';
 import { siderBarType, taskStatus } from '../../consts';
 import { addLoadingTab, removeLoadingTab } from '../editorActions';
 import experimentLog from './experimentLog';
+import { saveExperiment } from './index';
 import { createLinkMark, createLog } from 'widgets/code-editor/utils'
 import api from '../../api/experiment';
 
@@ -290,9 +291,11 @@ async function getRunningTaskStatus (tabId: any, tabData: any, jobIds: any, disp
         if (status.compeletedFinish && status.handlerStatus) {
             // 成功
             resolveDataExperiment(tabId, response.data, null, dispatch);
+            dispatch(saveExperiment(tabData, false)) // 静默保存
         } else if (status.compeletedFinish && !status.handlerStatus) {
             // 失败
             rejectDataExperiment(tabId, response.data, tabData, dispatch);
+            dispatch(saveExperiment(tabData, false))
         } else if (!status.compeletedFinish) {
             // 继续轮训
             // 获取当前正在运行的组件数据
