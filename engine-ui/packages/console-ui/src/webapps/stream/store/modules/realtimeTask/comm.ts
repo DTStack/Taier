@@ -27,10 +27,21 @@ const taskTypeFilter = (state: any = [], action: any) => {
         default: return state;
     }
 }
+// 任务右侧面板
+const isCloseRightPanel = (state: boolean = false, action: any) => {
+    switch (action.type) {
+        case commAction.CLOSE_RIGHT_PANEL: {
+            return action.payload;
+        }
+
+        default: return state;
+    }
+}
 
 export const commReducer = combineReducers({
     taskTypes,
-    taskTypeFilter
+    taskTypeFilter,
+    isCloseRightPanel
 });
 
 /**

@@ -46,11 +46,10 @@ class TaskBrowser extends React.Component<any, any> {
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { id }: any = nextProps.currentPage || {};
         const { id: oldId }: any = this.props.currentPage || {};
-
         if (nextProps.currentPage != this.props.currentPage) {
             this._syncEditor = true;
         }
-        if (id != oldId) {
+        if (id != oldId || nextProps.isCloseRightPanel) {
             this.setState({
                 selected: '',
                 expanded: false
@@ -390,11 +389,12 @@ class TaskBrowser extends React.Component<any, any> {
 }
 
 export default connect((state: any) => {
-    const { resources, pages, currentPage } = state.realtimeTask;
+    const { resources, pages, currentPage, comm } = state.realtimeTask;
     return {
         currentPage,
         pages,
         resources,
-        editor: state.editor
+        editor: state.editor,
+        isCloseRightPanel: comm.isCloseRightPanel
     }
 })(TaskBrowser)

@@ -59,7 +59,8 @@ export const treeAction = mc([
 
 export const commAction = mc([
     'GET_TASK_TYPES',
-    'GET_TASK_TYPE_FILTER'
+    'GET_TASK_TYPE_FILTER',
+    'CLOSE_RIGHT_PANEL'
 ], { prefix: 'realtimeTask/comm/' });
 
 export const dataSourceListAction = mc([

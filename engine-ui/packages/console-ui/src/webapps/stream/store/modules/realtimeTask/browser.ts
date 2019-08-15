@@ -3,8 +3,7 @@ import { cloneDeep } from 'lodash';
 import { message } from 'antd';
 import localDb from 'utils/localDb'
 import Api from '../../../api'
-import { browserAction } from './actionTypes'
-
+import { browserAction, commAction } from './actionTypes'
 export function publishTask (params: any) {
     const succCallback = (res: any) => {
         if (res.code === 1) {
@@ -35,6 +34,7 @@ export function convertToScriptMode (task: any) {
         Api.convertToScriptMode(reqParams).then((res: any) => {
             if (res.code === 1) {
                 message.success('转换成功！');
+                dispatch({ type: commAction.CLOSE_RIGHT_PANEL, payload: true }) // 关闭右侧面板
                 reloadCurrentPage(task.id);
             }
         });
