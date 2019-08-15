@@ -197,8 +197,8 @@ class Navigator extends React.Component<any, any> {
         const { current } = this.state
         const theme = window.APP_CONF.theme;
         return (
-            <header className={`header ${theme || 'default'}`} style={{ background: 'none' }}>
-                <div style={{ width: logoWidth, paddingLeft: 0 }} className="logo left txt-left">
+            <header className={`newheader ${theme || 'default'}`} style={{ background: 'none' }}>
+                <div style={{ width: logoWidth, paddingLeft: 0, display: 'flex', alignItems: 'center' }} className="logo left txt-left">
                     {logo}
                 </div>
                 {
