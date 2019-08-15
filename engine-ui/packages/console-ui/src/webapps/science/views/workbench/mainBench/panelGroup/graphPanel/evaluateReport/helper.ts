@@ -17,6 +17,9 @@ export function regressionClassificationOptions (lineData: any) {
         }, {
             type: 'slider'
         }],
+        grid: {
+            bottom: 200
+        },
         xAxis: {
             type: 'category',
             boundaryGap: true,
