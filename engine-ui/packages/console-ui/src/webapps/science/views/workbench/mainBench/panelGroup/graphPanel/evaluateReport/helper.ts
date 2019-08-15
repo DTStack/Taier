@@ -17,6 +17,9 @@ export function regressionClassificationOptions (lineData: any) {
         }, {
             type: 'slider'
         }],
+        grid: {
+            bottom: 200
+        },
         xAxis: {
             type: 'category',
             boundaryGap: true,
@@ -79,10 +82,10 @@ export function regressionClassificationOptions (lineData: any) {
 
 export function unionClassificationOptions (lineData: any) {
     const data = get(lineData, 'series[0].data', []);
-    data.forEach((obj: any) => {
+    data.forEach((obj: any, index: number) => {
         for (let key in obj) {
             if (key == 'name') {
-                obj[key] = obj[key] + '%';
+                obj[key] = `${index + 1}: ${obj[key]}%`;
             }
         }
     })

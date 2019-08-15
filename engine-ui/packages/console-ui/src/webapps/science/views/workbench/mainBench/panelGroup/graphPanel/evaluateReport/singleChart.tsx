@@ -58,7 +58,7 @@ class SingleChart extends React.Component<SingleChartPropType, any> {
         return (
             <Resize onResize={this.resizeChart}>
                 <div id={this._domId} style={{
-                    height: '400px',
+                    height: '600px',
                     width: '100%'
                 }}></div>
             </Resize>
