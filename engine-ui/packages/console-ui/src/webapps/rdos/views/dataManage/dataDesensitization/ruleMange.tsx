@@ -265,7 +265,7 @@ class RuleManage extends React.Component<any, any> {
                 >
                     <Spin tip="正在加载中..." spinning={cardLoading}>
                         <Table
-                            className="dt-ant-table dt-ant-table--border"
+                            className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                             columns={columns}
                             dataSource={table}
                             pagination={pagination}

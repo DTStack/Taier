@@ -309,7 +309,7 @@ class ProjectMember extends React.Component<any, any> {
                     >
                         <Table
                             rowKey="userId"
-                            className="dt-ant-table dt-ant-table--border"
+                            className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                             pagination={pagination}
                             onChange={this.handleTableChange}
                             loading={this.state.loading}

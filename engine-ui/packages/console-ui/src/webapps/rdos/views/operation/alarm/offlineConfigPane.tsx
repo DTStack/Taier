@@ -333,7 +333,7 @@ class OfflineConfig extends React.Component<any, any> {
                     <Table
                         rowKey="alarmId"
                         key="offlineConfig"
-                        className="dt-ant-table dt-ant-table--border"
+                        className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                         pagination={pagination}
                         loading={loading}
                         columns={this.initColumns()}

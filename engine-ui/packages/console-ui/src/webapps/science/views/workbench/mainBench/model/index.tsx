@@ -300,7 +300,7 @@ class ModelView extends React.Component<any, any> {
                 <Table
                     rowKey='id'
                     loading={loading}
-                    className="dt-ant-table border-table"
+                    className="border-table dt-ant-table--border dt-ant-table--border-lr dt-ant-table"
                     columns={this.initColumns()}
                     dataSource={modelList}
                     pagination={pagination}

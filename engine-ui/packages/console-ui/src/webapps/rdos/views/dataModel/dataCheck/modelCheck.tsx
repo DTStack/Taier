@@ -144,10 +144,12 @@ export default class ModelCheck extends React.Component<any, any> {
             dataIndex: 'increType',
             key: 'increType'
         }, {
+            width: 140,
             title: '负责人',
             dataIndex: 'chargeUser',
             key: 'chargeUser'
         }, {
+            width: 140,
             title: '最后修改时间',
             dataIndex: 'gmtModified',
             key: 'gmtModified',
@@ -157,7 +159,7 @@ export default class ModelCheck extends React.Component<any, any> {
             dataIndex: 'checkResult',
             key: 'checkResult'
         }, {
-            width: 80,
+            width: 100,
             title: '操作',
             key: 'operation',
             render: (record: any) => {
@@ -256,7 +258,7 @@ export default class ModelCheck extends React.Component<any, any> {
                 </Form>
                 <Table
                     rowKey="id"
-                    className="dt-ant-table dt-ant-table--border"
+                    className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                     pagination={pagination}
                     loading={loading}
                     columns={this.initColumns()}

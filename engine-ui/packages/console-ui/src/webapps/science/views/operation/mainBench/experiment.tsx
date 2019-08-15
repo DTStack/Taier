@@ -185,7 +185,7 @@ class Experiment extends React.PureComponent<any, any> {
                     <Table
                         rowSelection={rowSelection}
                         rowKey="id"
-                        className='dt-ant-table--border dt-ant-table'
+                        className='dt-ant-table--border dt-ant-table--border-lr dt-ant-table'
                         loading={loading}
                         columns={this.initCol()}
                         onChange={this.handleTableChange}

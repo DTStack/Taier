@@ -504,7 +504,7 @@ class DirtyData extends React.Component<any, any> {
             >
                 <Table
                     rowKey="tableName"
-                    className="dt-ant-table dt-ant-table--border"
+                    className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                     pagination={pagination}
                     style={{ minHeight: '0', height: 'calc(100% - 482px)' }}
                     loading={loading}
