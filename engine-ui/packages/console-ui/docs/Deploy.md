@@ -161,7 +161,7 @@
 - 门户页面自定义
 
     配置地址:
-    > mian/config/config.js
+    > main/config/config.js
     具体如下：
 
 ```properties
