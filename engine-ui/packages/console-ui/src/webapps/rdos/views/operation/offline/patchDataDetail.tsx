@@ -781,7 +781,7 @@ class PatchDataDetail extends React.Component<any, any> {
                             {...{ defaultExpandAllRows: true }}
                             style={{ marginTop: '1px' }}
                             scroll={{ x: '2050px' }}
-                            className="dt-ant-table dt-ant-table--border full-screen-table-120"
+                            className="dt-ant-table rdos-ant-table-placeholder dt-ant-table--border full-screen-table-120"
                             rowSelection={rowSelection}
                             pagination={pagination}
                             loading={this.state.loading}

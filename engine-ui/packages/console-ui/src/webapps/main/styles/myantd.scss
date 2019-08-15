@@ -257,9 +257,6 @@
                 }
             }
         }
-        // .ant-table-placeholder {
-        //     border-bottom: 0;
-        // }
     }
 }
 .dt-ant-table--border {
@@ -340,20 +337,10 @@
         .ant-itempad_small {
             padding-left: 18px !important;
         }
-        // &.ele-padd_small {
-        //     > .ant-menu-item, .ant-menu-submenu {
-        //         padding-top: 10px !important;
-        //     }
-        // }
         .ant-menu-submenu-selected {
             height: 42px;
             background: #2491F7;
         }
-        // .sidebar__icon {
-        //     float: left;
-        //     display: block;
-        //     margin: 0px 10px 0 0 !important;
-        // }
     }
     .ant-menu.ant-menu-inline,
     .ant-menu.ant-menu-vertical {
@@ -461,19 +448,6 @@
     .ant-table-header {
         margin-bottom: -17px !important;
     }
-    // .ant-table-header {
-    //     overflow-y: auto;
-    //     margin-bottom: -20px !important;
-    //     padding-right: 16px;
-    //     .ant-table-thead > tr {
-    //         > th:last-child {
-    //             border-right-width: 0;
-    //         }
-    //     }
-    // }
-    // .ant-table-body::-webkit-scrollbar {
-    //     display: none;
-    // }
 }
 
 .full-screen-table-60{
@@ -607,7 +581,6 @@
                 .ant-table-footer {
                     background: #fff;
                     padding: 0;
-                    // border-bottom: 1px solid $tbBorderColor;
                     &>tr>td {
                         padding: 4px 8px;
                         font-size: 13px;
