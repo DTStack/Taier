@@ -255,6 +255,7 @@ class NewApi extends React.Component<any, any> {
                 inputParam: ColumnsModel.exchangeServerParams(data.inputParam),
                 outputParam: ColumnsModel.exchangeServerParams(data.outputParam)
             }
+            newState.isSaveResult = data.respJson; // 初始化 isSaveResult 状态
         }
         this.setState(newState)
     }
@@ -301,14 +302,6 @@ class NewApi extends React.Component<any, any> {
             complete: {}
         })
     }
-
-    // next () {
-    //     const { key } = steps[this.state.current];
-    //     if (this.state[key] && this.state[key].pass) {
-    //         const current = this.state.current + 1;
-    //         this.setState({ current });
-    //     }
-    // }
 
     prev () {
         const current = this.state.current - 1;
@@ -422,6 +415,7 @@ class NewApi extends React.Component<any, any> {
             params.inFields = testApi.inFields;
             params.respJson = testApi.respJson;
         }
+        if (!isSaveResult) params.respJson = null;
         params.apiType = isRegister ? API_TYPE.REGISTER : API_TYPE.NORMAL;
         return params;
     }
@@ -460,7 +454,6 @@ class NewApi extends React.Component<any, any> {
         this.saveData(type, data, () => {
             this.save(true)
         });
-        // this.props.router.goBack();
     }
     saveData (type: any, data: any, callback: any) {
         data = data || {};
