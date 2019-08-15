@@ -181,7 +181,7 @@ public class RdbsExeQueue {
 
                 simpleStmt = conn.createStatement();
                 for(String sql : sqlList) {
-                    LOG.info("now execte sql... {} ", sql);
+                    LOG.info("job {}, now execte sql... {} ", engineJobId, sql);
                     simpleStmt.execute(sql);
                     if(isCancel.get()) {
                         LOG.info("job:{} is canceled", jobName);
