@@ -149,10 +149,10 @@ class EditCluster extends React.Component<any, any> {
         const libraConf = enginesData.find((item: any) => item.engineType == ENGINE_TYPE.LIBRA) || {}; // libra engine 总数据
         switch (type) {
             case ENGINE_TYPE.HADOOP: {
-                return hadoopConf.components
+                return hadoopConf.components || []
             }
             case ENGINE_TYPE.LIBRA: {
-                return libraConf.components
+                return libraConf.components || []
             }
         }
     }

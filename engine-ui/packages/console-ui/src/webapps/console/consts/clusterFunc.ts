@@ -89,7 +89,7 @@ export function validateCompParams (componentValue: any) {
  * @param hadoopComp hadoop参数配置项
  * @param libraComp libra参数配置项
  */
-export function exChangeComponentConf (hadoopComp: any, libraComp: any) {
+export function exChangeComponentConf (hadoopComp: any = [], libraComp: any = []) {
     const comp = hadoopComp.concat(libraComp);
     let componentConf: any = {};
     comp.map((item: any) => {
