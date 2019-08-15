@@ -111,7 +111,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     })(
                         <Select placeholder="请选择质心初始化方法" onSelect={this.handleChange.bind(this, 'init')}>
                             <Option key={'random'} value={'random'}>Random</Option>
-                            <Option key={'firstk'} value={'firstk'}>First K</Option>
+                            <Option key={'first-k'} value={'first-k'}>First K</Option>
                             <Option key={'uniform'} value={'uniform'}>Uniform</Option>
                             <Option key={'k-means++'} value={'k-means++'}>K-means++</Option>
                             <Option key={'specify'} value={'specify'}>使用初始质心表</Option>
