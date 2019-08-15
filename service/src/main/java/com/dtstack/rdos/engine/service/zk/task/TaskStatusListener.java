@@ -505,13 +505,17 @@ public class TaskStatusListener implements Runnable{
                 return;
             }
 
-            List<Map<String, Object>> cpList = (List<Map<String, Object>>) cpJson.get(FLINK_CP_HISTORY_KEY);
+            List<Map<String, Object>> cpList = cpJson.get(FLINK_CP_HISTORY_KEY) == null ? null : (List<Map<String, Object>>) cpJson.get(FLINK_CP_HISTORY_KEY);
             if(CollectionUtils.isEmpty(cpList)){
                 return;
             }
+            Map<String, Object> counts = cpJson.get(FLINK_CP_COUNTS_KEY) == null ? null : (Map<String, Object>)cpJson.get(FLINK_CP_COUNTS_KEY);
 
-            Map<String, Object> counts = (Map<String, Object>)cpJson.get(FLINK_CP_COUNTS_KEY);
-            String checkpointCounts = PublicUtil.objToString(counts);
+            String checkpointCounts = "";
+
+            if (null != counts) {
+                checkpointCounts = PublicUtil.objToString(counts);
+            }
 
             checkpointIntervalClean(engineTaskId, cpList.get(0), pluginInfo);
 
@@ -536,7 +540,7 @@ public class TaskStatusListener implements Runnable{
                 }
             }
         } catch (IOException e) {
-            logger.error("", e);
+            logger.error("taskID:{} ,engineTaskId:{}, error log:{}\n", taskId, engineTaskId, ExceptionUtil.getErrorMessage(e));
         }
 
 
