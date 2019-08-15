@@ -139,7 +139,7 @@ class RegisterParamsConst extends React.Component<any, any> {
             <Form layout='inline' className='l-form__inline-item--stretch'>
                 <Table
                     rowKey='id'
-                    className='m-table border-table'
+                    className='m-table border-table m-table--border'
                     columns={this.initColumns()}
                     dataSource={data}
                     pagination={false}

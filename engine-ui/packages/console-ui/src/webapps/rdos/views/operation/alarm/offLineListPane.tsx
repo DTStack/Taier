@@ -276,7 +276,7 @@ class OfflinePanel extends React.Component<any, any> {
                     <Table
                         rowKey="id"
                         key="offlineAlarmList"
-                        className="dt-ant-table dt-ant-table--border"
+                        className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder"
                         pagination={pagination}
                         loading={this.state.loading}
                         columns={this.initColumns()}

@@ -283,7 +283,7 @@ class TestApi extends React.Component<any, any> {
                                 </p>
                                 <p style={{ marginTop: '10px', marginBottom: '6px' }} className="middle-title">输入参数：</p>
                                 <Table
-                                    className="m-table shadow"
+                                    className="m-table m-table--border shadow"
                                     style={{ background: '#fff' }}
                                     rowKey="id"
                                     columns={inputTableColumns}
@@ -295,7 +295,7 @@ class TestApi extends React.Component<any, any> {
                                     <React.Fragment>
                                         <p style={{ marginTop: '10px', marginBottom: '6px' }} className="middle-title">常量参数：</p>
                                         <Table
-                                            className="m-table shadow"
+                                            className="m-table m-table--border shadow"
                                             style={{ background: '#fff' }}
                                             rowKey="id"
                                             columns={this.initConstColumns()}

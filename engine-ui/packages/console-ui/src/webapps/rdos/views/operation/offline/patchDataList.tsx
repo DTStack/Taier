@@ -315,7 +315,7 @@ class PatchDataList extends React.Component<any, any> {
                     <Table
                         rowKey="id"
                         columns={this.initTaskColumns()}
-                        className="dt-ant-table dt-ant-table--border full-screen-table-90"
+                        className="dt-ant-table dt-ant-table--border rdos-ant-table-placeholder full-screen-table-90"
                         style={{ marginTop: 1 }}
                         pagination={pagination}
                         dataSource={tasks.data || []}

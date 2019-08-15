@@ -763,7 +763,8 @@ class AuthMana extends React.Component<any, any> {
             selectedRowKeys,
             onChange: this.onSelectChange
         } : null;
-        const selectCalssName = isShowRowSelection ? 'm-table-fix dt-ant-table dt-ant-table--border' : 'dt-ant-table dt-ant-table--border'
+        const shareCN = ['dt-ant-table', 'dt-ant-table--border', 'rdos-ant-table-placeholder'].join(' ');
+        const selectCalssName = isShowRowSelection ? `m-table-fix ${shareCN}` : shareCN;
         return <div className="m-tablelist">
             <div className="m-card card-tree-select">
                 <Card noHovering bordered={false} title={title} className="full-screen-table-80">

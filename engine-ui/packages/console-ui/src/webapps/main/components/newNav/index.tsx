@@ -103,8 +103,8 @@ export function MenuRight (props: any) {
     )
 
     return (
-        <div className="menu right" style={{ height: '50px' }}>
-            <menu className="menu-right" style={{ paddingRight: '40px' }}>
+        <div className="menu right" style={{ height: '60px' }}>
+            <menu className="menu-right" style={{ paddingRight: '30px' }}>
                 {showHelpSite && !window.APP_CONF.disableHelp ? (
                     <span title="帮助文档" className="menu-item">
                         <a href={helpUrl} target="blank" style={{ color: '#ffffff' }} >
@@ -125,7 +125,7 @@ export function MenuRight (props: any) {
                 </Dropdown>}
                 <Dropdown overlay={userMenu} trigger={['click']} getPopupContainer={(triggerNode: any) => triggerNode.parentNode}>
                     <div className="user-info">
-                        <div className="user-name" title={user && user.userName} style={{ maxWidth: '200px' }}>
+                        <div className="user-name" title={user && user.userName}>
                             {(user && user.userName) || '未登录'}
                         </div>
                     </div>
@@ -190,27 +190,17 @@ class Navigator extends React.Component<any, any> {
 
     render () {
         const {
-            user, logo, menuItems,
+            user, logo,
             settingMenus, apps, app, licenseApps,
-            menuLeft, menuRight, logoWidth, showHelpSite, helpUrl, customItems
+            menuRight, logoWidth, showHelpSite, helpUrl
         } = this.props;
         const { current } = this.state
         const theme = window.APP_CONF.theme;
         return (
-            <header className={`header ${theme || 'default'}`} style={{ background: 'none' }}>
-                <div style={{ width: logoWidth }} className="logo left txt-left">
+            <header className={`newheader ${theme || 'default'}`} style={{ background: 'none' }}>
+                <div style={{ width: logoWidth, paddingLeft: 0, display: 'flex', alignItems: 'center' }} className="logo left txt-left">
                     {logo}
                 </div>
-                {
-                    menuLeft || <MenuLeft
-                        user={user}
-                        activeKey={current}
-                        customItems={customItems}
-                        menuItems={menuItems}
-                        licenseApps={licenseApps}
-                        onClick={this.handleClick}
-                    />
-                }
                 {
                     menuRight || <MenuRight
                         activeKey={current}

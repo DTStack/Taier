@@ -94,8 +94,9 @@ class ParamSetting extends React.PureComponent<any, any> {
                     })(
                         <Select placeholder="请选择距离度量方式" onSelect={this.handleChange.bind(this, 'distance')}>
                             <Option key={'euclidean'} value={'euclidean'}>Euclidean</Option>
-                            <Option key={'cosine'} value={'cosine'}>Cosine</Option>
-                            <Option key={'cityblock'} value={'cityblock'}>Cityblock</Option>
+                            {/* 后端以及算法同学暂不支持, 暂先屏蔽 */}
+                            {/* <Option key={'cosine'} value={'cosine'}>Cosine</Option>
+                            <Option key={'cityblock'} value={'cityblock'}>Cityblock</Option> */}
                         </Select>
                     )}
                 </FormItem>
@@ -110,7 +111,7 @@ class ParamSetting extends React.PureComponent<any, any> {
                     })(
                         <Select placeholder="请选择质心初始化方法" onSelect={this.handleChange.bind(this, 'init')}>
                             <Option key={'random'} value={'random'}>Random</Option>
-                            <Option key={'firstk'} value={'firstk'}>First K</Option>
+                            <Option key={'first-k'} value={'first-k'}>First K</Option>
                             <Option key={'uniform'} value={'uniform'}>Uniform</Option>
                             <Option key={'k-means++'} value={'k-means++'}>K-means++</Option>
                             <Option key={'specify'} value={'specify'}>使用初始质心表</Option>

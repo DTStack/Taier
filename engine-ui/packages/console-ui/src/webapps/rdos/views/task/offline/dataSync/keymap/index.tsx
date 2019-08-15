@@ -61,9 +61,9 @@ function isFieldMatch (source: any, target: any) {
 }
 const rowkeyTxt =
 `变量写法：
-(colFamily:colName)：列族、列名
-持md5函数，使用时必须以md5开头
-持多字段拼接，例如：md5($(cf1:userName)_$(cf:userAge))
+$(colFamily:colName)：列族、列名
+支持md5函数，使用时必须以md5开头
+支持多字段拼接，例如：md5($(cf1:userName)_$(cf:userAge))
 `;
 class Keymap extends React.Component<any, any> {
     constructor (props: any) {
@@ -994,7 +994,7 @@ class Keymap extends React.Component<any, any> {
                                     width: W + 200,
                                     height: h - 18,
                                     marginTop: 18,
-                                    zIndex: 2,
+                                    zIndex: 3,
                                     display: 'inline-block'
                                 }}
                             >

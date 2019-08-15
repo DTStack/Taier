@@ -96,7 +96,7 @@ class ColumnsConfig extends React.Component<any, any> {
                 {
                     title: '字段类型',
                     dataIndex: 'type',
-                    width: '100px'
+                    width: '120px'
                 },
                 {
                     title: '操作符',
@@ -140,7 +140,7 @@ class ColumnsConfig extends React.Component<any, any> {
                 {
                     title: '字段类型',
                     dataIndex: 'type',
-                    width: '100px'
+                    width: '120px'
                 },
                 {
                     title: '说明',
@@ -250,7 +250,7 @@ class ColumnsConfig extends React.Component<any, any> {
                 <Card title={this.apiParamsConfig()} style={{ marginTop: 10 }}>
                     <Table
                         rowKey="id"
-                        className="m-table m-table-showselect"
+                        className="m-table m-table--border m-table-showselect"
                         style={{ background: '#fff' }}
                         columns={inputTableColumns}
                         dataSource={InputColumns}
@@ -262,7 +262,7 @@ class ColumnsConfig extends React.Component<any, any> {
                 <Card title={this.outputParams()} style={{ marginTop: 20 }}>
                     <Table
                         rowKey="id"
-                        className="m-table m-table-showselect"
+                        className="m-table m-table--border m-table-showselect"
                         style={{ background: '#fff' }}
                         columns={outputTableColumns}
                         dataSource={OutputColums}

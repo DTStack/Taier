@@ -154,6 +154,12 @@ const utils = {
         return res.replace(/\s*$/, ''); // 去右边
     },
 
+    removeAllSpaces (str: string) {
+        return typeof str === 'string'
+            ? str.replace(/\s*/g, '') // 去除全部空串
+            : str;
+    },
+
     /**
      * 原生 JavaScript 获取 cookie 值
      * @param name
