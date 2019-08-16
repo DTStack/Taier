@@ -857,8 +857,12 @@ class EditCluster extends React.Component<any, any> {
         const { clusterData, file, uploadLoading, core, nodeNumber, memory } = this.state;
         const { mode } = this.props.location.state || {} as any;
         const isView = mode == 'view';
+        const markStyle = {
+            marginTop: '20px',
+            borderBottom: !isView && '1px dashed #DDDDDD'
+        }
         return isHadoopEngine(engineType) ? <Card className='shadow' style={{ margin: '20px 20px 10px 20px' }} noHovering>
-            <div style={{ marginTop: '20px', borderBottom: '1px dashed #DDDDDD' }}>
+            <div style={markStyle}>
                 <Row>
                     <Col span={14} pull={2}>
                         <FormItem
