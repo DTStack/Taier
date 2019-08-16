@@ -322,7 +322,7 @@ class DataSourceMana extends React.Component<any, any> {
                 } else if (isHive) {
                     extAction = (
                         <span>
-                            {editView}
+                            {linkView}
                             {splitView}
                         </span>
                     )
@@ -331,6 +331,11 @@ class DataSourceMana extends React.Component<any, any> {
                             <Link to={`database/offLineData/hive-sync/${record.projectId}/${record.dataName}`}>
                                 同步元数据
                             </Link>
+                        </MenuItem>
+                    )
+                    menuItem.push(
+                        <MenuItem key="editView">
+                            {editView}
                         </MenuItem>
                     )
                     menuItem.push(
