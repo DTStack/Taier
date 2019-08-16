@@ -1,20 +1,12 @@
 import * as React from 'react';
 import './style.scss';
 
-const MENU_ITEM_HEIGHT = 25;
-const MENU_PADDING = 20;
-
 export default class CtxMenu extends React.Component<any, any> {
     constructor (props: any) {
         super(props);
 
         this.showMenu = this.showMenu.bind(this);
-        this.hideMenu = this.hideMenu.bind(this)
-        this.state = {
-            show: false,
-            x: 0,
-            y: 0
-        };
+        this.hideMenu = this.hideMenu.bind(this);
     }
 
     box: any;
@@ -33,42 +25,80 @@ export default class CtxMenu extends React.Component<any, any> {
     }
 
     hideMenu (e: any) {
-        if (!this.state.show) return;
-        this.setState({
-            show: false
-        });
+        if (!this.menu) return;
+        const style = this.menu.style;
+        style.display = 'none';
     }
+
+    findParent (child: any, selector: any) {
+        try {
+            if (!selector || !child) return;
+            selector = selector.toLowerCase();
+            let node = child;
+            while (node) {
+                if (node.nodeType === 1) {
+                    const className = node.getAttribute('class');
+                    if (className && className.includes(selector)) return node;
+                }
+                node = node.parentNode;
+            }
+        } catch (e) {
+            throw new Error(e);
+        }
+        return null;
+    }
+
+    hideAll = () => {
+        let allEles: any = document.querySelectorAll('.ctx-menu');
+        for (let i = 0; i < allEles.length; i++) {
+            allEles[i].style.display = 'none';
+        }
+    }
+
+    viewHeight: number = document.body.offsetHeight || 0;
 
     showMenu (e: any) {
         e.preventDefault();
-        this.setState({
-            show: true,
-            x: e.clientX,
-            y: e.clientY
-        });
+        const { ctxMenuWrapperClsName } = this.props;
+        const menu = this.menu;
+        if (!menu) return;
+        const parent = this.findParent(e.target, ctxMenuWrapperClsName);
+        if (parent) {
+            this.hideAll();
+            let style = menu.style;
+            style.display = 'block';
+
+            const pointerY = e.clientY;
+            const pointerX = e.clientX;
+            const distanceToBottom = this.viewHeight - pointerY;
+            const menuHeight = menu.offsetHeight;
+            const menuTop = distanceToBottom > menuHeight ? pointerY : pointerY - menuHeight;
+
+            style.cssText = `
+                top: ${menuTop}px;
+                left: ${pointerX}px;
+                display: block;
+                z-index: 1006;
+            `
+        }
     }
 
     render () {
         const { children, operations, id } = this.props;
-        const { show, x, y } = this.state;
-
-        const viewHeight = document.body.offsetHeight; // 可视区高度
-        const distanceToBottom = viewHeight - y;
-        const menuHeight = operations.length * MENU_ITEM_HEIGHT + MENU_PADDING;
-        const menuTop = distanceToBottom > menuHeight ? y : y - menuHeight;
 
         return <span ref={ (el: any) => this.box = el } >
             { children }
-            { show && <div
+            { <div
                 className={`ctx-menu ${operations.length === 0 ? 'f-dn' : ''}`}
                 ref={ (el: any) => this.menu = el }
-                style={{ left: x, top: menuTop, zIndex: 1006 }}
+                style={{ display: 'none' }}
             >
                 <ul className="ctx-menu-list" >
                     { operations.map((o: any, i: any) => {
                         return <li
                             onClick={ (e: any) => {
                                 e.stopPropagation();
+                                this.hideAll();
                                 o.cb.call()
                             } }
                             className="ctx-list-li"
@@ -84,7 +114,7 @@ export default class CtxMenu extends React.Component<any, any> {
                     }) }
                 </ul>
             </div> }
-            { show && <div className="mask"
+            { <div className="mask"
                 ref={ (el: any) => this.mask = el }
                 style={{ position: 'absolute',
                     top: 0,
