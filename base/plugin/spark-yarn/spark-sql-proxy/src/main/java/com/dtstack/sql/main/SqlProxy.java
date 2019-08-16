@@ -4,6 +4,7 @@ import com.dtstack.sql.main.util.DtStringUtil;
 import com.dtstack.sql.main.util.ZipUtil;
 import com.google.common.base.Charsets;
 import org.apache.commons.lang.StringUtils;
+import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +37,9 @@ public class SqlProxy {
 
     private static final String LOG_LEVEL_KEY = "logLevel";
 
-    public void runJob(String submitSql, String appName, String logLevel){
+    private static final String SPARK_SESSION_CONF_KEY = "sparkSessionConf";
+
+    public void runJob(String submitSql, String appName, String logLevel, SparkConf conf){
 
         if(appName == null){
             appName = DEFAULT_APP_NAME;
@@ -45,6 +47,7 @@ public class SqlProxy {
 
         SparkSession spark = SparkSession
                 .builder()
+                .config(conf)
                 .appName(appName)
                 .enableHiveSupport()
                 .getOrCreate();
@@ -92,7 +95,29 @@ public class SqlProxy {
         String appName = argsMap.get(APP_NAME_KEY) == null ? null : (String) argsMap.get(APP_NAME_KEY);
         String logLevel = argsMap.get(LOG_LEVEL_KEY) == null ? null : (String) argsMap.get(LOG_LEVEL_KEY);
 
-        sqlProxy.runJob(sql, appName, logLevel);
+        SparkConf sparkConf = getSparkSessionConf(argsMap);
+
+        sqlProxy.runJob(sql, appName, logLevel, sparkConf);
+    }
+
+    private static SparkConf getSparkSessionConf(Map<String, Object> argsMap) {
+        SparkConf sparkConf = new SparkConf();
+
+        if(argsMap.get(SPARK_SESSION_CONF_KEY) == null){
+            return sparkConf;
+        }
+
+        try {
+            Map<String, String> sessionConf = (Map<String, String>)argsMap.get(SPARK_SESSION_CONF_KEY);
+            sessionConf.forEach((key, val) -> {
+                sparkConf.set(key, val);
+            });
+        } catch (Exception e){
+            logger.error("args map:{}", argsMap);
+            throw new RuntimeException("parse spark session json error", e);
+        }
+
+        return sparkConf;
     }
 }
 
