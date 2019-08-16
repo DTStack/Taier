@@ -69,6 +69,7 @@ CREATE TABLE `rdos_stream_task_checkpoint` (
   `checkpoint_id` varchar(64) DEFAULT NULL,
   `checkpoint_trigger` timestamp NULL DEFAULT NULL COMMENT 'checkpoint触发时间',
   `checkpoint_savepath` varchar(128) DEFAULT NULL COMMENT 'checkpoint存储路径',
+  `checkpoint_counts` varchar(128) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `taskid_checkpoint` (`task_id`,`checkpoint_id`) COMMENT 'taskid和checkpoint组成的唯一索引'
 ) ENGINE=InnoDB AUTO_INCREMENT=26474 DEFAULT CHARSET=utf8;
