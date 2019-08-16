@@ -534,6 +534,7 @@ class FolderTree extends React.Component<any, any> {
                             id={ id }
                             key={ `${taskType}-ctxmenu-${id}` }
                             operations={ this.generateCtxMenu(type, treeType, data) }
+                            ctxMenuWrapperClsName= {this.ctxMenuWrapperClsName}
                         >
                             <span
                                 id={`JS_${id}${type === 'folder' ? '_folder' : ''}`}
@@ -564,6 +565,7 @@ class FolderTree extends React.Component<any, any> {
         return loop(clone);
     }
 
+    ctxMenuWrapperClsName: string = 'ctx-menu-wrapper';
     render () {
         const {
             type, placeholder, currentTab, multiple, key,
@@ -574,6 +576,7 @@ class FolderTree extends React.Component<any, any> {
                 {this.props.ispicker
                     ? <div ref={(ins: any) => this.selEle = ins} className='org-tree-select-wrap'>
                         <TreeSelect
+                            className={this.ctxMenuWrapperClsName}
                             allowClear={allowClear}
                             disabled={typeof couldEdit == 'boolean' && !couldEdit}
                             size="large"
@@ -596,6 +599,7 @@ class FolderTree extends React.Component<any, any> {
                         </TreeSelect>
                     </div>
                     : <Tree
+                        className={this.ctxMenuWrapperClsName}
                         onRightClick={this.onRightClick}
                         showIcon={true}
                         {...{ placeholder: placeholder }}

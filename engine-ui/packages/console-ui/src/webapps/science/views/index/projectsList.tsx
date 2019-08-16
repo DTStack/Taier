@@ -220,7 +220,7 @@ class ProjectsList extends React.Component<any, any> {
                     extra={<Button className='o-font--normal' type="primary" onClick={this.handleNewProject}>创建项目</Button>}>
                     <Table
                         rowKey="id"
-                        className='dt-ant-table dt-ant-table--border'
+                        className='dt-ant-table dt-ant-table--border dt-ant-table--border-lr'
                         loading={loading}
                         onChange={this.handleTableChange}
                         columns={this.initCol()}
