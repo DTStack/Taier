@@ -87,7 +87,7 @@ class DashboardNew extends React.Component<any, any> {
                 >
                     <a href={app.link} className="app-new-tag" key={app.id}>
                         <img className="app-logo" src={app.newIcon}/>
-                        <h1 style={{ marginTop: '20px' }}>{app.name}</h1>
+                        <div style={{ marginTop: '16px' }} className="app-new-title">{app.name}</div>
                         <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
                     </a>
                 </Col>
