@@ -86,13 +86,19 @@ class SpreadSheet extends React.PureComponent<SpreadSheetProps, any> {
     render () {
         const { columns = [] } = this.props;
         const showData = this.getData();
+        // 空数组情况，不显示colHeaders，否则colHeaders默认会按照 A、B...显示
+        // 具体可见 https://handsontable.com/docs/7.1.1/Options.html#colHeaders
+        let isShowColHeaders = false;
+        if (columns && columns.length > 0) {
+            isShowColHeaders = true
+        }
         return (
             <HotTable
                 ref={this.tableRef}
                 className='o-handsontable-no-border'
                 style={{ width: '100%' }}
                 language='zh-CN'
-                colHeaders={columns}
+                colHeaders={isShowColHeaders ? columns : false}
                 data={showData}
                 mergeCells={this.getMergeCells()}
                 cell={this.getCell()}
