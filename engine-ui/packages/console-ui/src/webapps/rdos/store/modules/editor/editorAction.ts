@@ -41,7 +41,7 @@ function getDataOver (dispatch: any, currentTab: any, res: any, jobId?: any) {
  * @param {*} currentTab
  * @param {*} taskType 任务类型
  */
-function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any, taskType: any) {
+function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: number, task: any, taskType: number) {
     function outputStatus (status: any, extText?: any) {
         // 当为数据同步日志时，运行日志就不显示了
         if (taskType === TASK_TYPE.SYNC && status === TASK_STATUS.RUNNING) {
@@ -55,7 +55,8 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any, tas
         }
     }
     API.selectExecResultData({
-        jobId: jobId
+        jobId: jobId,
+        taskId: task.id
     }, taskType)
         .then(
             (res: any) => {
@@ -97,7 +98,7 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any, tas
                             intervalsStore[currentTab] = setTimeout(
                                 () => {
                                     outputStatus(res.data.status, '.....')
-                                    doSelect(resolve, dispatch, jobId, currentTab, taskType)
+                                    doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
                                 }, INTERVALS
                             )
                         }
@@ -111,10 +112,10 @@ function doSelect (resolve: any, dispatch: any, jobId: any, currentTab: any, tas
         )
 }
 
-function selectData (dispatch: any, jobId: any, currentTab: any, taskType?: any) {
+function selectData (dispatch: any, jobId: any, currentTab: number, task: any, taskType?: number) {
     return new Promise(
         (resolve: any, reject: any) => {
-            doSelect(resolve, dispatch, jobId, currentTab, taskType)
+            doSelect(resolve, dispatch, jobId, currentTab, task, taskType)
         }
     )
 }
@@ -130,7 +131,7 @@ function selectData (dispatch: any, jobId: any, currentTab: any, taskType?: any)
  * @param {function} resolve promise resolve
  * @param {function} reject promise reject
  */
-function exec (dispatch: any, currentTab: any, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
+function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: any, index: any, resolve: any, reject: any) {
     const key = getUniqueKey(task.id)
 
     params.sql = `${sqls[index]}`
@@ -173,7 +174,7 @@ function exec (dispatch: any, currentTab: any, task: any, params: any, sqls: any
                     dispatch(removeLoadingTab(currentTab))
                     resolve(true)
                 } else {
-                    selectData(dispatch, res.data.jobId, currentTab)
+                    selectData(dispatch, res.data.jobId, currentTab, task)
                         .then(
                             (isSuccess: any) => {
                                 if (index < sqls.length - 1 && isSuccess) {
@@ -278,7 +279,7 @@ export function execDataSync (currentTab: any, params: any) {
             if (res.data && res.data.msg) dispatch(output(currentTab, createLog(`${res.data.msg}`, typeCreate(res.data.status))))
             if (res.data.jobId) {
                 runningSql[currentTab] = res.data.jobId;
-                selectData(dispatch, res.data.jobId, currentTab, TASK_TYPE.SYNC).then(() => {
+                selectData(dispatch, res.data.jobId, currentTab, params, TASK_TYPE.SYNC).then(() => {
                     dispatch(removeLoadingTab(currentTab))
                 });
             } else {
