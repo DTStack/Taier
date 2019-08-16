@@ -31,6 +31,7 @@ export function convertToScriptMode (task: any) {
                 }
             })
         }
+        dispatch({ type: commAction.CLOSE_RIGHT_PANEL, payload: false })
         Api.convertToScriptMode(reqParams).then((res: any) => {
             if (res.code === 1) {
                 message.success('转换成功！');
