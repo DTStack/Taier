@@ -15,7 +15,14 @@ class Footer extends React.Component<any, any> {
         `
         /* eslint-disable */
         return (
-            <Footer className="footer">
+            <Footer
+                className="footer"
+                style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0
+                }}
+            >
                 <p>{window.APP_CONF.showCopyright ? '©Copyright 2016-2018 杭州玳数科技有限公司 浙ICP备15044486号-1' : ''}版本：v{APP.VERSION}</p>
             </Footer>
         )

@@ -75,19 +75,19 @@ class DashboardNew extends React.Component<any, any> {
     }
     renderApps = () => {
         const { apps, licenseApps, user } = this.props;
-        const sections = compareEnableApp(apps, licenseApps, false).map((app: any) => {
+        const sections = compareEnableApp(apps, licenseApps, false).map((app: any, index: any) => {
             const isShow = app.enable && (!app.needRoot || (app.needRoot && user.isRoot))
 
             return isShow && app.id !== MY_APPS.MAIN && (
                 <Col
                     span={8}
                     style={{
-                        marginTop: '20px'
+                        marginTop: index > 3 ? '64px' : '28px'
                     }}
                 >
                     <a href={app.link} className="app-new-tag" key={app.id}>
                         <img className="app-logo" src={app.newIcon}/>
-                        <h1 style={{ marginTop: '10px' }}>{app.name}</h1>
+                        <h1 style={{ marginTop: '20px' }}>{app.name}</h1>
                         <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
                     </a>
                 </Col>
@@ -112,101 +112,134 @@ class DashboardNew extends React.Component<any, any> {
                 <div
                     className="container"
                     style={{
-                        top: '0px'
+                        top: '0px',
+                        background: 'rgb(242, 247, 250)',
+                        display: 'flex',
+                        flexDirection: 'column'
                     }}
                 >
-                    <Header />
-                    {this.state.alertShow ? (
-                        <Alert
-                            className='ant-alert_height'
-                            message="请注意"
-                            description={<span>{this.state.alertMessage}, 点击<a target="_blank" rel="noopener noreferrer" href={`${window.COMMON_CONF.UIC_URL}/#/licensemanage`} >立即申请</a> </span>}
-                            type="warning"
-                            showIcon
-                            closable
-                        />
-                    ) : null }
                     <div
                         style={{
                             position: 'relative',
-                            width: '100%'
+                            paddingBottom: '58px',
+                            flex: 1
                         }}
                     >
+                        <Header />
+                        {this.state.alertShow ? (
+                            <Alert
+                                className='ant-alert_height'
+                                message="请注意"
+                                description={<span>{this.state.alertMessage}, 点击<a target="_blank" rel="noopener noreferrer" href={`${window.COMMON_CONF.UIC_URL}/#/licensemanage`} >立即申请</a> </span>}
+                                type="warning"
+                                showIcon
+                                closable
+                            />
+                        ) : null }
                         <div
                             style={{
-                                position: 'absolute',
-                                top: '30%',
-                                // left: '150px'
-                                left: '50%',
-                                marginLeft: '-600px'
-                            }}
-                        >
-                            <div
-                                style={{
-                                    fontFamily: 'PingFangSC-Medium',
-                                    fontSize: '42px',
-                                    color: '#FFFFFF',
-                                    letterSpacing: '2.33px'
-                                }}
-                            >
-                                {window.APP_CONF.indexTitle}
-                            </div>
-                            <span
-                                style={{
-                                    fontFamily: 'PingFangSC-Regular',
-                                    fontSize: '24px',
-                                    color: '#FFFFFF',
-                                    letterSpacing: '1.33px',
-                                    marginTop: '10px'
-                                }}
-                            >{window.APP_CONF.indexDesc}</span>
-                        </div>
-                        <img
-                            src={getThemeBanner()}
-                            style={{
-                                height: (document.body.offsetWidth * 0.3125),
-                                width: '100%',
-                                minHeight: '393.75px',
-                                maxHeight: '600px'
-                            }}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            width: '100%',
-                            background: '#F2F7FA',
-                            marginTop: '-100px'
-                        }}
-                    >
-                        <div
-                            style={{
-                                background: '#fff',
-                                boxShadow: '0px 0px 15px rgba(24, 39, 140, 0.3)',
-                                width: '1200px',
-                                margin: '0 auto',
                                 position: 'relative',
-                                zIndex: 9999
+                                width: '100%'
                             }}
                         >
                             <div
-                                className="applink l-content"
                                 style={{
-                                    paddingTop: '30px'
+                                    position: 'absolute',
+                                    top: '30%',
+                                    // left: '150px'
+                                    left: '50%',
+                                    marginLeft: '-600px',
+                                    zIndex: 9999
                                 }}
                             >
-                                {showSummary && (
-                                    <section className='c-summary' style={{ marginBottom: 0 }}>
-                                        <div className='c-newsummary__title'>
-                                            {window.APP_CONF.summary.title}
-                                        </div>
-                                        <div className='c-newsummary__content'>
-                                            {window.APP_CONF.summary.content}
-                                        </div>
-                                    </section>
-                                )}
-                                <Row>
-                                    {this.renderApps()}
-                                </Row>
+                                <div
+                                    style={{
+                                        fontFamily: 'PingFangSC-Medium',
+                                        fontSize: '42px',
+                                        color: '#FFFFFF',
+                                        letterSpacing: '2.33px'
+                                    }}
+                                >
+                                    {window.APP_CONF.indexTitle}
+                                </div>
+                                <span
+                                    style={{
+                                        fontFamily: 'PingFangSC-Regular',
+                                        fontSize: '24px',
+                                        color: '#FFFFFF',
+                                        letterSpacing: '1.33px',
+                                        marginTop: '10px'
+                                    }}
+                                >{window.APP_CONF.indexDesc}</span>
+                            </div>
+                            <div
+                                style={{
+                                    position: 'relative',
+                                    height: '600px',
+                                    width: '100%',
+                                    background: 'rgb(24, 25, 98)'
+                                }}
+                            >
+                                <img
+                                    src={getThemeBanner()}
+                                    style={{
+                                        height: '600px',
+                                        position: 'absolute',
+                                        left: '50%',
+                                        marginLeft: '-960px',
+                                        zIndex: 1
+                                    }}
+                                />
+                                <img
+                                    src={'public/main/img/bg2.png'}
+                                    style={{
+                                        height: '600px',
+                                        position: 'absolute',
+                                        left: '50%',
+                                        marginLeft: '-600px',
+                                        zIndex: 2
+                                    }}
+                                />
+                            </div>
+                        </div>
+                        <div
+                            style={{
+                                width: '100%',
+                                background: '#F2F7FA',
+                                marginTop: '-120px'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    background: '#fff',
+                                    boxShadow: '0px 0px 15px rgba(24, 39, 140, 0.3)',
+                                    width: '1200px',
+                                    margin: '0 auto',
+                                    position: 'relative',
+                                    zIndex: 9999
+                                }}
+                            >
+                                <div
+                                    className="applink l-content"
+                                    style={{
+                                        paddingTop: '30px',
+                                        width: '1140px'
+                                    }}
+                                >
+                                    {showSummary && (
+                                        <section className='c-summary' style={{ marginBottom: 0 }}>
+                                            <div className='c-newsummary__title'>
+                                                {window.APP_CONF.summary.title}
+                                            </div>
+                                            <div className='c-newsummary__content'>
+                                                {window.APP_CONF.summary.content}
+                                            </div>
+                                        </section>
+                                    )}
+                                    <Row>
+                                        {this.renderApps()}
+                                    </Row>
+                                </div>
                             </div>
                         </div>
                         <Footer></Footer>
