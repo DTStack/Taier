@@ -46,10 +46,11 @@ class TaskBrowser extends React.Component<any, any> {
     UNSAFE_componentWillReceiveProps(nextProps: any) {
         const { id }: any = nextProps.currentPage || {};
         const { id: oldId }: any = this.props.currentPage || {};
+        const { isCloseRightPanel } = this.props;
         if (nextProps.currentPage != this.props.currentPage) {
             this._syncEditor = true;
         }
-        if (id != oldId || nextProps.isCloseRightPanel) {
+        if (id != oldId || (isCloseRightPanel != nextProps.isCloseRightPanel && nextProps.isCloseRightPanel)) {
             this.setState({
                 selected: '',
                 expanded: false
