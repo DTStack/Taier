@@ -3,6 +3,7 @@ package com.dtstack.sql.main;
 import com.dtstack.sql.main.util.DtStringUtil;
 import com.dtstack.sql.main.util.ZipUtil;
 import com.google.common.base.Charsets;
+import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -33,7 +34,9 @@ public class SqlProxy {
 
     private static final String APP_NAME_KEY = "appName";
 
-    public void runJob(String submitSql, String appName){
+    private static final String SPARK_SESSION_CONF_KEY = "sparkSessionConf";
+
+    public void runJob(String submitSql, String appName, SparkConf conf){
 
         if(appName == null){
             appName = DEFAULT_APP_NAME;
@@ -41,6 +44,7 @@ public class SqlProxy {
 
         SparkSession spark = SparkSession
                 .builder()
+                .config(conf)
                 .appName(appName)
                 .enableHiveSupport()
                 .getOrCreate();
@@ -82,7 +86,30 @@ public class SqlProxy {
 
         String sql = (String) argsMap.get(SQL_KEY);
         String appName = argsMap.get(APP_NAME_KEY) == null ? null : (String) argsMap.get(APP_NAME_KEY);
-        sqlProxy.runJob(sql, appName);
+
+        SparkConf sparkConf = getSparkSessionConf(argsMap);
+
+        sqlProxy.runJob(sql, appName, sparkConf);
+    }
+
+    private static SparkConf getSparkSessionConf(Map<String, Object> argsMap) {
+        SparkConf sparkConf = new SparkConf();
+
+        if(argsMap.get(SPARK_SESSION_CONF_KEY) == null){
+            return sparkConf;
+        }
+
+        try {
+            Map<String, String> sessionConf = (Map<String, String>)argsMap.get(SPARK_SESSION_CONF_KEY);
+            sessionConf.forEach((key, val) -> {
+                sparkConf.set(key, val);
+            });
+        } catch (Exception e){
+            logger.error("args map:{}", argsMap);
+            throw new RuntimeException("parse spark session json error", e);
+        }
+
+        return sparkConf;
     }
 }
 
