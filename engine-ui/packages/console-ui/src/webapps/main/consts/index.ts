@@ -120,7 +120,7 @@ export function getThemeBanner (theme?: string) {
             return 'public/main/img/aliyun-banner.png';
         }
         default: {
-            return 'public/main/img/bg.jpg';
+            return 'public/main/img/bg1.jpg';
         }
     }
 }
