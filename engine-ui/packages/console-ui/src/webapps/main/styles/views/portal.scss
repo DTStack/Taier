@@ -194,12 +194,12 @@
         }
         .app-new-tag {
             width: 252px;
-            height: 204px;
+            height: 208px;
             background: #ffffff;
             text-align: center;
             display: block;
             margin: 0 auto;
-            padding: 20px;
+            padding: 32px;
             &:hover, &:active, &:visited, &:focus {
                 text-decoration: none;
                 -webkit-appearance: none;
@@ -212,7 +212,7 @@
                 width: 64px;
                 height: 64px;
             }
-            h1 {
+            .app-new-title {
                 font-family: PingFangSC-Medium;
                 font-size: 16px;
                 color: #333333;
