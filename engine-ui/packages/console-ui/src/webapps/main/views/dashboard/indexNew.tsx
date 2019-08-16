@@ -86,7 +86,7 @@ class DashboardNew extends React.Component<any, any> {
                     }}
                 >
                     <a href={app.link} className="app-new-tag" key={app.id}>
-                        <img className="app-logo" src={app.newIcon}/>
+                        <img className="app-logo" src={app.newIcon} alt={app.name}/>
                         <div style={{ marginTop: '16px' }} className="app-new-title">{app.name}</div>
                         <p style={{ wordBreak: 'break-all', marginTop: '4px' }}>{app.description}</p>
                     </a>
@@ -182,6 +182,7 @@ class DashboardNew extends React.Component<any, any> {
                             >
                                 <img
                                     src={getThemeBanner()}
+                                    alt="背景图"
                                     style={{
                                         height: '600px',
                                         position: 'absolute',
@@ -192,6 +193,7 @@ class DashboardNew extends React.Component<any, any> {
                                 />
                                 <img
                                     src={'public/main/img/bg2.png'}
+                                    alt="背景logo图"
                                     style={{
                                         height: '600px',
                                         position: 'absolute',
