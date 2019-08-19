@@ -16,6 +16,7 @@ export interface InvalidDataProps {
 export interface InvalidDataState {
     data: InvalidData;
     pagination: Pagination;
+    showDirtyData: boolean;
 }
 
 export default class InvalidDataTable extends React.Component<InvalidDataProps, InvalidDataState> {
@@ -32,7 +33,8 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
                 current: 1,
                 total: 0,
                 pageSize: 10
-            }
+            },
+            showDirtyData: false
         };
     }
 
@@ -60,7 +62,8 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
                 },
                 pagination: {
                     total: data.total
-                }
+                },
+                showDirtyData: data && data.showDirtyData
             })
         }
     }
@@ -87,7 +90,7 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
     }
 
     render () {
-        const { data, pagination } = this.state;
+        const { data, pagination, showDirtyData } = this.state;
         const { record, rule } = this.props;
 
         let invalidDataTitle = (
@@ -97,7 +100,7 @@ export default class InvalidDataTable extends React.Component<InvalidDataProps, 
         const columns = this.initInvalidDataTableColumns(data.result[0]);
         const scroll: any = { x: columns.length < 6 ? true : 2000, y: 250 };
         return (
-            <Card
+            showDirtyData && <Card
                 noHovering
                 bordered={false}
                 loading={false}
