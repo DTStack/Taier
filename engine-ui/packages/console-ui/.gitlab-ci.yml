@@ -8,45 +8,61 @@ before_script:
   - "npm install --unsafe-perm=true --allow-root"
 
 stages:
-  - lintjs
+  - lint
   - lintdoc
+  - check-types
   - test
   - deploy
 
 code_quality: 
-  stage: lintjs
+  stage: lint
   script: 
-    - "node ./node_modules/eslint/bin/eslint.js ./src/**/*.js"
+    - npm run lint
   only:
     # Just support (fix, dev_, feat, issue) trigger test
-    - /.*((f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|style|perf|).*$/
+    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|style|perf|next/
     - merge_requests
   except:
     - dev
     - master
-    - /.*docs?.*$/
+    - /doc(s)/
+
+check_types:
+  stage: check-types
+  script: 
+    - npm run check-types
+  only:
+    # merge_requests not support current version
+    # Just support (fix, dev_, feat, issue) trigger test
+    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf|next/
+    - merge_requests
+  except:
+    - dev
+    - master
+    - /doc(s)/
+
 
 test:
   stage: test
   script: 
-    - "node ./node_modules/jest/bin/jest.js --no-cahe"
+    - npm run test
   only:
-    # merge_requests # not support current version
+    # merge_requests not support current version
     # Just support (fix, dev_, feat, issue) trigger test
-    - /.*((f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf).*$/
+    - /(f|F)ix|(d|D)ev_|(f|F)eat|(i|I)ssue|ref|perf|next/
     - merge_requests
   except:
     - dev
     - master
-    - /.*docs?.*$/
+    - /doc(s)/
 
 doc_quality:
   stage: lintdoc
   script: 
-    - "node ./node_modules/lint-md/bin ./*.md docs/*.md"
+    - npm run lint-doc
   only:
     - merge_requests # not support current version
-    - /.*(docs?|release).*$/
+    - /doc(s)|release/
     - master
 
 # build_to_dev: # deploy dev environment

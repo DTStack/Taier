@@ -192,6 +192,41 @@
                 font-family: PingFangSC-Regular;
             }
         }
+        .app-new-tag {
+            width: 252px;
+            height: 208px;
+            background: #ffffff;
+            text-align: center;
+            display: block;
+            margin: 0 auto;
+            padding: 32px;
+            &:hover, &:active, &:visited, &:focus {
+                text-decoration: none;
+                -webkit-appearance: none;
+            }
+            &:hover {
+                box-shadow:  0 10px 20px 0 rgba(124,159,255,0.20);
+                border-radius: 2px;
+            }
+            .app-logo {
+                width: 64px;
+                height: 64px;
+            }
+            .app-new-title {
+                font-family: PingFangSC-Medium;
+                font-size: 16px;
+                color: #333333;
+                letter-spacing: 0;
+                text-align: center;
+            }
+            p {
+                font-family: PingFangSC-Regular;
+                font-size: 12px;
+                color: #333333;
+                letter-spacing: 0;
+                text-align: center;
+            }
+        }
     }
 
 }
@@ -209,6 +244,12 @@
         text-align: center;
         line-height: 30px;
     }
+    .c-newsummary__title{
+        font-family: PingFangSC-Medium;
+        font-size: 24px;
+        color: #333333;
+        letter-spacing: 1.33px;
+    }
     .c-summary__content{
         font-size: 14px;
         color: #999999;
@@ -216,6 +257,15 @@
         text-align: center;
         line-height: 20px;
         margin-top: 8px;
+        width: 430px;
+    }
+    .c-newsummary__content{
+        font-family: PingFangSC-Regular;
+        font-size: 14px;
+        color: #333333;
+        letter-spacing: 0.78px;
+        text-align: center;
+        margin-top: 10px;
         width: 430px;
     }
 }

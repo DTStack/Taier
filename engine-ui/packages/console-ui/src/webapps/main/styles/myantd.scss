@@ -160,6 +160,14 @@
     }
 }
 .m-table {
+    &.m-table--border {
+        border: 1px solid $tbBorderColor;
+        .ant-table {
+            .ant-table-tbody > tr:nth-last-child(1)>td, .ant-table-placeholder {
+                border-bottom: none;
+            }
+        }
+    }
     &.td-pad_low .ant-table-body >tr>td {
         padding: 6px 8px;
     }
@@ -202,7 +210,7 @@
                 letter-spacing: 0;
                 padding: 11px 8px;
                 background-color: #fafafa;
-                border-bottom: 1px solid #ddd;
+                // border-bottom: 1px solid #ddd;
                 color: #666;
                 font-weight: 400;
             }
@@ -249,15 +257,12 @@
                 }
             }
         }
-        // .ant-table-placeholder {
-        //     border-bottom: 0;
-        // }
     }
 }
 .dt-ant-table--border {
     .ant-table-body, .ant-table-body-outer {
         border-width: 1px 0 0;
-        border-color: #dcdcdc;
+        border-color: #e9e9e9;
         border-style: solid;
     }
     .ant-table-body-outer {
@@ -267,7 +272,12 @@
     .ant-table-placeholder{
         border-width: 0px 1px 1px 1px;
         border-style: solid;
-        border-color: #dcdcdc;
+        border-color: #e9e9e9;
+    }
+    &.rdos-ant-table-placeholder {
+        .ant-table-placeholder{
+            border-width: 0 0 1px;
+        }
     }
 }
 .dt-ant-table--border-lr {
@@ -327,20 +337,10 @@
         .ant-itempad_small {
             padding-left: 18px !important;
         }
-        &.ele-padd_small {
-            > .ant-menu-item, .ant-menu-submenu {
-                padding-top: 10px !important;
-            }
-        }
         .ant-menu-submenu-selected {
             height: 42px;
             background: #2491F7;
         }
-        // .sidebar__icon {
-        //     float: left;
-        //     display: block;
-        //     margin: 0px 10px 0 0 !important;
-        // }
     }
     .ant-menu.ant-menu-inline,
     .ant-menu.ant-menu-vertical {
@@ -426,65 +426,52 @@
 }
 
 .full-screen-table-30{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 30px);
 }
 
 .full-screen-table-40{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 40px);
 }
 
 .full-screen-table-47{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 47px);
 }
 
 .full-screen-table-50{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 50px);
 }
 .dirt-table-header_rmscroll .ant-table-fixed-header .ant-table-scroll {
     .ant-table-header {
         margin-bottom: -17px !important;
     }
-    // .ant-table-header {
-    //     overflow-y: auto;
-    //     margin-bottom: -20px !important;
-    //     padding-right: 16px;
-    //     .ant-table-thead > tr {
-    //         > th:last-child {
-    //             border-right-width: 0;
-    //         }
-    //     }
-    // }
-    // .ant-table-body::-webkit-scrollbar {
-    //     display: none;
-    // }
 }
 
 .full-screen-table-60{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 60px);
 }
 
 .full-screen-table-70{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 70px);
 }
 
 .full-screen-table-80{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 80px);
 }
 
 .full-screen-table-90{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 90px);
 }
 
 .full-screen-table-120{
-    height: 'auto';
+    height: auto;
     min-height: calc(100% - 120px);
 }
 .no-card-border{
@@ -594,7 +581,6 @@
                 .ant-table-footer {
                     background: #fff;
                     padding: 0;
-                    // border-bottom: 1px solid $tbBorderColor;
                     &>tr>td {
                         padding: 4px 8px;
                         font-size: 13px;

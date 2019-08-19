@@ -6,10 +6,9 @@ const cssLoader = require("./loader/css-loader.js").pro;
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 //centos有bug,暂不启动
 // const ImageminPlugin = require("imagemin-webpack-plugin").default;
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserPlugin = require('terser-webpack-plugin');
 
 const MY_PATH = require("./consts");
-
 const baseConf = require("./base.js")();
 
 /**
@@ -31,7 +30,7 @@ baseConf.mode = "production";
 // JS loader
 baseConf.module.rules.unshift(
     {
-        test: /\.js$/,
+        test: /\.[jt]sx?$/,
         include: MY_PATH.APP_PATH,
         exclude: [
             path.resolve(MY_PATH.ROOT_PATH, "node_modules"),
@@ -44,14 +43,13 @@ baseConf.module.rules.unshift(
 )
 
 baseConf.optimization.minimizer = [
-    new UglifyJsPlugin({
+    new TerserPlugin({
         parallel: true,
         cache: true,
-        uglifyOptions: {
+        terserOptions: {
             compress: {
                 drop_console: true,
-                drop_debugger: true,
-                ecma: 6,
+                drop_debugger: true
             }
         }
     })

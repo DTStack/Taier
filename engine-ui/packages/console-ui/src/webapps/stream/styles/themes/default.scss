@@ -2,7 +2,6 @@
     * {
         &::-webkit-scrollbar-track {
             border: 1px solid #e9e9e9;
-            background-color: #ffffff;
             border-top: none;
             border-right: none;
         }
@@ -10,7 +9,6 @@
         &::-webkit-scrollbar {
             width: 12px;
             height: 12px;
-            background-color: #ffffff;
         }
 
         &::-webkit-scrollbar-thumb {
@@ -18,4 +16,18 @@
         }
     }
 
+    .task-tab-menu {
+        &>.ant-tabs-bar {
+            .ant-tabs-tab {
+                &.ant-tabs-tab-active {
+                    background: #2491F7;
+                    color: #FFFFFF;
+                }
+            }
+            .ant-tabs-ink-bar {
+                left: 0;
+                width: 0px;
+            }
+        }
+    }
 }

@@ -15,5 +15,4 @@ debug.log
 yarn-error.log
 build
 package-lock.json
-src/widgets/editor
-src/widgets/code-editor
+src/public/
