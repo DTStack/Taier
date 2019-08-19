@@ -137,7 +137,16 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
     params.sql = `${sqls[index]}`
     params.uniqueKey = key
     dispatch(output(currentTab, createLog(`第${index + 1}条任务开始执行`, 'info')))
-    // dispatch(output(currentTab, `${createTitle('任务信息')}\n${params.sql}\n${createTitle('')}`))
+    // 判断是否要继续执行SQL
+    function judgeIfContinueExec () {
+        if (index < sqls.length - 1) {
+            // 剩余任务，则继续执行
+            execContinue();
+        } else {
+            dispatch(removeLoadingTab(currentTab))
+            resolve(true)
+        }
+    }
     function execContinue () {
         if (stopSign[currentTab]) {
             console.log('find stop sign in exec')
@@ -171,8 +180,7 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
                 runningSql[currentTab] = res.data.jobId;
                 if (res.data.engineType == ENGINE_SOURCE_TYPE.LIBRA) {
                     getDataOver(dispatch, currentTab, res, res.data.jobId) // libra不去轮训selectData接口，直接返回数据
-                    dispatch(removeLoadingTab(currentTab))
-                    resolve(true)
+                    judgeIfContinueExec();
                 } else {
                     selectData(dispatch, res.data.jobId, currentTab, task)
                         .then(
@@ -188,14 +196,9 @@ function exec (dispatch: any, currentTab: number, task: any, params: any, sqls: 
                 }
             } else {
                 // 不存在jobId，则直接返回结果
-                getDataOver(dispatch, currentTab, res)
-                if (index < sqls.length - 1) {
-                    // 剩余任务，则继续执行
-                    execContinue();
-                } else {
-                    dispatch(removeLoadingTab(currentTab))
-                    resolve(true)
-                }
+                getDataOver(dispatch, currentTab, res);
+                // 判断是否继续执行
+                judgeIfContinueExec();
             }
         }
     }
