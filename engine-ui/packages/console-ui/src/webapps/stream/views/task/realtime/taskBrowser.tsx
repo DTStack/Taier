@@ -158,9 +158,8 @@ class TaskBrowser extends React.Component<any, any> {
                         }
                         Api.getTask(reqParams).then((res: any) => {
                             if (res.code === 1) {
-                                const taskInfo = res.data
+                                const taskInfo = Object.assign(currentPage, res.data);
                                 taskInfo.merged = true;
-                                taskInfo.currentStep = 0;
                                 const updated: any = {
                                     id: currentPage.id,
                                     readWriteLockVO: taskInfo.readWriteLockVO,
@@ -264,15 +263,6 @@ class TaskBrowser extends React.Component<any, any> {
             }
         }
     }
-
-    // editorParamsChange(value: any) { // 切换tab会出发change,初始值未改变,导致所有tab为红色,增加this._syncEditor判断
-    //     if (!this._syncEditor) {
-    //         this.debounceChange(value);
-    //     } else {
-    //         this._syncEditor = false;
-    //         this.editorParamsChange(value);
-    //     }
-    // }
 
     editorChange = (newVal: any) => {
         let { currentPage, dispatch } = this.props;
