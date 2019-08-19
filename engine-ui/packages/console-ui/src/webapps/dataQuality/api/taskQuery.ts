@@ -8,6 +8,7 @@ export interface InvalidData {
     current?: number;
     result?: any[];
     lifeCycle?: string;
+    showDirtyData?: boolean;
 }
 
 export default {
