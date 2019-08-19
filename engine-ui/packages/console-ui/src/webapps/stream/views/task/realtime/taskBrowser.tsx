@@ -160,6 +160,7 @@ class TaskBrowser extends React.Component<any, any> {
                             if (res.code === 1) {
                                 const taskInfo = res.data
                                 taskInfo.merged = true;
+                                taskInfo.currentStep = 0;
                                 const updated: any = {
                                     id: currentPage.id,
                                     readWriteLockVO: taskInfo.readWriteLockVO,
