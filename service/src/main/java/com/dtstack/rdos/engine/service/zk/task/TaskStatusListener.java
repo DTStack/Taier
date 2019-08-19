@@ -382,10 +382,13 @@ public class TaskStatusListener implements Runnable{
     }
 
 	private void updateJobEngineLog(String jobId, JobIdentifier jobIdentifier, String engineType, int computeType, String pluginInfo){
-
-        //从engine获取log
-        String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
-        updateJobEngineLog(jobId, jobLog, computeType);
+        try {
+            //从engine获取log
+            String jobLog = JobClient.getEngineLog(engineType, pluginInfo, jobIdentifier);
+            updateJobEngineLog(jobId, jobLog, computeType);
+        } catch (Throwable e){
+            updateJobEngineLog(jobId, ExceptionUtil.getErrorMessage(e), computeType);
+        }
     }
 
     private void updateJobEngineLog(String jobId, String jobLog, Integer computeType){
