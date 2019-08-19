@@ -92,6 +92,7 @@ class CommonEditorContainer extends React.Component<any, any> {
             editor,
             project,
             currentTab,
+            singleLineMode,
             currentTabData
         } = this.props;
 
@@ -106,10 +107,19 @@ class CommonEditorContainer extends React.Component<any, any> {
             currentTabData.sqlText ||
             currentTabData.scriptText;
 
-        if (code && code.length > 0) {
-            this.props.setOutput(currentTab, `正在提交...`);
-            this.props.addLoadingTab(currentTab);
-            this.reqExecSQL(currentTabData, params, [code], 0);
+        if (singleLineMode) {
+            let sqls = this.filterSql(code);
+            if (sqls && sqls.length > 0) {
+                let i = 0;
+                this.props.setOutput(currentTab, `正在提交...`);
+                this.reqExecSQL(currentTabData, params, sqls, i);
+            }
+        } else {
+            if (code && code.length > 0) {
+                this.props.setOutput(currentTab, `正在提交...`);
+                this.props.addLoadingTab(currentTab);
+                this.reqExecSQL(currentTabData, params, [code], 0);
+            }
         }
     };
 
