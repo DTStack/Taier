@@ -78,7 +78,6 @@ class SiderBench extends React.Component<any, any> {
                 ></TaskDetail>
             </TabPane>
         ];
-
         if (!isWorkflowNode) {
             panes.push(
                 <TabPane tab={<span className="title-vertical">{'调度依赖'}</span>} key="params2">
@@ -143,10 +142,23 @@ class SiderBench extends React.Component<any, any> {
                     />
                 </TabPane>
             )
-        } else if (utils.checkExist(tabData.type)) {
-            return <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
-                <ScriptDetail tabData={tabData} isPro={isPro} couldEdit={couldEdit} />
-            </TabPane>;
+        } else if (utils.checkExist(tabData.type)) { // 脚本管理
+            return [
+                <TabPane tab={<span className="title-vertical">脚本属性</span>} key="params1">
+                    <ScriptDetail tabData={tabData} isPro={isPro} couldEdit={couldEdit} />
+                </TabPane>,
+                <TabPane tab={<span className="title-vertical">环境参数</span>} key="params3">
+                    <SQLEditor
+                        options={{ readOnly: isLocked || !couldEdit, minimap: { enabled: false }, theme: editor.options.theme }}
+                        value={tabData.taskParams}
+                        sync={true}
+                        onFocus={() => { }}
+                        focusOut={() => { }}
+                        language="ini"
+                        onChange={this.handleTaskParamChange.bind(this)}
+                    />
+                </TabPane>
+            ];
         }
         return panes;
     }
