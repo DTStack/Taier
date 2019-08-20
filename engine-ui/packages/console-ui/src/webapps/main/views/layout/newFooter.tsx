@@ -23,7 +23,7 @@ class Footer extends React.Component<any, any> {
                     left: 0
                 }}
             >
-                <p>{window.APP_CONF.showCopyright ? '©Copyright 2016-2018 杭州玳数科技有限公司 浙ICP备15044486号-1' : ''}版本：v{APP.VERSION}</p>
+                <p>{window.APP_CONF.showCopyright ? `©Copyright 2016-${new Date().getUTCFullYear()} 杭州玳数科技有限公司 浙ICP备15044486号-1` : ''} 版本：v{APP.VERSION}</p>
             </Footer>
         )
     }
