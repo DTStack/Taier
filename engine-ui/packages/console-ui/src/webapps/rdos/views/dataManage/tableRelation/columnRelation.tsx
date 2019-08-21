@@ -319,7 +319,7 @@ export default class TableRelation extends React.Component<any, any> {
 
     render () {
         return (
-            <div className="graph-editor col-relation" style={{ position: 'relative', overflow: 'auto' }}>
+            <div className="graph-editor col-relation" style={{ position: 'relative' }}>
                 <Spin
                     tip="Loading..."
                     size="large"
@@ -370,6 +370,8 @@ export default class TableRelation extends React.Component<any, any> {
         style[mxConstants.STYLE_STROKEWIDTH] = 1;
         style[mxConstants.STYLE_EDGE] = mxEdgeStyle.EntityRelation;
         style[mxConstants.STYLE_ROUNDED] = true;
+        style[mxConstants.STYLE_CURVED] = true;
+
         return style;
     }
 }
