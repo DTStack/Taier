@@ -64,6 +64,33 @@ class EvaluateReportModal extends React.Component<EvaluateReportModalProp, any> 
                     />
                 </TabPane>
             }
+            case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
+                return [<TabPane tab="混淆矩阵" key="pane-2">
+                    <SingleChart
+                        key={data.id}
+                        data={data}
+                        visible={visible}
+                        getData={() => { return api.getRegressionEvaluationGraph({ taskId: data.id }); }}
+                        getOptions={regressionClassificationOptions}
+                    />
+                </TabPane>,
+                <TabPane tab="比例矩阵" key="pane-3">
+                    <div style={{ padding: 16 }}>
+                        <SingleChart
+                            key={data.id}
+                            data={data}
+                            visible={visible}
+                            getData={() => { return api.getRegressionEvaluationGraph({ taskId: data.id }); }}
+                            getOptions={regressionClassificationOptions}
+                        />
+                    </div>
+                </TabPane>,
+                <TabPane tab="统计信息" key="pane-4">
+                    <div style={{ padding: 16 }}>
+                        <TableDetail indexType={EVALUATION_INDEX_TYPE.FREQUENCY} data={data} visible={visible} />
+                    </div>
+                </TabPane>]
+            }
             default: {
                 return null
             }
