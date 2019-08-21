@@ -190,6 +190,9 @@
                 letter-spacing: 0;
             }
         }
+        .ant-pagination-jump-prev:after, .ant-pagination-jump-next:after {
+            content: "\2022\2022\2022";
+        }
         .ant-pagination-item-active {
             background-color: #ffffff;
             border-color: $primaryColor;
@@ -609,6 +612,9 @@
                         color: #333333;
                         letter-spacing: 0;
                     }
+                }
+                .ant-pagination-jump-prev:after, .ant-pagination-jump-next:after { // 处理content乱码
+                    content: "\2022\2022\2022";
                 }
                 .ant-pagination-item-active {
                     background-color: #ffffff;
