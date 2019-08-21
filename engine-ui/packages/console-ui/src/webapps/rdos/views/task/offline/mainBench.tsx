@@ -277,7 +277,7 @@ export default class MainBench extends React.Component<any, any> {
                 case SCRIPT_TYPE.PYTHON2:
                 case SCRIPT_TYPE.PYTHON3: {
                     let mode = 'python';
-                    if (tabData.type === '') {
+                    if (tabData.type === SCRIPT_TYPE.SHELL) {
                         mode = 'shell';
                     }
                     return <CommonEditor
