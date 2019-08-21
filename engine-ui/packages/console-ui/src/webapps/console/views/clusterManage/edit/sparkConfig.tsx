@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Input, Select, Form, Tooltip } from 'antd';
 
-import { formItemLayout } from '../../../consts'
+import { formItemLayout, COMPONEMT_CONFIG_KEYS } from '../../../consts'
 const Option = Select.Option;
 const FormItem = Form.Item;
 
@@ -15,7 +15,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         label="版本选择"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkConf.typeName', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.typeName`, {
                             rules: [{
                                 required: true,
                                 message: '请选择Spark版本'
@@ -31,7 +31,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         label="sparkYarnArchive"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkConf.sparkYarnArchive', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkYarnArchive`, {
                             rules: [{
                                 required: true,
                                 message: '请输入sparkYarnArchive'
@@ -45,7 +45,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         label="sparkSqlProxyPath"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkConf.sparkSqlProxyPath', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkSqlProxyPath`, {
                             rules: [{
                                 required: true,
                                 message: '请输入sparkSqlProxyPath'
@@ -59,7 +59,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         label="sparkPythonExtLibPath"
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkConf.sparkPythonExtLibPath', {
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkPythonExtLibPath`, {
                             rules: [{
                                 required: true,
                                 message: '请输入sparkPythonExtLibPath'
@@ -73,7 +73,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         label={<Tooltip title="spark.yarn.appMasterEnv.PYSPARK_PYTHON">spark.yarn.appMasterEnv.PYSPARK_PYTHON</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_PYTHON', {})(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkYarnAppMasterEnvPYSPARK_PYTHON`, {})(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -81,7 +81,7 @@ export default class SparkConfig extends React.Component<any, any> {
                         label={<Tooltip title="spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON">spark.yarn.appMasterEnv.PYSPARK_DRIVER_PYTHON</Tooltip>}
                         {...formItemLayout}
                     >
-                        {getFieldDecorator('sparkConf.sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON', {})(
+                        {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkYarnAppMasterEnvPYSPARK_DRIVER_PYTHON`, {})(
                             <Input disabled={isView} />
                         )}
                     </FormItem>
@@ -91,7 +91,7 @@ export default class SparkConfig extends React.Component<any, any> {
                                 label="sparkPrincipal"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('sparkConf.sparkPrincipal', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkPrincipal`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入sparkPrincipal'
@@ -104,7 +104,7 @@ export default class SparkConfig extends React.Component<any, any> {
                                 label="sparkKeytabPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('sparkConf.sparkKeytabPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkKeytabPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入sparkKeytabPath'
@@ -117,7 +117,7 @@ export default class SparkConfig extends React.Component<any, any> {
                                 label="sparkKrb5ConfPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('sparkConf.sparkKrb5ConfPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.sparkKrb5ConfPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入sparkKrb5ConfPath'
@@ -130,7 +130,7 @@ export default class SparkConfig extends React.Component<any, any> {
                                 label="zkPrincipal"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('sparkConf.zkPrincipal', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.zkPrincipal`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入zkPrincipal'
@@ -143,7 +143,7 @@ export default class SparkConfig extends React.Component<any, any> {
                                 label="zkKeytabPath"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('sparkConf.zkKeytabPath', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.zkKeytabPath`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入zkKeytabPath'
@@ -156,7 +156,7 @@ export default class SparkConfig extends React.Component<any, any> {
                                 label="zkLoginName"
                                 {...formItemLayout}
                             >
-                                {getFieldDecorator('sparkConf.zkLoginName', {
+                                {getFieldDecorator(`${COMPONEMT_CONFIG_KEYS.SPARK}.zkLoginName`, {
                                     rules: [{
                                         required: true,
                                         message: '请输入zkLoginName'
