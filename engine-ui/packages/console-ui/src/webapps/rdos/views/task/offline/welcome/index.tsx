@@ -50,16 +50,19 @@ class WelcomePage extends React.Component<any, any> {
                         </nav>
                     </div>
                 </section>
-                <section className='c-welcome__section'>
-                    <img className='c-welcome__menu__logo' src={`${iconBaseUrl}/icon_more.png`} />
-                    <div className='c-welcome__menu__menu'>
-                        <header className='c-welcome__menu__title'>更多支持</header>
-                        <nav className='c-welcome__menu__nav'>
-                            {/* <a onClick={this.showExampleCode}>查看示例代码</a> */}
-                            <a target="blank" href={HELP_DOC_URL.INDEX}>查看帮助文档</a>
-                        </nav>
-                    </div>
-                </section>
+                {
+                    !window.APP_CONF.disableHelp
+                        ? <section className='c-welcome__section'>
+                            <img className='c-welcome__menu__logo' src={`${iconBaseUrl}/icon_more.png`} />
+                            <div className='c-welcome__menu__menu'>
+                                <header className='c-welcome__menu__title'>更多支持</header>
+                                <nav className='c-welcome__menu__nav'>
+                                    <a target="blank" href={HELP_DOC_URL.INDEX}>查看帮助文档</a>
+                                </nav>
+                            </div>
+                        </section>
+                        : null
+                }
             </div>
         )
     }
