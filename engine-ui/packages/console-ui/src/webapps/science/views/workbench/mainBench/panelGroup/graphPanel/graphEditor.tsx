@@ -452,6 +452,26 @@ class GraphEditor extends React.Component<any, any> {
                             new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
                         ].concat(outputs);
                     }
+                    case COMPONENT_TYPE.DATA_MERGE.STANDARD: {
+                        const outputs: any = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value)
+                        ].map((item: any) => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_MERGE.MISS_VALUE: {
+                        const outputs: any = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value)
+                        ].map((item: any) => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
+                        ].concat(outputs);
+                    }
                     case COMPONENT_TYPE.DATA_PRE_HAND.DATA_SPLIT: {
                         const outputs: any = [
                             new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
@@ -490,6 +510,23 @@ class GraphEditor extends React.Component<any, any> {
                             new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
                         ].concat(outputs);
                     }
+                    case COMPONENT_TYPE.MACHINE_LEARNING.GBDT_CLASS: {
+                        const outputs: any = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value)
+                        ].map((item: any) => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.MACHINE_LEARNING.SVM: {
+                        const outputs: any = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
+                        ].map((item: any) => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
+                        ].concat(outputs);
+                    }
                     case COMPONENT_TYPE.DATA_PREDICT.DATA_PREDICT: {
                         const outputs: any = [
                             new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
@@ -521,6 +558,24 @@ class GraphEditor extends React.Component<any, any> {
                     case COMPONENT_TYPE.DATA_EVALUATE.UNION_CLASSIFICATION: {
                         const outputs: any = [
                             new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
+                        ].map((item: any) => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 0), perimeter, CONSTRAINT_TEXT[type].input[1].value)
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.DATA_EVALUATE.CONFUSION_MATRIX: {
+                        const outputs: any = [
+                            new mxConnectionConstraint(new mxPoint(0.5, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value)
+                        ].map((item: any) => { item.id = 'outputs'; return item; });
+                        return [
+                            new mxConnectionConstraint(new mxPoint(0.5, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value)
+                        ].concat(outputs);
+                    }
+                    case COMPONENT_TYPE.FEATURE_ENGINEER.ONE_HOT: {
+                        const outputs: any = [
+                            new mxConnectionConstraint(new mxPoint(0.25, 1), perimeter, CONSTRAINT_TEXT[type].output[0].value),
+                            new mxConnectionConstraint(new mxPoint(0.75, 1), perimeter, CONSTRAINT_TEXT[type].output[1].value)
                         ].map((item: any) => { item.id = 'outputs'; return item; });
                         return [
                             new mxConnectionConstraint(new mxPoint(0.25, 0), perimeter, CONSTRAINT_TEXT[type].input[0].value),
