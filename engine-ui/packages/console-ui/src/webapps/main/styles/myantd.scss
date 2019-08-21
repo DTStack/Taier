@@ -193,6 +193,22 @@
         .ant-pagination-jump-prev:after, .ant-pagination-jump-next:after {
             content: "\2022\2022\2022";
         }
+        .ant-pagination-jump-prev {
+            &:focus,
+            &:hover {
+              &:after {
+                content: "\e620\e620";
+              }
+            }
+          }
+          .ant-pagination-jump-next {
+            &:focus,
+            &:hover {
+              &:after {
+                content: "\e61f\e61f";
+              }
+            }
+          }
         .ant-pagination-item-active {
             background-color: #ffffff;
             border-color: $primaryColor;
@@ -616,6 +632,22 @@
                 .ant-pagination-jump-prev:after, .ant-pagination-jump-next:after { // 处理content乱码
                     content: "\2022\2022\2022";
                 }
+                .ant-pagination-jump-prev {
+                    &:focus,
+                    &:hover {
+                      &:after {
+                        content: "\e620\e620";
+                      }
+                    }
+                  }
+                  .ant-pagination-jump-next {
+                    &:focus,
+                    &:hover {
+                      &:after {
+                        content: "\e61f\e61f";
+                      }
+                    }
+                  }
                 .ant-pagination-item-active {
                     background-color: #ffffff;
                     border-color: $primaryColor;
